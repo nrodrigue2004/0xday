@@ -2,6 +2,11 @@
   {
     "date": "2026-11-06",
     "type": "feat",
+    "msg": "boot sequence + GRUB, tmux status bar, CRT mode, vim keys, fzf, glitch transitions, tty mode, htop, i3 desktop, xxd view"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "feat",
     "msg": "sync 26 TryHackMe rooms; add linux, IT and computer science to the skills matrix"
   },
   {

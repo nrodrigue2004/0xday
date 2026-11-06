@@ -8,6 +8,8 @@
   };
   if (store.get("oxday-theme") === "amber") document.documentElement.dataset.theme = "amber";
 
+  // shared API for fx.js (tmux bar, tty mode, fzf, boot, ...)
+  window.OX = { D, ROOT, store, esc: null, link: null, run: null, CMDS: null, unlock: null, matrix: null };
   document.addEventListener("DOMContentLoaded", () => {
     const t = document.querySelector(".menu-trigger"), m = document.querySelector(".menu");
     if (t) t.addEventListener("click", () => { m.classList.toggle("open"); t.setAttribute("aria-expanded", m.classList.contains("open")); });
@@ -229,6 +231,8 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
     return `<span class="err">ghost: command not found: ${esc(cmd)}</span>\n<span class="sys">type help, or ask about projects, posts, skills</span>`;
   }
 
+  Object.assign(window.OX, { esc, link, run: (l, log) => run(l, log || (() => {})), CMDS, unlock, matrix, got, ACH });
+
   function buildGhost() {
     const fab = document.createElement("button");
     fab.className = "ghost-fab"; fab.type = "button"; fab.innerHTML = "&gt;_ ghost"; fab.setAttribute("aria-label", "Open ghost terminal assistant");
@@ -276,6 +280,8 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
       const typing = /input|textarea/i.test(document.activeElement.tagName);
       if ((e.key === "`" && !typing) || (e.key.toLowerCase() === "k" && (e.ctrlKey || e.metaKey))) { e.preventDefault(); box.hidden ? open() : close(); }
     });
+    window.OX.open = open; window.OX.close = close; window.OX.exec = (l) => { open(); exec(l); };
+    window.OX.isOpen = () => !box.hidden;
   }
 
   /* ---------------- matrix easter egg ---------------- */

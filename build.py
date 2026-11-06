@@ -22,18 +22,25 @@ FLAGS = {"source": "0xDAY{v13w_s0urc3_4lw4ys}", "console": "0xDAY{c0ns0l3_c0wb0y
 for p in POSTS:
     p["body"] = open(f"content/posts/{p['slug']}.html").read()
 esc = html.escape
-V = hashlib.sha1((open("style.css").read() + open("site.js").read()).encode()).hexdigest()[:8]  # cache-buster
+V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js")).encode()).hexdigest()[:8]  # cache-buster
 
 def short(d):
     import datetime
     return datetime.date.fromisoformat(d).strftime("%b %d").replace(" 0", " ")
 
-def page(fn, title, body, depth=0, cur=None, desc=f"0xDay by {NAME}: notes on cybersecurity, computer science and tech.", root=None, head=""):
+BOOT_JS = ("(function(){var d=document.documentElement,s={},b='1';"
+           "try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}"
+           "if(/[?&]embed=1/.test(location.search))d.classList.add('embed');"
+           "if(s.crt)d.classList.add('crt');"
+           "if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')"
+           "&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();")
+
+def page(fn, title, body, depth=0, cur=None, desc=f"0xDay by {NAME}: notes on cybersecurity, computer science and tech.", root=None, head="", htmlcls="", scripts=()):
     p = root if root is not None else "../" * depth
     nav = "".join(
         f'<li><a href="{p}{h}"{" aria-current=\"page\"" if l == cur else ""}>./{l}</a></li>' for l, h in NAV)
     out = f'''<!doctype html>
-<html lang="en" data-root="{p}">
+<html lang="en" data-root="{p}"{f' class="{htmlcls}"' if htmlcls else ""}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -48,6 +55,8 @@ def page(fn, title, body, depth=0, cur=None, desc=f"0xDay by {NAME}: notes on cy
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="{SITE}feed.xml">{head}
 <script src="{p}data.js?v={V}" defer></script>
 <script src="{p}site.js?v={V}" defer></script>
+<script src="{p}fx.js?v={V}" defer></script>{"".join(f'\n<script src="{p}{x}?v={V}" defer></script>' for x in scripts)}
+<script>{BOOT_JS}</script>
 </head>
 <body>
 <a class="skip" href="#main">skip to content</a>
@@ -417,9 +426,19 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
-HUB = [x for x in HUB if x[3] != "coming soon"]  # hide sections until they have content
+HUB = [x for x in HUB if x[3] != "coming soon"]
+HUB += [("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
+
+# ================= round 4 pages =================
+page("tty.html", "tty1 :: 0xDay", '<div id="tty" class="tty" aria-label="0xDay shell"></div><noscript><p>TTY mode needs JavaScript. <a href="index.html">Back to the normal site</a>.</p></noscript>',
+     htmlcls="tty-page", scripts=("tty.js",), desc="0xDay as a real shell.")
+page("htop.html", "htop :: 0xDay", '<p class="cmd">htop --homelab</p><h1 class="sr-only">Homelab htop</h1><div id="htop" class="htop"></div>'
+     '<p class="muted small">// simulated view of my Proxmox homelab: the VMs and their roles are real; IPs, live numbers and packets are made up for fun.</p>',
+     scripts=("htop.js",), desc="htop-style dashboard of Nathan's homelab.")
+page("desktop.html", "i3 :: 0xDay", '<div id="i3" class="i3" aria-label="tiling desktop"></div><noscript><p>The desktop needs JavaScript. <a href="index.html">Back</a>.</p></noscript>',
+     htmlcls="i3-page", scripts=("desktop.js",), desc="0xDay as an i3 tiling desktop.")
 
 # ---------- data for the ghost assistant ----------
 data = {"name": NAME, "gh": GH, "li": LI,
