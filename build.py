@@ -210,7 +210,7 @@ else:
     chart = '<p class="muted">No practice exams logged yet.</p>'
 log = "".join(f'<li><span class="ls-date">{esc(e["date"])}</span> {esc(e["msg"])}</li>' for e in sp["log"]) or '<li class="muted">nothing logged yet</li>'
 thm = CERTS.get("thm_username")
-thm_html = (f'<a href="https://tryhackme.com/p/{esc(thm)}"><img class="thm" src="https://tryhackme-badges.s3.amazonaws.com/{esc(thm)}.png" alt="TryHackMe profile badge for {esc(thm)}" loading="lazy"></a>'
+thm_html = (f'<p><a href="https://tryhackme.com/p/{esc(thm)}">tryhackme.com/p/{esc(thm)}</a> · <a href="ctf.html">see my rooms in ~/ctf</a></p>'
             if thm else '<p class="muted">TryHackMe profile coming soon.</p>')
 page("certs.html", "certs :: 0xDay", f"""<p class="cmd">apt list --installed | grep cert</p><h1>~/certs</h1>
 <p>Certifications I have, am working on, or plan to take.</p>
@@ -348,8 +348,8 @@ if CTF:
     st = CTFSTATS or {}
     stats = "".join(f'<div class="stat"><span class="stat__v">{esc(str(v))}</span><span class="stat__k">{k}</span></div>'
                     for k, v in [("rooms", st.get("rooms", len(CTF))), ("rank", st.get("rank", "-")), ("level", st.get("level", "-")), ("points", st.get("points", "-")), ("badges", st.get("badges", "-"))])
-    asof = f'<p class="muted small">stats as of {esc(st["as_of"])}. live badge below.</p>' if st.get("as_of") else ""
-    badge = (f'<a href="https://tryhackme.com/p/{esc(CERTS["thm_username"])}" class="noline"><img class="thm" src="https://tryhackme-badges.s3.amazonaws.com/{esc(CERTS["thm_username"])}.png" alt="TryHackMe badge for {esc(CERTS["thm_username"])}" loading="lazy"></a>' if CERTS.get("thm_username") else "")
+    asof = f'<p class="muted small">stats as of {esc(st["as_of"])}.</p>' if st.get("as_of") else ""
+    badge = ""
     ctf_body = (f'<div class="stats">{stats}</div>{asof}{badge}'
                 f'<h2>by category</h2><ul class="cats">{catbars}</ul>'
                 f'<h2>rooms</h2><ul class="ctfs">{rows}</ul>')
