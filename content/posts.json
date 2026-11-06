@@ -1,0 +1,50 @@
+[
+  {
+    "slug": "proxmox-homelab",
+    "title": "Building a Seven-VM Enterprise Homelab on Proxmox",
+    "date": "2026-11-02",
+    "tags": [
+      "homelab",
+      "proxmox",
+      "pfsense"
+    ]
+  },
+  {
+    "slug": "finance-share-access-denied",
+    "title": "Troubleshooting a Finance Share \"Access Denied\"",
+    "date": "2026-10-20",
+    "tags": [
+      "active-directory",
+      "windows",
+      "it-support"
+    ]
+  },
+  {
+    "slug": "anti-vm-patching",
+    "title": "Patching Out Anti-VM Checks in Malware Samples",
+    "date": "2026-09-28",
+    "tags": [
+      "malware",
+      "reverse-engineering",
+      "ghidra"
+    ]
+  },
+  {
+    "slug": "hitek-forensics",
+    "title": "Reconstructing a Data Exfiltration: The HiTek Forensics Challenge",
+    "date": "2026-09-07",
+    "tags": [
+      "forensics",
+      "wireshark",
+      "autopsy"
+    ]
+  },
+  {
+    "slug": "hello-world",
+    "title": "Why I Started This Blog",
+    "date": "2026-08-15",
+    "tags": [
+      "meta"
+    ]
+  }
+]

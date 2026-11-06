@@ -1,0 +1,9 @@
+<p>The HiTek challenge handed us a Windows disk image, an Ubuntu disk image, and a network capture, and asked one question: what happened, and who did it?</p>
+<h2>Tools</h2>
+<ul><li><strong>FTK Imager</strong> to mount and verify the images</li>
+<li><strong>Autopsy</strong> for the file system timeline, browser history and deleted files</li>
+<li><strong>Wireshark</strong> to follow the exfiltration in the PCAP</li></ul>
+<h2>Approach</h2>
+<p>I built a single timeline across all three sources, lining up file access on the endpoints with outbound connections in the capture. That's what tied the activity to a specific user and machine.</p>
+<pre><code>ip.dst != 10.0.0.0/8 &amp;&amp; tcp.len &gt; 1000</code></pre>
+<p>The final deliverable was an investigative report and a presentation covering the evidence, the timeline, and attribution.</p>

@@ -1,0 +1,13 @@
+<p>Some malware refuses to run when it detects a virtual machine, which is a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples using the old <code>SIDT</code>, <code>SLDT</code> and <code>STR</code> tricks.</p>
+<h2>How the checks work</h2>
+<p>These instructions return the locations of CPU descriptor tables. On older hypervisors those locations differ from bare metal in predictable ways, so the sample compares the result against a known value and bails out if it looks virtual.</p>
+<h2>Patching</h2>
+<p>Using IDA Pro and Ghidra, I found the comparison after each check and patched the conditional jump so the sample always takes the "real hardware" path.</p>
+<pre><code>; before
+sidt  [esp+idtr]
+cmp   byte ptr [esp+idtr+5], 0FFh
+je    looks_like_vm
+; after: je -&gt; nop nop
+</code></pre>
+<h2>Other things I looked at</h2>
+<ul><li>PE structure and packing</li><li>Anti-debug techniques</li><li>Polymorphic vs. metamorphic behavior in a RAT and a SQL worm</li></ul>

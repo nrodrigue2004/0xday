@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Patching Out Anti-VM Checks in Malware Samples :: 0xDay</title>
+<meta name="description" content="Patching Out Anti-VM Checks in Malware Samples">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cc55bdf3">
+<script src="../data.js?v=cc55bdf3" defer></script>
+<script src="../site.js?v=cc55bdf3" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html" aria-current="page">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../resources.html">./resources</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<article class="post">
+<p class="cmd">cat ~/posts/anti-vm-patching.md</p>
+<h1>Patching Out Anti-VM Checks in Malware Samples</h1>
+<div class="meta"><span>2026-09-28</span><span>Nathan Rodrigue</span><span><span class="tag">#malware</span> <span class="tag">#reverse-engineering</span> <span class="tag">#ghidra</span></span></div>
+<div class="prose">
+<p>Some malware refuses to run when it detects a virtual machine, which is a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples using the old <code>SIDT</code>, <code>SLDT</code> and <code>STR</code> tricks.</p>
+<h2>How the checks work</h2>
+<p>These instructions return the locations of CPU descriptor tables. On older hypervisors those locations differ from bare metal in predictable ways, so the sample compares the result against a known value and bails out if it looks virtual.</p>
+<h2>Patching</h2>
+<p>Using IDA Pro and Ghidra, I found the comparison after each check and patched the conditional jump so the sample always takes the "real hardware" path.</p>
+<pre><code>; before
+sidt  [esp+idtr]
+cmp   byte ptr [esp+idtr+5], 0FFh
+je    looks_like_vm
+; after: je -&gt; nop nop
+</code></pre>
+<h2>Other things I looked at</h2>
+<ul><li>PE structure and packing</li><li>Anti-debug techniques</li><li>Polymorphic vs. metamorphic behavior in a RAT and a SQL worm</li></ul>
+
+</div>
+<nav class="pager"><a href="hitek-forensics.html">&lt; prev: Reconstructing a Data Exfiltration: The HiTek Forensics Challenge</a><a href="finance-share-access-denied.html">next: Troubleshooting a Finance Share &quot;Access Denied&quot; &gt;</a></nav>
+<p><a href="../posts.html">cd ..</a></p>
+</article>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span><a href="https://github.com/nrodrigue2004">github</a> · <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> · <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
