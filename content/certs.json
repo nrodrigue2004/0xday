@@ -1,16 +1,49 @@
 {
   "_help": "status: installed | downloading | queued. progress 0-100. Update domains[].progress and add practice scores as you study.",
-  "thm_username": null,
+  "thm_username": "nrodr34",
   "certs": [
-    {"id": "comptia-security-plus", "name": "CompTIA Security+", "code": "SY0-701", "status": "downloading", "progress": 0, "target": "TBD", "earned": null}
+    {
+      "id": "comptia-security-plus",
+      "name": "CompTIA Security+",
+      "code": "SY0-701",
+      "status": "downloading",
+      "progress": 0,
+      "target": "Q1 2027",
+      "earned": null
+    }
   ],
   "secplus": {
     "domains": [
-      {"n": 1, "name": "General Security Concepts", "weight": 12, "progress": 0},
-      {"n": 2, "name": "Threats, Vulnerabilities & Mitigations", "weight": 22, "progress": 0},
-      {"n": 3, "name": "Security Architecture", "weight": 18, "progress": 0},
-      {"n": 4, "name": "Security Operations", "weight": 28, "progress": 0},
-      {"n": 5, "name": "Security Program Management & Oversight", "weight": 20, "progress": 0}
+      {
+        "n": 1,
+        "name": "General Security Concepts",
+        "weight": 12,
+        "progress": 0
+      },
+      {
+        "n": 2,
+        "name": "Threats, Vulnerabilities & Mitigations",
+        "weight": 22,
+        "progress": 0
+      },
+      {
+        "n": 3,
+        "name": "Security Architecture",
+        "weight": 18,
+        "progress": 0
+      },
+      {
+        "n": 4,
+        "name": "Security Operations",
+        "weight": 28,
+        "progress": 0
+      },
+      {
+        "n": 5,
+        "name": "Security Program Management & Oversight",
+        "weight": 20,
+        "progress": 0
+      }
     ],
     "practice": [],
     "log": []

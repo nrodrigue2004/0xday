@@ -146,7 +146,7 @@
   - built a 7-VM enterprise homelab: AD domain, pfSense segmentation, Security Onion SIEM
   - reverse-engineered real malware (RAT, SQL worm) in IDA Pro and Ghidra
   - reconstructed a data exfiltration from disk images + PCAP
-  - working toward CompTIA Security+
+  - 26 TryHackMe rooms (top 15%), working toward CompTIA Security+ (Q1 2027)
 ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html", "skills matrix")}`,
     submit: async (a) => {
       const f = a.join(" ").trim(); if (!f) return "usage: submit 0xDAY{...}";
@@ -172,7 +172,16 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
     },
     resume: (a, log) => go(ROOT + "resume.html", log),
     lab: (a, log) => go(ROOT + "lab.html", log),
-    ctf: () => (D.ctf && D.ctf.length ? D.ctf.map(c => `${esc(c.date)}  <b>${esc(c.name)}</b>  [${esc(c.difficulty || "")}]`).join("\n") + `\n\n${D.ctf.length} rooms solved` : "scoreboard is empty. rooms coming soon.") + `\n${link(ROOT + "ctf.html", "open ~/ctf")}`,
+    ctf: () => {
+      if (!D.ctf || !D.ctf.length) return "scoreboard is empty. rooms coming soon.";
+      const st = D.ctfstats || {};
+      const cats = {}; D.ctf.forEach(c => (cats[c.category] = (cats[c.category] || 0) + 1));
+      return `<b>TryHackMe</b> ${D.thm ? link("https://tryhackme.com/p/" + D.thm, D.thm) : ""}\n` +
+        `rooms <b>${st.rooms || D.ctf.length}</b>  rank <b>${esc(st.rank || "-")}</b>  level <b>${st.level || "-"}</b>  points <b>${st.points || "-"}</b>\n\n` +
+        Object.entries(cats).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => `  ${esc(k.padEnd(18))} ${"#".repeat(v)} ${v}`).join("\n") +
+        `\n\nlatest: ${D.ctf.slice(0, 3).map(c => esc(c.name)).join(", ")}\n${link(ROOT + "ctf.html", "open ~/ctf")}`;
+    },
+    thm: () => CMDS.ctf(),
     tools: () => (D.tools && D.tools.length ? D.tools.map(esc).join("\n") : "no tools published yet.") + `\n${link(ROOT + "tools.html", "open ~/tools")}`,
     detections: () => (D.detections && D.detections.length ? D.detections.map(esc).join("\n") : "no rules published yet.") + `\n${link(ROOT + "detections.html", "open ~/detections")}`,
     books: () => (D.books && D.books.length ? D.books.map(b => `[${esc(b.status)}] <b>${esc(b.title)}</b> ${esc(b.author || "")}`).join("\n") : "shelf is empty for now.") + `\n${link(ROOT + "books.html", "open ~/books")}`

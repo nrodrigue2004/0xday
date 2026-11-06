@@ -1,2 +1,169 @@
-{"_help": "TryHackMe rooms you've finished. difficulty: easy|medium|hard|insane. writeup: optional post slug or URL.",
- "rooms": []}
+{
+ "_help": "Rooms pulled from tryhackme.com/p/nrodr34 on 2026-11-06 (newest first). difficulty: info|easy|medium|hard|insane. date and writeup optional.",
+ "stats": {
+  "as_of": "2026-11-06",
+  "level": 7,
+  "rank": "Top 15%",
+  "points": 3416,
+  "rooms": 26,
+  "badges": 4
+ },
+ "rooms": [
+  {
+   "name": "Introductory Networking",
+   "url": "https://tryhackme.com/room/introtonetworking",
+   "difficulty": "easy",
+   "category": "networking"
+  },
+  {
+   "name": "Hashing - Crypto 101",
+   "url": "https://tryhackme.com/room/hashingcrypto101",
+   "difficulty": "medium",
+   "category": "crypto"
+  },
+  {
+   "name": "Encryption - Crypto 101",
+   "url": "https://tryhackme.com/room/encryptioncrypto101",
+   "difficulty": "medium",
+   "category": "crypto"
+  },
+  {
+   "name": "History of Malware",
+   "url": "https://tryhackme.com/room/historyofmalware",
+   "difficulty": "info",
+   "category": "malware"
+  },
+  {
+   "name": "Tutorial",
+   "url": "https://tryhackme.com/room/tutorial",
+   "difficulty": "easy",
+   "category": "intro"
+  },
+  {
+   "name": "Nmap",
+   "url": "https://tryhackme.com/room/furthernmap",
+   "difficulty": "easy",
+   "category": "recon"
+  },
+  {
+   "name": "John the Ripper: The Basics",
+   "url": "https://tryhackme.com/room/johntheripperbasics",
+   "difficulty": "easy",
+   "category": "password cracking"
+  },
+  {
+   "name": "Linux Fundamentals Part 1",
+   "url": "https://tryhackme.com/room/linuxfundamentalspart1",
+   "difficulty": "info",
+   "category": "linux"
+  },
+  {
+   "name": "Linux Fundamentals Part 2",
+   "url": "https://tryhackme.com/room/linuxfundamentalspart2",
+   "difficulty": "info",
+   "category": "linux"
+  },
+  {
+   "name": "Linux Fundamentals Part 3",
+   "url": "https://tryhackme.com/room/linuxfundamentalspart3",
+   "difficulty": "info",
+   "category": "linux"
+  },
+  {
+   "name": "Phishing Analysis Fundamentals",
+   "url": "https://tryhackme.com/room/phishingemails1tryoe",
+   "difficulty": "easy",
+   "category": "blue team"
+  },
+  {
+   "name": "Phishing Analysis Tools",
+   "url": "https://tryhackme.com/room/phishingemails3tryoe",
+   "difficulty": "easy",
+   "category": "blue team"
+  },
+  {
+   "name": "Content Discovery",
+   "url": "https://tryhackme.com/room/contentdiscovery",
+   "difficulty": "easy",
+   "category": "web"
+  },
+  {
+   "name": "Protocols and Servers",
+   "url": "https://tryhackme.com/room/protocolsandservers",
+   "difficulty": "easy",
+   "category": "networking"
+  },
+  {
+   "name": "Red Team Recon",
+   "url": "https://tryhackme.com/room/redteamrecon",
+   "difficulty": "easy",
+   "category": "recon"
+  },
+  {
+   "name": "Snort",
+   "url": "https://tryhackme.com/room/snort",
+   "difficulty": "medium",
+   "category": "ids"
+  },
+  {
+   "name": "Threat Intelligence Tools",
+   "url": "https://tryhackme.com/room/threatinteltools",
+   "difficulty": "easy",
+   "category": "threat intel"
+  },
+  {
+   "name": "Operating System Security",
+   "url": "https://tryhackme.com/room/operatingsystemsecurity",
+   "difficulty": "easy",
+   "category": "os security"
+  },
+  {
+   "name": "Wireshark: The Basics",
+   "url": "https://tryhackme.com/room/wiresharkthebasics",
+   "difficulty": "easy",
+   "category": "traffic analysis"
+  },
+  {
+   "name": "Microsoft Windows Hardening",
+   "url": "https://tryhackme.com/room/microsoftwindowshardening",
+   "difficulty": "easy",
+   "category": "hardening"
+  },
+  {
+   "name": "Introduction to Cryptography",
+   "url": "https://tryhackme.com/room/cryptographyintro",
+   "difficulty": "medium",
+   "category": "crypto"
+  },
+  {
+   "name": "Linux System Hardening",
+   "url": "https://tryhackme.com/room/linuxsystemhardening",
+   "difficulty": "medium",
+   "category": "hardening"
+  },
+  {
+   "name": "Identity and Access Management",
+   "url": "https://tryhackme.com/room/iaaaidm",
+   "difficulty": "easy",
+   "category": "iam"
+  },
+  {
+   "name": "Network Device Hardening",
+   "url": "https://tryhackme.com/room/networkdevicehardening",
+   "difficulty": "medium",
+   "category": "hardening"
+  },
+  {
+   "name": "Risk Management",
+   "url": "https://tryhackme.com/room/seriskmanagement",
+   "difficulty": "easy",
+   "category": "grc"
+  },
+  {
+   "name": "Intro to Log Analysis",
+   "url": "https://tryhackme.com/room/introtologanalysis",
+   "difficulty": "easy",
+   "category": "blue team"
+  }
+ ]
+}

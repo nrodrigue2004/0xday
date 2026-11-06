@@ -2,6 +2,11 @@
   {
     "date": "2026-11-06",
     "type": "feat",
+    "msg": "sync 26 TryHackMe rooms; add linux, IT and computer science to the skills matrix"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "feat",
     "msg": "add ~/lab: resume, man-page cheatsheets, ctf scoreboard, tools, detections and books"
   },
   {

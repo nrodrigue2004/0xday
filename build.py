@@ -241,7 +241,7 @@ page("skills.html", "skills :: 0xDay", f"""<p class="cmd">skills --matrix</p><h1
 def nl(xs): return "".join(f"<li>{esc(x)}</li>" for x in xs)
 page("now.html", "now :: 0xDay", f"""<p class="cmd">cat ~/now</p><h1>~/now</h1>
 <p class="muted">What I'm focused on right now. Last updated {esc(NOW["updated"])}.</p>
-<div class="prose"><h2>studying</h2><ul>{nl(NOW["studying"])}</ul><h2>building</h2><ul>{nl(NOW["building"])}</ul><h2>reading</h2><ul>{nl(NOW["reading"])}</ul></div>""", cur="now")
+<div class="prose">{"".join(f"<h2>{k}</h2><ul>{nl(NOW[k])}</ul>" for k in ("studying", "building", "reading") if NOW.get(k))}</div>""", cur="now")
 
 # ---------- tags ----------
 TAGS = {}
@@ -300,7 +300,7 @@ open("feed.xml", "w").write(f"""<?xml version="1.0" encoding="UTF-8"?>
 
 # ================= phase 2 =================
 RESUME = json.load(open("content/resume.json"))
-CTF = json.load(open("content/ctf.json"))["rooms"]
+_ctf = json.load(open("content/ctf.json")); CTF = _ctf["rooms"]; CTFSTATS = _ctf.get("stats")
 TOOLS = json.load(open("content/tools.json"))["tools"]
 DETS = json.load(open("content/detections.json"))["rules"]
 BOOKS = json.load(open("content/books.json"))["books"]
@@ -335,17 +335,26 @@ page("resume.html", "resume :: 0xDay", f'''<p class="cmd no-print">cat ~/resume.
 def wl(c):
     return f'<a href="{href(c["writeup"])}">writeup</a>' if c.get("writeup") else ""
 if CTF:
-    solved = len(CTF)
+    cats = {}
+    for c in CTF: cats[c.get("category", "other")] = cats.get(c.get("category", "other"), 0) + 1
+    top = max(cats.values())
+    catbars = "".join(f'<li><span class="cat__name">{esc(k)}</span>{bar(round(v / top * 100), 16)}<span class="muted">{v}</span></li>'
+                      for k, v in sorted(cats.items(), key=lambda kv: -kv[1]))
     rows = "".join(
-        f'<li class="ctf"><span class="ls-date">{esc(c["date"])}</span><span class="ctf__name">{esc(c["name"])}</span>'
+        f'<li class="ctf"><span class="ls-date">{len(CTF) - i:02d}</span><a class="ctf__name" href="{esc(c["url"])}">{esc(c["name"])}</a>'
         f'<span class="diff diff--{esc(c.get("difficulty", "easy"))}">{esc(c.get("difficulty", ""))}</span>'
         f'<span class="muted">{esc(c.get("category", ""))}</span>'
-        f'<span>{wl(c)}</span></li>'
-        for c in sorted(CTF, key=lambda c: c["date"], reverse=True))
-    ctf_body = f'<p>Rooms solved: <strong class="ok">{solved}</strong></p><ul class="ctfs">{rows}</ul>'
+        f'<span>{wl(c)}</span></li>' for i, c in enumerate(CTF))
+    st = CTFSTATS or {}
+    stats = "".join(f'<div class="stat"><span class="stat__v">{esc(str(v))}</span><span class="stat__k">{k}</span></div>'
+                    for k, v in [("rooms", st.get("rooms", len(CTF))), ("rank", st.get("rank", "-")), ("level", st.get("level", "-")), ("points", st.get("points", "-")), ("badges", st.get("badges", "-"))])
+    asof = f'<p class="muted small">stats as of {esc(st["as_of"])}. live badge below.</p>' if st.get("as_of") else ""
+    badge = (f'<a href="https://tryhackme.com/p/{esc(CERTS["thm_username"])}" class="noline"><img class="thm" src="https://tryhackme-badges.s3.amazonaws.com/{esc(CERTS["thm_username"])}.png" alt="TryHackMe badge for {esc(CERTS["thm_username"])}" loading="lazy"></a>' if CERTS.get("thm_username") else "")
+    ctf_body = (f'<div class="stats">{stats}</div>{asof}{badge}'
+                f'<h2>by category</h2><ul class="cats">{catbars}</ul>'
+                f'<h2>rooms</h2><ul class="ctfs">{rows}</ul>')
 else:
-    ctf_body = empty("no rooms logged yet", "content/ctf.json",
-                     '{"name": "Blue", "url": "https://tryhackme.com/room/blue", "date": "2026-11-10",\n "difficulty": "easy", "category": "windows / exploitation", "writeup": "thm-blue"}')
+    ctf_body = empty("no rooms logged yet", "", "")
 thm_profile = (f'<p><a href="https://tryhackme.com/p/{esc(CERTS["thm_username"])}">tryhackme.com/p/{esc(CERTS["thm_username"])}</a></p>' if CERTS.get("thm_username") else "")
 page("ctf.html", "ctf :: 0xDay", f'<p class="cmd">cat ~/ctf/scoreboard</p><h1>~/ctf</h1><p>TryHackMe rooms and challenges I\'ve solved.</p>{thm_profile}{ctf_body}')
 
@@ -408,6 +417,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
+HUB = [x for x in HUB if x[3] != "coming soon"]  # hide sections until they have content
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
 
@@ -421,6 +431,6 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "flags": {k: hashlib.sha256(v.encode()).hexdigest() for k, v in FLAGS.items()},
         "consoleFlag": FLAGS["console"].encode().hex(),
         "man": [{"slug": x["slug"], "name": x["name"], "summary": x["summary"], "groups": x["groups"]} for x in SHEETS],
-        "ctf": CTF, "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS}
+        "ctf": CTF, "ctfstats": CTFSTATS, "thm": CERTS.get("thm_username"), "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags")

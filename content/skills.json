@@ -1,30 +1,245 @@
 {
-  "_help": "level 1-5 (self-rated, adjust freely). proof = page or URL that backs it up.",
-  "groups": [
-    {"name": "blue team", "skills": [
-      {"name": "Network traffic analysis", "level": 3, "proof": "posts/hitek-forensics.html"},
-      {"name": "SIEM / Security Onion", "level": 2, "proof": "posts/proxmox-homelab.html"},
-      {"name": "Digital forensics", "level": 3, "proof": "posts/hitek-forensics.html"},
-      {"name": "Incident response", "level": 2, "proof": "posts/hitek-forensics.html"}
-    ]},
-    {"name": "offense & RE", "skills": [
-      {"name": "Malware analysis", "level": 3, "proof": "posts/anti-vm-patching.html"},
-      {"name": "Reverse engineering", "level": 3, "proof": "posts/anti-vm-patching.html"},
-      {"name": "Binary exploitation", "level": 2, "proof": null},
-      {"name": "Recon / Nmap / Metasploit", "level": 2, "proof": "posts/proxmox-homelab.html"}
-    ]},
-    {"name": "infrastructure", "skills": [
-      {"name": "Active Directory", "level": 3, "proof": "posts/finance-share-access-denied.html"},
-      {"name": "Virtualization / Proxmox", "level": 4, "proof": "https://github.com/nrodrigue2004/cybersecurity-homelab"},
-      {"name": "Firewalls / pfSense", "level": 3, "proof": "posts/proxmox-homelab.html"},
-      {"name": "Windows admin / PowerShell", "level": 3, "proof": "https://github.com/nrodrigue2004/enterprise-it-support-lab"}
-    ]},
-    {"name": "code", "skills": [
-      {"name": "Python", "level": 3, "proof": null},
-      {"name": "Java", "level": 3, "proof": "https://github.com/nrodrigue2004/JavaShooter"},
-      {"name": "C / Assembly", "level": 2, "proof": "posts/anti-vm-patching.html"},
-      {"name": "TypeScript / React", "level": 2, "proof": "projects.html"},
-      {"name": "SQL", "level": 3, "proof": "projects.html"}
-    ]}
-  ]
+ "_help": "level 1-5 (self-rated, adjust freely). proof = page or URL that backs it up.",
+ "groups": [
+  {
+   "name": "blue team",
+   "skills": [
+    {
+     "name": "Network traffic analysis",
+     "level": 3,
+     "proof": "posts/hitek-forensics.html"
+    },
+    {
+     "name": "SIEM / Security Onion",
+     "level": 2,
+     "proof": "posts/proxmox-homelab.html"
+    },
+    {
+     "name": "IDS / Snort",
+     "level": 2,
+     "proof": "ctf.html"
+    },
+    {
+     "name": "Log analysis",
+     "level": 2,
+     "proof": "ctf.html"
+    },
+    {
+     "name": "Phishing analysis",
+     "level": 2,
+     "proof": "ctf.html"
+    },
+    {
+     "name": "Digital forensics",
+     "level": 3,
+     "proof": "posts/hitek-forensics.html"
+    },
+    {
+     "name": "Incident response",
+     "level": 2,
+     "proof": "posts/hitek-forensics.html"
+    },
+    {
+     "name": "System hardening (Windows/Linux)",
+     "level": 2,
+     "proof": "ctf.html"
+    }
+   ]
+  },
+  {
+   "name": "offense & RE",
+   "skills": [
+    {
+     "name": "Malware analysis",
+     "level": 3,
+     "proof": "posts/anti-vm-patching.html"
+    },
+    {
+     "name": "Reverse engineering",
+     "level": 3,
+     "proof": "posts/anti-vm-patching.html"
+    },
+    {
+     "name": "Binary exploitation",
+     "level": 2,
+     "proof": null
+    },
+    {
+     "name": "Recon / Nmap / Metasploit",
+     "level": 2,
+     "proof": "man/nmap.html"
+    },
+    {
+     "name": "Password cracking / John",
+     "level": 2,
+     "proof": "ctf.html"
+    },
+    {
+     "name": "Cryptography (applied)",
+     "level": 2,
+     "proof": "ctf.html"
+    }
+   ]
+  },
+  {
+   "name": "linux",
+   "skills": [
+    {
+     "name": "Linux command line",
+     "level": 3,
+     "proof": "ctf.html"
+    },
+    {
+     "name": "Kali Linux",
+     "level": 3,
+     "proof": "posts/proxmox-homelab.html"
+    },
+    {
+     "name": "Linux server admin (Ubuntu)",
+     "level": 2,
+     "proof": "https://github.com/nrodrigue2004/enterprise-it-support-lab"
+    },
+    {
+     "name": "Bash scripting",
+     "level": 2,
+     "proof": null
+    }
+   ]
+  },
+  {
+   "name": "IT & infrastructure",
+   "skills": [
+    {
+     "name": "Hardware diagnostics & repair",
+     "level": 4,
+     "proof": "resume.html"
+    },
+    {
+     "name": "Windows deployment & drivers",
+     "level": 4,
+     "proof": "resume.html"
+    },
+    {
+     "name": "Secure data sanitization",
+     "level": 4,
+     "proof": "resume.html"
+    },
+    {
+     "name": "Active Directory",
+     "level": 3,
+     "proof": "posts/finance-share-access-denied.html"
+    },
+    {
+     "name": "Group Policy",
+     "level": 3,
+     "proof": "https://github.com/nrodrigue2004/enterprise-it-support-lab"
+    },
+    {
+     "name": "Windows admin / PowerShell",
+     "level": 3,
+     "proof": "man/ad-powershell.html"
+    },
+    {
+     "name": "Help desk / ticketing (osTicket)",
+     "level": 3,
+     "proof": "https://github.com/nrodrigue2004/enterprise-it-support-lab"
+    },
+    {
+     "name": "Networking (TCP/IP, DHCP, NAT, subnets)",
+     "level": 3,
+     "proof": "posts/proxmox-homelab.html"
+    },
+    {
+     "name": "Firewalls / pfSense",
+     "level": 3,
+     "proof": "posts/proxmox-homelab.html"
+    },
+    {
+     "name": "Virtualization / Proxmox",
+     "level": 4,
+     "proof": "https://github.com/nrodrigue2004/cybersecurity-homelab"
+    },
+    {
+     "name": "VPN / Tailscale",
+     "level": 2,
+     "proof": "posts/proxmox-homelab.html"
+    }
+   ]
+  },
+  {
+   "name": "computer science",
+   "skills": [
+    {
+     "name": "Data structures & algorithms",
+     "level": 3,
+     "proof": null
+    },
+    {
+     "name": "Operating systems",
+     "level": 3,
+     "proof": "resume.html"
+    },
+    {
+     "name": "Computer networks",
+     "level": 3,
+     "proof": "resume.html"
+    },
+    {
+     "name": "Databases & SQL",
+     "level": 3,
+     "proof": "projects.html"
+    },
+    {
+     "name": "Object-oriented programming (Java)",
+     "level": 3,
+     "proof": "https://github.com/nrodrigue2004/JavaShooter"
+    },
+    {
+     "name": "Full-stack web (TypeScript/React/MongoDB)",
+     "level": 2,
+     "proof": "projects.html"
+    },
+    {
+     "name": "Mobile apps (Flutter/Firebase)",
+     "level": 2,
+     "proof": "projects.html"
+    },
+    {
+     "name": "Git / GitHub",
+     "level": 3,
+     "proof": "https://github.com/nrodrigue2004"
+    }
+   ]
+  },
+  {
+   "name": "languages",
+   "skills": [
+    {
+     "name": "Python",
+     "level": 3,
+     "proof": null
+    },
+    {
+     "name": "Java",
+     "level": 3,
+     "proof": "https://github.com/nrodrigue2004/JavaShooter"
+    },
+    {
+     "name": "C / x86 Assembly",
+     "level": 2,
+     "proof": "posts/anti-vm-patching.html"
+    },
+    {
+     "name": "TypeScript / JavaScript",
+     "level": 2,
+     "proof": "projects.html"
+    },
+    {
+     "name": "SQL",
+     "level": 3,
+     "proof": "projects.html"
+    }
+   ]
+  }
+ ]
 }
