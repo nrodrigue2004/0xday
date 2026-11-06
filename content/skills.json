@@ -1,0 +1,30 @@
+{
+  "_help": "level 1-5 (self-rated, adjust freely). proof = page or URL that backs it up.",
+  "groups": [
+    {"name": "blue team", "skills": [
+      {"name": "Network traffic analysis", "level": 3, "proof": "posts/hitek-forensics.html"},
+      {"name": "SIEM / Security Onion", "level": 2, "proof": "posts/proxmox-homelab.html"},
+      {"name": "Digital forensics", "level": 3, "proof": "posts/hitek-forensics.html"},
+      {"name": "Incident response", "level": 2, "proof": "posts/hitek-forensics.html"}
+    ]},
+    {"name": "offense & RE", "skills": [
+      {"name": "Malware analysis", "level": 3, "proof": "posts/anti-vm-patching.html"},
+      {"name": "Reverse engineering", "level": 3, "proof": "posts/anti-vm-patching.html"},
+      {"name": "Binary exploitation", "level": 2, "proof": null},
+      {"name": "Recon / Nmap / Metasploit", "level": 2, "proof": "posts/proxmox-homelab.html"}
+    ]},
+    {"name": "infrastructure", "skills": [
+      {"name": "Active Directory", "level": 3, "proof": "posts/finance-share-access-denied.html"},
+      {"name": "Virtualization / Proxmox", "level": 4, "proof": "https://github.com/nrodrigue2004/cybersecurity-homelab"},
+      {"name": "Firewalls / pfSense", "level": 3, "proof": "posts/proxmox-homelab.html"},
+      {"name": "Windows admin / PowerShell", "level": 3, "proof": "https://github.com/nrodrigue2004/enterprise-it-support-lab"}
+    ]},
+    {"name": "code", "skills": [
+      {"name": "Python", "level": 3, "proof": null},
+      {"name": "Java", "level": 3, "proof": "https://github.com/nrodrigue2004/JavaShooter"},
+      {"name": "C / Assembly", "level": 2, "proof": "posts/anti-vm-patching.html"},
+      {"name": "TypeScript / React", "level": 2, "proof": "projects.html"},
+      {"name": "SQL", "level": 3, "proof": "projects.html"}
+    ]}
+  ]
+}

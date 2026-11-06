@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /0xday/s3cr3t/
+# nothing to see here. definitely don't look.

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
+  <title>0xDay</title><link>https://nrodrigue2004.github.io/0xday/</link><description>Notes on cybersecurity, computer science and tech by Nathan Rodrigue.</description><language>en</language>
+  <atom:link href="https://nrodrigue2004.github.io/0xday/feed.xml" rel="self" type="application/rss+xml"/>
+  <item><title>Building a Seven-VM Enterprise Homelab on Proxmox</title><link>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</guid><pubDate>Mon, 02 Nov 2026 12:00:00 +0000</pubDate><category>homelab</category><category>proxmox</category><category>pfsense</category><description>&lt;p&gt;I wanted a place to practice attacking and defending something that looks like a real company network, so I built one at home on Proxmox. This post walks through the design and what I learned setting it up.&lt;/p&gt;
+&lt;h2&gt;The lab&lt;/h2&gt;
+&lt;p&gt;Seven VMs, split across isolated subnets:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;strong&gt;pfSense&lt;/strong&gt; as the firewall, handling rules, DHCP and NAT between segments&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Kali Linux&lt;/strong&gt; as the attacker box&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Metasploitable 2&lt;/strong&gt; and &lt;strong&gt;DVWA / WebGoat&lt;/strong&gt; (in Docker) as intentionally vulnerable targets&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Windows Server 2022&lt;/strong&gt; as the Active Directory domain controller&lt;/li&gt;
+&lt;li&gt;A domain-joined &lt;strong&gt;Windows 11&lt;/strong&gt; workstation&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Security Onion&lt;/strong&gt; as the SIEM, watching traffic in real time&lt;/li&gt;&lt;/ul&gt;
+&lt;h2&gt;Remote access&lt;/h2&gt;
+&lt;p&gt;Rather than opening ports, I used Tailscale with subnet routing so I can reach the lab from anywhere without exposing it to the internet.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;tailscale up --advertise-routes=10.10.0.0/24,10.20.0.0/24&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;What&#x27;s next&lt;/h2&gt;
+&lt;p&gt;Future posts will cover attacking the AD domain from Kali and seeing what Security Onion actually catches.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/nrodrigue2004/cybersecurity-homelab&quot;&gt;Source and notes on GitHub &amp;rarr;&lt;/a&gt;&lt;/p&gt;
+</description></item>
+  <item><title>Troubleshooting a Finance Share &quot;Access Denied&quot;</title><link>https://nrodrigue2004.github.io/0xday/posts/finance-share-access-denied.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/finance-share-access-denied.html</guid><pubDate>Tue, 20 Oct 2026 12:00:00 +0000</pubDate><category>active-directory</category><category>windows</category><category>it-support</category><description>&lt;p&gt;A classic help-desk ticket, reproduced in my &lt;a href=&quot;https://github.com/nrodrigue2004/enterprise-it-support-lab&quot;&gt;Enterprise IT Support Lab&lt;/a&gt;: a user can sign in to the domain and reach the Finance share, but gets &quot;access denied&quot; when opening it.&lt;/p&gt;
+&lt;h2&gt;Working the ticket&lt;/h2&gt;
+&lt;ol&gt;&lt;li&gt;Reproduced the problem from the domain-joined workstation&lt;/li&gt;
+&lt;li&gt;Checked the user&#x27;s Active Directory group membership&lt;/li&gt;
+&lt;li&gt;Found they were missing from &lt;code&gt;Finance-Share-Read&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Added them to the group&lt;/li&gt;
+&lt;li&gt;Had them sign out and back in so Windows issued a fresh security token&lt;/li&gt;
+&lt;li&gt;Confirmed access to the share&lt;/li&gt;&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;Add-ADGroupMember -Identity &quot;Finance-Share-Read&quot; -Members &quot;atest&quot;
+Get-ADPrincipalGroupMembership atest | Select-Object Name&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Why sign-out matters&lt;/h2&gt;
+&lt;p&gt;Group membership is baked into the access token at logon. Adding someone to a group does nothing for their current session, which is one of the most common reasons a &quot;fixed&quot; permission still looks broken.&lt;/p&gt;
+&lt;blockquote&gt;The share used both share-level and NTFS permissions, which is a good reminder that Windows access control is layered: the most restrictive one wins.&lt;/blockquote&gt;
+</description></item>
+  <item><title>Patching Out Anti-VM Checks in Malware Samples</title><link>https://nrodrigue2004.github.io/0xday/posts/anti-vm-patching.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/anti-vm-patching.html</guid><pubDate>Mon, 28 Sep 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>ghidra</category><description>&lt;p&gt;Some malware refuses to run when it detects a virtual machine, which is a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples using the old &lt;code&gt;SIDT&lt;/code&gt;, &lt;code&gt;SLDT&lt;/code&gt; and &lt;code&gt;STR&lt;/code&gt; tricks.&lt;/p&gt;
+&lt;h2&gt;How the checks work&lt;/h2&gt;
+&lt;p&gt;These instructions return the locations of CPU descriptor tables. On older hypervisors those locations differ from bare metal in predictable ways, so the sample compares the result against a known value and bails out if it looks virtual.&lt;/p&gt;
+&lt;h2&gt;Patching&lt;/h2&gt;
+&lt;p&gt;Using IDA Pro and Ghidra, I found the comparison after each check and patched the conditional jump so the sample always takes the &quot;real hardware&quot; path.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;; before
+sidt  [esp+idtr]
+cmp   byte ptr [esp+idtr+5], 0FFh
+je    looks_like_vm
+; after: je -&amp;gt; nop nop
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Other things I looked at&lt;/h2&gt;
+&lt;ul&gt;&lt;li&gt;PE structure and packing&lt;/li&gt;&lt;li&gt;Anti-debug techniques&lt;/li&gt;&lt;li&gt;Polymorphic vs. metamorphic behavior in a RAT and a SQL worm&lt;/li&gt;&lt;/ul&gt;
+</description></item>
+  <item><title>Reconstructing a Data Exfiltration: The HiTek Forensics Challenge</title><link>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</guid><pubDate>Mon, 07 Sep 2026 12:00:00 +0000</pubDate><category>forensics</category><category>wireshark</category><category>autopsy</category><description>&lt;p&gt;The HiTek challenge handed us a Windows disk image, an Ubuntu disk image, and a network capture, and asked one question: what happened, and who did it?&lt;/p&gt;
+&lt;h2&gt;Tools&lt;/h2&gt;
+&lt;ul&gt;&lt;li&gt;&lt;strong&gt;FTK Imager&lt;/strong&gt; to mount and verify the images&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Autopsy&lt;/strong&gt; for the file system timeline, browser history and deleted files&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Wireshark&lt;/strong&gt; to follow the exfiltration in the PCAP&lt;/li&gt;&lt;/ul&gt;
+&lt;h2&gt;Approach&lt;/h2&gt;
+&lt;p&gt;I built a single timeline across all three sources, lining up file access on the endpoints with outbound connections in the capture. That&#x27;s what tied the activity to a specific user and machine.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ip.dst != 10.0.0.0/8 &amp;amp;&amp;amp; tcp.len &amp;gt; 1000&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The final deliverable was an investigative report and a presentation covering the evidence, the timeline, and attribution.&lt;/p&gt;
+</description></item>
+  <item><title>Why I Started This Blog</title><link>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</guid><pubDate>Sat, 15 Aug 2026 12:00:00 +0000</pubDate><category>meta</category><description>&lt;p&gt;I&#x27;m a Computer Science student at LSU concentrating in cybersecurity. Most of what I learn happens in labs, CTF-style challenges and my homelab, and most of it disappears into notes nobody reads, including me.&lt;/p&gt;
+&lt;p&gt;This blog is where those notes go instead. Expect writeups on:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Homelab builds and Active Directory&lt;/li&gt;&lt;li&gt;Malware analysis and reverse engineering&lt;/li&gt;&lt;li&gt;Digital forensics and incident response&lt;/li&gt;&lt;li&gt;Whatever broke this week and how I fixed it&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Thanks for reading.&lt;/p&gt;
+</description></item>
+</channel></rss>

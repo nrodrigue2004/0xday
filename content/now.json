@@ -1,0 +1,7 @@
+{
+  "_help": "Update monthly. Keep each list short.",
+  "updated": "2026-11-06",
+  "studying": ["CompTIA Security+ (SY0-701)", "TryHackMe learning paths"],
+  "building": ["Detection rules in Security Onion for my homelab", "This site"],
+  "reading": ["(add a book or course here)"]
+}

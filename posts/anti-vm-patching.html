@@ -10,23 +10,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=cc55bdf3">
-<script src="../data.js?v=cc55bdf3" defer></script>
-<script src="../site.js?v=cc55bdf3" defer></script>
+<link rel="stylesheet" href="../style.css?v=ea38413d">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=ea38413d" defer></script>
+<script src="../site.js?v=ea38413d" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">skip to content</a>
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html" aria-current="page">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../resources.html">./resources</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html" aria-current="page">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
 <article class="post">
 <p class="cmd">cat ~/posts/anti-vm-patching.md</p>
 <h1>Patching Out Anti-VM Checks in Malware Samples</h1>
-<div class="meta"><span>2026-09-28</span><span>Nathan Rodrigue</span><span><span class="tag">#malware</span> <span class="tag">#reverse-engineering</span> <span class="tag">#ghidra</span></span></div>
+<div class="meta"><span>2026-09-28</span><span>Nathan Rodrigue</span><span><a class="tag" href="../tags.html#malware">#malware</a> <a class="tag" href="../tags.html#reverse-engineering">#reverse-engineering</a> <a class="tag" href="../tags.html#ghidra">#ghidra</a></span></div>
 <div class="prose">
 <p>Some malware refuses to run when it detects a virtual machine, which is a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples using the old <code>SIDT</code>, <code>SLDT</code> and <code>STR</code> tricks.</p>
 <h2>How the checks work</h2>
@@ -49,7 +50,7 @@ je    looks_like_vm
 </main>
 <footer class="footer">
   <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
-  <span><a href="https://github.com/nrodrigue2004">github</a> · <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> · <button class="link ghost-open" type="button">ghost --help</button></span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
 </footer>
 </div>
 </body>
