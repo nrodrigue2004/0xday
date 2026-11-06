@@ -13,6 +13,12 @@ Content lives in `content/`:
 - `content/skills.json` holds the skills matrix (levels 1-5, each with a proof link)
 - `content/now.json` is the ~/now page (update monthly)
 - `content/changelog.json` is the git-log style changelog
+- `content/resume.json` is the public resume (no phone, email, address or employer names)
+- `content/cheatsheets.json` holds the man-page cheatsheets
+- `content/ctf.json` rooms: `{"name","url","date","difficulty":"easy|medium|hard|insane","category","writeup":"<post-slug or URL>"}`
+- `content/tools.json` tools: `{"name","lang","desc","repo","code"}`
+- `content/detections.json` rules: `{"name","format":"sigma|suricata|zeek|elastic","attack":"T1110","desc","rule"}`
+- `content/books.json` books: `{"title","author","status":"read|reading|queued","take"}`
 
 Then rebuild the HTML and push:
 

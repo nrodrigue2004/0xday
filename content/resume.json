@@ -1,0 +1,35 @@
+{
+  "_help": "Public resume. Deliberately no phone, email, address or employer names.",
+  "headline": "Computer Science (Cybersecurity) student focused on malware analysis, digital forensics and blue-team infrastructure.",
+  "education": [{"school": "Louisiana State University", "degree": "B.S. Computer Science, Cybersecurity concentration",
+    "detail": "Coursework: Reverse Engineering & Malware Analysis, Digital Forensics, Mobile Security & Applied Cryptography, Software Vulnerabilities & Exploitation, Operating Systems, Computer Networks"}],
+  "experience": [
+    {"title": "Laptop Technician", "when": "2025 to present", "bullets": [
+      "Performed secure data sanitization with XErase and EPSBoot to ensure compliance before resale",
+      "Diagnosed and repaired hardware and software issues across many laptop models, cutting device-to-resale turnaround",
+      "Installed and configured Windows, drivers and software for refurbished laptops"]},
+    {"title": "AI Trainer", "when": "2025 to present", "bullets": [
+      "Evaluated and refined LLM-generated outputs, giving structured feedback to improve accuracy and response quality"]}
+  ],
+  "projects": [
+    {"name": "Cybersecurity Homelab", "bullets": [
+      "Built a 7-VM enterprise simulation on Proxmox: pfSense, Kali, Metasploitable 2, DVWA/WebGoat, Windows Server 2022 AD, Windows 11, Security Onion",
+      "Segmented isolated subnets with pfSense firewall rules, DHCP and NAT; Tailscale subnet routing for remote access",
+      "Ran Security Onion for real-time network monitoring and threat detection"]},
+    {"name": "Enterprise IT Support Lab", "bullets": [
+      "Administered an AD domain with OUs, security groups, Group Policy drive mapping and PowerShell; worked tickets in osTicket"]},
+    {"name": "Malware Analysis Labs", "bullets": [
+      "Reverse-engineered a RAT and a SQL worm in IDA Pro and Ghidra; analyzed PE structure, packing, anti-VM and anti-debug",
+      "Patched SIDT/SLDT/STR anti-VM checks to run samples in a virtualized analysis environment"]},
+    {"name": "HiTek Digital Forensics Challenge", "bullets": [
+      "Reconstructed a data exfiltration from Windows and Ubuntu disk images and a PCAP using FTK Imager, Autopsy and Wireshark"]},
+    {"name": "Software", "bullets": [
+      "ERU (TypeScript, React, MongoDB), Room'r (Flutter, Firebase), Supermarket DBMS (SQL), JavaShooter (Java)"]}
+  ],
+  "skills": {
+    "Security tools": "IDA Pro, Ghidra, Wireshark, Autopsy, FTK Imager, Volatility, Kali Linux, PE-bear, Nmap, Metasploit, Security Onion",
+    "Infrastructure": "Proxmox, VMware, VirtualBox, pfSense, Windows, Linux, GitHub, MySQL, Firebase",
+    "Languages": "Java, Python, TypeScript, C, JavaScript, Assembly, SQL",
+    "Concepts": "Static & dynamic malware analysis, reverse engineering, digital forensics, incident response, network traffic analysis, binary exploitation"
+  }
+}

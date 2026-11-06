@@ -1,7 +1,32 @@
 [
-  {"date": "2026-11-06", "type": "feat", "msg": "add certs tracker, skills matrix, now page, tags, RSS, changelog and a kernel panic 404"},
-  {"date": "2026-11-06", "type": "feat", "msg": "ghost learns new commands; hide a few flags around the site"},
-  {"date": "2026-11-06", "type": "style", "msg": "redesign as a green-on-black terminal"},
-  {"date": "2026-11-06", "type": "feat", "msg": "add ghost, the terminal assistant"},
-  {"date": "2026-11-06", "type": "init", "msg": "boot 0xDay"}
+  {
+    "date": "2026-11-06",
+    "type": "feat",
+    "msg": "add ~/lab: resume, man-page cheatsheets, ctf scoreboard, tools, detections and books"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "feat",
+    "msg": "add certs tracker, skills matrix, now page, tags, RSS, changelog and a kernel panic 404"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "feat",
+    "msg": "ghost learns new commands; hide a few flags around the site"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "style",
+    "msg": "redesign as a green-on-black terminal"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "feat",
+    "msg": "add ghost, the terminal assistant"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "init",
+    "msg": "boot 0xDay"
+  }
 ]

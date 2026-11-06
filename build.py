@@ -9,7 +9,7 @@ os.chdir(ROOT)
 NAME = "Nathan Rodrigue"; USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
-NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("now", "now.html"), ("about", "about.html")]
+NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
 SITE = "https://nrodrigue2004.github.io/0xday/"
 POSTS = json.load(open("content/posts.json"))
 PROJECTS = json.load(open("content/projects.json"))
@@ -297,6 +297,120 @@ open("feed.xml", "w").write(f"""<?xml version="1.0" encoding="UTF-8"?>
 </channel></rss>
 """)
 
+
+# ================= phase 2 =================
+RESUME = json.load(open("content/resume.json"))
+CTF = json.load(open("content/ctf.json"))["rooms"]
+TOOLS = json.load(open("content/tools.json"))["tools"]
+DETS = json.load(open("content/detections.json"))["rules"]
+BOOKS = json.load(open("content/books.json"))["books"]
+SHEETS = json.load(open("content/cheatsheets.json"))
+
+def empty(what, file, example):
+    # public pages show a short placeholder; the entry format lives in README.md
+    return f'<div class="empty"><p class="muted">// {what}. check back soon.</p></div>'
+
+def href(u):
+    if not u: return None
+    return u if u.startswith("http") else (f"posts/{u}.html" if "/" not in u and not u.endswith(".html") else u)
+
+# ---------- resume ----------
+r = RESUME
+edu = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["school"])}</strong></div><div>{esc(e["degree"])}</div><div class="muted">{esc(e["detail"])}</div></div>' for e in r["education"])
+exp = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["title"])}</strong><span class="muted">{esc(e["when"])}</span></div><ul>{"".join(f"<li>{esc(b)}</li>" for b in e["bullets"])}</ul></div>' for e in r["experience"])
+prj = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["name"])}</strong></div><ul>{"".join(f"<li>{esc(b)}</li>" for b in e["bullets"])}</ul></div>' for e in r["projects"])
+skl = "".join(f'<div><span class="k">{esc(k)}</span> {esc(v)}</div>' for k, v in r["skills"].items())
+page("resume.html", "resume :: 0xDay", f'''<p class="cmd no-print">cat ~/resume.txt</p>
+<div class="resume">
+<div class="rs-top"><h1>{NAME}</h1><button class="btn no-print" type="button" onclick="window.print()">[ print / save as PDF ]</button></div>
+<p class="rs-links"><a href="{GH}">github.com/nrodrigue2004</a> · <a href="{LI}">linkedin</a> · <a href="{SITE}">{SITE.replace("https://", "")}</a></p>
+<p>{esc(r["headline"])}</p>
+<h2>education</h2>{edu}
+<h2>experience</h2>{exp}
+<h2>projects</h2>{prj}
+<h2>skills</h2><div class="rs-skills">{skl}</div>
+</div>''', desc=f"Resume of {NAME}.")
+
+# ---------- ctf log ----------
+def wl(c):
+    return f'<a href="{href(c["writeup"])}">writeup</a>' if c.get("writeup") else ""
+if CTF:
+    solved = len(CTF)
+    rows = "".join(
+        f'<li class="ctf"><span class="ls-date">{esc(c["date"])}</span><span class="ctf__name">{esc(c["name"])}</span>'
+        f'<span class="diff diff--{esc(c.get("difficulty", "easy"))}">{esc(c.get("difficulty", ""))}</span>'
+        f'<span class="muted">{esc(c.get("category", ""))}</span>'
+        f'<span>{wl(c)}</span></li>'
+        for c in sorted(CTF, key=lambda c: c["date"], reverse=True))
+    ctf_body = f'<p>Rooms solved: <strong class="ok">{solved}</strong></p><ul class="ctfs">{rows}</ul>'
+else:
+    ctf_body = empty("no rooms logged yet", "content/ctf.json",
+                     '{"name": "Blue", "url": "https://tryhackme.com/room/blue", "date": "2026-11-10",\n "difficulty": "easy", "category": "windows / exploitation", "writeup": "thm-blue"}')
+thm_profile = (f'<p><a href="https://tryhackme.com/p/{esc(CERTS["thm_username"])}">tryhackme.com/p/{esc(CERTS["thm_username"])}</a></p>' if CERTS.get("thm_username") else "")
+page("ctf.html", "ctf :: 0xDay", f'<p class="cmd">cat ~/ctf/scoreboard</p><h1>~/ctf</h1><p>TryHackMe rooms and challenges I\'ve solved.</p>{thm_profile}{ctf_body}')
+
+# ---------- tools ----------
+def src(t):
+    return f' · <a href="{t["repo"]}">source</a>' if t.get("repo") else ""
+if TOOLS:
+    tl = "".join(f'<article class="tool"><h2>{esc(t["name"])}</h2><p>{esc(t["desc"])}</p>'
+                 f'<p class="card__tags">{esc(t.get("lang", ""))}{src(t)}</p>'
+                 f'{"<pre><code>" + esc(t["code"]) + "</code></pre>" if t.get("code") else ""}</article>' for t in TOOLS)
+else:
+    tl = empty("no tools published yet", "content/tools.json",
+               '{"name": "subnet-sweep", "lang": "python", "desc": "Pings a /24 and lists live hosts.",\n "repo": "https://github.com/nrodrigue2004/...", "code": "import subprocess ..."}')
+page("tools.html", "tools :: 0xDay", f'<p class="cmd">ls ~/bin</p><h1>~/tools</h1><p>Small scripts and utilities I\'ve written.</p>{tl}')
+
+# ---------- detections ----------
+if DETS:
+    dl = "".join(f'<article class="tool"><h2>{esc(d["name"])}</h2><p>{esc(d["desc"])}</p>'
+                 f'<p class="card__tags">{esc(d.get("format", ""))}{" · ATT&amp;CK " + esc(d["attack"]) if d.get("attack") else ""}</p>'
+                 f'<pre><code>{esc(d["rule"])}</code></pre></article>' for d in DETS)
+else:
+    dl = empty("no rules published yet", "content/detections.json",
+               '{"name": "SMB brute force from one host", "format": "sigma", "attack": "T1110",\n "desc": "Many failed SMB logons from a single source in a short window.",\n "rule": "title: ...\\nlogsource: ...\\ndetection: ..."}')
+page("detections.html", "detections :: 0xDay", f'<p class="cmd">cat ~/rules/*.yml</p><h1>~/detections</h1><p>Detection rules I\'ve written and tested in my homelab\'s Security Onion.</p>{dl}')
+
+# ---------- bookshelf ----------
+if BOOKS:
+    order = {"reading": 0, "read": 1, "queued": 2}
+    bl = "".join(f'<li class="book"><span class="pkg__st pkg__st--{ {"read": "installed", "reading": "downloading", "queued": "queued"}[b["status"]] }">[{esc(b["status"])}]</span>'
+                 f'<span><strong>{esc(b["title"])}</strong> <span class="muted">{esc(b.get("author", ""))}</span>'
+                 f'{"<br><span>" + esc(b["take"]) + "</span>" if b.get("take") else ""}</span></li>'
+                 for b in sorted(BOOKS, key=lambda b: order.get(b["status"], 3)))
+    books_body = f'<ul class="books">{bl}</ul>'
+else:
+    books_body = empty("shelf is empty", "content/books.json",
+                       '{"title": "Practical Malware Analysis", "author": "Sikorski & Honig",\n "status": "reading", "take": "the lab exercises are the whole point."}')
+page("books.html", "books :: 0xDay", f'<p class="cmd">ls ~/bookshelf</p><h1>~/books</h1><p>Security books and courses, with a one-line take on each.</p>{books_body}')
+
+# ---------- man pages ----------
+os.makedirs("man", exist_ok=True)
+for sh in SHEETS:
+    grp = "".join(f'<h2>{esc(g["title"])}</h2><dl class="man">' + "".join(
+        f'<dt><code>{esc(c)}</code></dt><dd>{esc(d)}</dd>' for c, d in g["rows"]) + "</dl>" for g in sh["groups"])
+    title = f'{sh["name"].upper()}({sh["section"]})'
+    page(f'man/{sh["slug"]}.html', f'man {sh["name"]} :: 0xDay', f'''<p class="cmd">man {esc(sh["name"])}</p>
+<div class="manhead"><span>{esc(title)}</span><span>0xDay Field Manual</span><span>{esc(title)}</span></div>
+<h1>{esc(sh["name"])} <span class="muted">- {esc(sh["summary"])}</span></h1>
+{grp}
+<p><a href="../man.html">cd ..</a></p>''', depth=1, desc=f'{sh["name"]} cheatsheet: {sh["summary"]}')
+mi = "".join(f'<li><a class="ls-row" href="man/{s["slug"]}.html"><span class="ls-perm">{esc(s["name"])}({s["section"]})</span><span class="ls-title">{esc(s["summary"])}</span></a></li>' for s in SHEETS)
+page("man.html", "man :: 0xDay", f'<p class="cmd">apropos .</p><h1>~/man</h1><p>Cheatsheets I keep coming back to, written as man pages.</p><ul class="ls manidx">{mi}</ul>')
+
+# ---------- lab hub ----------
+def n(x, unit): return f'{len(x)} {unit}{"" if len(x) == 1 else "s"}' if x else "coming soon"
+HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
+       ("man", "man.html", "cheatsheets as man pages", n(SHEETS, "page")),
+       ("tools", "tools.html", "scripts I've written", n(TOOLS, "tool")),
+       ("detections", "detections.html", "SIEM detection rules", n(DETS, "rule")),
+       ("books", "books.html", "bookshelf", n(BOOKS, "book")),
+       ("resume", "resume.html", "printable resume", "1 page"),
+       ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
+       ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
+tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
+page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
+
 # ---------- data for the ghost assistant ----------
 data = {"name": NAME, "gh": GH, "li": LI,
         "posts": [{k: p[k] for k in ("slug", "title", "date", "tags")} for p in POSTS],
@@ -305,6 +419,8 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "matrix": SKILLS["groups"], "certs": CERTS["certs"], "secplus": {"overall": overall, "domains": sp["domains"]},
         "now": NOW, "changelog": CHANGELOG[:5], "tags": {t: len(v) for t, v in TAGS.items()},
         "flags": {k: hashlib.sha256(v.encode()).hexdigest() for k, v in FLAGS.items()},
-        "consoleFlag": FLAGS["console"].encode().hex()}
+        "consoleFlag": FLAGS["console"].encode().hex(),
+        "man": [{"slug": x["slug"], "name": x["name"], "summary": x["summary"], "groups": x["groups"]} for x in SHEETS],
+        "ctf": CTF, "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags")

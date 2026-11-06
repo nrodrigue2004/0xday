@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man nmap :: 0xDay</title>
+<meta name="description" content="nmap cheatsheet: network exploration tool and port scanner">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=a6d2d33c">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=a6d2d33c" defer></script>
+<script src="../site.js?v=a6d2d33c" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man nmap</p>
+<div class="manhead"><span>NMAP(1)</span><span>0xDay Field Manual</span><span>NMAP(1)</span></div>
+<h1>nmap <span class="muted">- network exploration tool and port scanner</span></h1>
+<h2>discovery</h2><dl class="man"><dt><code>nmap -sn 10.0.0.0/24</code></dt><dd>ping sweep: which hosts are up, no port scan</dd><dt><code>nmap -Pn 10.0.0.5</code></dt><dd>skip host discovery (treat host as up, useful when ICMP is blocked)</dd><dt><code>nmap -sL 10.0.0.0/24</code></dt><dd>list targets only, no packets sent</dd></dl><h2>port scans</h2><dl class="man"><dt><code>nmap -sS 10.0.0.5</code></dt><dd>TCP SYN (half-open) scan, the default when run as root</dd><dt><code>nmap -sT 10.0.0.5</code></dt><dd>full TCP connect scan, no root needed</dd><dt><code>nmap -sU --top-ports 50 10.0.0.5</code></dt><dd>UDP scan of the 50 most common UDP ports</dd><dt><code>nmap -p- 10.0.0.5</code></dt><dd>all 65535 TCP ports</dd><dt><code>nmap -p 22,80,443 10.0.0.5</code></dt><dd>specific ports</dd><dt><code>nmap --top-ports 1000 --open 10.0.0.5</code></dt><dd>common ports, show only open ones</dd></dl><h2>services &amp; OS</h2><dl class="man"><dt><code>nmap -sV 10.0.0.5</code></dt><dd>probe open ports for service and version</dd><dt><code>nmap -O 10.0.0.5</code></dt><dd>OS fingerprinting</dd><dt><code>nmap -A 10.0.0.5</code></dt><dd>aggressive: -sV -O -sC plus traceroute</dd><dt><code>nmap -sC 10.0.0.5</code></dt><dd>run the default NSE scripts</dd><dt><code>nmap --script smb-enum-shares -p445 10.0.0.5</code></dt><dd>run a specific NSE script</dd></dl><h2>timing &amp; output</h2><dl class="man"><dt><code>nmap -T4 10.0.0.5</code></dt><dd>faster timing template (T0 slowest, T5 fastest)</dd><dt><code>nmap -oA scan 10.0.0.5</code></dt><dd>save normal, XML and grepable output as scan.*</dd><dt><code>nmap -v --reason 10.0.0.5</code></dt><dd>verbose, and say why each port is in its state</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

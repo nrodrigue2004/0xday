@@ -1,0 +1,2 @@
+{"_help": "Detection rules you've written. format: sigma|suricata|zeek|elastic. rule is shown verbatim.",
+ "rules": []}

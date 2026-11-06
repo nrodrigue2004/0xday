@@ -57,7 +57,7 @@
   const postUrl = p => `${ROOT}posts/${p.slug}.html`;
   const projUrl = p => (p.url && !/^https?:/.test(p.url) ? ROOT + p.url : p.url);
   const go = (url, log) => { log(`<span class="sys">opening ${esc(url)} ...</span>`); setTimeout(() => (location.href = url), 450); };
-  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html" };
+  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html", lab: "lab.html", resume: "resume.html", ctf: "ctf.html", man: "man.html", tools: "tools.html", detections: "detections.html", books: "books.html" };
   const started = Date.now();
 
   function findPost(q) {
@@ -85,7 +85,9 @@
   <b>certs</b>         cert roadmap &amp; Security+ progress
   <b>now</b>           what I'm focused on right now
   <b>tags</b>          post topics         <b>changelog</b>     recent site updates
-  <b>hire</b>          the recruiter summary
+  <b>hire</b>          the recruiter summary   <b>resume</b>  printable resume
+  <b>man</b> &lt;tool&gt;    cheatsheets: nmap, wireshark, volatility, ad-powershell
+  <b>ctf</b>           TryHackMe scoreboard   <b>lab</b>     everything else
   <b>contact</b>       where to find me
   <b>cd</b> &lt;page&gt;     blog, projects, skills, certs, now, about, home
   <b>submit</b> &lt;flag&gt; there are 3 flags hidden on this site
@@ -97,7 +99,7 @@
 <span class="sys">or just ask: "what's in the homelab?", "any malware posts?"</span>`;
 
   const CMDS = {
-    help: () => HELP, "?": () => HELP, man: () => HELP,
+    help: () => HELP, "?": () => HELP,
     whoami: () => `<b>${esc(D.name)}</b>\nCS student at LSU, concentrating in cybersecurity.\nInto homelabs, malware analysis, digital forensics and breaking things to see how they work.\n\n<span class="sys">try: projects, posts, skills</span>`,
     about: (a, log) => go(ROOT + "about.html", log),
     posts: listPosts, ls: (a) => (a[0] && /proj/.test(a[0]) ? listProjects() : `${/a/.test(a[0] || "") ? ".secret  robots.txt  " : ""}posts/  projects/  certs/  now  about.txt\n\n` + listPosts()),
@@ -158,7 +160,22 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
     },
     flags: () => { const k = Object.keys(D.flags || {}); const n = k.filter(x => got().includes("flag_" + x)).length; return `${n}/${k.length} flags captured.\n<span class="sys">hints: the page source, the browser console, and what robots shouldn't read.</span>`; },
     achievements: () => { const g = got(); return Object.entries(ACH).map(([k, v]) => `${g.includes(k) ? "<b>[x]</b>" : "[ ]"} ${g.includes(k) ? esc(v) : esc(v.split(":")[0]) + ": ???"}`).join("\n"); },
-    hint: () => CMDS.flags()
+    hint: () => CMDS.flags(),
+    man: (a, log) => {
+      if (!a.length) return "What manual page do you want?\n" + (D.man || []).map(m => `  <b>${esc(m.name)}</b>  ${esc(m.summary)}`).join("\n") + "\n<span class=\"sys\">man &lt;name&gt; for a quick view, man &lt;name&gt; --open for the full page</span>";
+      const q = a[0].toLowerCase().replace(/^-+/, "");
+      const m = (D.man || []).find(m => m.slug.startsWith(q) || m.name.startsWith(q) || ((q === "ps" || q === "powershell" || q === "ad") && m.slug === "ad-powershell") || (q === "vol" && m.slug === "volatility"));
+      if (!m) return `No manual entry for ${esc(a[0])}`;
+      if (a.includes("--open")) return go(ROOT + "man/" + m.slug + ".html", log);
+      const top = m.groups.flatMap(g => g.rows.slice(0, 2).map(r => `  <b>${esc(r[0])}</b>\n      ${esc(r[1])}`)).slice(0, 8).join("\n");
+      return `<b>${esc(m.name.toUpperCase())}</b> - ${esc(m.summary)}\n\n${top}\n\n${link(ROOT + "man/" + m.slug + ".html", "full page")}`;
+    },
+    resume: (a, log) => go(ROOT + "resume.html", log),
+    lab: (a, log) => go(ROOT + "lab.html", log),
+    ctf: () => (D.ctf && D.ctf.length ? D.ctf.map(c => `${esc(c.date)}  <b>${esc(c.name)}</b>  [${esc(c.difficulty || "")}]`).join("\n") + `\n\n${D.ctf.length} rooms solved` : "scoreboard is empty. rooms coming soon.") + `\n${link(ROOT + "ctf.html", "open ~/ctf")}`,
+    tools: () => (D.tools && D.tools.length ? D.tools.map(esc).join("\n") : "no tools published yet.") + `\n${link(ROOT + "tools.html", "open ~/tools")}`,
+    detections: () => (D.detections && D.detections.length ? D.detections.map(esc).join("\n") : "no rules published yet.") + `\n${link(ROOT + "detections.html", "open ~/detections")}`,
+    books: () => (D.books && D.books.length ? D.books.map(b => `[${esc(b.status)}] <b>${esc(b.title)}</b> ${esc(b.author || "")}`).join("\n") : "shelf is empty for now.") + `\n${link(ROOT + "books.html", "open ~/books")}`
   };
 
   // keyword answers for plain-English questions
@@ -168,7 +185,10 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
     [/contact|email|reach|linkedin|github|hire|socials?/, () => CMDS.contact()],
     [/cert|security\+|sec\+|comptia|exam/, () => CMDS.certs()],
     [/flag|ctf|secret|easter/, () => CMDS.flags()],
-    [/hire|recruit|resume|cv\b/, () => CMDS.hire()],
+    [/resume|cv\b/, () => CMDS.hire() + `\n\n${link(ROOT + "resume.html", "full resume")}`],
+    [/hire|recruit/, () => CMDS.hire()],
+    [/cheat ?sheet|nmap|volatility|powershell/, () => CMDS.man([])],
+    [/tryhackme|thm\b|room/, () => CMDS.ctf()],
     [/(right )?now|current|working on|studying/, () => CMDS.now()],
     [/skill|tool|language|stack|know/, () => CMDS.skills()],
     [/project|built|build|portfolio/, () => listProjects()],

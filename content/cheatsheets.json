@@ -1,0 +1,100 @@
+[
+  {"slug": "nmap", "name": "nmap", "section": "1", "summary": "network exploration tool and port scanner",
+   "groups": [
+    {"title": "discovery", "rows": [
+      ["nmap -sn 10.0.0.0/24", "ping sweep: which hosts are up, no port scan"],
+      ["nmap -Pn 10.0.0.5", "skip host discovery (treat host as up, useful when ICMP is blocked)"],
+      ["nmap -sL 10.0.0.0/24", "list targets only, no packets sent"]]},
+    {"title": "port scans", "rows": [
+      ["nmap -sS 10.0.0.5", "TCP SYN (half-open) scan, the default when run as root"],
+      ["nmap -sT 10.0.0.5", "full TCP connect scan, no root needed"],
+      ["nmap -sU --top-ports 50 10.0.0.5", "UDP scan of the 50 most common UDP ports"],
+      ["nmap -p- 10.0.0.5", "all 65535 TCP ports"],
+      ["nmap -p 22,80,443 10.0.0.5", "specific ports"],
+      ["nmap --top-ports 1000 --open 10.0.0.5", "common ports, show only open ones"]]},
+    {"title": "services & OS", "rows": [
+      ["nmap -sV 10.0.0.5", "probe open ports for service and version"],
+      ["nmap -O 10.0.0.5", "OS fingerprinting"],
+      ["nmap -A 10.0.0.5", "aggressive: -sV -O -sC plus traceroute"],
+      ["nmap -sC 10.0.0.5", "run the default NSE scripts"],
+      ["nmap --script smb-enum-shares -p445 10.0.0.5", "run a specific NSE script"]]},
+    {"title": "timing & output", "rows": [
+      ["nmap -T4 10.0.0.5", "faster timing template (T0 slowest, T5 fastest)"],
+      ["nmap -oA scan 10.0.0.5", "save normal, XML and grepable output as scan.*"],
+      ["nmap -v --reason 10.0.0.5", "verbose, and say why each port is in its state"]]}
+   ]},
+  {"slug": "wireshark", "name": "wireshark-filters", "section": "7", "summary": "display filters for Wireshark and tshark",
+   "groups": [
+    {"title": "addresses & ports", "rows": [
+      ["ip.addr == 10.0.0.5", "traffic to or from a host"],
+      ["ip.src == 10.0.0.5 && ip.dst == 10.0.0.9", "one direction between two hosts"],
+      ["tcp.port == 443", "a TCP port in either direction"],
+      ["!(ip.addr == 10.0.0.0/8)", "exclude internal traffic, leaves external flows"]]},
+    {"title": "protocols", "rows": [
+      ["http.request", "HTTP requests only"],
+      ["http.request.method == \"POST\"", "HTTP POSTs (form submissions, uploads)"],
+      ["dns.qry.name contains \"example\"", "DNS queries matching a name"],
+      ["tls.handshake.extensions_server_name", "TLS ClientHellos that carry an SNI hostname"],
+      ["ftp || ftp-data", "FTP control and data channels"],
+      ["smb2", "SMB2/3 file sharing"]]},
+    {"title": "TCP behavior", "rows": [
+      ["tcp.flags.syn == 1 && tcp.flags.ack == 0", "connection attempts (SYNs), good for spotting scans"],
+      ["tcp.flags.reset == 1", "resets"],
+      ["tcp.analysis.retransmission", "retransmissions, a sign of loss or a struggling link"],
+      ["tcp.len > 1000", "packets carrying a big payload"]]},
+    {"title": "hunting", "rows": [
+      ["frame contains \"password\"", "raw string search across frames"],
+      ["http.user_agent contains \"curl\"", "scripted HTTP clients"],
+      ["dns && frame.len > 300", "oversized DNS, possible tunneling"],
+      ["Follow > TCP Stream (Ctrl+Alt+Shift+T)", "reassemble one conversation"],
+      ["File > Export Objects > HTTP", "carve files transferred over HTTP"]]}
+   ]},
+  {"slug": "volatility", "name": "volatility3", "section": "1", "summary": "memory forensics framework (Volatility 3 syntax)",
+   "groups": [
+    {"title": "orientation", "rows": [
+      ["vol -f mem.raw windows.info", "OS version, build and kernel details of the image"],
+      ["vol -f mem.raw banners.Banners", "identify a Linux kernel image"],
+      ["vol -f mem.raw -r csv windows.pslist > ps.csv", "any plugin to CSV for spreadsheets or grep"]]},
+    {"title": "processes", "rows": [
+      ["vol -f mem.raw windows.pslist", "processes from the active process list"],
+      ["vol -f mem.raw windows.pstree", "parent/child tree, spot odd parents (e.g. Word spawning cmd)"],
+      ["vol -f mem.raw windows.psscan", "scan for process structures, finds hidden or exited ones"],
+      ["vol -f mem.raw windows.cmdline", "command line each process was started with"],
+      ["vol -f mem.raw windows.dlllist --pid 1234", "DLLs loaded by a process"]]},
+    {"title": "network & persistence", "rows": [
+      ["vol -f mem.raw windows.netscan", "sockets and connections, with owning process"],
+      ["vol -f mem.raw windows.registry.hivelist", "loaded registry hives"],
+      ["vol -f mem.raw windows.registry.printkey --key \"Software\\Microsoft\\Windows\\CurrentVersion\\Run\"", "classic Run-key persistence"],
+      ["vol -f mem.raw windows.svcscan", "services"]]},
+    {"title": "malware hunting", "rows": [
+      ["vol -f mem.raw windows.malfind", "memory regions that look injected (RWX, PE headers)"],
+      ["vol -f mem.raw windows.handles --pid 1234", "open handles: files, mutexes, registry keys"],
+      ["vol -f mem.raw -o out/ windows.dumpfiles --pid 1234", "extract files mapped by a process"],
+      ["vol -f mem.raw windows.hashdump", "local account NTLM hashes"]]}
+   ]},
+  {"slug": "ad-powershell", "name": "ad-powershell", "section": "1", "summary": "Active Directory administration with the ActiveDirectory module",
+   "groups": [
+    {"title": "users", "rows": [
+      ["Get-ADUser jdoe -Properties *", "everything about one user"],
+      ["Get-ADUser -Filter 'Enabled -eq $false'", "disabled accounts"],
+      ["Search-ADAccount -LockedOut", "locked-out accounts"],
+      ["Unlock-ADAccount jdoe", "unlock an account"],
+      ["Set-ADAccountPassword jdoe -Reset -NewPassword (Read-Host -AsSecureString)", "reset a password"],
+      ["New-ADUser -Name 'Jane Doe' -SamAccountName jdoe -Path 'OU=Users,DC=lab,DC=local' -Enabled $true -AccountPassword (Read-Host -AsSecureString)", "create a user"]]},
+    {"title": "groups", "rows": [
+      ["Get-ADPrincipalGroupMembership jdoe | Select Name", "which groups a user is in"],
+      ["Get-ADGroupMember 'Domain Admins' -Recursive", "who is effectively a domain admin"],
+      ["Add-ADGroupMember 'Finance-Share-Read' -Members jdoe", "add a user to a group (they must sign out and in again)"],
+      ["Remove-ADGroupMember 'Finance-Share-Read' -Members jdoe", "remove a user"]]},
+    {"title": "computers & OUs", "rows": [
+      ["Get-ADComputer -Filter * -Properties LastLogonDate", "computers and when they last checked in"],
+      ["Get-ADOrganizationalUnit -Filter * | Select Name,DistinguishedName", "OU layout"],
+      ["Move-ADObject (Get-ADUser jdoe).DistinguishedName -TargetPath 'OU=IT,DC=lab,DC=local'", "move an object to another OU"]]},
+    {"title": "group policy & troubleshooting", "rows": [
+      ["gpupdate /force", "re-apply Group Policy now"],
+      ["gpresult /r", "which GPOs applied to this user and computer"],
+      ["Get-GPO -All | Select DisplayName,GpoStatus", "list GPOs"],
+      ["whoami /groups", "groups in the current access token (stale until re-logon)"],
+      ["Test-ComputerSecureChannel -Repair", "fix a broken trust relationship with the domain"]]}
+   ]}
+]
