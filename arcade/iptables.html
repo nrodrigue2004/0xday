@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iptables :: arcade :: 0xDay</title>
+<meta name="description" content="Firewall reflex game: accept or drop packets against a changing iptables chain.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cb4f26fb">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../arcade.css?v=1ad0281e">
+<script src="../arcade.js?v=1ad0281e" defer></script>
+<script id="ar-data" type="application/json">{"game": "iptables"}</script>
+<script src="../data.js?v=cb4f26fb" defer></script>
+<script src="../site.js?v=cb4f26fb" defer></script>
+<script src="../fx.js?v=cb4f26fb" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">sudo ./iptables --interactive</p>
+<h1>iptables</h1>
+<p>Packets come down the queue. Check each one against the chain and <b>ACCEPT</b> or <b>DROP</b> it before it hits the bottom. The first matching rule wins; if nothing matches, the policy applies. Let a bad packet through and that's a breach. Drop a good one and that's an outage. Three strikes and the box goes down.</p>
+<div class="ar-game ipt" id="ipt">
+  <div class="ar-hud"><span>lvl <b id="ipt-lvl">1</b></span><span>score <b id="ipt-score">0</b></span><span>x<b id="ipt-combo">1</b></span><span>hp <b id="ipt-hp">###</b></span><span>hi <b data-hi="iptables">---</b></span></div>
+  <div class="ipt-grid">
+    <div class="ipt-lane" id="ipt-lane" aria-live="off"><div class="ipt-wire"></div></div>
+    <pre class="ipt-rules" id="ipt-rules" aria-live="polite"></pre>
+  </div>
+  <div class="ar-pad">
+    <button class="btn ar-big ar-ok" type="button" id="ipt-acc">[ A ] ACCEPT</button>
+    <button class="btn ar-big ar-bad" type="button" id="ipt-drop">[ D ] DROP</button>
+  </div>
+  <div class="ar-over" id="ipt-over" hidden></div>
+</div>
+<p class="muted small">keys: <kbd>A</kbd>/<kbd>&larr;</kbd> accept · <kbd>D</kbd>/<kbd>&rarr;</kbd> drop · <kbd>P</kbd> pause · <kbd>Enter</kbd> start. Early levels label each port with its service; later ones don't. <a href="../arcade.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
