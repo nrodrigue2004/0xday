@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security+ 1.4 :: 0xDay</title>
+<meta name="description" content="Security+ SY0-701 objective 1.4: Explain the importance of using appropriate cryptographic solutions">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0270e2a6">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0270e2a6" defer></script>
+<script src="../site.js?v=0270e2a6" defer></script>
+<script src="../fx.js?v=0270e2a6" defer></script>
+<script src="../study.js?v=0270e2a6" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.4</p>
+<div class="manhead"><span>SY0-701</span><span>domain 1.0 · General Security Concepts</span><span>1.4</span></div>
+<h1><span class="ok">1.4</span> Explain the importance of using appropriate cryptographic solutions</h1>
+<div class="obj" data-obj="1.4">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> watched the videos</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>key ideas</h2>
+<div class="prose"><ul><li>Symmetric (AES, one shared key, fast) vs asymmetric (RSA/ECC, public+private keys, used for key exchange and signatures).</li><li>Hashing (SHA-256) is one-way, for integrity. Salting stops rainbow tables; key stretching (bcrypt, PBKDF2) slows brute force.</li><li>PKI: CA signs certificates; CRL and OCSP check revocation; a CSR requests a cert. Wildcard certs cover *.domain.</li><li>Encryption levels: full-disk, partition, volume, file, database, record. Transport: TLS, VPN (IPsec).</li><li>Hardware: TPM (on the motherboard), HSM (dedicated appliance), secure enclave, key management system.</li><li>Obfuscation: steganography, tokenization, data masking. Blockchain is a distributed, append-only ledger.</li></ul></div>
+<h2>study notes</h2>
+<p class="muted">// full notes from the Professor Messer videos land here once the transcript is imported.</p>
+<h2>flashcards</h2>
+<div class="deck" data-deck="1.4"></div>
+
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.4" placeholder="# 1.4 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.3.html">&lt; 1.3</a><a href="2.1.html">2.1 &gt;</a></nav>
+<p><a href="../secplus.html">cd ~/secplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "1.4-0", "q": "What's the main difference between symmetric and asymmetric encryption?", "a": "Symmetric uses one shared key (fast, bulk data); asymmetric uses a public/private key pair (key exchange, signatures)."}, {"id": "1.4-1", "q": "What does a salt protect against?", "a": "Precomputed attacks like rainbow tables, and identical passwords producing identical hashes."}, {"id": "1.4-2", "q": "What is key stretching?", "a": "Running a password through a slow hash many times (bcrypt, PBKDF2) to make brute force expensive."}, {"id": "1.4-3", "q": "OCSP vs CRL?", "a": "Both check certificate revocation; CRL is a downloaded list, OCSP asks the CA about one cert in real time."}, {"id": "1.4-4", "q": "TPM vs HSM?", "a": "TPM is a chip on one device's motherboard; an HSM is a dedicated, often networked, appliance for managing many keys."}, {"id": "1.4-5", "q": "What is tokenization?", "a": "Replacing sensitive data (like a card number) with a non-sensitive token that maps back only via a secure vault."}, {"id": "1.4-6", "q": "Which key do you use to verify someone's digital signature?", "a": "Their public key."}, {"id": "1.4-7", "q": "What does a digital signature give you?", "a": "Integrity, authentication and non-repudiation."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
