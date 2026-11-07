@@ -59,7 +59,7 @@
   const postUrl = p => `${ROOT}posts/${p.slug}.html`;
   const projUrl = p => (p.url && !/^https?:/.test(p.url) ? ROOT + p.url : p.url);
   const go = (url, log) => { log(`<span class="sys">opening ${esc(url)} ...</span>`); setTimeout(() => (location.href = url), 450); };
-  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html", lab: "lab.html", resume: "resume.html", ctf: "ctf.html", man: "man.html", tools: "tools.html", detections: "detections.html", books: "books.html", homelab: "homelab.html", "attack-chain": "attack-chain.html", "deep-dives": "deep-dives.html", deepdives: "deep-dives.html" };
+  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html", lab: "lab.html", resume: "resume.html", ctf: "ctf.html", man: "man.html", tools: "tools.html", detections: "detections.html", books: "books.html", homelab: "homelab.html", "attack-chain": "attack-chain.html", "deep-dives": "deep-dives.html", deepdives: "deep-dives.html", arcade: "arcade.html", games: "arcade.html" };
   const started = Date.now();
 
   function findPost(q) {
@@ -90,6 +90,7 @@
   <b>hire</b>          the recruiter summary   <b>resume</b>  printable resume
   <b>man</b> &lt;page&gt;    cmd, powershell, linux, macos, nmap, wireshark, volatility, ad
   <b>ctf</b>           TryHackMe scoreboard   <b>lab</b>     everything else
+  <b>arcade</b>        games: <b>iptables</b>, <b>crack</b>
   <b>contact</b>       where to find me
   <b>cd</b> &lt;page&gt;     blog, projects, skills, certs, now, about, home
   <b>submit</b> &lt;flag&gt; there are 3 flags hidden on this site
@@ -141,6 +142,8 @@
     },
     roadmap: () => CMDS.certs(),
     homelab: (a, log) => go(ROOT + "homelab.html", log),
+    arcade: (a, log) => go(ROOT + "arcade.html", log), games: (a, log) => CMDS.arcade(a, log), play: (a, log) => CMDS.arcade(a, log),
+    iptables: (a, log) => go(ROOT + "arcade/iptables.html", log), hashcat: (a, log) => go(ROOT + "arcade/crack.html", log), crack: (a, log) => CMDS.hashcat(a, log),
     map: (a, log) => CMDS.homelab(a, log),
     attack: (a, log) => go(ROOT + "attack-chain.html", log),
     killchain: (a, log) => CMDS.attack(a, log),

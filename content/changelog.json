@@ -2,6 +2,11 @@
   {
     "date": "2026-11-07",
     "type": "feat",
+    "msg": "add ~/arcade with two games: iptables (packet triage) and crack (Security+ acronym hash cracking)"
+  },
+  {
+    "date": "2026-11-07",
+    "type": "feat",
     "msg": "man pages for cmd, powershell, linux and macos; drier copy across the site"
   },
   {

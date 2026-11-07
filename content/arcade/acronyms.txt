@@ -1,0 +1,154 @@
+# crack: Security+ acronyms for the Wordle-style game (letters only, 3-6 long).
+# Format: ACRONYM | expansion | one-line note | category
+AES | Advanced Encryption Standard | Symmetric block cipher: 128-bit blocks, 128/192/256-bit keys. The default choice for bulk encryption. | crypto
+DES | Data Encryption Standard | Old symmetric cipher with a 56-bit key. Brute-forceable; replaced by AES. | crypto
+RSA | Rivest Shamir Adleman | Asymmetric algorithm built on factoring large primes. Used for key exchange and signatures. | crypto
+ECC | Elliptic Curve Cryptography | Asymmetric crypto with much smaller keys than RSA for the same strength. Good for mobile and IoT. | crypto
+DSA | Digital Signature Algorithm | Asymmetric algorithm for signing only, not for encryption. | crypto
+SHA | Secure Hash Algorithm | Hash family. SHA-1 is broken for collisions; use SHA-256 or SHA-3. | crypto
+MD | Message Digest | MD5 is a 128-bit hash with practical collisions. Fine for checksums, not for security. | crypto
+HMAC | Hash-based Message Authentication Code | A hash mixed with a secret key, so it proves integrity and who sent it. | crypto
+PKI | Public Key Infrastructure | The CAs, certificates, policies and revocation that let strangers trust public keys. | crypto
+CRL | Certificate Revocation List | A signed list from the CA of certificates revoked before expiry. | crypto
+OCSP | Online Certificate Status Protocol | Real-time check of one certificate's status instead of downloading a whole CRL. | crypto
+CSR | Certificate Signing Request | What you send a CA: your public key plus identity info, signed with your private key. | crypto
+HSM | Hardware Security Module | Dedicated tamper-resistant hardware that generates and stores keys and does crypto operations. | crypto
+TPM | Trusted Platform Module | Chip on the motherboard for secure boot measurements and key storage (BitLocker uses it). | crypto
+FDE | Full Disk Encryption | Encrypts the whole drive so a stolen laptop is just a brick of ciphertext. | crypto
+SED | Self-Encrypting Drive | A drive that encrypts itself in hardware with no OS involvement. | crypto
+PFS | Perfect Forward Secrecy | Fresh session keys per session, so a leaked long-term key can't decrypt old traffic. | crypto
+ECDHE | Elliptic Curve Diffie Hellman Ephemeral | Key exchange that provides perfect forward secrecy in modern TLS. | crypto
+GCM | Galois Counter Mode | Block cipher mode giving encryption plus authentication (AEAD). AES-GCM is the TLS default. | crypto
+CBC | Cipher Block Chaining | Block mode where each block is XORed with the previous ciphertext. Needs an IV. | crypto
+ECB | Electronic Codebook | Block mode that encrypts identical blocks identically. Leaks patterns; never use it. | crypto
+IV | Initialization Vector | Random starting value so the same plaintext encrypts differently each time. | crypto
+TLS | Transport Layer Security | Encrypts traffic in transit (HTTPS). Use 1.2 or 1.3; SSL is dead. | network
+SSL | Secure Sockets Layer | TLS's deprecated predecessor. Every version is broken. | network
+SSH | Secure Shell | Encrypted remote shell on TCP 22. Replaces telnet. | network
+SFTP | SSH File Transfer Protocol | File transfer running over SSH on port 22. | network
+FTPS | FTP Secure | Classic FTP wrapped in TLS. | network
+HTTPS | HTTP Secure | HTTP over TLS on TCP 443. | network
+DNS | Domain Name System | Resolves names to IPs on UDP/TCP 53. A favorite target for poisoning and tunneling. | network
+DHCP | Dynamic Host Configuration Protocol | Hands out IP addresses on UDP 67/68. Rogue DHCP servers enable on-path attacks. | network
+NTP | Network Time Protocol | Keeps clocks in sync on UDP 123. Log correlation and Kerberos break without it. | network
+SNMP | Simple Network Management Protocol | Device monitoring on UDP 161/162. Use v3; v1 and v2c send community strings in cleartext. | network
+LDAP | Lightweight Directory Access Protocol | Queries directories like Active Directory on TCP 389. LDAPS on 636. | network
+LDAPS | LDAP Secure | LDAP over TLS on TCP 636. | network
+SMTP | Simple Mail Transfer Protocol | Sends mail between servers on TCP 25 (587 for client submission). | network
+IMAP | Internet Message Access Protocol | Reads mail kept on the server, TCP 143 (993 with TLS). | network
+POP | Post Office Protocol | POP3 downloads mail to the client, TCP 110 (995 with TLS). | network
+RDP | Remote Desktop Protocol | Windows remote desktop on TCP 3389. Never expose it to the internet. | network
+SMB | Server Message Block | Windows file sharing on TCP 445. Home of EternalBlue. | network
+VPN | Virtual Private Network | Encrypted tunnel across an untrusted network. | network
+IPSEC | Internet Protocol Security | Encrypts at layer 3. AH gives integrity; ESP adds confidentiality. Tunnel or transport mode. | network
+ESP | Encapsulating Security Payload | IPsec protocol that encrypts and authenticates the payload. | network
+AH | Authentication Header | IPsec protocol for integrity and origin authentication only, no encryption. | network
+VLAN | Virtual Local Area Network | Splits one switch into separate broadcast domains for segmentation. | network
+NAT | Network Address Translation | Maps private addresses to a public one at the edge. | network
+DMZ | Demilitarized Zone | Screened subnet for public-facing servers, between the internet and the internal LAN. | network
+SDN | Software Defined Networking | Separates the control plane from the data plane so the network is programmable. | network
+WAF | Web Application Firewall | Filters HTTP at layer 7 to stop SQLi, XSS and friends. | network
+UTM | Unified Threat Management | One appliance doing firewall, IPS, AV, content filtering and VPN. | network
+NGFW | Next Generation Firewall | Application-aware firewall that inspects beyond ports and protocols. | network
+IDS | Intrusion Detection System | Watches traffic and alerts. Detective, not preventive. | network
+IPS | Intrusion Prevention System | Sits inline and blocks malicious traffic. | network
+NAC | Network Access Control | Checks a device's identity and health before it's allowed on the network. | network
+WPA | WiFi Protected Access | Wireless security. WPA3 uses SAE instead of the crackable WPA2 handshake. | network
+SAE | Simultaneous Authentication of Equals | WPA3's handshake. Resists offline dictionary attacks. | network
+WPS | WiFi Protected Setup | PIN-based Wi-Fi pairing that can be brute-forced. Turn it off. | network
+EAP | Extensible Authentication Protocol | Framework for authentication methods used with 802.1X (EAP-TLS, PEAP). | auth
+PEAP | Protected EAP | Wraps EAP inside a TLS tunnel so the inner credentials are protected. | auth
+RADIUS | Remote Authentication Dial-In User Service | AAA over UDP. Encrypts only the password. Common for Wi-Fi and VPN auth. | auth
+TACACS | Terminal Access Controller Access Control System | Cisco's AAA protocol (TACACS+) on TCP 49. Encrypts the whole payload. | auth
+AAA | Authentication Authorization Accounting | Who you are, what you can do, and a record of what you did. | auth
+MFA | Multifactor Authentication | Two or more factors from different categories: know, have, are, somewhere you are. | auth
+OTP | One Time Password | A code valid once. HOTP counts, TOTP uses time. | auth
+TOTP | Time-based One Time Password | Authenticator-app codes that change every 30 seconds. | auth
+HOTP | HMAC-based One Time Password | Counter-based one-time codes. | auth
+SSO | Single Sign On | Log in once, get into many apps. | auth
+SAML | Security Assertion Markup Language | XML-based federation: an IdP vouches for you to a service provider. | auth
+OAUTH | Open Authorization | Delegated authorization: an app gets a token to act for you without your password. | auth
+OIDC | OpenID Connect | Identity layer on top of OAuth 2.0. Adds who you are to what you allowed. | auth
+IDP | Identity Provider | The system that authenticates users and issues assertions or tokens. | auth
+IAM | Identity and Access Management | Processes and tools for managing identities and their permissions. | auth
+PAM | Privileged Access Management | Vaults, checks out and records admin credentials and sessions. | auth
+RBAC | Role-Based Access Control | Permissions attach to roles; users get roles. | auth
+ABAC | Attribute-Based Access Control | Decisions based on attributes of user, resource and context. | auth
+MAC | Mandatory Access Control | The OS enforces labels and clearances; users can't change them. (Also: Media Access Control address.) | auth
+DAC | Discretionary Access Control | The owner decides who gets access (normal file permissions). | auth
+ACL | Access Control List | Ordered list of permit/deny rules on a resource or interface. | auth
+PIN | Personal Identification Number | Something you know. Short, so it relies on lockout. | auth
+FIM | File Integrity Monitoring | Alerts when critical files change, by comparing hashes to a baseline. | ops
+SIEM | Security Information and Event Management | Collects and correlates logs from everywhere and alerts on patterns. | ops
+SOAR | Security Orchestration Automation and Response | Playbooks that automate response actions across tools. | ops
+SOC | Security Operations Center | The team that monitors, detects and responds, around the clock. | ops
+EDR | Endpoint Detection and Response | Agent that records endpoint behavior and can isolate or kill on detection. | ops
+XDR | Extended Detection and Response | EDR-style detection correlated across endpoints, network, cloud and email. | ops
+DLP | Data Loss Prevention | Spots sensitive data leaving where it shouldn't and blocks it. | ops
+MDM | Mobile Device Management | Central control of phones and tablets: policy, wipe, app control. | ops
+CASB | Cloud Access Security Broker | Sits between users and cloud apps to enforce policy and visibility. | ops
+SASE | Secure Access Service Edge | Networking and security (SD-WAN, ZTNA, SWG, CASB) delivered from the cloud. | ops
+SWG | Secure Web Gateway | Filters outbound web traffic for malware and policy. | ops
+EOL | End of Life | Vendor stops selling and eventually patching. Plan replacement. | ops
+SBOM | Software Bill of Materials | Inventory of every component and library inside a piece of software. | ops
+CVE | Common Vulnerabilities and Exposures | Public ID for a known vulnerability, like CVE-2021-44228. | ops
+CVSS | Common Vulnerability Scoring System | 0 to 10 severity score for a vulnerability. | ops
+SCAP | Security Content Automation Protocol | Standards for automated vulnerability and configuration checks. | ops
+OSINT | Open Source Intelligence | Intel gathered from public sources. | ops
+TTP | Tactics Techniques and Procedures | How an adversary operates. Higher on the pyramid of pain than IOCs. | ops
+IOC | Indicator of Compromise | Evidence of an intrusion: hashes, IPs, domains, registry keys. | ops
+APT | Advanced Persistent Threat | Well-funded, patient attacker, often state-sponsored. | threat
+XSS | Cross Site Scripting | Injecting script into a page other users load. Fix with output encoding and CSP. | threat
+CSRF | Cross Site Request Forgery | Tricks a logged-in browser into sending a request the user didn't intend. | threat
+SSRF | Server Side Request Forgery | Makes the server fetch URLs for you, often internal ones like cloud metadata. | threat
+SQLI | SQL Injection | User input becomes SQL. Fix with parameterized queries. | threat
+RCE | Remote Code Execution | Running attacker code on a target over the network. The worst outcome. | threat
+DDOS | Distributed Denial of Service | Many sources flooding a target until it can't serve real users. | threat
+DOS | Denial of Service | Making a system unavailable. | threat
+RAT | Remote Access Trojan | Malware that gives an attacker hidden remote control. | threat
+BEC | Business Email Compromise | Impersonating an executive or vendor over email to redirect payments. | threat
+SPIM | Spam over Instant Messaging | Spam delivered through chat apps. | threat
+TOCTOU | Time of Check to Time of Use | Race condition: the resource changes between the check and the use. | threat
+BIA | Business Impact Analysis | Figures out which processes matter most and what downtime costs. | gov
+RTO | Recovery Time Objective | How long a system can be down before it hurts too much. | gov
+RPO | Recovery Point Objective | How much data loss, measured in time, is acceptable. | gov
+MTTR | Mean Time To Repair | Average time to fix a failed component. | gov
+MTBF | Mean Time Between Failures | Average uptime between failures. Reliability metric. | gov
+ALE | Annualized Loss Expectancy | SLE times ARO: expected yearly cost of a risk. | gov
+SLE | Single Loss Expectancy | Asset value times exposure factor: cost of one incident. | gov
+ARO | Annualized Rate of Occurrence | How many times per year a risk is expected to happen. | gov
+SLA | Service Level Agreement | Contract with measurable promises like uptime and response time. | gov
+MOU | Memorandum of Understanding | Letter of intent between parties. Usually not legally binding. | gov
+MSA | Master Service Agreement | Umbrella contract that later work orders fall under. | gov
+NDA | Non Disclosure Agreement | Legal promise to keep information confidential. | gov
+SOW | Statement of Work | Defines the deliverables, timeline and scope of a specific job. | gov
+AUP | Acceptable Use Policy | What users are and aren't allowed to do with company systems. | gov
+GDPR | General Data Protection Regulation | EU privacy law: consent, right to be forgotten, 72-hour breach notice. | gov
+HIPAA | Health Insurance Portability and Accountability Act | US law protecting health information. | gov
+PCI | Payment Card Industry | PCI DSS is the standard for anyone storing or processing card data. | gov
+PII | Personally Identifiable Information | Data that identifies a person: name plus SSN, address, and so on. | gov
+PHI | Protected Health Information | Health data tied to a person. Covered by HIPAA. | gov
+NIST | National Institute of Standards and Technology | US agency behind the CSF, RMF and SP 800 series. | gov
+ISO | International Organization for Standardization | ISO 27001 is the infosec management standard you can certify against. | gov
+COOP | Continuity of Operations Planning | Keeping essential functions running during and after a disaster. | gov
+DRP | Disaster Recovery Plan | How to restore IT systems after a disaster. | gov
+IRP | Incident Response Plan | Who does what when an incident hits: prep, detect, contain, eradicate, recover, lessons. | gov
+UPS | Uninterruptible Power Supply | Battery that bridges short outages until a generator starts. | ops
+RAID | Redundant Array of Independent Disks | Combines disks for redundancy or speed. RAID 0 has no redundancy at all. | ops
+SAN | Storage Area Network | Block-level storage over a dedicated network. (Also Subject Alternative Name in certs.) | ops
+NAS | Network Attached Storage | File-level storage on the network. | ops
+VDI | Virtual Desktop Infrastructure | Desktops hosted on servers and streamed to thin clients. | ops
+IAAS | Infrastructure as a Service | Rent VMs, storage and networks. You manage the OS and up. | cloud
+PAAS | Platform as a Service | Provider runs the OS and runtime; you deploy code. | cloud
+SAAS | Software as a Service | Finished apps over the web. You manage users and data. | cloud
+IAC | Infrastructure as Code | Servers and networks defined in version-controlled files. | cloud
+CSP | Cloud Service Provider | AWS, Azure, GCP and the rest. (Also Content Security Policy.) | cloud
+ICS | Industrial Control Systems | Systems that run physical processes: plants, pipelines, grids. | cloud
+SCADA | Supervisory Control and Data Acquisition | Large-scale ICS monitoring and control across sites. | cloud
+RTOS | Real Time Operating System | OS with deterministic timing for embedded systems. | cloud
+IOT | Internet of Things | Networked devices, often with weak defaults and no patches. | cloud
+UEFI | Unified Extensible Firmware Interface | Modern BIOS replacement. Enables Secure Boot. | ops
+BIOS | Basic Input Output System | Legacy firmware that starts the hardware and boots the OS. | ops
+EFS | Encrypting File System | Windows per-file encryption tied to the user account. | crypto
+GPO | Group Policy Object | Settings pushed to AD users and computers. | ops
+ZTNA | Zero Trust Network Access | Per-app access granted after checking identity and device, never the whole network. | network

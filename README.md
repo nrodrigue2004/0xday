@@ -44,3 +44,7 @@ The hidden site CTF flags live in `FLAGS` in `build.py` (only their SHA-256 hash
 npm i --no-save pyodide@0.26.4 sql.js@1.10.3 typescript@5.4.5
 node scripts/check_dojo.js        # or: node scripts/check_dojo.js c python
 ```
+
+## ~/arcade (games)
+
+`arcade.html` and `arcade/<game>.html` are built by `build_arcade.py`, with `arcade.css` and `arcade.js`. **iptables** is a packet-triage reflex game (its levels and rule sets are at the top of the iptables section in `arcade.js`). **crack** is a Wordle-style game whose word list is `content/arcade/acronyms.txt` (`ACRONYM | expansion | note | category`, 3-6 letters). High scores and the daily streak live in the visitor's localStorage.
