@@ -77,8 +77,8 @@
     const f = {}, rest = []; let stop = false;
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
+      if (!stop && a === "--") { stop = true; continue; }
       if (stop || !/^-[^-\d]|^--\w/.test(a)) { rest.push(a); continue; }
-      if (a === "--") { stop = true; continue; }
       if (a.startsWith("--")) { const [k, v] = a.slice(2).split("="); f[k] = v ?? true; continue; }
       for (let j = 1; j < a.length; j++) {
         const k = a[j];
@@ -174,7 +174,7 @@
   solution         walkthrough (after solving)  clear       clear the screen
 <b>shell</b>
   ls cd pwd cat head tail grep wc sort uniq cut awk sed tr find file strings nano
-  base64 xxd rev nl tee echo sha256sum ipcalc whoami hostname id date uname history
+  base64 xxd xor rev nl tee echo sha256sum ipcalc whoami hostname id date uname history
   pipes (|), redirects (&gt; &gt;&gt;), ; &amp;&amp; ||, $VAR, $(cmd), $((math)),
   for/while/if one-liners and bash script.sh all work.${LAB.cmdnames && LAB.cmdnames.length ? "\n<b>lab tools</b>\n  " + LAB.cmdnames.join("  ") : ""}${LAB.js ? "\n  node &lt;file.js&gt; | node -e '&lt;code&gt;'   runs real JavaScript" : ""}${LAB.sql ? "\n  sqlite3 &lt;db&gt; [\"SQL\"]   runs real SQLite" : ""}${LAB.py ? "\n  python3 &lt;file.py&gt; | python3 -c '&lt;code&gt;'   runs real Python (Pyodide)" : ""}
 Tip: every <b>▶</b> button in the guide types that example in here.\n`,
@@ -200,7 +200,7 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
       return { html: o.join("\n") + "\n", text: join(plain.map(x => x.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"))) };
     },
     cat: (a, i) => { const [f, files] = flags(a); const s = inputs(files.flatMap(glob), i, "cat"); return f.n ? join(lines(s).map((l, k) => `${String(k + 1).padStart(6)}\t${l}`)) : s; },
-    head: (a, i) => { const [f, files] = flags(a.map(x => (/^-\d+$/.test(x) ? "-n" + x.slice(1) : x)), "nc"); return join(lines(inputs(files.flatMap(glob), i, "head")).slice(0, +(f.n || 10))); },
+    head: (a, i) => { const [f, files] = flags(a.map(x => (/^-\d+$/.test(x) ? "-n" + x.slice(1) : x)), "nc"); if (f.c) return inputs(files.flatMap(glob), i, "head").slice(0, +f.c); return join(lines(inputs(files.flatMap(glob), i, "head")).slice(0, +(f.n || 10))); },
     tail: (a, i) => {
       const [f, files] = flags(a.map(x => (/^-\d+$/.test(x) ? "-n" + x.slice(1) : x)), "n"); const L = lines(inputs(files.flatMap(glob), i, "tail")); const n = f.n || "10";
       return join(String(n).startsWith("+") ? L.slice(+n.slice(1) - 1) : L.slice(-+n));
@@ -214,7 +214,8 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
       return join(rows.map(([c, n]) => fmt(c, n)).concat(files.length > 1 ? [fmt(tot, "total")] : []));
     },
     grep: (a, i) => {
-      const [f, rest] = flags(a, "e"); const pat = f.e ?? rest.shift();
+      const [f, rest] = flags(a, "eABC"); const pat = f.e ?? rest.shift();
+      const ctxA = +(f.A || f.C || 0), ctxB = +(f.B || f.C || 0);
       if (pat === undefined) throw new Error("usage: grep [-ivcnoEFrlhw] PATTERN [FILE...]");
       let src = f.F ? pat.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") : f.E ? pat : pat.replace(/\\\|/g, "|");
       if (f.w) src = `\\b(?:${src})\\b`;
@@ -224,11 +225,16 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
       const multi = (files.length > 1 || f.r || f.R) && !f.h, o = []; let total = 0;
       const srcs = files.length ? files.map(n => [n, read(n, "grep")]) : [["(stdin)", i]];
       for (const [name, s] of srcs) {
-        let c = 0;
-        lines(s).forEach((l, k) => {
+        let c = 0, lastOut = -1; const LL = lines(s);
+        LL.forEach((l, k) => {
           const hit = re.test(l) !== !!f.v; if (!hit) return; c++;
           if (f.c || f.l || f.q) return;
           const pre = (multi ? name + ":" : "") + (f.n ? k + 1 + ":" : "");
+          if (ctxA || ctxB) {
+            if (lastOut >= 0 && k - ctxB > lastOut + 1) o.push("--");
+            for (let x = Math.max(lastOut + 1, k - ctxB); x <= Math.min(LL.length - 1, k + ctxA); x++) { o.push((multi ? name + (x === k ? ":" : "-") : "") + LL[x]); lastOut = x; }
+            return;
+          }
           if (f.o && !f.v) (l.match(new RegExp(re.source, re.flags + "g")) || []).forEach(x => o.push(pre + x)); else o.push(pre + l);
         });
         total += c;
@@ -269,6 +275,11 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
         const re = new RegExp(m[2], m[4].includes("i") ? (m[4].includes("g") ? "gi" : "i") : m[4].includes("g") ? "g" : "");
         return join(L.map(l => l.replace(re, m[3].replace(/\\(\d)/g, "$$$1").replace(/&/g, "$$&"))));
       }
+      if ((m = prog.match(/^\/(.*?)\/,\/(.*)\/(p|d)$/))) {
+        const a1 = new RegExp(m[1]), a2 = new RegExp(m[2]); let on = false; const keep = [];
+        for (const l of L) { let inR = on; if (!on && a1.test(l)) { on = inR = true; } else if (on && a2.test(l)) { on = false; inR = true; } if (m[3] === "p" ? inR : !inR) keep.push(l); }
+        return join(keep);
+      }
       if ((m = prog.match(/^\/(.*)\/(p|d)$/))) { const re = new RegExp(m[1]); return join(m[2] === "d" ? L.filter(l => !re.test(l)) : f.n ? L.filter(l => re.test(l)) : L.flatMap(l => (re.test(l) ? [l, l] : [l]))); }
       if ((m = prog.match(/^(\d+)(?:,(\d+))?p$/))) return join(L.slice(+m[1] - 1, m[2] ? +m[2] : +m[1]));
       throw new Error("sed: this sandbox supports s/re/rep/g, /re/p, /re/d and N,Mp");
@@ -288,7 +299,7 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
     xxd: (a, i) => {
       const [f, files] = flags(a); const s = inputs(files, i, "xxd");
       if (f.r && f.p) { const h = s.replace(/[^0-9a-f]/gi, ""); return h.match(/../g)?.map(x => String.fromCharCode(parseInt(x, 16))).join("") ?? ""; }
-      const bytes = [...new TextEncoder().encode(s)];
+      const bytes = [...s].every(c => c.charCodeAt(0) < 256) ? [...s].map(c => c.charCodeAt(0)) : [...new TextEncoder().encode(s)];
       if (f.p) return bytes.map(b => b.toString(16).padStart(2, "0")).join("").replace(/(.{60})/g, "$1\n") + "\n";
       const o = [];
       for (let k = 0; k < bytes.length; k += 16) {
@@ -370,6 +381,11 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
     });
     el.classList.add("sb--open"); el.append(ed); setTimeout(() => ta.focus(), 0);
     return a[0] === "vim" ? "" : "";
+  };
+  B.xor = (a, i) => {
+    const k = a[0] && (a[0].startsWith("0x") ? parseInt(a[0], 16) : /^\d+$/.test(a[0]) ? +a[0] : null);
+    if (k === null || isNaN(k)) throw new Error("usage: xor <key>  (e.g. xor 0x2a, reads stdin)");
+    return [...i].map(c => String.fromCharCode((c.charCodeAt(0) & 255) ^ k)).join("");
   };
   B.ipcalc = a => {
     const arg = a.find(x => !x.startsWith("-")) || ""; const m = arg.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)(?:\/(\d+))?$/);

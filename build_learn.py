@@ -18,6 +18,7 @@ Guide file format (content/guides/<skill-slug>.txt):
     :: solution          # walkthrough shown after solving
     :: file /home/user/x.log
     :: cmd REGEX         # canned output for a simulated tool, matched against each pipeline stage
+    :: verify            # not published: commands that solve the lab (used by tests)
     :: sql               # SQL run into an in-browser SQLite db (enables sqlite3)
     :: trace             # debug style: one step per line: "<source line> | var=val var=val | optional output"
 
@@ -124,6 +125,7 @@ def parse_guide(text):
             name = re.sub(r"^\^", "", arg).split("\\")[0].split(" ")[0].split("(")[0]
             if name and re.match(r"^[\w.-]+$", name) and name not in lab["cmdnames"]: lab["cmdnames"].append(name)
         elif cur == "sql": lab["sql"] = body
+        elif cur == "verify": g["verify"] = [l for l in buf if l.strip()]  # test-only: commands that solve the lab
         elif cur == "trace":
             tr = []
             for l in buf:

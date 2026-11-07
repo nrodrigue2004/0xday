@@ -1,0 +1,233 @@
+tagline: A SIEM is where every log in the network ends up so one analyst can see everything. Learn how Security Onion collects, alerts and hunts, then find a beacon that no alert caught.
+:: simple
+Every device makes logs: firewalls, servers, laptops, the IDS. Looking at them one box at a time is hopeless. A **SIEM** (Security Information and Event Management) collects them all in one place, makes them searchable, and raises **alerts** when something matches a rule.
+
+**Security Onion** is a free SIEM/NSM (network security monitoring) platform, and the one in my homelab. It bundles:
+- **Suricata**: an IDS that alerts on known-bad traffic (signatures)
+- **Zeek**: writes a log line for every connection, DNS query, HTTP request and file it sees, alert or not
+- **Elasticsearch + Kibana / SOC console**: storage and search over all of it
+
+In the sandbox, `~/so/alerts.log` is a Suricata alert export and `~/so/conn.log` is a Zeek connection log.
+
+```
+$ head -5 ~/so/alerts.log
+$ grep -c "sev=medium" ~/so/alerts.log
+```
+
+> Alerts are the starting point, not the answer. Most are noise, and the worst attacks often don't trigger one at all.
+:: mid
+### Triage the alert queue
+Group alerts by signature to see what's noisy and what's rare. Rare is interesting:
+
+```
+$ grep -o 'msg="[^"]*"' ~/so/alerts.log | sort | uniq -c | sort -rn
+```
+
+Then pivot from an alert to the hosts behind it. This one is a host pulling an executable over SMB, which is how ransomware and lateral movement tools spread:
+
+```
+$ grep "SMB2" ~/so/alerts.log | grep -o "src=[0-9.]*" | sort | uniq -c
+```
+
+### Read Zeek logs
+Zeek logs are tab-separated with a `#fields` header that names each column. `cut -f` picks columns by number: here 2 is the client, 4 the server, 5 the port, 9 and 10 the bytes sent and received.
+
+```
+$ head -1 ~/so/conn.log
+$ cut -f2,4,5 ~/so/conn.log | sort | uniq -c | sort -rn | head
+```
+
+> In Security Onion's hunt console the same pivot is a click: group by `source.ip`, then by `destination.ip`.
+:: complex
+### Hunting: finding what no rule caught
+Threat hunting starts from a hypothesis ("malware is checking in with a C2 server") and looks for its fingerprint in the data, alert or not. **Beaconing** has a clear fingerprint:
+- the same internal host to the same external IP, over and over
+- at a regular interval (every 60 s, maybe with a little jitter)
+- with small, nearly identical byte counts
+- often on an unusual port, with no recognized service
+
+Count connections per (client, server, port) and look for the outlier, then check whether its byte counts are identical:
+
+```
+$ awk '{print $2, $4, $5}' ~/so/conn.log | sort | uniq -c | sort -rn | head -5
+$ awk '$5 == 443 {print $9}' ~/so/conn.log | sort -n | uniq -c | sort -rn | head -3
+```
+
+### Long tail and stacking
+"Stacking" is counting how often each value appears across the whole environment and looking at the rarest ones: rare user agents, rare destination ports, a process name that runs on only one machine. Attackers hide in the long tail.
+
+### Detection engineering
+Once you've found something by hand, turn it into a rule so the SIEM catches it next time: a Suricata signature, a Sigma rule, or an Elastic query over Zeek fields. Then tune it until it's quiet enough that people actually read it.
+:: lab
+host: securityonion
+user: analyst
+cwd: /home/analyst
+:: brief
+Threat intel says a new Cobalt Strike variant is evading our Suricata rules. The alert queue in `~/so/alerts.log` shows nothing about it.
+
+Hunt for **beaconing** in the Zeek connection log, `~/so/conn.log`: one internal host checking in with the same server at a fixed interval.
+
+Submit the **C2 server's IP address**.
+:: answer
+198.51.100.77
+:: hint
+Count connections per client, server and port: `awk '{print $2, $4, $5}' ~/so/conn.log | sort | uniq -c | sort -rn | head`
+:: hint
+Normal web traffic goes to port 443 with a `ssl` service and varied byte counts. Look for a pair with lots of connections, an unusual port and `-` as the service.
+:: hint
+Confirm the timing and size: `grep 8443 ~/so/conn.log | head` and look at the timestamps and bytes.
+:: solution
+Counting by client/server/port puts **10.0.20.63 → 198.51.100.77:8443** at the top with 30 connections, far above any one web destination. `grep 8443 ~/so/conn.log` shows a connection exactly every 60 seconds (09:00:20, 09:01:20, ...), always 512 bytes out and 1024 back, no recognized service. That's a beacon. The C2 server is **198.51.100.77**.
+
+Next: isolate 10.0.20.63, block the IP, pull its process list and memory (see the incident response and digital forensics labs), and write a detection for regular small connections to rare external ports so it alerts next time.
+:: verify
+awk '{print $2, $4, $5}' ~/so/conn.log | sort | uniq -c | sort -rn | head -3
+:: file /home/analyst/so/alerts.log
+09:00:00 sid=2013028 sev=low src=10.0.20.51 msg="ET POLICY curl User-Agent Outbound"
+09:01:20 sid=2027865 sev=informational src=10.0.20.44 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:02:40 sid=2210050 sev=low src=10.0.20.51 msg="SURICATA STREAM reassembly overlap"
+09:04:00 sid=2013028 sev=low src=10.0.20.44 msg="ET POLICY curl User-Agent Outbound"
+09:05:20 sid=2210050 sev=low src=10.0.20.63 msg="SURICATA STREAM reassembly overlap"
+09:06:40 sid=2019401 sev=medium src=10.0.20.44 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:08:00 sid=2013028 sev=low src=10.0.20.12 msg="ET POLICY curl User-Agent Outbound"
+09:09:20 sid=2210050 sev=low src=10.0.20.12 msg="SURICATA STREAM reassembly overlap"
+09:10:40 sid=2027865 sev=informational src=10.0.20.12 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:12:00 sid=2027865 sev=informational src=10.0.20.63 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:13:20 sid=2013028 sev=low src=10.0.20.63 msg="ET POLICY curl User-Agent Outbound"
+09:14:40 sid=2019401 sev=medium src=10.0.20.63 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:16:00 sid=2210050 sev=low src=10.0.20.12 msg="SURICATA STREAM reassembly overlap"
+09:17:20 sid=2027865 sev=informational src=10.0.20.63 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:18:40 sid=2027865 sev=informational src=10.0.20.44 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:20:00 sid=2019401 sev=medium src=10.0.20.44 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:21:20 sid=2027865 sev=informational src=10.0.20.12 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:22:40 sid=2019401 sev=medium src=10.0.20.44 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:24:00 sid=2013028 sev=low src=10.0.20.63 msg="ET POLICY curl User-Agent Outbound"
+09:25:20 sid=2210050 sev=low src=10.0.20.44 msg="SURICATA STREAM reassembly overlap"
+09:26:40 sid=2210050 sev=low src=10.0.20.51 msg="SURICATA STREAM reassembly overlap"
+09:28:00 sid=2210050 sev=low src=10.0.20.63 msg="SURICATA STREAM reassembly overlap"
+09:29:20 sid=2019401 sev=medium src=10.0.20.44 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:30:40 sid=2210050 sev=low src=10.0.20.51 msg="SURICATA STREAM reassembly overlap"
+09:32:00 sid=2019401 sev=medium src=10.0.20.51 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:33:20 sid=2027865 sev=informational src=10.0.20.44 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:34:40 sid=2013028 sev=low src=10.0.20.63 msg="ET POLICY curl User-Agent Outbound"
+09:36:00 sid=2027865 sev=informational src=10.0.20.12 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:37:20 sid=2027865 sev=informational src=10.0.20.12 msg="ET INFO Observed DNS Query to .cloud TLD"
+09:38:40 sid=2013028 sev=low src=10.0.20.44 msg="ET POLICY curl User-Agent Outbound"
+09:40:00 sid=2013028 sev=low src=10.0.20.12 msg="ET POLICY curl User-Agent Outbound"
+09:41:20 sid=2019401 sev=medium src=10.0.20.63 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:42:40 sid=2210050 sev=low src=10.0.20.12 msg="SURICATA STREAM reassembly overlap"
+09:44:00 sid=2019401 sev=medium src=10.0.20.63 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:45:20 sid=2210050 sev=low src=10.0.20.63 msg="SURICATA STREAM reassembly overlap"
+09:46:40 sid=2210050 sev=low src=10.0.20.63 msg="SURICATA STREAM reassembly overlap"
+09:48:00 sid=2019401 sev=medium src=10.0.20.12 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:49:20 sid=2013028 sev=low src=10.0.20.44 msg="ET POLICY curl User-Agent Outbound"
+09:50:40 sid=2013028 sev=low src=10.0.20.12 msg="ET POLICY curl User-Agent Outbound"
+09:52:00 sid=2210050 sev=low src=10.0.20.63 msg="SURICATA STREAM reassembly overlap"
+09:53:20 sid=2019401 sev=medium src=10.0.20.44 msg="ET POLICY SMB2 NT Create AndX Request For an Executable File"
+09:54:40 sid=2210050 sev=low src=10.0.20.12 msg="SURICATA STREAM reassembly overlap"
+09:56:00 sid=2210050 sev=low src=10.0.20.44 msg="SURICATA STREAM reassembly overlap"
+09:57:20 sid=2210050 sev=low src=10.0.20.44 msg="SURICATA STREAM reassembly overlap"
+09:58:40 sid=2027865 sev=informational src=10.0.20.63 msg="ET INFO Observed DNS Query to .cloud TLD"
+:: file /home/analyst/so/conn.log
+#fields	ts	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes
+09:00:20	10.0.20.63	55681	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:01:20	10.0.20.63	63544	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:01:24	10.0.20.51	62180	140.82.112.3	443	tcp	ssl	20.73	85863	557787
+09:01:32	10.0.20.63	59784	52.96.10.2	443	tcp	ssl	1.6	20958	120705
+09:02:20	10.0.20.63	59371	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:02:24	10.0.20.63	55390	52.96.10.2	443	tcp	ssl	16.34	75627	263442
+09:02:30	10.0.20.44	53731	151.101.1.69	443	tcp	ssl	5.5	51444	169357
+09:02:44	10.0.20.44	59268	104.16.85.20	443	tcp	ssl	13.37	17733	3861
+09:02:49	10.0.20.44	64882	52.96.10.2	443	tcp	ssl	29.47	22221	305358
+09:03:20	10.0.20.63	51352	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:03:34	10.0.20.44	63506	104.16.85.20	443	tcp	ssl	20.35	27240	192493
+09:04:04	10.0.20.63	49505	140.82.112.3	443	tcp	ssl	10.87	22152	154779
+09:04:20	10.0.20.63	49315	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:04:42	10.0.20.12	54089	140.82.112.3	443	tcp	ssl	24.53	77226	5547
+09:05:20	10.0.20.63	56224	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:06:03	10.0.20.51	54230	142.250.72.4	443	tcp	ssl	10.69	40516	506097
+09:06:20	10.0.20.63	50650	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:06:48	10.0.20.44	56894	151.101.1.69	443	tcp	ssl	21.15	7871	270626
+09:06:55	10.0.20.51	49448	151.101.1.69	443	tcp	ssl	16.49	55296	385972
+09:07:20	10.0.20.63	54305	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:07:48	10.0.20.12	49917	151.101.1.69	443	tcp	ssl	21.25	82151	208067
+09:08:08	10.0.20.44	54794	151.101.1.69	443	tcp	ssl	15.4	69173	265081
+09:08:20	10.0.20.63	60382	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:09:12	10.0.20.12	61413	104.16.85.20	443	tcp	ssl	23.44	48542	312235
+09:09:20	10.0.20.63	58985	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:09:21	10.0.20.63	52567	142.250.72.4	443	tcp	ssl	10.26	80462	382240
+09:09:44	10.0.20.51	64294	140.82.112.3	443	tcp	ssl	21.09	12468	329627
+09:10:20	10.0.20.63	57171	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:10:29	10.0.20.51	62239	52.96.10.2	443	tcp	ssl	2.39	19912	758164
+09:11:13	10.0.20.63	60950	52.96.10.2	443	tcp	ssl	1.5	79128	561447
+09:11:20	10.0.20.63	57173	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:12:09	10.0.20.12	61285	52.96.10.2	443	tcp	ssl	17.84	33195	479799
+09:12:20	10.0.20.63	54942	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:13:20	10.0.20.63	64529	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:13:37	10.0.20.63	50064	52.96.10.2	443	tcp	ssl	29.37	84066	36310
+09:14:20	10.0.20.63	59902	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:14:45	10.0.20.51	51291	52.96.10.2	443	tcp	ssl	29.44	74330	141226
+09:15:20	10.0.20.63	55282	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:16:10	10.0.20.63	51917	142.250.72.4	443	tcp	ssl	13.06	19961	63625
+09:16:20	10.0.20.63	64139	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:17:08	10.0.20.51	56576	52.96.10.2	443	tcp	ssl	27.66	81717	895651
+09:17:20	10.0.20.63	50065	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:17:34	10.0.20.63	60437	151.101.1.69	443	tcp	ssl	21.9	63189	289347
+09:18:16	10.0.20.63	63928	151.101.1.69	443	tcp	ssl	4.44	49814	863987
+09:18:20	10.0.20.63	51416	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:19:20	10.0.20.63	60576	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:19:29	10.0.20.44	63370	151.101.1.69	443	tcp	ssl	10.19	12083	517754
+09:20:08	10.0.20.51	62030	142.250.72.4	443	tcp	ssl	23.86	47022	730337
+09:20:20	10.0.20.63	53980	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:21:20	10.0.20.63	51627	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:21:28	10.0.20.12	55106	140.82.112.3	443	tcp	ssl	16.8	87996	296494
+09:21:40	10.0.20.12	55001	52.96.10.2	443	tcp	ssl	120.4	48000000	9000
+09:22:20	10.0.20.63	58468	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:22:35	10.0.20.51	64829	140.82.112.3	443	tcp	ssl	28.37	85556	189327
+09:23:20	10.0.20.63	59495	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:23:54	10.0.20.12	58113	151.101.1.69	443	tcp	ssl	23.22	43117	706268
+09:24:20	10.0.20.63	60259	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:24:34	10.0.20.63	62532	140.82.112.3	443	tcp	ssl	15.04	88695	838371
+09:25:20	10.0.20.63	57439	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:25:24	10.0.20.51	59704	140.82.112.3	443	tcp	ssl	10.4	53938	369048
+09:25:51	10.0.20.63	64823	140.82.112.3	443	tcp	ssl	10.06	18993	557053
+09:26:17	10.0.20.44	64510	140.82.112.3	443	tcp	ssl	25.62	37474	727012
+09:26:20	10.0.20.63	53907	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:26:32	10.0.20.63	59257	52.96.10.2	443	tcp	ssl	23.42	76532	543542
+09:27:20	10.0.20.63	64068	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:28:02	10.0.20.63	59371	140.82.112.3	443	tcp	ssl	16.62	83875	285855
+09:28:10	10.0.20.44	58760	52.96.10.2	443	tcp	ssl	13.26	85612	191522
+09:28:20	10.0.20.63	64585	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:28:43	10.0.20.44	56878	142.250.72.4	443	tcp	ssl	29.39	22124	58773
+09:29:05	10.0.20.12	52126	140.82.112.3	443	tcp	ssl	14.51	72269	39389
+09:29:20	10.0.20.63	58243	198.51.100.77	8443	tcp	-	0.31	512	1024
+09:30:03	10.0.20.63	55382	140.82.112.3	443	tcp	ssl	19.89	9834	620832
+09:30:34	10.0.20.44	49162	140.82.112.3	443	tcp	ssl	10.55	36907	899428
+09:31:31	10.0.20.12	55277	104.16.85.20	443	tcp	ssl	28.93	72480	645368
+09:32:14	10.0.20.12	58084	140.82.112.3	443	tcp	ssl	15.4	76539	309433
+09:33:04	10.0.20.44	55857	151.101.1.69	443	tcp	ssl	24.4	84587	566538
+09:33:56	10.0.20.63	51720	52.96.10.2	443	tcp	ssl	17.9	74306	502203
+09:34:26	10.0.20.44	50640	104.16.85.20	443	tcp	ssl	10.57	87124	2993
+09:35:19	10.0.20.12	58422	140.82.112.3	443	tcp	ssl	27.5	71103	149535
+09:36:05	10.0.20.63	56224	151.101.1.69	443	tcp	ssl	29.3	65072	307654
+09:37:11	10.0.20.63	64899	151.101.1.69	443	tcp	ssl	25.66	21244	626752
+09:38:32	10.0.20.51	57283	140.82.112.3	443	tcp	ssl	7.57	2978	336655
+09:39:16	10.0.20.63	51499	140.82.112.3	443	tcp	ssl	14.33	16375	694121
+09:40:40	10.0.20.63	53954	52.96.10.2	443	tcp	ssl	1.25	18283	868968
+09:41:35	10.0.20.12	57877	151.101.1.69	443	tcp	ssl	16.83	32312	499316
+09:41:44	10.0.20.44	53537	151.101.1.69	443	tcp	ssl	25.33	37851	309430
+09:42:52	10.0.20.63	59717	104.16.85.20	443	tcp	ssl	25.91	15889	18958
+09:43:13	10.0.20.51	57892	140.82.112.3	443	tcp	ssl	21.26	80822	313240
+09:44:25	10.0.20.12	54882	151.101.1.69	443	tcp	ssl	10.86	77837	140914
+09:44:34	10.0.20.12	58216	140.82.112.3	443	tcp	ssl	13.7	14503	722812
+09:45:48	10.0.20.44	56191	142.250.72.4	443	tcp	ssl	23.36	56463	625789
+09:47:06	10.0.20.63	56946	151.101.1.69	443	tcp	ssl	11.79	26151	312848
+09:48:10	10.0.20.12	62853	140.82.112.3	443	tcp	ssl	0.15	57130	612389
+09:48:51	10.0.20.63	51489	140.82.112.3	443	tcp	ssl	5.01	72371	523857
+09:49:38	10.0.20.44	58750	151.101.1.69	443	tcp	ssl	16.27	6764	73742
+09:50:12	10.0.20.51	62124	142.250.72.4	443	tcp	ssl	1.93	3749	351229
+09:51:11	10.0.20.12	60641	151.101.1.69	443	tcp	ssl	14.63	16571	884966
+09:51:31	10.0.20.44	59731	104.16.85.20	443	tcp	ssl	24.74	14969	749051
+09:51:53	10.0.20.51	51605	151.101.1.69	443	tcp	ssl	5.53	24685	436043
+09:52:18	10.0.20.12	52644	104.16.85.20	443	tcp	ssl	1.35	14583	694282
+09:53:11	10.0.20.12	50095	140.82.112.3	443	tcp	ssl	17.15	15912	780397
