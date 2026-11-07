@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Room&#x27;r: Roommate Matching with Flutter and Firebase :: 0xDay</title>
+<meta name="description" content="Room&#x27;r: Roommate Matching with Flutter and Firebase">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=39bb3aa6">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=39bb3aa6" defer></script>
+<script src="../site.js?v=39bb3aa6" defer></script>
+<script src="../fx.js?v=39bb3aa6" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html" aria-current="page">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<article class="post">
+<p class="cmd">cat ~/posts/roomr.md</p>
+<h1>Room&#x27;r: Roommate Matching with Flutter and Firebase</h1>
+<div class="meta"><span>2026-04-28</span><span>Nathan</span><span><a class="tag" href="../tags.html#flutter">#flutter</a> <a class="tag" href="../tags.html#firebase">#firebase</a> <a class="tag" href="../tags.html#mobile">#mobile</a></span></div>
+<div class="prose">
+<p>Room'r is a team-built, swipe-style roommate matching app for incoming college students. You answer a lifestyle questionnaire, set a couple of dealbreakers, swipe on profiles, and chat with the people who like you back. It's written in Flutter with Firebase behind it, targeting web, desktop and Android from one codebase.</p>
+
+<h2>The flow</h2>
+<pre><code>sign up -&gt; profile -&gt; photo -&gt; questionnaire -&gt; dealbreakers
+  -&gt; swipe deck -&gt; mutual like = match -&gt; chat -&gt; push notification</code></pre>
+
+<h2>Stack</h2>
+<ul>
+<li><strong>Flutter</strong> with Riverpod for state and go_router for navigation, running on Chrome, Windows and Android.</li>
+<li><strong>Firebase:</strong> Auth for accounts, Firestore for profiles, matches and messages, Storage for photos, Messaging for push.</li>
+<li><strong>Cloud Functions</strong> that fire when a match or a message is created, look up both users, send the notification and prune dead device tokens.</li>
+</ul>
+
+<h2>How matching works</h2>
+<p>Compatibility is a transparent weighted score from 0 to 100, not a black box:</p>
+<pre><code>sleep schedule   20%     study habits   15%     substances     10%
+cleanliness      20%     noise          15%     guests         10%
+pets + temperature 10%</code></pre>
+<p>Each category compares two answers. Scales (cleanliness, noise) lose points by how far apart they are. Categories like sleep schedule are more forgiving: early bird against night owl scores 20, but a "flexible" answer scores 70 with anyone. The total maps to a label from "Low Match" to "Perfect Match".</p>
+
+<h3>Dealbreakers</h3>
+<p>Each user can pick up to two (no smoking, no pets, no night owls, and so on). The swipe deck filters on them in <em>both directions</em>: if either person's dealbreaker is triggered by the other, neither sees the other. That's the kind of rule that sounds easy and then turns out to need careful thought.</p>
+
+<h3>Icebreakers</h3>
+<p>The chat suggests conversation starters built from the pair's two profiles, so shared interests give you a better question. Each branch has several variations, plus a large pool of general ones, and the service cycles through unseen questions before repeating any.</p>
+
+<h2>Things I learned</h2>
+<ul>
+<li>Putting the scoring in one small, pure service made it easy to reason about and to test.</li>
+<li>Server-side triggers are the right place for notifications. The client can't reliably know about a match that another user created.</li>
+<li>Config files for Firebase are generated per developer and never committed, which is the right call. It just means the setup guide matters as much as the code.</li>
+</ul>
+<p>It was a team build with a prototype, a setup guide and a full app. The source repo belongs to a teammate, so I haven't linked it here.</p>
+
+</div>
+<nav class="pager"><a href="supermarket-dbms.html">&lt; prev: Designing a Supermarket Database (and Its Checkout Transaction)</a><a href="hello-world.html">next: Why I Started This Blog &gt;</a></nav>
+<p><a href="../posts.html">cd ..</a></p>
+</article>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

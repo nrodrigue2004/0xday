@@ -1,0 +1,33 @@
+<p>Room'r is a team-built, swipe-style roommate matching app for incoming college students. You answer a lifestyle questionnaire, set a couple of dealbreakers, swipe on profiles, and chat with the people who like you back. It's written in Flutter with Firebase behind it, targeting web, desktop and Android from one codebase.</p>
+
+<h2>The flow</h2>
+<pre><code>sign up -&gt; profile -&gt; photo -&gt; questionnaire -&gt; dealbreakers
+  -&gt; swipe deck -&gt; mutual like = match -&gt; chat -&gt; push notification</code></pre>
+
+<h2>Stack</h2>
+<ul>
+<li><strong>Flutter</strong> with Riverpod for state and go_router for navigation, running on Chrome, Windows and Android.</li>
+<li><strong>Firebase:</strong> Auth for accounts, Firestore for profiles, matches and messages, Storage for photos, Messaging for push.</li>
+<li><strong>Cloud Functions</strong> that fire when a match or a message is created, look up both users, send the notification and prune dead device tokens.</li>
+</ul>
+
+<h2>How matching works</h2>
+<p>Compatibility is a transparent weighted score from 0 to 100, not a black box:</p>
+<pre><code>sleep schedule   20%     study habits   15%     substances     10%
+cleanliness      20%     noise          15%     guests         10%
+pets + temperature 10%</code></pre>
+<p>Each category compares two answers. Scales (cleanliness, noise) lose points by how far apart they are. Categories like sleep schedule are more forgiving: early bird against night owl scores 20, but a "flexible" answer scores 70 with anyone. The total maps to a label from "Low Match" to "Perfect Match".</p>
+
+<h3>Dealbreakers</h3>
+<p>Each user can pick up to two (no smoking, no pets, no night owls, and so on). The swipe deck filters on them in <em>both directions</em>: if either person's dealbreaker is triggered by the other, neither sees the other. That's the kind of rule that sounds easy and then turns out to need careful thought.</p>
+
+<h3>Icebreakers</h3>
+<p>The chat suggests conversation starters built from the pair's two profiles, so shared interests give you a better question. Each branch has several variations, plus a large pool of general ones, and the service cycles through unseen questions before repeating any.</p>
+
+<h2>Things I learned</h2>
+<ul>
+<li>Putting the scoring in one small, pure service made it easy to reason about and to test.</li>
+<li>Server-side triggers are the right place for notifications. The client can't reliably know about a match that another user created.</li>
+<li>Config files for Firebase are generated per developer and never committed, which is the right call. It just means the setup guide matters as much as the code.</li>
+</ul>
+<p>It was a team build with a prototype, a setup guide and a full app. The source repo belongs to a teammate, so I haven't linked it here.</p>
