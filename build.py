@@ -23,7 +23,7 @@ FLAGS = {"source": "0xDAY{v13w_s0urc3_4lw4ys}", "console": "0xDAY{c0ns0l3_c0wb0y
 for p in POSTS:
     p["body"] = open(f"content/posts/{p['slug']}.html").read()
 esc = html.escape
-V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js")).encode()).hexdigest()[:8]  # cache-buster
+V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "resume.js")).encode()).hexdigest()[:8]  # cache-buster
 
 def short(d):
     import datetime
@@ -334,21 +334,42 @@ def href(u):
     return u if u.startswith("http") else (f"posts/{u}.html" if "/" not in u and not u.endswith(".html") else u)
 
 # ---------- resume ----------
+# One view per role (content/resume.json "roles"); buttons switch views, #it / #cyber / #dev deep-link.
 r = RESUME
+def rs_items(items, key="name", when=False):
+    out = ""
+    for e in items:
+        w = f'<span class="muted">{esc(e["when"])}</span>' if when and e.get("when") else ""
+        lis = "".join(f"<li>{esc(b)}</li>" for b in e["bullets"])
+        out += f'<div class="rs-item"><div class="rs-head"><strong>{esc(e[key])}</strong>{w}</div><ul>{lis}</ul></div>'
+    return out
 edu = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["school"])}</strong></div><div>{esc(e["degree"])}</div><div class="muted">{esc(e["detail"])}</div></div>' for e in r["education"])
-exp = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["title"])}</strong><span class="muted">{esc(e["when"])}</span></div><ul>{"".join(f"<li>{esc(b)}</li>" for b in e["bullets"])}</ul></div>' for e in r["experience"])
-prj = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["name"])}</strong></div><ul>{"".join(f"<li>{esc(b)}</li>" for b in e["bullets"])}</ul></div>' for e in r["projects"])
-skl = "".join(f'<div><span class="k">{esc(k)}</span> {esc(v)}</div>' for k, v in r["skills"].items())
-page("resume.html", "resume :: 0xDay", f'''<p class="cmd no-print">cat ~/resume.txt</p>
+base_prj = {p["name"]: p for p in r["projects"]}
+def rs_view(role):
+    prjs = [{"name": p["name"], "bullets": p.get("bullets") or base_prj[p["name"]]["bullets"]} for p in role["projects"]] if role.get("projects") else r["projects"]
+    skills = role.get("skills") or r["skills"]
+    secs = {"education": f"<h2>education</h2>{edu}",
+            "experience": f"<h2>experience</h2>{rs_items(r['experience'], 'title', when=True)}",
+            "projects": f"<h2>projects</h2>{rs_items(prjs)}",
+            "skills": '<h2>skills</h2><div class="rs-skills">' + "".join(f'<div><span class="k">{esc(k)}</span> {esc(v)}</div>' for k, v in skills.items()) + "</div>"}
+    order = role.get("order") or ["education", "experience", "projects", "skills"]
+    hid = "" if role["key"] == "all" else " hidden"
+    return (f'<section class="rs-view" id="rs-{role["key"]}" data-role="{role["key"]}"{hid}>'
+            f'<p class="rs-headline">{esc(role.get("headline") or r["headline"])}</p>{"".join(secs[k] for k in order)}</section>')
+roles = r["roles"]
+rbtns = "".join(f'<a class="rs-role" href="#{x["key"]}" data-role="{x["key"]}" data-hint="{esc(x["hint"])}"'
+                f'{" aria-current=\"true\"" if x["key"] == "all" else ""}>[ {esc(x["label"])} ]</a>' for x in roles)
+page("resume.html", "resume :: 0xDay", f'''<p class="cmd no-print">cat ~/resume.txt --role <span class="rs-cur">all</span></p>
+<div class="rs-roles no-print" role="group" aria-label="Pick a role to tailor this resume">
+<span class="muted">// recruiters: pick the role you're hiring for</span>
+<div class="rs-role-btns">{rbtns}</div>
+<p class="rs-hint muted" aria-live="polite">&gt; {esc(roles[0]["hint"])}</p>
+</div>
 <div class="resume">
 <div class="rs-top"><h1>{FULL_NAME}</h1><button class="btn no-print" type="button" onclick="window.print()">[ print / save as PDF ]</button></div>
 <p class="rs-links"><a href="{GH}">github.com/nrodrigue2004</a> · <a href="{LI}">linkedin</a> · <a href="{SITE}">{SITE.replace("https://", "")}</a></p>
-<p>{esc(r["headline"])}</p>
-<h2>education</h2>{edu}
-<h2>experience</h2>{exp}
-<h2>projects</h2>{prj}
-<h2>skills</h2><div class="rs-skills">{skl}</div>
-</div>''', desc=f"Resume of {FULL_NAME}.")
+{"".join(rs_view(x) for x in roles)}
+</div>''', desc=f"Resume of {FULL_NAME}: IT, cybersecurity and software / data versions.", scripts=("resume.js",))
 
 # ---------- ctf log ----------
 def wl(c):

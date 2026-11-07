@@ -1,35 +1,204 @@
 {
   "_help": "Public resume. Deliberately no phone, email, address or employer names.",
   "headline": "Computer Science (Cybersecurity) student focused on malware analysis, digital forensics and blue-team infrastructure.",
-  "education": [{"school": "Louisiana State University", "degree": "B.S. Computer Science, Cybersecurity concentration",
-    "detail": "Coursework: Reverse Engineering & Malware Analysis, Digital Forensics, Mobile Security & Applied Cryptography, Software Vulnerabilities & Exploitation, Operating Systems, Computer Networks"}],
+  "education": [
+    {
+      "school": "Louisiana State University",
+      "degree": "B.S. Computer Science, Cybersecurity concentration",
+      "detail": "Coursework: Reverse Engineering & Malware Analysis, Digital Forensics, Mobile Security & Applied Cryptography, Software Vulnerabilities & Exploitation, Operating Systems, Computer Networks"
+    }
+  ],
   "experience": [
-    {"title": "Laptop Technician", "when": "2025 to present", "bullets": [
-      "Performed secure data sanitization with XErase and EPSBoot to ensure compliance before resale",
-      "Diagnosed and repaired hardware and software issues across many laptop models, cutting device-to-resale turnaround",
-      "Installed and configured Windows, drivers and software for refurbished laptops"]},
-    {"title": "AI Trainer", "when": "2025 to present", "bullets": [
-      "Evaluated and refined LLM-generated outputs, giving structured feedback to improve accuracy and response quality"]}
+    {
+      "title": "Laptop Technician",
+      "when": "2025 to present",
+      "bullets": [
+        "Performed secure data sanitization with XErase and EPSBoot to ensure compliance before resale",
+        "Diagnosed and repaired hardware and software issues across many laptop models, cutting device-to-resale turnaround",
+        "Installed and configured Windows, drivers and software for refurbished laptops"
+      ]
+    },
+    {
+      "title": "AI Trainer",
+      "when": "2025 to present",
+      "bullets": [
+        "Evaluated and refined LLM-generated outputs, giving structured feedback to improve accuracy and response quality"
+      ]
+    }
   ],
   "projects": [
-    {"name": "Cybersecurity Homelab", "bullets": [
-      "Built a 7-VM enterprise simulation on Proxmox: pfSense, Kali, Metasploitable 2, DVWA/WebGoat, Windows Server 2022 AD, Windows 11, Security Onion",
-      "Segmented isolated subnets with pfSense firewall rules, DHCP and NAT; Tailscale subnet routing for remote access",
-      "Ran Security Onion for real-time network monitoring and threat detection"]},
-    {"name": "Enterprise IT Support Lab", "bullets": [
-      "Administered an AD domain with OUs, security groups, Group Policy drive mapping and PowerShell; worked tickets in osTicket"]},
-    {"name": "Malware Analysis Labs", "bullets": [
-      "Reverse-engineered a RAT and a SQL worm in IDA Pro and Ghidra; analyzed PE structure, packing, anti-VM and anti-debug",
-      "Patched SIDT/SLDT/STR anti-VM checks to run samples in a virtualized analysis environment"]},
-    {"name": "HiTek Digital Forensics Challenge", "bullets": [
-      "Reconstructed a data exfiltration from Windows and Ubuntu disk images and a PCAP using FTK Imager, Autopsy and Wireshark"]},
-    {"name": "Software", "bullets": [
-      "ERU (TypeScript, React, MongoDB), Room'r (Flutter, Firebase), Supermarket DBMS (SQL), JavaShooter (Java)"]}
+    {
+      "name": "Cybersecurity Homelab",
+      "bullets": [
+        "Built a 7-VM enterprise simulation on Proxmox: pfSense, Kali, Metasploitable 2, DVWA/WebGoat, Windows Server 2022 AD, Windows 11, Security Onion",
+        "Segmented isolated subnets with pfSense firewall rules, DHCP and NAT; Tailscale subnet routing for remote access",
+        "Ran Security Onion for real-time network monitoring and threat detection"
+      ]
+    },
+    {
+      "name": "Enterprise IT Support Lab",
+      "bullets": [
+        "Administered an AD domain with OUs, security groups, Group Policy drive mapping and PowerShell; worked tickets in osTicket"
+      ]
+    },
+    {
+      "name": "Malware Analysis Labs",
+      "bullets": [
+        "Reverse-engineered a RAT and a SQL worm in IDA Pro and Ghidra; analyzed PE structure, packing, anti-VM and anti-debug",
+        "Patched SIDT/SLDT/STR anti-VM checks to run samples in a virtualized analysis environment"
+      ]
+    },
+    {
+      "name": "HiTek Digital Forensics Challenge",
+      "bullets": [
+        "Reconstructed a data exfiltration from Windows and Ubuntu disk images and a PCAP using FTK Imager, Autopsy and Wireshark"
+      ]
+    },
+    {
+      "name": "Software",
+      "bullets": [
+        "ERU (TypeScript, React, MongoDB), Room'r (Flutter, Firebase), Supermarket DBMS (SQL), JavaShooter (Java)"
+      ]
+    }
   ],
   "skills": {
     "Security tools": "IDA Pro, Ghidra, Wireshark, Autopsy, FTK Imager, Volatility, Kali Linux, PE-bear, Nmap, Metasploit, Security Onion",
     "Infrastructure": "Proxmox, VMware, VirtualBox, pfSense, Windows, Linux, GitHub, MySQL, Firebase",
     "Languages": "Java, Python, TypeScript, C, JavaScript, Assembly, SQL",
     "Concepts": "Static & dynamic malware analysis, reverse engineering, digital forensics, incident response, network traffic analysis, binary exploitation"
-  }
+  },
+  "_roles_help": "Role views for the resume page buttons. 'all' uses the base resume above. Each role picks projects by name (in order), may override bullets, and sets its own headline and skills. Keep facts to what is already verified.",
+  "roles": [
+    {
+      "key": "all",
+      "label": "all",
+      "hint": "the full resume: security, IT and software"
+    },
+    {
+      "key": "it",
+      "label": "IT",
+      "hint": "help desk, desktop support, sysadmin",
+      "headline": "Computer Science student with hands-on Windows, Active Directory and hardware support experience, working toward Security+.",
+      "order": [
+        "experience",
+        "projects",
+        "skills",
+        "education"
+      ],
+      "projects": [
+        {
+          "name": "Enterprise IT Support Lab",
+          "bullets": [
+            "Administered an Active Directory domain: OUs, security groups, NTFS permissions and Group Policy drive mapping",
+            "Managed users and groups with PowerShell",
+            "Worked realistic support tickets in an osTicket help desk"
+          ]
+        },
+        {
+          "name": "Cybersecurity Homelab",
+          "bullets": [
+            "Built a 7-VM environment on Proxmox with a Windows Server 2022 AD domain and Windows 11 clients",
+            "Segmented subnets with pfSense firewall rules, DHCP and NAT; Tailscale subnet routing for remote access"
+          ]
+        }
+      ],
+      "skills": {
+        "Systems": "Windows 10/11, Windows Server 2022, Active Directory, Group Policy, Linux",
+        "Tools": "PowerShell, osTicket, XErase, EPSBoot",
+        "Networking": "pfSense, DHCP, NAT, firewall rules, Tailscale",
+        "Virtualization": "Proxmox, VMware, VirtualBox",
+        "Hardware": "Laptop diagnosis and repair, OS installs, drivers, secure data sanitization"
+      }
+    },
+    {
+      "key": "cyber",
+      "label": "Cyber",
+      "hint": "SOC analyst, incident response, forensics",
+      "headline": "Cybersecurity student with hands-on network monitoring, digital forensics and malware analysis experience; Security+ in progress.",
+      "order": [
+        "projects",
+        "experience",
+        "skills",
+        "education"
+      ],
+      "projects": [
+        {
+          "name": "Cybersecurity Homelab"
+        },
+        {
+          "name": "HiTek Digital Forensics Challenge",
+          "bullets": [
+            "Team investigation of an insider data exfiltration from Windows and Ubuntu disk images and a PCAP (FTK Imager, Autopsy, Wireshark)",
+            "Cracked six account passwords and carved deleted ZIP archives from unallocated space",
+            "Rebuilt the FTP-to-HTTP exfiltration chain into a timeline"
+          ]
+        },
+        {
+          "name": "Malware Analysis Labs"
+        },
+        {
+          "name": "TryHackMe",
+          "bullets": [
+            "26 rooms completed, top 15% of users (Nov 2026)"
+          ]
+        }
+      ],
+      "skills": {
+        "Monitoring": "Security Onion, Wireshark, Nmap",
+        "Forensics": "Autopsy, FTK Imager, Volatility, John the Ripper",
+        "Reverse engineering": "IDA Pro, Ghidra, PE-bear, x86 assembly",
+        "Offense (lab)": "Kali Linux, Metasploit",
+        "Languages": "Python, C, SQL",
+        "Concepts": "Incident response, network traffic analysis, static & dynamic malware analysis"
+      }
+    },
+    {
+      "key": "dev",
+      "label": "Software / Data",
+      "hint": "developer, QA, database / SQL analyst",
+      "headline": "Computer Science student who builds full-stack apps, mobile apps, databases and games (Java, TypeScript, Python, Flutter, SQL), with a security background.",
+      "order": [
+        "projects",
+        "skills",
+        "experience",
+        "education"
+      ],
+      "projects": [
+        {
+          "name": "Room'r",
+          "bullets": [
+            "Swipe-style roommate matching app in Flutter and Firebase",
+            "Weighted compatibility score from a lifestyle questionnaire, with bidirectional dealbreaker filtering",
+            "Chat with icebreakers and push notifications"
+          ]
+        },
+        {
+          "name": "ERU",
+          "bullets": [
+            "Team social media app: Spring Boot + MongoDB REST backend, React Native (Expo, TypeScript) frontend",
+            "Feed, uploads, comments, likes and profiles"
+          ]
+        },
+        {
+          "name": "Supermarket DBMS",
+          "bullets": [
+            "Multi-branch supermarket database in SQLite with a normalized schema",
+            "Transactional checkout, 16 named reporting queries and a Python CLI"
+          ]
+        },
+        {
+          "name": "JavaShooter",
+          "bullets": [
+            "Infinite roguelike shooter in Java with chaser enemies, bosses and level-up upgrades"
+          ]
+        }
+      ],
+      "skills": {
+        "Languages": "Java, Python, TypeScript, JavaScript, Dart, C, SQL",
+        "Frameworks": "Spring Boot, React Native, Flutter",
+        "Data": "SQLite, MySQL, MongoDB, Firebase, ER modeling, normalization",
+        "Tools": "Git, GitHub, REST APIs"
+      }
+    }
+  ]
 }
