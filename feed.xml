@@ -328,4 +328,170 @@ Nov 28 17:52:02  web-srv-02 shuts down&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;&lt;li&gt;Homelab builds and Active Directory&lt;/li&gt;&lt;li&gt;Malware analysis and reverse engineering&lt;/li&gt;&lt;li&gt;Digital forensics and incident response&lt;/li&gt;&lt;li&gt;Whatever broke this week and how I fixed it&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;Thanks for reading.&lt;/p&gt;
 </description></item>
+  <item><title>Room&#x27;r: Roommate Matching with Flutter and Firebase</title><link>https://nrodrigue2004.github.io/0xday/posts/roomr.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/roomr.html</guid><pubDate>Tue, 28 Apr 2026 12:00:00 +0000</pubDate><category>flutter</category><category>firebase</category><category>mobile</category><description>&lt;p&gt;Room&#x27;r is a team-built, swipe-style roommate matching app for incoming college students. You answer a lifestyle questionnaire, set a couple of dealbreakers, swipe on profiles, and chat with the people who like you back. It&#x27;s written in Flutter with Firebase behind it, targeting web, desktop and Android from one codebase.&lt;/p&gt;
+
+&lt;h2&gt;The flow&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;sign up -&amp;gt; profile -&amp;gt; photo -&amp;gt; questionnaire -&amp;gt; dealbreakers
+  -&amp;gt; swipe deck -&amp;gt; mutual like = match -&amp;gt; chat -&amp;gt; push notification&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Stack&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Flutter&lt;/strong&gt; with Riverpod for state and go_router for navigation, running on Chrome, Windows and Android.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Firebase:&lt;/strong&gt; Auth for accounts, Firestore for profiles, matches and messages, Storage for photos, Messaging for push.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cloud Functions&lt;/strong&gt; that fire when a match or a message is created, look up both users, send the notification and prune dead device tokens.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;How matching works&lt;/h2&gt;
+&lt;p&gt;Compatibility is a transparent weighted score from 0 to 100, not a black box:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sleep schedule   20%     study habits   15%     substances     10%
+cleanliness      20%     noise          15%     guests         10%
+pets + temperature 10%&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Each category compares two answers. Scales (cleanliness, noise) lose points by how far apart they are. Categories like sleep schedule are more forgiving: early bird against night owl scores 20, but a &quot;flexible&quot; answer scores 70 with anyone. The total maps to a label from &quot;Low Match&quot; to &quot;Perfect Match&quot;.&lt;/p&gt;
+
+&lt;h3&gt;Dealbreakers&lt;/h3&gt;
+&lt;p&gt;Each user can pick up to two (no smoking, no pets, no night owls, and so on). The swipe deck filters on them in &lt;em&gt;both directions&lt;/em&gt;: if either person&#x27;s dealbreaker is triggered by the other, neither sees the other. That&#x27;s the kind of rule that sounds easy and then turns out to need careful thought.&lt;/p&gt;
+
+&lt;h3&gt;Icebreakers&lt;/h3&gt;
+&lt;p&gt;The chat suggests conversation starters built from the pair&#x27;s two profiles, so shared interests give you a better question. Each branch has several variations, plus a large pool of general ones, and the service cycles through unseen questions before repeating any.&lt;/p&gt;
+
+&lt;h2&gt;Things I learned&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Putting the scoring in one small, pure service made it easy to reason about and to test.&lt;/li&gt;
+&lt;li&gt;Server-side triggers are the right place for notifications. The client can&#x27;t reliably know about a match that another user created.&lt;/li&gt;
+&lt;li&gt;Config files for Firebase are generated per developer and never committed, which is the right call. It just means the setup guide matters as much as the code.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It was a team build with a prototype, a setup guide and a full app. The source repo belongs to a teammate, so I haven&#x27;t linked it here.&lt;/p&gt;
+</description></item>
+  <item><title>Designing a Supermarket Database (and Its Checkout Transaction)</title><link>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</guid><pubDate>Wed, 03 Dec 2025 12:00:00 +0000</pubDate><category>sql</category><category>databases</category><category>python</category><description>&lt;p&gt;For my database systems course, my team designed and built a multi-branch supermarket database and a command-line checkout app on top of it. The point was to practice the whole pipeline: requirements, an E-R diagram, a relational schema, test data, SQL queries and an application that actually uses them.&lt;/p&gt;
+
+&lt;h2&gt;The problem&lt;/h2&gt;
+&lt;p&gt;A supermarket chain with several branches needs one place to keep prices, stock and sales. Without it, every branch tracks everything by hand, and nobody can see revenue or stock across the company.&lt;/p&gt;
+
+&lt;h2&gt;Relational schema&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;StoreBranch(branch_id PK, name, address, phone)
+Product(product_id PK, name, barcode UNIQUE, unit_price, is_active, category)
+Inventory(branch_id PK/FK, product_id PK/FK, quantity)
+Sale(sale_id PK, branch_id FK, sale_datetime, total_amount)
+SaleItem(sale_id PK/FK, product_id PK/FK, quantity, unit_price, discount)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Inventory&lt;/strong&gt; is a junction table with a composite key, so the same product can be stocked at many branches with a different quantity at each.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SaleItem&lt;/strong&gt; copies &lt;code&gt;unit_price&lt;/code&gt; at the time of sale. That way, changing a price later never rewrites history.&lt;/li&gt;
+&lt;li&gt;Foreign keys are switched on (&lt;code&gt;PRAGMA foreign_keys = ON&lt;/code&gt;), because SQLite doesn&#x27;t enforce them by default.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;The checkout transaction&lt;/h2&gt;
+&lt;p&gt;The part I find most interesting is checkout. It has to either completely happen or not happen at all, so it runs inside one transaction: check stock for every item in the cart again, insert the sale, insert each sale line, and subtract inventory. If anything fails, the whole thing rolls back.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;BEGIN;
+  -- re-check stock for every cart item
+  INSERT INTO Sale (branch_id, sale_datetime, total_amount) VALUES (?, datetime(&#x27;now&#x27;), ?);
+  INSERT INTO SaleItem (...) VALUES (...);          -- per cart line
+  UPDATE Inventory SET quantity = quantity - ? WHERE branch_id = ? AND product_id = ?;
+COMMIT;   -- any error: ROLLBACK&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Re-checking stock inside the transaction matters: the stock you saw when you added to the cart may not be what&#x27;s left when you pay.&lt;/p&gt;
+
+&lt;h2&gt;Reports&lt;/h2&gt;
+&lt;p&gt;Queries live in a plain &lt;code&gt;queries.sql&lt;/code&gt; file, each tagged with &lt;code&gt;-- name: ...&lt;/code&gt;. The app loads them by name and runs them from a Statistics menu, so adding a report means adding SQL and not changing Python.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;-- revenue by category
+SELECT p.category,
+       ROUND(SUM((si.unit_price - si.discount) * si.quantity), 2) AS revenue
+FROM SaleItem si
+JOIN Product p ON si.product_id = p.product_id
+GROUP BY p.category;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;There are 16 in total, including sales history, revenue per day, top sellers, low stock, inventory value per product, and products that never sold (a &lt;code&gt;LEFT JOIN&lt;/code&gt; with &lt;code&gt;WHERE ... IS NULL&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h2&gt;The app&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;=== LSU Market CLI ===
+1. List available products
+2. Add product to cart
+3. View cart
+4. Checkout
+5. Statistics
+6. Exit&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Python with SQLite, a plain menu, and a seeded sample dataset of products, stock and sales. The repo includes the schema, data, queries and a rebuild guide so anyone can recreate the database from scratch in four commands.&lt;/p&gt;
+
+&lt;h2&gt;What I&#x27;d improve&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Use parameterized queries everywhere (checkout already does) and move the statistics menu to a loop instead of one block per report.&lt;/li&gt;
+&lt;li&gt;Add indexes on the sale date and on &lt;code&gt;SaleItem.product_id&lt;/code&gt; once the data grows.&lt;/li&gt;
+&lt;li&gt;Track stock changes in their own table (receiving, returns, shrinkage) so inventory is auditable and not just a number that goes down.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It was a team project, and my part was the data generation, the relational schema and the written report. Source: &lt;a href=&quot;https://github.com/CSC4402-Project/CSC4402-Supermarket&quot;&gt;CSC4402-Supermarket&lt;/a&gt;.&lt;/p&gt;
+</description></item>
+  <item><title>ERU: Building a Social Feed with Spring Boot, MongoDB and React Native</title><link>https://nrodrigue2004.github.io/0xday/posts/eru.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/eru.html</guid><pubDate>Tue, 10 Dec 2024 12:00:00 +0000</pubDate><category>software-engineering</category><category>java</category><category>typescript</category><category>mongodb</category><description>&lt;p&gt;ERU was a team project for a software course in fall 2024: a social media app built to put curated, worthwhile posts where doomscrolling usually is. We built a Java backend, a TypeScript frontend and a MongoDB database, and got a working feed, uploads, comments and profiles by the deadline.&lt;/p&gt;
+
+&lt;h2&gt;Architecture&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;React Native (Expo, web)  --HTTP/JSON--&gt;  Spring Boot REST API  --&amp;gt;  MongoDB
+  feed, upload, explore,                    accounts, posts,
+  profile, settings, FAQ                    comments, likes&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Frontend:&lt;/strong&gt; TypeScript and React Native via Expo, run in the browser. Components for posts, comments, likes and a nav bar, with pages for the home feed, upload, explore, profile and settings.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Backend:&lt;/strong&gt; Java 21 with Spring Boot, controllers per area (accounts, friends, and so on) and a centralized exception handler that returns consistent error models.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Data:&lt;/strong&gt; MongoDB, wrapped in a single manager class so the rest of the code never touches the driver directly.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;The API&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;GET   /account/{id}            profile
+GET   /account/{id}/feed       one user&#x27;s posts, newest first
+GET   /account/feed            home feed, newest first
+POST  /account/post            create a post (UUID assigned server-side)
+POST  /post/{id}/like          like
+POST  /post/{id}/comment       comment&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;New post IDs are random UUIDs, and the server re-rolls on the (astronomically unlikely) collision. The feed endpoint also fills in each post&#x27;s author name and picture so the client doesn&#x27;t need a second call.&lt;/p&gt;
+
+&lt;h2&gt;On the frontend&lt;/h2&gt;
+&lt;p&gt;The home feed loads posts, tracks which identifiers it has already seen so repeated fetches never duplicate a post, and falls back to defaults for missing captions or profile pictures instead of crashing on incomplete data.&lt;/p&gt;
+
+&lt;h2&gt;What was unfinished (and honest about it)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;No login or registration screen. We hardcoded one account ID, so profile pages show that user.&lt;/li&gt;
+&lt;li&gt;The Explore tab shows placeholder images; the recommendation algorithm never got built.&lt;/li&gt;
+&lt;li&gt;The front end talks to &lt;code&gt;localhost&lt;/code&gt; addresses, so it&#x27;s a dev setup and not a deployable one.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Lessons&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Cutting scope early beats cutting features at the deadline. The unfinished list above is what scope creep looks like.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Never commit secrets.&lt;/strong&gt; The repo&#x27;s config file shipped with a database connection string. Credentials belong in environment variables or a secrets manager, and anything that has been committed has to be rotated, even if the repo is deleted later.&lt;/li&gt;
+&lt;li&gt;Typed models on both ends (Java classes, TypeScript interfaces) caught a lot of mismatches before runtime.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Source: &lt;a href=&quot;https://github.com/CSC-3380-Fall-2024/Team-4&quot;&gt;CSC-3380 Team-4&lt;/a&gt;.&lt;/p&gt;
+</description></item>
+  <item><title>JavaShooter: My First Game, and What I&#x27;d Fix Now</title><link>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</guid><pubDate>Thu, 02 May 2024 12:00:00 +0000</pubDate><category>java</category><category>gamedev</category><category>projects</category><description>&lt;p&gt;JavaShooter was my first real project: an infinite roguelike shooter written in Java for a course in spring 2024. There&#x27;s no ending. You clear a level, earn a level-up point, spend it, and try to see how far you can get. It&#x27;s also where I learned that &quot;it works&quot; and &quot;it&#x27;s well built&quot; are two different milestones.&lt;/p&gt;
+
+&lt;h2&gt;How it plays&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;move     W A S D
+shoot    left click (or space)
+enemies  regular  - drift around the board
+         chaser   - a red diamond that homes in on you
+         boss     - 5 hit points, shoots back every 2 seconds
+upgrade  after each level: player speed | bullet speed | shield&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Every level adds two more regular enemies, another chaser and another boss. There&#x27;s no cap, so the game gets harder until you lose. After each clear you pick one upgrade, so you&#x27;re always choosing between running faster, shooting faster, or taking an extra hit.&lt;/p&gt;
+
+&lt;h2&gt;What&#x27;s under the hood&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Sprite engine:&lt;/strong&gt; built on the sprite and collision library from the course, so I wrote game rules and not a renderer.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Collision listeners:&lt;/strong&gt; one listener per pair (enemy and bullet, boss and bullet, enemy bullet and player, and so on) decides who dies and what happens next.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Chaser AI:&lt;/strong&gt; every 2 seconds the chaser takes the vector to the player, normalizes it, and heads that way at a fixed speed. That&#x27;s about ten lines of vector math.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Progression:&lt;/strong&gt; a &lt;code&gt;NewLevels&lt;/code&gt; class clears the board and respawns everything with higher counts.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Feedback:&lt;/strong&gt; sound effects on shots and kills, a brief invincibility window after you clear a level, and a retry prompt when you lose.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;// the chaser, in spirit
+dx = player.x - x;  dy = player.y - y;
+d  = sqrt(dx*dx + dy*dy);
+setVel(dx / d * SPEED, dy / d * SPEED);&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;What I&#x27;d do differently now&lt;/h2&gt;
+&lt;p&gt;Looking back with a bit more experience, these are the lessons I&#x27;d hand my past self:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Share the win/lose code.&lt;/strong&gt; The &quot;you lose, retry?&quot; logic is copied across four collision listeners, and the level-clear logic is copied twice. One method would&#x27;ve been easier to fix and extend.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Don&#x27;t use blocking dialogs in a game loop.&lt;/strong&gt; Popups for win, lose and upgrade pause everything and break the flow. An in-game overlay would feel much better.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Don&#x27;t use static state for player stats.&lt;/strong&gt; Things like shield strength being static made restart bugs easy to introduce. They belong on the player object.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Use one game clock.&lt;/strong&gt; Each enemy and boss starts its own timer thread. A single update loop would be easier to reason about and to pause.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Keep build output out of the repo.&lt;/strong&gt; The repo is a zipped IDE project with compiled classes in it. A &lt;code&gt;.gitignore&lt;/code&gt; and plain source files would be much friendlier to read.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Why it still matters to me&lt;/h2&gt;
+&lt;p&gt;It was the first time I built something other people could actually play, and it taught me game loops, collision handling, simple AI and how quickly &quot;just one more feature&quot; turns into spaghetti. Those lessons are the reason I want to build a second one: &lt;a href=&quot;../roadmap.html#javashooter2&quot;&gt;JavaShooter 2&lt;/a&gt; is on my roadmap.&lt;/p&gt;
+&lt;p&gt;Source: &lt;a href=&quot;https://github.com/nrodrigue2004/JavaShooter&quot;&gt;github.com/nrodrigue2004/JavaShooter&lt;/a&gt;&lt;/p&gt;
+</description></item>
 </channel></rss>

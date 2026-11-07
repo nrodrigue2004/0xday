@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Designing a Supermarket Database (and Its Checkout Transaction) :: 0xDay</title>
+<meta name="description" content="Designing a Supermarket Database (and Its Checkout Transaction)">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=39bb3aa6">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=39bb3aa6" defer></script>
+<script src="../site.js?v=39bb3aa6" defer></script>
+<script src="../fx.js?v=39bb3aa6" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html" aria-current="page">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<article class="post">
+<p class="cmd">cat ~/posts/supermarket-dbms.md</p>
+<h1>Designing a Supermarket Database (and Its Checkout Transaction)</h1>
+<div class="meta"><span>2025-12-03</span><span>Nathan Rodrigue</span><span><a class="tag" href="../tags.html#sql">#sql</a> <a class="tag" href="../tags.html#databases">#databases</a> <a class="tag" href="../tags.html#python">#python</a></span></div>
+<div class="prose">
+<p>For my database systems course, my team designed and built a multi-branch supermarket database and a command-line checkout app on top of it. The point was to practice the whole pipeline: requirements, an E-R diagram, a relational schema, test data, SQL queries and an application that actually uses them.</p>
+
+<h2>The problem</h2>
+<p>A supermarket chain with several branches needs one place to keep prices, stock and sales. Without it, every branch tracks everything by hand, and nobody can see revenue or stock across the company.</p>
+
+<h2>Relational schema</h2>
+<pre><code>StoreBranch(branch_id PK, name, address, phone)
+Product(product_id PK, name, barcode UNIQUE, unit_price, is_active, category)
+Inventory(branch_id PK/FK, product_id PK/FK, quantity)
+Sale(sale_id PK, branch_id FK, sale_datetime, total_amount)
+SaleItem(sale_id PK/FK, product_id PK/FK, quantity, unit_price, discount)</code></pre>
+<ul>
+<li><strong>Inventory</strong> is a junction table with a composite key, so the same product can be stocked at many branches with a different quantity at each.</li>
+<li><strong>SaleItem</strong> copies <code>unit_price</code> at the time of sale. That way, changing a price later never rewrites history.</li>
+<li>Foreign keys are switched on (<code>PRAGMA foreign_keys = ON</code>), because SQLite doesn't enforce them by default.</li>
+</ul>
+
+<h2>The checkout transaction</h2>
+<p>The part I find most interesting is checkout. It has to either completely happen or not happen at all, so it runs inside one transaction: check stock for every item in the cart again, insert the sale, insert each sale line, and subtract inventory. If anything fails, the whole thing rolls back.</p>
+<pre><code>BEGIN;
+  -- re-check stock for every cart item
+  INSERT INTO Sale (branch_id, sale_datetime, total_amount) VALUES (?, datetime('now'), ?);
+  INSERT INTO SaleItem (...) VALUES (...);          -- per cart line
+  UPDATE Inventory SET quantity = quantity - ? WHERE branch_id = ? AND product_id = ?;
+COMMIT;   -- any error: ROLLBACK</code></pre>
+<p>Re-checking stock inside the transaction matters: the stock you saw when you added to the cart may not be what's left when you pay.</p>
+
+<h2>Reports</h2>
+<p>Queries live in a plain <code>queries.sql</code> file, each tagged with <code>-- name: ...</code>. The app loads them by name and runs them from a Statistics menu, so adding a report means adding SQL and not changing Python.</p>
+<pre><code>-- revenue by category
+SELECT p.category,
+       ROUND(SUM((si.unit_price - si.discount) * si.quantity), 2) AS revenue
+FROM SaleItem si
+JOIN Product p ON si.product_id = p.product_id
+GROUP BY p.category;</code></pre>
+<p>There are 16 in total, including sales history, revenue per day, top sellers, low stock, inventory value per product, and products that never sold (a <code>LEFT JOIN</code> with <code>WHERE ... IS NULL</code>).</p>
+
+<h2>The app</h2>
+<pre><code>=== LSU Market CLI ===
+1. List available products
+2. Add product to cart
+3. View cart
+4. Checkout
+5. Statistics
+6. Exit</code></pre>
+<p>Python with SQLite, a plain menu, and a seeded sample dataset of products, stock and sales. The repo includes the schema, data, queries and a rebuild guide so anyone can recreate the database from scratch in four commands.</p>
+
+<h2>What I'd improve</h2>
+<ul>
+<li>Use parameterized queries everywhere (checkout already does) and move the statistics menu to a loop instead of one block per report.</li>
+<li>Add indexes on the sale date and on <code>SaleItem.product_id</code> once the data grows.</li>
+<li>Track stock changes in their own table (receiving, returns, shrinkage) so inventory is auditable and not just a number that goes down.</li>
+</ul>
+<p>It was a team project, and my part was the data generation, the relational schema and the written report. Source: <a href="https://github.com/CSC4402-Project/CSC4402-Supermarket">CSC4402-Supermarket</a>.</p>
+
+</div>
+<nav class="pager"><a href="eru.html">&lt; prev: ERU: Building a Social Feed with Spring Boot, MongoDB and React Native</a><a href="roomr.html">next: Room&#x27;r: Roommate Matching with Flutter and Firebase &gt;</a></nav>
+<p><a href="../posts.html">cd ..</a></p>
+</article>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -67,5 +67,46 @@
     "tags": [
       "meta"
     ]
+  },
+  {
+    "slug": "roomr",
+    "title": "Room'r: Roommate Matching with Flutter and Firebase",
+    "date": "2026-04-28",
+    "tags": [
+      "flutter",
+      "firebase",
+      "mobile"
+    ]
+  },
+  {
+    "slug": "supermarket-dbms",
+    "title": "Designing a Supermarket Database (and Its Checkout Transaction)",
+    "date": "2025-12-03",
+    "tags": [
+      "sql",
+      "databases",
+      "python"
+    ]
+  },
+  {
+    "slug": "eru",
+    "title": "ERU: Building a Social Feed with Spring Boot, MongoDB and React Native",
+    "date": "2024-12-10",
+    "tags": [
+      "software-engineering",
+      "java",
+      "typescript",
+      "mongodb"
+    ]
+  },
+  {
+    "slug": "javashooter",
+    "title": "JavaShooter: My First Game, and What I'd Fix Now",
+    "date": "2024-05-02",
+    "tags": [
+      "java",
+      "gamedev",
+      "projects"
+    ]
   }
 ]

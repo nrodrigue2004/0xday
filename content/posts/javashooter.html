@@ -1,0 +1,37 @@
+<p>JavaShooter was my first real project: an infinite roguelike shooter written in Java for a course in spring 2024. There's no ending. You clear a level, earn a level-up point, spend it, and try to see how far you can get. It's also where I learned that "it works" and "it's well built" are two different milestones.</p>
+
+<h2>How it plays</h2>
+<pre><code>move     W A S D
+shoot    left click (or space)
+enemies  regular  - drift around the board
+         chaser   - a red diamond that homes in on you
+         boss     - 5 hit points, shoots back every 2 seconds
+upgrade  after each level: player speed | bullet speed | shield</code></pre>
+<p>Every level adds two more regular enemies, another chaser and another boss. There's no cap, so the game gets harder until you lose. After each clear you pick one upgrade, so you're always choosing between running faster, shooting faster, or taking an extra hit.</p>
+
+<h2>What's under the hood</h2>
+<ul>
+<li><strong>Sprite engine:</strong> built on the sprite and collision library from the course, so I wrote game rules and not a renderer.</li>
+<li><strong>Collision listeners:</strong> one listener per pair (enemy and bullet, boss and bullet, enemy bullet and player, and so on) decides who dies and what happens next.</li>
+<li><strong>Chaser AI:</strong> every 2 seconds the chaser takes the vector to the player, normalizes it, and heads that way at a fixed speed. That's about ten lines of vector math.</li>
+<li><strong>Progression:</strong> a <code>NewLevels</code> class clears the board and respawns everything with higher counts.</li>
+<li><strong>Feedback:</strong> sound effects on shots and kills, a brief invincibility window after you clear a level, and a retry prompt when you lose.</li>
+</ul>
+<pre><code>// the chaser, in spirit
+dx = player.x - x;  dy = player.y - y;
+d  = sqrt(dx*dx + dy*dy);
+setVel(dx / d * SPEED, dy / d * SPEED);</code></pre>
+
+<h2>What I'd do differently now</h2>
+<p>Looking back with a bit more experience, these are the lessons I'd hand my past self:</p>
+<ul>
+<li><strong>Share the win/lose code.</strong> The "you lose, retry?" logic is copied across four collision listeners, and the level-clear logic is copied twice. One method would've been easier to fix and extend.</li>
+<li><strong>Don't use blocking dialogs in a game loop.</strong> Popups for win, lose and upgrade pause everything and break the flow. An in-game overlay would feel much better.</li>
+<li><strong>Don't use static state for player stats.</strong> Things like shield strength being static made restart bugs easy to introduce. They belong on the player object.</li>
+<li><strong>Use one game clock.</strong> Each enemy and boss starts its own timer thread. A single update loop would be easier to reason about and to pause.</li>
+<li><strong>Keep build output out of the repo.</strong> The repo is a zipped IDE project with compiled classes in it. A <code>.gitignore</code> and plain source files would be much friendlier to read.</li>
+</ul>
+
+<h2>Why it still matters to me</h2>
+<p>It was the first time I built something other people could actually play, and it taught me game loops, collision handling, simple AI and how quickly "just one more feature" turns into spaghetti. Those lessons are the reason I want to build a second one: <a href="../roadmap.html#javashooter2">JavaShooter 2</a> is on my roadmap.</p>
+<p>Source: <a href="https://github.com/nrodrigue2004/JavaShooter">github.com/nrodrigue2004/JavaShooter</a></p>
