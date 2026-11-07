@@ -1,0 +1,128 @@
+tagline: A mobile app is a client you hand to every attacker. Learn Flutter widgets and state, how Firebase Auth and Firestore fit together, then review a security rules file before an app ships with its data wide open.
+:: simple
+**Flutter** builds apps for Android, iOS and the web from one codebase written in **Dart**. Everything on screen is a **widget**: a `Text`, a `Button`, a `Column` holding other widgets. A **StatelessWidget** just draws; a **StatefulWidget** holds data that changes and redraws when you call `setState()`.
+
+**Firebase** is Google's backend-as-a-service:
+- **Auth**: sign-in with email, Google, Apple, phone
+- **Firestore**: a NoSQL database of **collections** and **documents** (JSON-like)
+- **Storage** for files, **Cloud Functions** for server code
+
+```
+$ cat ~/review/lib/main.dart
+```
+
+> In a Firebase app the client talks straight to the database. The only thing standing between a user and everyone's data is the **security rules**.
+:: mid
+### How the pieces connect
+The app signs in with Firebase Auth and gets an ID token. Every Firestore read and write sends that token, and the **rules** decide using `request.auth.uid` (who is asking) and `resource.data` (the document).
+
+```
+$ cat ~/review/firestore.rules
+```
+
+### Things that are *not* secrets
+The `google-services.json` / `firebaseOptions` API key is meant to be public: it identifies the project, it doesn't authorize anything. Real secrets (a payment provider's secret key, an admin SDK service account) must never be in the app, because anyone can unpack an APK and read every string.
+
+```
+$ grep -n "apiKey\|sk_live" ~/review/lib/*.dart
+```
+:: complex
+### The OWASP Mobile Top 10, applied
+- **Insecure data storage**: tokens in plain `SharedPreferences` instead of `flutter_secure_storage` (Keychain / Keystore)
+- **Insecure communication**: no TLS or no certificate pinning for high-risk apps
+- **Insecure authentication / authorization**: hiding the admin button in the UI but not checking the role in the rules or server
+- **Code tampering and reverse engineering**: APKs decompile easily (jadx, apktool). Use obfuscation (`--obfuscate --split-debug-info`), Play Integrity / App Attest via **Firebase App Check**, and never trust the client
+
+### Rules patterns
+- deny by default: `allow read, write: if false;` at the root
+- owner only: `allow read, write: if request.auth != null && request.auth.uid == userId;`
+- validate writes: `request.resource.data.keys().hasOnly([...])`, type and size checks
+- roles from **custom claims** (`request.auth.token.admin == true`), never from a field the user can edit
+- test rules with the **Firebase Emulator** and rules unit tests before every release
+
+### MDM in the enterprise
+Company phones are managed with **MDM** (Intune, Jamf): enforce a PIN and encryption, push or block apps, separate work and personal data (containerization), and remote-wipe a lost device.
+:: lab
+style: ticket
+host: appsec
+user: reviewer
+cwd: /home/reviewer/review
+system: AppSec review queue
+id: #SEC-0418
+subject: Pre-release security review: StudyBuddy app v2.0
+priority: P2
+from: mobile team (release Friday)
+sla: 2h
+attach: firestore.rules, main.dart, data-model.md
+:: brief
+The mobile team wants sign-off on StudyBuddy v2.0. Users keep **private notes** and their **profile** (including a phone number for study-group SMS).
+
+Review `firestore.rules` against `data-model.md`. One rule exposes a whole collection of private data to **any signed-in user**, not just its owner.
+
+Resolve the ticket with the **name of that collection**.
+:: answer
+profiles
+:: hint
+For each `match` block, ask: who does this rule allow? `request.auth != null` means "anyone with an account", and anyone can make an account.
+:: hint
+Compare with `data-model.md`: which collection is supposed to be owner-only but has no `uid ==` check?
+:: solution
+`notes/{userId}` correctly checks `request.auth.uid == userId`, and `groups` is meant to be readable by members. But `match /profiles/{userId}` says `allow read: if request.auth != null;`. Since sign-up is open, **anyone** can create an account and then list every profile, with phone numbers. The collection is **profiles**. Fix: `allow read, write: if request.auth != null && request.auth.uid == userId;`, move the fields group members need into a separate public `displayProfiles` collection, add a rules unit test for "user A can't read user B", and block the release until it passes.
+:: verify
+grep -n -A3 "profiles" firestore.rules
+:: file /home/reviewer/review/firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // private notes: owner only
+    match /notes/{userId}/items/{noteId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // user profiles (name, school, phone for SMS reminders)
+    match /profiles/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // study groups: members can read, owner can edit
+    match /groups/{groupId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.members;
+      allow write: if request.auth != null && request.auth.uid == resource.data.owner;
+    }
+
+    // everything else: denied
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+:: file /home/reviewer/review/data-model.md
+# StudyBuddy data model
+- notes/{uid}/items/{id}   private, owner only
+- profiles/{uid}           PRIVATE: displayName, school, phone, birthday. Owner only.
+- groups/{id}              members can read; owner edits. members: [uid]
+:: file /home/reviewer/review/lib/main.dart
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+const firebaseOptions = FirebaseOptions(
+  apiKey: "AIzaSyEXAMPLE-public-identifier",   // public by design
+  appId: "1:1234567890:android:abcdef",
+  projectId: "studybuddy-example",
+  messagingSenderId: "1234567890",
+);
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: firebaseOptions);
+  runApp(const StudyBuddy());
+}
+
+class StudyBuddy extends StatelessWidget {
+  const StudyBuddy({super.key});
+  @override
+  Widget build(BuildContext context) =>
+      const MaterialApp(home: Scaffold(body: Center(child: Text('StudyBuddy'))));
+}

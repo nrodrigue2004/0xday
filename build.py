@@ -6,10 +6,11 @@ then run:  python3 build.py
 import json, html, os, hashlib, base64, datetime
 ROOT = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ROOT)
-NAME = "Nathan Rodrigue"; USER = "nathan"; HOST = "0xday"
+NAME = "Nathan"; FULL_NAME = "Nathan Rodrigue"  # last name only on the resume
+USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
-NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
+NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
 SITE = "https://nrodrigue2004.github.io/0xday/"
 POSTS = json.load(open("content/posts.json"))
 PROJECTS = json.load(open("content/projects.json"))
@@ -22,7 +23,7 @@ FLAGS = {"source": "0xDAY{v13w_s0urc3_4lw4ys}", "console": "0xDAY{c0ns0l3_c0wb0y
 for p in POSTS:
     p["body"] = open(f"content/posts/{p['slug']}.html").read()
 esc = html.escape
-V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js")).encode()).hexdigest()[:8]  # cache-buster
+V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js")).encode()).hexdigest()[:8]  # cache-buster
 
 def short(d):
     import datetime
@@ -150,8 +151,11 @@ def card(x):
             f'<h3>{head}</h3><p>{esc(x["desc"])}</p>'
             f'<p class="card__tags">{" ".join("#" + t for t in x["tags"])}</p></article>')
 page("projects.html", "projects :: 0xDay",
-     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. Source on <a href="{GH}">GitHub</a>. The two labs get full <a href="deep-dives.html">deep-dives</a>.</p>'
+     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. Source on <a href="{GH}">GitHub</a>. The two labs get full <a href="deep-dives.html">deep-dives</a>, and what\'s next lives in <a href="roadmap.html">~/roadmap</a>.</p>'
      f'<div class="cards">{"".join(card(x) for x in PROJECTS)}</div>', cur="projects")
+
+import build_roadmap
+ROADMAP = build_roadmap.build(page, esc)
 
 # ---------- resources ----------
 RES = [("reverse engineering & malware", [("Ghidra", "https://ghidra-sre.org/"), ("IDA Free", "https://hex-rays.com/ida-free"), ("PE-bear", "https://github.com/hasherezade/pe-bear")]),
@@ -226,6 +230,7 @@ page("certs.html", "certs :: 0xDay", f"""<p class="cmd">apt list --installed | g
 <ul class="pkgs">{cert_rows}</ul>
 <h2>security+ tracker</h2>
 <p class="cmd">./progress --exam SY0-701</p>
+<p>Studying with my own system: <a href="secplus.html">~/secplus</a> (objectives, notes, flashcards, labs).</p>
 <p>Overall, weighted by exam domain: <strong class="ok">{overall}%</strong></p>
 <ul class="doms">{dom_rows}</ul>
 <h3>practice exams</h3>{chart}
@@ -234,17 +239,22 @@ page("certs.html", "certs :: 0xDay", f"""<p class="cmd">apt list --installed | g
 
 # ---------- skills ----------
 LV = {1: "aware", 2: "familiar", 3: "working", 4: "strong", 5: "expert"}
+import build_learn
+def learnlink(k):
+    s = build_learn.slug(k["name"])
+    return f' <a href="learn/{s}.html">learn</a>' if os.path.exists(f"content/guides/{s}.txt") else ""
 def proof(u):
     return f'<a href="{u}">proof</a>' if u else '<span class="muted">soon</span>'
 groups_html = "".join(
     f'<h2>{esc(g["name"])}</h2><ul class="skills">' + "".join(
         f'<li><span class="sk__name">{esc(k["name"])}</span><span class="sk__lv" aria-label="level {k["level"]} of 5">'
         f'<span class="bar__on">{"■" * k["level"]}</span><span class="bar__off">{"□" * (5 - k["level"])}</span></span>'
-        f'<span class="muted sk__label">{LV[k["level"]]}</span><span class="sk__proof">{proof(k["proof"])}</span></li>'
+        f'<span class="muted sk__label">{LV[k["level"]]}</span><span class="sk__proof">{proof(k["proof"])}{learnlink(k)}</span></li>'
         for k in g["skills"]) + "</ul>" for g in SKILLS["groups"])
 page("skills.html", "skills :: 0xDay", f"""<p class="cmd">skills --matrix</p><h1>~/skills</h1>
-<p>Self-rated, and every rating links to the work behind it. <span class="muted">1 aware · 2 familiar · 3 working · 4 strong · 5 expert</span></p>
+<p>Self-rated, and every rating links to the work behind it. Each <strong>learn</strong> link opens a guide (simple, mid, complex) with a hands-on sandbox lab. <span class="muted">1 aware · 2 familiar · 3 working · 4 strong · 5 expert</span></p>
 {groups_html}""", cur="skills")
+GUIDES, SP, NCARDS = build_learn.build(page, SKILLS, LV, bar)
 
 # ---------- now ----------
 def nl(xs): return "".join(f"<li>{esc(x)}</li>" for x in xs)
@@ -331,14 +341,14 @@ prj = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["name"]
 skl = "".join(f'<div><span class="k">{esc(k)}</span> {esc(v)}</div>' for k, v in r["skills"].items())
 page("resume.html", "resume :: 0xDay", f'''<p class="cmd no-print">cat ~/resume.txt</p>
 <div class="resume">
-<div class="rs-top"><h1>{NAME}</h1><button class="btn no-print" type="button" onclick="window.print()">[ print / save as PDF ]</button></div>
+<div class="rs-top"><h1>{FULL_NAME}</h1><button class="btn no-print" type="button" onclick="window.print()">[ print / save as PDF ]</button></div>
 <p class="rs-links"><a href="{GH}">github.com/nrodrigue2004</a> · <a href="{LI}">linkedin</a> · <a href="{SITE}">{SITE.replace("https://", "")}</a></p>
 <p>{esc(r["headline"])}</p>
 <h2>education</h2>{edu}
 <h2>experience</h2>{exp}
 <h2>projects</h2>{prj}
 <h2>skills</h2><div class="rs-skills">{skl}</div>
-</div>''', desc=f"Resume of {NAME}.")
+</div>''', desc=f"Resume of {FULL_NAME}.")
 
 # ---------- ctf log ----------
 def wl(c):
@@ -424,6 +434,8 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("detections", "detections.html", "SIEM detection rules", n(DETS, "rule")),
        ("books", "books.html", "bookshelf", n(BOOKS, "book")),
        ("resume", "resume.html", "printable resume", "1 page"),
+       ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
+       ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
 HUB = [x for x in HUB if x[3] != "coming soon"]
@@ -455,6 +467,8 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "flags": {k: hashlib.sha256(v.encode()).hexdigest() for k, v in FLAGS.items()},
         "consoleFlag": FLAGS["console"].encode().hex(),
         "man": [{"slug": x["slug"], "name": x["name"], "summary": x["summary"], "groups": x["groups"]} for x in SHEETS],
-        "ctf": CTF, "ctfstats": CTFSTATS, "thm": CERTS.get("thm_username"), "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS}
+        "ctf": CTF, "ctfstats": CTFSTATS, "thm": CERTS.get("thm_username"), "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS,
+        "guides": [{"slug": k, "name": v[0]["name"]} for k, v in GUIDES.items()],
+        "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
-print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags")
+print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags,", len(GUIDES), "guides,", len(SP["objectives"]), "objectives,", NCARDS, "cards")

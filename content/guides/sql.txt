@@ -1,0 +1,179 @@
+tagline: SQL is how you ask a database questions. Learn SELECT, WHERE, JOIN and GROUP BY on a real SQLite database running in your browser, then use them to find a compromised account.
+:: simple
+A **database table** is like a spreadsheet: rows are records, columns are fields. **SQL** (Structured Query Language) is how you ask it questions. The most important statement is `SELECT`: pick columns `FROM` a table, and filter rows with `WHERE`.
+
+The sandbox has a real SQLite database, `hr.db`, with an `employees` table and a `logins` table. Look around first:
+
+```
+$ sqlite3 hr.db ".tables"
+$ sqlite3 hr.db "SELECT * FROM employees;"
+$ sqlite3 hr.db "SELECT name, title FROM employees WHERE dept = 'Finance';"
+```
+
+> Text goes in single quotes ('Finance'). Numbers don't. Every statement ends with a semicolon.
+
+You can also type `sqlite3 hr.db` on its own to get an interactive `sqlite>` prompt. Type `.quit` to leave it.
+:: mid
+Real questions need four more tools:
+
+- `ORDER BY col DESC` sorts, `LIMIT n` keeps the top n
+- `COUNT(*)`, `SUM()`, `MIN()`, `MAX()` are aggregates: they collapse many rows into one number
+- `GROUP BY col` runs the aggregate once per distinct value of `col`
+- `LIKE` matches patterns: `%` means "anything", so `'10.%'` is "starts with 10."
+
+How many failed logins (success = 0) does each source IP have?
+
+```
+$ sqlite3 hr.db "SELECT src_ip, COUNT(*) AS fails FROM logins WHERE success = 0 GROUP BY src_ip ORDER BY fails DESC;"
+```
+
+The `logins` table only stores `employee_id`, not names. A **JOIN** stitches two tables together on a shared key, so you can read results as people instead of numbers:
+
+```
+$ sqlite3 hr.db "SELECT e.name, COUNT(*) AS fails FROM logins l JOIN employees e ON e.id = l.employee_id WHERE l.success = 0 GROUP BY e.name ORDER BY fails DESC;"
+```
+
+> `logins l` and `employees e` are aliases, so you can write `l.success` instead of `logins.success`.
+:: complex
+Two things separate a quick query from a correct one.
+
+### 1. Ask the precise question
+"Who has the most failed logins?" and "who is being attacked?" are different questions. The top name in the last query is someone fat-fingering their password from their own desk. Filter on what actually matters (here, sources outside the 10.0.10.0/24 office network), and keep the filters in `WHERE` (before grouping) vs `HAVING` (after grouping) straight:
+
+```
+$ sqlite3 hr.db "SELECT e.name, l.src_ip, COUNT(*) AS fails FROM logins l JOIN employees e ON e.id = l.employee_id WHERE l.success = 0 AND l.src_ip NOT LIKE '10.%' GROUP BY e.name, l.src_ip HAVING fails >= 3 ORDER BY fails DESC;"
+```
+
+### 2. Subqueries and NULL
+A subquery is a query inside a query. "Which employees never logged in from outside?" is `NOT IN (SELECT ...)`. And remember `NULL` is not a value: `col = NULL` is never true, you must write `col IS NULL`.
+
+```
+$ sqlite3 hr.db "SELECT name FROM employees WHERE id NOT IN (SELECT employee_id FROM logins WHERE src_ip NOT LIKE '10.%');"
+```
+
+### 3. Why this is a security skill
+- Most SIEMs and log tools speak SQL or something close to it (Splunk SPL, KQL, Elastic ES|QL)
+- **SQL injection** happens when an app glues user input into a query string. `' OR '1'='1` turns `WHERE pass = '...'` into a condition that's always true. The fix is parameterized queries (`WHERE pass = ?`), never string concatenation
+:: lab
+host: db01
+user: student
+cwd: /home/student
+:: brief
+The help desk got an alert: **an outside attacker sprayed passwords at employee accounts overnight, and one of them worked**.
+
+`hr.db` has every login attempt. Find the employee whose account was **successfully logged into from outside** the office network (10.0.10.0/24) after the spraying.
+
+Submit their **full name**, e.g. `submit Jane Doe`.
+:: answer
+Jordan Smith
+:: hint
+Ignore the inside noise. External sources are the IPs that do NOT start with `10.`: `WHERE src_ip NOT LIKE '10.%'`
+:: hint
+Failures alone don't prove a compromise. You want a row with `success = 1` from an external IP.
+:: hint
+JOIN logins to employees to turn the `employee_id` into a name: `... FROM logins l JOIN employees e ON e.id = l.employee_id WHERE ...`
+:: solution
+Counting all failures points at **Riley Brooks**, but those are 11 typos from Riley's own desk (10.0.10.16). Filtering to external IPs shows 203.0.113.77 spraying Jordan Smith (9 fails) and Marcus Lee (6), plus a few tries on Dana Kim from 198.51.100.4.
+
+The query that answers it:
+`SELECT e.name, l.ts, l.src_ip FROM logins l JOIN employees e ON e.id = l.employee_id WHERE l.success = 1 AND l.src_ip NOT LIKE '10.%';`
+
+It returns one row: **Jordan Smith** (Finance controller) at 03:40 from 203.0.113.77. Reset that password, kill the sessions, and check what a finance controller's account can reach.
+:: file /home/student/hr.db
+SQLite format 3 (binary). Open it with: sqlite3 hr.db
+:: file /home/student/README.txt
+hr.db: employees + every login attempt from the last week.
+Office network: 10.0.10.0/24. Try: sqlite3 hr.db ".schema"
+:: sql
+CREATE TABLE employees(id INTEGER PRIMARY KEY, name TEXT, dept TEXT, title TEXT);
+INSERT INTO employees VALUES (1,'Ava Chen','IT','sysadmin'),(2,'Marcus Lee','Finance','analyst'),(3,'Priya Patel','HR','manager'),(4,'Jordan Smith','Finance','controller'),(5,'Sam Ortiz','IT','help desk'),(6,'Riley Brooks','Sales','rep'),(7,'Dana Kim','Sales','manager'),(8,'Chris Park','HR','recruiter');
+CREATE TABLE logins(id INTEGER PRIMARY KEY, employee_id INTEGER REFERENCES employees(id), ts TEXT, src_ip TEXT, success INTEGER);
+INSERT INTO logins VALUES (1,1,'2026-11-06 16:54','10.0.10.11',1),
+(2,1,'2026-11-04 15:32','10.0.10.11',1),
+(3,1,'2026-11-06 10:51','10.0.10.11',1),
+(4,1,'2026-11-04 17:50','10.0.10.11',1),
+(5,1,'2026-11-05 09:28','10.0.10.11',1),
+(6,1,'2026-11-03 10:05','10.0.10.11',1),
+(7,1,'2026-11-06 17:25','10.0.10.11',1),
+(8,1,'2026-11-04 17:41','10.0.10.11',0),
+(9,1,'2026-11-03 17:00','10.0.10.11',0),
+(10,2,'2026-11-04 08:12','10.0.10.12',1),
+(11,2,'2026-11-06 17:01','10.0.10.12',1),
+(12,2,'2026-11-04 13:28','10.0.10.12',1),
+(13,2,'2026-11-05 16:14','10.0.10.12',1),
+(14,2,'2026-11-03 08:42','10.0.10.12',0),
+(15,3,'2026-11-03 12:26','10.0.10.13',1),
+(16,3,'2026-11-04 12:20','10.0.10.13',1),
+(17,3,'2026-11-03 16:18','10.0.10.13',1),
+(18,3,'2026-11-03 09:36','10.0.10.13',1),
+(19,3,'2026-11-05 14:06','10.0.10.13',1),
+(20,3,'2026-11-03 14:04','10.0.10.13',1),
+(21,3,'2026-11-04 08:13','10.0.10.13',1),
+(22,4,'2026-11-06 14:45','10.0.10.14',1),
+(23,4,'2026-11-04 14:04','10.0.10.14',1),
+(24,4,'2026-11-03 12:21','10.0.10.14',1),
+(25,4,'2026-11-03 12:21','10.0.10.14',1),
+(26,4,'2026-11-03 14:48','10.0.10.14',1),
+(27,4,'2026-11-03 10:15','10.0.10.14',1),
+(28,4,'2026-11-06 08:03','10.0.10.14',1),
+(29,4,'2026-11-04 10:43','10.0.10.14',0),
+(30,5,'2026-11-04 16:12','10.0.10.15',1),
+(31,5,'2026-11-06 14:41','10.0.10.15',1),
+(32,5,'2026-11-06 09:25','10.0.10.15',1),
+(33,5,'2026-11-05 11:00','10.0.10.15',1),
+(34,5,'2026-11-03 17:19','10.0.10.15',1),
+(35,5,'2026-11-06 11:11','10.0.10.15',1),
+(36,5,'2026-11-03 17:41','10.0.10.15',1),
+(37,6,'2026-11-05 11:28','10.0.10.16',1),
+(38,6,'2026-11-05 08:49','10.0.10.16',1),
+(39,6,'2026-11-03 12:24','10.0.10.16',1),
+(40,6,'2026-11-04 09:05','10.0.10.16',1),
+(41,6,'2026-11-04 17:40','10.0.10.16',1),
+(42,7,'2026-11-06 13:23','10.0.10.17',1),
+(43,7,'2026-11-06 10:37','10.0.10.17',1),
+(44,7,'2026-11-06 17:08','10.0.10.17',1),
+(45,7,'2026-11-04 10:40','10.0.10.17',1),
+(46,7,'2026-11-04 12:58','10.0.10.17',1),
+(47,7,'2026-11-04 17:15','10.0.10.17',1),
+(48,7,'2026-11-04 10:47','10.0.10.17',1),
+(49,7,'2026-11-06 14:56','10.0.10.17',1),
+(50,7,'2026-11-03 09:26','10.0.10.17',0),
+(51,7,'2026-11-03 09:06','10.0.10.17',0),
+(52,8,'2026-11-06 12:15','10.0.10.18',1),
+(53,8,'2026-11-06 12:26','10.0.10.18',1),
+(54,8,'2026-11-04 12:33','10.0.10.18',1),
+(55,8,'2026-11-04 09:08','10.0.10.18',1),
+(56,8,'2026-11-03 15:35','10.0.10.18',1),
+(57,8,'2026-11-04 12:13','10.0.10.18',1),
+(58,8,'2026-11-05 08:04','10.0.10.18',1),
+(59,8,'2026-11-04 14:28','10.0.10.18',1),
+(60,4,'2026-11-03 03:00','203.0.113.77',0),
+(61,4,'2026-11-04 03:02','203.0.113.77',0),
+(62,4,'2026-11-05 03:04','203.0.113.77',0),
+(63,4,'2026-11-05 03:06','203.0.113.77',0),
+(64,4,'2026-11-04 03:08','203.0.113.77',0),
+(65,4,'2026-11-03 03:10','203.0.113.77',0),
+(66,4,'2026-11-05 03:12','203.0.113.77',0),
+(67,4,'2026-11-04 03:14','203.0.113.77',0),
+(68,4,'2026-11-06 03:16','203.0.113.77',0),
+(69,2,'2026-11-05 03:30','203.0.113.77',0),
+(70,2,'2026-11-04 03:31','203.0.113.77',0),
+(71,2,'2026-11-03 03:32','203.0.113.77',0),
+(72,2,'2026-11-03 03:33','203.0.113.77',0),
+(73,2,'2026-11-06 03:34','203.0.113.77',0),
+(74,2,'2026-11-05 03:35','203.0.113.77',0),
+(75,6,'2026-11-03 12:02','10.0.10.16',0),
+(76,6,'2026-11-03 17:40','10.0.10.16',0),
+(77,6,'2026-11-05 15:04','10.0.10.16',0),
+(78,6,'2026-11-03 13:08','10.0.10.16',0),
+(79,6,'2026-11-05 09:28','10.0.10.16',0),
+(80,6,'2026-11-04 08:57','10.0.10.16',0),
+(81,6,'2026-11-03 13:22','10.0.10.16',0),
+(82,6,'2026-11-03 15:57','10.0.10.16',0),
+(83,6,'2026-11-03 14:50','10.0.10.16',0),
+(84,6,'2026-11-03 15:36','10.0.10.16',0),
+(85,6,'2026-11-06 17:42','10.0.10.16',0),
+(86,4,'2026-11-06 03:40','203.0.113.77',1),
+(87,7,'2026-11-03 02:00','198.51.100.4',0),
+(88,7,'2026-11-03 02:01','198.51.100.4',0),
+(89,7,'2026-11-03 02:02','198.51.100.4',0);

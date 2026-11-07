@@ -1,0 +1,38 @@
+<p>ERU was a team project for a software course in fall 2024: a social media app built to put curated, worthwhile posts where doomscrolling usually is. We built a Java backend, a TypeScript frontend and a MongoDB database, and got a working feed, uploads, comments and profiles by the deadline.</p>
+
+<h2>Architecture</h2>
+<pre><code>React Native (Expo, web)  --HTTP/JSON-->  Spring Boot REST API  --&gt;  MongoDB
+  feed, upload, explore,                    accounts, posts,
+  profile, settings, FAQ                    comments, likes</code></pre>
+<ul>
+<li><strong>Frontend:</strong> TypeScript and React Native via Expo, run in the browser. Components for posts, comments, likes and a nav bar, with pages for the home feed, upload, explore, profile and settings.</li>
+<li><strong>Backend:</strong> Java 21 with Spring Boot, controllers per area (accounts, friends, and so on) and a centralized exception handler that returns consistent error models.</li>
+<li><strong>Data:</strong> MongoDB, wrapped in a single manager class so the rest of the code never touches the driver directly.</li>
+</ul>
+
+<h2>The API</h2>
+<pre><code>GET   /account/{id}            profile
+GET   /account/{id}/feed       one user's posts, newest first
+GET   /account/feed            home feed, newest first
+POST  /account/post            create a post (UUID assigned server-side)
+POST  /post/{id}/like          like
+POST  /post/{id}/comment       comment</code></pre>
+<p>New post IDs are random UUIDs, and the server re-rolls on the (astronomically unlikely) collision. The feed endpoint also fills in each post's author name and picture so the client doesn't need a second call.</p>
+
+<h2>On the frontend</h2>
+<p>The home feed loads posts, tracks which identifiers it has already seen so repeated fetches never duplicate a post, and falls back to defaults for missing captions or profile pictures instead of crashing on incomplete data.</p>
+
+<h2>What was unfinished (and honest about it)</h2>
+<ul>
+<li>No login or registration screen. We hardcoded one account ID, so profile pages show that user.</li>
+<li>The Explore tab shows placeholder images; the recommendation algorithm never got built.</li>
+<li>The front end talks to <code>localhost</code> addresses, so it's a dev setup and not a deployable one.</li>
+</ul>
+
+<h2>Lessons</h2>
+<ul>
+<li>Cutting scope early beats cutting features at the deadline. The unfinished list above is what scope creep looks like.</li>
+<li><strong>Never commit secrets.</strong> The repo's config file shipped with a database connection string. Credentials belong in environment variables or a secrets manager, and anything that has been committed has to be rotated, even if the repo is deleted later.</li>
+<li>Typed models on both ends (Java classes, TypeScript interfaces) caught a lot of mismatches before runtime.</li>
+</ul>
+<p>Source: <a href="https://github.com/CSC-3380-Fall-2024/Team-4">CSC-3380 Team-4</a>.</p>

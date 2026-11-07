@@ -1,0 +1,121 @@
+tagline: Reverse engineering is reading a program you don't have the source for. Learn how compiled code maps back to logic, then step through a crackme in a debugger and pull the password out of memory.
+:: simple
+When you compile a program, the readable source code is gone. What ships is **machine code**: bytes the CPU executes. **Reverse engineering** (RE) is working backwards from that to understand what the program does, without the source.
+
+Two kinds of tools do the work:
+- A **disassembler/decompiler** (Ghidra, IDA) turns the bytes back into assembly and rough C, so you can *read* it (static analysis)
+- A **debugger** (gdb, x64dbg) runs the program one instruction or line at a time, so you can *watch* it (dynamic analysis)
+
+The lab on this page is a debugger. Try it: start the program, step one line, and look at the variables.
+
+```
+$ start
+$ step
+$ info locals
+```
+
+> The highlighted line in the source pane is the line about to run, and the panel on the right shows variables right now. Values that just changed turn amber.
+:: mid
+You rarely step through a whole program. You find the interesting spot, put a **breakpoint** there, and let the program run until it hits it.
+
+Here the interesting spot is the loop in `check()` that builds `buf`. Break on line 12, run to it, then inspect:
+
+```
+$ break 12
+$ continue
+$ print i
+$ print secret[i]
+```
+
+`continue` again jumps to the next time line 12 runs (the next loop iteration). `back` steps backwards, which real gdb can do with `record` / `reverse-step`.
+
+```
+$ continue
+$ print secret[i]
+$ back
+```
+
+> Reading the decompiled code first tells you where to break. Then the debugger tells you the actual values, which is often faster than doing the math by hand.
+:: complex
+### 1. What the compiler leaves behind
+Decompiled code is a reconstruction. Variable names are gone (Ghidra calls them `local_28`, `param_1`), loops become `do/while` with gotos, and constants show up as raw hex. Renaming things as you understand them is most of the job. This crackme's names were added by hand.
+
+### 2. Recognizing the pattern
+- `x ^ KEY` in a loop over bytes is **XOR encoding**: the secret is stored scrambled so `strings` won't show it
+- `strcmp(input, buf)` means `buf` must hold the real password by the time it's called, fully decoded
+- The return value of a function ends up in the `rax` register on x86-64, so "did the check pass?" is `$rax` after the call
+
+### 3. Static vs dynamic, and why both
+You can solve this statically: XOR each `secret` byte with `0x6b` yourself. Or dynamically: stop at the `strcmp` and read `buf`. Malware authors know this, so real samples add anti-debugging (checking for a debugger, timing checks, VM detection) to make the dynamic route harder. That's the point of patching anti-VM checks, like in my [anti-VM patching post](../posts/anti-vm-patching.html).
+
+```
+$ list
+$ break 15
+```
+:: lab
+style: debug
+host: re-lab
+user: student
+source: /home/student/crackme.c
+:: brief
+`crackme.exe` asks for a password. The decompiled `check()` function is loaded in the debugger with a wrong guess, `letmein`.
+
+The real password is never stored in plain text: `check()` decodes it into `buf` right before comparing. Use the debugger to read it out of memory.
+
+Submit the **password**, e.g. `submit hunter2`.
+:: answer
+pr0xm0x
+:: hint
+The decoded password must be complete in `buf` by the time `strcmp` runs. Which line is that?
+:: hint
+`break 15`, then `continue` (or `start` first if the program isn't running).
+:: hint
+At line 15, `print buf` (or look at the variables panel).
+:: solution
+`check()` XORs each byte of `secret` with `0x6b` into `buf`, then calls `strcmp(input, buf)`. Break on line 15 and `continue`, and the variables panel shows `buf = "pr0xm0x"`. You can confirm it statically: `0x1b ^ 0x6b = 0x70`, which is `p`, and so on. The password is **pr0xm0x**. Patching the `strcmp` result (or the jump after it) would also bypass the check, which is how many cracks work.
+:: trace
+19 | guess=0x0
+20 | guess="letmein"
+10 | input="letmein" buf="????????"
+11 | input="letmein" i=0 buf="????????"
+12 | input="letmein" i=0 secret[i]=0x1b buf="????????"
+11 | input="letmein" i=1 buf="p???????"
+12 | input="letmein" i=1 secret[i]=0x19 buf="p???????"
+11 | input="letmein" i=2 buf="pr??????"
+12 | input="letmein" i=2 secret[i]=0x5b buf="pr??????"
+11 | input="letmein" i=3 buf="pr0?????"
+12 | input="letmein" i=3 secret[i]=0x13 buf="pr0?????"
+11 | input="letmein" i=4 buf="pr0x????"
+12 | input="letmein" i=4 secret[i]=0x6 buf="pr0x????"
+11 | input="letmein" i=5 buf="pr0xm???"
+12 | input="letmein" i=5 secret[i]=0x5b buf="pr0xm???"
+11 | input="letmein" i=6 buf="pr0xm0??"
+12 | input="letmein" i=6 secret[i]=0x13 buf="pr0xm0??"
+14 | input="letmein" i=7 buf="pr0xm0x?"
+15 | input="letmein" buf="pr0xm0x"
+21 | guess="letmein" check()=0 | access denied
+22 | guess="letmein"
+:: file /home/student/crackme.c
+#include <stdio.h>
+#include <string.h>
+
+// check() recovered from crackme.exe with Ghidra, renamed by hand
+static const unsigned char secret[7] = {0x1b, 0x19, 0x5b, 0x13, 0x6, 0x5b, 0x13};
+#define KEY 0x6b
+
+int check(const char *input) {
+    char buf[8];
+    if (strlen(input) != 7) return 0;
+    for (int i = 0; i < 7; i++) {
+        buf[i] = secret[i] ^ KEY;
+    }
+    buf[7] = 0;
+    return strcmp(input, buf) == 0;
+}
+
+int main(void) {
+    const char *guess = "letmein";
+    if (check(guess)) puts("access granted");
+    else puts("access denied");
+    return 0;
+}

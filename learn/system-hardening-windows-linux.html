@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn System hardening (Windows/Linux) :: 0xDay</title>
+<meta name="description" content="Learn System hardening (Windows/Linux): simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=920388eb">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=920388eb" defer></script>
+<script src="../site.js?v=920388eb" defer></script>
+<script src="../fx.js?v=920388eb" defer></script>
+<script src="../sandbox.js?v=920388eb" defer></script>
+<script src="../learn.js?v=920388eb" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill system-hardening-windows-linux</p>
+<h1>~/learn/system-hardening-windows-linux</h1>
+<p class="learn__meta"><span class="muted">blue team</span> · my level: <span class="bar__on">■■</span><span class="bar__off">□□□</span> <span class="muted">familiar</span> · <a href="../ctf.html">proof</a></p>
+<p>Hardening means removing everything an attacker could use before they show up. Learn baselines, least privilege and the usual misconfigurations on Linux and Windows, then audit a server and find its backdoor account.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="system-hardening-windows-linux">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A fresh install is built to *work*, not to be *safe*: default passwords, extra services, broad permissions. <strong>Hardening</strong> is shrinking the <strong>attack surface</strong>:</p>
+<ul><li>remove or disable what you don't need (services, software, ports, accounts)</li><li>change every default password, and enforce strong ones</li><li>patch, and keep patching</li><li>give every user and service only the access it needs (<strong>least privilege</strong>)</li><li>turn on logging and a host firewall</li></ul>
+<p>Start by seeing what the box exposes. Which services are listening?</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/audit/listening.txt</span><button class="run" type="button" data-cmd="cat ~/audit/listening.txt" title="run in the sandbox">▶ run</button></code></pre>
+<p class="callout">The <strong>CIS Benchmarks</strong> and DISA STIGs are free, detailed hardening checklists for almost every OS and app. Hardening is mostly working through one.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Linux: accounts and SSH</h4>
+<p><code>/etc/passwd</code> has one line per account: <code>name:x:UID:GID:comment:home:shell</code>. Only <code>root</code> should have UID <strong>0</strong>. Service accounts should have a <code>nologin</code> shell. Pull the fields you care about with <code>awk -F:</code>:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">awk -F: &#x27;{print $1, $3, $7}&#x27; ~/audit/etc/passwd</span><button class="run" type="button" data-cmd="awk -F: &#x27;{print $1, $3, $7}&#x27; ~/audit/etc/passwd" title="run in the sandbox">▶ run</button></code></pre>
+<p>SSH is the front door. Check the settings that matter: no root login, no passwords (keys only), no empty passwords:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">grep -E &quot;^(PermitRootLogin|PasswordAuthentication|PermitEmptyPasswords)&quot; ~/audit/etc/ssh/sshd_config</span><button class="run" type="button" data-cmd="grep -E &quot;^(PermitRootLogin|PasswordAuthentication|PermitEmptyPasswords)&quot; ~/audit/etc/ssh/sshd_config" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Windows: the same ideas, different tools</h4>
+<p>Group Policy enforces baselines across a domain. Typical wins: disable SMBv1 and LLMNR, enforce account lockout, turn on Windows Defender and the firewall, deploy LAPS (a unique local admin password per machine), and remove users from the local Administrators group.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/audit/windows-baseline.txt</span><button class="run" type="button" data-cmd="cat ~/audit/windows-baseline.txt" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Privilege escalation is a hardening checklist in reverse</h4>
+<p>Attackers who land as a normal user look for exactly the misconfigurations hardening removes:</p>
+<ul><li><strong>SUID binaries</strong> that let anyone run something as root (<code>find / -perm -4000</code>)</li><li><strong>sudo rules</strong> that are too broad (<code>(ALL) NOPASSWD: ALL</code>, or sudo on editors and interpreters that can spawn a shell)</li><li><strong>world-writable</strong> files run by root (cron scripts, services)</li><li>extra <strong>UID 0</strong> accounts, weak file permissions on <code>/etc/shadow</code></li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/audit/suid.txt</span><button class="run" type="button" data-cmd="cat ~/audit/suid.txt" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">grep -v &quot;^#&quot; ~/audit/etc/sudoers | grep -v &quot;^$&quot;</span><button class="run" type="button" data-cmd="grep -v &quot;^#&quot; ~/audit/etc/sudoers | grep -v &quot;^$&quot;" title="run in the sandbox">▶ run</button></code></pre>
+<p>GTFOBins lists how almost every common binary can be abused when it's SUID or allowed via sudo. If <code>find</code>, <code>vim</code> or <code>python3</code> is on that list, it's a root shell.</p>
+<h4>Baselines and drift</h4>
+<p>Harden once, then keep it that way: define a baseline (CIS level 1), apply it with automation (Ansible, GPO, Intune), and scan for <strong>drift</strong> regularly (OpenSCAP, Lynis, Microsoft Security Compliance Toolkit).</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>You're auditing <strong>app02</strong> before it goes into production. A copy of its config is in <code>~/audit</code>.</p>
+<p>Someone left a <strong>backdoor account</strong>: it looks like a normal service account, but it's really root.</p>
+<p>Submit the <strong>username</strong> of the backdoor account.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "system-hardening-windows-linux", "title": "System hardening (Windows/Linux)", "user": "auditor", "host": "app02", "brief": "You're auditing <strong>app02<\/strong> before it goes into production. A copy of its config is in <code>~/audit<\/code>.\n\nSomeone left a <strong>backdoor account<\/strong>: it looks like a normal service account, but it's really root.\n\nSubmit the <strong>username<\/strong> of the backdoor account.", "hints": ["On Linux, what makes an account root is not its name but its UID. Which field in /etc/passwd is the UID?", "<code>awk -F: &#x27;$3 == 0&#x27; ~/audit/etc/passwd<\/code>"], "answers": ["8a91421fa4440dee7e2404db5eae3a4b4a0cd0a8f21f8310a8e0c8650c5a2737"], "solution": "PGNvZGU+YXdrIC1GOiAmI3gyNzskMyA9PSAwIHtwcmludCAkMX0mI3gyNzsgfi9hdWRpdC9ldGMvcGFzc3dkPC9jb2RlPiBwcmludHMgPGNvZGU+cm9vdDwvY29kZT4gYW5kIDxzdHJvbmc+c3lzdXBkYXRlPC9zdHJvbmc+LiA8Y29kZT5zeXN1cGRhdGU8L2NvZGU+IGhhcyBVSUQgMCAoc28gaXQgaXMgcm9vdCB0byB0aGUga2VybmVsKSwgYSByZWFsIHNoZWxsIDxjb2RlPi9iaW4vYmFzaDwvY29kZT4gYW5kIGEgaG9tZSBpbiA8Y29kZT4vdmFyL2xpYi8uc3lzdXBkYXRlPC9jb2RlPiwgYW5kIHRoZSBzdWRvZXJzIGZpbGUgYWxzbyBnaXZlcyBpdCA8Y29kZT5OT1BBU1NXRDogQUxMPC9jb2RlPi4gRml4OiBkZWxldGUgdGhlIGFjY291bnQsIGNoZWNrIDxjb2RlPi9ldGMvc2hhZG93PC9jb2RlPiBhbmQgPGNvZGU+YXV0aG9yaXplZF9rZXlzPC9jb2RlPiBmb3IgaXRzIGNyZWRlbnRpYWxzLCBhbmQgaW52ZXN0aWdhdGUgaG93IGl0IGdvdCB0aGVyZS4gV2hpbGUgeW91J3JlIGluIHRoZXJlOiA8Y29kZT5QZXJtaXRSb290TG9naW4geWVzPC9jb2RlPiBhbmQgPGNvZGU+UGFzc3dvcmRBdXRoZW50aWNhdGlvbiB5ZXM8L2NvZGU+IGluIHNzaGRfY29uZmlnIHNob3VsZCBib3RoIGJlIDxjb2RlPm5vPC9jb2RlPiwgYW5kIDxjb2RlPi91c3IvYmluL2ZpbmQ8L2NvZGU+IHNob3VsZG4ndCBiZSBTVUlELgo=", "fs": {"/home/auditor/audit/listening.txt": "Netid State  Local Address:Port  Process\ntcp   LISTEN 0.0.0.0:22          sshd\ntcp   LISTEN 0.0.0.0:80          nginx\ntcp   LISTEN 0.0.0.0:3306        mysqld\ntcp   LISTEN 0.0.0.0:23          inetd (telnet)\ntcp   LISTEN 127.0.0.1:6379      redis-server\n", "/home/auditor/audit/etc/passwd": "root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\nmysql:x:110:115:MySQL Server:/nonexistent:/bin/false\nsysupdate:x:0:0:System Update Service:/var/lib/.sysupdate:/bin/bash\ndeploy:x:1001:1001:deploy user:/home/deploy:/bin/bash\nredis:x:111:116::/var/lib/redis:/usr/sbin/nologin\n", "/home/auditor/audit/etc/ssh/sshd_config": "Port 22\nPermitRootLogin yes\nPasswordAuthentication yes\nPermitEmptyPasswords no\nX11Forwarding yes\n", "/home/auditor/audit/etc/sudoers": "# User privilege specification\nroot    ALL=(ALL:ALL) ALL\n%sudo   ALL=(ALL:ALL) ALL\ndeploy  ALL=(root) NOPASSWD: /usr/bin/systemctl restart app\nsysupdate ALL=(ALL) NOPASSWD: ALL\n", "/home/auditor/audit/suid.txt": "/usr/bin/passwd\n/usr/bin/sudo\n/usr/bin/su\n/usr/bin/mount\n/usr/bin/find\n", "/home/auditor/audit/windows-baseline.txt": "Check                                   Expected        Found\nSMBv1 disabled                          Yes             No\nLLMNR disabled (GPO)                    Yes             Yes\nAccount lockout threshold               5 attempts      0 (never)\nWindows Defender real-time protection   On              On\nFirewall (all profiles)                 On              Domain: Off\nLAPS deployed                           Yes             No\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/auditor", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

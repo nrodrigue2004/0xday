@@ -1,0 +1,101 @@
+tagline: The Linux shell is the one tool every security job uses. Learn to move around, read and search files, and understand permissions, then dig a hidden flag out of a messy home directory.
+:: simple
+The **shell** is a text interface: you type a command, press Enter, it prints a result. Everything in Linux is a file in one tree that starts at `/`. Your home directory is `~`.
+
+The first five commands you need:
+
+```
+$ pwd
+$ ls
+$ cat notes.txt
+$ cd projects
+$ ls -l
+```
+
+- `pwd` where am I, `ls` what's here, `cd` go somewhere (`cd ..` goes up, `cd` alone goes home)
+- `cat` prints a file, `head` / `tail` print the start or end
+- Files starting with `.` are **hidden**. `ls -a` shows them
+
+```
+$ cd ~
+$ ls -a
+```
+
+> Press Tab to autocomplete names and the Up arrow to reuse commands. It works in this sandbox too.
+:: mid
+### Finding things
+`find` searches by name, type or size, and `grep` searches inside files. `-r` makes grep search a whole directory tree, `-i` ignores case, `-l` lists only file names:
+
+```
+$ find ~ -name "*.txt"
+$ grep -ril "password" ~
+```
+
+### Pipes
+The `|` sends one command's output into the next command's input. Small tools chained together are the Unix way:
+
+```
+$ cat ~/projects/servers.txt | sort | uniq
+$ ls ~/projects | wc -l
+```
+
+### Redirection
+`>` writes output to a file (overwriting), `>>` appends:
+
+```
+$ echo "checked $(date)" >> ~/log.txt
+$ cat ~/log.txt
+```
+:: complex
+### Permissions
+`ls -l` starts every line with something like `-rwxr-x---`: file type, then three groups of read/write/execute for the **owner**, the **group** and **everyone else**. As numbers, r=4, w=2, x=1, so `750` is `rwxr-x---`.
+- `chmod 600 key.pem` only the owner can read/write (what SSH demands for private keys)
+- `chown user:group file` changes the owner
+- A directory needs `x` to be entered and `r` to be listed
+
+Security-relevant special bits: **SUID** (`s` in the owner execute spot) runs a program as its owner, often root; the **sticky bit** on `/tmp` stops users deleting each other's files.
+
+### Text-processing power tools
+`cut` picks columns, `sort -n` sorts numbers, `uniq -c` counts duplicates, `tr` swaps characters, `awk` handles columns and conditions. Combined, they answer most "how many / which one / who" questions about logs without writing a script:
+
+```
+$ cut -d, -f2 ~/projects/servers.txt | sort | uniq -c | sort -rn
+```
+:: lab
+host: box
+user: student
+cwd: /home/student
+:: brief
+A previous intern left a **flag** somewhere in this home directory before they left. It's in a hidden place, and it's the only line in any file that starts with `FLAG{`.
+
+Find it. Submit the **whole flag**, e.g. `submit FLAG{example}`.
+:: answer
+FLAG{h1dd3n_1n_pl41n_s1ght}
+:: hint
+Hidden files and folders start with a dot. `ls -a` shows them, and `find ~ -name ".*"` lists every hidden one.
+:: hint
+Don't open files one by one. Search all of them at once: `grep -r "FLAG{" ~`
+:: solution
+`grep -r "^FLAG{" ~` searches every file under the home directory (hidden ones included) and finds it in `~/.config/.old/.cache/readme`. A few decoy files contain the word "flag" in other places, which is why anchoring the search with `^` (start of line) helps. The flag is **FLAG{h1dd3n_1n_pl41n_s1ght}**.
+:: verify
+grep -r "^FLAG{" ~
+:: file /home/student/notes.txt
+todo: finish the firewall lab, read about chmod
+:: file /home/student/projects/servers.txt
+web01,linux,prod
+web02,linux,prod
+dc01,windows,prod
+web01,linux,prod
+lab-kali,linux,lab
+:: file /home/student/projects/README.md
+Nothing here. Or is there? (not a flag)
+:: file /home/student/.bashrc
+alias ll='ls -la'
+export EDITOR=nano
+:: file /home/student/.config/app/settings.json
+{"theme": "dark", "flag_enabled": true}
+:: file /home/student/.config/.old/.cache/readme
+cleanup notes from the old intern
+FLAG{h1dd3n_1n_pl41n_s1ght}
+:: file /home/student/Downloads/flag.txt
+nice try. the real one isn't this obvious

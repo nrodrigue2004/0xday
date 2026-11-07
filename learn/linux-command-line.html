@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Linux command line :: 0xDay</title>
+<meta name="description" content="Learn Linux command line: simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=920388eb">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=920388eb" defer></script>
+<script src="../site.js?v=920388eb" defer></script>
+<script src="../fx.js?v=920388eb" defer></script>
+<script src="../sandbox.js?v=920388eb" defer></script>
+<script src="../learn.js?v=920388eb" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill linux-command-line</p>
+<h1>~/learn/linux-command-line</h1>
+<p class="learn__meta"><span class="muted">linux</span> · my level: <span class="bar__on">■■■</span><span class="bar__off">□□</span> <span class="muted">working</span> · <a href="../ctf.html">proof</a></p>
+<p>The Linux shell is the one tool every security job uses. Learn to move around, read and search files, and understand permissions, then dig a hidden flag out of a messy home directory.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="linux-command-line">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>The <strong>shell</strong> is a text interface: you type a command, press Enter, it prints a result. Everything in Linux is a file in one tree that starts at <code>/</code>. Your home directory is <code>~</code>.</p>
+<p>The first five commands you need:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">pwd</span><button class="run" type="button" data-cmd="pwd" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ls</span><button class="run" type="button" data-cmd="ls" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cat notes.txt</span><button class="run" type="button" data-cmd="cat notes.txt" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cd projects</span><button class="run" type="button" data-cmd="cd projects" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ls -l</span><button class="run" type="button" data-cmd="ls -l" title="run in the sandbox">▶ run</button></code></pre>
+<ul><li><code>pwd</code> where am I, <code>ls</code> what's here, <code>cd</code> go somewhere (<code>cd ..</code> goes up, <code>cd</code> alone goes home)</li><li><code>cat</code> prints a file, <code>head</code> / <code>tail</code> print the start or end</li><li>Files starting with <code>.</code> are <strong>hidden</strong>. <code>ls -a</code> shows them</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cd ~</span><button class="run" type="button" data-cmd="cd ~" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ls -a</span><button class="run" type="button" data-cmd="ls -a" title="run in the sandbox">▶ run</button></code></pre>
+<p class="callout">Press Tab to autocomplete names and the Up arrow to reuse commands. It works in this sandbox too.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Finding things</h4>
+<p><code>find</code> searches by name, type or size, and <code>grep</code> searches inside files. <code>-r</code> makes grep search a whole directory tree, <code>-i</code> ignores case, <code>-l</code> lists only file names:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">find ~ -name &quot;*.txt&quot;</span><button class="run" type="button" data-cmd="find ~ -name &quot;*.txt&quot;" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">grep -ril &quot;password&quot; ~</span><button class="run" type="button" data-cmd="grep -ril &quot;password&quot; ~" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Pipes</h4>
+<p>The <code>|</code> sends one command's output into the next command's input. Small tools chained together are the Unix way:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/projects/servers.txt | sort | uniq</span><button class="run" type="button" data-cmd="cat ~/projects/servers.txt | sort | uniq" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ls ~/projects | wc -l</span><button class="run" type="button" data-cmd="ls ~/projects | wc -l" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Redirection</h4>
+<p><code>&gt;</code> writes output to a file (overwriting), <code>&gt;&gt;</code> appends:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">echo &quot;checked $(date)&quot; &gt;&gt; ~/log.txt</span><button class="run" type="button" data-cmd="echo &quot;checked $(date)&quot; &gt;&gt; ~/log.txt" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cat ~/log.txt</span><button class="run" type="button" data-cmd="cat ~/log.txt" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Permissions</h4>
+<p><code>ls -l</code> starts every line with something like <code>-rwxr-x---</code>: file type, then three groups of read/write/execute for the <strong>owner</strong>, the <strong>group</strong> and <strong>everyone else</strong>. As numbers, r=4, w=2, x=1, so <code>750</code> is <code>rwxr-x---</code>.</p>
+<ul><li><code>chmod 600 key.pem</code> only the owner can read/write (what SSH demands for private keys)</li><li><code>chown user:group file</code> changes the owner</li><li>A directory needs <code>x</code> to be entered and <code>r</code> to be listed</li></ul>
+<p>Security-relevant special bits: <strong>SUID</strong> (<code>s</code> in the owner execute spot) runs a program as its owner, often root; the <strong>sticky bit</strong> on <code>/tmp</code> stops users deleting each other's files.</p>
+<h4>Text-processing power tools</h4>
+<p><code>cut</code> picks columns, <code>sort -n</code> sorts numbers, <code>uniq -c</code> counts duplicates, <code>tr</code> swaps characters, <code>awk</code> handles columns and conditions. Combined, they answer most "how many / which one / who" questions about logs without writing a script:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cut -d, -f2 ~/projects/servers.txt | sort | uniq -c | sort -rn</span><button class="run" type="button" data-cmd="cut -d, -f2 ~/projects/servers.txt | sort | uniq -c | sort -rn" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>A previous intern left a <strong>flag</strong> somewhere in this home directory before they left. It's in a hidden place, and it's the only line in any file that starts with <code>FLAG{</code>.</p>
+<p>Find it. Submit the <strong>whole flag</strong>, e.g. <code>submit FLAG{example}</code>.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "linux-command-line", "title": "Linux command line", "user": "student", "host": "box", "brief": "A previous intern left a <strong>flag<\/strong> somewhere in this home directory before they left. It's in a hidden place, and it's the only line in any file that starts with <code>FLAG{<\/code>.\n\nFind it. Submit the <strong>whole flag<\/strong>, e.g. <code>submit FLAG{example}<\/code>.", "hints": ["Hidden files and folders start with a dot. <code>ls -a<\/code> shows them, and <code>find ~ -name &quot;.*&quot;<\/code> lists every hidden one.", "Don't open files one by one. Search all of them at once: <code>grep -r &quot;FLAG{&quot; ~<\/code>"], "answers": ["d6d130d0d6c0b833baedba1a21e6b5133ba826afaf9954c707f0d6c02e394dfe"], "solution": "PGNvZGU+Z3JlcCAtciAmcXVvdDteRkxBR3smcXVvdDsgfjwvY29kZT4gc2VhcmNoZXMgZXZlcnkgZmlsZSB1bmRlciB0aGUgaG9tZSBkaXJlY3RvcnkgKGhpZGRlbiBvbmVzIGluY2x1ZGVkKSBhbmQgZmluZHMgaXQgaW4gPGNvZGU+fi8uY29uZmlnLy5vbGQvLmNhY2hlL3JlYWRtZTwvY29kZT4uIEEgZmV3IGRlY295IGZpbGVzIGNvbnRhaW4gdGhlIHdvcmQgImZsYWciIGluIG90aGVyIHBsYWNlcywgd2hpY2ggaXMgd2h5IGFuY2hvcmluZyB0aGUgc2VhcmNoIHdpdGggPGNvZGU+XjwvY29kZT4gKHN0YXJ0IG9mIGxpbmUpIGhlbHBzLiBUaGUgZmxhZyBpcyA8c3Ryb25nPkZMQUd7aDFkZDNuXzFuX3BsNDFuX3MxZ2h0fTwvc3Ryb25nPi4K", "fs": {"/home/student/notes.txt": "todo: finish the firewall lab, read about chmod\n", "/home/student/projects/servers.txt": "web01,linux,prod\nweb02,linux,prod\ndc01,windows,prod\nweb01,linux,prod\nlab-kali,linux,lab\n", "/home/student/projects/README.md": "Nothing here. Or is there? (not a flag)\n", "/home/student/.bashrc": "alias ll='ls -la'\nexport EDITOR=nano\n", "/home/student/.config/app/settings.json": "{\"theme\": \"dark\", \"flag_enabled\": true}\n", "/home/student/.config/.old/.cache/readme": "cleanup notes from the old intern\nFLAG{h1dd3n_1n_pl41n_s1ght}\n", "/home/student/Downloads/flag.txt": "nice try. the real one isn't this obvious\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+tagline: Objects bundle data with the rules that protect it. Learn classes, encapsulation, inheritance, polymorphism and interfaces, then step through Java code where a getter quietly hands out admin rights.
+:: simple
+**Object-oriented programming** (OOP) models a program as **objects**: things that have data (**fields**) and behavior (**methods**). A **class** is the blueprint, an object is one thing built from it:
+
+`class User { String name; boolean isAdmin() { ... } }` then `User u = new User("riley");`
+
+The four pillars:
+- **Encapsulation**: keep fields `private` and let the class control how they change
+- **Inheritance**: `class Admin extends User` reuses and extends a class
+- **Polymorphism**: one call, `shape.area()`, does the right thing for a Circle or a Square
+- **Abstraction**: expose *what* an object does, hide *how*
+
+The debugger on the right is stopped in a Java program. Step into the constructor:
+
+```
+$ start
+$ step
+$ step
+$ info locals
+```
+:: mid
+### Encapsulation is a security boundary
+If a class keeps `roles` private, the only way to change them should be through methods that check the rules (`grantRole()` that requires an admin). That only holds if the class never hands its internals to outsiders. Returning a **mutable** internal object (a `List`, an array, a `Date`) from a getter gives the caller a live handle to your private state.
+
+```
+$ break 19
+$ continue
+$ print r
+$ print u.roles
+```
+
+### Interfaces and abstract classes
+An **interface** is a contract (`interface Authenticator { boolean verify(String user, char[] pw); }`) that several classes can implement: LDAP, local, SSO. Code depends on the interface, so you can swap implementations or mock them in tests.
+
+### Composition over inheritance
+Deep inheritance trees get fragile. Often it's cleaner for a class to *have* a helper object than to *be* a subclass.
+:: complex
+### Defensive copies and immutability
+- Return `List.copyOf(roles)` or `Collections.unmodifiableList(roles)` instead of `roles`
+- Copy mutable arguments in constructors too, or the caller keeps a reference
+- Prefer **immutable** classes (`final` fields, no setters, Java `record`s): they're thread-safe and can't be tampered with after validation
+- Make security-sensitive classes `final` so a subclass can't override `isAdmin()`
+
+```
+$ continue
+$ print u.isAdmin()
+$ back
+```
+
+### SOLID, briefly
+**S**ingle responsibility, **O**pen/closed, **L**iskov substitution, **I**nterface segregation, **D**ependency inversion. Each one makes code easier to test, and testable code is code whose security checks you can actually prove work.
+:: lab
+style: debug
+host: dev
+user: student
+source: /home/student/User.java
+:: brief
+A student account named riley shows up as **admin** in the app, but nobody ever called a method to grant it. `User` keeps `roles` **private**, so how did it change?
+
+Step through the program and watch `u.roles`.
+
+Submit the **name of the method that breaks encapsulation**, e.g. `submit toString`.
+:: answer
+getRoles
+getRoles()
+User.getRoles
+:: hint
+`BadgePlugin.decorate()` adds `"ADMIN"` to its local variable `r`. Why does that change `u.roles` too?
+:: hint
+Where did `r` come from? Look at what that method returns on line 10.
+:: solution
+`getRoles()` returns `roles` itself, the private `ArrayList`, not a copy. So `r` in `BadgePlugin.decorate()` and `u.roles` are **the same object** (the trace shows `same_object=true`). When the plugin adds `"ADMIN"` to what it thinks is a display list, it writes straight into the user's private roles, and `isAdmin()` returns true. The leaky method is **getRoles**. Fix: `return List.copyOf(roles);` (read-only copy), and only change roles through a method that checks the caller's authority.
+:: trace
+23 | args=[]
+7 | name="riley" roles="[]"
+7 | name="riley" roles="[STUDENT]"
+24 | u.name="riley" u.roles="[STUDENT]"
+18 | u.roles="[STUDENT]"
+10 | roles="[STUDENT]"
+19 | r="[STUDENT]" u.roles="[STUDENT]" same_object=true
+20 | r="[STUDENT, ADMIN]" u.roles="[STUDENT, ADMIN]" same_object=true | badges: [STUDENT, ADMIN]
+25 | u.roles="[STUDENT, ADMIN]" u.isAdmin()=true | admin? true
+26 | u.roles="[STUDENT, ADMIN]" u.isAdmin()=true
+:: file /home/student/User.java
+import java.util.*;
+
+public class User {
+    private final String name;
+    private final List<String> roles = new ArrayList<>();
+
+    public User(String name) { this.name = name; roles.add("STUDENT"); }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public boolean isAdmin() { return roles.contains("ADMIN"); }
+}
+
+class BadgePlugin {   // third-party plugin that draws role badges
+    static void decorate(User u) {
+        List<String> r = u.getRoles();
+        r.add("ADMIN");                 // "preview the admin badge"
+        System.out.println("badges: " + r);
+    }
+    public static void main(String[] args) {
+        User u = new User("riley");
+        decorate(u);
+        System.out.println("admin? " + u.isAdmin());
+    }
+}

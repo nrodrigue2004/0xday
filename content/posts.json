@@ -1,5 +1,25 @@
 [
   {
+    "slug": "slammer-worm-teardown",
+    "title": "Tearing Down a SQL Slammer-Style Worm: 376 Bytes of UDP",
+    "date": "2026-11-07",
+    "tags": [
+      "malware",
+      "reverse-engineering",
+      "assembly"
+    ]
+  },
+  {
+    "slug": "wg2-rat-teardown",
+    "title": "Tearing Down wg2: An HTTP RAT in Ghidra",
+    "date": "2026-11-07",
+    "tags": [
+      "malware",
+      "reverse-engineering",
+      "ghidra"
+    ]
+  },
+  {
     "slug": "proxmox-homelab",
     "title": "Building a Seven-VM Enterprise Homelab on Proxmox",
     "date": "2026-11-02",
@@ -36,7 +56,8 @@
     "tags": [
       "forensics",
       "wireshark",
-      "autopsy"
+      "autopsy",
+      "incident-response"
     ]
   },
   {
@@ -45,6 +66,47 @@
     "date": "2026-08-15",
     "tags": [
       "meta"
+    ]
+  },
+  {
+    "slug": "roomr",
+    "title": "Room'r: Roommate Matching with Flutter and Firebase",
+    "date": "2026-04-28",
+    "tags": [
+      "flutter",
+      "firebase",
+      "mobile"
+    ]
+  },
+  {
+    "slug": "supermarket-dbms",
+    "title": "Designing a Supermarket Database (and Its Checkout Transaction)",
+    "date": "2025-12-03",
+    "tags": [
+      "sql",
+      "databases",
+      "python"
+    ]
+  },
+  {
+    "slug": "eru",
+    "title": "ERU: Building a Social Feed with Spring Boot, MongoDB and React Native",
+    "date": "2024-12-10",
+    "tags": [
+      "software-engineering",
+      "java",
+      "typescript",
+      "mongodb"
+    ]
+  },
+  {
+    "slug": "javashooter",
+    "title": "JavaShooter: My First Game, and What I'd Fix Now",
+    "date": "2024-05-02",
+    "tags": [
+      "java",
+      "gamedev",
+      "projects"
     ]
   }
 ]

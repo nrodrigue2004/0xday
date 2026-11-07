@@ -1,0 +1,124 @@
+tagline: Git remembers everything, including the secret you deleted. Learn commits, branches and pull requests, then dig a leaked API key out of a repository's history.
+:: simple
+**Git** tracks changes to files over time. Each **commit** is a snapshot with a message, an author and a unique ID (a SHA hash). You can see who changed what, when, and go back to any version. **GitHub** hosts Git repositories online and adds pull requests, issues and CI.
+
+The everyday loop:
+
+```
+$ git status
+$ git log --oneline
+```
+
+- `git add file` stages a change, `git commit -m "message"` saves the snapshot
+- `git push` sends commits to GitHub, `git pull` gets others' commits
+- A **branch** is a separate line of work; merge it back when it's done
+
+> Write commit messages that say *why*, not just *what*. Future you will read them during an outage.
+:: mid
+### Branches and pull requests
+Teams don't commit straight to `main`. You make a branch, push it, and open a **pull request** (PR): a request to merge, where others review the diff and CI runs the tests. **Branch protection** can require reviews and passing checks before merging.
+
+```
+$ git branch -a
+$ git show --stat a41c9e2
+```
+
+### Seeing changes
+`git diff` shows uncommitted changes; `git show <sha>` shows exactly what one commit changed; `git log -p file` shows a file's whole history, change by change.
+:: complex
+### Secrets in history
+Deleting a secret in a new commit **doesn't remove it**: the old commit still contains it, and anyone who clones the repo gets the whole history. Bots scan public GitHub for leaked keys within minutes of a push.
+
+```
+$ git log --oneline --all -- config/settings.py
+$ git log -p --all -S "API_KEY" --oneline
+```
+
+`-S "text"` (the "pickaxe") finds commits that added or removed that text.
+
+### If you leak a secret
+1. **Rotate it immediately**. Assume it's compromised the moment it was pushed
+2. Then clean history if needed (`git filter-repo`, BFG) and force-push, knowing forks and clones may still have it
+3. Prevent it: `.gitignore` for `.env` files, pre-commit secret scanning (gitleaks), GitHub push protection, and secrets in a vault or CI secrets, never in code
+
+### Supply chain
+Signed commits, protected branches, required reviews and pinned dependency versions all exist because a malicious commit or package can reach production through Git.
+:: lab
+host: dev
+user: dev
+cwd: /home/dev/inventory-app
+:: brief
+A developer says: "I accidentally committed an AWS key last week but I removed it right away, so we're fine."
+
+Search the repository's history. Find the **AWS access key ID** that was committed (they start with `AKIA`).
+
+Submit the key ID, e.g. `submit AKIAEXAMPLE`.
+:: answer
+AKIAQX7EXAMPLE4CF2DL
+:: hint
+`git log --oneline` shows a commit about removing a key. The key itself is in the commit *before* that.
+:: hint
+`git log -p --all -S "AKIA" --oneline` finds commits that added or removed text containing AKIA.
+:: solution
+`git log --oneline` shows `b7d21f0 remove hardcoded creds` right after `9c3e11a add S3 upload for reports`. `git show 9c3e11a` (or the pickaxe search for `AKIA`) shows the added line `AWS_ACCESS_KEY_ID = "AKIAQX7EXAMPLE4CF2DL"` plus its secret key. Removing it later didn't help: it's in history and was pushed to GitHub. The key ID is **AKIAQX7EXAMPLE4CF2DL**. Response: deactivate and rotate the key in IAM now, check CloudTrail for any use since the push, then scrub history and turn on push protection.
+:: verify
+git show 9c3e11a
+:: cmd ^git status$
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+:: cmd ^git log --oneline( --all)?$
+e03a5d8 (HEAD -> main, origin/main) bump version to 1.4.2
+b7d21f0 remove hardcoded creds
+9c3e11a add S3 upload for reports
+51f0ab2 fix pagination on /items
+2d9be70 initial commit
+:: cmd ^git branch -a$
+* main
+  remotes/origin/main
+  remotes/origin/feature/csv-export
+:: cmd ^git show --stat a41c9e2
+fatal: bad object a41c9e2 (try a SHA from git log --oneline)
+:: cmd ^git show --stat 9c3e11a
+commit 9c3e11a7e1d0 add S3 upload for reports
+ config/settings.py | 4 ++++
+ app/reports.py     | 31 +++++++++++++++++++
+:: cmd ^git show 9c3e11a
+commit 9c3e11a7e1d0f2c44b1a90e6d2a1f9e8c5b3d710
+Author: dev <dev@corp.example>
+Date:   Fri Oct 31 16:02:11 2026 +0000
+
+    add S3 upload for reports
+
+diff --git a/config/settings.py b/config/settings.py
++# TODO move to env vars
++AWS_ACCESS_KEY_ID = "AKIAQX7EXAMPLE4CF2DL"
++AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
++S3_BUCKET = "inventory-reports"
+:: cmd ^git show b7d21f0
+commit b7d21f0c2a9e
+    remove hardcoded creds
+-AWS_ACCESS_KEY_ID = "AKIAQX7EXAMPLE4CF2DL"
+-AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
++AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
++AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
+:: cmd ^git log -p --all -S .?(API_KEY|AKIA).? --oneline
+b7d21f0 remove hardcoded creds
+-AWS_ACCESS_KEY_ID = "AKIAQX7EXAMPLE4CF2DL"
+9c3e11a add S3 upload for reports
++AWS_ACCESS_KEY_ID = "AKIAQX7EXAMPLE4CF2DL"
+:: cmd ^git log --oneline --all -- config/settings.py
+b7d21f0 remove hardcoded creds
+9c3e11a add S3 upload for reports
+2d9be70 initial commit
+:: cmd ^git
+git: this sandbox simulates: status, log --oneline, log -p -S, branch -a, show <sha>
+:: file /home/dev/inventory-app/config/settings.py
+import os
+AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
+AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
+S3_BUCKET = "inventory-reports"
+:: file /home/dev/inventory-app/README.md
+# inventory-app
+Internal inventory tracker. v1.4.2

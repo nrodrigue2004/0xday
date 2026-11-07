@@ -1,0 +1,114 @@
+tagline: Hardening means removing everything an attacker could use before they show up. Learn baselines, least privilege and the usual misconfigurations on Linux and Windows, then audit a server and find its backdoor account.
+:: simple
+A fresh install is built to *work*, not to be *safe*: default passwords, extra services, broad permissions. **Hardening** is shrinking the **attack surface**:
+- remove or disable what you don't need (services, software, ports, accounts)
+- change every default password, and enforce strong ones
+- patch, and keep patching
+- give every user and service only the access it needs (**least privilege**)
+- turn on logging and a host firewall
+
+Start by seeing what the box exposes. Which services are listening?
+
+```
+$ cat ~/audit/listening.txt
+```
+
+> The **CIS Benchmarks** and DISA STIGs are free, detailed hardening checklists for almost every OS and app. Hardening is mostly working through one.
+:: mid
+### Linux: accounts and SSH
+`/etc/passwd` has one line per account: `name:x:UID:GID:comment:home:shell`. Only `root` should have UID **0**. Service accounts should have a `nologin` shell. Pull the fields you care about with `awk -F:`:
+
+```
+$ awk -F: '{print $1, $3, $7}' ~/audit/etc/passwd
+```
+
+SSH is the front door. Check the settings that matter: no root login, no passwords (keys only), no empty passwords:
+
+```
+$ grep -E "^(PermitRootLogin|PasswordAuthentication|PermitEmptyPasswords)" ~/audit/etc/ssh/sshd_config
+```
+
+### Windows: the same ideas, different tools
+Group Policy enforces baselines across a domain. Typical wins: disable SMBv1 and LLMNR, enforce account lockout, turn on Windows Defender and the firewall, deploy LAPS (a unique local admin password per machine), and remove users from the local Administrators group.
+
+```
+$ cat ~/audit/windows-baseline.txt
+```
+:: complex
+### Privilege escalation is a hardening checklist in reverse
+Attackers who land as a normal user look for exactly the misconfigurations hardening removes:
+- **SUID binaries** that let anyone run something as root (`find / -perm -4000`)
+- **sudo rules** that are too broad (`(ALL) NOPASSWD: ALL`, or sudo on editors and interpreters that can spawn a shell)
+- **world-writable** files run by root (cron scripts, services)
+- extra **UID 0** accounts, weak file permissions on `/etc/shadow`
+
+```
+$ cat ~/audit/suid.txt
+$ grep -v "^#" ~/audit/etc/sudoers | grep -v "^$"
+```
+
+GTFOBins lists how almost every common binary can be abused when it's SUID or allowed via sudo. If `find`, `vim` or `python3` is on that list, it's a root shell.
+
+### Baselines and drift
+Harden once, then keep it that way: define a baseline (CIS level 1), apply it with automation (Ansible, GPO, Intune), and scan for **drift** regularly (OpenSCAP, Lynis, Microsoft Security Compliance Toolkit).
+:: lab
+host: app02
+user: auditor
+cwd: /home/auditor
+:: brief
+You're auditing **app02** before it goes into production. A copy of its config is in `~/audit`.
+
+Someone left a **backdoor account**: it looks like a normal service account, but it's really root.
+
+Submit the **username** of the backdoor account.
+:: answer
+sysupdate
+:: hint
+On Linux, what makes an account root is not its name but its UID. Which field in /etc/passwd is the UID?
+:: hint
+`awk -F: '$3 == 0' ~/audit/etc/passwd`
+:: solution
+`awk -F: '$3 == 0 {print $1}' ~/audit/etc/passwd` prints `root` and **sysupdate**. `sysupdate` has UID 0 (so it is root to the kernel), a real shell `/bin/bash` and a home in `/var/lib/.sysupdate`, and the sudoers file also gives it `NOPASSWD: ALL`. Fix: delete the account, check `/etc/shadow` and `authorized_keys` for its credentials, and investigate how it got there. While you're in there: `PermitRootLogin yes` and `PasswordAuthentication yes` in sshd_config should both be `no`, and `/usr/bin/find` shouldn't be SUID.
+:: verify
+awk -F: '$3 == 0 {print $1}' ~/audit/etc/passwd
+:: file /home/auditor/audit/listening.txt
+Netid State  Local Address:Port  Process
+tcp   LISTEN 0.0.0.0:22          sshd
+tcp   LISTEN 0.0.0.0:80          nginx
+tcp   LISTEN 0.0.0.0:3306        mysqld
+tcp   LISTEN 0.0.0.0:23          inetd (telnet)
+tcp   LISTEN 127.0.0.1:6379      redis-server
+:: file /home/auditor/audit/etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+mysql:x:110:115:MySQL Server:/nonexistent:/bin/false
+sysupdate:x:0:0:System Update Service:/var/lib/.sysupdate:/bin/bash
+deploy:x:1001:1001:deploy user:/home/deploy:/bin/bash
+redis:x:111:116::/var/lib/redis:/usr/sbin/nologin
+:: file /home/auditor/audit/etc/ssh/sshd_config
+Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+PermitEmptyPasswords no
+X11Forwarding yes
+:: file /home/auditor/audit/etc/sudoers
+# User privilege specification
+root    ALL=(ALL:ALL) ALL
+%sudo   ALL=(ALL:ALL) ALL
+deploy  ALL=(root) NOPASSWD: /usr/bin/systemctl restart app
+sysupdate ALL=(ALL) NOPASSWD: ALL
+:: file /home/auditor/audit/suid.txt
+/usr/bin/passwd
+/usr/bin/sudo
+/usr/bin/su
+/usr/bin/mount
+/usr/bin/find
+:: file /home/auditor/audit/windows-baseline.txt
+Check                                   Expected        Found
+SMBv1 disabled                          Yes             No
+LLMNR disabled (GPO)                    Yes             Yes
+Account lockout threshold               5 attempts      0 (never)
+Windows Defender real-time protection   On              On
+Firewall (all profiles)                 On              Domain: Off
+LAPS deployed                           Yes             No

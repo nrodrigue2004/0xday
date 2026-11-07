@@ -1,7 +1,203 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
-  <title>0xDay</title><link>https://nrodrigue2004.github.io/0xday/</link><description>Notes on cybersecurity, computer science and tech by Nathan Rodrigue.</description><language>en</language>
+  <title>0xDay</title><link>https://nrodrigue2004.github.io/0xday/</link><description>Notes on cybersecurity, computer science and tech by Nathan.</description><language>en</language>
   <atom:link href="https://nrodrigue2004.github.io/0xday/feed.xml" rel="self" type="application/rss+xml"/>
+  <item><title>Tearing Down a SQL Slammer-Style Worm: 376 Bytes of UDP</title><link>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>assembly</category><description>&lt;p&gt;The companion to my &lt;a href=&quot;wg2-rat-teardown.html&quot;&gt;wg2 RAT teardown&lt;/a&gt; is a 2003-era worm: an SQL Slammer / Sapphire style sample. For my reverse engineering course I produced a fully commented disassembly plus a stack-layout diagram, and this post is the condensed version.&lt;/p&gt;
+&lt;p&gt;It&#x27;s a nice contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is &lt;strong&gt;376 bytes&lt;/strong&gt; with no C2, no persistence and no commands. It does one thing, forever.&lt;/p&gt;
+
+&lt;h2&gt;What it does, in one breath&lt;/h2&gt;
+&lt;p&gt;A single UDP packet to SQL Server&#x27;s resolution service (UDP 1434) overflows a stack buffer, redirects the return address to a &lt;code&gt;JMP ESP&lt;/code&gt; gadget in &lt;code&gt;sqlsort.dll&lt;/code&gt;, and lands in the worm body. The worm then resolves the few APIs it needs, opens a UDP socket, and sprays copies of itself at pseudo-random IPv4 addresses until the machine is turned off.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;overflow 1434/udp -&amp;gt; RET to JMP ESP -&amp;gt; shellcode on stack
+  -&amp;gt; build API names on the stack -&amp;gt; LoadLibraryA / GetProcAddress
+  -&amp;gt; GetTickCount (seed) -&amp;gt; socket(UDP) -&amp;gt; sendto() in an endless loop&lt;/code&gt;&lt;/pre&gt;
+&lt;p class=&quot;muted&quot;&gt;I&#x27;m describing behavior and structure for defenders and students. I left out the full packet bytes on purpose.&lt;/p&gt;
+
+&lt;h2&gt;Getting control&lt;/h2&gt;
+&lt;p&gt;The first byte of the packet selects the vulnerable code path in the SQL Server parser. A long run of &lt;code&gt;0x01&lt;/code&gt; filler overruns the buffer, and the saved return address is replaced with &lt;code&gt;0x42B0C9DC&lt;/code&gt;, a &lt;code&gt;JMP ESP&lt;/code&gt; inside &lt;code&gt;sqlsort.dll&lt;/code&gt;. When the function returns, execution lands on ESP, which points at the worm. A short &lt;code&gt;jmp&lt;/code&gt; hops over embedded data into a NOP sled.&lt;/p&gt;
+&lt;p&gt;The worm doesn&#x27;t get &quot;called&quot;. It&#x27;s reached by corrupting a return, which is why the stack matters so much for this sample.&lt;/p&gt;
+
+&lt;h2&gt;The stack is the data section&lt;/h2&gt;
+&lt;p&gt;There&#x27;s no data segment and no import table. First the worm carves out workspace by pushing &lt;code&gt;0x01010101&lt;/code&gt; 24 times (96 bytes) and sets &lt;code&gt;EBP = ESP&lt;/code&gt;. Everything after that is an EBP-relative local variable. The filler value is chosen so the payload has no null bytes, which would truncate the overflow, and the worm even builds &lt;code&gt;0x04000000&lt;/code&gt; with an XOR instead of writing the zeros.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;mov  eax, 01010101h
+xor  ecx, ecx
+mov  cl, 18h          ; 24 iterations
+L: push eax
+   loop L             ; 96 bytes of workspace
+xor  eax, 05010101h   ; -&amp;gt; 04000000h with no null bytes in the code
+push eax
+mov  ebp, esp&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Stack layout&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;EBP-0x54  UDP socket handle
+EBP-0x50  sockaddr_in (random IP + port 1434)
+EBP-0x4C  PRNG seed / state  (starts from GetTickCount)
+EBP-0x48..0x40  saved handles: kernel32, GetTickCount name ptr, ws2_32
+EBP-0x3C  &quot;sendto&quot;
+EBP-0x34  &quot;socket&quot;
+EBP-0x2C  &quot;kernel32.dll&quot;
+EBP-0x20  &quot;GetTickCount&quot;
+EBP-0x10  &quot;ws2_32.dll&quot;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Strings built backwards&lt;/h2&gt;
+&lt;p&gt;API names are pushed as little-endian dwords, last chunk first, so they read correctly in memory. Short endings use a 16-bit &lt;code&gt;mov cx&lt;/code&gt; so the upper bytes stay zero and the string is null-terminated for free.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;push ecx              ; NUL
+push 6C6C642Eh        ; &quot;.dll&quot;
+push 32336C65h        ; &quot;el32&quot;
+push 6E72656Bh        ; &quot;kern&quot;  -&amp;gt; kernel32.dll&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;That&#x27;s the main tell when you&#x27;re analyzing it: a long run of &lt;code&gt;push imm32&lt;/code&gt; with printable ASCII constants means stack strings, and tools like &lt;code&gt;strings&lt;/code&gt; will never see them.&lt;/p&gt;
+
+&lt;h2&gt;Finding its APIs&lt;/h2&gt;
+&lt;p&gt;With no imports, the worm borrows &lt;code&gt;sqlsort.dll&lt;/code&gt;&#x27;s own import table. It calls &lt;code&gt;LoadLibraryA&lt;/code&gt; through a known IAT slot for &lt;code&gt;kernel32.dll&lt;/code&gt; and &lt;code&gt;ws2_32.dll&lt;/code&gt;, then calls &lt;code&gt;GetProcAddress&lt;/code&gt; through another slot. Because that slot differs between builds, it checks that the target starts with the expected prologue bytes (&lt;code&gt;55 8B EC 51&lt;/code&gt;) and falls back to a second address if not.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;esi = [IAT: LoadLibraryA]     ; call [esi]
+esi = [IAT: GetProcAddress?]  ; check first dword == 51EC8B55h
+                              ; no match -&amp;gt; use the backup slot&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It resolves &lt;code&gt;GetTickCount&lt;/code&gt; and calls it. The return value isn&#x27;t for timing, it&#x27;s the seed for the target generator. Then it resolves &lt;code&gt;socket&lt;/code&gt;, creates a UDP socket (&lt;code&gt;AF_INET&lt;/code&gt;, &lt;code&gt;SOCK_DGRAM&lt;/code&gt;, protocol 17) and resolves &lt;code&gt;sendto&lt;/code&gt;, keeping the function pointer in &lt;code&gt;ESI&lt;/code&gt; for the rest of its life.&lt;/p&gt;
+
+&lt;h2&gt;Picking victims without a multiply&lt;/h2&gt;
+&lt;p&gt;The target generator is a linear congruential generator, &lt;code&gt;seed = seed * 214013 + increment&lt;/code&gt;. Instead of &lt;code&gt;imul&lt;/code&gt;, the worm builds the multiplier from &lt;code&gt;lea&lt;/code&gt;, shifts, an add and a sub, which keeps the encoding tiny and free of null bytes:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;lea  ecx, [eax+eax*2]   ; 3x
+lea  edx, [eax+ecx*4]   ; 13x
+shl  edx, 4             ; 208x
+add  edx, eax           ; 209x
+shl  edx, 8             ; 53504x
+sub  edx, eax           ; 53503x
+lea  eax, [eax+edx*4]   ; 214013x   (0x343FD)
+add  eax, ebx           ; + increment
+mov  [ebp-4Ch], eax     ; new state, also the next target IP&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I like this part because the whole generator is eight instructions and you can verify the constant by hand. The new state is stored back at &lt;code&gt;EBP-0x4C&lt;/code&gt; and doubles as the destination address.&lt;/p&gt;
+
+&lt;h2&gt;The spread loop&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;push 10h                 ; tolen = sizeof(sockaddr_in)
+lea  eax, [ebp-50h]      ; to
+push eax
+xor  ecx, ecx
+push ecx                 ; flags = 0
+xor  cx, 0178h           ; len = 376
+push ecx
+lea  eax, [ebp+3]        ; buf = start of worm body
+push eax
+mov  eax, [ebp-54h]      ; socket
+push eax
+call esi                 ; sendto(s, buf, 376, 0, &amp;amp;to, 16)
+jmp  short PRNG          ; never returns&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Single datagram, no handshake, no reply expected. That&#x27;s why it spread so fast: with UDP there&#x27;s nothing to wait on, so the only limit is how quickly &lt;code&gt;sendto&lt;/code&gt; can be called and how fast the uplink is.&lt;/p&gt;
+
+&lt;h2&gt;wg2 vs. Slammer&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;                wg2 (RAT)               Slammer-style worm
+language        C++                     hand-written asm shellcode
+size            full PE32               376 bytes
+transport       HTTP/HTTPS (TCP)        one UDP datagram
+control         C2 loop, 11 commands    none
+persistence     beacon loop             none (memory only)
+goal            remote administration   replicate&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Detection and defense notes&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Network:&lt;/strong&gt; a host sending a flood of identical ~376-byte UDP packets to port 1434 across wide address ranges is the whole signature. Flow-based detection (fan-out rate to one port) works even if the payload changes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Exposure:&lt;/strong&gt; the resolution service shouldn&#x27;t be reachable from untrusted networks. Filtering 1434/udp at the edge stops this outright.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Memory-only:&lt;/strong&gt; nothing touches disk, so file-based AV has nothing to scan. Patching the SQL Server flaw is the real fix.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Analysis tip:&lt;/strong&gt; when a sample has no imports and a wall of &lt;code&gt;push imm32&lt;/code&gt; ASCII, decode the stack strings first. The rest of the logic falls out of those names.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;What I took away&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Drawing the stack diagram first made the disassembly readable. Without it, every &lt;code&gt;[ebp-xx]&lt;/code&gt; is a mystery.&lt;/li&gt;
+&lt;li&gt;Tiny does not mean simple. Null-byte avoidance shaped almost every instruction choice.&lt;/li&gt;
+&lt;li&gt;Comparing it with wg2 clarified how different &quot;malware&quot; can be: one waits for orders, the other never stops to listen.&lt;/li&gt;
+&lt;/ul&gt;
+</description></item>
+  <item><title>Tearing Down wg2: An HTTP RAT in Ghidra</title><link>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>ghidra</category><description>&lt;p&gt;For my reverse engineering course I took apart &lt;strong&gt;wg2&lt;/strong&gt;, a 32-bit Windows RAT, function by function in Ghidra. This is the condensed version of my annotated decompilation: how it hides its C2, how it talks home, and the eleven commands it gives an attacker.&lt;/p&gt;
+&lt;p class=&quot;muted&quot;&gt;Ghidra&#x27;s FUN_ names are kept so you can follow along in your own copy. The C2 domain is defanged.&lt;/p&gt;
+
+&lt;h2&gt;First look&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;format     PE32, 4 sections (.text .rdata .data .rsrc)
+language   C++ (connection object with a vtable)
+network    WinINet, HTTP and HTTPS
+built      2011-11-17 (and it tells you: see &quot;version&quot;)&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Call graph, in the order I walked it&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;entry()
+ └─ FUN_0040297d  WinMain: decode C2, name the victim, beacon loop
+     └─ FUN_00401406  command_and_control  (the heart)
+         ├─ FUN_0040101c  build connection object
+         ├─ FUN_004010c0  connect (InternetOpen/Connect/OpenRequest)
+         ├─ FUN_004012c5  POST data + SSL bypass
+         └─ switch → shell, list, kill, getf/putf, start, pidrun, geturl ...&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Hiding the C2 with one bit&lt;/h2&gt;
+&lt;p&gt;The C2 hostname sits in &lt;code&gt;.data&lt;/code&gt; obfuscated: every byte was shifted left by one. Decoding is a right shift and a mask.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;for (i = 0; i &amp;lt; len; i++)
+    url[i] = (enc[i] &amp;gt;&amp;gt; 1) &amp;amp; 0x7F;
+// -&amp;gt; stratos[.]mcafeepaying[.]com&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;That&#x27;s not encryption, it&#x27;s just enough to keep the domain out of &lt;code&gt;strings&lt;/code&gt;. Note the domain itself pretending to be an antivirus vendor.&lt;/p&gt;
+&lt;p&gt;It then builds a URL path from the victim&#x27;s hostname via &lt;code&gt;GetComputerNameA&lt;/code&gt; (&lt;code&gt;/VICTIM-PC/&lt;/code&gt;), so the C2 knows exactly which machine is calling. The main loop calls the C2 handler, then sleeps &lt;code&gt;sleep_scalar × 60000&lt;/code&gt; ms, until a global stop flag is set.&lt;/p&gt;
+
+&lt;h2&gt;Talking home&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;FUN_0040101c&lt;/strong&gt; builds a C++ connection object (about 0x28 bytes): three WinINet handles, a one-hour timeout, the URL path, hostname, a &lt;code&gt;Mozilla/4.0&lt;/code&gt; User-Agent, extra headers, and an HTTPS flag.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;+0x00 vtable      +0x14 url path     +0x20 headers
++0x04 hInternet   +0x18 hostname     +0x24 https flag
++0x08 hConnect    +0x1C user-agent
++0x0C hRequest    +0x10 timeout (3,600,000 ms)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;FUN_004010c0&lt;/strong&gt; is textbook WinINet: &lt;code&gt;InternetOpenA&lt;/code&gt; → set send/connect/receive timeouts → &lt;code&gt;InternetConnectA&lt;/code&gt; on port 80 or 443 → &lt;code&gt;HttpOpenRequestA&lt;/code&gt;. The headers include &lt;code&gt;Pragma: no-cache&lt;/code&gt; and a custom &lt;code&gt;Computer:&lt;/code&gt; header with the hostname. That custom header is a great network IOC.&lt;/p&gt;
+
+&lt;h2&gt;The SSL bypass&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;FUN_004012c5&lt;/strong&gt; POSTs data to the C2. If &lt;code&gt;HttpSendRequestA&lt;/code&gt; fails with &lt;code&gt;12045&lt;/code&gt; (&lt;code&gt;ERROR_INTERNET_INVALID_CA&lt;/code&gt;), it doesn&#x27;t give up:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;if (GetLastError() == 12045) {               // 0x2F0D: bad cert
+    InternetQueryOptionA(h, 31, &amp;amp;flags, &amp;amp;n);  // INTERNET_OPTION_SECURITY_FLAGS
+    flags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA;
+    InternetSetOptionA(h, 31, &amp;amp;flags, 4);
+    // ...and retry
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So the operator can run HTTPS C2 on a self-signed certificate and still get encrypted traffic past anyone not doing TLS inspection.&lt;/p&gt;
+
+&lt;h2&gt;The C2 loop&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;FUN_00401406&lt;/strong&gt; connects (five tries, 60 s apart), creates two anonymous pipes for a future shell, changes its working directory to &lt;code&gt;C:\Windows\tasks&lt;/code&gt; to blend in, and announces itself with &lt;code&gt;&quot;&amp;lt;hostname&amp;gt; Connected!&quot;&lt;/code&gt;. Then it loops: POST pending output, read the reply, split it on spaces, and match the first token against a command table (8-byte entries starting at &lt;code&gt;0x0040402C&lt;/code&gt;).&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;case  command  what it does
+0     shell    hidden cmd.exe, stdin/stdout/stderr over pipes
+1     list     /p processes  /s services  /d drives
+2     kill     /p PID        /s stop service
+3     getf     fetch a file from the C2 and write it to disk
+4     putf     read a local file, POST it to the C2 in 128 KB chunks
+5     start    /p process (hidden window)  /s service
+6     whoami   GetUserNameExA, DOMAIN\user
+7     sleep    change the beacon interval
+8     version  returns &quot;20111117&quot;
+9     pidrun   run a command with another process&#x27;s token
+10    geturl   URLDownloadToFileA from any URL
+-     other    piped to the shell, or &quot;Start shell first.&quot;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Shell and token theft&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;FUN_00401BA9&lt;/strong&gt; finds &lt;code&gt;cmd.exe&lt;/code&gt; via &lt;code&gt;%ComSpec%&lt;/code&gt; (falling back to System32), sets &lt;code&gt;STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW&lt;/code&gt; with &lt;code&gt;SW_HIDE&lt;/code&gt;, and wires the pipes in. If a PID is given, it escalates instead:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;h = OpenProcess(PROCESS_ALL_ACCESS, 0, pid);
+OpenProcessToken(h, TOKEN_QUERY | TOKEN_DUPLICATE | TOKEN_ASSIGN_PRIMARY, &amp;amp;tok);
+CreateProcessAsUserA(tok, NULL, &quot;cmd.exe&quot;, ...);   // shell as that user&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;pidrun&lt;/code&gt; (FUN_004027A8 / FUN_00402817) reuses the same three calls to run any command under a stolen token. Point it at a SYSTEM process and a low-privilege foothold becomes SYSTEM.&lt;/p&gt;
+
+&lt;h2&gt;Everything else&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;list&lt;/strong&gt;: &lt;code&gt;CreateToolhelp32Snapshot&lt;/code&gt; + &lt;code&gt;Process32First/Next&lt;/code&gt; for processes (the same APIs I saw in anti-VM checks), &lt;code&gt;EnumServicesStatusExA&lt;/code&gt; called twice (size, then data) for services, &lt;code&gt;GetLogicalDrives&lt;/code&gt; + &lt;code&gt;GetDriveTypeA&lt;/code&gt; + &lt;code&gt;GetVolumeInformationA&lt;/code&gt; for drives.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;kill / start&lt;/strong&gt;: &lt;code&gt;TerminateProcess&lt;/code&gt;, or the Service Control Manager with &lt;code&gt;ControlService&lt;/code&gt; / &lt;code&gt;StartServiceA&lt;/code&gt;, with friendly error messages for 0x420, 0x424 and 0x426.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;getf / putf&lt;/strong&gt;: runs in its own thread with its own connection and a different User-Agent (&lt;code&gt;Mozilla/5.0&lt;/code&gt;), strips HTTP headers at the &lt;code&gt;\r\n\r\n&lt;/code&gt; boundary.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;geturl&lt;/strong&gt;: a one-liner around &lt;code&gt;URLDownloadToFileA&lt;/code&gt;, which lets the operator stage more tools from anywhere.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;IOCs and detection ideas&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;network   stratos[.]mcafeepaying[.]com
+          HTTP header &quot;Computer: &amp;lt;hostname&amp;gt;&quot;
+          GET /&amp;lt;HOSTNAME&amp;gt;/ then POSTs, User-Agent Mozilla/4.0 and 5.0
+host      process with cwd C:\Windows\tasks
+          hidden cmd.exe whose parent isn&#x27;t explorer.exe
+          CreateProcessAsUser from a non-service process
+strings   &quot;Start shell first.&quot;  &quot;Shell started successfully!&quot;
+          &quot;Syntax error! Usage: GetUrl URL FileName&quot;  &quot;20111117&quot;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;What I took away&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Twelve malicious behaviors, zero exploits. It&#x27;s all documented Windows API, which is exactly why API-sequence detection beats signature matching.&lt;/li&gt;
+&lt;li&gt;Reading order matters. Starting from &lt;code&gt;entry()&lt;/code&gt; and following the calls made a 600-line decompile readable in an afternoon.&lt;/li&gt;
+&lt;li&gt;Naming things in Ghidra as you go (&lt;code&gt;initialize_array&lt;/code&gt;, &lt;code&gt;send_get&lt;/code&gt;, &lt;code&gt;create_shell&lt;/code&gt;) is most of the work. Once the struct offsets had names, the C2 loop basically read itself.&lt;/li&gt;
+&lt;/ul&gt;
+</description></item>
   <item><title>Building a Seven-VM Enterprise Homelab on Proxmox</title><link>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</guid><pubDate>Mon, 02 Nov 2026 12:00:00 +0000</pubDate><category>homelab</category><category>proxmox</category><category>pfsense</category><description>&lt;p&gt;I wanted a place to practice attacking and defending something that looks like a real company network, so I built one at home on Proxmox. This post walks through the design and what I learned setting it up.&lt;/p&gt;
 &lt;h2&gt;The lab&lt;/h2&gt;
 &lt;p&gt;Seven VMs, split across isolated subnets:&lt;/p&gt;
@@ -46,19 +242,256 @@ je    looks_like_vm
 &lt;h2&gt;Other things I looked at&lt;/h2&gt;
 &lt;ul&gt;&lt;li&gt;PE structure and packing&lt;/li&gt;&lt;li&gt;Anti-debug techniques&lt;/li&gt;&lt;li&gt;Polymorphic vs. metamorphic behavior in a RAT and a SQL worm&lt;/li&gt;&lt;/ul&gt;
 </description></item>
-  <item><title>Reconstructing a Data Exfiltration: The HiTek Forensics Challenge</title><link>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</guid><pubDate>Mon, 07 Sep 2026 12:00:00 +0000</pubDate><category>forensics</category><category>wireshark</category><category>autopsy</category><description>&lt;p&gt;The HiTek challenge handed us a Windows disk image, an Ubuntu disk image, and a network capture, and asked one question: what happened, and who did it?&lt;/p&gt;
-&lt;h2&gt;Tools&lt;/h2&gt;
-&lt;ul&gt;&lt;li&gt;&lt;strong&gt;FTK Imager&lt;/strong&gt; to mount and verify the images&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Autopsy&lt;/strong&gt; for the file system timeline, browser history and deleted files&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Wireshark&lt;/strong&gt; to follow the exfiltration in the PCAP&lt;/li&gt;&lt;/ul&gt;
-&lt;h2&gt;Approach&lt;/h2&gt;
-&lt;p&gt;I built a single timeline across all three sources, lining up file access on the endpoints with outbound connections in the capture. That&#x27;s what tied the activity to a specific user and machine.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ip.dst != 10.0.0.0/8 &amp;amp;&amp;amp; tcp.len &amp;gt; 1000&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The final deliverable was an investigative report and a presentation covering the evidence, the timeline, and attribution.&lt;/p&gt;
+  <item><title>Reconstructing a Data Exfiltration: The HiTek Forensics Challenge</title><link>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</guid><pubDate>Mon, 07 Sep 2026 12:00:00 +0000</pubDate><category>forensics</category><category>wireshark</category><category>autopsy</category><category>incident-response</category><description>&lt;p&gt;The HiTek Forensics Challenge was the capstone exercise in my Digital Forensics course at LSU. My team of five got two disk images, a Windows workstation and an Ubuntu server, plus one packet capture, and a single question: &lt;strong&gt;what left the building, how, and who did it?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Forensics is a reconstruction problem. You work backwards from artifacts to events, the artifacts are incomplete (sometimes on purpose), and every conclusion has to point at a specific piece of evidence. This is how we rebuilt the case.&lt;/p&gt;
+
+&lt;h2&gt;The scene&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;host          ip            os           role
+WIN-WS-01     192.168.0.6   Windows      suspect&#x27;s workstation
+web-srv-02    192.168.0.8   Ubuntu       FTP + web server (staging)
+(unnamed)     192.168.0.4   Mac OS X     retrieval machine&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Toolkit: &lt;strong&gt;FTK Imager&lt;/strong&gt; and &lt;strong&gt;Autopsy&lt;/strong&gt; for the disks, &lt;strong&gt;Wireshark&lt;/strong&gt; for &lt;code&gt;network.pcapng&lt;/code&gt;, &lt;strong&gt;John the Ripper&lt;/strong&gt;, &lt;strong&gt;impacket-secretsdump&lt;/strong&gt; and &lt;strong&gt;CrackStation&lt;/strong&gt; for credentials, and plain Linux tools for the logs.&lt;/p&gt;
+
+&lt;h2&gt;Step 1: get everyone&#x27;s passwords&lt;/h2&gt;
+&lt;p&gt;Recovering credentials early meant we could tie each action in the logs and the capture to a specific account instead of guessing.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Ubuntu:&lt;/strong&gt; pulled the SHA-512 hashes from &lt;code&gt;/etc/shadow&lt;/code&gt; and ran John with rockyou.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Windows:&lt;/strong&gt; exported the &lt;code&gt;SAM&lt;/code&gt; and &lt;code&gt;SYSTEM&lt;/code&gt; hives with Autopsy, dumped NT hashes with secretsdump, and fed them to CrackStation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;$ john --wordlist=rockyou.txt shadow.txt
+$ impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+
+account      box        password
+webmaster    ubuntu     password
+cknight      ubuntu     popcorn
+carson       windows    123456     (admin)
+jonathan     windows    letmein
+tester       windows    monkey     (hint: &quot;the zoo&quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Every password was in the top of any wordlist. That&#x27;s a finding on its own, separate from the case. The tester password was double-confirmed by its hint and a monkey picture sitting in the browser cache, which is the kind of detail that makes forensics fun.&lt;/p&gt;
+
+&lt;h2&gt;Step 2: the night before (Nov 27)&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;auth.log&lt;/code&gt; and the webmaster&#x27;s bash history showed a login at 23:13. Over the next 24 minutes:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo apt-get install apache2 apache2-doc apache2-utils
+sudo apt-get install vsftpd
+sudo nano /etc/vsftpd.conf
+sudo apt-get install mysql-server
+echo &quot;create database website;&quot; | mysql -u root -p
+sudo chmod 777 /var/www      # &amp;lt;- the important one
+ifconfig&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;chmod 777&lt;/code&gt; on the web root means anything dropped in over FTP is instantly downloadable over HTTP by anyone, no login needed. The server was being set up as an open staging point the night before anything was stolen.&lt;/p&gt;
+
+&lt;h2&gt;Step 3: the exfil (Nov 28)&lt;/h2&gt;
+&lt;p&gt;File metadata on the Windows image showed two password-protected archives, &lt;code&gt;secrets.zip&lt;/code&gt; and &lt;code&gt;BusinessStrategy.zip&lt;/code&gt;, created around 15:45. The capture picks it up from there. FTP is plaintext, so Wireshark showed the login, the credentials and the file names outright.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ftp || ftp-data
+ip.addr == 192.168.0.6 &amp;amp;&amp;amp; ip.addr == 192.168.0.8
+ip.src == 192.168.0.4 &amp;amp;&amp;amp; http&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Nov 27 23:13  webmaster logs in to web-srv-02, installs apache2/vsftpd/mysql
+Nov 27 23:37  chmod 777 /var/www
+Nov 28 ~15:45 secrets.zip + BusinessStrategy.zip created on WIN-WS-01
+Nov 28 15:46:30  STOR BusinessStrategy.zip  .6 -&amp;gt; .8 (as webmaster)
+Nov 28 15:52:06  STOR secrets.zip           .6 -&amp;gt; .8 (as webmaster)
+Nov 28 &amp;gt;15:52    HTTP GET both zips         .4 -&amp;gt; .8 (no auth)
+Nov 28 after     zips deleted from WIN-WS-01 and /var/www
+Nov 28 17:52:02  web-srv-02 shuts down&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Three hops: compress on Windows, stage on the Ubuntu box over FTP, pull from the web server with a Mac.&lt;/p&gt;
+
+&lt;h2&gt;Step 4: the cover-up that didn&#x27;t work&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Deletion:&lt;/strong&gt; both ZIPs were deleted from the workstation and the server. On NTFS, deleting a file only marks its clusters free. Nothing had overwritten them yet, so Autopsy carved both archives back out of unallocated space.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Encryption:&lt;/strong&gt; the archives were password-protected, so we could prove what moved by name and metadata but not what was inside.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ambiguity:&lt;/strong&gt; &lt;code&gt;chmod 777&lt;/code&gt; looks like a lazy admin mistake. Without the rest of the timeline it would have been easy to wave off.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Step 5: who&lt;/h2&gt;
+&lt;p&gt;Several independent threads point at &lt;strong&gt;carson&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The FTP uploads came from 192.168.0.6, carson&#x27;s workstation.&lt;/li&gt;
+&lt;li&gt;They used the same webmaster credentials that configured the server the night before, and carson, as a Windows admin, had the access to get them.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Evaluations.odt&lt;/code&gt; in carson&#x27;s Documents held a supervisor note about carson installing the wrong VMware version on every office machine: a history of misusing admin access and a plausible grudge. &lt;code&gt;Projects.odt&lt;/code&gt; confirmed the IT role.&lt;/li&gt;
+&lt;li&gt;The other accounts came up clean. tester was just browsing (YouTube, Google, Amazon, starwars.com) and jonathan had nothing in the window. Ruling people out mattered as much as ruling carson in.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;What the evidence doesn&#x27;t prove&lt;/h2&gt;
+&lt;p&gt;I think being honest about the gaps is part of the job. We proved the activity came &lt;em&gt;from carson&#x27;s machine&lt;/em&gt; with webmaster credentials, not that carson was physically at the keyboard. A real case would need physical access logs, interviews, and a check for remote access. And without the ZIP passwords, we never confirmed what data was actually inside the archives.&lt;/p&gt;
+
+&lt;h2&gt;Takeaways&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;No malware, no exploit.&lt;/strong&gt; Everything here was apt, FTP, a web server and a delete key. An insider with admin rights can do this on most networks.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Signatures would have missed it.&lt;/strong&gt; No bad hashes, no bad IPs. What was detectable was behavior: an admin creating archives and immediately moving them out, then deleting them. That&#x27;s a UEBA / DLP problem, not an antivirus one.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Deletion isn&#x27;t destruction.&lt;/strong&gt; Without overwriting the sectors, deleted files are just waiting to be carved.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The story is the deliverable.&lt;/strong&gt; Each artifact alone is ambiguous. Lined up in order and tied to accounts and timestamps, they tell one story.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We delivered a full investigative report with a relationship map of every user, host and transfer, plus a presentation. Rebuilding it here was a good excuse to re-read the bash history one more time.&lt;/p&gt;
 </description></item>
   <item><title>Why I Started This Blog</title><link>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</guid><pubDate>Sat, 15 Aug 2026 12:00:00 +0000</pubDate><category>meta</category><description>&lt;p&gt;I&#x27;m a Computer Science student at LSU concentrating in cybersecurity. Most of what I learn happens in labs, CTF-style challenges and my homelab, and most of it disappears into notes nobody reads, including me.&lt;/p&gt;
 &lt;p&gt;This blog is where those notes go instead. Expect writeups on:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Homelab builds and Active Directory&lt;/li&gt;&lt;li&gt;Malware analysis and reverse engineering&lt;/li&gt;&lt;li&gt;Digital forensics and incident response&lt;/li&gt;&lt;li&gt;Whatever broke this week and how I fixed it&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;Thanks for reading.&lt;/p&gt;
+</description></item>
+  <item><title>Room&#x27;r: Roommate Matching with Flutter and Firebase</title><link>https://nrodrigue2004.github.io/0xday/posts/roomr.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/roomr.html</guid><pubDate>Tue, 28 Apr 2026 12:00:00 +0000</pubDate><category>flutter</category><category>firebase</category><category>mobile</category><description>&lt;p&gt;Room&#x27;r is a team-built, swipe-style roommate matching app for incoming college students. You answer a lifestyle questionnaire, set a couple of dealbreakers, swipe on profiles, and chat with the people who like you back. It&#x27;s written in Flutter with Firebase behind it, targeting web, desktop and Android from one codebase.&lt;/p&gt;
+
+&lt;h2&gt;The flow&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;sign up -&amp;gt; profile -&amp;gt; photo -&amp;gt; questionnaire -&amp;gt; dealbreakers
+  -&amp;gt; swipe deck -&amp;gt; mutual like = match -&amp;gt; chat -&amp;gt; push notification&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Stack&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Flutter&lt;/strong&gt; with Riverpod for state and go_router for navigation, running on Chrome, Windows and Android.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Firebase:&lt;/strong&gt; Auth for accounts, Firestore for profiles, matches and messages, Storage for photos, Messaging for push.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cloud Functions&lt;/strong&gt; that fire when a match or a message is created, look up both users, send the notification and prune dead device tokens.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;How matching works&lt;/h2&gt;
+&lt;p&gt;Compatibility is a transparent weighted score from 0 to 100, not a black box:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sleep schedule   20%     study habits   15%     substances     10%
+cleanliness      20%     noise          15%     guests         10%
+pets + temperature 10%&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Each category compares two answers. Scales (cleanliness, noise) lose points by how far apart they are. Categories like sleep schedule are more forgiving: early bird against night owl scores 20, but a &quot;flexible&quot; answer scores 70 with anyone. The total maps to a label from &quot;Low Match&quot; to &quot;Perfect Match&quot;.&lt;/p&gt;
+
+&lt;h3&gt;Dealbreakers&lt;/h3&gt;
+&lt;p&gt;Each user can pick up to two (no smoking, no pets, no night owls, and so on). The swipe deck filters on them in &lt;em&gt;both directions&lt;/em&gt;: if either person&#x27;s dealbreaker is triggered by the other, neither sees the other. That&#x27;s the kind of rule that sounds easy and then turns out to need careful thought.&lt;/p&gt;
+
+&lt;h3&gt;Icebreakers&lt;/h3&gt;
+&lt;p&gt;The chat suggests conversation starters built from the pair&#x27;s two profiles, so shared interests give you a better question. Each branch has several variations, plus a large pool of general ones, and the service cycles through unseen questions before repeating any.&lt;/p&gt;
+
+&lt;h2&gt;Things I learned&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Putting the scoring in one small, pure service made it easy to reason about and to test.&lt;/li&gt;
+&lt;li&gt;Server-side triggers are the right place for notifications. The client can&#x27;t reliably know about a match that another user created.&lt;/li&gt;
+&lt;li&gt;Config files for Firebase are generated per developer and never committed, which is the right call. It just means the setup guide matters as much as the code.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It was a team build with a prototype, a setup guide and a full app. The source repo belongs to a teammate, so I haven&#x27;t linked it here.&lt;/p&gt;
+</description></item>
+  <item><title>Designing a Supermarket Database (and Its Checkout Transaction)</title><link>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</guid><pubDate>Wed, 03 Dec 2025 12:00:00 +0000</pubDate><category>sql</category><category>databases</category><category>python</category><description>&lt;p&gt;For my database systems course, my team designed and built a multi-branch supermarket database and a command-line checkout app on top of it. The point was to practice the whole pipeline: requirements, an E-R diagram, a relational schema, test data, SQL queries and an application that actually uses them.&lt;/p&gt;
+
+&lt;h2&gt;The problem&lt;/h2&gt;
+&lt;p&gt;A supermarket chain with several branches needs one place to keep prices, stock and sales. Without it, every branch tracks everything by hand, and nobody can see revenue or stock across the company.&lt;/p&gt;
+
+&lt;h2&gt;Relational schema&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;StoreBranch(branch_id PK, name, address, phone)
+Product(product_id PK, name, barcode UNIQUE, unit_price, is_active, category)
+Inventory(branch_id PK/FK, product_id PK/FK, quantity)
+Sale(sale_id PK, branch_id FK, sale_datetime, total_amount)
+SaleItem(sale_id PK/FK, product_id PK/FK, quantity, unit_price, discount)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Inventory&lt;/strong&gt; is a junction table with a composite key, so the same product can be stocked at many branches with a different quantity at each.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SaleItem&lt;/strong&gt; copies &lt;code&gt;unit_price&lt;/code&gt; at the time of sale. That way, changing a price later never rewrites history.&lt;/li&gt;
+&lt;li&gt;Foreign keys are switched on (&lt;code&gt;PRAGMA foreign_keys = ON&lt;/code&gt;), because SQLite doesn&#x27;t enforce them by default.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;The checkout transaction&lt;/h2&gt;
+&lt;p&gt;The part I find most interesting is checkout. It has to either completely happen or not happen at all, so it runs inside one transaction: check stock for every item in the cart again, insert the sale, insert each sale line, and subtract inventory. If anything fails, the whole thing rolls back.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;BEGIN;
+  -- re-check stock for every cart item
+  INSERT INTO Sale (branch_id, sale_datetime, total_amount) VALUES (?, datetime(&#x27;now&#x27;), ?);
+  INSERT INTO SaleItem (...) VALUES (...);          -- per cart line
+  UPDATE Inventory SET quantity = quantity - ? WHERE branch_id = ? AND product_id = ?;
+COMMIT;   -- any error: ROLLBACK&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Re-checking stock inside the transaction matters: the stock you saw when you added to the cart may not be what&#x27;s left when you pay.&lt;/p&gt;
+
+&lt;h2&gt;Reports&lt;/h2&gt;
+&lt;p&gt;Queries live in a plain &lt;code&gt;queries.sql&lt;/code&gt; file, each tagged with &lt;code&gt;-- name: ...&lt;/code&gt;. The app loads them by name and runs them from a Statistics menu, so adding a report means adding SQL and not changing Python.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;-- revenue by category
+SELECT p.category,
+       ROUND(SUM((si.unit_price - si.discount) * si.quantity), 2) AS revenue
+FROM SaleItem si
+JOIN Product p ON si.product_id = p.product_id
+GROUP BY p.category;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;There are 16 in total, including sales history, revenue per day, top sellers, low stock, inventory value per product, and products that never sold (a &lt;code&gt;LEFT JOIN&lt;/code&gt; with &lt;code&gt;WHERE ... IS NULL&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h2&gt;The app&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;=== LSU Market CLI ===
+1. List available products
+2. Add product to cart
+3. View cart
+4. Checkout
+5. Statistics
+6. Exit&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Python with SQLite, a plain menu, and a seeded sample dataset of products, stock and sales. The repo includes the schema, data, queries and a rebuild guide so anyone can recreate the database from scratch in four commands.&lt;/p&gt;
+
+&lt;h2&gt;What I&#x27;d improve&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Use parameterized queries everywhere (checkout already does) and move the statistics menu to a loop instead of one block per report.&lt;/li&gt;
+&lt;li&gt;Add indexes on the sale date and on &lt;code&gt;SaleItem.product_id&lt;/code&gt; once the data grows.&lt;/li&gt;
+&lt;li&gt;Track stock changes in their own table (receiving, returns, shrinkage) so inventory is auditable and not just a number that goes down.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It was a team project, and my part was the data generation, the relational schema and the written report. Source: &lt;a href=&quot;https://github.com/CSC4402-Project/CSC4402-Supermarket&quot;&gt;CSC4402-Supermarket&lt;/a&gt;.&lt;/p&gt;
+</description></item>
+  <item><title>ERU: Building a Social Feed with Spring Boot, MongoDB and React Native</title><link>https://nrodrigue2004.github.io/0xday/posts/eru.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/eru.html</guid><pubDate>Tue, 10 Dec 2024 12:00:00 +0000</pubDate><category>software-engineering</category><category>java</category><category>typescript</category><category>mongodb</category><description>&lt;p&gt;ERU was a team project for a software course in fall 2024: a social media app built to put curated, worthwhile posts where doomscrolling usually is. We built a Java backend, a TypeScript frontend and a MongoDB database, and got a working feed, uploads, comments and profiles by the deadline.&lt;/p&gt;
+
+&lt;h2&gt;Architecture&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;React Native (Expo, web)  --HTTP/JSON--&gt;  Spring Boot REST API  --&amp;gt;  MongoDB
+  feed, upload, explore,                    accounts, posts,
+  profile, settings, FAQ                    comments, likes&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Frontend:&lt;/strong&gt; TypeScript and React Native via Expo, run in the browser. Components for posts, comments, likes and a nav bar, with pages for the home feed, upload, explore, profile and settings.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Backend:&lt;/strong&gt; Java 21 with Spring Boot, controllers per area (accounts, friends, and so on) and a centralized exception handler that returns consistent error models.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Data:&lt;/strong&gt; MongoDB, wrapped in a single manager class so the rest of the code never touches the driver directly.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;The API&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;GET   /account/{id}            profile
+GET   /account/{id}/feed       one user&#x27;s posts, newest first
+GET   /account/feed            home feed, newest first
+POST  /account/post            create a post (UUID assigned server-side)
+POST  /post/{id}/like          like
+POST  /post/{id}/comment       comment&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;New post IDs are random UUIDs, and the server re-rolls on the (astronomically unlikely) collision. The feed endpoint also fills in each post&#x27;s author name and picture so the client doesn&#x27;t need a second call.&lt;/p&gt;
+
+&lt;h2&gt;On the frontend&lt;/h2&gt;
+&lt;p&gt;The home feed loads posts, tracks which identifiers it has already seen so repeated fetches never duplicate a post, and falls back to defaults for missing captions or profile pictures instead of crashing on incomplete data.&lt;/p&gt;
+
+&lt;h2&gt;What was unfinished (and honest about it)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;No login or registration screen. We hardcoded one account ID, so profile pages show that user.&lt;/li&gt;
+&lt;li&gt;The Explore tab shows placeholder images; the recommendation algorithm never got built.&lt;/li&gt;
+&lt;li&gt;The front end talks to &lt;code&gt;localhost&lt;/code&gt; addresses, so it&#x27;s a dev setup and not a deployable one.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Lessons&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Cutting scope early beats cutting features at the deadline. The unfinished list above is what scope creep looks like.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Never commit secrets.&lt;/strong&gt; The repo&#x27;s config file shipped with a database connection string. Credentials belong in environment variables or a secrets manager, and anything that has been committed has to be rotated, even if the repo is deleted later.&lt;/li&gt;
+&lt;li&gt;Typed models on both ends (Java classes, TypeScript interfaces) caught a lot of mismatches before runtime.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Source: &lt;a href=&quot;https://github.com/CSC-3380-Fall-2024/Team-4&quot;&gt;CSC-3380 Team-4&lt;/a&gt;.&lt;/p&gt;
+</description></item>
+  <item><title>JavaShooter: My First Game, and What I&#x27;d Fix Now</title><link>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</guid><pubDate>Thu, 02 May 2024 12:00:00 +0000</pubDate><category>java</category><category>gamedev</category><category>projects</category><description>&lt;p&gt;JavaShooter was my first real project: an infinite roguelike shooter written in Java for a course in spring 2024. There&#x27;s no ending. You clear a level, earn a level-up point, spend it, and try to see how far you can get. It&#x27;s also where I learned that &quot;it works&quot; and &quot;it&#x27;s well built&quot; are two different milestones.&lt;/p&gt;
+
+&lt;h2&gt;How it plays&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;move     W A S D
+shoot    left click (or space)
+enemies  regular  - drift around the board
+         chaser   - a red diamond that homes in on you
+         boss     - 5 hit points, shoots back every 2 seconds
+upgrade  after each level: player speed | bullet speed | shield&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Every level adds two more regular enemies, another chaser and another boss. There&#x27;s no cap, so the game gets harder until you lose. After each clear you pick one upgrade, so you&#x27;re always choosing between running faster, shooting faster, or taking an extra hit.&lt;/p&gt;
+
+&lt;h2&gt;What&#x27;s under the hood&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Sprite engine:&lt;/strong&gt; built on the sprite and collision library from the course, so I wrote game rules and not a renderer.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Collision listeners:&lt;/strong&gt; one listener per pair (enemy and bullet, boss and bullet, enemy bullet and player, and so on) decides who dies and what happens next.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Chaser AI:&lt;/strong&gt; every 2 seconds the chaser takes the vector to the player, normalizes it, and heads that way at a fixed speed. That&#x27;s about ten lines of vector math.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Progression:&lt;/strong&gt; a &lt;code&gt;NewLevels&lt;/code&gt; class clears the board and respawns everything with higher counts.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Feedback:&lt;/strong&gt; sound effects on shots and kills, a brief invincibility window after you clear a level, and a retry prompt when you lose.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;// the chaser, in spirit
+dx = player.x - x;  dy = player.y - y;
+d  = sqrt(dx*dx + dy*dy);
+setVel(dx / d * SPEED, dy / d * SPEED);&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;What I&#x27;d do differently now&lt;/h2&gt;
+&lt;p&gt;Looking back with a bit more experience, these are the lessons I&#x27;d hand my past self:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Share the win/lose code.&lt;/strong&gt; The &quot;you lose, retry?&quot; logic is copied across four collision listeners, and the level-clear logic is copied twice. One method would&#x27;ve been easier to fix and extend.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Don&#x27;t use blocking dialogs in a game loop.&lt;/strong&gt; Popups for win, lose and upgrade pause everything and break the flow. An in-game overlay would feel much better.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Don&#x27;t use static state for player stats.&lt;/strong&gt; Things like shield strength being static made restart bugs easy to introduce. They belong on the player object.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Use one game clock.&lt;/strong&gt; Each enemy and boss starts its own timer thread. A single update loop would be easier to reason about and to pause.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Keep build output out of the repo.&lt;/strong&gt; The repo is a zipped IDE project with compiled classes in it. A &lt;code&gt;.gitignore&lt;/code&gt; and plain source files would be much friendlier to read.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Why it still matters to me&lt;/h2&gt;
+&lt;p&gt;It was the first time I built something other people could actually play, and it taught me game loops, collision handling, simple AI and how quickly &quot;just one more feature&quot; turns into spaghetti. Those lessons are the reason I want to build a second one: &lt;a href=&quot;../roadmap.html#javashooter2&quot;&gt;JavaShooter 2&lt;/a&gt; is on my roadmap.&lt;/p&gt;
+&lt;p&gt;Source: &lt;a href=&quot;https://github.com/nrodrigue2004/JavaShooter&quot;&gt;github.com/nrodrigue2004/JavaShooter&lt;/a&gt;&lt;/p&gt;
 </description></item>
 </channel></rss>

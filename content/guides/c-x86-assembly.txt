@@ -1,0 +1,102 @@
+tagline: Assembly is what the CPU actually runs, and what you read when there's no source code. Learn registers, the stack, flags and calling conventions, then single-step a license check and pull the valid key out of a register.
+:: simple
+A CPU only understands **machine code**: numbers. **Assembly** is the human-readable version, one instruction per line. C compiles down to it, and reverse engineers read it in Ghidra, IDA or gdb.
+
+**Registers** are the CPU's tiny, super-fast variables. On x86-64: `rax`, `rbx`, `rcx`, `rdx`, `rsi`, `rdi`, `rsp` (stack pointer), `rbp` (frame base), `rip` (next instruction). `eax` is the lower 32 bits of `rax`.
+
+Basic instructions (Intel syntax, destination first):
+- `mov ecx, 5` put 5 in ecx
+- `add ecx, 2` / `sub` / `imul` / `xor` / `shl` (shift left = multiply by 2 each step)
+- `push` / `pop` the stack, `call` / `ret` functions
+
+The debugger on the right is stopped in a disassembled function:
+
+```
+$ start
+$ step
+$ info registers
+```
+:: mid
+### Flags and jumps
+`cmp a, b` subtracts b from a, throws away the result, and sets **flags**: **ZF** (zero flag, set when they're equal), SF (sign), CF (carry). A conditional jump reads them: `je`/`jz` jump if equal, `jne` if not, `jg`/`jl` signed greater/less, `ja`/`jb` unsigned. That's how every `if` in C looks after compiling.
+
+```
+$ break 10
+$ continue
+$ print ecx
+$ print edi
+```
+
+### Calling convention (System V, Linux x86-64)
+Arguments go in `rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`; the return value comes back in `rax`. (Windows x64 uses `rcx`, `rdx`, `r8`, `r9`.) So in `check_key(int key)`, the key is in `edi`, and `eax = 1` at the end means "return 1".
+:: complex
+### Stack frames
+`push rbp; mov rbp, rsp` (the **prologue**) starts a frame; local variables live below `rbp`, and the **return address** that `call` pushed sits just above it. Overwriting that return address is a buffer overflow. `pop rbp; ret` (the **epilogue**) undoes it and jumps back.
+
+### Reading asm as C
+This function is really:
+
+`int check_key(int key) { int k = ((500 << 3) + 42) ^ 15; return key == k; }`
+
+Constant math like this is common in simple crackmes and malware string decoding. You can solve it two ways: **statically** (do the math by hand) or **dynamically** (let it run and read the register right before the `cmp`).
+
+```
+$ continue
+$ print eax
+$ back
+$ print ZF
+```
+
+### Endianness
+x86 is **little-endian**: the value `0x0fc5` is stored in memory as bytes `c5 0f 00 00`. You'll see this every time you read a hex dump or build an exploit payload.
+:: lab
+style: debug
+host: re-lab
+user: student
+source: /home/student/check_key.asm
+:: brief
+`licensed.bin` calls `check_key(key)` with the number you type. It was run with `1234` and said "invalid license".
+
+The function computes the valid key in a register and compares it to yours. Step to the `cmp` and read it.
+
+Submit the **valid key as a decimal number**.
+:: answer
+4037
+0xfc5
+:: hint
+The input key is in `edi`. Which register is it compared against on line 10?
+:: hint
+`break 10`, `continue`, `print ecx`. It's shown in hex; convert it (or do the math: `$((0xfc5))` in any shell).
+:: solution
+Step through: `ecx = 0x1f4` (500), `shl ecx, 3` makes it `0xfa0` (4000), `add 0x2a` makes `0xfca` (4042), `xor 0xf` makes **`0xfc5`**. At line 10, `cmp edi, ecx` compares your `0x4d2` (1234) with `0xfc5`, ZF stays 0, `jne` jumps to `.bad`, and `eax` is zeroed (return 0). The valid key is 0xfc5 = **4037**. You could also patch the `jne` to `nop`s (or `je`), which is how a lot of software cracks work, and why real license checks are done server-side.
+:: trace
+4 | rip=0x401136 rsp=0x7fffffffe418 rbp=0x7fffffffe440 edi=0x4d2 ecx=0x0 eax=0x0 ZF=0
+5 | rip=0x401137 rsp=0x7fffffffe410 rbp=0x7fffffffe440 edi=0x4d2 ecx=0x0 eax=0x0 ZF=0
+6 | rip=0x40113a rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0x0 eax=0x0 ZF=0
+7 | rip=0x40113f rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0x1f4 eax=0x0 ZF=0
+8 | rip=0x401142 rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0xfa0 eax=0x0 ZF=0
+9 | rip=0x401145 rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0xfca eax=0x0 ZF=0
+10 | rip=0x401148 rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0xfc5 eax=0x0 ZF=0
+11 | rip=0x40114a rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0xfc5 eax=0x0 ZF=0
+15 | rip=0x401156 rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0xfc5 eax=0x0 ZF=0
+17 | rip=0x401158 rsp=0x7fffffffe410 rbp=0x7fffffffe410 edi=0x4d2 ecx=0xfc5 eax=0x0 ZF=1
+18 | rip=0x401159 rsp=0x7fffffffe418 rbp=0x7fffffffe440 edi=0x4d2 ecx=0xfc5 eax=0x0 ZF=1 | check_key returned 0: invalid license
+:: file /home/student/check_key.asm
+; check_key(int key), disassembled from licensed.bin (x86-64, Intel syntax)
+; System V calling convention: first argument "key" arrives in edi
+check_key:
+    push  rbp
+    mov   rbp, rsp
+    mov   ecx, 0x1f4        ; ecx = 500
+    shl   ecx, 3            ; ecx = ecx << 3
+    add   ecx, 0x2a         ; ecx += 42
+    xor   ecx, 0xf          ; ecx ^= 15
+    cmp   edi, ecx          ; key == ecx ?
+    jne   .bad
+    mov   eax, 1            ; return 1 (valid)
+    jmp   .done
+.bad:
+    xor   eax, eax          ; return 0 (invalid)
+.done:
+    pop   rbp
+    ret

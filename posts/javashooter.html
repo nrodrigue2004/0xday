@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JavaShooter: My First Game, and What I&#x27;d Fix Now :: 0xDay</title>
+<meta name="description" content="JavaShooter: My First Game, and What I&#x27;d Fix Now">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=920388eb">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=920388eb" defer></script>
+<script src="../site.js?v=920388eb" defer></script>
+<script src="../fx.js?v=920388eb" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html" aria-current="page">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<article class="post">
+<p class="cmd">cat ~/posts/javashooter.md</p>
+<h1>JavaShooter: My First Game, and What I&#x27;d Fix Now</h1>
+<div class="meta"><span>2024-05-02</span><span>Nathan</span><span><a class="tag" href="../tags.html#java">#java</a> <a class="tag" href="../tags.html#gamedev">#gamedev</a> <a class="tag" href="../tags.html#projects">#projects</a></span></div>
+<div class="prose">
+<p>JavaShooter was my first real project: an infinite roguelike shooter written in Java for a course in spring 2024. There's no ending. You clear a level, earn a level-up point, spend it, and try to see how far you can get. It's also where I learned that "it works" and "it's well built" are two different milestones.</p>
+
+<h2>How it plays</h2>
+<pre><code>move     W A S D
+shoot    left click (or space)
+enemies  regular  - drift around the board
+         chaser   - a red diamond that homes in on you
+         boss     - 5 hit points, shoots back every 2 seconds
+upgrade  after each level: player speed | bullet speed | shield</code></pre>
+<p>Every level adds two more regular enemies, another chaser and another boss. There's no cap, so the game gets harder until you lose. After each clear you pick one upgrade, so you're always choosing between running faster, shooting faster, or taking an extra hit.</p>
+
+<h2>What's under the hood</h2>
+<ul>
+<li><strong>Sprite engine:</strong> built on the sprite and collision library from the course, so I wrote game rules and not a renderer.</li>
+<li><strong>Collision listeners:</strong> one listener per pair (enemy and bullet, boss and bullet, enemy bullet and player, and so on) decides who dies and what happens next.</li>
+<li><strong>Chaser AI:</strong> every 2 seconds the chaser takes the vector to the player, normalizes it, and heads that way at a fixed speed. That's about ten lines of vector math.</li>
+<li><strong>Progression:</strong> a <code>NewLevels</code> class clears the board and respawns everything with higher counts.</li>
+<li><strong>Feedback:</strong> sound effects on shots and kills, a brief invincibility window after you clear a level, and a retry prompt when you lose.</li>
+</ul>
+<pre><code>// the chaser, in spirit
+dx = player.x - x;  dy = player.y - y;
+d  = sqrt(dx*dx + dy*dy);
+setVel(dx / d * SPEED, dy / d * SPEED);</code></pre>
+
+<h2>What I'd do differently now</h2>
+<p>Looking back with a bit more experience, these are the lessons I'd hand my past self:</p>
+<ul>
+<li><strong>Share the win/lose code.</strong> The "you lose, retry?" logic is copied across four collision listeners, and the level-clear logic is copied twice. One method would've been easier to fix and extend.</li>
+<li><strong>Don't use blocking dialogs in a game loop.</strong> Popups for win, lose and upgrade pause everything and break the flow. An in-game overlay would feel much better.</li>
+<li><strong>Don't use static state for player stats.</strong> Things like shield strength being static made restart bugs easy to introduce. They belong on the player object.</li>
+<li><strong>Use one game clock.</strong> Each enemy and boss starts its own timer thread. A single update loop would be easier to reason about and to pause.</li>
+<li><strong>Keep build output out of the repo.</strong> The repo is a zipped IDE project with compiled classes in it. A <code>.gitignore</code> and plain source files would be much friendlier to read.</li>
+</ul>
+
+<h2>Why it still matters to me</h2>
+<p>It was the first time I built something other people could actually play, and it taught me game loops, collision handling, simple AI and how quickly "just one more feature" turns into spaghetti. Those lessons are the reason I want to build a second one: <a href="../roadmap.html#javashooter2">JavaShooter 2</a> is on my roadmap.</p>
+<p>Source: <a href="https://github.com/nrodrigue2004/JavaShooter">github.com/nrodrigue2004/JavaShooter</a></p>
+
+</div>
+<nav class="pager"><span></span><a href="eru.html">next: ERU: Building a Social Feed with Spring Boot, MongoDB and React Native &gt;</a></nav>
+<p><a href="../posts.html">cd ..</a></p>
+</article>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

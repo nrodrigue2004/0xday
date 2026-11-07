@@ -1,0 +1,117 @@
+tagline: The right data structure turns a slow, buggy check into a fast, correct one. Learn Big-O, arrays, hash tables, trees and graphs, then debug a binary search that lets a blocked attacker through.
+:: simple
+A **data structure** is a way to organize data; an **algorithm** is a recipe that works on it. The basics:
+- **Array**: items side by side in memory, instant access by index (`a[5]`)
+- **Linked list**: each item points to the next; easy inserts, slow lookups
+- **Stack** (last in, first out: undo, the call stack) and **queue** (first in, first out: print jobs, packet buffers)
+- **Hash table** (dictionary, map): key to value in about one step
+- **Tree** and **graph**: items connected by links (folders, networks, social graphs)
+
+**Big-O** describes how the work grows with input size *n*: O(1) constant, O(log n) halving each time, O(n) look at everything once, O(n²) compare everything with everything.
+
+The debugger on the right runs `is_blocked()`, a **binary search** over a sorted firewall blocklist:
+
+```
+$ start
+$ step
+$ step
+$ info locals
+```
+:: mid
+### Binary search
+On a **sorted** array, look at the middle: if it's too small, throw away the left half, if too big, the right half. Each step halves what's left, so a million entries take about 20 steps: **O(log n)**. Linear search would take up to a million.
+
+```
+$ break 12
+$ continue
+$ print mid
+$ print lo
+$ continue
+$ print mid
+```
+
+### Sorting
+Merge sort and quicksort are O(n log n); bubble sort is O(n²). You usually call the language's built-in sort, but you need to know that binary search **only works on sorted data**.
+
+### Hash tables
+A hash function turns the key into a bucket number. Average O(1) lookup, which is why blocklists, caches and password-cracking wordlists use them. Collisions (two keys, same bucket) are handled with chaining or probing.
+:: complex
+### Off-by-one errors
+The most common algorithm bug. Binary search has three places to get it wrong: the initial `hi` (`n` or `n - 1`), the loop condition (`<` or `<=`), and the updates (`mid` or `mid ± 1`). They must agree. With `hi = n - 1` (inclusive), the loop must be `while (lo <= hi)`, otherwise the last remaining candidate is never checked.
+
+```
+$ delete
+$ break 16
+$ continue
+$ print lo
+$ print hi
+```
+
+### Algorithms in security
+- **Hash flooding DoS**: send keys that all collide, turning O(1) lookups into O(n). Languages now use randomized (keyed) hash functions like SipHash
+- **Regex DoS (ReDoS)**: badly written patterns take exponential time on crafted input
+- **Graphs**: BloodHound models Active Directory as a graph and runs **shortest path** to find the quickest route from a normal user to Domain Admin
+- **Bloom filters**: tiny probabilistic sets, used to check "is this password in a breach list?" without storing the list
+- **Tries and Aho-Corasick**: match thousands of IDS signatures in one pass
+:: lab
+style: debug
+host: fw-dev
+user: student
+source: /home/student/blocklist.c
+:: brief
+The firewall's `is_blocked()` uses binary search over a sorted list of blocked IPs. **203.0.113.77** (`0xcb00714d`) is on the list, but the firewall let it connect.
+
+Step through the search and find the bug.
+
+Submit the **corrected loop condition** from line 10, e.g. `submit x > y`.
+:: answer
+lo <= hi
+lo<=hi
+while (lo <= hi)
+while(lo<=hi)
+:: hint
+`0xcb00714d` is the **last** item in the array (index 7). Watch `lo` and `hi` each time line 10 runs.
+:: hint
+When the loop ends, `lo` and `hi` are both 7. Was `blocked[7]` ever compared?
+:: solution
+The search goes `mid = 3` (too small, `lo = 4`), `mid = 5` (`lo = 6`), `mid = 6` (`lo = 7`). Now `lo = 7, hi = 7`: one candidate left, exactly the IP we want. But `while (lo < hi)` is false when they're equal, so the loop exits and returns 0 without checking index 7. Since `hi` starts at `n - 1` (inclusive), the condition must be **`lo <= hi`**. Any IP at the last index, or any search that narrows to a single element, slips through. A unit test that searches for the first, last and middle elements would have caught it.
+:: trace
+20 | ip=0xcb00714d
+9 | ip=0xcb00714d
+10 | ip=0xcb00714d lo=0 hi=7
+11 | ip=0xcb00714d lo=0 hi=7
+12 | ip=0xcb00714d lo=0 hi=7 mid=3 blocked[mid]=0x5bc00a01
+13 | ip=0xcb00714d lo=0 hi=7 mid=3 blocked[mid]=0x5bc00a01
+10 | ip=0xcb00714d lo=4 hi=7
+11 | ip=0xcb00714d lo=4 hi=7
+12 | ip=0xcb00714d lo=4 hi=7 mid=5 blocked[mid]=0xb9dc6511
+13 | ip=0xcb00714d lo=4 hi=7 mid=5 blocked[mid]=0xb9dc6511
+10 | ip=0xcb00714d lo=6 hi=7
+11 | ip=0xcb00714d lo=6 hi=7
+12 | ip=0xcb00714d lo=6 hi=7 mid=6 blocked[mid]=0xc6336417
+13 | ip=0xcb00714d lo=6 hi=7 mid=6 blocked[mid]=0xc6336417
+10 | ip=0xcb00714d lo=7 hi=7 blocked[7]=0xcb00714d
+16 | ip=0xcb00714d lo=7 hi=7 blocked[7]=0xcb00714d
+20 | is_blocked()=0 | 203.0.113.77 -> ALLOW
+:: file /home/student/blocklist.c
+#include <stdint.h>
+
+// sorted list of blocked IPs (as 32-bit ints), checked on every new connection
+static const uint32_t blocked[8] = {
+    0x0A000005, 0x0A00000C, 0x2D4F1102, 0x5BC00A01,
+    0x8E2A1009, 0xB9DC6511, 0xC6336417, 0xCB00714D };
+
+int is_blocked(uint32_t ip) {
+    int lo = 0, hi = 8 - 1;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        if (blocked[mid] == ip) return 1;
+        if (blocked[mid] < ip) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return 0;
+}
+
+int main(void) {
+    return is_blocked(0xCB00714D);   // 203.0.113.77
+}

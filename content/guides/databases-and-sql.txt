@@ -1,0 +1,79 @@
+tagline: Databases are where the valuable data lives. Learn tables, keys, normalization, transactions and indexes, then run real SQLite in your browser to find the account whose balance was tampered with.
+:: simple
+A **relational database** stores data in **tables**: rows (records) and columns (fields). Each table has a **primary key** that uniquely identifies a row, and a **foreign key** in one table points at the primary key of another, which is how tables relate.
+
+**SQL** is how you ask questions. The sandbox runs real **SQLite** (the first run downloads it once):
+
+```
+$ sqlite3 bank.db ".tables"
+$ sqlite3 bank.db "SELECT * FROM accounts;"
+```
+
+The four basic operations are **CRUD**: Create (`INSERT`), Read (`SELECT`), Update (`UPDATE`), Delete (`DELETE`).
+
+> Other databases (PostgreSQL, MySQL, SQL Server) use the same SQL with small differences. MongoDB and Redis are **NoSQL**: documents or key-value pairs instead of tables.
+:: mid
+### Relationships and JOINs
+One customer has many transactions: a **one-to-many** relationship. A `JOIN` combines tables on the key that links them, and `GROUP BY` + `SUM` / `COUNT` turns many rows into one per group:
+
+```
+$ sqlite3 bank.db "SELECT a.owner, COUNT(*) FROM accounts a JOIN txns t ON t.account_id = a.id GROUP BY a.owner;"
+```
+
+### Normalization
+Store each fact **once**. If the owner's name is copied into every transaction row, changing it means updating hundreds of rows, and some will be missed. Normal forms (1NF, 2NF, 3NF) are rules for splitting tables so data can't contradict itself.
+
+### Transactions and ACID
+A **transaction** groups changes so they all happen or none do (moving money: subtract here, add there). **ACID** = Atomic, Consistent, Isolated, Durable.
+:: complex
+### Integrity as a security control
+The **I** in the CIA triad. Databases protect it with constraints (`NOT NULL`, `UNIQUE`, `CHECK (balance >= 0)`, foreign keys), transactions, and **audit trails**. A classic check: does a stored total match the sum of the records it's supposed to summarize? If not, someone changed one without the other.
+
+```
+$ sqlite3 bank.db "SELECT account_id, SUM(amount) FROM txns GROUP BY account_id;"
+```
+
+### Indexes and performance
+An **index** is a sorted lookup structure (usually a B-tree) on a column, turning a full table scan into a quick search. It speeds up reads and slows down writes. `EXPLAIN QUERY PLAN` shows whether a query uses one.
+
+### Database security
+- **SQL injection**: always parameterized queries (`?` placeholders), never string concatenation
+- **Least privilege**: the web app's DB user can't `DROP TABLE` or read the HR schema
+- **Encryption** at rest (TDE) and in transit (TLS), **tokenization** or masking for card numbers
+- **Backups** tested by actually restoring them, and database activity monitoring
+:: lab
+host: db01
+user: auditor
+cwd: /home/auditor
+:: brief
+Internal audit flagged the ledger. In `bank.db`, every account's `balance` should equal the **sum of its transactions** in `txns`. Someone with database access edited one balance directly, without a matching transaction.
+
+Find the tampered account. Submit the **owner's name**, e.g. `submit Jane Doe`.
+:: answer
+Morgan Reyes
+:: hint
+Sum the transactions per account: `SELECT account_id, SUM(amount) FROM txns GROUP BY account_id;` and compare with `accounts.balance`.
+:: hint
+Do it in one query with a JOIN and `HAVING`: `... GROUP BY a.id HAVING a.balance != SUM(t.amount);`
+:: solution
+`SELECT a.owner, a.balance, SUM(t.amount) FROM accounts a JOIN txns t ON t.account_id = a.id GROUP BY a.id HAVING a.balance != SUM(t.amount);`
+
+returns one row: **Morgan Reyes**, balance 25,410.00 but transactions only add up to 5,410.00. Someone added 20,000 straight to the balance column. Next steps: check `audit_log` (it shows a direct `UPDATE` from the `svc_report` account at 02:14), revoke that account's write access, and restore the true balance from the transactions.
+:: verify
+sqlite3 bank.db "SELECT a.owner FROM accounts a JOIN txns t ON t.account_id = a.id GROUP BY a.id HAVING a.balance != SUM(t.amount);"
+:: file /home/auditor/bank.db
+SQLite format 3 (binary). Open it with: sqlite3 bank.db
+:: file /home/auditor/README.txt
+bank.db: accounts, txns, audit_log. Rule: accounts.balance = SUM(txns.amount).
+Try: sqlite3 bank.db ".schema"
+:: sql
+CREATE TABLE accounts(id INTEGER PRIMARY KEY, owner TEXT NOT NULL, balance NUMERIC NOT NULL);
+INSERT INTO accounts VALUES (1,'Ava Chen',1250.00),(2,'Marcus Lee',830.50),(3,'Morgan Reyes',25410.00),(4,'Priya Patel',4120.00),(5,'Sam Ortiz',97.25);
+CREATE TABLE txns(id INTEGER PRIMARY KEY, account_id INTEGER REFERENCES accounts(id), ts TEXT, amount NUMERIC, memo TEXT);
+INSERT INTO txns VALUES (1,1,'2026-11-01','1000.00','payroll'),(2,1,'2026-11-03','250.00','refund'),
+(3,2,'2026-11-01','900.00','payroll'),(4,2,'2026-11-04','-69.50','utilities'),
+(5,3,'2026-11-01','5000.00','payroll'),(6,3,'2026-11-02','410.00','transfer in'),
+(7,4,'2026-11-01','4000.00','payroll'),(8,4,'2026-11-05','120.00','refund'),
+(9,5,'2026-11-01','100.00','payroll'),(10,5,'2026-11-06','-2.75','fee');
+CREATE TABLE audit_log(id INTEGER PRIMARY KEY, ts TEXT, db_user TEXT, action TEXT);
+INSERT INTO audit_log VALUES (1,'2026-11-06 23:50','app_web','INSERT txns id=10'),(2,'2026-11-07 02:14','svc_report','UPDATE accounts SET balance=25410.00 WHERE id=3'),(3,'2026-11-07 08:00','backup','SELECT *');

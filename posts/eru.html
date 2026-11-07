@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERU: Building a Social Feed with Spring Boot, MongoDB and React Native :: 0xDay</title>
+<meta name="description" content="ERU: Building a Social Feed with Spring Boot, MongoDB and React Native">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=920388eb">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=920388eb" defer></script>
+<script src="../site.js?v=920388eb" defer></script>
+<script src="../fx.js?v=920388eb" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html" aria-current="page">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<article class="post">
+<p class="cmd">cat ~/posts/eru.md</p>
+<h1>ERU: Building a Social Feed with Spring Boot, MongoDB and React Native</h1>
+<div class="meta"><span>2024-12-10</span><span>Nathan</span><span><a class="tag" href="../tags.html#software-engineering">#software-engineering</a> <a class="tag" href="../tags.html#java">#java</a> <a class="tag" href="../tags.html#typescript">#typescript</a> <a class="tag" href="../tags.html#mongodb">#mongodb</a></span></div>
+<div class="prose">
+<p>ERU was a team project for a software course in fall 2024: a social media app built to put curated, worthwhile posts where doomscrolling usually is. We built a Java backend, a TypeScript frontend and a MongoDB database, and got a working feed, uploads, comments and profiles by the deadline.</p>
+
+<h2>Architecture</h2>
+<pre><code>React Native (Expo, web)  --HTTP/JSON-->  Spring Boot REST API  --&gt;  MongoDB
+  feed, upload, explore,                    accounts, posts,
+  profile, settings, FAQ                    comments, likes</code></pre>
+<ul>
+<li><strong>Frontend:</strong> TypeScript and React Native via Expo, run in the browser. Components for posts, comments, likes and a nav bar, with pages for the home feed, upload, explore, profile and settings.</li>
+<li><strong>Backend:</strong> Java 21 with Spring Boot, controllers per area (accounts, friends, and so on) and a centralized exception handler that returns consistent error models.</li>
+<li><strong>Data:</strong> MongoDB, wrapped in a single manager class so the rest of the code never touches the driver directly.</li>
+</ul>
+
+<h2>The API</h2>
+<pre><code>GET   /account/{id}            profile
+GET   /account/{id}/feed       one user's posts, newest first
+GET   /account/feed            home feed, newest first
+POST  /account/post            create a post (UUID assigned server-side)
+POST  /post/{id}/like          like
+POST  /post/{id}/comment       comment</code></pre>
+<p>New post IDs are random UUIDs, and the server re-rolls on the (astronomically unlikely) collision. The feed endpoint also fills in each post's author name and picture so the client doesn't need a second call.</p>
+
+<h2>On the frontend</h2>
+<p>The home feed loads posts, tracks which identifiers it has already seen so repeated fetches never duplicate a post, and falls back to defaults for missing captions or profile pictures instead of crashing on incomplete data.</p>
+
+<h2>What was unfinished (and honest about it)</h2>
+<ul>
+<li>No login or registration screen. We hardcoded one account ID, so profile pages show that user.</li>
+<li>The Explore tab shows placeholder images; the recommendation algorithm never got built.</li>
+<li>The front end talks to <code>localhost</code> addresses, so it's a dev setup and not a deployable one.</li>
+</ul>
+
+<h2>Lessons</h2>
+<ul>
+<li>Cutting scope early beats cutting features at the deadline. The unfinished list above is what scope creep looks like.</li>
+<li><strong>Never commit secrets.</strong> The repo's config file shipped with a database connection string. Credentials belong in environment variables or a secrets manager, and anything that has been committed has to be rotated, even if the repo is deleted later.</li>
+<li>Typed models on both ends (Java classes, TypeScript interfaces) caught a lot of mismatches before runtime.</li>
+</ul>
+<p>Source: <a href="https://github.com/CSC-3380-Fall-2024/Team-4">CSC-3380 Team-4</a>.</p>
+
+</div>
+<nav class="pager"><a href="javashooter.html">&lt; prev: JavaShooter: My First Game, and What I&#x27;d Fix Now</a><a href="supermarket-dbms.html">next: Designing a Supermarket Database (and Its Checkout Transaction) &gt;</a></nav>
+<p><a href="../posts.html">cd ..</a></p>
+</article>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

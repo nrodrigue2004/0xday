@@ -1,0 +1,149 @@
+tagline: One physical box can be a whole company network. Learn hypervisors, VMs vs containers, Proxmox storage, bridges and snapshots, then find the VM plugged into the wrong network.
+:: simple
+**Virtualization** lets one physical computer run many **virtual machines** (VMs), each with its own OS, as if they were separate computers. The software that does it is a **hypervisor**:
+- **Type 1** (bare metal) runs directly on the hardware: Proxmox VE, VMware ESXi, Hyper-V
+- **Type 2** runs as an app on a normal OS: VirtualBox, VMware Workstation
+
+**Proxmox VE** is a free type 1 hypervisor built on Debian, KVM (for VMs) and LXC (for containers), managed in a web UI on port 8006 or with the `qm` and `pct` commands. It runs my whole homelab.
+
+```
+$ qm list
+$ pct list
+```
+
+> A homelab on Proxmox is the cheapest way to practice enterprise IT and security: a DC, a firewall, a SIEM and attack VMs on one box.
+:: mid
+### VMs vs containers
+- A **VM** emulates a whole computer and runs its own kernel. Strong isolation, any OS (Windows included)
+- An **LXC container** shares the host's Linux kernel. Much lighter and faster to start, Linux only, weaker isolation
+
+### Networking: bridges
+A Linux **bridge** (`vmbr0`, `vmbr1`) is a virtual switch. Each VM's virtual NIC plugs into a bridge, and the bridge may connect to a physical port or nothing at all. A typical lab: `vmbr0` = the physical uplink (WAN side of pfSense), `vmbr1` = internal LAN behind pfSense, plus VLAN tags for separate segments.
+
+```
+$ cat ~/pve/interfaces
+$ qm config 101
+```
+
+### Storage
+`local` holds ISOs and templates, `local-lvm` (or ZFS) holds VM disks. `pvesm status` shows how full each is.
+
+```
+$ pvesm status
+```
+:: complex
+### Snapshots, backups and templates
+- **Snapshot**: point-in-time state of a VM on the same storage. Perfect before a risky change or before detonating malware. Not a backup
+- **Backup** (`vzdump`, Proxmox Backup Server): a separate copy that survives losing the disk
+- **Template**: a golden VM you clone from (cloud-init can set hostname/IP/SSH keys on first boot)
+
+### Security of the hypervisor
+Whoever controls the hypervisor controls every VM on it. Keep the management interface (8006) on an admin-only network, use 2FA on the Proxmox UI, patch the host, and never put a vulnerable lab VM on the bridge that reaches your real LAN. VM escape bugs exist, so the riskiest labs (live malware) belong on an isolated bridge with no uplink.
+
+```
+$ grep -A4 "vmbr2" ~/pve/interfaces
+```
+:: lab
+host: pve
+user: root
+cwd: /root
+:: brief
+Lab rule: VMs running **malware or vulnerable services** must be attached **only** to `vmbr2`, the isolated bridge with no physical uplink.
+
+Check every VM's config. One malware-analysis VM is attached to a bridge that has a route to the real network.
+
+Submit the **VMID** of that VM.
+:: answer
+104
+:: hint
+`qm list` gives the VMIDs and names. Then `qm config <vmid>` and look at the `net0` line.
+:: hint
+Which bridges have a physical port? `cat ~/pve/interfaces` and look at `bridge-ports`.
+:: solution
+`~/pve/interfaces` shows `vmbr0` bridged to `enp3s0` (the physical uplink), `vmbr1` internal behind pfSense, and `vmbr2` with `bridge-ports none` (isolated). `qm config` shows FLARE-VM (102) and REMnux (103) on `vmbr2` as they should be, but **104 (win10-detonate)**, the VM used to run malware samples, has `net0: virtio=...,bridge=vmbr0`, straight onto the physical network. Fix: shut it down, roll back to a clean snapshot, change net0 to vmbr2, and check the firewall logs for anything it reached.
+:: verify
+qm config 104
+:: cmd ^qm list$
+      VMID NAME                 STATUS     MEM(MB)    BOOTDISK(GB) PID
+       100 pfsense              running    2048              16.00 1201
+       101 dc01                 running    4096              60.00 1322
+       102 flare-vm             stopped    8192              80.00 0
+       103 remnux               stopped    4096              40.00 0
+       104 win10-detonate       running    4096              60.00 2311
+       105 security-onion       running    16384            200.00 1450
+       106 kali                 running    4096              80.00 1502
+:: cmd ^pct list$
+VMID       Status     Lock         Name
+200        running                 pihole
+201        running                 tailscale-gw
+:: cmd ^qm config 100$
+name: pfsense
+net0: virtio=BC:24:11:00:01:00,bridge=vmbr0
+net1: virtio=BC:24:11:00:01:01,bridge=vmbr1
+memory: 2048
+:: cmd ^qm config 101$
+name: dc01
+net0: virtio=BC:24:11:00:01:10,bridge=vmbr1,tag=10
+ostype: win11
+memory: 4096
+:: cmd ^qm config 102$
+name: flare-vm
+net0: virtio=BC:24:11:00:01:20,bridge=vmbr2
+ostype: win10
+snapshots: clean-2026-10
+:: cmd ^qm config 103$
+name: remnux
+net0: virtio=BC:24:11:00:01:30,bridge=vmbr2
+ostype: l26
+:: cmd ^qm config 104$
+name: win10-detonate
+description: run samples here, revert to "clean" after every run
+net0: virtio=BC:24:11:00:01:40,bridge=vmbr0
+ostype: win10
+parent: clean
+:: cmd ^qm config 105$
+name: security-onion
+net0: virtio=BC:24:11:00:01:50,bridge=vmbr1,tag=40
+net1: virtio=BC:24:11:00:01:51,bridge=vmbr1,trunks=1-4094
+memory: 16384
+:: cmd ^qm config 106$
+name: kali
+net0: virtio=BC:24:11:00:01:60,bridge=vmbr1,tag=30
+:: cmd ^pvesm status$
+Name             Type     Status           Total            Used       Available        %
+local             dir     active        98497780        21330412        72118020   21.66%
+local-lvm     lvmthin     active       832888832       521117804       311771028   62.57%
+backup            nfs     active      1921420800       804112000      1117308800   41.85%
+:: file /etc/network/interfaces
+auto vmbr0
+iface vmbr0 inet static
+        address 192.168.1.50/24
+        gateway 192.168.1.1
+        bridge-ports enp3s0
+        bridge-stp off
+#  uplink to home router (WAN side of pfsense + proxmox mgmt)
+
+auto vmbr1
+iface vmbr1 inet manual
+        bridge-ports none
+        bridge-vlan-aware yes
+#  internal LAN behind pfsense (VLANs 10/20/30/40)
+
+auto vmbr2
+iface vmbr2 inet manual
+        bridge-ports none
+#  isolated malware lab: no uplink, no pfsense interface
+:: file /root/pve/interfaces
+see /etc/network/interfaces (copy below)
+auto vmbr0
+iface vmbr0 inet static
+        address 192.168.1.50/24
+        bridge-ports enp3s0
+auto vmbr1
+iface vmbr1 inet manual
+        bridge-ports none
+        bridge-vlan-aware yes
+auto vmbr2
+iface vmbr2 inet manual
+        bridge-ports none
+#  isolated malware lab: no uplink

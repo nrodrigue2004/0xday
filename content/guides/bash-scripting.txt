@@ -1,0 +1,176 @@
+tagline: Stop typing the same five commands. Variables, loops, conditions and scripts, run for real in the sandbox, then write a tiny scanner that finds a planted backdoor.
+:: simple
+A **bash script** is just the commands you'd type, saved in a file and run top to bottom. Before scripts, learn the two building blocks: **variables** and **command substitution**.
+
+A variable stores text. Set it with `NAME=value` (no spaces around `=`) and read it with `$NAME`:
+
+```
+$ TARGET=10.0.0.5; echo "scanning $TARGET"
+```
+
+`$(command)` runs a command and drops its output into the line:
+
+```
+$ echo "I am $(whoami) on $(hostname)"
+$ echo "there are $(ls ~/sites | wc -l) site files"
+```
+
+> Single quotes keep everything literal: `echo '$TARGET'` prints the dollar sign. Double quotes still expand variables. That one rule explains half of all bash bugs.
+:: mid
+Scripts get useful when they **repeat** and **decide**.
+
+A `for` loop runs the same commands once per item:
+
+```
+$ for f in ~/sites/*.conf; do echo "checking $f"; done
+```
+
+`if` runs a command and checks whether it succeeded (exit code 0). `grep -q` is perfect for this: it prints nothing and just succeeds or fails.
+
+```
+$ if grep -q "ssl on" ~/sites/shop.conf; then echo "shop: tls"; else echo "shop: NO TLS"; fi
+```
+
+`$((...))` does integer math, which is handy for counters:
+
+```
+$ N=0; for f in ~/sites/*.conf; do N=$((N + 1)); done; echo "$N configs"
+```
+
+Put lines like these in a file and run it with `bash file.sh`. `$1`, `$2`... are the arguments you pass:
+
+```
+$ cat ~/bin/audit.sh
+$ bash ~/bin/audit.sh ~/sites
+```
+:: complex
+### 1. Exit codes are the real booleans
+Every command returns a number: `0` means success, anything else is failure. `$?` holds the last one. `&&` runs the next command only on success, `||` only on failure:
+
+```
+$ grep -q root /etc/passwd && echo "found root" || echo "no root"
+$ ls /nope; echo "exit code: $?"
+```
+
+### 2. Reading files line by line
+`while read line; do ...; done < file` walks a file one line at a time, which is how most log and inventory scripts work:
+
+```
+$ while read h; do echo "would ping $h"; done < ~/hosts.txt
+```
+
+### 3. Write scripts that don't hurt you
+- Start real scripts with `#!/usr/bin/env bash` and `set -euo pipefail` (stop on errors, unset variables and failed pipes)
+- Always quote variables: `"$f"`, or a filename with a space becomes two arguments
+- Never build commands out of untrusted input. `eval "$user_input"` is command injection waiting to happen
+- Prefer `[[ ]]` over `[ ]` in bash, and `$(...)` over backticks
+
+> The sandbox supports one-line `for`, `while read` and `if` blocks plus `bash script.sh`, which covers most of what security scripts do.
+:: lab
+host: web01
+user: ops
+cwd: /home/ops
+:: brief
+Someone planted a **backdoor** in one of the web server's site configs: an extra `proxy_pass` line that forwards traffic to an outside address.
+
+There are a lot of configs in `~/sites`. Write a loop (or finish `~/bin/hunt.sh`) that checks every `.conf` file and prints the ones containing `proxy_pass` to an address **outside** 10.0.0.0/8.
+
+Submit the **file name** of the backdoored config, e.g. `submit blog.conf`.
+:: answer
+billing.conf
+/home/ops/sites/billing.conf
+~/sites/billing.conf
+:: hint
+Start with a loop that prints each file and its proxy_pass lines: `for f in ~/sites/*.conf; do echo "== $f"; grep proxy_pass "$f"; done`
+:: hint
+Several configs proxy to internal 10.x addresses, which is normal. Filter those out with a second grep: `grep proxy_pass "$f" | grep -v "10\."`
+:: hint
+Combine it with `if`: `for f in ~/sites/*.conf; do if grep proxy_pass "$f" | grep -qv "10\."; then echo "$f"; fi; done`
+:: solution
+The one-liner:
+
+`for f in ~/sites/*.conf; do if grep proxy_pass "$f" | grep -qv "10\."; then echo "$f"; fi; done`
+
+prints only `/home/ops/sites/billing.conf`, which has `proxy_pass http://203.0.113.50:8443;` hidden under a `/healthz` location, so every health check (and anything else sent there) is shipped to an outside host. `api.conf` and `shop.conf` also use proxy_pass, but to internal 10.0.x backends. The answer is **billing.conf**.
+:: file /home/ops/hosts.txt
+10.0.0.10
+10.0.0.11
+10.0.0.12
+:: file /home/ops/bin/audit.sh
+#!/usr/bin/env bash
+# usage: bash audit.sh <dir>   -> report TLS status of every nginx site config
+DIR=$1
+COUNT=0
+for f in $DIR/*.conf; do
+  COUNT=$((COUNT + 1))
+  if grep -q "ssl on" $f; then
+    echo "[tls]    $f"
+  else
+    echo "[NO TLS] $f"
+  fi
+done
+echo "$COUNT configs checked"
+:: file /home/ops/bin/hunt.sh
+#!/usr/bin/env bash
+# TODO: loop over ~/sites/*.conf and print files that proxy_pass outside 10.0.0.0/8
+for f in ~/sites/*.conf; do
+  echo "todo: $f"
+done
+:: file /home/ops/sites/api.conf
+server {
+  listen 443;
+  ssl on;
+  server_name api.corp.local;
+  location / {
+    proxy_pass http://10.0.2.20:8080;
+  }
+}
+:: file /home/ops/sites/billing.conf
+server {
+  listen 443;
+  ssl on;
+  server_name billing.corp.local;
+  root /var/www/billing;
+  location /healthz {
+    proxy_pass http://203.0.113.50:8443;
+  }
+}
+:: file /home/ops/sites/blog.conf
+server {
+  listen 80;
+  server_name blog.corp.local;
+  root /var/www/blog;
+}
+:: file /home/ops/sites/docs.conf
+server {
+  listen 443;
+  ssl on;
+  server_name docs.corp.local;
+  root /var/www/docs;
+}
+:: file /home/ops/sites/shop.conf
+server {
+  listen 443;
+  ssl on;
+  server_name shop.corp.local;
+  location /cart {
+    proxy_pass http://10.0.2.31:3000;
+  }
+}
+:: file /home/ops/sites/status.conf
+server {
+  listen 80;
+  server_name status.corp.local;
+  root /var/www/status;
+}
+:: file /home/ops/sites/wiki.conf
+server {
+  listen 443;
+  ssl on;
+  server_name wiki.corp.local;
+  root /var/www/wiki;
+}
+:: file /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+ops:x:1000:1000:ops:/home/ops:/bin/bash
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin

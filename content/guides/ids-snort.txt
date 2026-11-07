@@ -1,0 +1,94 @@
+tagline: An IDS is a tripwire for network traffic. Learn how Snort rules are built, read alerts, and write the rule that would have caught an attack.
+:: simple
+An **IDS** (intrusion detection system) watches network traffic and raises an **alert** when a packet matches a pattern of known-bad activity. An **IPS** does the same but sits inline and can **drop** the packet. **Snort** and **Suricata** are the classic open-source ones, and both use the same rule language.
+
+A rule has a **header** (what traffic to look at) and **options** (what to look for):
+
+```
+$ cat ~/rules/local.rules
+```
+
+Read the first rule as a sentence: *alert* on *tcp* traffic from *any* source to the web server on port *80*, when the payload *contains* `/etc/passwd`, with this message and ID number (`sid`).
+
+> `alert` only logs. In IPS mode, `drop` blocks the packet and logs it.
+:: mid
+### Reading alerts
+Snort's "fast" alert format puts everything on one line: time, `[gid:sid:rev]`, message, classification, priority, protocol and the source and destination:
+
+```
+$ head -3 ~/logs/alert.fast
+$ grep -o "\[1:[0-9]*:[0-9]*\] [^[]*" ~/logs/alert.fast | sort | uniq -c | sort -rn
+```
+
+### Rule options you'll see most
+- `content:"..."` match bytes in the payload, `nocase` makes it case-insensitive
+- `http_uri`, `http_header` restrict a match to one part of the HTTP request
+- `pcre:"/.../"` a regular expression, for when a fixed string isn't enough
+- `flow:to_server,established` only match after the TCP handshake, client to server
+- `threshold` / `detection_filter` only alert after N hits in T seconds (brute force rules)
+
+```
+$ grep "detection_filter" ~/rules/local.rules
+```
+:: complex
+### False positives and tuning
+A rule that fires on legitimate traffic trains analysts to ignore it. Tuning means making the match **more specific** (add `flow`, limit to `http_uri`, add a second `content`), adding **thresholds**, or **suppressing** a rule for one known-good host. Count which rules fire most and from where before deciding:
+
+```
+$ grep "1000003" ~/logs/alert.fast | grep -o "[0-9.]*:[0-9]* ->" | sort | uniq -c
+```
+
+### Evasion, and why it's hard to win
+Attackers dodge signatures with encoding (`%2e%2e%2f` for `../`), fragmentation, TLS (the IDS can't read encrypted payloads without decryption), and changing their tools until the bytes don't match. That's why modern IDS pair signatures with **protocol anomaly detection** and why Snort has preprocessors (Snort 3: inspectors) that normalize HTTP before rules run.
+
+### Placement
+An IDS on a SPAN/tap port sees a copy of traffic (passive, can't block). An IPS inline must be fast and must decide what happens when it fails: **fail-open** (traffic flows unchecked) or **fail-closed** (the network goes down).
+:: lab
+host: sensor01
+user: analyst
+cwd: /home/analyst
+:: brief
+Last night an attacker ran a SQL injection against the shop at 10.0.0.30, and Snort only caught **some** of it.
+
+Look at the attacker's requests in `~/logs/http.log`, then read the rules in `~/rules/local.rules`. One rule was **supposed** to catch this attack but has a bug, so it never fired.
+
+Submit the **sid** of the broken rule.
+:: answer
+1000004
+sid:1000004
+:: hint
+First find the attack. `grep -i "union" ~/logs/http.log` or look for `'` and `--` in the URLs.
+:: hint
+Which rule's message is about SQL injection? Compare exactly what its `content` looks for with what's actually in the request.
+:: hint
+Look at case and ports. Is the rule checking the right port, and does it ignore case?
+:: solution
+`~/logs/http.log` shows 203.0.113.77 requesting `/product?id=1 UNION SELECT username,password FROM users--` on **port 8080** (the shop's app port). Rule **1000004**, "SQL injection UNION SELECT", has two bugs: it watches `$HOME_NET 80` instead of 8080, and it matches `content:"union select"` without `nocase`, so the uppercase `UNION SELECT` would never match anyway. The fix:
+
+`alert tcp any any -> $HOME_NET 8080 (msg:"SQL injection UNION SELECT"; flow:to_server,established; content:"union"; nocase; http_uri; content:"select"; nocase; http_uri; distance:0; sid:1000004; rev:2;)`
+
+Splitting it into two contents also catches `UNION/**/SELECT` and extra spaces. Then replay the pcap to test before deploying.
+:: file /home/analyst/rules/local.rules
+alert tcp any any -> $HOME_NET 80 (msg:"Path traversal /etc/passwd"; flow:to_server,established; content:"/etc/passwd"; http_uri; sid:1000001; rev:1;)
+alert tcp any any -> $HOME_NET 22 (msg:"SSH brute force"; flow:to_server; flags:S; detection_filter:track by_src, count 10, seconds 60; sid:1000002; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"Nmap XMAS scan"; flags:FPU; sid:1000003; rev:1;)
+alert tcp any any -> $HOME_NET 80 (msg:"SQL injection UNION SELECT"; flow:to_server,established; content:"union select"; http_uri; sid:1000004; rev:1;)
+alert tcp any any -> $HOME_NET 8080 (msg:"Admin panel probe"; flow:to_server,established; content:"/admin"; nocase; http_uri; sid:1000005; rev:1;)
+:: file /home/analyst/logs/alert.fast
+11/07-02:58:01.114 [**] [1:1000003:1] Nmap XMAS scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 203.0.113.77:51001 -> 10.0.0.30:21
+11/07-02:58:01.120 [**] [1:1000003:1] Nmap XMAS scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 203.0.113.77:51002 -> 10.0.0.30:22
+11/07-02:58:01.131 [**] [1:1000003:1] Nmap XMAS scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 203.0.113.77:51003 -> 10.0.0.30:80
+11/07-02:58:01.140 [**] [1:1000003:1] Nmap XMAS scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 203.0.113.77:51004 -> 10.0.0.30:8080
+11/07-02:58:02.003 [**] [1:1000003:1] Nmap XMAS scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 10.0.10.15:40022 -> 10.0.0.30:443
+11/07-03:01:12.551 [**] [1:1000005:1] Admin panel probe [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 203.0.113.77:51110 -> 10.0.0.30:8080
+11/07-03:01:14.020 [**] [1:1000005:1] Admin panel probe [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 203.0.113.77:51112 -> 10.0.0.30:8080
+11/07-03:03:40.900 [**] [1:1000001:1] Path traversal /etc/passwd [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 198.51.100.23:40400 -> 10.0.0.30:80
+:: file /home/analyst/logs/http.log
+03:00:58 203.0.113.77 GET 10.0.0.30:8080 /product?id=1 200
+03:01:02 203.0.113.77 GET 10.0.0.30:8080 /product?id=1' 500
+03:01:05 203.0.113.77 GET 10.0.0.30:8080 /product?id=1 ORDER BY 3-- 200
+03:01:12 203.0.113.77 GET 10.0.0.30:8080 /admin 403
+03:01:14 203.0.113.77 GET 10.0.0.30:8080 /Admin/login 403
+03:02:30 203.0.113.77 GET 10.0.0.30:8080 /product?id=1 UNION SELECT username,password FROM users-- 200
+03:03:40 198.51.100.23 GET 10.0.0.30:80 /download?file=../../etc/passwd 403
+03:04:10 10.0.10.15 GET 10.0.0.30:8080 /product?id=7 200
