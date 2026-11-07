@@ -6,7 +6,8 @@ then run:  python3 build.py
 import json, html, os, hashlib, base64, datetime
 ROOT = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ROOT)
-NAME = "Nathan"; USER = "nathan"; HOST = "0xday"
+NAME = "Nathan"; FULL_NAME = "Nathan Rodrigue"  # last name only on the resume
+USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
 NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
@@ -334,14 +335,14 @@ prj = "".join(f'<div class="rs-item"><div class="rs-head"><strong>{esc(e["name"]
 skl = "".join(f'<div><span class="k">{esc(k)}</span> {esc(v)}</div>' for k, v in r["skills"].items())
 page("resume.html", "resume :: 0xDay", f'''<p class="cmd no-print">cat ~/resume.txt</p>
 <div class="resume">
-<div class="rs-top"><h1>{NAME}</h1><button class="btn no-print" type="button" onclick="window.print()">[ print / save as PDF ]</button></div>
+<div class="rs-top"><h1>{FULL_NAME}</h1><button class="btn no-print" type="button" onclick="window.print()">[ print / save as PDF ]</button></div>
 <p class="rs-links"><a href="{GH}">github.com/nrodrigue2004</a> · <a href="{LI}">linkedin</a> · <a href="{SITE}">{SITE.replace("https://", "")}</a></p>
 <p>{esc(r["headline"])}</p>
 <h2>education</h2>{edu}
 <h2>experience</h2>{exp}
 <h2>projects</h2>{prj}
 <h2>skills</h2><div class="rs-skills">{skl}</div>
-</div>''', desc=f"Resume of {NAME}.")
+</div>''', desc=f"Resume of {FULL_NAME}.")
 
 # ---------- ctf log ----------
 def wl(c):
