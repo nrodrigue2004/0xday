@@ -1,0 +1,108 @@
+tagline: Kali is a toolbox, not a skill. Learn what's in it, how to run it safely in a homelab, and how to keep your own attack box from becoming the easiest target on the network.
+:: simple
+**Kali Linux** is a Debian-based distribution that comes with hundreds of security tools preinstalled: scanners, web proxies, password auditors, forensics and wireless tools. It's what pentesters, CTF players and students boot into.
+
+In a homelab, Kali usually runs as a **VM** on a separate network segment, so practice traffic never touches your real network. Its default user is `kali` and tools live in the menu by category, or are just commands:
+
+```
+$ cat /etc/os-release
+$ cat ~/tool-categories.txt
+```
+
+> Kali is for authorized testing on systems you own or have permission to test. The tools are legal; using them on other people's systems isn't.
+:: mid
+### Keeping it current
+Kali is a rolling release: tools update constantly. Update before every engagement, and install extra tools from its repositories with `apt`:
+
+```
+$ apt list --upgradable
+$ apt search gobuster
+```
+
+### Know where things live
+- Wordlists: `/usr/share/wordlists/` (rockyou is gzipped by default)
+- Nmap scripts: `/usr/share/nmap/scripts/`, Metasploit: `msfconsole`
+- Web: Burp Suite, ZAP, gobuster/feroxbuster, sqlmap, nikto
+
+```
+$ ls /usr/share/wordlists
+```
+
+### Organize your work
+Make a folder per target with `nmap/`, `loot/`, `notes.md`, and save every scan with `-oA`. A pentest is only as good as its report, and the report is only as good as your notes.
+:: complex
+### Your attack box is a target too
+A Kali VM full of credentials, client data and open services is attractive. Harden it like any server:
+- change the default password, or better, disable password SSH login entirely
+- don't leave services like SSH, a Python web server or a reverse-shell listener running and exposed after you're done
+- keep client data encrypted and delete it when the engagement ends
+- snapshot a clean baseline and revert between engagements
+
+```
+$ cat ~/audit/ss-tulpn.txt
+```
+
+### Safe homelab layout
+Put Kali and vulnerable targets on an **isolated** internal network (a pfSense LAN or Proxmox bridge with no route to your home LAN), and give the lab internet only when you need updates. That way a vulnerable VM never sits on the same network as your family's devices.
+:: lab
+host: kali
+user: kali
+cwd: /home/kali
+:: brief
+Before connecting your Kali VM to a client network, you run a quick self-audit. The results are in `~/audit`.
+
+One service is listening on **all interfaces** and still accepts the **default credentials**. That's the first thing anyone on the client network would find.
+
+Submit the **port number** of that service.
+:: answer
+22
+:: hint
+`cat ~/audit/ss-tulpn.txt` shows what's listening. `0.0.0.0` means every interface, `127.0.0.1` means local only.
+:: hint
+Now check which of those services still uses the default login. Look at `~/audit/sshd_config` and `~/audit/credcheck.txt`.
+:: solution
+`ss -tulpn` shows SSH on `0.0.0.0:22`, a Python web server on `0.0.0.0:8000` and PostgreSQL on `127.0.0.1:5432` (local only, fine). `credcheck.txt` shows `kali:kali` still works over SSH, and `sshd_config` allows password authentication. The answer is port **22**. Fix: `passwd`, set `PasswordAuthentication no` and use keys, and stop the leftover `python3 -m http.server` on 8000.
+:: verify
+grep 0.0.0.0 ~/audit/ss-tulpn.txt
+:: file /etc/os-release
+PRETTY_NAME="Kali GNU/Linux Rolling"
+NAME="Kali GNU/Linux"
+VERSION="2026.3"
+ID=kali
+ID_LIKE=debian
+:: file /home/kali/tool-categories.txt
+01 Information Gathering    nmap, dnsrecon, theHarvester, whatweb
+02 Vulnerability Analysis   nikto, openvas (gvm), nuclei
+03 Web Applications         burpsuite, zaproxy, gobuster, sqlmap
+04 Database Assessment      sqlmap, sqlitebrowser
+05 Password Attacks         john, hashcat, hydra, cewl
+06 Wireless Attacks         aircrack-ng, kismet, wifite
+07 Reverse Engineering      ghidra, radare2, gdb
+08 Exploitation Tools       metasploit-framework, searchsploit
+09 Sniffing & Spoofing      wireshark, tcpdump, responder
+10 Post Exploitation        impacket, evil-winrm, bloodhound
+11 Forensics                autopsy, volatility3, binwalk, foremost
+12 Reporting Tools          cherrytree, faraday
+:: file /usr/share/wordlists/README
+rockyou.txt.gz  dirb/  dirbuster/  fasttrack.txt  metasploit/  nmap.lst  wfuzz/
+:: file /home/kali/audit/ss-tulpn.txt
+Netid State  Local Address:Port   Process
+tcp   LISTEN 0.0.0.0:22           users:(("sshd",pid=812))
+tcp   LISTEN 0.0.0.0:8000         users:(("python3",pid=2231))  # python3 -m http.server
+tcp   LISTEN 127.0.0.1:5432       users:(("postgres",pid=901))  # metasploit db
+:: file /home/kali/audit/sshd_config
+PermitRootLogin prohibit-password
+PasswordAuthentication yes
+:: file /home/kali/audit/credcheck.txt
+service  user  password  result
+ssh      kali  kali      LOGIN OK   <-- default credentials still valid
+ssh      root  toor      denied
+http     -     -         no auth (directory listing of /home/kali/loot)
+:: cmd ^apt list --upgradable
+Listing... Done
+burpsuite/kali-rolling 2026.9.2 amd64 [upgradable from: 2026.8.1]
+metasploit-framework/kali-rolling 6.4.30 amd64 [upgradable from: 6.4.22]
+nmap/kali-rolling 7.95+dfsg-2 amd64 [upgradable from: 7.94+git20230807]
+:: cmd ^apt search gobuster
+gobuster/kali-rolling,now 3.6.0-1 amd64 [installed]
+  Directory/file, DNS and VHost busting tool written in Go

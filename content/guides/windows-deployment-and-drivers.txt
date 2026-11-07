@@ -1,0 +1,90 @@
+tagline: Imaging hundreds of laptops means drivers, images and logs. Learn how Windows deployment works, how drivers are matched to hardware by ID, then fix the device that came up with no driver.
+:: simple
+**Deploying** Windows means getting a clean, configured OS onto a machine. At scale you don't click through setup: you boot from a USB or the network (**PXE**), apply a prepared **image** (a `.wim` file), and let an **answer file** (`unattend.xml`) handle the setup questions.
+
+After the OS is on, every piece of hardware needs a **driver**: the software that lets Windows talk to it. Device Manager shows a yellow warning on anything without one.
+
+```
+$ cat ~/deploy/device-manager.txt
+```
+
+> Error **Code 28** means "the drivers for this device are not installed". Code 10 means the device can't start, Code 43 means Windows stopped it after it reported a problem.
+:: mid
+### Hardware IDs decide which driver
+Windows doesn't match drivers by name. Every device reports a **Hardware ID** like `PCI\VEN_8086&DEV_A0F0`, where **VEN** is the vendor (8086 = Intel, 10EC = Realtek, 14E4 = Broadcom) and **DEV** is the specific device. A driver's `.inf` file lists the IDs it supports.
+
+```
+$ grep -i "VEN_" ~/deploy/device-manager.txt
+$ grep -il "DEV_A0F0" ~/deploy/drivers/*.inf
+```
+
+### Injecting drivers
+In MDT / SCCM / WDS you import driver packs per model so the right ones get injected during deployment. On one machine: `pnputil /add-driver <file>.inf /install`. Offline images: `DISM /Image:C:\mount /Add-Driver /Driver:<folder> /Recurse`.
+:: complex
+### Images, sysprep and logs
+- Build a **reference image**, generalize it with `sysprep /generalize /oobe /shutdown` (removes the machine SID and hardware specifics), capture it with DISM
+- Keep it thin: OS + updates, and let the task sequence add apps and drivers per model
+- When deployment fails, the answers are in logs: `setupact.log` / `setuperr.log` (Panther), `setupapi.dev.log` (every driver install attempt), `smsts.log` (SCCM task sequences)
+
+```
+$ grep -i "fail\|error" ~/deploy/setupapi.dev.log
+```
+
+### Security in deployment
+Only use drivers from the OEM or Windows Update (malicious or vulnerable drivers are a real attack path, "BYOVD"), enable Secure Boot and BitLocker as part of the task sequence, and never bake passwords into a plain-text unattend file.
+:: lab
+style: ticket
+host: deploy
+user: tech
+id: #IMG-0730
+subject: Latitude 5420 image: Wi-Fi missing after deployment
+priority: P3
+from: imaging bench
+sla: 1 business day
+attach: device-manager.txt, setupapi.dev.log
+:: brief
+After imaging a new batch of Dell Latitude 5420s, Wi-Fi doesn't work. Device Manager shows a **Network Controller** with Code 28.
+
+Find the device's hardware ID, then find which driver in the share `~/deploy/drivers` supports it.
+
+Resolve the ticket with the **.inf file name** to add to the driver pack, e.g. `netwtw04.inf`.
+:: answer
+netwtw08.inf
+:: hint
+Get the Network Controller's hardware ID from `device-manager.txt`. You only need the `DEV_` part.
+:: hint
+Search the .inf files for it: `grep -il "DEV_XXXX" ~/deploy/drivers/*.inf`
+:: solution
+`device-manager.txt` shows the Network Controller as `PCI\VEN_8086&DEV_A0F0`: Intel (8086), device A0F0, an AX201 Wi-Fi card. `setupapi.dev.log` confirms "no matching driver found" for that ID. `grep -il "DEV_A0F0" ~/deploy/drivers/*.inf` matches only **netwtw08.inf** (Intel Wi-Fi 6 AX201). `netwtw04.inf` is for older Intel 8265 cards and `rtwlane.inf` is Realtek. Fix: import netwtw08 into the Latitude 5420 driver pack, redeploy one test unit, then the batch.
+:: verify
+grep -il "DEV_A0F0" ~/deploy/drivers/*.inf
+:: file /home/tech/deploy/device-manager.txt
+Device                          Status     Hardware ID
+Intel(R) UHD Graphics           OK         PCI\VEN_8086&DEV_9A49
+Realtek Audio                   OK         HDAUDIO\FUNC_01&VEN_10EC&DEV_0236
+Network Controller              Code 28    PCI\VEN_8086&DEV_A0F0&SUBSYS_00748086
+Intel(R) Ethernet I219-LM       OK         PCI\VEN_8086&DEV_15FB
+Unknown device                  Code 28    ACPI\VEN_DLL&DEV_0A6D
+:: file /home/tech/deploy/setupapi.dev.log
+>>>  [Device Install - PCI\VEN_8086&DEV_A0F0&SUBSYS_00748086]
+     dvi: No matching driver found in driver store. (Error 0xE0000228)
+<<<  Section end  Exit status: FAILURE(0xe0000228)
+>>>  [Device Install - ACPI\VEN_DLL&DEV_0A6D]
+     dvi: No matching driver found in driver store.
+<<<  Section end  Exit status: FAILURE
+:: file /home/tech/deploy/drivers/netwtw04.inf
+; Intel(R) Dual Band Wireless-AC 8265
+%NIC.8265% = Install, PCI\VEN_8086&DEV_24FD
+:: file /home/tech/deploy/drivers/netwtw08.inf
+; Intel(R) Wi-Fi 6 AX201 160MHz
+%NIC.AX201% = Install, PCI\VEN_8086&DEV_A0F0&SUBSYS_00748086
+%NIC.AX201b% = Install, PCI\VEN_8086&DEV_A0F0&SUBSYS_02748086
+:: file /home/tech/deploy/drivers/rtwlane.inf
+; Realtek 8822CE Wireless LAN
+%RTL8822CE% = Install, PCI\VEN_10EC&DEV_C822
+:: file /home/tech/deploy/drivers/e1d68x64.inf
+; Intel(R) Ethernet Connection I219-LM
+%E15FB% = Install, PCI\VEN_8086&DEV_15FB
+:: file /home/tech/deploy/drivers/DellCtrl.inf
+; Dell System Control (ACPI DLL0A6D)
+%DLL0A6D% = Install, ACPI\VEN_DLL&DEV_0A6D

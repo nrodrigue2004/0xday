@@ -1,0 +1,125 @@
+tagline: Running a Linux server means keeping services up, patched and logged. Learn systemd, journals, packages, users and the firewall on Ubuntu, then figure out why a web server won't start.
+:: simple
+A **server** is just a computer whose job is to run **services** (web, database, SSH) for other machines. On Ubuntu, services are managed by **systemd** with the `systemctl` command:
+
+```
+$ systemctl status nginx
+$ systemctl list-units --type=service --state=running
+```
+
+- `systemctl start|stop|restart nginx` control a service now
+- `systemctl enable nginx` start it automatically at boot
+- Software is installed with `apt`: `sudo apt update && sudo apt upgrade` patches everything
+
+> Most admin commands need root. Use `sudo` for one command at a time instead of logging in as root.
+:: mid
+### When a service fails, read the journal
+systemd captures every service's output in the **journal**. `journalctl -u <service>` shows one service's log, `-e` jumps to the end, `-f` follows live, `--since "1 hour ago"` filters by time:
+
+```
+$ journalctl -u nginx --no-pager | tail -8
+```
+
+### Configuration and checks
+Config lives in `/etc`. Many services can validate their config before you restart, which avoids taking the site down with a typo:
+
+```
+$ nginx -t
+$ ls /etc/nginx/sites-enabled
+```
+
+### Firewall: ufw
+Ubuntu's `ufw` is a friendly front end for the kernel firewall. Default deny incoming, then allow only what the server serves:
+
+```
+$ ufw status verbose
+```
+:: complex
+### Ports, processes and conflicts
+Only one program can listen on a given IP and port. "Address already in use" means something else got there first. `ss -tlpn` shows every listening port and which process owns it:
+
+```
+$ ss -tlpn
+```
+
+### Hardening a fresh Ubuntu server
+- create a normal admin user, add it to `sudo`, disable root SSH login and password auth (keys only)
+- `ufw default deny incoming`, allow 22 (ideally only from your admin network), 80, 443
+- enable `unattended-upgrades` for security patches
+- install `fail2ban` to block repeated failed logins
+- ship logs off the box (rsyslog to a SIEM), since an attacker with root can edit local logs
+
+### Users and groups
+`adduser`, `usermod -aG sudo name`, `passwd -l name` (lock). `/etc/passwd` lists accounts, `/etc/group` groups, and `id name` shows a user's groups.
+:: lab
+host: web02
+user: admin
+cwd: /home/admin
+:: brief
+After last night's maintenance, **nginx won't start** on web02 and the company site is down.
+
+Use `systemctl`, `journalctl` and `ss` to find out why. Something else is holding the port nginx needs.
+
+Submit the **name of the service** you need to stop or disable so nginx can start, e.g. `submit mysql`.
+:: answer
+apache2
+apache2.service
+:: hint
+Start with `systemctl status nginx` and `journalctl -u nginx`. What error does nginx give?
+:: hint
+"Address already in use" on port 80. Which process is listening on 80? `ss -tlpn`
+:: solution
+`journalctl -u nginx` ends with `bind() to 0.0.0.0:80 failed (98: Address already in use)`. `ss -tlpn` shows `apache2` listening on `*:80`, and `systemctl status apache2` shows it was **installed and enabled during maintenance** (it came in as a dependency of a PHP package). Fix: `sudo systemctl disable --now apache2`, then `sudo systemctl start nginx`. The answer is **apache2**. Better long-term: remove the package if nothing needs it, and add a check for this to the maintenance runbook.
+:: verify
+ss -tlpn
+:: cmd ^systemctl status nginx
+× nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)
+     Active: failed (Result: exit-code) since Fri 2026-11-07 06:02:14 UTC; 3h ago
+    Process: 1123 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 1125 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=1/FAILURE)
+:: cmd ^systemctl status apache2
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/usr/lib/systemd/system/apache2.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-11-07 06:01:58 UTC; 3h ago
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 1088 (apache2)
+:: cmd ^systemctl list-units
+  UNIT               LOAD   ACTIVE SUB     DESCRIPTION
+  apache2.service    loaded active running The Apache HTTP Server
+  cron.service       loaded active running Regular background program processing daemon
+  postgresql.service loaded active running PostgreSQL RDBMS
+  ssh.service        loaded active running OpenBSD Secure Shell server
+  ufw.service        loaded active exited  Uncomplicated firewall
+:: cmd ^journalctl -u nginx
+Nov 07 06:02:14 web02 systemd[1]: Starting nginx.service - A high performance web server...
+Nov 07 06:02:14 web02 nginx[1125]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 07 06:02:14 web02 nginx[1125]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 07 06:02:15 web02 nginx[1125]: nginx: [emerg] still could not bind()
+Nov 07 06:02:15 web02 systemd[1]: nginx.service: Control process exited, code=exited, status=1/FAILURE
+Nov 07 06:02:15 web02 systemd[1]: nginx.service: Failed with result 'exit-code'.
+Nov 07 06:02:15 web02 systemd[1]: Failed to start nginx.service - A high performance web server.
+:: cmd ^journalctl -u apache2
+Nov 07 05:58:40 web02 apt[990]: Setting up apache2 (2.4.58-1ubuntu8) ... (dependency of libapache2-mod-php8.3)
+Nov 07 06:01:58 web02 systemd[1]: Started apache2.service - The Apache HTTP Server.
+:: cmd ^nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+:: cmd ^ufw status
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    10.0.10.0/24
+80/tcp                     ALLOW IN    Anywhere
+443/tcp                    ALLOW IN    Anywhere
+:: cmd ^ss -tl?pn
+State   Recv-Q  Send-Q  Local Address:Port  Peer Address:Port  Process
+LISTEN  0       511     *:80                *:*                users:(("apache2",pid=1088,fd=4))
+LISTEN  0       128     0.0.0.0:22          0.0.0.0:*          users:(("sshd",pid=702,fd=3))
+LISTEN  0       244     127.0.0.1:5432      0.0.0.0:*          users:(("postgres",pid=845,fd=6))
+:: file /etc/nginx/sites-enabled/company.conf
+server { listen 80; server_name www.corp.example; root /var/www/company; }
+:: file /etc/nginx/nginx.conf
+user www-data; worker_processes auto; include /etc/nginx/sites-enabled/*;

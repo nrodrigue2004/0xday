@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Kali Linux :: 0xDay</title>
+<meta name="description" content="Learn Kali Linux: simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=73bd3bb5">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=73bd3bb5" defer></script>
+<script src="../site.js?v=73bd3bb5" defer></script>
+<script src="../fx.js?v=73bd3bb5" defer></script>
+<script src="../sandbox.js?v=73bd3bb5" defer></script>
+<script src="../learn.js?v=73bd3bb5" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill kali-linux</p>
+<h1>~/learn/kali-linux</h1>
+<p class="learn__meta"><span class="muted">linux</span> · my level: <span class="bar__on">■■■</span><span class="bar__off">□□</span> <span class="muted">working</span> · <a href="../posts/proxmox-homelab.html">proof</a></p>
+<p>Kali is a toolbox, not a skill. Learn what's in it, how to run it safely in a homelab, and how to keep your own attack box from becoming the easiest target on the network.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="kali-linux">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Kali Linux</strong> is a Debian-based distribution that comes with hundreds of security tools preinstalled: scanners, web proxies, password auditors, forensics and wireless tools. It's what pentesters, CTF players and students boot into.</p>
+<p>In a homelab, Kali usually runs as a <strong>VM</strong> on a separate network segment, so practice traffic never touches your real network. Its default user is <code>kali</code> and tools live in the menu by category, or are just commands:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat /etc/os-release</span><button class="run" type="button" data-cmd="cat /etc/os-release" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cat ~/tool-categories.txt</span><button class="run" type="button" data-cmd="cat ~/tool-categories.txt" title="run in the sandbox">▶ run</button></code></pre>
+<p class="callout">Kali is for authorized testing on systems you own or have permission to test. The tools are legal; using them on other people's systems isn't.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Keeping it current</h4>
+<p>Kali is a rolling release: tools update constantly. Update before every engagement, and install extra tools from its repositories with <code>apt</code>:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">apt list --upgradable</span><button class="run" type="button" data-cmd="apt list --upgradable" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">apt search gobuster</span><button class="run" type="button" data-cmd="apt search gobuster" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Know where things live</h4>
+<ul><li>Wordlists: <code>/usr/share/wordlists/</code> (rockyou is gzipped by default)</li><li>Nmap scripts: <code>/usr/share/nmap/scripts/</code>, Metasploit: <code>msfconsole</code></li><li>Web: Burp Suite, ZAP, gobuster/feroxbuster, sqlmap, nikto</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">ls /usr/share/wordlists</span><button class="run" type="button" data-cmd="ls /usr/share/wordlists" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Organize your work</h4>
+<p>Make a folder per target with <code>nmap/</code>, <code>loot/</code>, <code>notes.md</code>, and save every scan with <code>-oA</code>. A pentest is only as good as its report, and the report is only as good as your notes.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Your attack box is a target too</h4>
+<p>A Kali VM full of credentials, client data and open services is attractive. Harden it like any server:</p>
+<ul><li>change the default password, or better, disable password SSH login entirely</li><li>don't leave services like SSH, a Python web server or a reverse-shell listener running and exposed after you're done</li><li>keep client data encrypted and delete it when the engagement ends</li><li>snapshot a clean baseline and revert between engagements</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/audit/ss-tulpn.txt</span><button class="run" type="button" data-cmd="cat ~/audit/ss-tulpn.txt" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Safe homelab layout</h4>
+<p>Put Kali and vulnerable targets on an <strong>isolated</strong> internal network (a pfSense LAN or Proxmox bridge with no route to your home LAN), and give the lab internet only when you need updates. That way a vulnerable VM never sits on the same network as your family's devices.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>Before connecting your Kali VM to a client network, you run a quick self-audit. The results are in <code>~/audit</code>.</p>
+<p>One service is listening on <strong>all interfaces</strong> and still accepts the <strong>default credentials</strong>. That's the first thing anyone on the client network would find.</p>
+<p>Submit the <strong>port number</strong> of that service.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "kali-linux", "title": "Kali Linux", "user": "kali", "host": "kali", "brief": "Before connecting your Kali VM to a client network, you run a quick self-audit. The results are in <code>~/audit<\/code>.\n\nOne service is listening on <strong>all interfaces<\/strong> and still accepts the <strong>default credentials<\/strong>. That's the first thing anyone on the client network would find.\n\nSubmit the <strong>port number<\/strong> of that service.", "hints": ["<code>cat ~/audit/ss-tulpn.txt<\/code> shows what's listening. <code>0.0.0.0<\/code> means every interface, <code>127.0.0.1<\/code> means local only.", "Now check which of those services still uses the default login. Look at <code>~/audit/sshd_config<\/code> and <code>~/audit/credcheck.txt<\/code>."], "answers": ["785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"], "solution": "PGNvZGU+c3MgLXR1bHBuPC9jb2RlPiBzaG93cyBTU0ggb24gPGNvZGU+MC4wLjAuMDoyMjwvY29kZT4sIGEgUHl0aG9uIHdlYiBzZXJ2ZXIgb24gPGNvZGU+MC4wLjAuMDo4MDAwPC9jb2RlPiBhbmQgUG9zdGdyZVNRTCBvbiA8Y29kZT4xMjcuMC4wLjE6NTQzMjwvY29kZT4gKGxvY2FsIG9ubHksIGZpbmUpLiA8Y29kZT5jcmVkY2hlY2sudHh0PC9jb2RlPiBzaG93cyA8Y29kZT5rYWxpOmthbGk8L2NvZGU+IHN0aWxsIHdvcmtzIG92ZXIgU1NILCBhbmQgPGNvZGU+c3NoZF9jb25maWc8L2NvZGU+IGFsbG93cyBwYXNzd29yZCBhdXRoZW50aWNhdGlvbi4gVGhlIGFuc3dlciBpcyBwb3J0IDxzdHJvbmc+MjI8L3N0cm9uZz4uIEZpeDogPGNvZGU+cGFzc3dkPC9jb2RlPiwgc2V0IDxjb2RlPlBhc3N3b3JkQXV0aGVudGljYXRpb24gbm88L2NvZGU+IGFuZCB1c2Uga2V5cywgYW5kIHN0b3AgdGhlIGxlZnRvdmVyIDxjb2RlPnB5dGhvbjMgLW0gaHR0cC5zZXJ2ZXI8L2NvZGU+IG9uIDgwMDAuCg==", "fs": {"/etc/os-release": "PRETTY_NAME=\"Kali GNU/Linux Rolling\"\nNAME=\"Kali GNU/Linux\"\nVERSION=\"2026.3\"\nID=kali\nID_LIKE=debian\n", "/home/kali/tool-categories.txt": "01 Information Gathering    nmap, dnsrecon, theHarvester, whatweb\n02 Vulnerability Analysis   nikto, openvas (gvm), nuclei\n03 Web Applications         burpsuite, zaproxy, gobuster, sqlmap\n04 Database Assessment      sqlmap, sqlitebrowser\n05 Password Attacks         john, hashcat, hydra, cewl\n06 Wireless Attacks         aircrack-ng, kismet, wifite\n07 Reverse Engineering      ghidra, radare2, gdb\n08 Exploitation Tools       metasploit-framework, searchsploit\n09 Sniffing & Spoofing      wireshark, tcpdump, responder\n10 Post Exploitation        impacket, evil-winrm, bloodhound\n11 Forensics                autopsy, volatility3, binwalk, foremost\n12 Reporting Tools          cherrytree, faraday\n", "/usr/share/wordlists/README": "rockyou.txt.gz  dirb/  dirbuster/  fasttrack.txt  metasploit/  nmap.lst  wfuzz/\n", "/home/kali/audit/ss-tulpn.txt": "Netid State  Local Address:Port   Process\ntcp   LISTEN 0.0.0.0:22           users:((\"sshd\",pid=812))\ntcp   LISTEN 0.0.0.0:8000         users:((\"python3\",pid=2231))  # python3 -m http.server\ntcp   LISTEN 127.0.0.1:5432       users:((\"postgres\",pid=901))  # metasploit db\n", "/home/kali/audit/sshd_config": "PermitRootLogin prohibit-password\nPasswordAuthentication yes\n", "/home/kali/audit/credcheck.txt": "service  user  password  result\nssh      kali  kali      LOGIN OK   <-- default credentials still valid\nssh      root  toor      denied\nhttp     -     -         no auth (directory listing of /home/kali/loot)\n"}, "cmds": [{"re": "^apt list --upgradable", "out": "Listing... Done\nburpsuite/kali-rolling 2026.9.2 amd64 [upgradable from: 2026.8.1]\nmetasploit-framework/kali-rolling 6.4.30 amd64 [upgradable from: 6.4.22]\nnmap/kali-rolling 7.95+dfsg-2 amd64 [upgradable from: 7.94+git20230807]"}, {"re": "^apt search gobuster", "out": "gobuster/kali-rolling,now 3.6.0-1 amd64 [installed]\n  Directory/file, DNS and VHost busting tool written in Go"}], "cmdnames": ["apt"], "cwd": "/home/kali", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
