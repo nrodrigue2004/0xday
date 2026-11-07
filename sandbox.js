@@ -10,7 +10,7 @@
     get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   };
-  const USER = LAB.user || "student", HOST = LAB.host || "lab", HOME = "/home/" + USER;
+  const USER = LAB.user || "student", HOST = LAB.host || "lab", HOME = USER === "root" ? "/root" : "/home/" + USER;
   let FS, cwd, hintN, hist = [], hi = 0, sqlMode = null;
   function reset() {
     FS = {}; for (const [p, c] of Object.entries(LAB.fs || {})) FS[norm(p)] = c;

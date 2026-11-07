@@ -65,11 +65,11 @@ Look at the SSD and NVMe rows. Which method only works on magnetic media?
 grep -i "ssd" ~/attachments/wipe-log.csv
 :: file /home/tech/attachments/wipe-log.csv
 asset,serial,media,method,destination,operator,verified
-A-2201,S4DXNX0N552108,NVMe,NVMe Sanitize (crypto erase),resale,nrodrigue,yes
-A-2203,WD-WX52A81K7709,HDD,degauss + shred,recycling,nrodrigue,yes
+A-2201,S4DXNX0N552108,NVMe,NVMe Sanitize (crypto erase),resale,nate,yes
+A-2203,WD-WX52A81K7709,HDD,degauss + shred,recycling,nate,yes
 A-2205,WD-WX12C77M2201,HDD,3-pass overwrite,resale,jrivera,yes
 A-2207,S3Z2NB0K419883,SSD,degauss,resale,jrivera,yes
-A-2208,S5P2NG0R117701,NVMe,NVMe Format (secure erase),resale,nrodrigue,yes
+A-2208,S5P2NG0R117701,NVMe,NVMe Format (secure erase),resale,nate,yes
 A-2210,Z9K4AL22,HDD,pending,hold,-,-
 :: file /home/tech/attachments/sanitization-matrix.txt
 Media        Clear (reuse internally)     Purge (leaves the org)                Destroy

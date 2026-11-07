@@ -1,0 +1,92 @@
+tagline: A VPN lets you be "on" a network you're not physically on. Learn tunnels, IPsec vs TLS vs WireGuard, how Tailscale builds a mesh with ACLs, then work out who can reach the homelab's Proxmox UI.
+:: simple
+A **VPN** (virtual private network) builds an encrypted **tunnel** across the internet, so your laptop at a coffee shop acts as if it's plugged into the office (or your homelab). Everything inside the tunnel is encrypted, so the coffee shop's Wi-Fi only sees scrambled traffic to the VPN server.
+
+Two common shapes:
+- **Remote access**: one device into a network (the laptop to the office)
+- **Site-to-site**: two networks joined permanently (branch office to HQ)
+
+**Tailscale** builds on **WireGuard** and gives every device a stable `100.x.y.z` address on a private mesh (a "tailnet"), with no ports to open on your router.
+
+```
+$ tailscale status
+$ ipcalc 100.101.7.12/10
+```
+:: mid
+### Protocols
+- **IPsec**: the standard for site-to-site, works at the network layer (IKE to negotiate keys, ESP to encrypt)
+- **TLS/SSL VPNs** (OpenVPN, many vendor clients): runs over TCP/UDP 443, easy through firewalls
+- **WireGuard**: modern, tiny codebase, fast, public keys per peer, UDP
+
+### Full vs split tunnel
+**Full tunnel** sends all traffic through the VPN (more control and inspection, more load). **Split tunnel** sends only corporate subnets through it and the rest directly (faster, but the device is on two networks at once).
+
+### Subnet routers
+A device on the tailnet can advertise a whole subnet (`--advertise-routes=10.0.10.0/24`) so other tailnet devices can reach machines that don't run Tailscale, like a Proxmox host or a printer.
+
+```
+$ tailscale status --json | grep -i route
+```
+:: complex
+### Access control is the real security
+A VPN that lets every device reach everything just moves the flat network somewhere else. Tailscale uses an **ACL policy** (a JSON file) to say which users, groups or tags can reach which destinations and ports. Like a firewall, anything not allowed is denied.
+
+```
+$ cat ~/tailnet/acl.json
+```
+
+### Zero trust and VPNs
+Zero trust says don't trust a device just because it's "on the VPN". Check identity (SSO + MFA), device posture (patched, disk encrypted) and grant the smallest access. Mesh VPNs with per-device ACLs and short key expiry are a step in that direction; ZTNA products go further with per-app access.
+
+### Watch out for
+Leaked or never-expiring auth keys, old devices that still have access, exit nodes that let a device browse "from" your network, and split tunnels on unmanaged devices.
+:: lab
+host: laptop
+user: nathan
+cwd: /home/nathan
+:: brief
+The Proxmox web UI (**10.0.40.11:8006**) is reachable through a Tailscale **subnet router**. It should only be reachable by admin devices.
+
+Read the tailnet's ACL policy and device list. Exactly one device that is **not** an admin's can still reach port 8006, because of how the ACL is written.
+
+Submit that **device's name**.
+:: answer
+kids-ipad
+:: hint
+Look at every rule in `acl.json` whose destination includes 10.0.40.11 or the `homelab` subnet, and the port.
+:: hint
+Then check `tagOwners` / `groups` and the device list: which devices fall into each source in those rules?
+:: solution
+`acl.json` has two rules: `group:admins → 10.0.40.0/24:*` (fine) and `tag:media → 10.0.40.0/24:8006,32400`. The second was meant for Plex (32400) on the media server, but **8006** was copied in by mistake, and it covers the whole 10.0.40.0/24 subnet where Proxmox lives. `tailscale status` shows the device tagged `tag:media` is **kids-ipad**, so the iPad can open the Proxmox login page. Fix: change that rule to `10.0.40.20:32400` only, and require MFA on Proxmox anyway.
+:: verify
+grep -n "8006" ~/tailnet/acl.json
+:: cmd ^tailscale status$
+100.101.7.12    nathan-laptop   nathan@      linux    -
+100.88.12.4     pve-subnet-rtr  nathan@      linux    active; offers routes 10.0.40.0/24
+100.70.33.9     nathan-phone    nathan@      iOS      -
+100.64.20.18    kids-ipad       tagged-devices iOS    idle; tags: tag:media
+100.90.5.77     media-server    tagged-devices linux  -; tags: tag:server
+:: cmd ^tailscale status --json
+    "PrimaryRoutes": ["10.0.40.0/24"],
+    "AllowedIPs": ["100.88.12.4/32", "10.0.40.0/24"],
+:: file /home/nathan/tailnet/acl.json
+{
+  "groups": {
+    "group:admins": ["nathan@"]
+  },
+  "tagOwners": {
+    "tag:media":  ["nathan@"],
+    "tag:server": ["nathan@"]
+  },
+  "acls": [
+    {"action": "accept", "src": ["group:admins"], "dst": ["10.0.40.0/24:*", "tag:server:*"]},
+    {"action": "accept", "src": ["tag:media"],    "dst": ["10.0.40.0/24:8006,32400"]},
+    {"action": "accept", "src": ["autogroup:member"], "dst": ["autogroup:self:*"]}
+  ]
+}
+:: file /home/nathan/tailnet/devices.txt
+nathan-laptop   owner: nathan  (admin)
+nathan-phone    owner: nathan  (admin)
+kids-ipad       tag:media      (family, Plex only)
+media-server    tag:server     (Plex at 10.0.40.20:32400)
+pve-subnet-rtr  subnet router for 10.0.40.0/24

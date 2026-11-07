@@ -31,7 +31,7 @@ $ sha256sum ~/downloads/*.iso
 > A hash on the same website as the download only proves the file wasn't corrupted. A **signature** (GPG, code signing) proves who published it.
 :: complex
 ### Certificates and PKI
-A **certificate** binds a public key to a name (like `nrodrigue2004.github.io`), signed by a **Certificate Authority**. Your browser trusts a set of root CAs; a site's cert is valid if it chains up to one of them, hasn't expired, matches the hostname, and hasn't been revoked (CRL / OCSP).
+A **certificate** binds a public key to a name (like `www.example.com`), signed by a **Certificate Authority**. Your browser trusts a set of root CAs; a site's cert is valid if it chains up to one of them, hasn't expired, matches the hostname, and hasn't been revoked (CRL / OCSP).
 
 ### Classic mistakes
 - **ECB mode**: encrypts identical blocks identically, so patterns show through. Use GCM or another authenticated mode

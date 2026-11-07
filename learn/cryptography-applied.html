@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=73bd3bb5">
+<link rel="stylesheet" href="../style.css?v=bcf29d40">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=73bd3bb5" defer></script>
-<script src="../site.js?v=73bd3bb5" defer></script>
-<script src="../fx.js?v=73bd3bb5" defer></script>
-<script src="../sandbox.js?v=73bd3bb5" defer></script>
-<script src="../learn.js?v=73bd3bb5" defer></script>
+<script src="../data.js?v=bcf29d40" defer></script>
+<script src="../site.js?v=bcf29d40" defer></script>
+<script src="../fx.js?v=bcf29d40" defer></script>
+<script src="../sandbox.js?v=bcf29d40" defer></script>
+<script src="../learn.js?v=bcf29d40" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -48,7 +48,7 @@
 <pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/downloads/SHA256SUMS</span><button class="run" type="button" data-cmd="cat ~/downloads/SHA256SUMS" title="run in the sandbox">▶ run</button>
 <span class="ps">$</span> <span class="c">sha256sum ~/downloads/*.iso</span><button class="run" type="button" data-cmd="sha256sum ~/downloads/*.iso" title="run in the sandbox">▶ run</button></code></pre>
 <p class="callout">A hash on the same website as the download only proves the file wasn't corrupted. A <strong>signature</strong> (GPG, code signing) proves who published it.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Certificates and PKI</h4>
-<p>A <strong>certificate</strong> binds a public key to a name (like <code>nrodrigue2004.github.io</code>), signed by a <strong>Certificate Authority</strong>. Your browser trusts a set of root CAs; a site's cert is valid if it chains up to one of them, hasn't expired, matches the hostname, and hasn't been revoked (CRL / OCSP).</p>
+<p>A <strong>certificate</strong> binds a public key to a name (like <code>www.example.com</code>), signed by a <strong>Certificate Authority</strong>. Your browser trusts a set of root CAs; a site's cert is valid if it chains up to one of them, hasn't expired, matches the hostname, and hasn't been revoked (CRL / OCSP).</p>
 <h4>Classic mistakes</h4>
 <ul><li><strong>ECB mode</strong>: encrypts identical blocks identically, so patterns show through. Use GCM or another authenticated mode</li><li><strong>Reusing a nonce/IV</strong> with the same key in stream modes (CTR, GCM) leaks plaintext</li><li><strong>XOR with a short repeating key</strong> isn't encryption: known plaintext reveals the key</li><li><strong>Rolling your own crypto</strong>. Use vetted libraries</li></ul>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">echo -n &quot;uryyb jbeyq&quot; | tr &#x27;a-z&#x27; &#x27;n-za-m&#x27;</span><button class="run" type="button" data-cmd="echo -n &quot;uryyb jbeyq&quot; | tr &#x27;a-z&#x27; &#x27;n-za-m&#x27;" title="run in the sandbox">▶ run</button></code></pre>
