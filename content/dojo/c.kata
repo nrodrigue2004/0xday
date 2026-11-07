@@ -1,0 +1,435 @@
+lang: c
+name: C
+ext: c
+mode: browser
+runtime: picoc (a C interpreter) compiled to WebAssembly; every kata also exports a gcc self-test
+run: cc kata.c && ./a.out
+blurb: Pointers, bytes and bit twiddling: the C you need to read malware and write exploits. Each kata is one function; the test harness calls it.
+notes: The in-browser runtime is picoc, so a few corners of C aren't there: function pointers, pointer subtraction, anonymous structs, and several fields declared on one line inside a struct. The katas stay clear of them. Use [ self-test ] to run the exact same tests under gcc.
+
+=== popcount
+title: Count the set bits
+level: 1
+tags: bits
+ctype: int
+prompt:
+  Write `int popcount(unsigned int x)` that returns how many bits are 1 in `x`. No builtins like `__builtin_popcount`.
+starter:
+  int popcount(unsigned int x) {
+      return 0;
+  }
+solution:
+  int popcount(unsigned int x) {
+      int n = 0;
+      while (x) {
+          x &= x - 1;   /* clears the lowest set bit */
+          n++;
+      }
+      return n;
+  }
+hints:
+  - Check `x & 1`, then shift right with `x >>= 1`, until `x` is zero.
+  - Faster trick: `x &= x - 1` clears the lowest set bit, so the loop runs once per 1-bit.
+test: zero :: popcount(0) :: 0
+test: one bit :: popcount(8) :: 1
+test: a byte of ones :: popcount(0xFF) :: 8
+test: all 32 bits :: popcount(0xFFFFFFFF) :: 32
+test: 0xDEADBEEF :: popcount(0xDEADBEEF) :: 24
+
+=== my-strlen
+title: strlen without strlen
+level: 1
+tags: strings, pointers
+ctype: int
+prompt:
+  Write `int my_strlen(char *s)` that counts characters up to (not including) the NUL terminator. Walk the string with a pointer, no `<string.h>`.
+starter:
+  int my_strlen(char *s) {
+      return 0;
+  }
+solution:
+  int my_strlen(char *s) {
+      int n = 0;
+      while (*s++)
+          n++;
+      return n;
+  }
+hints:
+  - A C string ends at the byte `'\0'`. Loop until `*s == 0`.
+test: empty :: my_strlen("") :: 0
+test: hello :: my_strlen("hello") :: 5
+test: with spaces :: my_strlen("0xDay dojo") :: 10
+
+=== reverse
+title: Reverse a string in place
+level: 2
+tags: strings, pointers
+ctype: str
+prompt:
+  Write `void reverse(char *s)` that reverses the string in its own buffer, no second buffer. Swap from both ends toward the middle.
+support:
+  char buf_[64];
+  char *rev(char *s) { strcpy(buf_, s); reverse(buf_); return buf_; }
+starter:
+  void reverse(char *s) {
+  }
+solution:
+  void reverse(char *s) {
+      int i = 0, j = strlen(s) - 1;
+      while (i < j) {
+          char t = s[i];
+          s[i] = s[j];
+          s[j] = t;
+          i++;
+          j--;
+      }
+  }
+hints:
+  - Two indexes: `i = 0` and `j = strlen(s) - 1`. Swap, move both inward, stop when they meet.
+test: odd length :: rev("abc") :: "cba"
+test: even length :: rev("abcd") :: "dcba"
+test: one char :: rev("x") :: "x"
+test: empty :: rev("") :: ""
+test: sentence :: rev("live on time") :: "emit no evil"
+
+=== bswap
+title: Swap endianness
+level: 2
+tags: bits, endianness
+ctype: hex
+prompt:
+  x86 is little-endian, network byte order is big-endian. Write `unsigned int bswap32(unsigned int x)` that reverses the byte order: `0x12345678` becomes `0x78563412`. Shifts and masks only.
+starter:
+  unsigned int bswap32(unsigned int x) {
+      return x;
+  }
+solution:
+  unsigned int bswap32(unsigned int x) {
+      return ((x >> 24) & 0x000000FF) |
+             ((x >>  8) & 0x0000FF00) |
+             ((x <<  8) & 0x00FF0000) |
+             ((x << 24) & 0xFF000000);
+  }
+hints:
+  - Byte 3 moves to byte 0: `(x >> 24) & 0xFF`. Work out the other three the same way.
+test: textbook :: bswap32(0x12345678) :: 0x78563412
+test: dead beef :: bswap32(0xDEADBEEF) :: 0xEFBEADDE
+test: twice is identity :: bswap32(bswap32(0xCAFEBABE)) :: 0xCAFEBABE
+test: low byte goes high :: bswap32(0x000000FF) :: 0xFF000000
+
+=== palindrome
+title: Palindrome, ignoring junk
+level: 2
+tags: strings
+ctype: int
+prompt:
+  Write `int is_palindrome(char *s)` that returns 1 if `s` reads the same both ways when you skip anything that isn't a letter or digit and ignore case, else 0. `"A man, a plan, a canal: Panama"` is a palindrome.
+starter:
+  int is_palindrome(char *s) {
+      return 0;
+  }
+solution:
+  int is_palindrome(char *s) {
+      int i = 0, j = strlen(s) - 1;
+      while (i < j) {
+          if (!isalnum(s[i])) { i++; continue; }
+          if (!isalnum(s[j])) { j--; continue; }
+          if (tolower(s[i]) != tolower(s[j]))
+              return 0;
+          i++;
+          j--;
+      }
+      return 1;
+  }
+hints:
+  - Two pointers again. Skip forward or backward past anything `isalnum()` rejects.
+  - Compare `tolower(s[i])` with `tolower(s[j])`.
+test: classic :: is_palindrome("A man, a plan, a canal: Panama") :: 1
+test: not one :: is_palindrome("0xDay") :: 0
+test: digits count :: is_palindrome("12:21") :: 1
+test: empty is a palindrome :: is_palindrome("") :: 1
+test: only junk :: is_palindrome("?!.") :: 1
+
+=== ip-to-u32
+title: Parse an IPv4 address
+level: 3
+tags: parsing, networking
+ctype: hex
+prompt:
+  Write `unsigned int ip_to_u32(char *ip)` that turns dotted-quad text like `"192.168.1.10"` into `0xC0A8010A`. Parse the digits yourself (no `inet_aton`, no `sscanf`). Return `0xFFFFFFFF` if there aren't exactly four parts or any part is over 255.
+starter:
+  unsigned int ip_to_u32(char *ip) {
+      return 0;
+  }
+solution:
+  unsigned int ip_to_u32(char *ip) {
+      unsigned int result = 0;
+      int parts = 0, val = 0, digits = 0;
+      while (1) {
+          char c = *ip;
+          if (c >= '0' && c <= '9') {
+              val = val * 10 + (c - '0');
+              digits++;
+              if (val > 255) return 0xFFFFFFFF;
+          } else if (c == '.' || c == '\0') {
+              if (digits == 0) return 0xFFFFFFFF;
+              result = (result << 8) | val;
+              parts++;
+              val = 0;
+              digits = 0;
+              if (c == '\0') break;
+          } else {
+              return 0xFFFFFFFF;
+          }
+          ip++;
+      }
+      return parts == 4 ? result : 0xFFFFFFFF;
+  }
+hints:
+  - Build each octet with `val = val * 10 + (c - '0')`.
+  - At each `.` (and at the final `\0`), shift the result left 8 and OR the octet in.
+test: private address :: ip_to_u32("192.168.1.10") :: 0xC0A8010A
+test: zeros :: ip_to_u32("0.0.0.0") :: 0
+test: broadcast :: ip_to_u32("255.255.255.255") :: 0xFFFFFFFF
+test: loopback :: ip_to_u32("127.0.0.1") :: 0x7F000001
+test: octet over 255 :: ip_to_u32("10.0.0.256") :: 0xFFFFFFFF
+test: too few parts :: ip_to_u32("10.0.1") :: 0xFFFFFFFF
+test: empty part :: ip_to_u32("10..0.1") :: 0xFFFFFFFF
+
+=== adler32
+title: Adler-32 checksum
+level: 3
+tags: checksums, bytes
+ctype: hex
+prompt:
+  zlib uses Adler-32. Keep two 16-bit sums mod 65521: `a` starts at 1 and adds each byte, `b` starts at 0 and adds `a` after every byte. The result is `(b << 16) | a`. Write `unsigned int adler32(char *data, int len)`. Treat bytes as unsigned.
+starter:
+  unsigned int adler32(char *data, int len) {
+      return 1;
+  }
+solution:
+  unsigned int adler32(char *data, int len) {
+      unsigned int a = 1, b = 0;
+      int i;
+      for (i = 0; i < len; i++) {
+          a = (a + (unsigned char)data[i]) % 65521;
+          b = (b + a) % 65521;
+      }
+      return (b << 16) | a;
+  }
+hints:
+  - Cast each byte with `(unsigned char)data[i]` so bytes above 0x7F don't go negative.
+test: empty input :: adler32("", 0) :: 0x00000001
+test: Wikipedia :: adler32("Wikipedia", 9) :: 0x11E60398
+test: high bytes :: adler32("\xff\xfe", 2) :: 0x02FE01FE
+
+=== atoi
+title: atoi, but careful
+level: 3
+tags: parsing
+ctype: int
+prompt:
+  Write `int my_atoi(char *s)`: skip leading spaces, accept one optional `+` or `-`, then read digits until the first non-digit. No digits means 0. You don't need to handle overflow.
+starter:
+  int my_atoi(char *s) {
+      return 0;
+  }
+solution:
+  int my_atoi(char *s) {
+      int sign = 1, n = 0;
+      while (*s == ' ' || *s == '\t')
+          s++;
+      if (*s == '+' || *s == '-') {
+          if (*s == '-') sign = -1;
+          s++;
+      }
+      while (*s >= '0' && *s <= '9') {
+          n = n * 10 + (*s - '0');
+          s++;
+      }
+      return sign * n;
+  }
+hints:
+  - Three phases: skip whitespace, read a sign, read digits.
+test: plain :: my_atoi("1337") :: 1337
+test: negative :: my_atoi("-42") :: -42
+test: leading spaces and plus :: my_atoi("   +7") :: 7
+test: stops at junk :: my_atoi("80/tcp") :: 80
+test: no digits :: my_atoi("abc") :: 0
+
+=== crc32
+title: CRC-32, bit by bit
+level: 4
+tags: checksums, bits
+ctype: hex
+prompt:
+  Write `unsigned int crc32(char *data, int len)` for the standard CRC-32 used by zip, PNG and Ethernet. Start with `crc = 0xFFFFFFFF`. For each byte, XOR it into the low byte of `crc`, then 8 times: if the low bit is set, `crc = (crc >> 1) ^ 0xEDB88320`, else `crc >>= 1`. Return `~crc` at the end.
+starter:
+  unsigned int crc32(char *data, int len) {
+      return 0;
+  }
+solution:
+  unsigned int crc32(char *data, int len) {
+      unsigned int crc = 0xFFFFFFFF;
+      int i, k;
+      for (i = 0; i < len; i++) {
+          crc ^= (unsigned char)data[i];
+          for (k = 0; k < 8; k++) {
+              if (crc & 1)
+                  crc = (crc >> 1) ^ 0xEDB88320;
+              else
+                  crc = crc >> 1;
+          }
+      }
+      return ~crc;
+  }
+hints:
+  - Keep `crc` unsigned so `>>` shifts in zeros.
+  - The magic constant `0xEDB88320` is the reversed polynomial 0x04C11DB7.
+test: empty :: crc32("", 0) :: 0x00000000
+test: check value :: crc32("123456789", 9) :: 0xCBF43926
+test: quick brown fox :: crc32("The quick brown fox jumps over the lazy dog", 43) :: 0x414FA339
+
+=== brackets
+title: Balanced brackets
+level: 4
+tags: stacks
+ctype: int
+prompt:
+  Write `int balanced(char *s)` that returns 1 if every `(`, `[` and `{` is closed by the matching bracket in the right order, else 0. Ignore other characters. Inputs are under 256 characters, so a fixed-size array works as the stack.
+starter:
+  int balanced(char *s) {
+      return 0;
+  }
+solution:
+  int balanced(char *s) {
+      char stack[256];
+      int top = 0;
+      for (; *s; s++) {
+          char c = *s;
+          if (c == '(' || c == '[' || c == '{') {
+              stack[top++] = c;
+          } else if (c == ')' || c == ']' || c == '}') {
+              char want = c == ')' ? '(' : c == ']' ? '[' : '{';
+              if (top == 0 || stack[top - 1] != want)
+                  return 0;
+              top--;
+          }
+      }
+      return top == 0;
+  }
+hints:
+  - Push openers. On a closer, the top of the stack must be its partner; pop it.
+  - At the end the stack has to be empty.
+test: simple :: balanced("()") :: 1
+test: nested :: balanced("{[()()]}") :: 1
+test: wrong order :: balanced("([)]") :: 0
+test: unclosed :: balanced("((") :: 0
+test: stray closer :: balanced("())") :: 0
+test: code with junk :: balanced("int main() { return a[0]; }") :: 1
+
+=== linked-list
+title: Reverse a linked list
+level: 4
+tags: pointers, structs, malloc
+ctype: str
+prompt:
+  Given `struct node { int v; struct node *next; };`, write `struct node *reverse_list(struct node *head)` that reverses the list by relinking the nodes (no new allocations) and returns the new head. The harness builds lists with `malloc` and prints them as `"1>2>3"`.
+support:
+  struct node *build(int n) {
+      struct node *head = NULL;
+      int i;
+      for (i = n; i >= 1; i--) {
+          struct node *x = malloc(sizeof(struct node));
+          x->v = i;
+          x->next = head;
+          head = x;
+      }
+      return head;
+  }
+  char out_[128];
+  char *show(struct node *h) {
+      char tmp[16];
+      out_[0] = 0;
+      while (h != NULL) {
+          sprintf(tmp, "%d", h->v);
+          strcat(out_, tmp);
+          if (h->next != NULL) strcat(out_, ">");
+          h = h->next;
+      }
+      return out_;
+  }
+  char *rev_n(int n) { return show(reverse_list(build(n))); }
+starter:
+  struct node {
+      int v;
+      struct node *next;
+  };
+
+  struct node *reverse_list(struct node *head) {
+      return head;
+  }
+solution:
+  struct node {
+      int v;
+      struct node *next;
+  };
+
+  struct node *reverse_list(struct node *head) {
+      struct node *prev = NULL;
+      while (head != NULL) {
+          struct node *next = head->next;
+          head->next = prev;
+          prev = head;
+          head = next;
+      }
+      return prev;
+  }
+hints:
+  - Keep three pointers: `prev`, `head` and the saved `next`.
+  - Each step: save `head->next`, point `head->next` at `prev`, then slide both forward.
+test: three nodes :: rev_n(3) :: "3>2>1"
+test: one node :: rev_n(1) :: "1"
+test: empty list :: rev_n(0) :: ""
+test: five nodes :: rev_n(5) :: "5>4>3>2>1"
+
+=== b64-c
+title: Base64 encode in C
+level: 5
+tags: encoding, bits, buffers
+ctype: str
+prompt:
+  Write `void b64(unsigned char *in, int len, char *out)` that writes the Base64 encoding of `len` bytes into `out` (with `=` padding) and NUL-terminates it. The caller guarantees `out` is big enough.
+support:
+  char o_[128];
+  char *enc(char *s) { b64((unsigned char *)s, strlen(s), o_); return o_; }
+starter:
+  char *T = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  void b64(unsigned char *in, int len, char *out) {
+      out[0] = 0;
+  }
+solution:
+  char *T = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  void b64(unsigned char *in, int len, char *out) {
+      int i, o = 0;
+      for (i = 0; i < len; i += 3) {
+          unsigned int n = in[i] << 16;
+          if (i + 1 < len) n |= in[i + 1] << 8;
+          if (i + 2 < len) n |= in[i + 2];
+          out[o++] = T[(n >> 18) & 63];
+          out[o++] = T[(n >> 12) & 63];
+          out[o++] = i + 1 < len ? T[(n >> 6) & 63] : '=';
+          out[o++] = i + 2 < len ? T[n & 63] : '=';
+      }
+      out[o] = 0;
+  }
+hints:
+  - Same plan as the Python kata: 3 bytes into a 24-bit `unsigned int`, then four 6-bit indexes.
+  - Only OR in the second and third bytes if they exist; emit `=` for the missing ones.
+test: Man :: enc("Man") :: "TWFu"
+test: one pad :: enc("Ma") :: "TWE="
+test: two pads :: enc("M") :: "TQ=="
+test: empty :: enc("") :: ""
+test: longer :: enc("0xDay dojo") :: "MHhEYXkgZG9qbw=="
