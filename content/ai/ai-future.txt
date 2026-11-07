@@ -1,0 +1,38 @@
+tagline: Where this is likely headed in security, what is hype, and how to position yourself. Opinion and trend, clearly labeled.
+:: simple
+Nobody knows exactly where this goes, and anyone who sounds certain is selling something. What can be said with reasonable confidence is where the **pressure** is building:
+
+- **Attacks get faster and cheaper.** More attempts, better lures, shorter time between a bug being public and someone exploiting it.
+- **Defense gets more automated.** Routine triage, enrichment and reporting move to machines. Humans move toward judgment, investigation and engineering.
+- **AI systems become targets.** Every company deploying assistants and agents creates a new thing to secure.
+- **Identity and trust get harder.** If voice, video and writing can be faked, "does this look real" stops being a security control.
+- **Rules arrive.** Governments and standards bodies are writing AI requirements. The EU AI Act entered into force in August 2024 with obligations phasing in over several years, and NIST has published an AI Risk Management Framework.
+> Treat everything on this page as a forecast as of November 2026, not a fact. The reading list on the [news page](news.html) is how you keep it current.
+:: mid
+### Trends worth tracking
+- **Agentic security tools.** AI that does multi-step work: investigates an alert, runs queries, drafts the containment ticket. The open question is how much autonomy organizations will accept and how they will audit it.
+- **Automated vulnerability discovery and repair.** DARPA's AI Cyber Challenge (finals in August 2025) was built to test systems that find and patch bugs in open-source code with no human help. Expect the discovery side to speed up, which makes fast patching and good software supply-chain hygiene more important, not less.
+- **Non-human identities.** Agents need credentials. API keys, service accounts and tokens for AI systems are a growing attack surface and a growing audit problem.
+- **Provenance and authentication.** Efforts like content credentials (C2PA) try to prove where media came from. Treat as helpful, partial, and easy to strip.
+- **Regulation and liability.** Expect more requirements on logging, testing and disclosure for AI systems, and more questions about who is responsible when an agent causes a breach.
+- **Small and local models.** Models that run on your own hardware reduce the "where did my data go" problem, a big deal for sensitive incident data.
+
+### What will probably stay true
+Fundamentals (identity, patching, segmentation, logging, backups, people and process) keep paying off. Attackers keep choosing the cheapest path. Tools change faster than principles.
+:: complex
+### Scenarios for the next few years, with signposts
+- **Defender-favoring:** automation closes the gap on triage and patching faster than attackers scale. Signposts: falling mean time to detect/patch in published industry reports, more fixes landing before exploitation.
+- **Attacker-favoring:** cheap exploit generation outpaces patch deployment, especially for under-resourced organizations. Signposts: shrinking time-to-exploit after disclosure, more mass exploitation of freshly published bugs.
+- **Mixed (my base case):** both sides speed up, advantage depends on organization maturity, and the gap between well-run and poorly-run shops widens.
+
+I mark the last one as **my** judgment and not a finding. Check it against data as it arrives.
+
+### Skills with durable value
+- **Detection engineering and data skills:** writing and testing detections, SQL and Python for log analysis. Someone has to build and evaluate the pipelines AI plugs into
+- **Verification mindset:** auditing AI output, building evaluation sets, knowing when a result is untrustworthy
+- **Identity and cloud security:** where the new attack surface is
+- **AI security itself:** red-teaming LLM apps, threat modeling agents, governance. A young specialization with demand and few experienced people
+- **Communication:** explaining risk to non-technical decision makers. Not automated away easily
+
+### Careers
+Entry-level triage work is the most exposed to automation, which means early-career people should aim to build skills the automation cannot replace sooner: investigation, scripting, and showing evidence of hands-on work (homelabs, write-ups, CTFs). Employers that hire for this will increasingly ask how you use AI responsibly. Having a clear answer is a differentiator, and the [next chapter](ai-use-it-well.html) is meant to give you one.

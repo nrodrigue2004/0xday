@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>the future :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, the future: Trends, scenarios and signposts, labeled as opinion.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=8adc801e">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=8adc801e" defer></script>
+<script src="../site.js?v=8adc801e" defer></script>
+<script src="../fx.js?v=8adc801e" defer></script>
+<script src="../learn.js?v=8adc801e" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ai-future</p>
+<h1>~/ai/ai-future</h1>
+<p>Where this is likely headed in security, what is hype, and how to position yourself. Opinion and trend, clearly labeled.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ai-future">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Nobody knows exactly where this goes, and anyone who sounds certain is selling something. What can be said with reasonable confidence is where the <strong>pressure</strong> is building:</p>
+<ul><li><strong>Attacks get faster and cheaper.</strong> More attempts, better lures, shorter time between a bug being public and someone exploiting it.</li><li><strong>Defense gets more automated.</strong> Routine triage, enrichment and reporting move to machines. Humans move toward judgment, investigation and engineering.</li><li><strong>AI systems become targets.</strong> Every company deploying assistants and agents creates a new thing to secure.</li><li><strong>Identity and trust get harder.</strong> If voice, video and writing can be faked, "does this look real" stops being a security control.</li><li><strong>Rules arrive.</strong> Governments and standards bodies are writing AI requirements. The EU AI Act entered into force in August 2024 with obligations phasing in over several years, and NIST has published an AI Risk Management Framework.</li></ul>
+<p class="callout">Treat everything on this page as a forecast as of November 2026, not a fact. The reading list on the <a href="news.html">news page</a> is how you keep it current.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Trends worth tracking</h4>
+<ul><li><strong>Agentic security tools.</strong> AI that does multi-step work: investigates an alert, runs queries, drafts the containment ticket. The open question is how much autonomy organizations will accept and how they will audit it.</li><li><strong>Automated vulnerability discovery and repair.</strong> DARPA's AI Cyber Challenge (finals in August 2025) was built to test systems that find and patch bugs in open-source code with no human help. Expect the discovery side to speed up, which makes fast patching and good software supply-chain hygiene more important, not less.</li><li><strong>Non-human identities.</strong> Agents need credentials. API keys, service accounts and tokens for AI systems are a growing attack surface and a growing audit problem.</li><li><strong>Provenance and authentication.</strong> Efforts like content credentials (C2PA) try to prove where media came from. Treat as helpful, partial, and easy to strip.</li><li><strong>Regulation and liability.</strong> Expect more requirements on logging, testing and disclosure for AI systems, and more questions about who is responsible when an agent causes a breach.</li><li><strong>Small and local models.</strong> Models that run on your own hardware reduce the "where did my data go" problem, a big deal for sensitive incident data.</li></ul>
+<h4>What will probably stay true</h4>
+<p>Fundamentals (identity, patching, segmentation, logging, backups, people and process) keep paying off. Attackers keep choosing the cheapest path. Tools change faster than principles.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Scenarios for the next few years, with signposts</h4>
+<ul><li><strong>Defender-favoring:</strong> automation closes the gap on triage and patching faster than attackers scale. Signposts: falling mean time to detect/patch in published industry reports, more fixes landing before exploitation.</li><li><strong>Attacker-favoring:</strong> cheap exploit generation outpaces patch deployment, especially for under-resourced organizations. Signposts: shrinking time-to-exploit after disclosure, more mass exploitation of freshly published bugs.</li><li><strong>Mixed (my base case):</strong> both sides speed up, advantage depends on organization maturity, and the gap between well-run and poorly-run shops widens.</li></ul>
+<p>I mark the last one as <strong>my</strong> judgment and not a finding. Check it against data as it arrives.</p>
+<h4>Skills with durable value</h4>
+<ul><li><strong>Detection engineering and data skills:</strong> writing and testing detections, SQL and Python for log analysis. Someone has to build and evaluate the pipelines AI plugs into</li><li><strong>Verification mindset:</strong> auditing AI output, building evaluation sets, knowing when a result is untrustworthy</li><li><strong>Identity and cloud security:</strong> where the new attack surface is</li><li><strong>AI security itself:</strong> red-teaming LLM apps, threat modeling agents, governance. A young specialization with demand and few experienced people</li><li><strong>Communication:</strong> explaining risk to non-technical decision makers. Not automated away easily</li></ul>
+<h4>Careers</h4>
+<p>Entry-level triage work is the most exposed to automation, which means early-career people should aim to build skills the automation cannot replace sooner: investigation, scripting, and showing evidence of hands-on work (homelabs, write-ups, CTFs). Employers that hire for this will increasingly ask how you use AI responsibly. Having a clear answer is a differentiator, and the <a href="ai-use-it-well.html">next chapter</a> is meant to give you one.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="attacking-ai.html">&lt; attacking AI</a><a href="ai-use-it-well.html">using it well &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+tagline: From a 1956 summer workshop to chatbots in the SOC: the short version of how we got here, and why it keeps happening in waves.
+:: simple
+AI is not new. The term was coined in 1956 and the field has gone through **boom, bust, boom** cycles ever since. Each boom promised more than the hardware and data of the day could deliver, so funding collapsed, and each comeback happened because something concrete changed: more computing power, more data, or a better method.
+
+The idea that matters for security: **AI has been in defensive tools for decades** (spam filters, antivirus classifiers, anomaly detection). What changed recently is that general-purpose language models became cheap and easy for everyone to use, attackers and defenders alike.
+
+### The timeline in one screen
+- **1950** Alan Turing publishes "Computing Machinery and Intelligence" and proposes what became the Turing test
+- **1956** The Dartmouth workshop. The phrase "artificial intelligence" is coined for it
+- **1958** Frank Rosenblatt demonstrates the perceptron, an early learning machine
+- **1966** ELIZA, a chatbot that pattern-matches your sentences back at you
+- **1970s** First "AI winter": results fall short of promises and funding dries up
+- **1980s** Expert systems (hand-written if/then rules) go commercial. The second bust follows in the late 80s and early 90s
+- **1997** IBM Deep Blue beats world chess champion Garry Kasparov
+- **2012** AlexNet wins the ImageNet image contest by a wide margin and deep learning takes over
+- **2016** AlphaGo beats Lee Sedol at Go
+- **2017** The transformer architecture is published ("Attention Is All You Need")
+- **2022** ChatGPT launches in November and language models go mainstream
+> Pattern worth remembering: every wave starts with a demo that looks like magic and ends with people learning exactly where it breaks. Security work lives in the "where it breaks" part.
+:: mid
+### Four eras, and why each ended
+- **Symbolic AI (1950s-80s).** Humans wrote the rules. Works on narrow, well-defined problems (expert systems for diagnosis and configuration). Breaks when the world is messier than the rule list, and rules do not scale to maintain.
+- **Statistical machine learning (1990s-2000s).** Instead of writing rules, show the machine labeled examples and let it fit a model. This is where **spam filtering** (naive Bayes classifiers became popular around 2002) and early ML malware classification come from. It needs hand-picked features, which takes expert effort.
+- **Deep learning (2012 onward).** Neural networks learn their own features from raw data, given enough data and GPUs. Image recognition, speech and translation jump forward. For security: much better malware and phishing classifiers, and also **adversarial examples** (tiny input tweaks that fool a model), described in research from 2013 and 2014.
+- **Foundation models and LLMs (2018 onward).** One model, trained on a huge amount of text and code, can be steered by plain-language instructions to do many tasks. This is the first era where a non-expert can use the technology without building anything.
+
+### The security timeline runs in parallel
+- **1987** Dorothy Denning's intrusion-detection model: learn what normal activity looks like and flag deviations. The basis of anomaly detection ever since
+- **Early 2000s** Bayesian spam filtering becomes standard
+- **2010s** Machine-learning endpoint products, behavior analytics (UEBA) and "anomaly" network tools reach the market
+- **2016** DARPA Cyber Grand Challenge: machines find, patch and exploit bugs in a live competition, no humans driving
+- **2016** Microsoft's Tay chatbot is manipulated into abusive output within a day of launch, an early public lesson in adversarial users
+- **2019** A widely reported voice-clone fraud against a UK energy firm; deepfake-enabled fraud has since grown (a Hong Kong finance worker was reported to have paid out around US$25 million in 2024 after a deepfake video call)
+- **2023** Security vendors announce LLM assistants for analysts; "criminal LLM" tools such as WormGPT are advertised on forums
+- **2024-2025** Researchers show AI agents finding real vulnerabilities in real software (Google's Big Sleep reported an exploitable bug in SQLite in late 2024), and DARPA's AI Cyber Challenge finals run at DEF CON in August 2025
+:: complex
+### Why now: three ingredients
+Neural networks are old. Backpropagation (popularized in 1986) is what trains them. What was missing was **compute** (GPUs), **data** (the web), and **an architecture that parallelizes**. The transformer (2017) replaced sequential processing with attention, which trains efficiently across thousands of chips. Scaling the same recipe (more parameters, more data, more compute) kept producing new abilities, and the 2020 scaling-law results formalized the trend. That is the real story behind the jump from GPT-style research models to usable assistants: a lot of engineering on top of an old idea.
+
+### Lessons the security field already paid for
+- **Detection ML has always fought concept drift.** Models trained on yesterday's traffic degrade as behavior changes, so they need retraining, monitoring and a baseline to compare against.
+- **Anomalous is not malicious.** Early anomaly detectors drowned analysts in false positives, which is a big reason behavior analytics took years to become useful. Expect the same failure mode from any AI that raises alerts.
+- **Anything that learns can be taught wrong.** Spammers poisoned and evaded Bayesian filters (random words appended to messages). The modern version is data poisoning and prompt injection.
+- **Automation shifts work, it does not delete it.** The Cyber Grand Challenge machines were impressive on a small contrived OS, and human experts still found the real-world case far messier. Treat "AI solves X" claims the same way: ask what the test environment looked like.
+
+### Reading list
+- Turing 1950; Denning 1987; the transformer paper (2017); the NIST adversarial machine learning taxonomy (NIST AI 100-2). Links live on the [news and sources page](news.html).

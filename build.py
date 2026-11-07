@@ -10,7 +10,7 @@ NAME = "Nathan"; FULL_NAME = "Nathan Rodrigue"  # last name only on the resume
 USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
-NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
+NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("ai", "ai.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
 SITE = "https://nrodrigue2004.github.io/0xday/"
 POSTS = json.load(open("content/posts.json"))
 PROJECTS = json.load(open("content/projects.json"))
@@ -255,6 +255,8 @@ page("skills.html", "skills :: 0xDay", f"""<p class="cmd">skills --matrix</p><h1
 <p>Self-rated, and every rating links to the work behind it. Each <strong>learn</strong> link opens a guide (simple, mid, complex) with a hands-on sandbox lab. <span class="muted">1 aware · 2 familiar · 3 working · 4 strong · 5 expert</span></p>
 {groups_html}""", cur="skills")
 GUIDES, SP, NCARDS = build_learn.build(page, SKILLS, LV, bar)
+import build_ai
+AI = build_ai.build(page)
 
 # ---------- now ----------
 def nl(xs): return "".join(f"<li>{esc(x)}</li>" for x in xs)
@@ -466,6 +468,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("books", "books.html", "bookshelf", n(BOOKS, "book")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
+       ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
@@ -504,6 +507,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "man": [{"slug": x["slug"], "name": x["name"], "summary": x["summary"], "groups": x["groups"]} for x in SHEETS],
         "ctf": CTF, "ctfstats": CTFSTATS, "thm": CERTS.get("thm_username"), "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS,
         "guides": [{"slug": k, "name": v[0]["name"]} for k, v in GUIDES.items()],
+        "ai": [{"slug": c[0], "name": c[1]} for c in AI],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags,", len(GUIDES), "guides,", len(SP["objectives"]), "objectives,", NCARDS, "cards")

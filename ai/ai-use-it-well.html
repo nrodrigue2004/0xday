@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>using it well :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, using it well: As a learner and on the job: prompts, verification, data handling.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=8adc801e">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=8adc801e" defer></script>
+<script src="../site.js?v=8adc801e" defer></script>
+<script src="../fx.js?v=8adc801e" defer></script>
+<script src="../learn.js?v=8adc801e" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ai-use-it-well</p>
+<h1>~/ai/ai-use-it-well</h1>
+<p>How to get the most out of AI as a learner and on the job without trusting it where you shouldn't.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ai-use-it-well">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Treat an AI assistant like a <strong>fast, well-read, overconfident intern</strong>: great at first drafts, explanations and busywork, wrong often enough that you check everything that matters.</p>
+<h4>As a learner</h4>
+<ul><li><strong>Try first, then ask.</strong> Struggle with the problem for a few minutes, then ask for a hint, not the answer. Understanding comes from the struggle.</li><li><strong>Ask it to explain, then quiz you.</strong> "Explain TCP three-way handshake like I know subnetting but not sockets. Then ask me 5 questions, one at a time."</li><li><strong>Verify against real docs.</strong> Official documentation, RFCs and the vendor's reference are the source of truth.</li><li><strong>Write your own notes</strong> afterwards. If you can't explain it without the chat open, you haven't learned it.</li><li><strong>Check the exam rules.</strong> For certifications like Security+, use AI to study, never during an exam.</li></ul>
+<h4>On the job</h4>
+<ul><li><strong>Use only approved tools,</strong> and never paste credentials, customer data or private incident details into one that isn't.</li><li><strong>You own the output.</strong> If AI wrote it and it's wrong, it's still your name on it.</li><li><strong>Keep a human in the loop</strong> for anything that changes a system.</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>A prompt structure that works</h4>
+<pre class="ex ex--code"><code>Role:       You are helping a SOC analyst triage a VPN alert.
+Context:    &lt;paste only the relevant log lines / ticket text&gt;
+Task:       List every distinct source IP and what each one did.
+Format:     Table: ip | actions | first_seen | last_seen. Quote the log line number for each row.
+Constraints: Use only the text above. If something isn&#x27;t in it, write &quot;not in data&quot;.
+Check:      After the table, list anything you are unsure about.</code></pre>
+<p>The parts that do the most work: <strong>give the evidence, constrain to it, demand quotes, and ask for unknowns</strong>.</p>
+<h4>Habits that make you better</h4>
+<ul><li><strong>Decompose.</strong> Break big tasks into steps and check each. One huge prompt hides errors.</li><li><strong>Ask it to argue the other side.</strong> "What evidence would show this is benign?" counters the model's tendency to agree with you.</li><li><strong>Generate, then test.</strong> Detection rules, scripts and regexes: run them on sample data before trusting them. Do it in a VM or lab, not on production.</li><li><strong>Don't ask leading questions.</strong> "Is this malware?" invites "yes". Ask "what behaviors does this show, and which are consistent with legitimate software?"</li><li><strong>Use it to understand, not to skip.</strong> Paste an unfamiliar command or log line and ask what each part does, then confirm in the man page.</li></ul>
+<h4>Task-by-task guide</h4>
+<ul><li><strong>Great:</strong> explaining concepts and unfamiliar output, drafting reports and emails, boilerplate scripts, regex, converting formats, brainstorming test cases, study quizzes</li><li><strong>Good with review:</strong> query writing (KQL, SPL, SQL), detection rule drafts, code review, summaries of long text</li><li><strong>Poor:</strong> exact facts without sources (CVE specifics, version numbers), anything requiring your private environment, final verdicts on incidents, legal or compliance sign-off</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Build a personal workflow</h4>
+<ul><li><strong>A verification checklist</strong> you apply to every AI output that matters: Are the entities complete (IPs, users, hosts)? Do quoted lines exist in the source? Are identifiers real (look them up)? What did it leave out? Would I bet my reputation on this?</li><li><strong>A prompt library</strong> of tested prompts for recurring tasks, versioned like code, each with a sample input and the output you expect.</li><li><strong>A small evaluation set.</strong> For a task you do often (say, triaging phishing reports), keep ten past cases with known answers and run prompt changes against them. This is how professionals tell "feels better" from "is better".</li><li><strong>Log what you used it for,</strong> in a work journal. It makes audits, handoffs and your own learning easier.</li></ul>
+<h4>Data handling</h4>
+<p>Know your organization's policy before you paste anything. Classify data first. Strip or pseudonymize identifiers when possible (swap real usernames and IPs for placeholders). Prefer enterprise tools with contractual data protections and a retention policy over consumer apps. For sensitive material, local models are an option.</p>
+<h4>Working with agents</h4>
+<p>Start read-only. Grant one capability at a time. Require approval for each side-effecting action until you have measured reliability. Review the action log, not just the final answer. Remember the triad from the previous chapter: untrusted input, sensitive access and an outbound channel should not all exist in one agent.</p>
+<h4>Avoiding skill atrophy</h4>
+<p>If a tool does your thinking, you stop building the skill. Alternate: do the task by hand sometimes, then compare with the AI's approach. For learners, a rule: <strong>no AI for the first pass on a lab you are trying to learn from</strong>. Use it for review and for what to study next. Interviewers can tell the difference between someone who can explain the answer and someone who pasted it.</p>
+<h4>In interviews and on a resume</h4>
+<p>Be specific: "used an LLM to draft Sigma rules, then validated against a test log set and tuned for false positives" says more than "familiar with AI tools". Show the verification step. It is the part employers worry about.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="ai-future.html">&lt; the future</a><a href="news.html">reading list &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -47,11 +47,12 @@
 
   /* ---------------- tmux status bar ---------------- */
   const WINDOWS = [["home", "index.html"], ["blog", "posts.html"], ["projects", "projects.html"], ["skills", "skills.html"],
-    ["certs", "certs.html"], ["learn", "learn.html"], ["lab", "lab.html"], ["now", "now.html"], ["about", "about.html"]];
+    ["certs", "certs.html"], ["learn", "learn.html"], ["ai", "ai.html"], ["lab", "lab.html"], ["now", "now.html"], ["about", "about.html"]];
   const here = (location.pathname.split("/").pop() || "index.html");
   const inPosts = /\/posts\//.test(location.pathname);
   const inLearn = /\/(learn|secplus)\/[^/]*$|secplus\.html$/.test(location.pathname);
-  const curWin = WINDOWS.findIndex(([n, h]) => h === here || (inPosts && n === "blog") || (inLearn && n === "learn"));
+  const inAi = /\/ai\/[^/]*$/.test(location.pathname);
+  const curWin = WINDOWS.findIndex(([n, h]) => h === here || (inPosts && n === "blog") || (inLearn && n === "learn") || (inAi && n === "ai"));
   let bar, mode = "NORMAL", cmdline = null;
   function renderBar() {
     if (!bar) return;
@@ -165,6 +166,8 @@
     (D.matrix || []).forEach(g => g.skills.forEach(s => P(s.name, "skills.html", "skill")));
     [["security+ study", "secplus.html"], ["flashcard drill", "secplus/drill.html"], ["learn", "learn.html"]].forEach(([n, h]) => P(n, h, "learn"));
     (D.guides || []).forEach(g => P("learn " + g.name, "learn/" + g.slug + ".html", "learn"));
+    P("ai", "ai.html", "ai"); P("ai reading list", "ai/news.html", "ai");
+    (D.ai || []).forEach(c => P("ai " + c.name, "ai/" + c.slug + ".html", "ai"));
     (D.secplus_objs || []).forEach(o => P("sec+ " + o.id + " " + o.title, "secplus/" + o.id + ".html", "sec+"));
     Object.keys(D.tags || {}).forEach(t => P("#" + t, "tags.html#" + t, "tag"));
     return it;
