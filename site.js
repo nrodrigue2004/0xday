@@ -59,7 +59,7 @@
   const postUrl = p => `${ROOT}posts/${p.slug}.html`;
   const projUrl = p => (p.url && !/^https?:/.test(p.url) ? ROOT + p.url : p.url);
   const go = (url, log) => { log(`<span class="sys">opening ${esc(url)} ...</span>`); setTimeout(() => (location.href = url), 450); };
-  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html", lab: "lab.html", resume: "resume.html", ctf: "ctf.html", man: "man.html", tools: "tools.html", detections: "detections.html", books: "books.html", homelab: "homelab.html", "attack-chain": "attack-chain.html", "deep-dives": "deep-dives.html", deepdives: "deep-dives.html", arcade: "arcade.html", games: "arcade.html" };
+  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html", lab: "lab.html", resume: "resume.html", ctf: "ctf.html", man: "man.html", tools: "tools.html", detections: "detections.html", books: "books.html", homelab: "homelab.html", "attack-chain": "attack-chain.html", "deep-dives": "deep-dives.html", deepdives: "deep-dives.html", arcade: "arcade.html", games: "arcade.html", bigo: "bigo.html", "big-o": "bigo.html", dojo: "dojo.html" };
   const started = Date.now();
 
   function findPost(q) {
@@ -91,6 +91,7 @@
   <b>man</b> &lt;page&gt;    cmd, powershell, linux, macos, nmap, wireshark, volatility, ad
   <b>ctf</b>           TryHackMe scoreboard   <b>lab</b>     everything else
   <b>arcade</b>        games: <b>iptables</b>, <b>crack</b>
+  <b>bigo</b>          Big-O visualizer + drill
   <b>contact</b>       where to find me
   <b>cd</b> &lt;page&gt;     blog, projects, skills, certs, now, about, home
   <b>submit</b> &lt;flag&gt; there are 3 flags hidden on this site
@@ -144,6 +145,8 @@
     homelab: (a, log) => go(ROOT + "homelab.html", log),
     arcade: (a, log) => go(ROOT + "arcade.html", log), games: (a, log) => CMDS.arcade(a, log), play: (a, log) => CMDS.arcade(a, log),
     iptables: (a, log) => go(ROOT + "arcade/iptables.html", log), hashcat: (a, log) => go(ROOT + "arcade/crack.html", log), crack: (a, log) => CMDS.hashcat(a, log),
+    bigo: (a, log) => go(ROOT + "bigo.html", log),
+    "big-o": (a, log) => CMDS.bigo(a, log),
     map: (a, log) => CMDS.homelab(a, log),
     attack: (a, log) => go(ROOT + "attack-chain.html", log),
     killchain: (a, log) => CMDS.attack(a, log),
@@ -211,6 +214,7 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
     [/hire|recruit/, () => CMDS.hire()],
     [/cheat ?sheet|man pages?|commands?|nmap|volatility|powershell|\bcmd\b|linux|mac ?os|terminal/, () => CMDS.man([])],
     [/tryhackme|thm\b|room/, () => CMDS.ctf()],
+    [/big[- ]?o\b|complexity|o\(n|o\(1\)|o\(log/, () => `Big-O lives on its own page: the six common classes with examples, a growth visualizer, a "what's the complexity" drill and cost tables.\n\n${link(ROOT + "bigo.html", "open ~/bigo")}`],
     [/(right )?now|current|working on|studying/, () => CMDS.now()],
     [/skill|tool|language|stack|know/, () => CMDS.skills()],
     [/project|built|build|portfolio/, () => listProjects()],
