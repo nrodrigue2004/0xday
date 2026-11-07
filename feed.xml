@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
-  <title>0xDay</title><link>https://nrodrigue2004.github.io/0xday/</link><description>Notes on cybersecurity, computer science and tech by Nathan Rodrigue.</description><language>en</language>
+  <title>0xDay</title><link>https://nrodrigue2004.github.io/0xday/</link><description>Notes on cybersecurity, computer science and tech by Nathan.</description><language>en</language>
   <atom:link href="https://nrodrigue2004.github.io/0xday/feed.xml" rel="self" type="application/rss+xml"/>
   <item><title>Tearing Down a SQL Slammer-Style Worm: 376 Bytes of UDP</title><link>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>assembly</category><description>&lt;p&gt;The companion to my &lt;a href=&quot;wg2-rat-teardown.html&quot;&gt;wg2 RAT teardown&lt;/a&gt; is a 2003-era worm: an SQL Slammer / Sapphire style sample. For my reverse engineering course I produced a fully commented disassembly plus a stack-layout diagram, and this post is the condensed version.&lt;/p&gt;
 &lt;p&gt;It&#x27;s a nice contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is &lt;strong&gt;376 bytes&lt;/strong&gt; with no C2, no persistence and no commands. It does one thing, forever.&lt;/p&gt;

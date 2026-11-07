@@ -1,6 +1,6 @@
 # 0xDay
 
-Personal site of Nathan Rodrigue: cybersecurity, computer science and tech. Live at https://nrodrigue2004.github.io/0xday/
+Personal site of Nathan: cybersecurity, computer science and tech. Live at https://nrodrigue2004.github.io/0xday/
 
 ## Editing
 

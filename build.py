@@ -6,7 +6,7 @@ then run:  python3 build.py
 import json, html, os, hashlib, base64, datetime
 ROOT = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ROOT)
-NAME = "Nathan Rodrigue"; USER = "nathan"; HOST = "0xday"
+NAME = "Nathan"; USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
 NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
