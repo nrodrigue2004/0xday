@@ -242,7 +242,8 @@ LV = {1: "aware", 2: "familiar", 3: "working", 4: "strong", 5: "expert"}
 import build_learn
 def learnlink(k):
     s = build_learn.slug(k["name"])
-    return f' <a href="learn/{s}.html">learn</a>' if os.path.exists(f"content/guides/{s}.txt") else ""
+    out = f' <a href="learn/{s}.html">learn</a>' if os.path.exists(f"content/guides/{s}.txt") else ""
+    return out + (' <a href="bigo.html">big-o</a>' if s == "data-structures-and-algorithms" else "")
 def proof(u):
     return f'<a href="{u}">proof</a>' if u else '<span class="muted">soon</span>'
 groups_html = "".join(
@@ -454,6 +455,8 @@ page("man.html", "man :: 0xDay", f'<p class="cmd">apropos .</p><h1>~/man</h1><p>
 # ---------- dojo (coding katas, see build_dojo.py) ----------
 import build_dojo
 DOJO = build_dojo.build(page, esc)
+import build_bigo
+BIGO = build_bigo.build(page, esc)
 
 # ---------- lab hub ----------
 def n(x, unit): return f'{len(x)} {unit}{"" if len(x) == 1 else "s"}' if x else "coming soon"
@@ -469,6 +472,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
 HUB = [x for x in HUB if x[3] != "coming soon"]
 HUB.insert(0, ("dojo", "dojo.html", "daily coding drills, 9 languages", f"{DOJO} katas"))
+HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
