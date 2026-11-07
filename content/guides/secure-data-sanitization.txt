@@ -1,0 +1,82 @@
+tagline: Deleting a file doesn't erase it, and the wrong wipe can leave a whole drive readable. Learn NIST 800-88's clear, purge and destroy, which method fits which media, then catch the drive that was handled wrong.
+:: simple
+When you delete a file, the OS just marks its space as free. The data stays until something overwrites it, which is how forensic tools recover deleted files. **Sanitization** means making data unrecoverable before a device is reused, sold or thrown out.
+
+The standard is **NIST SP 800-88**, which defines three levels:
+- **Clear**: overwrite with standard tools so normal recovery fails (fine for reuse inside the company)
+- **Purge**: methods that defeat even lab-level recovery: firmware secure erase / sanitize, cryptographic erase, degaussing (magnetic only)
+- **Destroy**: shred, disintegrate, pulverize, incinerate
+
+```
+$ cat ~/attachments/sanitization-matrix.txt
+```
+:: mid
+### Media type changes everything
+- **HDDs** (magnetic platters): overwriting works; degaussing works (and destroys the drive)
+- **SSDs and NVMe**: wear leveling and spare blocks mean overwriting the visible drive misses data. Use the drive's own **ATA Secure Erase**, **NVMe Sanitize/Format** or **crypto erase**. Degaussers do nothing to flash
+- **Self-encrypting drives**: crypto erase throws away the key, making all data unreadable in seconds
+
+```
+$ grep -i "nvme\|ssd" ~/attachments/sanitization-matrix.txt
+```
+
+### Proof
+Every wipe needs a record: asset tag, serial, method, tool, operator, date and verification result. Vendors that destroy drives give a **certificate of destruction**. Without the record, you can't prove it happened.
+:: complex
+### Verifying a wipe
+Sanitization isn't done until it's **verified**: sample the drive (or read it fully) and confirm no original data remains. Tools like Blancco produce signed reports. A secure-erase command that returns "success" on a drive with a buggy firmware is a known failure mode, so verification matters.
+
+### Common mistakes
+- using a multi-pass overwrite on an SSD and calling it purged
+- degaussing an SSD
+- formatting (quick format only rewrites the file system tables)
+- forgetting other storage: printers, copiers, phones, network gear, USB sticks and the SD card in a camera
+- wiping before checking for a **legal hold** that requires keeping the data
+
+```
+$ cat ~/attachments/legal-holds.txt
+```
+:: lab
+style: ticket
+host: itam
+user: tech
+system: ITAM
+id: #AUD-2026-11
+subject: Quarterly audit: verify sanitization log for retired drives
+priority: P2
+from: compliance
+sla: 2d
+attach: wipe-log.csv, sanitization-matrix.txt, legal-holds.txt
+:: brief
+Compliance needs you to audit this quarter's wipe log against policy before the drives leave the building.
+
+One entry used a method that **does not actually sanitize that type of media**, so its data could still be recovered.
+
+Resolve the ticket with that drive's **asset tag**, e.g. `A-1001`.
+:: answer
+A-2207
+:: hint
+Columns: asset, serial, media type, method, destination. Compare each media type with the methods the matrix allows for it.
+:: hint
+Look at the SSD and NVMe rows. Which method only works on magnetic media?
+:: solution
+`cat ~/attachments/wipe-log.csv` shows **A-2207**, a SATA **SSD**, "sanitized" by **degaussing**. Degaussers erase magnetic media; flash storage isn't magnetic, so the data is untouched. Per the matrix it needs ATA Secure Erase / crypto erase (purge) or physical destruction. The HDD degauss (A-2203) and 3-pass HDD overwrite (A-2205) are fine, and the NVMe sanitize entries are correct. Also note A-2210 is under a legal hold and must not be wiped at all yet. Fix: pull A-2207 back, crypto-erase or shred it, update the log.
+:: verify
+grep -i "ssd" ~/attachments/wipe-log.csv
+:: file /home/tech/attachments/wipe-log.csv
+asset,serial,media,method,destination,operator,verified
+A-2201,S4DXNX0N552108,NVMe,NVMe Sanitize (crypto erase),resale,nate,yes
+A-2203,WD-WX52A81K7709,HDD,degauss + shred,recycling,nate,yes
+A-2205,WD-WX12C77M2201,HDD,3-pass overwrite,resale,jrivera,yes
+A-2207,S3Z2NB0K419883,SSD,degauss,resale,jrivera,yes
+A-2208,S5P2NG0R117701,NVMe,NVMe Format (secure erase),resale,nate,yes
+A-2210,Z9K4AL22,HDD,pending,hold,-,-
+:: file /home/tech/attachments/sanitization-matrix.txt
+Media        Clear (reuse internally)     Purge (leaves the org)                Destroy
+HDD          1-pass overwrite             3-pass overwrite or degauss           shred / degauss + shred
+SATA SSD     ATA Secure Erase             ATA Secure Erase / crypto erase       shred / disintegrate (2mm)
+NVMe         NVMe Format                  NVMe Sanitize / crypto erase          shred / disintegrate (2mm)
+USB/SD flash overwrite (best effort)      not reliable: destroy                 shred
+NOTE: degaussing has NO effect on flash (SSD, NVMe, USB, SD).
+:: file /home/tech/attachments/legal-holds.txt
+HOLD-0412  custodian: r.diaz  devices: Z9K4AL22 (A-2210)  do not wipe until released by Legal

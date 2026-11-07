@@ -1,0 +1,115 @@
+tagline: When something gets in, a plan beats panic. Learn the incident response life cycle and live triage on a Linux box, then find how an attacker made sure they'd get back in.
+:: simple
+An **incident** is anything that threatens the confidentiality, integrity or availability of systems or data: malware, a stolen account, a data leak. **Incident response** (IR) is the plan for handling one. The CompTIA / NIST-style life cycle:
+
+1. **Preparation**: tools, playbooks, contacts, logging, before anything happens
+2. **Detection & analysis**: notice it, confirm it's real, scope it
+3. **Containment**: stop the spread (isolate the host, disable the account)
+4. **Eradication**: remove the cause (malware, backdoors, the vulnerability)
+5. **Recovery**: restore and monitor
+6. **Lessons learned**: what to do better next time
+
+The sandbox is a compromised web server. First triage question: what's running right now?
+
+```
+$ cat ~/triage/ps.txt
+```
+
+> Contain before you clean. If you delete the malware first, you lose the evidence and the attacker learns you've noticed.
+:: mid
+### Live triage: processes, connections, users
+Look for processes running from odd places (`/tmp`, `/dev/shm`, hidden directories), as the wrong user, or with no parent you'd expect:
+
+```
+$ grep -E "/tmp|/dev/shm|/\." ~/triage/ps.txt
+```
+
+Then **network connections**. Map each established connection to a process (PID) and ask whether it should exist:
+
+```
+$ grep ESTAB ~/triage/netstat.txt
+```
+
+And **logins**: who's logged in now and recently, and from where:
+
+```
+$ cat ~/triage/last.txt
+```
+
+> On a live system you'd run `ps auxf`, `ss -tulpan` and `last -a` yourself. Save the output to files with timestamps, because the state changes while you look.
+:: complex
+### Persistence: how attackers come back
+Getting in is hard; staying in is the goal. Every IR has to find and remove persistence, or the attacker returns after you "clean up". Common places on Linux:
+- **cron**: `/etc/crontab`, `/etc/cron.d/*`, `/var/spool/cron/crontabs/<user>`
+- **systemd services/timers**: new units in `/etc/systemd/system`
+- **SSH keys**: an extra line in `~/.ssh/authorized_keys`
+- **shell startup**: `.bashrc`, `.profile`, `/etc/profile.d/`
+- **new accounts**, especially with UID 0, and sudoers changes
+
+On Windows: Run keys in the registry, scheduled tasks, services, WMI subscriptions, startup folders.
+
+```
+$ ls -la ~/triage/etc/cron.d
+$ cat ~/triage/etc/crontab
+```
+
+### Scoping
+One compromised host is rarely the whole story. Take every **IOC** (indicator of compromise) you find, such as IPs, domains, file hashes and usernames, and search for them across the environment, in the SIEM, EDR and other hosts' logs.
+:: lab
+host: web01
+user: responder
+cwd: /home/responder
+:: brief
+web01 was compromised through a vulnerable upload form. The attacker's shell process has already been killed, but they planted **persistence** so they can get back in.
+
+Triage output and a copy of `/etc` are in `~/triage`. Find the persistence mechanism.
+
+Submit the **full path of the script the persistence runs**, e.g. `submit /usr/local/bin/x.sh`.
+:: answer
+/var/tmp/.cache/update.sh
+:: hint
+Cron is the most common Linux persistence. Look at every file under `~/triage/etc/cron.d`, including hidden ones (`ls -la`).
+:: hint
+`grep -r "" ~/triage/etc/cron.d` prints every line of every file at once.
+:: hint
+Compare the jobs: which one runs something from a temp directory as root?
+:: solution
+`ls -la ~/triage/etc/cron.d` shows a hidden file, `.sys-update`, next to the normal `logrotate` and `certbot` jobs. It runs `*/5 * * * * root /bin/bash /var/tmp/.cache/update.sh` every five minutes as root, and `ps.txt` showed `update.sh` with a connection to 203.0.113.77:4444 before it was killed. The persistence script is **/var/tmp/.cache/update.sh**. Eradication: remove the cron file and the script (after copying both as evidence), block 203.0.113.77, check for other persistence (SSH keys, new users), patch the upload form, and rotate any credentials on the box.
+:: verify
+grep -r "" ~/triage/etc/cron.d
+:: file /home/responder/triage/ps.txt
+USER       PID  PPID %CPU COMMAND
+root         1     0  0.0 /sbin/init
+root       612     1  0.0 /usr/sbin/sshd -D
+www-data   901     1  0.2 nginx: worker process
+www-data  1404   901  0.0 sh -c /tmp/.x/k
+www-data  1405  1404  1.9 /tmp/.x/k -c 203.0.113.77 4444
+root      2210     1  0.0 /usr/sbin/cron -f
+root      2301  2210  0.0 /bin/bash /var/tmp/.cache/update.sh
+postgres  3001     1  0.3 postgres: main
+:: file /home/responder/triage/netstat.txt
+Proto Local Address        Foreign Address       State        PID/Program
+tcp   0.0.0.0:22           0.0.0.0:*             LISTEN       612/sshd
+tcp   0.0.0.0:443          0.0.0.0:*             LISTEN       901/nginx
+tcp   10.0.0.30:44102      203.0.113.77:4444     ESTABLISHED  1405/k
+tcp   10.0.0.30:44310      203.0.113.77:4444     ESTABLISHED  2301/bash
+tcp   10.0.0.30:5432       10.0.0.31:51200       ESTABLISHED  3001/postgres
+:: file /home/responder/triage/last.txt
+responder pts/0  10.0.10.15   Fri Nov  7 08:55   still logged in
+nathan    pts/1  10.0.10.15   Thu Nov  6 17:02 - 17:40  (00:38)
+reboot    system boot  6.8.0-45  Mon Nov  3 07:00
+:: file /home/responder/triage/etc/crontab
+SHELL=/bin/sh
+17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
+25 6    * * *   root    test -x /usr/sbin/anacron || run-parts --report /etc/cron.daily
+:: file /home/responder/triage/etc/cron.d/logrotate
+0 3 * * * root /usr/sbin/logrotate /etc/logrotate.conf
+:: file /home/responder/triage/etc/cron.d/certbot
+0 */12 * * * root certbot -q renew
+:: file /home/responder/triage/etc/cron.d/.sys-update
+*/5 * * * * root /bin/bash /var/tmp/.cache/update.sh >/dev/null 2>&1
+:: file /home/responder/triage/etc/passwd
+root:x:0:0:root:/root:/bin/bash
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+postgres:x:113:120::/var/lib/postgresql:/bin/bash
+responder:x:1001:1001::/home/responder:/bin/bash

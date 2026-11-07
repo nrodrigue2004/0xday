@@ -1,0 +1,108 @@
+tagline: Active Directory is the phone book and the keyring of a Windows network. Learn domains, OUs, users, groups and how permissions really flow, then find the account that's secretly a Domain Admin.
+:: simple
+In a company, hundreds of Windows machines and users need to trust the same logins. **Active Directory Domain Services** (AD DS) is the central database that makes that work. A server running it is a **Domain Controller** (DC). When you log into a work PC, the DC checks your password and tells the PC who you are.
+
+The building blocks:
+- **Domain**: the security boundary, like `corp.local`
+- **Users** and **computers**: objects in the directory
+- **Groups**: collections of users, used to grant access ("Finance Share Readers")
+- **OUs** (organizational units): folders to organize objects and to target Group Policy
+
+```
+$ cat ~/ad/structure.txt
+$ cat ~/ad/users.csv
+```
+
+> Grant access to **groups**, not to individual users. When someone changes jobs, you move them between groups instead of hunting down every permission.
+:: mid
+### Groups inside groups
+Groups can contain other groups (**nesting**). The recommended Microsoft pattern is **AGDLP**: put **A**ccounts into **G**lobal groups (by role, like "Finance Staff"), put global groups into **D**omain **L**ocal groups (by resource, like "Finance Share RW"), and assign **P**ermissions to the domain local group.
+
+Nesting is powerful and easy to lose track of: a user's real access is the sum of every group they're in, **directly or through nesting**.
+
+```
+$ cat ~/ad/groups.txt
+$ grep "Domain Admins" ~/ad/groups.txt
+```
+
+### Authentication
+Domain logins use **Kerberos**: the DC gives you a ticket-granting ticket (TGT) at logon, and you trade it for service tickets to reach file shares, SQL servers and so on. Older **NTLM** still shows up as a fallback and is weaker.
+:: complex
+### Why attackers love AD
+Owning AD means owning every machine that trusts it. Common paths, all of which are misconfigurations a defender can find first:
+- **Nested group membership** that quietly grants admin rights (BloodHound maps these paths as a graph)
+- **Kerberoasting**: service accounts with SPNs and weak passwords
+- **AS-REP roasting**: accounts with "Do not require Kerberos preauthentication"
+- **Stale privileged accounts**, shared admin passwords, and admins logging into workstations (leaving credentials in memory)
+
+### Defending it
+- Keep **Domain Admins** tiny and used only on DCs (the tiered admin model)
+- Separate admin accounts from daily-use accounts (`nate` vs `adm.nate`)
+- Audit privileged group membership **recursively**, on a schedule, and alert on changes (event IDs 4728/4732/4756 = member added to a security group)
+- Use LAPS for local admin passwords, gMSAs for service accounts, and disable NTLM where you can
+
+```
+$ grep -E "4728|4732|4756" ~/ad/security.evtx.txt
+```
+:: lab
+style: ticket
+host: dc01
+user: admin
+system: IT ops
+id: #SEC-0915
+subject: Quarterly privileged access review: who is effectively a Domain Admin?
+priority: P2
+from: internal audit
+sla: 1d
+attach: groups.txt, users.csv, security.evtx.txt
+:: brief
+Audit says Domain Admins should have exactly **two** human members: `adm.nate` and `adm.jrivera`.
+
+A direct look at the group shows just those two. But group nesting counts, and one other **user** ends up with Domain Admin rights through a chain of nested groups.
+
+Resolve the ticket with that user's **username**.
+:: answer
+t.nguyen
+:: hint
+Start from the Domain Admins line in `groups.txt`. Which members are groups rather than users?
+:: hint
+Follow each nested group down: find its line and see who its members are. Keep going until you reach users.
+:: hint
+The event log shows when the nesting was added. `grep 4728 ~/ad/security.evtx.txt`
+:: solution
+`Domain Admins` contains `adm.nate`, `adm.jrivera` and the group **IT-Tier0-Ops**. `IT-Tier0-Ops` contains the group **Helpdesk-Escalation**, which contains **t.nguyen** (a help desk tech's everyday account). So t.nguyen is effectively a Domain Admin. The security log shows `Helpdesk-Escalation` being added to `IT-Tier0-Ops` (event 4728/4756) on Oct 30 by `adm.jrivera`, probably as a "temporary" fix. The answer is **t.nguyen**. Fix: remove the nesting, give the help desk delegated rights only on the OUs they support, and alert on changes to Tier 0 groups.
+:: verify
+grep -E "^(Domain Admins|IT-Tier0-Ops|Helpdesk-Escalation):" ~/ad/groups.txt
+:: file /home/admin/ad/structure.txt
+corp.local
+├── OU=Corp
+│   ├── OU=Users       (Finance, HR, Sales, IT sub-OUs)
+│   ├── OU=Computers   (Workstations, Laptops)
+│   ├── OU=Servers
+│   └── OU=Groups
+├── OU=Admin           (Tier 0 admin accounts and groups, locked down)
+└── CN=Builtin, CN=Users (default containers)
+:: file /home/admin/ad/users.csv
+username,name,ou,enabled,last_logon
+adm.nate,Nate (admin),Admin,true,2026-11-06
+adm.jrivera,Jamie Rivera (admin),Admin,true,2026-11-05
+nate,Nathan,IT,true,2026-11-07
+j.rivera,Jamie Rivera,IT,true,2026-11-07
+t.nguyen,Tam Nguyen,IT,true,2026-11-07
+m.lee,Marcus Lee,Finance,true,2026-11-07
+svc_sql,SQL service,Servers,true,2026-11-07
+old.admin,Former IT contractor,Users,false,2025-02-14
+:: file /home/admin/ad/groups.txt
+Domain Admins: adm.nate, adm.jrivera, IT-Tier0-Ops
+IT-Tier0-Ops: Helpdesk-Escalation
+Helpdesk-Escalation: t.nguyen
+Helpdesk: nate, j.rivera, t.nguyen
+Finance Staff: m.lee
+Finance Share RW: Finance Staff
+Server Operators: svc_sql
+Remote Desktop Users: Helpdesk
+:: file /home/admin/ad/security.evtx.txt
+2026-10-30 16:41:02 4756 A member was added to a security-enabled universal group. Member: CN=Helpdesk-Escalation Group: IT-Tier0-Ops By: adm.jrivera
+2026-10-30 16:40:11 4728 A member was added to a security-enabled global group. Member: CN=t.nguyen Group: Helpdesk-Escalation By: adm.jrivera
+2026-09-12 09:02:44 4728 A member was added to a security-enabled global group. Member: CN=m.lee Group: Finance Staff By: adm.nate
+2026-11-01 02:13:55 4625 An account failed to log on. Account: old.admin Source: 10.0.20.88

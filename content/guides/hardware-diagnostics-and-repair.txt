@@ -1,0 +1,122 @@
+tagline: Most "the computer is broken" tickets are one failing part. Learn a repeatable troubleshooting method and how to read drive, memory and thermal diagnostics, then find the drive that's about to die.
+:: simple
+Hardware troubleshooting follows the same steps every time (CompTIA's method):
+1. Identify the problem (ask what changed, reproduce it)
+2. Establish a theory of probable cause (start simple: power, cables, seating)
+3. Test the theory
+4. Plan and implement the fix
+5. Verify full functionality
+6. Document it
+
+Symptoms point to parts. Clicking or slow file access: **storage**. Random crashes and blue screens: **RAM** or heat. Shutting off under load: **power or cooling**. No display but fans spin: RAM, GPU or display cable.
+
+```
+$ cat ~/bench/intake.txt
+```
+
+> Back up the user's data before you change anything on a machine with a suspect drive.
+:: mid
+### Drives: SMART
+Drives track their own health in **SMART** attributes. The ones that predict failure:
+- **Reallocated Sector Count** (5): bad sectors already swapped out. Any growth is bad
+- **Current Pending Sector** (197): sectors waiting to be reallocated
+- **Offline Uncorrectable** (198), **UDMA CRC errors** (199, usually a bad cable)
+- NVMe: **Percentage Used**, **Media and Data Integrity Errors**, **Available Spare**
+
+```
+$ smartctl -a /dev/sda
+```
+
+### Memory and heat
+MemTest86 runs patterns through RAM; **any** error means a bad stick (test one at a time to find which). For heat, check temps under load and look for dust, dried thermal paste and dead fans.
+
+```
+$ cat ~/bench/memtest.log
+$ sensors
+```
+:: complex
+### Reading the whole picture
+One number rarely decides it. A drive with 2 reallocated sectors that hasn't changed in a year is stable; one that went from 0 to 400 this month is failing. Compare against the last report, and correlate with OS logs (disk I/O errors in Event Viewer / `dmesg`):
+
+```
+$ grep -i "error\|reset" ~/bench/dmesg.txt
+```
+
+### Repair vs replace
+For refurbished laptops the call depends on part cost vs unit value, and on whether the failure could recur (a swollen battery is always a replace). Document the serial numbers of anything you swap, because warranty and asset tracking depend on them.
+
+### ESD and safety
+Ground yourself (wrist strap or touch bare chassis metal), unplug and remove the battery before opening a laptop, and never open a power supply.
+:: lab
+style: ticket
+host: bench
+user: tech
+id: #RF-1188
+subject: Refurb batch 44: 3 laptops fail QA "slow / freezing"
+priority: P3
+from: QA station 2
+sla: 8h
+attach: intake.txt, smart-lt-101.txt, smart-lt-102.txt, smart-lt-103.txt
+:: brief
+Three refurbished laptops failed QA for freezing during file copies. Each has had a SMART report pulled.
+
+Only one actually has a **failing drive**. The others have a different problem. Find the failing drive and resolve the ticket with its **serial number**.
+:: answer
+WD-WX52A81K7709
+:: hint
+Compare attributes 5 (Reallocated), 197 (Pending) and 199 (CRC) across the three reports: `grep -E "Serial|Realloc|Pending|CRC" ~/attachments/*.txt`
+:: hint
+CRC errors usually mean a bad cable or connector, not a bad drive. Reallocated and pending sectors mean the disk surface itself is failing.
+:: solution
+`grep -E "Serial|Realloc|Pending|CRC" ~/attachments/smart-*.txt` shows LT-101 with **1,184 reallocated** and **88 pending** sectors and a failed overall assessment: a dying drive, serial **WD-WX52A81K7709**. LT-102 has 0 reallocated but 2,310 CRC errors: replace the SATA ribbon cable, not the drive. LT-103's drive is healthy; its intake notes thermal throttling at 99 °C, so it needs cleaning and new paste. Resolution: replace LT-101's drive and log the serial, recable LT-102, repaste LT-103, rerun QA on all three.
+:: verify
+grep -E "Serial|Realloc|Pending|CRC" ~/attachments/smart-lt-101.txt
+:: file /home/tech/attachments/intake.txt
+LT-101  Dell Latitude 5420  freezes during large copies, clicking noise reported
+LT-102  Dell Latitude 5420  freezes during large copies, drive light flickers, no noise
+LT-103  HP EliteBook 840 G7 freezes after ~10 min of load, fans loud, bottom very hot (99C CPU)
+:: file /home/tech/attachments/smart-lt-101.txt
+Device Model:     WDC WD5000LPCX-24VHAT0
+Serial Number:    WD-WX52A81K7709
+SMART overall-health self-assessment test result: FAILED!
+ID# ATTRIBUTE_NAME          VALUE WORST THRESH RAW_VALUE
+  5 Reallocated_Sector_Ct   012   012   036    1184
+  9 Power_On_Hours          071   071   000    21304
+197 Current_Pending_Sector  100   100   000    88
+198 Offline_Uncorrectable   100   100   000    41
+199 UDMA_CRC_Error_Count    200   200   000    0
+:: file /home/tech/attachments/smart-lt-102.txt
+Device Model:     WDC WD5000LPCX-24VHAT0
+Serial Number:    WD-WX12C77M2201
+SMART overall-health self-assessment test result: PASSED
+ID# ATTRIBUTE_NAME          VALUE WORST THRESH RAW_VALUE
+  5 Reallocated_Sector_Ct   200   200   140    0
+  9 Power_On_Hours          088   088   000    9811
+197 Current_Pending_Sector  200   200   000    0
+198 Offline_Uncorrectable   100   253   000    0
+199 UDMA_CRC_Error_Count    200   200   000    2310
+:: file /home/tech/attachments/smart-lt-103.txt
+Device Model:     SAMSUNG MZVLB256HBHQ-000H1 (NVMe)
+Serial Number:    S4DXNX0N552108
+SMART overall-health self-assessment test result: PASSED
+Critical Warning:                   0x00
+Temperature:                        71 Celsius
+Available Spare:                    100%
+Percentage Used:                    6%
+Media and Data Integrity Errors:    0
+:: file /home/tech/bench/intake.txt
+Ticket intake: always record model, serial, symptom, and what the user already tried.
+:: file /home/tech/bench/memtest.log
+MemTest86 v11.0  Pass 4/4  Tests 0-10   Errors: 0   (LT-101, 2 x 8GB DDR4)
+:: file /home/tech/bench/dmesg.txt
+[  311.2201] ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+[  311.2204] ata1.00: failed command: READ FPDMA QUEUED
+[  311.2207] blk_update_request: I/O error, dev sda, sector 81920112
+[  312.0101] ata1: hard resetting link
+:: cmd ^smartctl -a /dev/sda
+(bench machine) Run the reports attached to the ticket instead: cat ~/attachments/smart-lt-101.txt
+:: cmd ^sensors
+coretemp-isa-0000
+Package id 0:  +54.0°C  (high = +100.0°C, crit = +100.0°C)
+Core 0:        +52.0°C
+Core 1:        +54.0°C

@@ -1,0 +1,127 @@
+tagline: Help desk work is detective work with a clock running. Learn how tickets are triaged, worked and closed, then resolve a real-looking ticket before its SLA runs out.
+:: simple
+A **ticket** is the written record of one problem: who reported it, what's wrong, how urgent it is, and everything done to fix it. Systems like **osTicket**, Jira Service Management or ServiceNow keep tickets in a **queue** so nothing gets lost and anyone on the team can pick work up.
+
+Every ticket moves through the same life cycle: **new → assigned → in progress → resolved → closed**. The most important habit is writing down what you did, so the next tech (or future you) doesn't start from zero.
+
+The sandbox on this page is a ticket. Its evidence files are attachments, and there's a console under it:
+
+```
+$ ls ~/attachments
+$ cat ~/attachments/user-report.txt
+```
+
+> Restate the problem in your own words before touching anything. "Printer broken" and "can't print from Excel since this morning" are different tickets.
+:: mid
+### Triage: impact × urgency = priority
+Not every ticket is equal. **Impact** is how many people or how much of the business is affected; **urgency** is how fast it hurts. Together they set the priority, and the priority sets the **SLA** (service level agreement): how fast you must respond and resolve.
+
+```
+$ cat ~/kb/priority-matrix.txt
+```
+
+### Gather facts before fixing
+The first questions are always the same: what changed, when did it start, who else is affected, what's the exact error. Then reproduce it, check the logs, and search the **knowledge base** (KB) for a known fix:
+
+```
+$ grep -il "outlook" ~/kb/*.txt
+$ cat ~/kb/KB0042-outlook-disconnected.txt
+```
+
+> Escalate when it's beyond your access or skill, or when the SLA is about to breach. Escalating with good notes is a skill, not a failure.
+:: complex
+### 1. Security lives in the help desk
+The help desk is a top target for social engineering. Attackers call pretending to be an executive who "lost their phone" to get MFA reset or a password changed. Real procedures:
+- **Verify identity** through a second channel (call back the number on file, manager approval) before any password or MFA reset
+- Treat "urgent, the CEO needs this now" as a red flag, not a reason to skip steps
+- Log every account change in the ticket, because the ticket is the audit trail
+
+### 2. Patterns across tickets
+One ticket is a problem. Five similar tickets in an hour is an **incident** (or an attack). Searching the queue for related tickets is how outages and phishing campaigns get noticed early:
+
+```
+$ grep -h "subject:" ~/queue/*.txt | sort | uniq -c | sort -rn
+```
+
+### 3. Close it properly
+A good resolution note has the root cause, the fix, and how to prevent it. If the fix will happen again, write it up as a KB article. Then confirm with the user before closing.
+:: lab
+style: ticket
+host: helpdesk
+user: tech
+id: #4821
+subject: Outlook says "Disconnected" and I can't get my email (urgent!!)
+priority: P2
+from: m.lee (Finance)
+sla: 4h
+attach: user-report.txt, ipconfig.txt, outlook-status.txt, recent-changes.txt
+:: brief
+**m.lee:** "Since about 9:30 Outlook just says Disconnected. Teams works, web browsing works, I rebooted twice. I have month-end close today. Please help!!"
+
+Work the ticket: read the attachments and use the knowledge base in `~/kb`. Find the **root cause**.
+
+Resolve it with the **KB article ID** that fixes it, e.g. `KB0001`.
+:: answer
+KB0057
+:: hint
+Teams and browsing work, so the network is fine. What changed on this laptop recently? Open `recent-changes.txt`.
+:: hint
+A new proxy setting was pushed this morning. Search the KB for it: `grep -il proxy ~/kb/*.txt`
+:: hint
+Compare the proxy bypass list in `ipconfig.txt` with the exchange server name in `outlook-status.txt`.
+:: solution
+The network is fine (Teams and the web work). `recent-changes.txt` shows a Group Policy at 09:12 that set a new proxy, and `ipconfig.txt` shows its bypass list only covers `*.corp.local`. Outlook connects to `mail.corp-mail.net` (from `outlook-status.txt`), which isn't in the bypass list, so it's being sent through the proxy that blocks it. `KB0042` is the generic "Outlook disconnected" article and doesn't fit; **KB0057** covers adding the mail host to the proxy bypass list. Resolution note: root cause = GPO proxy change missed the mail domain; fix = add `*.corp-mail.net` to the bypass (and fix the GPO for everyone, since other Finance users will hit this next).
+:: file /home/tech/attachments/user-report.txt
+From: m.lee
+Time: 09:41
+Outlook says "Disconnected" in the bottom bar since ~9:30. Teams works. Web works. Rebooted 2x. Laptop: FIN-LT-022
+:: file /home/tech/attachments/ipconfig.txt
+Windows IP Configuration
+   Host Name . . . . . . . . . . . . : FIN-LT-022
+   IPv4 Address. . . . . . . . . . . : 10.0.20.44
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 10.0.20.1
+   DNS Servers . . . . . . . . . . . : 10.0.0.10
+
+> netsh winhttp show proxy
+Current WinHTTP proxy settings:
+    Proxy Server(s) :  proxy.corp.local:3128
+    Bypass List     :  *.corp.local;<local>
+:: file /home/tech/attachments/outlook-status.txt
+Outlook Connection Status (Ctrl+right-click tray icon)
+Server name              Type      Status         Protocol
+mail.corp-mail.net       Exchange  Disconnected   HTTP
+mail.corp-mail.net       Directory Disconnected   HTTP
+Last error: 0x80072EE2 (request timed out via proxy)
+:: file /home/tech/attachments/recent-changes.txt
+2026-11-05 14:02  Windows Update KB5031356 installed
+2026-11-07 09:12  Group Policy "FIN-Proxy-2026" applied (WinHTTP proxy set)
+2026-11-07 09:13  gpupdate /force completed
+:: file /home/tech/kb/priority-matrix.txt
+              | urgency HIGH | urgency MED | urgency LOW
+impact HIGH   |     P1       |     P2      |     P3
+impact MED    |     P2       |     P3      |     P4
+impact LOW    |     P3       |     P4      |     P4
+SLA to resolve: P1 1h, P2 4h, P3 1 business day, P4 3 business days
+:: file /home/tech/kb/KB0042-outlook-disconnected.txt
+KB0042  Outlook shows "Disconnected" (general)
+1. Check network (ping gateway, browse a site)
+2. Restart Outlook in safe mode: outlook.exe /safe
+3. Repair the Office install, recreate the mail profile
+:: file /home/tech/kb/KB0057-proxy-bypass.txt
+KB0057  Apps fail after a proxy GPO change (Outlook disconnected, 0x80072EE2)
+Cause: the new proxy's bypass list doesn't include an internal/hosted service.
+Fix: add the service's domain to the bypass list (GPO or netsh winhttp set proxy ... bypass-list="*.corp.local;*.corp-mail.net;<local>")
+:: file /home/tech/kb/KB0013-printer-offline.txt
+KB0013  Printer shows offline
+1. Check the print spooler service  2. Re-add the printer by IP
+:: file /home/tech/queue/4817.txt
+subject: printer offline 3rd floor
+:: file /home/tech/queue/4819.txt
+subject: outlook disconnected
+:: file /home/tech/queue/4820.txt
+subject: outlook disconnected
+:: file /home/tech/queue/4821.txt
+subject: outlook disconnected
+:: file /home/tech/queue/4822.txt
+subject: password reset request (CEO, urgent, no callback)

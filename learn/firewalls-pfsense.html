@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Firewalls / pfSense :: 0xDay</title>
+<meta name="description" content="Learn Firewalls / pfSense: simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=067fefb3">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=067fefb3" defer></script>
+<script src="../site.js?v=067fefb3" defer></script>
+<script src="../fx.js?v=067fefb3" defer></script>
+<script src="../sandbox.js?v=067fefb3" defer></script>
+<script src="../learn.js?v=067fefb3" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill firewalls-pfsense</p>
+<h1>~/learn/firewalls-pfsense</h1>
+<p class="learn__meta"><span class="muted">IT &amp; infrastructure</span> · my level: <span class="bar__on">■■■</span><span class="bar__off">□□</span> <span class="muted">working</span> · <a href="../posts/proxmox-homelab.html">proof</a></p>
+<p>A firewall is a list of rules read top to bottom, and the first match wins. Learn how pfSense filters traffic between interfaces, how NAT and aliases fit in, then figure out which rule actually lets traffic through.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="firewalls-pfsense">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>firewall</strong> decides which network traffic is allowed between zones. <strong>pfSense</strong> is a free firewall/router OS (based on FreeBSD) that runs on a small box or a VM, and it's the edge of my homelab.</p>
+<p>Each rule matches traffic by: interface, direction, protocol, <strong>source</strong>, <strong>destination</strong> and <strong>port</strong>, then takes an <strong>action</strong>: pass, block (silently drop) or reject (drop and tell the sender).</p>
+<p>Two ideas cover most of it:</p>
+<ul><li><strong>Default deny</strong>: anything not explicitly allowed is blocked</li><li><strong>First match wins</strong>: rules on an interface are checked top to bottom and the first one that matches decides</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/pfsense/rules-LAN.txt</span><button class="run" type="button" data-cmd="cat ~/pfsense/rules-LAN.txt" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Interfaces and direction</h4>
+<p>pfSense filters traffic as it <strong>enters</strong> an interface. A rule on the LAN tab controls traffic *from* LAN hosts going anywhere. Out of the box: WAN blocks everything inbound, LAN allows everything outbound. You add rules on each internal interface (LAN, SERVERS, LAB, IOT VLANs) to control what each can reach.</p>
+<h4>Aliases</h4>
+<p>Instead of typing the same IPs and ports into ten rules, define <strong>aliases</strong> (<code>ADMIN_PCS</code>, <code>WEB_PORTS</code>) and reference them. Change the alias once, every rule updates:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/pfsense/aliases.txt</span><button class="run" type="button" data-cmd="cat ~/pfsense/aliases.txt" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Stateful filtering</h4>
+<p>pfSense tracks connections, so a pass rule for the request automatically allows the reply. You only write rules for the side that <strong>starts</strong> the connection.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Rule order is security</h4>
+<p>Because the first match wins, a broad pass rule near the top makes every block rule below it meaningless. Order rules from specific to general: anti-lockout, specific blocks (e.g. LAB → LAN), specific passes, then a general rule or nothing (default deny).</p>
+<h4>NAT and port forwards</h4>
+<p>Outbound NAT hides internal hosts behind the WAN IP automatically. Exposing a service needs a <strong>port forward</strong> (WAN:443 → 10.0.0.30:443) plus a matching WAN pass rule, which pfSense can add for you. Every forward is attack surface; a VPN is usually the better way in.</p>
+<h4>Logging and the firewall log</h4>
+<p>Turn on logging for block rules and for sensitive pass rules. Each log line names the rule that matched, which is how you debug "why can/can't this host reach that":</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">grep &quot;10.0.30.20&quot; ~/pfsense/filter.log</span><button class="run" type="button" data-cmd="grep &quot;10.0.30.20&quot; ~/pfsense/filter.log" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Packages</h4>
+<p>pfSense adds features through packages: <strong>Suricata/Snort</strong> (IDS/IPS on the interface), <strong>pfBlockerNG</strong> (IP and DNS blocklists), <strong>WireGuard/OpenVPN</strong> (remote access).</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// ticket queue</span></h2><p>The LAB VLAN (10.0.30.0/24) runs Kali and vulnerable VMs. It should <strong>never</strong> reach the LAN (10.0.10.0/24). But the firewall log shows a lab VM, 10.0.30.20, connecting to the NAS admin page at 10.0.10.5:5000.</p>
+<p>Find the rule that's actually letting it through. Remember: first match wins.</p>
+<p>Resolve the ticket with the <strong>rule number</strong> that passed the traffic.</p><p class="muted">This one is a ticket in the queue. Open the attachments, investigate in the console under the ticket (every <span class="ok">▶ run</span> above works there), then resolve it with your answer. Hints cost 15 points, wrong answers 5.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "firewalls-pfsense", "title": "Firewalls / pfSense", "user": "admin", "host": "pfsense", "brief": "The LAB VLAN (10.0.30.0/24) runs Kali and vulnerable VMs. It should <strong>never<\/strong> reach the LAN (10.0.10.0/24). But the firewall log shows a lab VM, 10.0.30.20, connecting to the NAS admin page at 10.0.10.5:5000.\n\nFind the rule that's actually letting it through. Remember: first match wins.\n\nResolve the ticket with the <strong>rule number<\/strong> that passed the traffic.", "hints": ["Read <code>rules-LAB.txt<\/code> from the top. For a packet from 10.0.30.20 to 10.0.10.5 port 5000, which rule matches first?", "Check the aliases. What's inside <code>HOMELAB_ALL<\/code>?", "The log line names the rule too: <code>grep 10.0.30.20 ~/pfsense/filter.log<\/code>"], "answers": ["4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce", "42cf3d0cd023ca2fe4dd19a5afaafbcfe84326ef019eb5285db0dbde67d81c4c"], "solution": "UnVsZSAzLCAiTGFiIHRvIGhvbWVsYWIgc2VydmljZXMiLCBwYXNzZXMgTEFCIG5ldCDihpIgPHN0cm9uZz5IT01FTEFCX0FMTDwvc3Ryb25nPiBvbiBhbnkgcG9ydC4gPGNvZGU+YWxpYXNlcy50eHQ8L2NvZGU+IHNob3dzIEhPTUVMQUJfQUxMIHdhcyBleHBhbmRlZCB0byBpbmNsdWRlIDxjb2RlPjEwLjAuMTAuMC8yNDwvY29kZT4gKHNvbWVvbmUgYWRkZWQgdGhlIHdob2xlIExBTiB0byByZWFjaCB0aGUgUHJveG1veCBVSSkuIEJlY2F1c2UgcnVsZSAzIHNpdHMgPHN0cm9uZz5hYm92ZTwvc3Ryb25nPiBydWxlIDUgKCJCbG9jayBMQUIgdG8gTEFOIiksIGl0IG1hdGNoZXMgZmlyc3QgYW5kIHRoZSBibG9jayBuZXZlciBydW5zLiA8Y29kZT5maWx0ZXIubG9nPC9jb2RlPiBjb25maXJtczogPGNvZGU+cGFzcyAuLi4gcnVsZSAzPC9jb2RlPi4gRml4OiByZW1vdmUgMTAuMC4xMC4wLzI0IGZyb20gdGhlIGFsaWFzIChvbmx5IHRoZSBzcGVjaWZpYyBob3N0cyB0aGUgbGFiIG5lZWRzKSwgYW5kIG1vdmUgdGhlIExBQiDihpIgTEFOIGJsb2NrIHRvIHRoZSB0b3AsIHJpZ2h0IGFmdGVyIHRoZSBhbnRpLWxvY2tvdXQgcnVsZS4K", "fs": {"/home/admin/pfsense/rules-LAN.txt": "#  Action  Proto  Source       Destination   Port      Description\n1  pass    TCP    any          LAN address   443,22    Anti-lockout rule\n2  pass    any    LAN net      any           any       Default allow LAN to any\n", "/home/admin/pfsense/rules-LAB.txt": "#  Action  Proto  Source    Destination     Port        Description\n1  pass    UDP    LAB net   10.0.0.1        53          DNS to firewall\n2  pass    TCP    LAB net   any             80,443      Lab internet (updates)\n3  pass    any    LAB net   HOMELAB_ALL     any         Lab to homelab services\n4  block   any    LAB net   10.0.20.0/24    any         Block LAB to USERS\n5  block   any    LAB net   10.0.10.0/24    any         Block LAB to LAN\n6  block   any    any       any             any         Default deny (logged)\n", "/home/admin/pfsense/aliases.txt": "HOMELAB_ALL   type: network   10.0.40.10 (Security Onion), 10.0.40.11 (Proxmox UI), 10.0.10.0/24   # added LAN for proxmox access - temp\nADMIN_PCS     type: host      10.0.10.15\nWEB_PORTS     type: port      80, 443\n", "/home/admin/pfsense/filter.log": "Nov 7 09:12:01 pfsense filterlog: 3,,,LAB,match,pass,in,4,tcp,10.0.30.20,10.0.10.5,51122,5000\nNov 7 09:12:40 pfsense filterlog: 2,,,LAB,match,pass,in,4,tcp,10.0.30.20,151.101.1.69,51230,443\nNov 7 09:13:02 pfsense filterlog: 4,,,LAB,match,block,in,4,tcp,10.0.30.20,10.0.20.44,51300,445\nNov 7 09:14:18 pfsense filterlog: 6,,,LAB,match,block,in,4,udp,10.0.30.21,8.8.8.8,53001,53\n"}, "cmds": [], "cmdnames": [], "style": "ticket", "ticket": {"id": "#CHG-0118", "subject": "Why can the LAB VLAN reach the NAS admin page?", "priority": "P2", "from": "nathan (homelab)", "sla": "1d", "system": "Change requests", "attach": "rules-LAB.txt, aliases.txt, filter.log"}}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

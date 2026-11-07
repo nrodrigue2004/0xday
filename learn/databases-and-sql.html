@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Databases &amp; SQL :: 0xDay</title>
+<meta name="description" content="Learn Databases &amp; SQL: simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=067fefb3">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=067fefb3" defer></script>
+<script src="../site.js?v=067fefb3" defer></script>
+<script src="../fx.js?v=067fefb3" defer></script>
+<script src="../sandbox.js?v=067fefb3" defer></script>
+<script src="../learn.js?v=067fefb3" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill databases-and-sql</p>
+<h1>~/learn/databases-and-sql</h1>
+<p class="learn__meta"><span class="muted">computer science</span> · my level: <span class="bar__on">■■■</span><span class="bar__off">□□</span> <span class="muted">working</span> · <a href="../projects.html">proof</a></p>
+<p>Databases are where the valuable data lives. Learn tables, keys, normalization, transactions and indexes, then run real SQLite in your browser to find the account whose balance was tampered with.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="databases-and-sql">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>relational database</strong> stores data in <strong>tables</strong>: rows (records) and columns (fields). Each table has a <strong>primary key</strong> that uniquely identifies a row, and a <strong>foreign key</strong> in one table points at the primary key of another, which is how tables relate.</p>
+<p><strong>SQL</strong> is how you ask questions. The sandbox runs real <strong>SQLite</strong> (the first run downloads it once):</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">sqlite3 bank.db &quot;.tables&quot;</span><button class="run" type="button" data-cmd="sqlite3 bank.db &quot;.tables&quot;" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">sqlite3 bank.db &quot;SELECT * FROM accounts;&quot;</span><button class="run" type="button" data-cmd="sqlite3 bank.db &quot;SELECT * FROM accounts;&quot;" title="run in the sandbox">▶ run</button></code></pre>
+<p>The four basic operations are <strong>CRUD</strong>: Create (<code>INSERT</code>), Read (<code>SELECT</code>), Update (<code>UPDATE</code>), Delete (<code>DELETE</code>).</p>
+<p class="callout">Other databases (PostgreSQL, MySQL, SQL Server) use the same SQL with small differences. MongoDB and Redis are <strong>NoSQL</strong>: documents or key-value pairs instead of tables.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Relationships and JOINs</h4>
+<p>One customer has many transactions: a <strong>one-to-many</strong> relationship. A <code>JOIN</code> combines tables on the key that links them, and <code>GROUP BY</code> + <code>SUM</code> / <code>COUNT</code> turns many rows into one per group:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">sqlite3 bank.db &quot;SELECT a.owner, COUNT(*) FROM accounts a JOIN txns t ON t.account_id = a.id GROUP BY a.owner;&quot;</span><button class="run" type="button" data-cmd="sqlite3 bank.db &quot;SELECT a.owner, COUNT(*) FROM accounts a JOIN txns t ON t.account_id = a.id GROUP BY a.owner;&quot;" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Normalization</h4>
+<p>Store each fact <strong>once</strong>. If the owner's name is copied into every transaction row, changing it means updating hundreds of rows, and some will be missed. Normal forms (1NF, 2NF, 3NF) are rules for splitting tables so data can't contradict itself.</p>
+<h4>Transactions and ACID</h4>
+<p>A <strong>transaction</strong> groups changes so they all happen or none do (moving money: subtract here, add there). <strong>ACID</strong> = Atomic, Consistent, Isolated, Durable.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Integrity as a security control</h4>
+<p>The <strong>I</strong> in the CIA triad. Databases protect it with constraints (<code>NOT NULL</code>, <code>UNIQUE</code>, <code>CHECK (balance &gt;= 0)</code>, foreign keys), transactions, and <strong>audit trails</strong>. A classic check: does a stored total match the sum of the records it's supposed to summarize? If not, someone changed one without the other.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">sqlite3 bank.db &quot;SELECT account_id, SUM(amount) FROM txns GROUP BY account_id;&quot;</span><button class="run" type="button" data-cmd="sqlite3 bank.db &quot;SELECT account_id, SUM(amount) FROM txns GROUP BY account_id;&quot;" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Indexes and performance</h4>
+<p>An <strong>index</strong> is a sorted lookup structure (usually a B-tree) on a column, turning a full table scan into a quick search. It speeds up reads and slows down writes. <code>EXPLAIN QUERY PLAN</code> shows whether a query uses one.</p>
+<h4>Database security</h4>
+<ul><li><strong>SQL injection</strong>: always parameterized queries (<code>?</code> placeholders), never string concatenation</li><li><strong>Least privilege</strong>: the web app's DB user can't <code>DROP TABLE</code> or read the HR schema</li><li><strong>Encryption</strong> at rest (TDE) and in transit (TLS), <strong>tokenization</strong> or masking for card numbers</li><li><strong>Backups</strong> tested by actually restoring them, and database activity monitoring</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>Internal audit flagged the ledger. In <code>bank.db</code>, every account's <code>balance</code> should equal the <strong>sum of its transactions</strong> in <code>txns</code>. Someone with database access edited one balance directly, without a matching transaction.</p>
+<p>Find the tampered account. Submit the <strong>owner's name</strong>, e.g. <code>submit Jane Doe</code>.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "databases-and-sql", "title": "Databases & SQL", "user": "auditor", "host": "db01", "brief": "Internal audit flagged the ledger. In <code>bank.db<\/code>, every account's <code>balance<\/code> should equal the <strong>sum of its transactions<\/strong> in <code>txns<\/code>. Someone with database access edited one balance directly, without a matching transaction.\n\nFind the tampered account. Submit the <strong>owner's name<\/strong>, e.g. <code>submit Jane Doe<\/code>.", "hints": ["Sum the transactions per account: <code>SELECT account_id, SUM(amount) FROM txns GROUP BY account_id;<\/code> and compare with <code>accounts.balance<\/code>.", "Do it in one query with a JOIN and <code>HAVING<\/code>: <code>... GROUP BY a.id HAVING a.balance != SUM(t.amount);<\/code>"], "answers": ["8aa094c901362c02b32c05eafae1a94fd834feab90599c37dadd7519d1cebec0"], "solution": "PGNvZGU+U0VMRUNUIGEub3duZXIsIGEuYmFsYW5jZSwgU1VNKHQuYW1vdW50KSBGUk9NIGFjY291bnRzIGEgSk9JTiB0eG5zIHQgT04gdC5hY2NvdW50X2lkID0gYS5pZCBHUk9VUCBCWSBhLmlkIEhBVklORyBhLmJhbGFuY2UgIT0gU1VNKHQuYW1vdW50KTs8L2NvZGU+CgpyZXR1cm5zIG9uZSByb3c6IDxzdHJvbmc+TW9yZ2FuIFJleWVzPC9zdHJvbmc+LCBiYWxhbmNlIDI1LDQxMC4wMCBidXQgdHJhbnNhY3Rpb25zIG9ubHkgYWRkIHVwIHRvIDUsNDEwLjAwLiBTb21lb25lIGFkZGVkIDIwLDAwMCBzdHJhaWdodCB0byB0aGUgYmFsYW5jZSBjb2x1bW4uIE5leHQgc3RlcHM6IGNoZWNrIDxjb2RlPmF1ZGl0X2xvZzwvY29kZT4gKGl0IHNob3dzIGEgZGlyZWN0IDxjb2RlPlVQREFURTwvY29kZT4gZnJvbSB0aGUgPGNvZGU+c3ZjX3JlcG9ydDwvY29kZT4gYWNjb3VudCBhdCAwMjoxNCksIHJldm9rZSB0aGF0IGFjY291bnQncyB3cml0ZSBhY2Nlc3MsIGFuZCByZXN0b3JlIHRoZSB0cnVlIGJhbGFuY2UgZnJvbSB0aGUgdHJhbnNhY3Rpb25zLgo=", "fs": {"/home/auditor/bank.db": "SQLite format 3 (binary). Open it with: sqlite3 bank.db\n", "/home/auditor/README.txt": "bank.db: accounts, txns, audit_log. Rule: accounts.balance = SUM(txns.amount).\nTry: sqlite3 bank.db \".schema\"\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/auditor", "sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, owner TEXT NOT NULL, balance NUMERIC NOT NULL);\nINSERT INTO accounts VALUES (1,'Ava Chen',1250.00),(2,'Marcus Lee',830.50),(3,'Morgan Reyes',25410.00),(4,'Priya Patel',4120.00),(5,'Sam Ortiz',97.25);\nCREATE TABLE txns(id INTEGER PRIMARY KEY, account_id INTEGER REFERENCES accounts(id), ts TEXT, amount NUMERIC, memo TEXT);\nINSERT INTO txns VALUES (1,1,'2026-11-01','1000.00','payroll'),(2,1,'2026-11-03','250.00','refund'),\n(3,2,'2026-11-01','900.00','payroll'),(4,2,'2026-11-04','-69.50','utilities'),\n(5,3,'2026-11-01','5000.00','payroll'),(6,3,'2026-11-02','410.00','transfer in'),\n(7,4,'2026-11-01','4000.00','payroll'),(8,4,'2026-11-05','120.00','refund'),\n(9,5,'2026-11-01','100.00','payroll'),(10,5,'2026-11-06','-2.75','fee');\nCREATE TABLE audit_log(id INTEGER PRIMARY KEY, ts TEXT, db_user TEXT, action TEXT);\nINSERT INTO audit_log VALUES (1,'2026-11-06 23:50','app_web','INSERT txns id=10'),(2,'2026-11-07 02:14','svc_report','UPDATE accounts SET balance=25410.00 WHERE id=3'),(3,'2026-11-07 08:00','backup','SELECT *');", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

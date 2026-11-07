@@ -1,0 +1,100 @@
+tagline: The OS decides who runs, what memory they get and which files they can touch. Learn processes, scheduling, virtual memory and permissions, then step through a setuid program and catch a race condition that reads a root-only file.
+:: simple
+An **operating system** (Windows, Linux, macOS, Android) sits between programs and hardware. Its core, the **kernel**, does four big jobs:
+- **Processes**: starts programs, gives each one a turn on the CPU
+- **Memory**: gives each process its own space and keeps them apart
+- **Files**: organizes storage and enforces who can read or write what
+- **Devices**: talks to disks, network cards and keyboards through **drivers**
+
+Programs run in **user mode** and can't touch hardware directly. To open a file they make a **system call** (`open`, `read`, `write`) and the kernel, running in **kernel mode**, does it for them after checking permissions.
+
+The debugger on the right is stopped at a small C program. Try it:
+
+```
+$ start
+$ step
+$ info locals
+```
+
+`uid` is the real user (you, 1001), `euid` is the **effective** user the kernel checks. They differ here because the program is **setuid root**.
+:: mid
+### Processes and scheduling
+A **process** is a running program with its own memory, open files and a PID. It can have several **threads** that share that memory. The **scheduler** switches between them many times per second (a **context switch**), using policies like round robin and priorities. States: running, ready, blocked (waiting for I/O).
+
+### Memory
+Every process sees its own **virtual address space**. The kernel maps it to physical RAM in **pages** (usually 4 KB) using page tables, and the CPU's MMU enforces it, so one process can't read another's memory. When RAM runs out, pages go to **swap**. Protections like **ASLR** (random addresses) and **NX/DEP** (data pages can't execute) make memory bugs harder to exploit.
+
+### Permissions and setuid
+Linux files have an owner, a group and `rwx` bits for each. A **setuid** program runs as its *owner* (often root) no matter who starts it. That's how `passwd` can write `/etc/shadow`. It's also why every setuid binary is a privilege escalation target.
+
+```
+$ break 13
+$ continue
+$ print link
+```
+:: complex
+### Race conditions and TOCTOU
+A **race condition** is a bug where the result depends on timing. The classic OS one is **TOCTOU** (time of check to time of use): a program **checks** something about a file, then later **uses** the file, and an attacker changes what the name points to in between, usually by swapping a **symlink**.
+
+Here the setuid program asks `access()` "can the *real* user read this path?" (yes, it's their own file), sleeps briefly, then calls `open()` *as root*. If the attacker swaps `/tmp/r.txt` to point at `/etc/shadow` during that gap, root opens the shadow file.
+
+```
+$ break 16
+$ continue
+$ print opened
+$ back
+```
+
+### Fixes
+- Don't check-then-use. **Drop privileges** (`seteuid(getuid())`) and just `open()`; the kernel checks permission at the moment of use
+- Open first, then check the open handle with `fstat()` (the handle can't be swapped)
+- `O_NOFOLLOW` to refuse symlinks, and avoid world-writable dirs like `/tmp` (Linux's `fs.protected_symlinks` helps too)
+- Better still, don't make it setuid: audit setuid binaries with `find / -perm -4000`
+:: lab
+style: debug
+host: lab
+user: student
+source: /home/student/report.c
+:: brief
+`/usr/local/bin/report` is setuid root. It lets users print report files they own. An attacker ran `report /tmp/r.txt` where `/tmp/r.txt` was a symlink to their own file, and got something they shouldn't.
+
+Step through the recorded run. Watch the `link` variable, which shows where the symlink points at each moment.
+
+Submit the **full path of the file that `open()` actually opened**.
+:: answer
+/etc/shadow
+:: hint
+`access()` on line 9 checked the file the link pointed to *then*. What does `link` show at line 14, when `open()` runs?
+:: hint
+`break 16`, `continue`, then `print opened`.
+:: solution
+At line 9, `link` is `/tmp/r.txt -> /home/student/mine.txt`, so `access()` (which checks the **real** uid 1001) says OK. During the `usleep()` on line 13 the attacker's loop swapped the symlink, and at line 14 `link` is `/tmp/r.txt -> /etc/shadow`. `open()` runs with **euid 0**, so it succeeds, and lines 16 to 17 print the start of the shadow file. The file opened was **/etc/shadow**. Fix: drop privileges before opening (or open with the user's rights and `fstat` the handle), use `O_NOFOLLOW`, and question why this tool is setuid at all.
+:: trace
+8 | uid=1001 euid=0 argv[1]="/tmp/r.txt" link="/tmp/r.txt -> /home/student/mine.txt"
+9 | uid=1001 euid=0 path="/tmp/r.txt" link="/tmp/r.txt -> /home/student/mine.txt"
+13 | uid=1001 euid=0 path="/tmp/r.txt" access()=0 link="/tmp/r.txt -> /home/student/mine.txt"
+14 | uid=1001 euid=0 path="/tmp/r.txt" link="/tmp/r.txt -> /etc/shadow"
+15 | uid=1001 euid=0 path="/tmp/r.txt" fd=3 opened="/etc/shadow" link="/tmp/r.txt -> /etc/shadow"
+16 | uid=1001 euid=0 fd=3 opened="/etc/shadow" link="/tmp/r.txt -> /etc/shadow"
+17 | uid=1001 euid=0 fd=3 n=256 opened="/etc/shadow"
+18 | uid=1001 euid=0 fd=3 n=256 opened="/etc/shadow" | root:[hash redacted]:20390:0:99999:7:::
+:: file /home/student/report.c
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+// /usr/local/bin/report is setuid root: it runs as root for every user,
+// so users can print report files they own. It checks first, then opens.
+int main(int argc, char **argv) {
+    const char *path = argv[1];
+    if (access(path, R_OK) != 0) {          // check: can the REAL user read it?
+        puts("permission denied");
+        return 1;
+    }
+    usleep(50000);                           // (formatting the header)
+    int fd = open(path, O_RDONLY);           // use: opened with euid 0
+    char buf[256];
+    ssize_t n = read(fd, buf, sizeof buf);
+    write(1, buf, n);
+    return 0;
+}

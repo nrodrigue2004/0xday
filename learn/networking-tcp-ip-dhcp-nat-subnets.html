@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Networking (TCP/IP, DHCP, NAT, subnets) :: 0xDay</title>
+<meta name="description" content="Learn Networking (TCP/IP, DHCP, NAT, subnets): simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=067fefb3">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=067fefb3" defer></script>
+<script src="../site.js?v=067fefb3" defer></script>
+<script src="../fx.js?v=067fefb3" defer></script>
+<script src="../sandbox.js?v=067fefb3" defer></script>
+<script src="../learn.js?v=067fefb3" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill networking-tcp-ip-dhcp-nat-subnets</p>
+<h1>~/learn/networking-tcp-ip-dhcp-nat-subnets</h1>
+<p class="learn__meta"><span class="muted">IT &amp; infrastructure</span> · my level: <span class="bar__on">■■■</span><span class="bar__off">□□</span> <span class="muted">working</span> · <a href="../posts/proxmox-homelab.html">proof</a></p>
+<p>Every network problem is an addressing problem until proven otherwise. Learn IP addresses, subnet masks, gateways, DHCP and NAT with a real subnet calculator, then find the misconfigured machine.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="networking-tcp-ip-dhcp-nat-subnets">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Every device on a network needs an <strong>IP address</strong> (like <code>192.168.1.25</code>), and to talk beyond its own network it needs three more settings:</p>
+<ul><li><strong>Subnet mask</strong> (<code>255.255.255.0</code>, or <code>/24</code>): which part of the address is the *network* and which part is the *host*</li><li><strong>Default gateway</strong>: the router that forwards traffic to other networks</li><li><strong>DNS server</strong>: turns names into IP addresses</li></ul>
+<p>Two devices with the same network part can talk directly. Anything else goes to the gateway. The sandbox has a real <code>ipcalc</code>:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">ipcalc 192.168.1.25/24</span><button class="run" type="button" data-cmd="ipcalc 192.168.1.25/24" title="run in the sandbox">▶ run</button></code></pre>
+<p class="callout">Private ranges, never routed on the internet: <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>. Your home network almost certainly uses one.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Subnetting</h4>
+<p>The <code>/N</code> is how many bits are the network. A bigger number means a smaller network:</p>
+<ul><li><code>/24</code> = 256 addresses, 254 usable hosts (first is the network address, last is broadcast)</li><li><code>/25</code> = 128 (126 hosts), <code>/26</code> = 64 (62), <code>/27</code> = 32 (30), <code>/30</code> = 4 (2, used for point-to-point links)</li></ul>
+<p>Splitting a /24 into four /26s gives you four separate networks, like VLANs for users, servers, IoT and a lab:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">ipcalc 10.0.20.0/26</span><button class="run" type="button" data-cmd="ipcalc 10.0.20.0/26" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ipcalc 10.0.20.64/26</span><button class="run" type="button" data-cmd="ipcalc 10.0.20.64/26" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ipcalc 10.0.20.130/26</span><button class="run" type="button" data-cmd="ipcalc 10.0.20.130/26" title="run in the sandbox">▶ run</button></code></pre>
+<h4>DHCP</h4>
+<p>Typing those settings into every device doesn't scale. <strong>DHCP</strong> hands them out automatically in four steps, <strong>DORA</strong>: Discover (client broadcasts), Offer, Request, Acknowledge. If DHCP fails, Windows gives itself a <code>169.254.x.x</code> (APIPA) address, which is a strong clue.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>NAT</h4>
+<p>Your ISP gives you one public IP, but your house has twenty devices. <strong>NAT</strong> (really PAT, port address translation) on the router rewrites each outgoing packet's private source address to the public one and tracks the connection by port, so replies come back to the right device. Side effects: nothing outside can start a connection in unless you add a <strong>port forward</strong>, and logs on the internet side all show one IP.</p>
+<h4>TCP vs UDP, and ports</h4>
+<ul><li><strong>TCP</strong>: connection-oriented (3-way handshake SYN, SYN-ACK, ACK), reliable, ordered. HTTP/S, SSH, SMB</li><li><strong>UDP</strong>: fire and forget, fast. DNS, DHCP, VoIP, most games</li><li>Well-known ports: 22 SSH, 53 DNS, 67/68 DHCP, 80/443 HTTP/S, 445 SMB, 3389 RDP</li></ul>
+<h4>Troubleshooting from the bottom up</h4>
+<p>Link light → IP config (<code>ipconfig /all</code>, <code>ip a</code>) → ping the gateway → ping an outside IP (8.8.8.8) → resolve a name (<code>nslookup</code>). If the IP works but the name doesn't, it's DNS. If nothing past the gateway works, it's routing or the gateway setting.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/configs/WS-14.txt</span><button class="run" type="button" data-cmd="cat ~/configs/WS-14.txt" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>Users on the <strong>10.0.20.0/26</strong> user VLAN report that one workstation can reach some machines on its own subnet but <strong>nothing on the internet</strong>. The IP configs of every workstation on that VLAN are in <code>~/configs</code>.</p>
+<p>Find the misconfigured workstation. Use <code>ipcalc</code> to check whether each setting is valid for the /26.</p>
+<p>Submit the <strong>hostname</strong> of the broken workstation.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "networking-tcp-ip-dhcp-nat-subnets", "title": "Networking (TCP/IP, DHCP, NAT, subnets)", "user": "admin", "host": "netadmin", "brief": "Users on the <strong>10.0.20.0/26<\/strong> user VLAN report that one workstation can reach some machines on its own subnet but <strong>nothing on the internet<\/strong>. The IP configs of every workstation on that VLAN are in <code>~/configs<\/code>.\n\nFind the misconfigured workstation. Use <code>ipcalc<\/code> to check whether each setting is valid for the /26.\n\nSubmit the <strong>hostname<\/strong> of the broken workstation.", "hints": ["The gateway for 10.0.20.0/26 must be an address inside that subnet. What range does <code>ipcalc 10.0.20.0/26<\/code> say is usable?", "<code>grep -h -A1 &quot;Host&quot; ~/configs/*.txt<\/code> is noisy. Try <code>grep -H -i &quot;gateway&quot; ~/configs/*.txt<\/code> and <code>grep -H -i &quot;mask&quot; ~/configs/*.txt<\/code>."], "answers": ["7359b7bc8fe72bd0adfcdb6377089f09433c48520e5f5bcf299af3576deb4b60"], "solution": "PGNvZGU+aXBjYWxjIDEwLjAuMjAuMC8yNjwvY29kZT4gZ2l2ZXMgaG9zdHMgMTAuMC4yMC4xIHRvIDEwLjAuMjAuNjIsIGJyb2FkY2FzdCAxMC4wLjIwLjYzLCBnYXRld2F5IDEwLjAuMjAuMS4gPGNvZGU+Z3JlcCAtSCAtaSBnYXRld2F5IH4vY29uZmlncy8qLnR4dDwvY29kZT4gc2hvd3MgZXZlcnkgd29ya3N0YXRpb24gdXNpbmcgMTAuMC4yMC4xIGV4Y2VwdCA8c3Ryb25nPldTLTEyPC9zdHJvbmc+LCB3aG9zZSBnYXRld2F5IGlzIDxzdHJvbmc+MTAuMC4yMC42NTwvc3Ryb25nPjogdGhhdCdzIGluIHRoZSAqbmV4dCogLzI2ICgxMC4wLjIwLjY0LzI2KSwgc28gV1MtMTIgY2FuIG5ldmVyIHJlYWNoIGl0IGFuZCBoYXMgbm8gd2F5IG9mZiB0aGUgc3VibmV0LiBXUy0xNCBsb29rcyBvZGQgd2l0aCBtYXNrIDI1NS4yNTUuMjU1LjAsIGJ1dCBpdHMgZ2F0ZXdheSBpcyBzdGlsbCAxMC4wLjIwLjEgc28gaXQgcmVhY2hlcyB0aGUgaW50ZXJuZXQ7IGl0J3Mgd3JvbmcgdG9vIGFuZCBzaG91bGQgYmUgZml4ZWQsIGJ1dCBpdCdzIG5vdCB0aGUgcmVwb3J0ZWQgcHJvYmxlbS4gRml4IFdTLTEyJ3MgZ2F0ZXdheSAob3IgYmV0dGVyLCBtb3ZlIGJvdGggdG8gREhDUCByZXNlcnZhdGlvbnMpLgo=", "fs": {"/home/admin/configs/WS-10.txt": "Host Name:        WS-10\nIPv4 Address:     10.0.20.10\nSubnet Mask:      255.255.255.192\nDefault Gateway:  10.0.20.1\nDNS Servers:      10.0.0.10\n", "/home/admin/configs/WS-11.txt": "Host Name:        WS-11\nIPv4 Address:     10.0.20.11\nSubnet Mask:      255.255.255.192\nDefault Gateway:  10.0.20.1\nDNS Servers:      10.0.0.10\n", "/home/admin/configs/WS-12.txt": "Host Name:        WS-12\nIPv4 Address:     10.0.20.12\nSubnet Mask:      255.255.255.192\nDefault Gateway:  10.0.20.65\nDNS Servers:      10.0.0.10\n", "/home/admin/configs/WS-13.txt": "Host Name:        WS-13\nIPv4 Address:     10.0.20.13\nSubnet Mask:      255.255.255.192\nDefault Gateway:  10.0.20.1\nDNS Servers:      10.0.0.10\n", "/home/admin/configs/WS-14.txt": "Host Name:        WS-14\nIPv4 Address:     10.0.20.14\nSubnet Mask:      255.255.255.0\nDefault Gateway:  10.0.20.1\nDNS Servers:      10.0.0.10\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/admin", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+tagline: Phishing is still how most breaches start. Learn to read email headers, authentication results and hidden links, then work a user-reported phish like a SOC analyst.
+:: simple
+A **phishing** email pretends to be someone trustworthy to get you to click a link, open an attachment, or hand over a password or money. The tells are usually small:
+- urgency or fear ("your account will be closed today")
+- a sender name that looks right but an address that doesn't
+- a link whose text says one thing while the real address says another
+- requests that skip normal process (gift cards, wire transfers, "keep this confidential")
+
+An email file (`.eml`) is plain text: **headers** on top, a blank line, then the **body**.
+
+```
+$ ls ~/case
+$ head -12 ~/case/reported.eml
+```
+
+> When in doubt, report it. A false alarm costs the SOC two minutes; a click can cost the company weeks.
+:: mid
+### Headers that matter
+- `From:` is what the user sees and is trivially forged. `Return-Path:` (envelope sender) and `Reply-To:` often reveal the real sender
+- `Received:` lines are added by each mail server, newest on top. The **bottom** one is closest to the real origin
+- `Authentication-Results:` holds the verdicts of **SPF** (is this server allowed to send for the domain?), **DKIM** (is the signature valid?) and **DMARC** (do they align with the From domain, and what should happen if not?)
+
+```
+$ grep -iE "^(from|reply-to|return-path):" ~/case/reported.eml
+$ grep -i "authentication-results" ~/case/reported.eml
+$ grep "^Received:" ~/case/reported.eml
+```
+
+### Look-alike domains
+Typosquats swap characters (`rn` for `m`, `0` for `o`), add words (`-secure`, `-login`) or change the TLD. Read domains letter by letter.
+:: complex
+### Hidden content
+HTML email can show one link and point to another, and bodies are often **base64** or **quoted-printable** encoded so filters and humans don't see the text. Decode the part to see what the user saw, and extract every URL:
+
+```
+$ grep -A3 "Content-Transfer-Encoding: base64" ~/case/reported.eml
+$ grep -oE "https?://[^\" >]+" ~/case/reported.eml | sort -u
+```
+
+### Safe handling
+- **Defang** indicators when you share them: `hxxps://evil[.]com`
+- Never open links from the analyst workstation; use a sandbox or URL scanner
+- Hash attachments (`sha256sum`) and look the hash up instead of opening the file
+
+### Response
+Search the mail logs for **everyone** who got the same message (same subject, sender or URL), pull it from all mailboxes, block the sender and domain, and check proxy logs for anyone who clicked. If someone entered credentials, reset them and revoke their sessions, because attackers log in within minutes.
+:: lab
+style: ticket
+host: soc
+user: analyst
+system: SOC queue
+id: #SOC-2291
+subject: User-reported phish: "Action required: payroll direct deposit update"
+priority: P2
+from: phish-report button (d.kim, Sales)
+sla: 1h
+attach: reported.eml, proxy.log
+:: brief
+**d.kim:** "Got this from HR about updating my direct deposit. The logo looked right but something felt off. I did NOT click."
+
+Analyze `reported.eml`. Work out where the link in the email **really** goes (the visible text lies), then check `proxy.log` to see whether anyone in the company visited it.
+
+Resolve the ticket with the **username of the employee who clicked**, e.g. `jdoe`.
+:: answer
+r.brooks
+rbrooks
+:: hint
+The HTML body is base64-encoded. Copy the encoded block and decode it: `sed -n '/base64/,/^--/p' ~/case/reported.eml`, then `base64 -d` the lines in between.
+:: hint
+In the decoded HTML, the `href` is the real destination. Note the domain, then `grep` for it in `~/case/proxy.log`.
+:: hint
+d.kim's machine didn't visit it. Somebody else's did.
+:: solution
+The headers show `From: HR <hr@corp.example>` but `Return-Path` and `Reply-To` are `payroll@corp-example-hr.com`, the bottom `Received:` line is a VPS at 198.51.100.200, and `Authentication-Results` has **spf=fail** and **dmarc=fail**. The base64 HTML part decodes to a link whose text says `https://hr.corp.example/payroll` but whose `href` is **https://corp-example-hr.com/login.php**.
+
+`grep corp-example-hr ~/case/proxy.log` shows one user, **r.brooks**, loading that page and then POSTing to it (submitting credentials). Reset r.brooks's password, revoke sessions, check their mailbox for forwarding rules, block the domain, and purge the email from every inbox.
+:: verify
+sed -n '/base64/,/^--/p' ~/case/reported.eml | grep -v -- -- | grep -v Content | base64 -d
+:: file /home/analyst/case/reported.eml
+Return-Path: <payroll@corp-example-hr.com>
+Received: from mx1.corp.example (10.0.0.25) by mail.corp.example; Fri, 7 Nov 2026 08:02:11 +0000
+Received: from vps-311.hostingco.example (198.51.100.200) by mx1.corp.example; Fri, 7 Nov 2026 08:02:10 +0000
+Authentication-Results: mx1.corp.example; spf=fail (sender IP 198.51.100.200 not permitted) smtp.mailfrom=corp-example-hr.com; dkim=none; dmarc=fail (p=reject) header.from=corp.example
+From: "HR Department" <hr@corp.example>
+Reply-To: payroll@corp-example-hr.com
+To: d.kim@corp.example
+Subject: Action required: payroll direct deposit update
+Date: Fri, 7 Nov 2026 08:02:05 +0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="b1"
+
+--b1
+Content-Type: text/plain; charset=utf-8
+
+Please confirm your direct deposit details before Friday's payroll run or your payment may be delayed.
+Visit https://hr.corp.example/payroll
+
+--b1
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PHA+UGxlYXNlIGNvbmZpcm0geW91ciBkaXJlY3QgZGVwb3NpdCBkZXRhaWxzIGJlZm9yZSBGcmlk
+YXkncyBwYXlyb2xsIHJ1bi48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9jb3JwLWV4YW1wbGUtaHIu
+Y29tL2xvZ2luLnBocCI+aHR0cHM6Ly9oci5jb3JwLmV4YW1wbGUvcGF5cm9sbDwvYT48L3A+
+--b1--
+:: file /home/analyst/case/proxy.log
+08:05:10 d.kim 10.0.20.31 GET https://outlook.office365.com/mail/ 200
+08:06:44 m.lee 10.0.20.44 GET https://hr.corp.example/payroll 200
+08:09:02 r.brooks 10.0.20.16 GET https://corp-example-hr.com/login.php 200
+08:09:31 r.brooks 10.0.20.16 POST https://corp-example-hr.com/login.php 302
+08:11:50 j.smith 10.0.20.40 GET https://www.linkedin.com/feed/ 200
+08:12:03 c.park 10.0.20.70 GET https://hr.corp.example/benefits 200
