@@ -231,6 +231,14 @@ a.ctf__name{border:0;color:var(--strong)}a.ctf__name:hover{background:none;color
 .rs-item{margin:.4rem 0 1rem}
 .rs-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--strong)}
 .rs-item ul{margin:.3rem 0;padding-left:1.2em}
+.rs-roles{border:1px dashed var(--border);border-radius:8px;background:var(--panel);padding:10px 14px;margin:0 0 1.2rem}
+.rs-role-btns{display:flex;flex-wrap:wrap;gap:8px;margin:.5rem 0 .3rem}
+.rs-role{border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--fg);text-decoration:none;white-space:nowrap}
+.rs-role:hover,.rs-role:focus-visible{border-color:var(--green);color:var(--green)}
+.rs-role[aria-current]{background:var(--green);border-color:var(--green);color:#07090a;font-weight:700}
+.rs-hint{margin:.2rem 0 0;font-size:.85rem;min-height:1.3em}
+.rs-cur{color:var(--green)}
+.rs-view[hidden]{display:none}
 .rs-skills div{margin:.25rem 0}.rs-skills .k{color:var(--green);font-weight:700}.rs-skills .k::after{content:":"}
 .ctfs,.books{list-style:none;padding:0;margin:.8rem 0}
 .ctf{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:14px;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--border)}
@@ -250,13 +258,17 @@ a.ctf__name{border:0;color:var(--strong)}a.ctf__name:hover{background:none;color
 .tile__n{color:var(--amber);font-size:.8rem;margin-top:4px}
 @media print{
   body{background:#fff;color:#111;background-image:none}
-  body::after,.header,.footer,.ghost-fab,.ghost,.no-print,.toast{display:none!important}
+  body::after,.header,.footer,.ghost-fab,.ghost,.no-print,.toast,.tmux{display:none!important}
+  html.has-tmux body{padding-bottom:0!important}
+  @page{margin:.45in}
+  .resume .rs-item{margin:.15rem 0 .45rem}.resume .rs-item ul{margin:.1rem 0}.resume p{margin:.2rem 0 .5rem}
+  .resume h1{font-size:1.6rem}
   main{padding:0}
   .resume,.resume *{color:#111!important;text-shadow:none!important}
   .resume a{border:0}
   h2::before,h3::before{content:""}
   .resume h2{border-bottom:1px solid #999;font-size:1rem;margin:1rem 0 .4rem;text-transform:uppercase}
-  html{font-size:11px}
+  html{font-size:10.5px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
