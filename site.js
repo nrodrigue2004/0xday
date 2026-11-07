@@ -59,7 +59,7 @@
   const postUrl = p => `${ROOT}posts/${p.slug}.html`;
   const projUrl = p => (p.url && !/^https?:/.test(p.url) ? ROOT + p.url : p.url);
   const go = (url, log) => { log(`<span class="sys">opening ${esc(url)} ...</span>`); setTimeout(() => (location.href = url), 450); };
-  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html", lab: "lab.html", resume: "resume.html", ctf: "ctf.html", man: "man.html", tools: "tools.html", detections: "detections.html", books: "books.html" };
+  const PAGES = { home: "index.html", "~": "index.html", blog: "posts.html", posts: "posts.html", projects: "projects.html", resources: "resources.html", about: "about.html", skills: "skills.html", certs: "certs.html", now: "now.html", tags: "tags.html", changelog: "changelog.html", lab: "lab.html", resume: "resume.html", ctf: "ctf.html", man: "man.html", tools: "tools.html", detections: "detections.html", books: "books.html", homelab: "homelab.html", "attack-chain": "attack-chain.html", "deep-dives": "deep-dives.html", deepdives: "deep-dives.html" };
   const started = Date.now();
 
   function findPost(q) {
@@ -140,6 +140,12 @@
       return c + s + `\n\n${link(ROOT + "certs.html", "open ~/certs")}`;
     },
     roadmap: () => CMDS.certs(),
+    homelab: (a, log) => go(ROOT + "homelab.html", log),
+    map: (a, log) => CMDS.homelab(a, log),
+    attack: (a, log) => go(ROOT + "attack-chain.html", log),
+    killchain: (a, log) => CMDS.attack(a, log),
+    deepdive: (a, log) => go(ROOT + "deep-dives.html", log),
+    deepdives: (a, log) => CMDS.deepdive(a, log),
     now: () => D.now ? `<span class="sys">updated ${esc(D.now.updated)}</span>\n<b>studying</b>  ${D.now.studying.map(esc).join(", ")}\n<b>building</b>  ${D.now.building.map(esc).join(", ")}\n<b>reading</b>   ${D.now.reading.map(esc).join(", ")}` : "nothing yet",
     tags: () => Object.entries(D.tags || {}).map(([t, n]) => link(ROOT + "tags.html#" + t, "#" + t) + ` <span class="sys">${n}</span>`).join("  "),
     changelog: () => (D.changelog || []).map(e => `<span style="color:var(--amber)">${e.date}</span> <b>${esc(e.type)}:</b> ${esc(e.msg)}`).join("\n"),
