@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn C / x86 Assembly :: 0xDay</title>
+<meta name="description" content="Learn C / x86 Assembly: simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=067fefb3">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=067fefb3" defer></script>
+<script src="../site.js?v=067fefb3" defer></script>
+<script src="../fx.js?v=067fefb3" defer></script>
+<script src="../sandbox.js?v=067fefb3" defer></script>
+<script src="../learn.js?v=067fefb3" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill c-x86-assembly</p>
+<h1>~/learn/c-x86-assembly</h1>
+<p class="learn__meta"><span class="muted">languages</span> · my level: <span class="bar__on">■■</span><span class="bar__off">□□□</span> <span class="muted">familiar</span> · <a href="../posts/anti-vm-patching.html">proof</a></p>
+<p>Assembly is what the CPU actually runs, and what you read when there's no source code. Learn registers, the stack, flags and calling conventions, then single-step a license check and pull the valid key out of a register.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="c-x86-assembly">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A CPU only understands <strong>machine code</strong>: numbers. <strong>Assembly</strong> is the human-readable version, one instruction per line. C compiles down to it, and reverse engineers read it in Ghidra, IDA or gdb.</p>
+<p><strong>Registers</strong> are the CPU's tiny, super-fast variables. On x86-64: <code>rax</code>, <code>rbx</code>, <code>rcx</code>, <code>rdx</code>, <code>rsi</code>, <code>rdi</code>, <code>rsp</code> (stack pointer), <code>rbp</code> (frame base), <code>rip</code> (next instruction). <code>eax</code> is the lower 32 bits of <code>rax</code>.</p>
+<p>Basic instructions (Intel syntax, destination first):</p>
+<ul><li><code>mov ecx, 5</code> put 5 in ecx</li><li><code>add ecx, 2</code> / <code>sub</code> / <code>imul</code> / <code>xor</code> / <code>shl</code> (shift left = multiply by 2 each step)</li><li><code>push</code> / <code>pop</code> the stack, <code>call</code> / <code>ret</code> functions</li></ul>
+<p>The debugger on the right is stopped in a disassembled function:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">start</span><button class="run" type="button" data-cmd="start" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">step</span><button class="run" type="button" data-cmd="step" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">info registers</span><button class="run" type="button" data-cmd="info registers" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Flags and jumps</h4>
+<p><code>cmp a, b</code> subtracts b from a, throws away the result, and sets <strong>flags</strong>: <strong>ZF</strong> (zero flag, set when they're equal), SF (sign), CF (carry). A conditional jump reads them: <code>je</code>/<code>jz</code> jump if equal, <code>jne</code> if not, <code>jg</code>/<code>jl</code> signed greater/less, <code>ja</code>/<code>jb</code> unsigned. That's how every <code>if</code> in C looks after compiling.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">break 10</span><button class="run" type="button" data-cmd="break 10" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">continue</span><button class="run" type="button" data-cmd="continue" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">print ecx</span><button class="run" type="button" data-cmd="print ecx" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">print edi</span><button class="run" type="button" data-cmd="print edi" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Calling convention (System V, Linux x86-64)</h4>
+<p>Arguments go in <code>rdi</code>, <code>rsi</code>, <code>rdx</code>, <code>rcx</code>, <code>r8</code>, <code>r9</code>; the return value comes back in <code>rax</code>. (Windows x64 uses <code>rcx</code>, <code>rdx</code>, <code>r8</code>, <code>r9</code>.) So in <code>check_key(int key)</code>, the key is in <code>edi</code>, and <code>eax = 1</code> at the end means "return 1".</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Stack frames</h4>
+<p><code>push rbp; mov rbp, rsp</code> (the <strong>prologue</strong>) starts a frame; local variables live below <code>rbp</code>, and the <strong>return address</strong> that <code>call</code> pushed sits just above it. Overwriting that return address is a buffer overflow. <code>pop rbp; ret</code> (the <strong>epilogue</strong>) undoes it and jumps back.</p>
+<h4>Reading asm as C</h4>
+<p>This function is really:</p>
+<p><code>int check_key(int key) { int k = ((500 &lt;&lt; 3) + 42) ^ 15; return key == k; }</code></p>
+<p>Constant math like this is common in simple crackmes and malware string decoding. You can solve it two ways: <strong>statically</strong> (do the math by hand) or <strong>dynamically</strong> (let it run and read the register right before the <code>cmp</code>).</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">continue</span><button class="run" type="button" data-cmd="continue" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">print eax</span><button class="run" type="button" data-cmd="print eax" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">back</span><button class="run" type="button" data-cmd="back" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">print ZF</span><button class="run" type="button" data-cmd="print ZF" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Endianness</h4>
+<p>x86 is <strong>little-endian</strong>: the value <code>0x0fc5</code> is stored in memory as bytes <code>c5 0f 00 00</code>. You'll see this every time you read a hex dump or build an exploit payload.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// debugger</span></h2><p><code>licensed.bin</code> calls <code>check_key(key)</code> with the number you type. It was run with <code>1234</code> and said "invalid license".</p>
+<p>The function computes the valid key in a register and compares it to yours. Step to the <code>cmp</code> and read it.</p>
+<p>Submit the <strong>valid key as a decimal number</strong>.</p><p class="muted">This one runs in a step-through debugger. <code>start</code>, then <code>step</code> / <code>back</code> through the code and watch the variables change, or set a <code>break</code> and <code>continue</code>. Every <span class="ok">▶ run</span> above is a debugger command. <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "c-x86-assembly", "title": "C / x86 Assembly", "user": "student", "host": "re-lab", "brief": "<code>licensed.bin<\/code> calls <code>check_key(key)<\/code> with the number you type. It was run with <code>1234<\/code> and said \"invalid license\".\n\nThe function computes the valid key in a register and compares it to yours. Step to the <code>cmp<\/code> and read it.\n\nSubmit the <strong>valid key as a decimal number<\/strong>.", "hints": ["The input key is in <code>edi<\/code>. Which register is it compared against on line 10?", "<code>break 10<\/code>, <code>continue<\/code>, <code>print ecx<\/code>. It's shown in hex; convert it (or do the math: <code>$((0xfc5))<\/code> in any shell)."], "answers": ["7e9ce5ed46ef9348fd41a0285de984557d5efb0d87acdf2edcedc4cabdb2be07", "68c03ea1003b46eace94bac222e308d8063a3d22c25f0123110c80704e938be8"], "solution": "U3RlcCB0aHJvdWdoOiA8Y29kZT5lY3ggPSAweDFmNDwvY29kZT4gKDUwMCksIDxjb2RlPnNobCBlY3gsIDM8L2NvZGU+IG1ha2VzIGl0IDxjb2RlPjB4ZmEwPC9jb2RlPiAoNDAwMCksIDxjb2RlPmFkZCAweDJhPC9jb2RlPiBtYWtlcyA8Y29kZT4weGZjYTwvY29kZT4gKDQwNDIpLCA8Y29kZT54b3IgMHhmPC9jb2RlPiBtYWtlcyAqKjxjb2RlPjB4ZmM1PC9jb2RlPioqLiBBdCBsaW5lIDEwLCA8Y29kZT5jbXAgZWRpLCBlY3g8L2NvZGU+IGNvbXBhcmVzIHlvdXIgPGNvZGU+MHg0ZDI8L2NvZGU+ICgxMjM0KSB3aXRoIDxjb2RlPjB4ZmM1PC9jb2RlPiwgWkYgc3RheXMgMCwgPGNvZGU+am5lPC9jb2RlPiBqdW1wcyB0byA8Y29kZT4uYmFkPC9jb2RlPiwgYW5kIDxjb2RlPmVheDwvY29kZT4gaXMgemVyb2VkIChyZXR1cm4gMCkuIFRoZSB2YWxpZCBrZXkgaXMgMHhmYzUgPSA8c3Ryb25nPjQwMzc8L3N0cm9uZz4uIFlvdSBjb3VsZCBhbHNvIHBhdGNoIHRoZSA8Y29kZT5qbmU8L2NvZGU+IHRvIDxjb2RlPm5vcDwvY29kZT5zIChvciA8Y29kZT5qZTwvY29kZT4pLCB3aGljaCBpcyBob3cgYSBsb3Qgb2Ygc29mdHdhcmUgY3JhY2tzIHdvcmssIGFuZCB3aHkgcmVhbCBsaWNlbnNlIGNoZWNrcyBhcmUgZG9uZSBzZXJ2ZXItc2lkZS4K", "fs": {"/home/student/check_key.asm": "; check_key(int key), disassembled from licensed.bin (x86-64, Intel syntax)\n; System V calling convention: first argument \"key\" arrives in edi\ncheck_key:\n    push  rbp\n    mov   rbp, rsp\n    mov   ecx, 0x1f4        ; ecx = 500\n    shl   ecx, 3            ; ecx = ecx << 3\n    add   ecx, 0x2a         ; ecx += 42\n    xor   ecx, 0xf          ; ecx ^= 15\n    cmp   edi, ecx          ; key == ecx ?\n    jne   .bad\n    mov   eax, 1            ; return 1 (valid)\n    jmp   .done\n.bad:\n    xor   eax, eax          ; return 0 (invalid)\n.done:\n    pop   rbp\n    ret\n"}, "cmds": [], "cmdnames": [], "style": "debug", "source": "/home/student/check_key.asm", "trace": [{"line": 4, "vars": {"rip": "0x401136", "rsp": "0x7fffffffe418", "rbp": "0x7fffffffe440", "edi": "0x4d2", "ecx": "0x0", "eax": "0x0", "ZF": "0"}}, {"line": 5, "vars": {"rip": "0x401137", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe440", "edi": "0x4d2", "ecx": "0x0", "eax": "0x0", "ZF": "0"}}, {"line": 6, "vars": {"rip": "0x40113a", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0x0", "eax": "0x0", "ZF": "0"}}, {"line": 7, "vars": {"rip": "0x40113f", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0x1f4", "eax": "0x0", "ZF": "0"}}, {"line": 8, "vars": {"rip": "0x401142", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0xfa0", "eax": "0x0", "ZF": "0"}}, {"line": 9, "vars": {"rip": "0x401145", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0xfca", "eax": "0x0", "ZF": "0"}}, {"line": 10, "vars": {"rip": "0x401148", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0xfc5", "eax": "0x0", "ZF": "0"}}, {"line": 11, "vars": {"rip": "0x40114a", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0xfc5", "eax": "0x0", "ZF": "0"}}, {"line": 15, "vars": {"rip": "0x401156", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0xfc5", "eax": "0x0", "ZF": "0"}}, {"line": 17, "vars": {"rip": "0x401158", "rsp": "0x7fffffffe410", "rbp": "0x7fffffffe410", "edi": "0x4d2", "ecx": "0xfc5", "eax": "0x0", "ZF": "1"}}, {"line": 18, "vars": {"rip": "0x401159", "rsp": "0x7fffffffe418", "rbp": "0x7fffffffe440", "edi": "0x4d2", "ecx": "0xfc5", "eax": "0x0", "ZF": "1"}, "out": "check_key returned 0: invalid license"}]}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+tagline: Every attack and every defense travels over a network. Learn the OSI and TCP/IP layers, how DNS, ARP and the TCP handshake really work, then read a capture to catch ARP spoofing on a LAN.
+:: simple
+A **network** is devices agreeing on rules (**protocols**) to send data to each other. The idea everything else builds on is **layers**: each layer does one job and hands off to the next.
+
+The **OSI model** has 7 layers. Remember them bottom-up with "**P**lease **D**o **N**ot **T**hrow **S**ausage **P**izza **A**way":
+1. **Physical**: cables, radio, bits
+2. **Data link**: MAC addresses, switches, Ethernet, Wi-Fi frames
+3. **Network**: IP addresses, routers
+4. **Transport**: TCP (reliable) and UDP (fast), ports
+5. **Session**, 6. **Presentation**, 7. **Application**: HTTP, DNS, SSH, SMTP
+
+```
+$ cat ~/notes/ports.txt
+$ grep -w 53 ~/notes/ports.txt
+```
+
+> When something "doesn't work", troubleshoot bottom-up: link light, IP address, gateway ping, DNS, then the app.
+:: mid
+### Addressing at each layer
+- **MAC** (layer 2): burned into the NIC, only meaningful on the local network
+- **IP** (layer 3): logical, routable across networks
+- **Port** (layer 4): which program on that host (443 = HTTPS)
+
+**ARP** connects layer 3 to layer 2: "who has 10.0.10.1? tell 10.0.10.44", and the owner replies with its MAC. **DNS** turns names into IPs (A, AAAA, MX, CNAME, TXT records).
+
+```
+$ cat ~/notes/arp-table.txt
+$ dig +short updates.corp.example
+```
+
+### TCP vs UDP
+TCP opens a connection with the **three-way handshake** (SYN, SYN-ACK, ACK), numbers every byte and resends what's lost. UDP just sends: DNS queries, VoIP, video, games. A TCP **RST** slams a connection shut, which is also what a closed port answers to a SYN.
+
+```
+$ grep -E "Flags \[S\]|Flags \[S\.\]" ~/caps/handshake.txt
+```
+:: complex
+### Layer 2 attacks
+Switches and ARP were designed to trust everyone on the LAN:
+- **ARP spoofing / poisoning**: an attacker sends unsolicited ARP replies saying "the gateway's IP is at *my* MAC". Victims send their traffic to the attacker, who forwards it (on-path / man-in-the-middle). Sign: one MAC claiming several IPs, or the gateway's MAC suddenly changing
+- **MAC flooding**: overflow the switch's CAM table so it floods frames to every port
+- **VLAN hopping**, rogue DHCP servers, rogue access points
+
+Defenses: **Dynamic ARP Inspection** and **DHCP snooping** on managed switches, **port security** (limit MACs per port), 802.1X network access control, and encryption everywhere (TLS, SSH) so an on-path attacker sees nothing useful.
+
+```
+$ grep "is-at" ~/caps/lan.txt
+$ grep "is-at" ~/caps/lan.txt | awk '{print $NF}' | sort | uniq -c
+```
+
+### DNS attacks
+Cache poisoning, DNS tunneling (data hidden in long subdomains), and hijacked records. Watch for very long or random-looking query names and a host making thousands of TXT queries.
+:: lab
+host: sensor
+user: analyst
+cwd: /home/analyst
+:: brief
+Users on VLAN 10 say pages load slowly and they got a browser certificate warning. The gateway is **10.0.10.1**.
+
+`~/caps/lan.txt` is a text export of ARP traffic from the switch's span port, and `~/notes/arp-table.txt` is the known-good inventory.
+
+Find the device doing **ARP spoofing**. Submit its **MAC address**, e.g. `submit aa:bb:cc:dd:ee:ff`.
+:: answer
+3c:52:82:4e:19:a7
+:: hint
+Look only at the replies: `grep "is-at" ~/caps/lan.txt`. Who is claiming to be 10.0.10.1?
+:: hint
+Compare against the inventory. The real gateway's MAC is in `arp-table.txt`.
+:: solution
+`grep "is-at" ~/caps/lan.txt` shows the real gateway answering `10.0.10.1 is-at 00:1b:21:3a:4f:01`, then a flood of **unsolicited** replies (nobody asked) saying `10.0.10.1 is-at 3c:52:82:4e:19:a7`. The same MAC also claims 10.0.10.44 and 10.0.10.52. The inventory says that MAC belongs to `kiosk-02` at 10.0.10.77, not the gateway. So **3c:52:82:4e:19:a7** is poisoning ARP caches to put itself between users and the gateway, which is also why TLS showed a certificate warning. Pull the kiosk's switch port, then turn on Dynamic ARP Inspection for VLAN 10.
+:: verify
+grep "is-at" ~/caps/lan.txt | grep "10.0.10.1 " | awk '{print $NF}' | sort | uniq -c
+:: file /home/analyst/notes/ports.txt
+20/21 tcp  FTP (data/control, cleartext)
+22    tcp  SSH / SFTP
+23    tcp  Telnet (cleartext, never use)
+25    tcp  SMTP
+53    udp/tcp DNS
+67/68 udp  DHCP (server/client)
+80    tcp  HTTP
+88    tcp  Kerberos
+110   tcp  POP3
+123   udp  NTP
+143   tcp  IMAP
+161   udp  SNMP
+389   tcp  LDAP
+443   tcp  HTTPS
+445   tcp  SMB
+636   tcp  LDAPS
+993   tcp  IMAPS
+3389  tcp  RDP
+:: file /home/analyst/notes/arp-table.txt
+# known-good inventory, VLAN 10
+10.0.10.1    00:1b:21:3a:4f:01   pfsense-lan (gateway)
+10.0.10.10   bc:24:11:00:01:10   dc01
+10.0.10.44   f4:8e:38:a1:22:9c   ws-reception
+10.0.10.52   d8:9e:f3:10:7b:44   ws-finance-02
+10.0.10.77   3c:52:82:4e:19:a7   kiosk-02
+:: file /home/analyst/caps/handshake.txt
+10:02:11.120 IP 10.0.10.44.51522 > 10.0.10.10.389: Flags [S], seq 1001
+10:02:11.121 IP 10.0.10.10.389 > 10.0.10.44.51522: Flags [S.], seq 7001, ack 1002
+10:02:11.121 IP 10.0.10.44.51522 > 10.0.10.10.389: Flags [.], ack 7002
+10:02:12.400 IP 10.0.10.44.51530 > 10.0.10.10.23: Flags [S], seq 2001
+10:02:12.401 IP 10.0.10.10.23 > 10.0.10.44.51530: Flags [R.], ack 2002
+:: file /home/analyst/caps/lan.txt
+10:00:01.002 ARP, Request who-has 10.0.10.1 tell 10.0.10.44
+10:00:01.003 ARP, Reply 10.0.10.1 is-at 00:1b:21:3a:4f:01
+10:00:04.510 ARP, Request who-has 10.0.10.10 tell 10.0.10.52
+10:00:04.511 ARP, Reply 10.0.10.10 is-at bc:24:11:00:01:10
+10:00:09.900 ARP, Reply 10.0.10.1 is-at 3c:52:82:4e:19:a7
+10:00:09.901 ARP, Reply 10.0.10.44 is-at 3c:52:82:4e:19:a7
+10:00:11.900 ARP, Reply 10.0.10.1 is-at 3c:52:82:4e:19:a7
+10:00:11.901 ARP, Reply 10.0.10.52 is-at 3c:52:82:4e:19:a7
+10:00:13.900 ARP, Reply 10.0.10.1 is-at 3c:52:82:4e:19:a7
+10:00:13.901 ARP, Reply 10.0.10.44 is-at 3c:52:82:4e:19:a7
+10:00:15.002 ARP, Request who-has 10.0.10.77 tell 10.0.10.10
+10:00:15.003 ARP, Reply 10.0.10.77 is-at 3c:52:82:4e:19:a7
+10:00:15.900 ARP, Reply 10.0.10.1 is-at 3c:52:82:4e:19:a7
+10:00:15.901 ARP, Reply 10.0.10.52 is-at 3c:52:82:4e:19:a7
+:: cmd ^dig \+short updates\.corp\.example
+10.0.10.30

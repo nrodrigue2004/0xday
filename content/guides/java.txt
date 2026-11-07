@@ -1,0 +1,91 @@
+tagline: Java runs banks, Android apps and enterprise backends. Learn the JVM, types, exceptions and collections, the bugs behind Log4Shell and deserialization attacks, then step through a checkout where integer overflow turns a sale into a refund.
+:: simple
+**Java** compiles your code to **bytecode**, which runs on the **JVM** (Java Virtual Machine) on any OS: "write once, run anywhere". It's **statically typed**: every variable has a type, checked before the program runs.
+
+`int` holds whole numbers, `double` decimals, `boolean` true/false, `char` one character, and `String` text. Everything lives inside a **class**, and the program starts at `public static void main(String[] args)`.
+
+Memory is managed for you: the **garbage collector** frees objects nothing points to anymore, so Java avoids C's buffer overflows and use-after-free bugs.
+
+The debugger on the right is paused in a checkout program:
+
+```
+$ start
+$ step
+$ info locals
+```
+:: mid
+### Types have limits
+An `int` is 32 bits: from **-2,147,483,648** to **2,147,483,647**. Go past the top and it silently **wraps around** to negative. No exception, no warning. `long` is 64 bits; `BigDecimal` is exact and is what real money code uses.
+
+```
+$ break 5
+$ continue
+$ print t
+```
+
+### Exceptions
+Errors are objects you `throw` and `catch`. **Checked** exceptions (`IOException`) must be handled or declared; **unchecked** ones (`NullPointerException`, `IllegalArgumentException`) don't. Never swallow them silently with an empty `catch`, and never show stack traces to users.
+
+### Collections and generics
+`List<String>`, `Map<String, Integer>`, `Set<Long>`: the type in angle brackets is checked at compile time.
+:: complex
+### Java's famous security bugs
+- **Insecure deserialization**: `ObjectInputStream.readObject()` on untrusted data can run code through "gadget chains" in libraries on the classpath. Use JSON with a schema, or an allowlist filter (`ObjectInputFilter`)
+- **Log4Shell (CVE-2021-44228)**: Log4j 2 expanded `${jndi:ldap://attacker/x}` *inside log messages*, so logging a user's input could load and run remote code. The lesson: dependencies are attack surface; know your SBOM and patch fast
+- **SQL injection**: use `PreparedStatement` with `?` placeholders
+- **XXE**: XML parsers that resolve external entities can read local files. Disable DTDs
+
+### Integer overflow
+Use `Math.multiplyExact` / `Math.addExact` (throw on overflow), `long` or `BigDecimal` for money, and validate input ranges (a quantity of 21,475 GPUs should be rejected long before math).
+
+```
+$ continue
+$ print charge
+$ back
+```
+:: lab
+style: debug
+host: shop
+user: student
+source: /home/student/Checkout.java
+:: brief
+A customer "bought" a large order of GPUs and the payment processor **sent them money** instead of charging them. The checkout code checks that quantity is positive.
+
+Step through the recorded run with the customer's input.
+
+Submit the **amount in cents that was passed to `Payments.charge()`**.
+:: answer
+-2147467296
+:: hint
+`100000 * 21475` is 2,147,500,000. What's the biggest number an `int` can hold?
+:: hint
+`break 5`, `continue`, `print t`.
+:: solution
+`price * qty` = 100,000 × 21,475 = 2,147,500,000, which is just over `Integer.MAX_VALUE` (2,147,483,647). Java ints wrap silently, so the result is 2,147,500,000 − 2³² = **-2147467296**. The positive-quantity check on line 11 passed, `charge` went negative, and the payment API treated a negative charge as a refund of $21,474,672.96. Fix: `Math.multiplyExact(priceCents, qty)` (throws instead of wrapping), use `long` or `BigDecimal` for money, cap quantity to a sane maximum, and have the payment layer reject negative charges.
+:: trace
+9 | args[0]="21475"
+10 | price=100000 args[0]="21475"
+11 | price=100000 qty=21475
+12 | price=100000 qty=21475
+4 | priceCents=100000 qty=21475
+5 | priceCents=100000 qty=21475 t=-2147467296
+13 | price=100000 qty=21475 charge=-2147467296 | charging -2147467296 cents
+14 | price=100000 qty=21475 charge=-2147467296 | [payments] amount < 0: processed as REFUND of $21,474,672.96
+15 | price=100000 qty=21475 charge=-2147467296
+:: file /home/student/Checkout.java
+public class Checkout {
+    // prices are stored in cents to avoid floating-point rounding
+    static int total(int priceCents, int qty) {
+        int t = priceCents * qty;
+        return t;
+    }
+
+    public static void main(String[] args) {
+        int price = 100000;                      // $1,000.00 GPU
+        int qty = Integer.parseInt(args[0]);     // from the cart form
+        if (qty <= 0) throw new IllegalArgumentException("qty");
+        int charge = total(price, qty);
+        System.out.println("charging " + charge + " cents");
+        Payments.charge(charge);
+    }
+}

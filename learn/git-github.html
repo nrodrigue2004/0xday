@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Git / GitHub :: 0xDay</title>
+<meta name="description" content="Learn Git / GitHub: simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=067fefb3">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=067fefb3" defer></script>
+<script src="../site.js?v=067fefb3" defer></script>
+<script src="../fx.js?v=067fefb3" defer></script>
+<script src="../sandbox.js?v=067fefb3" defer></script>
+<script src="../learn.js?v=067fefb3" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill git-github</p>
+<h1>~/learn/git-github</h1>
+<p class="learn__meta"><span class="muted">computer science</span> · my level: <span class="bar__on">■■■</span><span class="bar__off">□□</span> <span class="muted">working</span> · <a href="https://github.com/nrodrigue2004">proof</a></p>
+<p>Git remembers everything, including the secret you deleted. Learn commits, branches and pull requests, then dig a leaked API key out of a repository's history.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="git-github">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Git</strong> tracks changes to files over time. Each <strong>commit</strong> is a snapshot with a message, an author and a unique ID (a SHA hash). You can see who changed what, when, and go back to any version. <strong>GitHub</strong> hosts Git repositories online and adds pull requests, issues and CI.</p>
+<p>The everyday loop:</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">git status</span><button class="run" type="button" data-cmd="git status" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">git log --oneline</span><button class="run" type="button" data-cmd="git log --oneline" title="run in the sandbox">▶ run</button></code></pre>
+<ul><li><code>git add file</code> stages a change, <code>git commit -m &quot;message&quot;</code> saves the snapshot</li><li><code>git push</code> sends commits to GitHub, <code>git pull</code> gets others' commits</li><li>A <strong>branch</strong> is a separate line of work; merge it back when it's done</li></ul>
+<p class="callout">Write commit messages that say *why*, not just *what*. Future you will read them during an outage.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Branches and pull requests</h4>
+<p>Teams don't commit straight to <code>main</code>. You make a branch, push it, and open a <strong>pull request</strong> (PR): a request to merge, where others review the diff and CI runs the tests. <strong>Branch protection</strong> can require reviews and passing checks before merging.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">git branch -a</span><button class="run" type="button" data-cmd="git branch -a" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">git show --stat a41c9e2</span><button class="run" type="button" data-cmd="git show --stat a41c9e2" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Seeing changes</h4>
+<p><code>git diff</code> shows uncommitted changes; <code>git show &lt;sha&gt;</code> shows exactly what one commit changed; <code>git log -p file</code> shows a file's whole history, change by change.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Secrets in history</h4>
+<p>Deleting a secret in a new commit <strong>doesn't remove it</strong>: the old commit still contains it, and anyone who clones the repo gets the whole history. Bots scan public GitHub for leaked keys within minutes of a push.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">git log --oneline --all -- config/settings.py</span><button class="run" type="button" data-cmd="git log --oneline --all -- config/settings.py" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">git log -p --all -S &quot;API_KEY&quot; --oneline</span><button class="run" type="button" data-cmd="git log -p --all -S &quot;API_KEY&quot; --oneline" title="run in the sandbox">▶ run</button></code></pre>
+<p><code>-S &quot;text&quot;</code> (the "pickaxe") finds commits that added or removed that text.</p>
+<h4>If you leak a secret</h4>
+<p>1. <strong>Rotate it immediately</strong>. Assume it's compromised the moment it was pushed 2. Then clean history if needed (<code>git filter-repo</code>, BFG) and force-push, knowing forks and clones may still have it 3. Prevent it: <code>.gitignore</code> for <code>.env</code> files, pre-commit secret scanning (gitleaks), GitHub push protection, and secrets in a vault or CI secrets, never in code</p>
+<h4>Supply chain</h4>
+<p>Signed commits, protected branches, required reviews and pinned dependency versions all exist because a malicious commit or package can reach production through Git.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>A developer says: "I accidentally committed an AWS key last week but I removed it right away, so we're fine."</p>
+<p>Search the repository's history. Find the <strong>AWS access key ID</strong> that was committed (they start with <code>AKIA</code>).</p>
+<p>Submit the key ID, e.g. <code>submit AKIAEXAMPLE</code>.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "git-github", "title": "Git / GitHub", "user": "dev", "host": "dev", "brief": "A developer says: \"I accidentally committed an AWS key last week but I removed it right away, so we're fine.\"\n\nSearch the repository's history. Find the <strong>AWS access key ID<\/strong> that was committed (they start with <code>AKIA<\/code>).\n\nSubmit the key ID, e.g. <code>submit AKIAEXAMPLE<\/code>.", "hints": ["<code>git log --oneline<\/code> shows a commit about removing a key. The key itself is in the commit *before* that.", "<code>git log -p --all -S &quot;AKIA&quot; --oneline<\/code> finds commits that added or removed text containing AKIA."], "answers": ["68bae5735cc96e03d56d6762dd4f8377c2d639f9b9eb221f96642ce582e78c56"], "solution": "PGNvZGU+Z2l0IGxvZyAtLW9uZWxpbmU8L2NvZGU+IHNob3dzIDxjb2RlPmI3ZDIxZjAgcmVtb3ZlIGhhcmRjb2RlZCBjcmVkczwvY29kZT4gcmlnaHQgYWZ0ZXIgPGNvZGU+OWMzZTExYSBhZGQgUzMgdXBsb2FkIGZvciByZXBvcnRzPC9jb2RlPi4gPGNvZGU+Z2l0IHNob3cgOWMzZTExYTwvY29kZT4gKG9yIHRoZSBwaWNrYXhlIHNlYXJjaCBmb3IgPGNvZGU+QUtJQTwvY29kZT4pIHNob3dzIHRoZSBhZGRlZCBsaW5lIDxjb2RlPkFXU19BQ0NFU1NfS0VZX0lEID0gJnF1b3Q7QUtJQVFYN0VYQU1QTEU0Q0YyREwmcXVvdDs8L2NvZGU+IHBsdXMgaXRzIHNlY3JldCBrZXkuIFJlbW92aW5nIGl0IGxhdGVyIGRpZG4ndCBoZWxwOiBpdCdzIGluIGhpc3RvcnkgYW5kIHdhcyBwdXNoZWQgdG8gR2l0SHViLiBUaGUga2V5IElEIGlzIDxzdHJvbmc+QUtJQVFYN0VYQU1QTEU0Q0YyREw8L3N0cm9uZz4uIFJlc3BvbnNlOiBkZWFjdGl2YXRlIGFuZCByb3RhdGUgdGhlIGtleSBpbiBJQU0gbm93LCBjaGVjayBDbG91ZFRyYWlsIGZvciBhbnkgdXNlIHNpbmNlIHRoZSBwdXNoLCB0aGVuIHNjcnViIGhpc3RvcnkgYW5kIHR1cm4gb24gcHVzaCBwcm90ZWN0aW9uLgo=", "fs": {"/home/dev/inventory-app/config/settings.py": "import os\nAWS_ACCESS_KEY_ID = os.environ[\"AWS_ACCESS_KEY_ID\"]\nAWS_SECRET_ACCESS_KEY = os.environ[\"AWS_SECRET_ACCESS_KEY\"]\nS3_BUCKET = \"inventory-reports\"\n", "/home/dev/inventory-app/README.md": "# inventory-app\nInternal inventory tracker. v1.4.2\n"}, "cmds": [{"re": "^git status$", "out": "On branch main\nYour branch is up to date with 'origin/main'.\n\nnothing to commit, working tree clean"}, {"re": "^git log --oneline( --all)?$", "out": "e03a5d8 (HEAD -> main, origin/main) bump version to 1.4.2\nb7d21f0 remove hardcoded creds\n9c3e11a add S3 upload for reports\n51f0ab2 fix pagination on /items\n2d9be70 initial commit"}, {"re": "^git branch -a$", "out": "* main\n  remotes/origin/main\n  remotes/origin/feature/csv-export"}, {"re": "^git show --stat a41c9e2", "out": "fatal: bad object a41c9e2 (try a SHA from git log --oneline)"}, {"re": "^git show --stat 9c3e11a", "out": "commit 9c3e11a7e1d0 add S3 upload for reports\n config/settings.py | 4 ++++\n app/reports.py     | 31 +++++++++++++++++++"}, {"re": "^git show 9c3e11a", "out": "commit 9c3e11a7e1d0f2c44b1a90e6d2a1f9e8c5b3d710\nAuthor: dev <dev@corp.example>\nDate:   Fri Oct 31 16:02:11 2026 +0000\n\n    add S3 upload for reports\n\ndiff --git a/config/settings.py b/config/settings.py\n+# TODO move to env vars\n+AWS_ACCESS_KEY_ID = \"AKIAQX7EXAMPLE4CF2DL\"\n+AWS_SECRET_ACCESS_KEY = \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"\n+S3_BUCKET = \"inventory-reports\""}, {"re": "^git show b7d21f0", "out": "commit b7d21f0c2a9e\n    remove hardcoded creds\n-AWS_ACCESS_KEY_ID = \"AKIAQX7EXAMPLE4CF2DL\"\n-AWS_SECRET_ACCESS_KEY = \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"\n+AWS_ACCESS_KEY_ID = os.environ[\"AWS_ACCESS_KEY_ID\"]\n+AWS_SECRET_ACCESS_KEY = os.environ[\"AWS_SECRET_ACCESS_KEY\"]"}, {"re": "^git log -p --all -S .?(API_KEY|AKIA).? --oneline", "out": "b7d21f0 remove hardcoded creds\n-AWS_ACCESS_KEY_ID = \"AKIAQX7EXAMPLE4CF2DL\"\n9c3e11a add S3 upload for reports\n+AWS_ACCESS_KEY_ID = \"AKIAQX7EXAMPLE4CF2DL\""}, {"re": "^git log --oneline --all -- config/settings.py", "out": "b7d21f0 remove hardcoded creds\n9c3e11a add S3 upload for reports\n2d9be70 initial commit"}, {"re": "^git", "out": "git: this sandbox simulates: status, log --oneline, log -p -S, branch -a, show <sha>"}], "cmdnames": ["git"], "cwd": "/home/dev/inventory-app", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

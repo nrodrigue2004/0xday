@@ -98,7 +98,7 @@
     }
     return o;
   }
-  const b64d = s => { const b = atob(s.replace(/\s+/g, "")); try { return decodeURIComponent(escape(b)); } catch (e) { return b; } };
+  const b64d = s => { s = s.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/"); const b = atob(s + "===".slice((s.length + 3) % 4)); try { return decodeURIComponent(escape(b)); } catch (e) { return b; } };
   const b64e = s => btoa(unescape(encodeURIComponent(s)));
   async function sha(algo, s) {
     const b = await crypto.subtle.digest(algo, new TextEncoder().encode(s));

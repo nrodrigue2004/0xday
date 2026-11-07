@@ -1,0 +1,80 @@
+tagline: A web app is a browser, an API and a database passing JSON back and forth. Learn HTTP, REST, React and MongoDB from a security angle, then decode session tokens to catch a forged admin request.
+:: simple
+A modern web app has three parts:
+- **Frontend**: runs in the browser (React, TypeScript). Draws the page, sends requests
+- **Backend / API**: runs on a server (Node.js + Express). Checks who you are, applies the rules, talks to the database
+- **Database**: stores the data (MongoDB keeps JSON-like documents)
+
+They talk over **HTTP**. A request has a **method** (GET read, POST create, PUT/PATCH update, DELETE), a **path**, **headers** and maybe a **body**. The response has a **status code**: 2xx OK, 3xx redirect, 4xx your fault (401 not logged in, 403 not allowed, 404 not found), 5xx server's fault.
+
+```
+$ cat ~/api/request.http
+$ curl -s https://api.shop.local/products/7
+```
+
+> Never trust the frontend. Anyone can skip your React app and send requests straight to the API with curl.
+:: mid
+### REST and JSON
+A REST API maps resources to URLs: `GET /api/orders` lists, `GET /api/orders/12` reads one, `POST /api/orders` creates. Data travels as **JSON**.
+
+### Sessions and JWTs
+After login, the API gives the client a token to send with every request (`Authorization: Bearer <token>`). A **JWT** is three base64url parts joined by dots: `header.payload.signature`. The payload is **readable by anyone**, only the signature protects it from being changed:
+
+```
+$ cat ~/api/token.txt
+$ cut -d. -f2 ~/api/token.txt | base64 -d
+```
+
+### React's safety net
+React escapes values you render, which blocks most XSS by default. It's bypassed by `dangerouslySetInnerHTML`, by putting user input into `href` (`javascript:` URLs), and by server-side templates that don't escape.
+:: complex
+### The OWASP Top 10, as it shows up in this stack
+- **Broken access control**: the API checks you're logged in but not that order 12 is *yours* (IDOR). Every endpoint must check ownership and role on the server
+- **Injection**: MongoDB has **NoSQL injection**: sending `{"password": {"$ne": null}}` instead of a string makes the query match any password. Validate types (zod, joi) and never pass raw request bodies into queries
+- **Cryptographic failures / broken auth**: JWTs signed with a weak secret, or a server that accepts `"alg": "none"` (no signature at all)
+- **Security misconfiguration**: verbose error stack traces, open CORS (`Access-Control-Allow-Origin: *` with credentials), MongoDB exposed to the internet without auth
+
+```
+$ cut -d. -f1 ~/api/token.txt | base64 -d
+$ cat ~/api/login-attempts.log
+```
+
+### Defense in depth
+Server-side validation, parameterized queries, HttpOnly + Secure + SameSite cookies, a Content Security Policy, rate limiting on login, and logging of every authorization failure.
+:: lab
+host: api01
+user: dev
+cwd: /home/dev
+:: brief
+The shop's API logs every request with its JWT. Someone got admin access to `/api/admin/users` without an admin account.
+
+The four admin requests are in `~/api/admin-requests.log`. Decode each token's **header** and **payload**. One token was **forged**: it claims to be admin but has no valid signature at all, and the server accepted it.
+
+Submit the **request ID** of the forged request, e.g. `submit req-1000`.
+:: answer
+req-4471
+:: hint
+Pull out one token: `grep req-4470 ~/api/admin-requests.log | awk '{print $NF}'`. Then decode part 1 and part 2 separately with `cut -d. -f1` / `-f2` and `base64 -d`.
+:: hint
+Compare the headers. A real token says `"alg":"HS256"`. What does the forged one say, and what's after its second dot?
+:: solution
+Decoding each token's header shows three with `{"alg":"HS256","typ":"JWT"}` and one, in **req-4471**, with `{"alg":"none","typ":"JWT"}` and an **empty signature** (the token ends with a dot). Its payload says `"role":"admin"` for user u_1042 (Riley, a normal user). The server accepted unsigned tokens, so anyone could write their own. Fix: pin the algorithm when verifying (`jwt.verify(token, secret, { algorithms: ["HS256"] })`), reject `none`, rotate the secret, and audit what u_1042 did with admin access.
+:: verify
+grep req-4471 ~/api/admin-requests.log | awk '{print $NF}' | cut -d. -f1 | base64 -d
+:: file /home/dev/api/request.http
+GET /api/products/7 HTTP/1.1
+Host: api.shop.local
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1XzEwNDIiLCJuYW1lIjoiUmlsZXkiLCJyb2xlIjoidXNlciIsImV4cCI6MTc2MjU2MDAwMH0.sig
+:: file /home/dev/api/token.txt
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1XzEwNDIiLCJuYW1lIjoiUmlsZXkiLCJyb2xlIjoidXNlciIsImV4cCI6MTc2MjU2MDAwMH0.sig
+:: file /home/dev/api/login-attempts.log
+09:01:12 POST /api/login body={"email":"admin@shop.local","password":"hunter2"} -> 401
+09:01:30 POST /api/login body={"email":"admin@shop.local","password":{"$ne":null}} -> 400 (validation: password must be a string)
+:: file /home/dev/api/admin-requests.log
+09:10:02 req-4468 GET /api/admin/users 200 bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1XzAwMDEiLCJuYW1lIjoiQWRtaW4iLCJyb2xlIjoiYWRtaW4ifQ.Kx2v
+09:22:40 req-4470 GET /api/admin/users 200 bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1XzAwMDIiLCJuYW1lIjoiSmFtaWUiLCJyb2xlIjoiYWRtaW4ifQ.p9Qe
+09:31:05 req-4471 GET /api/admin/users 200 bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1XzEwNDIiLCJuYW1lIjoiUmlsZXkiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI1NjAwMDB9.
+09:40:11 req-4473 GET /api/admin/users 200 bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1XzAwMDEiLCJuYW1lIjoiQWRtaW4iLCJyb2xlIjoiYWRtaW4ifQ.Lm4a
+:: cmd ^curl -s https://api\.shop\.local/products/7
+{"id":7,"name":"USB-C dock","price":89.99,"stock":14}

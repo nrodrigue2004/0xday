@@ -1,0 +1,175 @@
+tagline: Python is the security field's glue language. Learn it from variables to parsing logs with real Python running in your browser, then write a script that finds a brute-force attacker.
+:: simple
+Python reads almost like English, which is why it's the first language for most security people. The sandbox runs **real Python** (Pyodide, the first run downloads it once).
+
+Values go in variables, `print` shows them, and **f-strings** drop variables into text:
+
+```
+$ python3 -c 'name = "0xDay"; print(f"hello, {name}")'
+$ python3 -c 'print(7 * 6, type(42), type("42"))'
+```
+
+A **list** holds items in order, and a `for` loop walks through them:
+
+```
+$ python3 -c 'for p in [22, 80, 443]: print("checking", p)'
+```
+
+> Indentation is syntax in Python. The body of a loop or `if` is whatever is indented under it.
+:: mid
+### Files, strings and dictionaries
+Most security scripts do the same thing: open a file, go line by line, split the line, keep counts. A **dictionary** maps keys to values, perfect for counting.
+
+```
+$ cat ~/scripts/count_status.py
+$ python3 ~/scripts/count_status.py
+```
+
+Useful string methods: `line.split()` (split on spaces), `.strip()`, `.startswith()`, `"x" in line`. And `collections.Counter` counts anything in one line:
+
+```
+$ python3 -c 'from collections import Counter; print(Counter("mississippi").most_common(2))'
+```
+:: complex
+### Regular expressions and the standard library
+`re` finds patterns (IPs, emails, hashes), `ipaddress` understands networks, `hashlib` hashes, `base64` and `json` decode the formats you see everywhere, `datetime` parses timestamps:
+
+```
+$ python3 -c 'import ipaddress; print(ipaddress.ip_address("10.0.20.44") in ipaddress.ip_network("10.0.0.0/8"))'
+$ python3 -c 'import hashlib; print(hashlib.sha256(b"0xday").hexdigest())'
+```
+
+### Writing scripts that last
+- wrap the logic in functions and use `if __name__ == "__main__":`
+- take inputs from `sys.argv` or `argparse` instead of hard-coding paths
+- handle bad lines with `try/except` instead of crashing on line 40,000
+- for real work: `requests` (HTTP), `scapy` (packets), `pandas` (big tables), `pwntools` (CTFs)
+
+Edit scripts in the sandbox with `nano file.py`, save with Ctrl+S, exit with Ctrl+X.
+:: lab
+host: soc
+user: analyst
+cwd: /home/analyst
+py: yes
+:: brief
+Finish `~/scripts/bruteforce.py` so it reads `~/logs/auth.log` and finds the IP with the **most failed SSH logins that later also has a successful login**.
+
+The `TODO`s mark what's missing. Run it with `python3 scripts/bruteforce.py`.
+
+Submit the **IP address** your script finds.
+:: answer
+203.0.113.77
+:: hint
+Failed lines contain `Failed password`, successful ones `Accepted`. The IP is the word right after `from`: `parts[parts.index("from") + 1]`
+:: hint
+Count failures with a `Counter`, collect successful IPs in a `set`, then keep only IPs that are in both.
+:: hint
+`best = max((ip for ip in fails if ip in ok), key=lambda ip: fails[ip])`
+:: solution
+A finished version:
+
+`fails, ok = Counter(), set()`
+`for line in open(LOG): parts = line.split(); ip = parts[parts.index("from") + 1] if "from" in parts else None; ...`
+`if "Failed password" in line: fails[ip] += 1` / `elif "Accepted" in line: ok.add(ip)`
+`print(max((ip for ip in fails if ip in ok), key=fails.get))`
+
+It prints **203.0.113.77** (22 failures, then a successful login as `backup`). 198.51.100.23 failed more often in bursts but never got in, which is why "most failures" alone isn't the right question.
+:: verify
+python3 -c 'from collections import Counter; L=[l.split() for l in open("/home/analyst/logs/auth.log") if " from " in l]; f=Counter(p[p.index("from")+1] for p in L if "Failed" in p); ok={p[p.index("from")+1] for p in L if "Accepted" in p}; print(max((i for i in f if i in ok), key=f.get))'
+:: file /home/analyst/scripts/count_status.py
+from collections import Counter
+
+counts = Counter()
+with open("/home/analyst/logs/access.log") as f:
+    for line in f:
+        status = line.split()[8]      # 9th column = HTTP status
+        counts[status] += 1
+
+for status, n in counts.most_common():
+    print(status, n)
+:: file /home/analyst/scripts/bruteforce.py
+from collections import Counter
+
+LOG = "/home/analyst/logs/auth.log"
+fails = Counter()
+ok = set()
+
+with open(LOG) as f:
+    for line in f:
+        parts = line.split()
+        if "from" not in parts:
+            continue
+        ip = parts[parts.index("from") + 1]
+        # TODO: count failed logins per IP in `fails`
+        # TODO: remember IPs that had an Accepted login in `ok`
+
+# TODO: print the IP with the most failures that is also in `ok`
+print("not finished yet")
+:: file /home/analyst/logs/access.log
+10.0.10.15 - - [07/Nov/2026:03:10:11 +0000] "GET /index.html HTTP/1.1" 200 1061 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:10:38 +0000] "GET /dashboard HTTP/1.1" 200 2212 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:11:02 +0000] "GET /admin HTTP/1.1" 404 312 "-" "curl/8.4.0"
+10.0.10.31 - - [07/Nov/2026:03:11:20 +0000] "GET /style.css HTTP/1.1" 304 0 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:11:41 +0000] "GET /.env HTTP/1.1" 404 290 "-" "curl/8.4.0"
+:: file /home/analyst/logs/auth.log
+Nov  7 03:00:03 bastion sshd[4103]: Accepted publickey for analyst from 10.0.10.15 port 50122 ssh2
+Nov  7 03:00:05 bastion sshd[4104]: Failed password for invalid user oracle from 198.51.100.23 port 51329 ssh2
+Nov  7 03:00:06 bastion sshd[4107]: Failed password for invalid user ubuntu from 198.51.100.23 port 33084 ssh2
+Nov  7 03:00:08 bastion sshd[4108]: Failed password for invalid user ubuntu from 198.51.100.23 port 37035 ssh2
+Nov  7 03:00:12 bastion sshd[4109]: Failed password for invalid user oracle from 198.51.100.23 port 43702 ssh2
+Nov  7 03:00:13 bastion sshd[4113]: Failed password for invalid user admin from 198.51.100.23 port 48056 ssh2
+Nov  7 03:00:14 bastion sshd[4115]: Failed password for invalid user ubuntu from 198.51.100.23 port 34056 ssh2
+Nov  7 03:00:15 bastion sshd[4119]: Failed password for invalid user ubuntu from 198.51.100.23 port 49187 ssh2
+Nov  7 03:00:18 bastion sshd[4124]: Failed password for invalid user root from 198.51.100.23 port 31526 ssh2
+Nov  7 03:00:27 bastion sshd[4126]: Failed password for invalid user test from 198.51.100.23 port 43734 ssh2
+Nov  7 03:00:36 bastion sshd[4129]: Failed password for invalid user admin from 198.51.100.23 port 48707 ssh2
+Nov  7 03:00:40 bastion sshd[4134]: Failed password for invalid user root from 198.51.100.23 port 33376 ssh2
+Nov  7 03:00:42 bastion sshd[4139]: Failed password for invalid user test from 198.51.100.23 port 33192 ssh2
+Nov  7 03:00:46 bastion sshd[4144]: Failed password for invalid user ubuntu from 198.51.100.23 port 31953 ssh2
+Nov  7 03:00:53 bastion sshd[4149]: Failed password for invalid user oracle from 198.51.100.23 port 52295 ssh2
+Nov  7 03:01:01 bastion sshd[4154]: Failed password for invalid user test from 198.51.100.23 port 45256 ssh2
+Nov  7 03:01:04 bastion sshd[4156]: Failed password for invalid user test from 198.51.100.23 port 39822 ssh2
+Nov  7 03:01:09 bastion sshd[4161]: Failed password for invalid user root from 198.51.100.23 port 32682 ssh2
+Nov  7 03:01:17 bastion sshd[4164]: Failed password for invalid user ubuntu from 198.51.100.23 port 46223 ssh2
+Nov  7 03:01:19 bastion sshd[4165]: Failed password for invalid user test from 198.51.100.23 port 49954 ssh2
+Nov  7 03:01:25 bastion sshd[4167]: Failed password for invalid user ubuntu from 198.51.100.23 port 43701 ssh2
+Nov  7 03:01:26 bastion sshd[4171]: Failed password for invalid user root from 198.51.100.23 port 46022 ssh2
+Nov  7 03:01:32 bastion sshd[4176]: Failed password for invalid user admin from 198.51.100.23 port 55053 ssh2
+Nov  7 03:01:40 bastion sshd[4179]: Failed password for invalid user test from 198.51.100.23 port 52783 ssh2
+Nov  7 03:01:42 bastion sshd[4183]: Failed password for invalid user ubuntu from 198.51.100.23 port 56112 ssh2
+Nov  7 03:01:44 bastion sshd[4187]: Failed password for invalid user admin from 198.51.100.23 port 38845 ssh2
+Nov  7 03:01:49 bastion sshd[4193]: Failed password for invalid user admin from 198.51.100.23 port 53958 ssh2
+Nov  7 03:01:57 bastion sshd[4200]: Failed password for invalid user ubuntu from 198.51.100.23 port 52322 ssh2
+Nov  7 03:02:03 bastion sshd[4204]: Failed password for invalid user test from 198.51.100.23 port 53482 ssh2
+Nov  7 03:02:06 bastion sshd[4207]: Failed password for invalid user admin from 198.51.100.23 port 45128 ssh2
+Nov  7 03:02:07 bastion sshd[4211]: Failed password for invalid user ubuntu from 198.51.100.23 port 33836 ssh2
+Nov  7 03:02:12 bastion sshd[4213]: Failed password for jamie from 10.0.10.22 port 51200 ssh2
+Nov  7 03:02:16 bastion sshd[4215]: Accepted password for jamie from 10.0.10.22 port 51210 ssh2
+Nov  7 03:02:24 bastion sshd[4222]: Failed password for root from 203.0.113.77 port 42810 ssh2
+Nov  7 03:02:31 bastion sshd[4226]: Failed password for backup from 203.0.113.77 port 35451 ssh2
+Nov  7 03:02:38 bastion sshd[4228]: Failed password for admin from 203.0.113.77 port 39104 ssh2
+Nov  7 03:02:45 bastion sshd[4234]: Failed password for admin from 203.0.113.77 port 39123 ssh2
+Nov  7 03:02:49 bastion sshd[4238]: Failed password for root from 203.0.113.77 port 52371 ssh2
+Nov  7 03:02:52 bastion sshd[4240]: Failed password for backup from 203.0.113.77 port 32719 ssh2
+Nov  7 03:02:53 bastion sshd[4242]: Failed password for backup from 203.0.113.77 port 51578 ssh2
+Nov  7 03:02:56 bastion sshd[4247]: Failed password for root from 203.0.113.77 port 57233 ssh2
+Nov  7 03:02:59 bastion sshd[4248]: Failed password for root from 203.0.113.77 port 39238 ssh2
+Nov  7 03:03:05 bastion sshd[4251]: Failed password for root from 203.0.113.77 port 47517 ssh2
+Nov  7 03:03:14 bastion sshd[4258]: Failed password for backup from 203.0.113.77 port 52626 ssh2
+Nov  7 03:03:15 bastion sshd[4264]: Failed password for admin from 203.0.113.77 port 51461 ssh2
+Nov  7 03:03:24 bastion sshd[4271]: Failed password for root from 203.0.113.77 port 59475 ssh2
+Nov  7 03:03:31 bastion sshd[4275]: Failed password for root from 203.0.113.77 port 43043 ssh2
+Nov  7 03:03:38 bastion sshd[4281]: Failed password for backup from 203.0.113.77 port 45778 ssh2
+Nov  7 03:03:42 bastion sshd[4282]: Failed password for backup from 203.0.113.77 port 36245 ssh2
+Nov  7 03:03:48 bastion sshd[4283]: Failed password for root from 203.0.113.77 port 35318 ssh2
+Nov  7 03:03:49 bastion sshd[4284]: Failed password for admin from 203.0.113.77 port 31722 ssh2
+Nov  7 03:03:51 bastion sshd[4289]: Failed password for admin from 203.0.113.77 port 34956 ssh2
+Nov  7 03:03:53 bastion sshd[4290]: Failed password for root from 203.0.113.77 port 50110 ssh2
+Nov  7 03:03:56 bastion sshd[4294]: Failed password for backup from 203.0.113.77 port 50121 ssh2
+Nov  7 03:04:02 bastion sshd[4297]: Failed password for admin from 203.0.113.77 port 38265 ssh2
+Nov  7 03:04:04 bastion sshd[4301]: Accepted password for backup from 203.0.113.77 port 44012 ssh2
+Nov  7 03:04:12 bastion sshd[4302]: pam_unix(sshd:session): session opened for user backup by (uid=0)
+Nov  7 03:04:20 bastion sshd[4306]: Failed password for riley from 10.0.10.31 port 45269 ssh2
+Nov  7 03:04:23 bastion sshd[4307]: Failed password for riley from 10.0.10.31 port 40218 ssh2
+Nov  7 03:04:29 bastion sshd[4313]: Failed password for riley from 10.0.10.31 port 33348 ssh2
+Nov  7 03:04:34 bastion sshd[4319]: Accepted password for riley from 10.0.10.31 port 52000 ssh2
