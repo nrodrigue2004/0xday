@@ -56,6 +56,7 @@
       if (c === "'" || c === '"') { q = c; has = true; continue; }
       if (c === "\\" && i + 1 < line.length) { cur += line[++i]; has = true; continue; }
       if (/\s/.test(c)) { push(); continue; }
+      if (c === "&" && line[i + 1] !== "&" && line[i + 1] !== undefined && !/\s/.test(line[i + 1])) { cur += c; has = true; continue; }
       if (c === "|" || c === ";" || c === ">" || c === "&") {
         push();
         if (c === ">" && line[i + 1] === ">") { t.push({ op: ">>" }); i++; }
@@ -484,7 +485,7 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
       const rest = line.slice(i + 1); let m;
       if (rest.startsWith("((")) {
         let d = 0, j = i + 1; for (; j < line.length; j++) { if (line[j] === "(") d++; else if (line[j] === ")" && --d === 0) break; }
-        const ex = line.slice(i + 3, j - 1).replace(/\$?([A-Za-z_]\w*)/g, (_, v) => +(VARS[v] ?? 0));
+        const ex = line.slice(i + 3, j - 1).replace(/0x[0-9a-f]+/gi, h => String(Number(h))).replace(/(?<![\w])\$?([A-Za-z_]\w*)/g, (_, v) => +(VARS[v] ?? 0));
         if (!/^[\d\s+\-*/%()<>=!&|]*$/.test(ex)) throw new Error("bash: bad arithmetic: " + ex);
         o += String(Math.trunc(Function(`"use strict";return (${ex || 0})`)())); i = j; continue;
       }

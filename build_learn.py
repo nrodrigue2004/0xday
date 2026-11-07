@@ -131,7 +131,7 @@ def parse_guide(text):
             for l in buf:
                 if not l.strip() or l.startswith("#"): continue
                 parts = [x.strip() for x in l.split(" | ")]
-                vars_ = {m.group(1): m.group(2).strip('"') for m in re.finditer(r'([\w$\[\].>-]+)=("[^"]*"|\S+)', parts[1] if len(parts) > 1 else "")}
+                vars_ = {m.group(1): m.group(2).strip('"') for m in re.finditer(r'([\w&$\[\].>-]+)=("[^"]*"|\S+)', parts[1] if len(parts) > 1 else "")}
                 st = {"line": int(parts[0]), "vars": vars_}
                 if len(parts) > 2 and parts[2]: st["out"] = parts[2]
                 tr.append(st)

@@ -1,0 +1,72 @@
+tagline: Crypto is everywhere you look in security, usually misnamed. Learn encoding vs hashing vs encryption, how keys and certificates fit together, then verify which download is genuine.
+:: simple
+Three things get mixed up all the time:
+- **Encoding** (base64, hex) changes the format so data travels safely. No key, anyone can reverse it. It's not security
+- **Hashing** (SHA-256) makes a fixed-size fingerprint of data. One way: you can't get the data back. Used for **integrity** (did it change?) and password storage
+- **Encryption** (AES, RSA) scrambles data with a **key**. Only someone with the right key can reverse it. Used for **confidentiality**
+
+```
+$ echo -n "0xday" | base64
+$ echo -n "MHhkYXk=" | base64 -d
+$ echo -n "0xday" | sha256sum
+$ echo -n "0xdaz" | sha256sum
+```
+
+> If someone says a password is "encrypted with base64", it isn't protected at all.
+:: mid
+### Symmetric vs asymmetric
+- **Symmetric** (AES): one shared key encrypts and decrypts. Fast, used for bulk data. Problem: how do both sides get the key?
+- **Asymmetric** (RSA, ECC): a **public key** anyone can have and a **private key** you keep. Encrypt with someone's public key and only their private key can decrypt. Sign with your private key and anyone can verify with your public key
+
+Real protocols (TLS, SSH, Signal) use both: asymmetric crypto to agree on a key, then symmetric AES for the actual data.
+
+### Integrity checks in practice
+Software sites publish the SHA-256 of each download. Hash what you downloaded and compare. If even one byte differs, the hash is completely different:
+
+```
+$ cat ~/downloads/SHA256SUMS
+$ sha256sum ~/downloads/*.iso
+```
+
+> A hash on the same website as the download only proves the file wasn't corrupted. A **signature** (GPG, code signing) proves who published it.
+:: complex
+### Certificates and PKI
+A **certificate** binds a public key to a name (like `nrodrigue2004.github.io`), signed by a **Certificate Authority**. Your browser trusts a set of root CAs; a site's cert is valid if it chains up to one of them, hasn't expired, matches the hostname, and hasn't been revoked (CRL / OCSP).
+
+### Classic mistakes
+- **ECB mode**: encrypts identical blocks identically, so patterns show through. Use GCM or another authenticated mode
+- **Reusing a nonce/IV** with the same key in stream modes (CTR, GCM) leaks plaintext
+- **XOR with a short repeating key** isn't encryption: known plaintext reveals the key
+- **Rolling your own crypto**. Use vetted libraries
+
+```
+$ echo -n "uryyb jbeyq" | tr 'a-z' 'n-za-m'
+```
+
+That's ROT13, a Caesar shift by 13. It shows up in CTFs and malware strings because it hides text from a quick glance, nothing more.
+:: lab
+host: workstation
+user: student
+cwd: /home/student
+:: brief
+You need the Ubuntu Server ISO for the homelab. A mirror gave you three files that claim to be it, in `~/downloads`. The project's official checksum is in `~/downloads/SHA256SUMS`.
+
+Only one file matches. Submit the **file name of the genuine ISO**.
+:: answer
+ubuntu-24.04-server-mirror2.iso
+:: hint
+Hash all three: `sha256sum ~/downloads/*.iso`
+:: hint
+Compare each hash with the one in SHA256SUMS. `grep` can do the comparison for you: put the official hash in a variable and grep for it.
+:: solution
+`sha256sum ~/downloads/*.iso` prints three different hashes. Only **ubuntu-24.04-server-mirror2.iso** matches the value in `SHA256SUMS`. The other two differ, which means they were corrupted or tampered with (one even has a different size). In real life also verify the SHA256SUMS file's GPG signature against the Ubuntu signing key, otherwise an attacker who controls the mirror could swap the checksum too.
+:: verify
+sha256sum ~/downloads/*.iso | grep $(cut -d" " -f1 ~/downloads/SHA256SUMS)
+:: file /home/student/downloads/ubuntu-24.04-server-mirror1.iso
+ISO 9660 CD-ROM filesystem data 'Ubuntu-Server 24.04 LTS amd64' build 20260810 (mirror1)
+:: file /home/student/downloads/ubuntu-24.04-server-mirror2.iso
+ISO 9660 CD-ROM filesystem data 'Ubuntu-Server 24.04 LTS amd64' build 20260810
+:: file /home/student/downloads/ubuntu-24.04-server-mirror3.iso
+ISO 9660 CD-ROM filesystem data 'Ubuntu-Server 24.04 LTS amd64' build 20260810 + extras
+:: file /home/student/downloads/SHA256SUMS
+5521fd31d686da89fa3adeeb4d24b5631f38c00a2564af9e92fedd1b591bcc19 *ubuntu-24.04-server-amd64.iso

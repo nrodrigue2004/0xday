@@ -1,0 +1,146 @@
+tagline: You can't attack or defend what you haven't mapped. Learn host discovery, port and version scanning with Nmap, how Metasploit turns a finding into access, then find the one vulnerable box on a lab network.
+:: simple
+**Reconnaissance** is mapping a target before touching it hard: which hosts are alive, which ports are open, and what software is listening. **Nmap** is the standard tool for this.
+
+Only scan networks you own or have written permission to test. Here, `10.10.10.0/24` is a lab network built for practice.
+
+The first question is simply *who's there?* A **ping sweep** (`-sn`) finds live hosts without port scanning them:
+
+```
+$ nmap -sn 10.10.10.0/24
+```
+
+Then ask one host which ports are open:
+
+```
+$ nmap 10.10.10.5
+```
+
+> An **open** port has a program listening. **Closed** means the host answered but nothing's there. **Filtered** means a firewall ate the probe.
+:: mid
+### Finding versions
+Knowing port 21 is open is a start; knowing it's **vsftpd 2.3.4** is a finding. `-sV` probes each open port to identify the service and version, and `-sC` runs the default safe scripts (banners, titles, anonymous login checks):
+
+```
+$ nmap -sV -sC 10.10.10.5
+```
+
+### Scan types and speed
+- `-sS` SYN scan (default as root): sends SYN, reads the reply, never completes the handshake
+- `-sT` full TCP connect (no root needed, noisier)
+- `-sU` UDP (slow, but finds DNS, SNMP, TFTP)
+- `-p-` all 65,535 ports, `--top-ports 100` the most common ones
+- `-T4` faster timing, `-oA name` save output in every format
+
+```
+$ nmap -p- --min-rate 1000 10.10.10.7
+```
+:: complex
+### From version to exploit
+Once you have a product and version, look it up: CVE databases, vendor advisories, and **searchsploit** (an offline copy of Exploit-DB):
+
+```
+$ searchsploit vsftpd 2.3.4
+```
+
+### Metasploit in one minute
+Metasploit organizes attacks as **modules**: auxiliary (scanners), exploits, payloads (what runs after: a shell or Meterpreter) and post modules. The workflow is always the same: `search`, `use`, `show options`, `set RHOSTS`, `run`.
+
+```
+$ msfconsole -q -x "search vsftpd"
+```
+
+### Defender's view
+Every scan you just ran is visible: a SYN scan is a burst of SYNs to many ports from one IP, and IDS rules (Snort's scan detection, Zeek's `Scan::Port_Scan`) catch it. Reduce what recon finds by closing unused ports, keeping software current, and hiding version banners.
+:: lab
+host: kali
+user: kali
+cwd: /home/kali
+:: brief
+You're on an authorized internal pentest of **10.10.10.0/24**. The client wants to know if any host is running software with a **known public exploit** that gives a remote shell.
+
+Discover the live hosts, version-scan them, and check versions against searchsploit.
+
+Submit the **IP address** of the vulnerable host.
+:: answer
+10.10.10.9
+:: hint
+`nmap -sn 10.10.10.0/24` lists the live hosts. Then `nmap -sV` each one.
+:: hint
+Look for an FTP or SMB service with an old version. `searchsploit <product> <version>` tells you if there's a known exploit.
+:: hint
+10.10.10.5 runs a patched vsftpd. Check the other FTP server.
+:: solution
+The sweep finds 10.10.10.1, .5, .7 and .9. Version scans show: .1 a router (SSH, HTTPS admin), .5 vsftpd **3.0.5** and OpenSSH, .7 nginx and PostgreSQL, and .9 **vsftpd 2.3.4**. `searchsploit vsftpd 2.3.4` returns *vsftpd 2.3.4 - Backdoor Command Execution* (CVE-2011-2523), and Metasploit has `exploit/unix/ftp/vsftpd_234_backdoor`, which opens a root shell. The vulnerable host is **10.10.10.9**. In the report: upgrade or remove vsftpd on .9, and restrict FTP to the hosts that need it.
+:: cmd ^nmap -sn 10\.10\.10\.0/24
+Starting Nmap 7.94 ( https://nmap.org )
+Nmap scan report for 10.10.10.1
+Host is up (0.0010s latency).
+Nmap scan report for 10.10.10.5
+Host is up (0.0021s latency).
+Nmap scan report for 10.10.10.7
+Host is up (0.0018s latency).
+Nmap scan report for 10.10.10.9
+Host is up (0.0024s latency).
+Nmap done: 256 IP addresses (4 hosts up) scanned in 2.41 seconds
+:: cmd ^nmap( -sS)? 10\.10\.10\.5$
+Nmap scan report for 10.10.10.5
+PORT   STATE SERVICE
+21/tcp open  ftp
+22/tcp open  ssh
+80/tcp closed http
+Nmap done: 1 IP address (1 host up) scanned in 0.31 seconds
+:: cmd ^nmap .*-sV.* 10\.10\.10\.5$
+Nmap scan report for 10.10.10.5
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     vsftpd 3.0.5
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_drwxr-xr-x    2 ftp ftp 4096 Oct 30 pub
+22/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13 (Ubuntu Linux; protocol 2.0)
+Service Info: OSs: Unix, Linux
+:: cmd ^nmap .*-sV.* 10\.10\.10\.1$
+Nmap scan report for 10.10.10.1
+PORT    STATE SERVICE  VERSION
+22/tcp  open  ssh      OpenSSH 9.3 (protocol 2.0)
+443/tcp open  ssl/http nginx (pfSense webConfigurator)
+:: cmd ^nmap .*-sV.* 10\.10\.10\.7$
+Nmap scan report for 10.10.10.7
+PORT     STATE SERVICE    VERSION
+80/tcp   open  http       nginx 1.24.0
+5432/tcp open  postgresql PostgreSQL DB 16.2
+:: cmd ^nmap .*-sV.* 10\.10\.10\.9$
+Nmap scan report for 10.10.10.9
+PORT    STATE SERVICE     VERSION
+21/tcp  open  ftp         vsftpd 2.3.4
+22/tcp  open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+139/tcp open  netbios-ssn Samba smbd 3.X - 4.X
+445/tcp open  netbios-ssn Samba smbd 3.0.20-Debian
+:: cmd ^nmap -p- .*10\.10\.10\.7
+Nmap scan report for 10.10.10.7
+PORT      STATE SERVICE
+80/tcp    open  http
+5432/tcp  open  postgresql
+31337/tcp open  Elite
+Nmap done: 1 IP address (1 host up) scanned in 14.02 seconds
+:: cmd ^nmap( -sS)? 10\.10\.10\.(1|7|9)$
+(use -sV to see versions) Nmap scan report: see nmap -sV for details
+:: cmd ^searchsploit vsftpd 2\.3\.4
+-------------------------------------------------------------- ---------------------------
+ Exploit Title                                                |  Path
+-------------------------------------------------------------- ---------------------------
+vsftpd 2.3.4 - Backdoor Command Execution                     | unix/remote/49757.py
+vsftpd 2.3.4 - Backdoor Command Execution (Metasploit)        | unix/remote/17491.rb
+-------------------------------------------------------------- ---------------------------
+:: cmd ^searchsploit vsftpd 3
+Exploits: No Results
+:: cmd ^searchsploit vsftpd$
+vsftpd 2.0.5 - 'CWD' (Authenticated) Remote Memory Consumption | linux/dos/5814.pl
+vsftpd 2.3.2 - Denial of Service                               | linux/dos/16270.c
+vsftpd 2.3.4 - Backdoor Command Execution                      | unix/remote/49757.py
+:: cmd ^searchsploit (samba|openssh|nginx|postgres)
+(several results; none give unauthenticated remote code execution for these exact versions in this lab)
+:: cmd ^msfconsole
+Matching Modules
+================
+   #  Name                                  Disclosure Date  Rank       Check  Description
+   0  exploit/unix/ftp/vsftpd_234_backdoor  2011-07-03       excellent  No     VSFTPD v2.3.4 Backdoor Command Execution
