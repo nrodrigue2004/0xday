@@ -18,6 +18,7 @@ Content lives in `content/`:
 - `content/ctf.json` rooms: `{"name","url","date","difficulty":"easy|medium|hard|insane","category","writeup":"<post-slug or URL>"}`
 - `content/tools.json` tools: `{"name","lang","desc","repo","code"}`
 - `content/detections.json` rules: `{"name","format":"sigma|suricata|zeek|elastic","attack":"T1110","desc","rule"}`
+- `content/roadmap.json` is ~/roadmap, future project ideas: `{"name","slug","area","status":"next|building|idea|shipped|shelved","difficulty":1-5,"size":"weekend|weeks|months","pitch","stack":[...],"first_step"}` (built by `build_roadmap.py`; `area` can be anything, new areas get their own filter chip)
 - `content/books.json` books: `{"title","author","status":"read|reading|queued","take"}`
 
 Then rebuild the HTML and push:

@@ -29,17 +29,88 @@
 <article class="post">
 <p class="cmd">cat ~/posts/hitek-forensics.md</p>
 <h1>Reconstructing a Data Exfiltration: The HiTek Forensics Challenge</h1>
-<div class="meta"><span>2026-09-07</span><span>Nathan Rodrigue</span><span><a class="tag" href="../tags.html#forensics">#forensics</a> <a class="tag" href="../tags.html#wireshark">#wireshark</a> <a class="tag" href="../tags.html#autopsy">#autopsy</a></span></div>
+<div class="meta"><span>2026-09-07</span><span>Nathan Rodrigue</span><span><a class="tag" href="../tags.html#forensics">#forensics</a> <a class="tag" href="../tags.html#wireshark">#wireshark</a> <a class="tag" href="../tags.html#autopsy">#autopsy</a> <a class="tag" href="../tags.html#incident-response">#incident-response</a></span></div>
 <div class="prose">
-<p>The HiTek challenge handed us a Windows disk image, an Ubuntu disk image, and a network capture, and asked one question: what happened, and who did it?</p>
-<h2>Tools</h2>
-<ul><li><strong>FTK Imager</strong> to mount and verify the images</li>
-<li><strong>Autopsy</strong> for the file system timeline, browser history and deleted files</li>
-<li><strong>Wireshark</strong> to follow the exfiltration in the PCAP</li></ul>
-<h2>Approach</h2>
-<p>I built a single timeline across all three sources, lining up file access on the endpoints with outbound connections in the capture. That's what tied the activity to a specific user and machine.</p>
-<pre><code>ip.dst != 10.0.0.0/8 &amp;&amp; tcp.len &gt; 1000</code></pre>
-<p>The final deliverable was an investigative report and a presentation covering the evidence, the timeline, and attribution.</p>
+<p>The HiTek Forensics Challenge was the capstone exercise in my Digital Forensics course at LSU. My team of five got two disk images, a Windows workstation and an Ubuntu server, plus one packet capture, and a single question: <strong>what left the building, how, and who did it?</strong></p>
+<p>Forensics is a reconstruction problem. You work backwards from artifacts to events, the artifacts are incomplete (sometimes on purpose), and every conclusion has to point at a specific piece of evidence. This is how we rebuilt the case.</p>
+
+<h2>The scene</h2>
+<pre><code>host          ip            os           role
+WIN-WS-01     192.168.0.6   Windows      suspect's workstation
+web-srv-02    192.168.0.8   Ubuntu       FTP + web server (staging)
+(unnamed)     192.168.0.4   Mac OS X     retrieval machine</code></pre>
+<p>Toolkit: <strong>FTK Imager</strong> and <strong>Autopsy</strong> for the disks, <strong>Wireshark</strong> for <code>network.pcapng</code>, <strong>John the Ripper</strong>, <strong>impacket-secretsdump</strong> and <strong>CrackStation</strong> for credentials, and plain Linux tools for the logs.</p>
+
+<h2>Step 1: get everyone's passwords</h2>
+<p>Recovering credentials early meant we could tie each action in the logs and the capture to a specific account instead of guessing.</p>
+<ul>
+<li><strong>Ubuntu:</strong> pulled the SHA-512 hashes from <code>/etc/shadow</code> and ran John with rockyou.</li>
+<li><strong>Windows:</strong> exported the <code>SAM</code> and <code>SYSTEM</code> hives with Autopsy, dumped NT hashes with secretsdump, and fed them to CrackStation.</li>
+</ul>
+<pre><code>$ john --wordlist=rockyou.txt shadow.txt
+$ impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+
+account      box        password
+webmaster    ubuntu     password
+cknight      ubuntu     popcorn
+carson       windows    123456     (admin)
+jonathan     windows    letmein
+tester       windows    monkey     (hint: "the zoo")</code></pre>
+<p>Every password was in the top of any wordlist. That's a finding on its own, separate from the case. The tester password was double-confirmed by its hint and a monkey picture sitting in the browser cache, which is the kind of detail that makes forensics fun.</p>
+
+<h2>Step 2: the night before (Nov 27)</h2>
+<p><code>auth.log</code> and the webmaster's bash history showed a login at 23:13. Over the next 24 minutes:</p>
+<pre><code>sudo apt-get install apache2 apache2-doc apache2-utils
+sudo apt-get install vsftpd
+sudo nano /etc/vsftpd.conf
+sudo apt-get install mysql-server
+echo "create database website;" | mysql -u root -p
+sudo chmod 777 /var/www      # &lt;- the important one
+ifconfig</code></pre>
+<p><code>chmod 777</code> on the web root means anything dropped in over FTP is instantly downloadable over HTTP by anyone, no login needed. The server was being set up as an open staging point the night before anything was stolen.</p>
+
+<h2>Step 3: the exfil (Nov 28)</h2>
+<p>File metadata on the Windows image showed two password-protected archives, <code>secrets.zip</code> and <code>BusinessStrategy.zip</code>, created around 15:45. The capture picks it up from there. FTP is plaintext, so Wireshark showed the login, the credentials and the file names outright.</p>
+<pre><code>ftp || ftp-data
+ip.addr == 192.168.0.6 &amp;&amp; ip.addr == 192.168.0.8
+ip.src == 192.168.0.4 &amp;&amp; http</code></pre>
+<pre><code>Nov 27 23:13  webmaster logs in to web-srv-02, installs apache2/vsftpd/mysql
+Nov 27 23:37  chmod 777 /var/www
+Nov 28 ~15:45 secrets.zip + BusinessStrategy.zip created on WIN-WS-01
+Nov 28 15:46:30  STOR BusinessStrategy.zip  .6 -&gt; .8 (as webmaster)
+Nov 28 15:52:06  STOR secrets.zip           .6 -&gt; .8 (as webmaster)
+Nov 28 &gt;15:52    HTTP GET both zips         .4 -&gt; .8 (no auth)
+Nov 28 after     zips deleted from WIN-WS-01 and /var/www
+Nov 28 17:52:02  web-srv-02 shuts down</code></pre>
+<p>Three hops: compress on Windows, stage on the Ubuntu box over FTP, pull from the web server with a Mac.</p>
+
+<h2>Step 4: the cover-up that didn't work</h2>
+<ul>
+<li><strong>Deletion:</strong> both ZIPs were deleted from the workstation and the server. On NTFS, deleting a file only marks its clusters free. Nothing had overwritten them yet, so Autopsy carved both archives back out of unallocated space.</li>
+<li><strong>Encryption:</strong> the archives were password-protected, so we could prove what moved by name and metadata but not what was inside.</li>
+<li><strong>Ambiguity:</strong> <code>chmod 777</code> looks like a lazy admin mistake. Without the rest of the timeline it would have been easy to wave off.</li>
+</ul>
+
+<h2>Step 5: who</h2>
+<p>Several independent threads point at <strong>carson</strong>:</p>
+<ul>
+<li>The FTP uploads came from 192.168.0.6, carson's workstation.</li>
+<li>They used the same webmaster credentials that configured the server the night before, and carson, as a Windows admin, had the access to get them.</li>
+<li><code>Evaluations.odt</code> in carson's Documents held a supervisor note about carson installing the wrong VMware version on every office machine: a history of misusing admin access and a plausible grudge. <code>Projects.odt</code> confirmed the IT role.</li>
+<li>The other accounts came up clean. tester was just browsing (YouTube, Google, Amazon, starwars.com) and jonathan had nothing in the window. Ruling people out mattered as much as ruling carson in.</li>
+</ul>
+
+<h2>What the evidence doesn't prove</h2>
+<p>I think being honest about the gaps is part of the job. We proved the activity came <em>from carson's machine</em> with webmaster credentials, not that carson was physically at the keyboard. A real case would need physical access logs, interviews, and a check for remote access. And without the ZIP passwords, we never confirmed what data was actually inside the archives.</p>
+
+<h2>Takeaways</h2>
+<ul>
+<li><strong>No malware, no exploit.</strong> Everything here was apt, FTP, a web server and a delete key. An insider with admin rights can do this on most networks.</li>
+<li><strong>Signatures would have missed it.</strong> No bad hashes, no bad IPs. What was detectable was behavior: an admin creating archives and immediately moving them out, then deleting them. That's a UEBA / DLP problem, not an antivirus one.</li>
+<li><strong>Deletion isn't destruction.</strong> Without overwriting the sectors, deleted files are just waiting to be carved.</li>
+<li><strong>The story is the deliverable.</strong> Each artifact alone is ambiguous. Lined up in order and tied to accounts and timestamps, they tell one story.</li>
+</ul>
+<p>We delivered a full investigative report with a relationship map of every user, host and transfer, plus a presentation. Rebuilding it here was a good excuse to re-read the bash history one more time.</p>
 
 </div>
 <nav class="pager"><a href="hello-world.html">&lt; prev: Why I Started This Blog</a><a href="anti-vm-patching.html">next: Patching Out Anti-VM Checks in Malware Samples &gt;</a></nav>

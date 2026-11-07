@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-07",
+    "type": "feat",
+    "msg": "add ~/roadmap of future projects; full HiTek forensics write-up and a wg2 RAT teardown"
+  },
+  {
     "date": "2026-11-06",
     "type": "feat",
     "msg": "boot sequence + GRUB, tmux status bar, CRT mode, vim keys, fzf, glitch transitions, tty mode, htop, i3 desktop, xxd view"

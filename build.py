@@ -150,8 +150,11 @@ def card(x):
             f'<h3>{head}</h3><p>{esc(x["desc"])}</p>'
             f'<p class="card__tags">{" ".join("#" + t for t in x["tags"])}</p></article>')
 page("projects.html", "projects :: 0xDay",
-     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. Source on <a href="{GH}">GitHub</a>.</p>'
+     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. Source on <a href="{GH}">GitHub</a>. What\'s next lives in <a href="roadmap.html">~/roadmap</a>.</p>'
      f'<div class="cards">{"".join(card(x) for x in PROJECTS)}</div>', cur="projects")
+
+import build_roadmap
+ROADMAP = build_roadmap.build(page, esc)
 
 # ---------- resources ----------
 RES = [("reverse engineering & malware", [("Ghidra", "https://ghidra-sre.org/"), ("IDA Free", "https://hex-rays.com/ida-free"), ("PE-bear", "https://github.com/hasherezade/pe-bear")]),

@@ -1,5 +1,15 @@
 [
   {
+    "slug": "wg2-rat-teardown",
+    "title": "Tearing Down wg2: An HTTP RAT in Ghidra",
+    "date": "2026-11-07",
+    "tags": [
+      "malware",
+      "reverse-engineering",
+      "ghidra"
+    ]
+  },
+  {
     "slug": "proxmox-homelab",
     "title": "Building a Seven-VM Enterprise Homelab on Proxmox",
     "date": "2026-11-02",
@@ -36,7 +46,8 @@
     "tags": [
       "forensics",
       "wireshark",
-      "autopsy"
+      "autopsy",
+      "incident-response"
     ]
   },
   {

@@ -1,0 +1,91 @@
+<p>For my reverse engineering course I took apart <strong>wg2</strong>, a 32-bit Windows RAT, function by function in Ghidra. This is the condensed version of my annotated decompilation: how it hides its C2, how it talks home, and the eleven commands it gives an attacker.</p>
+<p class="muted">Ghidra's FUN_ names are kept so you can follow along in your own copy. The C2 domain is defanged.</p>
+
+<h2>First look</h2>
+<pre><code>format     PE32, 4 sections (.text .rdata .data .rsrc)
+language   C++ (connection object with a vtable)
+network    WinINet, HTTP and HTTPS
+built      2011-11-17 (and it tells you: see "version")</code></pre>
+
+<h2>Call graph, in the order I walked it</h2>
+<pre><code>entry()
+ └─ FUN_0040297d  WinMain: decode C2, name the victim, beacon loop
+     └─ FUN_00401406  command_and_control  (the heart)
+         ├─ FUN_0040101c  build connection object
+         ├─ FUN_004010c0  connect (InternetOpen/Connect/OpenRequest)
+         ├─ FUN_004012c5  POST data + SSL bypass
+         └─ switch → shell, list, kill, getf/putf, start, pidrun, geturl ...</code></pre>
+
+<h2>Hiding the C2 with one bit</h2>
+<p>The C2 hostname sits in <code>.data</code> obfuscated: every byte was shifted left by one. Decoding is a right shift and a mask.</p>
+<pre><code>for (i = 0; i &lt; len; i++)
+    url[i] = (enc[i] &gt;&gt; 1) &amp; 0x7F;
+// -&gt; stratos[.]mcafeepaying[.]com</code></pre>
+<p>That's not encryption, it's just enough to keep the domain out of <code>strings</code>. Note the domain itself pretending to be an antivirus vendor.</p>
+<p>It then builds a URL path from the victim's hostname via <code>GetComputerNameA</code> (<code>/VICTIM-PC/</code>), so the C2 knows exactly which machine is calling. The main loop calls the C2 handler, then sleeps <code>sleep_scalar × 60000</code> ms, until a global stop flag is set.</p>
+
+<h2>Talking home</h2>
+<p><strong>FUN_0040101c</strong> builds a C++ connection object (about 0x28 bytes): three WinINet handles, a one-hour timeout, the URL path, hostname, a <code>Mozilla/4.0</code> User-Agent, extra headers, and an HTTPS flag.</p>
+<pre><code>+0x00 vtable      +0x14 url path     +0x20 headers
++0x04 hInternet   +0x18 hostname     +0x24 https flag
++0x08 hConnect    +0x1C user-agent
++0x0C hRequest    +0x10 timeout (3,600,000 ms)</code></pre>
+<p><strong>FUN_004010c0</strong> is textbook WinINet: <code>InternetOpenA</code> → set send/connect/receive timeouts → <code>InternetConnectA</code> on port 80 or 443 → <code>HttpOpenRequestA</code>. The headers include <code>Pragma: no-cache</code> and a custom <code>Computer:</code> header with the hostname. That custom header is a great network IOC.</p>
+
+<h2>The SSL bypass</h2>
+<p><strong>FUN_004012c5</strong> POSTs data to the C2. If <code>HttpSendRequestA</code> fails with <code>12045</code> (<code>ERROR_INTERNET_INVALID_CA</code>), it doesn't give up:</p>
+<pre><code>if (GetLastError() == 12045) {               // 0x2F0D: bad cert
+    InternetQueryOptionA(h, 31, &amp;flags, &amp;n);  // INTERNET_OPTION_SECURITY_FLAGS
+    flags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA;
+    InternetSetOptionA(h, 31, &amp;flags, 4);
+    // ...and retry
+}</code></pre>
+<p>So the operator can run HTTPS C2 on a self-signed certificate and still get encrypted traffic past anyone not doing TLS inspection.</p>
+
+<h2>The C2 loop</h2>
+<p><strong>FUN_00401406</strong> connects (five tries, 60 s apart), creates two anonymous pipes for a future shell, changes its working directory to <code>C:\Windows\tasks</code> to blend in, and announces itself with <code>"&lt;hostname&gt; Connected!"</code>. Then it loops: POST pending output, read the reply, split it on spaces, and match the first token against a command table (8-byte entries starting at <code>0x0040402C</code>).</p>
+<pre><code>case  command  what it does
+0     shell    hidden cmd.exe, stdin/stdout/stderr over pipes
+1     list     /p processes  /s services  /d drives
+2     kill     /p PID        /s stop service
+3     getf     fetch a file from the C2 and write it to disk
+4     putf     read a local file, POST it to the C2 in 128 KB chunks
+5     start    /p process (hidden window)  /s service
+6     whoami   GetUserNameExA, DOMAIN\user
+7     sleep    change the beacon interval
+8     version  returns "20111117"
+9     pidrun   run a command with another process's token
+10    geturl   URLDownloadToFileA from any URL
+-     other    piped to the shell, or "Start shell first."</code></pre>
+
+<h2>Shell and token theft</h2>
+<p><strong>FUN_00401BA9</strong> finds <code>cmd.exe</code> via <code>%ComSpec%</code> (falling back to System32), sets <code>STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW</code> with <code>SW_HIDE</code>, and wires the pipes in. If a PID is given, it escalates instead:</p>
+<pre><code>h = OpenProcess(PROCESS_ALL_ACCESS, 0, pid);
+OpenProcessToken(h, TOKEN_QUERY | TOKEN_DUPLICATE | TOKEN_ASSIGN_PRIMARY, &amp;tok);
+CreateProcessAsUserA(tok, NULL, "cmd.exe", ...);   // shell as that user</code></pre>
+<p><code>pidrun</code> (FUN_004027A8 / FUN_00402817) reuses the same three calls to run any command under a stolen token. Point it at a SYSTEM process and a low-privilege foothold becomes SYSTEM.</p>
+
+<h2>Everything else</h2>
+<ul>
+<li><strong>list</strong>: <code>CreateToolhelp32Snapshot</code> + <code>Process32First/Next</code> for processes (the same APIs I saw in anti-VM checks), <code>EnumServicesStatusExA</code> called twice (size, then data) for services, <code>GetLogicalDrives</code> + <code>GetDriveTypeA</code> + <code>GetVolumeInformationA</code> for drives.</li>
+<li><strong>kill / start</strong>: <code>TerminateProcess</code>, or the Service Control Manager with <code>ControlService</code> / <code>StartServiceA</code>, with friendly error messages for 0x420, 0x424 and 0x426.</li>
+<li><strong>getf / putf</strong>: runs in its own thread with its own connection and a different User-Agent (<code>Mozilla/5.0</code>), strips HTTP headers at the <code>\r\n\r\n</code> boundary.</li>
+<li><strong>geturl</strong>: a one-liner around <code>URLDownloadToFileA</code>, which lets the operator stage more tools from anywhere.</li>
+</ul>
+
+<h2>IOCs and detection ideas</h2>
+<pre><code>network   stratos[.]mcafeepaying[.]com
+          HTTP header "Computer: &lt;hostname&gt;"
+          GET /&lt;HOSTNAME&gt;/ then POSTs, User-Agent Mozilla/4.0 and 5.0
+host      process with cwd C:\Windows\tasks
+          hidden cmd.exe whose parent isn't explorer.exe
+          CreateProcessAsUser from a non-service process
+strings   "Start shell first."  "Shell started successfully!"
+          "Syntax error! Usage: GetUrl URL FileName"  "20111117"</code></pre>
+
+<h2>What I took away</h2>
+<ul>
+<li>Twelve malicious behaviors, zero exploits. It's all documented Windows API, which is exactly why API-sequence detection beats signature matching.</li>
+<li>Reading order matters. Starting from <code>entry()</code> and following the calls made a 600-line decompile readable in an afternoon.</li>
+<li>Naming things in Ghidra as you go (<code>initialize_array</code>, <code>send_get</code>, <code>create_shell</code>) is most of the work. Once the struct offsets had names, the C2 loop basically read itself.</li>
+</ul>
