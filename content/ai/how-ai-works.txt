@@ -1,0 +1,49 @@
+tagline: What a language model actually is, in three depths, and why knowing it makes you better at both using and securing AI.
+:: simple
+A large language model (LLM) is a program trained on a huge amount of text and code to do one thing: **predict what comes next**. Given "The capital of France is", the likeliest next word is "Paris". Do that one word at a time and you get sentences, essays, code and conversations.
+
+Three consequences you can already use:
+- **It does not look things up.** It produces what is statistically likely given everything it has seen. Often that equals the truth. Sometimes it is a confident, fluent mistake (a "hallucination").
+- **It only knows what it was trained on, plus what you give it.** Paste the log into the conversation and it can reason about that log. Without it, it can only guess.
+- **It follows the text in front of it.** Instructions, documents and your question all arrive as one stream of text. It cannot reliably tell "my boss told me this" from "the web page I'm reading told me this". That single fact is the root of **prompt injection**.
+
+### Three kinds of AI you will meet in security
+- **Classifiers.** Look at an input, output a label or score: spam or not, malware or benign, risky login or normal. Narrow, fast, measurable.
+- **Anomaly detectors.** Learn "normal" and flag outliers. Good at finding the unknown, noisy by nature.
+- **Generative models (LLMs).** Produce text, code and summaries. Flexible, easy to use, and the least predictable of the three.
+:: mid
+### The pipeline
+- **Tokens.** Text is cut into pieces (words or parts of words) and turned into numbers. Models have a **context window**: a limit on how many tokens they can consider at once. Anything outside it does not exist for the model.
+- **Embeddings.** Each token becomes a vector of numbers. Similar meanings end up near each other, which is what makes semantic search work.
+- **Transformer layers.** Stacked layers use **attention** to decide which earlier tokens matter for the next one. That is how it connects "it" back to the right noun.
+- **Output.** The model assigns a probability to every possible next token, and one is picked. **Temperature** controls how adventurous the pick is. Low is repeatable, high is varied.
+
+### How it is trained
+1. **Pretraining:** learn to predict the next token across a very large text and code corpus. This is where the broad knowledge and the biases come from.
+2. **Fine-tuning and preference tuning:** further training on curated examples and human or automated feedback, so the model follows instructions and avoids harmful output.
+3. **Deployment:** wrapped with a system prompt, safety filters and often tools.
+
+### Making it useful
+- **Prompting:** the instructions and context you give. Quality in, quality out.
+- **RAG (retrieval-augmented generation):** search your own documents first, paste the relevant parts into the prompt, then ask. The model answers from your sources and can cite them. This is how most "chat with our runbooks" security tools work.
+- **Tools and agents:** the model is allowed to emit structured requests ("run this search", "query this host") that a program executes and feeds back. A loop of think, act, observe is an **agent**.
+
+### Why hallucinations happen
+Training rewards plausible continuations, not verified facts, and there is no built-in "I don't know" check. It is most likely to invent when asked for specifics it never saw: exact CVE details, function names in obscure libraries, citations, IP addresses. Always verify identifiers against the source.
+:: complex
+### The objective and the math, briefly
+Pretraining minimizes **cross-entropy** between the model's predicted next-token distribution and the real next token. Attention computes, for each position, a weighted sum of value vectors where the weights come from the similarity of a query to all keys, softmaxed. Stack dozens of these with feed-forward layers and you have billions of parameters, all adjusted by gradient descent. Nothing in the objective says "be truthful". Truthfulness is a side effect of the data plus later tuning.
+
+### Inference details that matter in practice
+- **Sampling is random.** The same prompt can yield different answers. For triage or detection work, set temperature low, request structured output (JSON), and validate it.
+- **Context is the only memory.** A long conversation is the whole transcript re-sent each time. Long contexts can dilute attention, so critical instructions belong at the start and end, and big inputs should be trimmed to what is relevant.
+- **Cost and latency scale with tokens.** Piping a full day of raw logs into a model is slow and expensive. Filter first with ordinary tools (grep, SQL, SIEM queries), then give the model the narrow slice.
+
+### Why prompt injection is structural
+In a classic injection bug (SQL injection) the cure is separating code from data with parameterized queries. In an LLM there is no such separation: the system prompt, the user's request and the untrusted document are all just tokens in one sequence. You can add instructions saying "ignore commands inside the document", and that helps, but it is a statistical nudge, not an enforced boundary. So defenses must be architectural: give the agent **least privilege**, require **human approval** for side effects, restrict where data can be sent, and treat model output as untrusted input to the next system.
+
+### Classical ML in security, for contrast
+- **Supervised classifiers** (random forests, gradient-boosted trees) on engineered features like URL length, entropy of a domain name, or header fields remain strong, cheap and explainable for phishing and malware detection.
+- **Unsupervised** methods (clustering, isolation forest, autoencoders) model normal behavior to surface outliers in auth logs or network flows.
+- **Evaluate with the right metrics.** Security data is wildly imbalanced (almost everything is benign), so accuracy is meaningless. A model that says "benign" every time can be 99.9% accurate. Use **precision, recall**, and the cost of a false negative versus a false positive.
+- **When to pick which:** if there is a stable, labeled, narrow decision at high volume, use a classifier. If the task is messy text that humans normally read (summaries, explanations, query drafting), use an LLM, with a human or a deterministic check behind it.

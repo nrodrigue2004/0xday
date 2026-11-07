@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>how it works :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, how it works: Tokens, training, RAG and agents, plus classical ML, at three depths.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=8adc801e">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=8adc801e" defer></script>
+<script src="../site.js?v=8adc801e" defer></script>
+<script src="../fx.js?v=8adc801e" defer></script>
+<script src="../learn.js?v=8adc801e" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter how-ai-works</p>
+<h1>~/ai/how-ai-works</h1>
+<p>What a language model actually is, in three depths, and why knowing it makes you better at both using and securing AI.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="how-ai-works">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A large language model (LLM) is a program trained on a huge amount of text and code to do one thing: <strong>predict what comes next</strong>. Given "The capital of France is", the likeliest next word is "Paris". Do that one word at a time and you get sentences, essays, code and conversations.</p>
+<p>Three consequences you can already use:</p>
+<ul><li><strong>It does not look things up.</strong> It produces what is statistically likely given everything it has seen. Often that equals the truth. Sometimes it is a confident, fluent mistake (a "hallucination").</li><li><strong>It only knows what it was trained on, plus what you give it.</strong> Paste the log into the conversation and it can reason about that log. Without it, it can only guess.</li><li><strong>It follows the text in front of it.</strong> Instructions, documents and your question all arrive as one stream of text. It cannot reliably tell "my boss told me this" from "the web page I'm reading told me this". That single fact is the root of <strong>prompt injection</strong>.</li></ul>
+<h4>Three kinds of AI you will meet in security</h4>
+<ul><li><strong>Classifiers.</strong> Look at an input, output a label or score: spam or not, malware or benign, risky login or normal. Narrow, fast, measurable.</li><li><strong>Anomaly detectors.</strong> Learn "normal" and flag outliers. Good at finding the unknown, noisy by nature.</li><li><strong>Generative models (LLMs).</strong> Produce text, code and summaries. Flexible, easy to use, and the least predictable of the three.</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The pipeline</h4>
+<ul><li><strong>Tokens.</strong> Text is cut into pieces (words or parts of words) and turned into numbers. Models have a <strong>context window</strong>: a limit on how many tokens they can consider at once. Anything outside it does not exist for the model.</li><li><strong>Embeddings.</strong> Each token becomes a vector of numbers. Similar meanings end up near each other, which is what makes semantic search work.</li><li><strong>Transformer layers.</strong> Stacked layers use <strong>attention</strong> to decide which earlier tokens matter for the next one. That is how it connects "it" back to the right noun.</li><li><strong>Output.</strong> The model assigns a probability to every possible next token, and one is picked. <strong>Temperature</strong> controls how adventurous the pick is. Low is repeatable, high is varied.</li></ul>
+<h4>How it is trained</h4>
+<p>1. <strong>Pretraining:</strong> learn to predict the next token across a very large text and code corpus. This is where the broad knowledge and the biases come from. 2. <strong>Fine-tuning and preference tuning:</strong> further training on curated examples and human or automated feedback, so the model follows instructions and avoids harmful output. 3. <strong>Deployment:</strong> wrapped with a system prompt, safety filters and often tools.</p>
+<h4>Making it useful</h4>
+<ul><li><strong>Prompting:</strong> the instructions and context you give. Quality in, quality out.</li><li><strong>RAG (retrieval-augmented generation):</strong> search your own documents first, paste the relevant parts into the prompt, then ask. The model answers from your sources and can cite them. This is how most "chat with our runbooks" security tools work.</li><li><strong>Tools and agents:</strong> the model is allowed to emit structured requests ("run this search", "query this host") that a program executes and feeds back. A loop of think, act, observe is an <strong>agent</strong>.</li></ul>
+<h4>Why hallucinations happen</h4>
+<p>Training rewards plausible continuations, not verified facts, and there is no built-in "I don't know" check. It is most likely to invent when asked for specifics it never saw: exact CVE details, function names in obscure libraries, citations, IP addresses. Always verify identifiers against the source.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>The objective and the math, briefly</h4>
+<p>Pretraining minimizes <strong>cross-entropy</strong> between the model's predicted next-token distribution and the real next token. Attention computes, for each position, a weighted sum of value vectors where the weights come from the similarity of a query to all keys, softmaxed. Stack dozens of these with feed-forward layers and you have billions of parameters, all adjusted by gradient descent. Nothing in the objective says "be truthful". Truthfulness is a side effect of the data plus later tuning.</p>
+<h4>Inference details that matter in practice</h4>
+<ul><li><strong>Sampling is random.</strong> The same prompt can yield different answers. For triage or detection work, set temperature low, request structured output (JSON), and validate it.</li><li><strong>Context is the only memory.</strong> A long conversation is the whole transcript re-sent each time. Long contexts can dilute attention, so critical instructions belong at the start and end, and big inputs should be trimmed to what is relevant.</li><li><strong>Cost and latency scale with tokens.</strong> Piping a full day of raw logs into a model is slow and expensive. Filter first with ordinary tools (grep, SQL, SIEM queries), then give the model the narrow slice.</li></ul>
+<h4>Why prompt injection is structural</h4>
+<p>In a classic injection bug (SQL injection) the cure is separating code from data with parameterized queries. In an LLM there is no such separation: the system prompt, the user's request and the untrusted document are all just tokens in one sequence. You can add instructions saying "ignore commands inside the document", and that helps, but it is a statistical nudge, not an enforced boundary. So defenses must be architectural: give the agent <strong>least privilege</strong>, require <strong>human approval</strong> for side effects, restrict where data can be sent, and treat model output as untrusted input to the next system.</p>
+<h4>Classical ML in security, for contrast</h4>
+<ul><li><strong>Supervised classifiers</strong> (random forests, gradient-boosted trees) on engineered features like URL length, entropy of a domain name, or header fields remain strong, cheap and explainable for phishing and malware detection.</li><li><strong>Unsupervised</strong> methods (clustering, isolation forest, autoencoders) model normal behavior to surface outliers in auth logs or network flows.</li><li><strong>Evaluate with the right metrics.</strong> Security data is wildly imbalanced (almost everything is benign), so accuracy is meaningless. A model that says "benign" every time can be 99.9% accurate. Use <strong>precision, recall</strong>, and the cost of a false negative versus a false positive.</li><li><strong>When to pick which:</strong> if there is a stable, labeled, narrow decision at high volume, use a classifier. If the task is messy text that humans normally read (summaries, explanations, query drafting), use an LLM, with a human or a deterministic check behind it.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="ai-history.html">&lt; history</a><a href="ai-for-defense.html">AI for defense &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

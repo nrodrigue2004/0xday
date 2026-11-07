@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>history :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, history: From the 1956 Dartmouth workshop to LLMs, and the security timeline alongside it.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=8adc801e">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=8adc801e" defer></script>
+<script src="../site.js?v=8adc801e" defer></script>
+<script src="../fx.js?v=8adc801e" defer></script>
+<script src="../learn.js?v=8adc801e" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ai-history</p>
+<h1>~/ai/ai-history</h1>
+<p>From a 1956 summer workshop to chatbots in the SOC: the short version of how we got here, and why it keeps happening in waves.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ai-history">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>AI is not new. The term was coined in 1956 and the field has gone through <strong>boom, bust, boom</strong> cycles ever since. Each boom promised more than the hardware and data of the day could deliver, so funding collapsed, and each comeback happened because something concrete changed: more computing power, more data, or a better method.</p>
+<p>The idea that matters for security: <strong>AI has been in defensive tools for decades</strong> (spam filters, antivirus classifiers, anomaly detection). What changed recently is that general-purpose language models became cheap and easy for everyone to use, attackers and defenders alike.</p>
+<h4>The timeline in one screen</h4>
+<ul><li><strong>1950</strong> Alan Turing publishes "Computing Machinery and Intelligence" and proposes what became the Turing test</li><li><strong>1956</strong> The Dartmouth workshop. The phrase "artificial intelligence" is coined for it</li><li><strong>1958</strong> Frank Rosenblatt demonstrates the perceptron, an early learning machine</li><li><strong>1966</strong> ELIZA, a chatbot that pattern-matches your sentences back at you</li><li><strong>1970s</strong> First "AI winter": results fall short of promises and funding dries up</li><li><strong>1980s</strong> Expert systems (hand-written if/then rules) go commercial. The second bust follows in the late 80s and early 90s</li><li><strong>1997</strong> IBM Deep Blue beats world chess champion Garry Kasparov</li><li><strong>2012</strong> AlexNet wins the ImageNet image contest by a wide margin and deep learning takes over</li><li><strong>2016</strong> AlphaGo beats Lee Sedol at Go</li><li><strong>2017</strong> The transformer architecture is published ("Attention Is All You Need")</li><li><strong>2022</strong> ChatGPT launches in November and language models go mainstream</li></ul>
+<p class="callout">Pattern worth remembering: every wave starts with a demo that looks like magic and ends with people learning exactly where it breaks. Security work lives in the "where it breaks" part.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Four eras, and why each ended</h4>
+<ul><li><strong>Symbolic AI (1950s-80s).</strong> Humans wrote the rules. Works on narrow, well-defined problems (expert systems for diagnosis and configuration). Breaks when the world is messier than the rule list, and rules do not scale to maintain.</li><li><strong>Statistical machine learning (1990s-2000s).</strong> Instead of writing rules, show the machine labeled examples and let it fit a model. This is where <strong>spam filtering</strong> (naive Bayes classifiers became popular around 2002) and early ML malware classification come from. It needs hand-picked features, which takes expert effort.</li><li><strong>Deep learning (2012 onward).</strong> Neural networks learn their own features from raw data, given enough data and GPUs. Image recognition, speech and translation jump forward. For security: much better malware and phishing classifiers, and also <strong>adversarial examples</strong> (tiny input tweaks that fool a model), described in research from 2013 and 2014.</li><li><strong>Foundation models and LLMs (2018 onward).</strong> One model, trained on a huge amount of text and code, can be steered by plain-language instructions to do many tasks. This is the first era where a non-expert can use the technology without building anything.</li></ul>
+<h4>The security timeline runs in parallel</h4>
+<ul><li><strong>1987</strong> Dorothy Denning's intrusion-detection model: learn what normal activity looks like and flag deviations. The basis of anomaly detection ever since</li><li><strong>Early 2000s</strong> Bayesian spam filtering becomes standard</li><li><strong>2010s</strong> Machine-learning endpoint products, behavior analytics (UEBA) and "anomaly" network tools reach the market</li><li><strong>2016</strong> DARPA Cyber Grand Challenge: machines find, patch and exploit bugs in a live competition, no humans driving</li><li><strong>2016</strong> Microsoft's Tay chatbot is manipulated into abusive output within a day of launch, an early public lesson in adversarial users</li><li><strong>2019</strong> A widely reported voice-clone fraud against a UK energy firm; deepfake-enabled fraud has since grown (a Hong Kong finance worker was reported to have paid out around US$25 million in 2024 after a deepfake video call)</li><li><strong>2023</strong> Security vendors announce LLM assistants for analysts; "criminal LLM" tools such as WormGPT are advertised on forums</li><li><strong>2024-2025</strong> Researchers show AI agents finding real vulnerabilities in real software (Google's Big Sleep reported an exploitable bug in SQLite in late 2024), and DARPA's AI Cyber Challenge finals run at DEF CON in August 2025</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Why now: three ingredients</h4>
+<p>Neural networks are old. Backpropagation (popularized in 1986) is what trains them. What was missing was <strong>compute</strong> (GPUs), <strong>data</strong> (the web), and <strong>an architecture that parallelizes</strong>. The transformer (2017) replaced sequential processing with attention, which trains efficiently across thousands of chips. Scaling the same recipe (more parameters, more data, more compute) kept producing new abilities, and the 2020 scaling-law results formalized the trend. That is the real story behind the jump from GPT-style research models to usable assistants: a lot of engineering on top of an old idea.</p>
+<h4>Lessons the security field already paid for</h4>
+<ul><li><strong>Detection ML has always fought concept drift.</strong> Models trained on yesterday's traffic degrade as behavior changes, so they need retraining, monitoring and a baseline to compare against.</li><li><strong>Anomalous is not malicious.</strong> Early anomaly detectors drowned analysts in false positives, which is a big reason behavior analytics took years to become useful. Expect the same failure mode from any AI that raises alerts.</li><li><strong>Anything that learns can be taught wrong.</strong> Spammers poisoned and evaded Bayesian filters (random words appended to messages). The modern version is data poisoning and prompt injection.</li><li><strong>Automation shifts work, it does not delete it.</strong> The Cyber Grand Challenge machines were impressive on a small contrived OS, and human experts still found the real-world case far messier. Treat "AI solves X" claims the same way: ask what the test environment looked like.</li></ul>
+<h4>Reading list</h4>
+<ul><li>Turing 1950; Denning 1987; the transformer paper (2017); the NIST adversarial machine learning taxonomy (NIST AI 100-2). Links live on the <a href="news.html">news and sources page</a>.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><span></span><a href="how-ai-works.html">how it works &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

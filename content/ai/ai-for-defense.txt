@@ -1,0 +1,100 @@
+tagline: Where AI genuinely helps a SOC today, where it fails, and how to put it in a workflow without trusting it blindly.
+:: simple
+Defenders drown in volume: millions of log lines, hundreds of alerts, too few analysts. AI helps by doing the **reading and sorting** so humans can do the **deciding**.
+
+### What it is good at
+- **Filtering the obvious:** spam, known-bad file families and routine alerts get classified automatically
+- **Summarizing:** turn an alert, a ticket thread or a 40-page incident into five lines
+- **Translating:** plain English into a SIEM query (KQL, SPL, SQL), or an unfamiliar log format into an explanation
+- **Drafting:** incident reports, detection rule first drafts, shift handoff notes
+- **Prioritizing:** rank vulnerabilities by how likely they are to be exploited (the EPSS score from FIRST does this with a statistical model)
+
+### What it is bad at
+- Knowing your environment. It has not seen your network
+- Admitting what it left out. A summary can omit the one detail that matters
+- Being consistent. Same input, different output
+> Rule of thumb: AI proposes, a human or a deterministic check disposes. The lab below shows why.
+:: mid
+### Use cases by SOC stage
+- **Detect:** ML classifiers on email, endpoint and network data; anomaly detection on logins and data transfer (UEBA); LLM-assisted rule writing from a description of the behavior
+- **Triage:** auto-enrich an alert (who is this user, is this IP known, what else did this host do), then summarize with a verdict and the evidence behind it
+- **Investigate:** natural-language search over logs, "what did this account touch in the last 24h", timeline building
+- **Respond:** suggested playbook steps; automated, pre-approved low-risk actions such as disabling a compromised token
+- **Learn:** postmortem drafts, detection-gap analysis, training scenarios
+
+### A sane workflow for AI-assisted triage
+1. Collect the raw evidence with normal tools. Do not let the model fetch it from memory
+2. Give the model the evidence and a narrow question ("list every distinct source IP in this log and what each did")
+3. Make it quote: ask for log line numbers or exact strings with every claim
+4. Spot-check the claims against the raw data. Check what the summary **omits**, not just what it says
+5. The analyst writes the verdict. The model's text is a draft
+
+### Failure modes to expect
+- **Omission.** A fluent summary that is accurate in every sentence and still misses a source, a host or a time window
+- **Invented specifics.** IPs, CVE numbers and hostnames that look right and are not
+- **False confidence.** "No evidence of compromise" when it simply was not shown the evidence
+- **Data leakage.** Pasting customer logs, credentials or incident details into a tool your company has not approved
+- **Alert fatigue, moved.** If it raises 100 new "AI findings" a day, you replaced one noise source with another
+:: complex
+### Designing the integration
+- **Put the LLM where errors are cheap.** Enrichment, summarization and query drafting are recoverable. Autonomous containment (isolating a production server) is not. Use tiers: **suggest**, then **approve**, then **auto-execute** only for low-impact, reversible actions with a rollback.
+- **Constrain output.** Ask for JSON with required fields (`verdict`, `evidence[]`, `confidence`, `unknowns[]`), validate against a schema, and reject anything that does not parse. An explicit `unknowns` field helps counter omission.
+- **Ground it.** RAG over your runbooks, asset inventory and detection catalog, so answers come from your sources and cite them.
+- **Log everything.** Store the prompt, retrieved context, model version and output for each decision. You need that for audit, debugging and tuning. Models change, and a silent upgrade can change behavior.
+- **Evaluate before trusting.** Build a test set of past incidents with known answers, run the pipeline, and measure precision, recall, and the specific misses. Re-run after any model, prompt or data change. Track operational metrics (mean time to triage, escalation rate, analyst override rate) and not just model scores.
+- **Protect the pipeline itself.** The agent reads attacker-controlled text (email bodies, log fields, filenames, web pages). Anything the attacker can write into a log can try to instruct your tools. Strip or fence untrusted fields, minimize tool permissions, and never give a triage agent credentials it does not need.
+
+### Detection engineering with AI
+LLMs are decent at drafting a Sigma rule or a KQL query from a description of attacker behavior and at mapping it to MITRE ATT&CK. They are not a substitute for testing: run every generated rule against known-good and known-bad data, check the false-positive rate, and read the logic line by line. The same applies to AI-written SOAR playbooks and scripts.
+
+### Metrics that show whether it helps
+Time to first triage, percent of alerts closed correctly without escalation, analyst overrides of the AI's verdict, and missed-detection reviews. If overrides are high, the tool is creating work. If nobody ever overrides, nobody is checking.
+:: lab
+style: ticket
+host: soc
+user: analyst
+system: SOC queue
+id: #SOC-3104
+subject: Possible brute force then login on VPN gateway (AI summary attached)
+priority: P2
+from: SOAR auto-triage
+sla: 1h
+attach: ai_summary.txt, vpn_auth.log
+:: brief
+The auto-triage assistant attached a summary. It reads well, and its verdict is "single source, contained, low risk". Your job is to check it against the raw `vpn_auth.log`.
+
+Compare the summary's claims with the log. The summary is **missing one external IP address** that was involved in a successful login. Resolve the ticket with that **IP address**.
+:: answer
+198.51.100.77
+:: hint
+Do not read the whole log. List the distinct source IPs: extract the IP column and run it through `sort -u`.
+:: hint
+The summary mentions only one IP. Try `grep Accepted vpn_auth.log` and compare each source with the summary.
+:: hint
+One of the successful logins comes from an address that never failed first, and the summary never mentions it.
+:: solution
+`grep Accepted ~/case/vpn_auth.log` shows two successful logins. The summary describes **203.0.113.50** (several failures, then success for `svc-backup`) and reports it as the only source. The log also shows **198.51.100.77** logging in as `admin` once, with no preceding failures, a few minutes after. Nothing in the summary is false, which is exactly why it is dangerous: it is an **omission**. The correct response is to treat `admin` as potentially compromised: confirm with the owner, check MFA records and the session's activity, reset credentials if unexplained.
+
+Takeaway: when AI summarizes evidence, validate the set of entities (IPs, users, hosts), not just the sentences.
+:: verify
+grep Accepted ~/case/vpn_auth.log | grep 198.51.100.77
+:: file /home/analyst/case/ai_summary.txt
+AUTO-TRIAGE SUMMARY (model-generated)
+Alert: repeated failed VPN logins followed by a successful login.
+Finding: Source 203.0.113.50 made 6 failed attempts against svc-backup between 09:12 and 09:14,
+then logged in successfully at 09:15. This pattern is consistent with password guessing against
+a service account. No other external sources observed.
+Verdict: SINGLE SOURCE, LOW RISK. Recommended action: rotate svc-backup password and close.
+Confidence: high
+:: file /home/analyst/case/vpn_auth.log
+Nov  7 09:12:03 vpn01 sshd[2201]: Failed password for svc-backup from 203.0.113.50 port 50122 ssh2
+Nov  7 09:12:09 vpn01 sshd[2203]: Failed password for svc-backup from 203.0.113.50 port 50124 ssh2
+Nov  7 09:12:31 vpn01 sshd[2207]: Failed password for svc-backup from 203.0.113.50 port 50131 ssh2
+Nov  7 09:13:02 vpn01 sshd[2210]: Failed password for svc-backup from 203.0.113.50 port 50140 ssh2
+Nov  7 09:13:40 vpn01 sshd[2214]: Failed password for svc-backup from 203.0.113.50 port 50147 ssh2
+Nov  7 09:14:12 vpn01 sshd[2220]: Failed password for svc-backup from 203.0.113.50 port 50153 ssh2
+Nov  7 09:15:01 vpn01 sshd[2231]: Accepted password for svc-backup from 203.0.113.50 port 50160 ssh2
+Nov  7 09:16:44 vpn01 sshd[2240]: Accepted publickey for m.lee from 192.0.2.18 port 41822 ssh2
+Nov  7 09:19:27 vpn01 sshd[2252]: Accepted password for admin from 198.51.100.77 port 60233 ssh2
+Nov  7 09:21:05 vpn01 sudo: admin : TTY=pts/2 ; PWD=/root ; USER=root ; COMMAND=/usr/bin/tar czf /tmp/backup.tgz /etc /home
+Nov  7 09:22:50 vpn01 sshd[2267]: Accepted publickey for j.smith from 192.0.2.44 port 40012 ssh2

@@ -1,0 +1,53 @@
+tagline: What AI changes for attackers, what it does not change, and how to adjust your defenses accordingly.
+:: simple
+AI gives attackers the same thing it gives everyone else: **speed, scale and polish**. It makes existing attacks cheaper rather than inventing a new kind of hack.
+
+- **Better phishing.** Typos and awkward grammar used to be a giveaway. Now a message in clean, natural language in any language costs nothing to produce, and can be tailored to a target from public information.
+- **Voice and video fakes (deepfakes).** A few seconds of audio can be enough to clone a voice. Fraud calls "from the CEO" and fake video meetings have been used to move real money.
+- **Faster recon.** Summarizing a target's public footprint (job posts, social profiles, leaked data) takes minutes.
+- **Coding help.** Assistants speed up writing scripts and tweaking existing malware. Mainstream models refuse some requests, but criminal-marketed tools and jailbreaks exist.
+- **Vulnerability research.** Models and agents are getting better at spotting bugs in code, which helps defenders and attackers alike.
+
+### The takeaway for defenders
+Stop relying on "it looks wrong" as your main defense. Rely on **process**: verify requests out-of-band, use phishing-resistant MFA, and require approval steps that a convincing message cannot skip.
+:: mid
+### What actually changed
+- **Barrier to entry** dropped for low-skill actors. Cost per attempt dropped for everyone.
+- **Personalization at scale.** Spear phishing used to need human research per target. Now it can be generated per row of a spreadsheet.
+- **Multilingual reach.** The "bad translation" tell is gone.
+- **Social engineering across channels.** Email plus a cloned voice call plus a fake video call in a single story.
+- **Adaptive tooling.** Malware that asks a model to rewrite itself is possible in principle and has been shown in research, though most real-world attacks still rely on old, boring techniques that work.
+
+### What did not change
+- Initial access is still dominated by stolen credentials, phishing, exposed services and unpatched software.
+- Attackers still need infrastructure, a way to get paid and a way to stay undetected, and defenders still see the artifacts.
+- Basic hygiene (MFA, patching, least privilege, backups, logging) blocks most of it, with or without AI.
+
+### Defensive adjustments
+- **Out-of-band verification for money and access.** Hang up and call back on a known number. Use a pre-agreed code word for high-risk approvals.
+- **Phishing-resistant MFA** (FIDO2 or passkeys) so a perfect fake login page captures nothing reusable.
+- **Update awareness training.** Teach "verify the request" rather than "spot the errors".
+- **Email authentication and filtering:** SPF, DKIM and DMARC, plus link and attachment sandboxing.
+- **Limit what a public footprint reveals:** org charts, employee emails, voice samples.
+- **Watch for AI-assisted scraping and credential stuffing** with rate limits and bot detection.
+:: complex
+### Reading threat reports critically
+AI companies and security vendors now publish reports on how their tools are misused (Anthropic, OpenAI, Google and Microsoft have each published such reports). These are valuable primary sources, with a caveat: each vendor sees only its own platform and has reasons to emphasize some findings. Read for the **concrete behaviors** (what task was automated, which stage of the kill chain) and discount the headlines. A good question for any claim: what was automated, what still needed a human, and what was the success rate?
+
+### Mapping to the kill chain
+- **Recon:** OSINT summarization, target profiling
+- **Weaponization:** phishing lures, scripts and malware tweaks, exploit adaptation from public advisories
+- **Delivery:** mass personalization, voice/video impersonation
+- **Exploitation:** automated vulnerability triage and proof-of-concept drafting; the shrinking window between a patch being published and exploit code appearing is the thing to watch
+- **Actions on objectives:** summarizing stolen data to find the valuable parts faster
+
+Each stage maps back to a defensive control and a log source. That is how to answer "what do we do about AI attackers": nothing new at the principle level, but faster patching, tighter identity controls and better detection coverage, because the time you have is shrinking.
+
+### Detection angles
+- Lure content is less detectable by grammar, so key on **infrastructure and behavior**: new domains, mismatched Reply-To, authentication failures, odd sending patterns, link destinations
+- Voice and video: procedural controls beat detection tools, which are unreliable and in an arms race
+- Credential theft: impossible-travel, new device, token anomalies and conditional access policies
+- Automation at the target: unusually regular timing, high request rates, uniform user agents
+
+### Ethics and boundaries for a learner
+Practice on systems you own or have written permission to test (your homelab, CTF platforms, intentionally vulnerable VMs). Using AI to attack anyone else is the same crime as doing it by hand, and the provider logs can be subpoenaed.

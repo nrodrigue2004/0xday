@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI for attackers :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, AI for attackers: Phishing, deepfakes, recon, and what to change in your defenses.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=8adc801e">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=8adc801e" defer></script>
+<script src="../site.js?v=8adc801e" defer></script>
+<script src="../fx.js?v=8adc801e" defer></script>
+<script src="../learn.js?v=8adc801e" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ai-for-attackers</p>
+<h1>~/ai/ai-for-attackers</h1>
+<p>What AI changes for attackers, what it does not change, and how to adjust your defenses accordingly.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ai-for-attackers">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>AI gives attackers the same thing it gives everyone else: <strong>speed, scale and polish</strong>. It makes existing attacks cheaper rather than inventing a new kind of hack.</p>
+<ul><li><strong>Better phishing.</strong> Typos and awkward grammar used to be a giveaway. Now a message in clean, natural language in any language costs nothing to produce, and can be tailored to a target from public information.</li><li><strong>Voice and video fakes (deepfakes).</strong> A few seconds of audio can be enough to clone a voice. Fraud calls "from the CEO" and fake video meetings have been used to move real money.</li><li><strong>Faster recon.</strong> Summarizing a target's public footprint (job posts, social profiles, leaked data) takes minutes.</li><li><strong>Coding help.</strong> Assistants speed up writing scripts and tweaking existing malware. Mainstream models refuse some requests, but criminal-marketed tools and jailbreaks exist.</li><li><strong>Vulnerability research.</strong> Models and agents are getting better at spotting bugs in code, which helps defenders and attackers alike.</li></ul>
+<h4>The takeaway for defenders</h4>
+<p>Stop relying on "it looks wrong" as your main defense. Rely on <strong>process</strong>: verify requests out-of-band, use phishing-resistant MFA, and require approval steps that a convincing message cannot skip.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>What actually changed</h4>
+<ul><li><strong>Barrier to entry</strong> dropped for low-skill actors. Cost per attempt dropped for everyone.</li><li><strong>Personalization at scale.</strong> Spear phishing used to need human research per target. Now it can be generated per row of a spreadsheet.</li><li><strong>Multilingual reach.</strong> The "bad translation" tell is gone.</li><li><strong>Social engineering across channels.</strong> Email plus a cloned voice call plus a fake video call in a single story.</li><li><strong>Adaptive tooling.</strong> Malware that asks a model to rewrite itself is possible in principle and has been shown in research, though most real-world attacks still rely on old, boring techniques that work.</li></ul>
+<h4>What did not change</h4>
+<ul><li>Initial access is still dominated by stolen credentials, phishing, exposed services and unpatched software.</li><li>Attackers still need infrastructure, a way to get paid and a way to stay undetected, and defenders still see the artifacts.</li><li>Basic hygiene (MFA, patching, least privilege, backups, logging) blocks most of it, with or without AI.</li></ul>
+<h4>Defensive adjustments</h4>
+<ul><li><strong>Out-of-band verification for money and access.</strong> Hang up and call back on a known number. Use a pre-agreed code word for high-risk approvals.</li><li><strong>Phishing-resistant MFA</strong> (FIDO2 or passkeys) so a perfect fake login page captures nothing reusable.</li><li><strong>Update awareness training.</strong> Teach "verify the request" rather than "spot the errors".</li><li><strong>Email authentication and filtering:</strong> SPF, DKIM and DMARC, plus link and attachment sandboxing.</li><li><strong>Limit what a public footprint reveals:</strong> org charts, employee emails, voice samples.</li><li><strong>Watch for AI-assisted scraping and credential stuffing</strong> with rate limits and bot detection.</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Reading threat reports critically</h4>
+<p>AI companies and security vendors now publish reports on how their tools are misused (Anthropic, OpenAI, Google and Microsoft have each published such reports). These are valuable primary sources, with a caveat: each vendor sees only its own platform and has reasons to emphasize some findings. Read for the <strong>concrete behaviors</strong> (what task was automated, which stage of the kill chain) and discount the headlines. A good question for any claim: what was automated, what still needed a human, and what was the success rate?</p>
+<h4>Mapping to the kill chain</h4>
+<ul><li><strong>Recon:</strong> OSINT summarization, target profiling</li><li><strong>Weaponization:</strong> phishing lures, scripts and malware tweaks, exploit adaptation from public advisories</li><li><strong>Delivery:</strong> mass personalization, voice/video impersonation</li><li><strong>Exploitation:</strong> automated vulnerability triage and proof-of-concept drafting; the shrinking window between a patch being published and exploit code appearing is the thing to watch</li><li><strong>Actions on objectives:</strong> summarizing stolen data to find the valuable parts faster</li></ul>
+<p>Each stage maps back to a defensive control and a log source. That is how to answer "what do we do about AI attackers": nothing new at the principle level, but faster patching, tighter identity controls and better detection coverage, because the time you have is shrinking.</p>
+<h4>Detection angles</h4>
+<ul><li>Lure content is less detectable by grammar, so key on <strong>infrastructure and behavior</strong>: new domains, mismatched Reply-To, authentication failures, odd sending patterns, link destinations</li><li>Voice and video: procedural controls beat detection tools, which are unreliable and in an arms race</li><li>Credential theft: impossible-travel, new device, token anomalies and conditional access policies</li><li>Automation at the target: unusually regular timing, high request rates, uniform user agents</li></ul>
+<h4>Ethics and boundaries for a learner</h4>
+<p>Practice on systems you own or have written permission to test (your homelab, CTF platforms, intentionally vulnerable VMs). Using AI to attack anyone else is the same crime as doing it by hand, and the provider logs can be subpoenaed.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="ai-for-defense.html">&lt; AI for defense</a><a href="attacking-ai.html">attacking AI &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

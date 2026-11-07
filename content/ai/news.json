@@ -1,0 +1,31 @@
+{
+  "updated": "2026-11-07",
+  "note": "This is a curated reading list, not a live feed. The site is static, so I add links by hand. Dates are when the item was published or the event happened; check each source for anything newer.",
+  "sections": [
+    {"name": "primary sources to follow", "blurb": "Check these directly for current news. No dates because they update continuously.",
+     "items": [
+       {"title": "OWASP GenAI Security Project: LLM Top 10", "url": "https://genai.owasp.org/llm-top-10/", "source": "OWASP", "note": "The standard list of LLM application risks. Start here."},
+       {"title": "MITRE ATLAS", "url": "https://atlas.mitre.org/", "source": "MITRE", "note": "ATT&CK-style matrix of attacks on AI systems, with case studies."},
+       {"title": "NIST AI Risk Management Framework", "url": "https://www.nist.gov/itl/ai-risk-management-framework", "source": "NIST", "note": "Governance-level guidance. Useful vocabulary for interviews."},
+       {"title": "NIST AI 100-2: Adversarial Machine Learning taxonomy", "url": "https://csrc.nist.gov/pubs/ai/100/2/e2025/final", "source": "NIST", "note": "Names and classifies attacks on ML systems and their mitigations."},
+       {"title": "CISA: Artificial Intelligence", "url": "https://www.cisa.gov/ai", "source": "CISA", "note": "US government guidance on secure AI use and deployment."},
+       {"title": "Simon Willison on prompt injection", "url": "https://simonwillison.net/tags/prompt-injection/", "source": "simonwillison.net", "note": "Running, readable record of real prompt injection cases."},
+       {"title": "FIRST EPSS", "url": "https://www.first.org/epss/", "source": "FIRST", "note": "A model that scores how likely a CVE is to be exploited. A good example of useful boring ML."}
+     ]},
+    {"name": "milestones worth reading", "blurb": "Events and publications referenced in this section, newest first.",
+     "items": [
+       {"date": "2025-08", "title": "DARPA AI Cyber Challenge finals at DEF CON", "url": "https://aicyberchallenge.com/", "source": "DARPA", "note": "Teams built systems that find and patch vulnerabilities in open-source code autonomously."},
+       {"date": "2024-10", "title": "From Naptime to Big Sleep", "url": "https://googleprojectzero.blogspot.com/2024/10/from-naptime-to-big-sleep.html", "source": "Google Project Zero", "note": "An LLM-based agent finds a real memory-safety bug in SQLite. Read the limits the authors state."},
+       {"date": "2024-08", "title": "EU AI Act enters into force", "url": "https://artificialintelligenceact.eu/", "source": "EU", "note": "Obligations phase in over several years."},
+       {"date": "2023-01", "title": "NIST AI RMF 1.0 released", "url": "https://www.nist.gov/itl/ai-risk-management-framework", "source": "NIST", "note": "First version of the framework."},
+       {"date": "2017-06", "title": "Attention Is All You Need", "url": "https://arxiv.org/abs/1706.03762", "source": "arXiv", "note": "The transformer paper behind modern LLMs."}
+     ]},
+    {"name": "threat reports from AI companies", "blurb": "Vendors publish how their tools get misused. Read for concrete behaviors and discount the headlines.",
+     "items": [
+       {"title": "Anthropic threat intelligence reports", "url": "https://www.anthropic.com/news", "source": "Anthropic", "note": "Search the news page for threat or misuse reports."},
+       {"title": "OpenAI: disrupting malicious uses of AI", "url": "https://openai.com/global-affairs/", "source": "OpenAI", "note": "Periodic reports on disrupted operations."},
+       {"title": "Google Threat Intelligence Group blog", "url": "https://cloud.google.com/blog/topics/threat-intelligence", "source": "Google", "note": "Includes research on adversary use of generative AI."},
+       {"title": "Microsoft Security blog", "url": "https://www.microsoft.com/en-us/security/blog/", "source": "Microsoft", "note": "Threat intelligence and Security Copilot coverage."}
+     ]}
+  ]
+}

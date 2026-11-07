@@ -1,0 +1,56 @@
+tagline: How to get the most out of AI as a learner and on the job without trusting it where you shouldn't.
+:: simple
+Treat an AI assistant like a **fast, well-read, overconfident intern**: great at first drafts, explanations and busywork, wrong often enough that you check everything that matters.
+
+### As a learner
+- **Try first, then ask.** Struggle with the problem for a few minutes, then ask for a hint, not the answer. Understanding comes from the struggle.
+- **Ask it to explain, then quiz you.** "Explain TCP three-way handshake like I know subnetting but not sockets. Then ask me 5 questions, one at a time."
+- **Verify against real docs.** Official documentation, RFCs and the vendor's reference are the source of truth.
+- **Write your own notes** afterwards. If you can't explain it without the chat open, you haven't learned it.
+- **Check the exam rules.** For certifications like Security+, use AI to study, never during an exam.
+
+### On the job
+- **Use only approved tools,** and never paste credentials, customer data or private incident details into one that isn't.
+- **You own the output.** If AI wrote it and it's wrong, it's still your name on it.
+- **Keep a human in the loop** for anything that changes a system.
+:: mid
+### A prompt structure that works
+```code
+Role:       You are helping a SOC analyst triage a VPN alert.
+Context:    <paste only the relevant log lines / ticket text>
+Task:       List every distinct source IP and what each one did.
+Format:     Table: ip | actions | first_seen | last_seen. Quote the log line number for each row.
+Constraints: Use only the text above. If something isn't in it, write "not in data".
+Check:      After the table, list anything you are unsure about.
+```
+The parts that do the most work: **give the evidence, constrain to it, demand quotes, and ask for unknowns**.
+
+### Habits that make you better
+- **Decompose.** Break big tasks into steps and check each. One huge prompt hides errors.
+- **Ask it to argue the other side.** "What evidence would show this is benign?" counters the model's tendency to agree with you.
+- **Generate, then test.** Detection rules, scripts and regexes: run them on sample data before trusting them. Do it in a VM or lab, not on production.
+- **Don't ask leading questions.** "Is this malware?" invites "yes". Ask "what behaviors does this show, and which are consistent with legitimate software?"
+- **Use it to understand, not to skip.** Paste an unfamiliar command or log line and ask what each part does, then confirm in the man page.
+
+### Task-by-task guide
+- **Great:** explaining concepts and unfamiliar output, drafting reports and emails, boilerplate scripts, regex, converting formats, brainstorming test cases, study quizzes
+- **Good with review:** query writing (KQL, SPL, SQL), detection rule drafts, code review, summaries of long text
+- **Poor:** exact facts without sources (CVE specifics, version numbers), anything requiring your private environment, final verdicts on incidents, legal or compliance sign-off
+:: complex
+### Build a personal workflow
+- **A verification checklist** you apply to every AI output that matters: Are the entities complete (IPs, users, hosts)? Do quoted lines exist in the source? Are identifiers real (look them up)? What did it leave out? Would I bet my reputation on this?
+- **A prompt library** of tested prompts for recurring tasks, versioned like code, each with a sample input and the output you expect.
+- **A small evaluation set.** For a task you do often (say, triaging phishing reports), keep ten past cases with known answers and run prompt changes against them. This is how professionals tell "feels better" from "is better".
+- **Log what you used it for,** in a work journal. It makes audits, handoffs and your own learning easier.
+
+### Data handling
+Know your organization's policy before you paste anything. Classify data first. Strip or pseudonymize identifiers when possible (swap real usernames and IPs for placeholders). Prefer enterprise tools with contractual data protections and a retention policy over consumer apps. For sensitive material, local models are an option.
+
+### Working with agents
+Start read-only. Grant one capability at a time. Require approval for each side-effecting action until you have measured reliability. Review the action log, not just the final answer. Remember the triad from the previous chapter: untrusted input, sensitive access and an outbound channel should not all exist in one agent.
+
+### Avoiding skill atrophy
+If a tool does your thinking, you stop building the skill. Alternate: do the task by hand sometimes, then compare with the AI's approach. For learners, a rule: **no AI for the first pass on a lab you are trying to learn from**. Use it for review and for what to study next. Interviewers can tell the difference between someone who can explain the answer and someone who pasted it.
+
+### In interviews and on a resume
+Be specific: "used an LLM to draft Sigma rules, then validated against a test log set and tuned for false positives" says more than "familiar with AI tools". Show the verification step. It is the part employers worry about.
