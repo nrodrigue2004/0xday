@@ -447,6 +447,10 @@ for sh in SHEETS:
 mi = "".join(f'<li><a class="ls-row" href="man/{s["slug"]}.html"><span class="ls-perm">{esc(s["name"])}({s["section"]})</span><span class="ls-title">{esc(s["summary"])}</span></a></li>' for s in SHEETS)
 page("man.html", "man :: 0xDay", f'<p class="cmd">apropos .</p><h1>~/man</h1><p>Cheatsheets I keep coming back to, written as man pages.</p><ul class="ls manidx">{mi}</ul>')
 
+# ---------- dojo (coding katas, see build_dojo.py) ----------
+import build_dojo
+DOJO = build_dojo.build(page, esc)
+
 # ---------- lab hub ----------
 def n(x, unit): return f'{len(x)} {unit}{"" if len(x) == 1 else "s"}' if x else "coming soon"
 HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
@@ -460,6 +464,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
 HUB = [x for x in HUB if x[3] != "coming soon"]
+HUB.insert(0, ("dojo", "dojo.html", "daily coding drills, 9 languages", f"{DOJO} katas"))
 HUB += [("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")

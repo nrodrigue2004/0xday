@@ -1,0 +1,149 @@
+lang: powershell
+name: PowerShell
+ext: ps1
+mode: local
+runtime: your own PowerShell 7 (pwsh) or Windows PowerShell 5.1
+run: pwsh ./kata.ps1
+blurb: The Windows admin side: objects down the pipeline, hashtables, and the kind of quick triage you run on a domain controller. Write the function here, copy the self-test, run it, paste the output back.
+
+=== square
+title: A proper function with a parameter
+level: 1
+tags: functions, params
+prompt:
+  Write an advanced function `Get-Square` with a mandatory `[int]` parameter `-Number` that outputs its square. Tests call it both by name (`Get-Square -Number 4`) and positionally (`Get-Square 4`).
+starter:
+  function Get-Square {
+  }
+solution:
+  function Get-Square {
+      [CmdletBinding()]
+      param(
+          [Parameter(Mandatory, Position = 0)]
+          [int]$Number
+      )
+      $Number * $Number
+  }
+hints:
+  - "A `param()` block with `[Parameter(Mandatory, Position = 0)]` gives you both call styles."
+  - In PowerShell you don't need `return`; anything left on the pipeline is the output.
+test: named :: Get-Square -Number 4 :: 16
+test: positional :: Get-Square 12 :: 144
+test: negative :: Get-Square -3 :: 9
+
+=== initials
+title: Initials
+level: 2
+tags: strings, pipeline
+prompt:
+  Write `Get-Initials` that takes a full name string and outputs the upper-case initials, e.g. `"ada lovelace"` gives `AL`. Extra spaces between names don't count.
+starter:
+  function Get-Initials {
+      param([string]$Name)
+  }
+solution:
+  function Get-Initials {
+      param([string]$Name)
+      ($Name -split '\s+' | Where-Object { $_ } | ForEach-Object { $_.Substring(0, 1).ToUpper() }) -join ''
+  }
+hints:
+  - "`-split '\\s+'` splits on runs of whitespace. `Where-Object { $_ }` drops empty strings."
+  - "Take `$_.Substring(0,1).ToUpper()` of each and `-join ''` them."
+test: two names :: Get-Initials 'ada lovelace' :: AL
+test: three names, extra spaces :: Get-Initials '  grace   brewster hopper ' :: GBH
+test: one name :: Get-Initials 'nate' :: N
+
+=== kv-hashtable
+title: Parse key=value pairs into a hashtable
+level: 3
+tags: hashtables, parsing
+prompt:
+  Write `ConvertFrom-Kv` that turns a string like `"host=dc01; port=389;  tls=true"` into a hashtable. Pairs are separated by `;`, keys and values are trimmed, and empty pairs are skipped. Values stay strings.
+starter:
+  function ConvertFrom-Kv {
+      param([string]$Text)
+      @{}
+  }
+solution:
+  function ConvertFrom-Kv {
+      param([string]$Text)
+      $h = @{}
+      foreach ($pair in $Text -split ';') {
+          if (-not $pair.Trim()) { continue }
+          $k, $v = $pair -split '=', 2
+          $h[$k.Trim()] = "$v".Trim()
+      }
+      $h
+  }
+hints:
+  - "`$k, $v = $pair -split '=', 2` splits on the first `=` only and destructures."
+  - "Build with `$h = @{}` and `$h[$key] = $value`."
+test: reads a value :: (ConvertFrom-Kv 'host=dc01; port=389;  tls=true').port :: 389
+test: key count :: (ConvertFrom-Kv 'a=1;;b=2;').Count :: 2
+test: value with = :: (ConvertFrom-Kv 'token=abc==').token :: abc==
+test: it's a hashtable :: (ConvertFrom-Kv 'a=1') -is [hashtable] :: True
+
+=== top-procs
+title: Sort objects down the pipeline
+level: 3
+tags: objects, Sort-Object, Select-Object
+prompt:
+  Write `Get-TopMemory` that takes an array of process-like objects (each has `Name` and `MemMB`) and outputs the names of the `-Top` heaviest ones (default 3), biggest first. Ties go to the name that sorts first.
+support:
+  $Procs = @(
+      [pscustomobject]@{ Name = 'svchost'; MemMB = 120 }
+      [pscustomobject]@{ Name = 'chrome';  MemMB = 900 }
+      [pscustomobject]@{ Name = 'lsass';   MemMB = 60 }
+      [pscustomobject]@{ Name = 'code';    MemMB = 900 }
+      [pscustomobject]@{ Name = 'explorer'; MemMB = 150 }
+  )
+starter:
+  function Get-TopMemory {
+      param($Items, [int]$Top = 3)
+  }
+solution:
+  function Get-TopMemory {
+      param($Items, [int]$Top = 3)
+      $Items |
+          Sort-Object -Property @{ Expression = 'MemMB'; Descending = $true }, @{ Expression = 'Name'; Descending = $false } |
+          Select-Object -First $Top |
+          ForEach-Object { $_.Name }
+  }
+hints:
+  - "`Sort-Object` takes several sort keys as hashtables: `@{ Expression = 'MemMB'; Descending = $true }`."
+  - "`Select-Object -First $Top`, then output just `$_.Name`."
+test: top three :: Get-TopMemory $Procs :: chrome\ncode\nexplorer
+test: top one :: Get-TopMemory $Procs -Top 1 :: chrome
+test: empty input :: Get-TopMemory @() ::
+
+=== subnet-hosts
+title: List the hosts in a small subnet
+level: 4
+tags: bits, networking
+prompt:
+  Write `Get-SubnetHosts` that takes a CIDR like `"192.168.1.0/30"` and outputs every usable host address (network and broadcast excluded), one per line, for prefixes /24 to /30. Do the math on a 32-bit number, not by string-poking the last octet.
+starter:
+  function Get-SubnetHosts {
+      param([string]$Cidr)
+  }
+solution:
+  function Get-SubnetHosts {
+      param([string]$Cidr)
+      $ip, $bits = $Cidr -split '/'
+      $o = [uint32[]]($ip -split '\.')
+      $n = ($o[0] -shl 24) + ($o[1] -shl 16) + ($o[2] -shl 8) + $o[3]
+      $size = [uint32][math]::Pow(2, 32 - [int]$bits)
+      $net = $n - ($n % $size)
+      for ($i = 1; $i -lt $size - 1; $i++) {
+          $h = $net + $i
+          '{0}.{1}.{2}.{3}' -f (($h -shr 24) -band 255), (($h -shr 16) -band 255), (($h -shr 8) -band 255), ($h -band 255)
+      }
+  }
+hints:
+  - "Pack the octets: `($a -shl 24) + ($b -shl 16) + ($c -shl 8) + $d`. Use `[uint32]` so nothing goes negative."
+  - "A /n block has `2^(32-n)` addresses. The network is the IP rounded down to that size; hosts are network+1 through broadcast-1."
+  - "Format back with `'{0}.{1}.{2}.{3}' -f` and `-shr` / `-band 255`."
+test: a /30 has two hosts :: Get-SubnetHosts '192.168.1.0/30' :: 192.168.1.1\n192.168.1.2
+test: works from any IP in the block :: Get-SubnetHosts '10.0.0.6/30' :: 10.0.0.5\n10.0.0.6
+test: a /29 :: (Get-SubnetHosts '172.16.5.8/29').Count :: 6
+test: a /24 ends at .254 :: Get-SubnetHosts '10.1.2.0/24' | Select-Object -Last 1 :: 10.1.2.254

@@ -1,0 +1,234 @@
+lang: javascript
+name: JavaScript
+ext: js
+mode: browser
+runtime: your browser's own JS engine, inside a Web Worker
+run: node kata.js
+blurb: Modern JavaScript for the web side of security: parsing what a browser sends, decoding tokens, and async code that has to survive flaky networks.
+
+=== valid-ipv4
+title: Validate an IPv4 address
+level: 1
+tags: strings, validation
+prompt:
+  Write `isIPv4(s)` that returns `true` for a dotted-quad address: exactly four parts, each a decimal number 0-255, no leading zeros (so `"01"` is invalid but `"0"` is fine), no signs or spaces.
+starter:
+  function isIPv4(s) {
+  }
+solution:
+  function isIPv4(s) {
+    const parts = s.split(".");
+    return parts.length === 4 && parts.every(p => /^(0|[1-9]\d{0,2})$/.test(p) && Number(p) <= 255);
+  }
+hints:
+  - "`split('.')` then check the length and every part."
+  - "A regex like `/^(0|[1-9]\\d{0,2})$/` rules out leading zeros; then compare `Number(p) <= 255`."
+test: normal :: isIPv4("192.168.0.1") :: true
+test: zeros are fine :: isIPv4("0.0.0.0") :: true
+test: octet too big :: isIPv4("256.1.1.1") :: false
+test: leading zero :: isIPv4("10.01.0.1") :: false
+test: three parts :: isIPv4("10.0.1") :: false
+test: junk :: isIPv4("1.2.3.x") :: false
+test: empty part :: isIPv4("1..2.3") :: false
+
+=== query-string
+title: Parse a query string
+level: 2
+tags: parsing, web
+prompt:
+  Write `parseQuery(qs)` for strings like `"?q=sql%20injection&tag=web&tag=sec"`. Return an object mapping each key to an **array** of values in order. Strip a leading `?`, decode with `decodeURIComponent`, and treat `+` as a space. A key with no `=` gets the value `""`.
+starter:
+  function parseQuery(qs) {
+  }
+solution:
+  function parseQuery(qs) {
+    const out = {};
+    for (const pair of qs.replace(/^\?/, "").split("&")) {
+      if (!pair) continue;
+      const i = pair.indexOf("=");
+      const dec = s => decodeURIComponent(s.replace(/\+/g, " "));
+      const k = dec(i === -1 ? pair : pair.slice(0, i));
+      const v = i === -1 ? "" : dec(pair.slice(i + 1));
+      (out[k] = out[k] || []).push(v);
+    }
+    return out;
+  }
+hints:
+  - "Split on `&`, then split each pair on the first `=` only (values can contain `=`)."
+  - "Replace `+` with a space before `decodeURIComponent`."
+test: repeated keys :: parseQuery("?q=sql%20injection&tag=web&tag=sec") :: ({ q: ["sql injection"], tag: ["web", "sec"] })
+test: plus is space :: parseQuery("name=Ada+Lovelace") :: ({ name: ["Ada Lovelace"] })
+test: bare key :: parseQuery("debug&x=1") :: ({ debug: [""], x: ["1"] })
+test: value with = :: parseQuery("token=abc==") :: ({ token: ["abc=="] })
+test: empty :: parseQuery("") :: ({})
+
+=== group-by
+title: groupBy
+level: 2
+tags: arrays, functions
+prompt:
+  Write `groupBy(items, keyFn)` that returns an object whose keys are `keyFn(item)` and whose values are arrays of the items with that key, in their original order. Don't use `Object.groupBy`.
+starter:
+  function groupBy(items, keyFn) {
+  }
+solution:
+  function groupBy(items, keyFn) {
+    const out = {};
+    for (const it of items) {
+      const k = keyFn(it);
+      (out[k] ||= []).push(it);
+    }
+    return out;
+  }
+hints:
+  - "One loop. `(out[k] ||= []).push(item)` creates the bucket on first use."
+test: by length :: groupBy(["ssh", "rdp", "http", "smb"], s => s.length) :: ({ 3: ["ssh", "rdp", "smb"], 4: ["http"] })
+test: by severity :: groupBy([{ id: 1, sev: "high" }, { id: 2, sev: "low" }, { id: 3, sev: "high" }], a => a.sev) :: ({ high: [{ id: 1, sev: "high" }, { id: 3, sev: "high" }], low: [{ id: 2, sev: "low" }] })
+test: empty :: groupBy([], x => x) :: ({})
+
+=== flatten
+title: Flatten to a depth
+level: 3
+tags: arrays, recursion
+prompt:
+  Write `flatten(arr, depth = Infinity)` that flattens nested arrays up to `depth` levels, like `Array.prototype.flat` (which you can't use here).
+starter:
+  function flatten(arr, depth = Infinity) {
+  }
+solution:
+  function flatten(arr, depth = Infinity) {
+    const out = [];
+    for (const x of arr) {
+      if (Array.isArray(x) && depth > 0) out.push(...flatten(x, depth - 1));
+      else out.push(x);
+    }
+    return out;
+  }
+hints:
+  - Recurse into arrays with `depth - 1`; stop recursing when depth hits 0.
+test: fully :: flatten([1, [2, [3, [4]]], 5]) :: [1, 2, 3, 4, 5]
+test: one level :: flatten([1, [2, [3, [4]]]], 1) :: [1, 2, [3, [4]]]
+test: depth 0 :: flatten([[1], [2]], 0) :: [[1], [2]]
+test: empties vanish :: flatten([[], [[]], 1]) :: [1]
+
+=== jwt-decode
+title: Decode a JWT
+level: 3
+tags: web, encoding, auth
+prompt:
+  A JWT is three base64url chunks joined by dots: `header.payload.signature`. Write `decodeJwt(token)` that returns `{ header, payload }` as parsed objects. base64url uses `-` and `_` instead of `+` and `/`, and drops the `=` padding. Throw an `Error` if there aren't three parts. (Decoding is not verifying. Never trust a payload you didn't check the signature on.)
+support:
+  const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuYXRlIiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3OTQwMDAwMDB9.c2lnbmF0dXJl";
+  const UNI = "eyJhbGciOiJub25lIn0.eyJuYW1lIjoiw6l0w6kg4pyTIn0.";
+  function throws(f) { try { f(); return false; } catch (e) { return e instanceof Error; } }
+starter:
+  function decodeJwt(token) {
+  }
+solution:
+  function decodeJwt(token) {
+    const parts = token.split(".");
+    if (parts.length !== 3) throw new Error("not a JWT");
+    const dec = s => {
+      const b64 = s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=");
+      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    };
+    return { header: dec(parts[0]), payload: dec(parts[1]) };
+  }
+hints:
+  - "Swap `-` to `+` and `_` to `/`, pad with `=` to a multiple of 4, then `atob()`."
+  - "`atob` gives you a byte string. For non-ASCII payloads, turn it into a `Uint8Array` and run it through `new TextDecoder().decode()` before `JSON.parse`."
+test: header :: decodeJwt(TOKEN).header :: ({ alg: "HS256", typ: "JWT" })
+test: payload :: decodeJwt(TOKEN).payload :: ({ sub: "nate", role: "student", iat: 1794000000 })
+test: utf-8 payload :: decodeJwt(UNI).payload.name :: "été ✓"
+test: two parts throws :: throws(() => decodeJwt("abc.def")) :: true
+
+=== retry
+title: Retry with backoff
+level: 4
+tags: async, promises
+prompt:
+  Write `async retry(fn, attempts, delayMs)` that calls the async function `fn`. If it rejects, wait `delayMs`, double the delay, and try again, up to `attempts` calls total. Resolve with the first success; if every attempt fails, reject with the **last** error.
+support:
+  function flaky(failures) {
+    let calls = 0;
+    const f = async () => { calls++; if (calls <= failures) throw new Error("fail " + calls); return "ok after " + calls; };
+    f.calls = () => calls;
+    return f;
+  }
+  async function outcome(p) { try { return await p; } catch (e) { return "rejected: " + e.message; } }
+  async function callsAfter(f, n) { await outcome(retry(f, n, 1)); return f.calls(); }
+starter:
+  async function retry(fn, attempts, delayMs) {
+  }
+solution:
+  async function retry(fn, attempts, delayMs) {
+    let last;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await fn();
+      } catch (e) {
+        last = e;
+        if (i < attempts - 1) {
+          await new Promise(r => setTimeout(r, delayMs));
+          delayMs *= 2;
+        }
+      }
+    }
+    throw last;
+  }
+hints:
+  - "A `for` loop with `try { return await fn(); } catch (e) { ... }` is the whole shape."
+  - "Sleeping is `await new Promise(r => setTimeout(r, ms))`."
+test: works first time :: outcome(retry(flaky(0), 3, 1)) :: "ok after 1"
+test: succeeds on the third call :: outcome(retry(flaky(2), 3, 1)) :: "ok after 3"
+test: gives up with the last error :: outcome(retry(flaky(5), 3, 1)) :: "rejected: fail 3"
+test: stops calling after success :: callsAfter(flaky(1), 5) :: 2
+
+=== emitter
+title: Event emitter
+level: 5
+tags: classes, design
+prompt:
+  Build `class Emitter` with `on(event, fn)`, `off(event, fn)`, `once(event, fn)` and `emit(event, ...args)`. `emit` calls listeners in the order they were added and returns how many it called. `once` listeners fire one time. `off` must also remove a `once` listener if you pass the original function. A listener that calls `off` on itself mid-emit must not make others get skipped.
+support:
+  function log() { const out = []; const f = (...a) => out.push(a.join(",")); f.out = out; return f; }
+  function scenario1() { const e = new Emitter(), a = log(); e.on("x", a); e.emit("x", 1, 2); e.emit("x", 3); return a.out; }
+  function scenario2() { const e = new Emitter(), a = log(); e.once("x", a); return [e.emit("x", 1), e.emit("x", 2), a.out]; }
+  function scenario3() { const e = new Emitter(), a = log(); e.on("x", a); e.off("x", a); return [e.emit("x"), a.out]; }
+  function scenario4() { const e = new Emitter(), a = log(); e.once("x", a); e.off("x", a); return [e.emit("x"), a.out]; }
+  function scenario5() { const e = new Emitter(), seen = []; const first = () => { seen.push("first"); e.off("x", first); }; e.on("x", first); e.on("x", () => seen.push("second")); e.emit("x"); e.emit("x"); return seen; }
+starter:
+  class Emitter {
+  }
+solution:
+  class Emitter {
+    constructor() { this.map = new Map(); }
+    on(ev, fn, once = false) {
+      if (!this.map.has(ev)) this.map.set(ev, []);
+      this.map.get(ev).push({ fn, once });
+      return this;
+    }
+    once(ev, fn) { return this.on(ev, fn, true); }
+    off(ev, fn) {
+      const list = this.map.get(ev);
+      if (list) this.map.set(ev, list.filter(l => l.fn !== fn));
+      return this;
+    }
+    emit(ev, ...args) {
+      const list = (this.map.get(ev) || []).slice();
+      for (const l of list) {
+        if (l.once) this.off(ev, l.fn);
+        l.fn(...args);
+      }
+      return list.length;
+    }
+  }
+hints:
+  - "Store `{ fn, once }` records per event, not bare functions; then `off` can match on `fn` for both kinds."
+  - "In `emit`, loop over a **copy** of the list (`.slice()`), so removals during the loop don't shift the array under you."
+test: on + emit :: scenario1() :: ["1,2", "3"]
+test: once fires once :: scenario2() :: [1, 0, ["1"]]
+test: off removes :: scenario3() :: [0, []]
+test: off removes a once :: scenario4() :: [0, []]
+test: self-removal mid-emit :: scenario5() :: ["first", "second", "second"]
