@@ -150,7 +150,7 @@ def card(x):
             f'<h3>{head}</h3><p>{esc(x["desc"])}</p>'
             f'<p class="card__tags">{" ".join("#" + t for t in x["tags"])}</p></article>')
 page("projects.html", "projects :: 0xDay",
-     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. Source on <a href="{GH}">GitHub</a>.</p>'
+     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. Source on <a href="{GH}">GitHub</a>. The two labs get full <a href="deep-dives.html">deep-dives</a>.</p>'
      f'<div class="cards">{"".join(card(x) for x in PROJECTS)}</div>', cur="projects")
 
 # ---------- resources ----------
@@ -427,9 +427,14 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
 HUB = [x for x in HUB if x[3] != "coming soon"]
-HUB += [("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
+HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
+        ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
+
+# ---------- phase 3: homelab map, attack chain, deep-dives ----------
+import build_homelab
+build_homelab.build(page, esc)
 
 # ================= round 4 pages =================
 page("tty.html", "tty1 :: 0xDay", '<div id="tty" class="tty" aria-label="0xDay shell"></div><noscript><p>TTY mode needs JavaScript. <a href="index.html">Back to the normal site</a>.</p></noscript>',

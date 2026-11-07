@@ -1,0 +1,67 @@
+{
+  "dives": [
+    {
+      "slug": "homelab",
+      "title": "Cybersecurity Homelab",
+      "repo": "https://github.com/nrodrigue2004/cybersecurity-homelab",
+      "summary": "A seven-VM enterprise network on a single Proxmox host, built so I have somewhere to practice both attacking and defending something that looks like a real company.",
+      "stack": ["Proxmox VE", "pfSense", "Tailscale", "Windows Server / AD", "Windows 11", "Ubuntu + Docker", "Kali", "Metasploitable", "Security Onion", "Zeek", "Suricata"],
+      "sections": [
+        {"h": "The idea", "p": [
+          "I wanted one environment where I could run an attack and then go watch what it looked like from the defender's chair, instead of treating offense and defense as separate worlds. Everything runs on one box: an i7-10900K with 64 GB of RAM and a 2 TB SSD, virtualized with Proxmox.",
+          "The whole thing is isolated. Nothing is published to the internet, remote access is over Tailscale only, and every public note uses placeholders instead of the real address plan."
+        ]},
+        {"h": "Design decisions", "p": [
+          "pfSense sits between the upstream network and the lab segment and does all the routing, DHCP, DNS and firewalling. The rules are default-deny: the vulnerable boxes get no internet at all, and traffic is only allowed where an exercise needs it.",
+          "Security Onion watches a mirrored copy of the lab traffic on a sniffing interface with no IP of its own, so monitoring never changes what it's monitoring. Remote admin goes through Tailscale's subnet routing, which means I never had to forward a single port to reach the lab from outside."
+        ]},
+        {"h": "Build log", "p": [
+          "Stood up Proxmox and carved the network into virtual bridges for the upstream path and the lab segment.",
+          "Installed pfSense and wrote the segmentation rules, with DHCP and DNS for the lab.",
+          "Built the Windows Server domain controller, created the lab.local domain, OUs, users and groups, then joined a Windows 11 workstation.",
+          "Added the Ubuntu box with DVWA and WebGoat in Docker, plus Kali and Metasploitable for controlled testing.",
+          "Deployed Security Onion against a span port and confirmed Zeek and Suricata were seeing lab traffic."
+        ]},
+        {"h": "What I learned", "p": [
+          "Segmentation is the feature. Half of what makes the lab safe is just pfSense refusing traffic that has no reason to exist.",
+          "You can't defend what you can't see. Getting the mirror port right so Security Onion actually received traffic taught me more about network monitoring than any reading did.",
+          "Document as you go, and sanitize as you go. Writing public-safe notes forced me to be deliberate about what's an identifier and what's a concept."
+        ]},
+        {"h": "What's next", "p": [
+          "Evidence-based attack-and-detection walkthroughs with sanitized screenshots, so the detections are backed by real telemetry instead of expectations. The attack chain on this site is the scripted version of exactly that."
+        ]}
+      ],
+      "links": [["the homelab map", "homelab.html"], ["the attack chain", "attack-chain.html"], ["the blog post", "posts/proxmox-homelab.html"]]
+    },
+    {
+      "slug": "it-lab",
+      "title": "Enterprise IT Support Lab",
+      "repo": "https://github.com/nrodrigue2004/enterprise-it-support-lab",
+      "summary": "A Windows domain with a real help-desk ticketing system on top, built to practice the day-one work of IT support: AD, Group Policy, PowerShell, permissions, and actually closing a ticket.",
+      "stack": ["Proxmox", "Windows Server / AD", "Windows 11", "Group Policy", "PowerShell", "NTFS / SMB", "Ubuntu", "osTicket", "Apache", "PHP", "MariaDB"],
+      "sections": [
+        {"h": "The idea", "p": [
+          "The homelab is for security; this one is for the support fundamentals underneath it. I built a lab.local domain and stood up osTicket so I could work tickets end to end the way a help desk actually does, not just click around in Active Directory."
+        ]},
+        {"h": "Design decisions", "p": [
+          "Windows Server runs Active Directory and a Finance SMB share. The share is protected with both share-level and NTFS permissions on purpose, so I could see layered access control behave the way it does in a real environment.",
+          "osTicket runs on Ubuntu with Apache, PHP and MariaDB, with an IT Support department and public help topics, so every exercise ends in a documented, closed ticket instead of a loose note."
+        ]},
+        {"h": "The signature ticket", "p": [
+          "A user can sign in and reach the Finance share but gets access denied when they open it. The fix is a lesson in itself:",
+          "Reproduce it from the domain-joined workstation, check the user's AD group membership, find they're missing from Finance-Share-Read, add them with PowerShell, and have them sign out and back in so Windows issues a fresh token.",
+          "The sign-out is the whole point: group membership is baked into the access token at logon, so adding someone to a group does nothing for their current session. That one detail is behind a huge share of 'but I fixed it' tickets."
+        ]},
+        {"h": "What I learned", "p": [
+          "PowerShell beats clicking. Provisioning a user, placing them in an OU, setting a password and adding them to a group is a few lines, and it's repeatable.",
+          "Group Policy is how one change reaches every machine. I used a GPO to map the Finance share as a drive automatically, then validated it with gpupdate and gpresult.",
+          "Closing the ticket matters as much as fixing the problem. Writing the resolution in osTicket is the part that makes it support work and not just tinkering."
+        ]},
+        {"h": "What's next", "p": [
+          "More ticket scenarios: printer and GPO conflicts, roaming-profile issues, and account lockouts, each written up as a reproducible walkthrough."
+        ]}
+      ],
+      "links": [["the help-desk post", "posts/finance-share-access-denied.html"], ["the homelab deep-dive", "deep-dives.html#homelab"]]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>homelab map :: 0xDay</title>
+<meta name="description" content="Interactive terminal map of Nathan&#x27;s seven-VM Proxmox homelab, with a traceroute mode.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5cdbb291">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="homelab.css?v=1a09071b">
+<script src="homelab.js?v=1a09071b" defer></script>
+<script id="hl-data" type="application/json">{"kind": "map", "data": {"note": "Addresses are placeholders. The real address plan stays private, the same way it does in the public homelab repo.", "hardware": {"cpu": "Intel i7-10900K", "ram": "64 GB", "disk": "2 TB SSD", "hypervisor": "Proxmox VE"}, "nodes": [{"id": "wan", "label": "upstream", "os": "ISP / home network", "zone": "upstream", "ip": "<UPSTREAM>", "role": "The outside world. Nothing in the lab is published to it.", "services": [], "practice": []}, {"id": "tailscale", "label": "tailscale", "os": "Tailscale (WireGuard mesh)", "zone": "upstream", "ip": "<TAILNET>", "role": "Private remote administration. Subnet routing lets me reach the lab from anywhere without opening a single port.", "services": ["wireguard/udp"], "practice": ["zero-trust remote access", "why port forwarding is a bad idea"]}, {"id": "pfsense", "label": "pfsense", "os": "pfSense CE", "zone": "edge", "ip": "<LAB_GW>", "role": "Firewall and router between the upstream network and the lab. Runs DHCP and DNS and enforces the rules.", "services": ["dns/53", "dhcp/67", "https/443 (admin, lab side only)"], "practice": ["default-deny rules", "NAT", "DHCP and DNS", "change notes with rollback steps"], "guide": "pfsense"}, {"id": "proxmox", "label": "proxmox", "os": "Proxmox VE", "zone": "host", "ip": "<PROXMOX_HOST>", "role": "The hypervisor that runs every VM. Separate virtual bridges keep the upstream path and the lab segment apart.", "services": ["https/8006 (admin)"], "practice": ["virtual bridges", "snapshots before risky changes", "resource planning"], "guide": "proxmox"}, {"id": "dc01", "label": "dc01", "os": "Windows Server 2022", "zone": "lab", "ip": "<LAB>.10", "role": "Active Directory domain controller: users, groups, Group Policy and DNS for the domain.", "services": ["kerberos/88", "ldap/389", "smb/445", "dns/53"], "practice": ["OUs, users, groups", "Group Policy", "PowerShell AD cmdlets", "Kerberos basics"], "guide": "active-directory"}, {"id": "ws01", "label": "ws01", "os": "Windows 11 (domain-joined)", "zone": "lab", "ip": "<LAB>.50", "role": "The end user's PC. Where tickets get reproduced and where policy actually lands.", "services": ["smb/445", "rdp/3389 (lab only)"], "practice": ["domain join", "gpupdate and gpresult", "token refresh after group changes"]}, {"id": "ubuntu", "label": "ubuntu-web", "os": "Ubuntu Server + Docker", "zone": "lab", "ip": "<LAB>.30", "role": "Hosts DVWA and WebGoat in containers: intentionally vulnerable web apps for practicing the OWASP Top 10.", "services": ["http/80 (DVWA)", "http/8080 (WebGoat)"], "practice": ["OWASP Top 10", "Docker basics", "reading web server logs"]}, {"id": "kali", "label": "kali", "os": "Kali Linux", "zone": "lab", "ip": "<LAB>.66", "role": "Testing workstation. Only ever pointed at lab-owned, intentionally vulnerable targets.", "services": [], "practice": ["scoping and authorization notes", "recon", "pairing every test with the telemetry it should create"]}, {"id": "meta", "label": "metasploitable", "os": "Metasploitable 2", "zone": "lab", "ip": "<LAB>.20", "role": "A deliberately broken Linux box: old services, default credentials, everything you are taught to patch.", "services": ["ftp/21", "ssh/22", "telnet/23", "http/80", "smb/445", "mysql/3306"], "practice": ["vulnerability scanning", "why patching and hardening matter"]}, {"id": "so", "label": "security-onion", "os": "Security Onion (Zeek, Suricata, Elastic)", "zone": "monitor", "ip": "<SO_HOST>", "role": "Network security monitoring. A sensor interface gets a mirrored copy of lab traffic; Zeek logs metadata and Suricata raises alerts.", "services": ["https/443 (console)", "sniff: span0 (no IP)"], "practice": ["alert triage", "Zeek conn/dns/http logs", "writing a hunt hypothesis"], "guide": "security-onion"}], "links": [["wan", "pfsense", "wan"], ["tailscale", "pfsense", "tunnel"], ["pfsense", "dc01", "lab"], ["pfsense", "ws01", "lab"], ["pfsense", "ubuntu", "lab"], ["pfsense", "kali", "lab"], ["pfsense", "meta", "lab"], ["pfsense", "so", "span"]], "rules": [{"src": "kali", "dst": "meta", "allow": true, "why": "approved test target"}, {"src": "kali", "dst": "ubuntu", "allow": true, "why": "approved test target (web apps)"}, {"src": "kali", "dst": "dc01", "allow": true, "why": "AD exercises are in scope, and logged"}, {"src": "ws01", "dst": "dc01", "allow": true, "why": "logon, Kerberos, Group Policy, DNS"}, {"src": "ws01", "dst": "wan", "allow": true, "why": "updates and browsing through NAT"}, {"src": "dc01", "dst": "wan", "allow": true, "why": "Windows Update and DNS forwarding"}, {"src": "meta", "dst": "wan", "allow": false, "why": "vulnerable boxes never get internet access"}, {"src": "ubuntu", "dst": "wan", "allow": false, "why": "vulnerable apps never get internet access (images pulled during maintenance only)"}, {"src": "kali", "dst": "wan", "allow": true, "why": "tool updates"}, {"src": "wan", "dst": "dc01", "allow": false, "why": "nothing inbound, ever"}, {"src": "wan", "dst": "meta", "allow": false, "why": "nothing inbound, ever"}, {"src": "tailscale", "dst": "proxmox", "allow": true, "why": "remote admin over the tailnet only"}, {"src": "tailscale", "dst": "so", "allow": true, "why": "remote admin over the tailnet only"}, {"src": "wan", "dst": "proxmox", "allow": false, "why": "management is never exposed upstream"}]}}</script>
+<script src="data.js?v=5cdbb291" defer></script>
+<script src="site.js?v=5cdbb291" defer></script>
+<script src="fx.js?v=5cdbb291" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="lab.html" aria-current="page">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cat ~/homelab/README &amp;&amp; ./map</p>
+<h1>~/homelab</h1>
+<p>Seven VMs on one Proxmox host, wired to look like a small company network. Click a node to ssh in and see what it runs and what I practice on it. Addresses are placeholders. The real address plan stays private, the same way it does in the public homelab repo.</p>
+<p class="muted small">Intel i7-10900K · 64 GB · 2 TB SSD · Proxmox VE</p>
+<div class="hl-mapwrap">
+  <div class="hl-toolbar" role="group" aria-label="map controls">
+    <button class="btn" type="button" data-mode="explore" aria-pressed="true">[ explore ]</button>
+    <button class="btn" type="button" data-mode="trace" aria-pressed="false">[ traceroute ]</button>
+    <span class="hl-hint muted" aria-live="polite">Click a node to inspect it.</span>
+  </div>
+  <div id="hl-map" class="hl-map" aria-label="homelab network map"></div>
+  <div class="hl-trace" hidden>
+    <label>from <select id="hl-src"></select></label>
+    <label>to <select id="hl-dst"></select></label>
+    <button class="btn" type="button" id="hl-go">[ ./trace ]</button>
+  </div>
+  <div id="hl-panel" class="hl-panel" aria-live="polite"></div>
+</div>
+<noscript><p>The map needs JavaScript. The same machines are described in the <a href="deep-dives.html#homelab">homelab deep-dive</a>.</p></noscript>
+<p><a href="attack-chain.html">./attack-chain</a> <span class="muted">// watch one host get owned, stage by stage</span></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan Rodrigue</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
