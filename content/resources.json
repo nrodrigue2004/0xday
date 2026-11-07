@@ -1,0 +1,180 @@
+{
+ "_help": "name, url, when to use, caution (shown in amber). Add freely.",
+ "groups": [
+  {
+   "h": "check a file, link or hash",
+   "items": [
+    {
+     "n": "VirusTotal",
+     "u": "https://www.virustotal.com/",
+     "w": "Scan a file hash, URL, domain or IP against ~70 AV engines and see what others found.",
+     "c": "Uploads are PUBLIC to paying customers. Search by hash first; never upload private or work files."
+    },
+    {
+     "n": "Hybrid Analysis",
+     "u": "https://www.hybrid-analysis.com/",
+     "w": "Free sandbox report: what a sample did when run (processes, network, dropped files).",
+     "c": "Same rule: submissions can be shared."
+    },
+    {
+     "n": "ANY.RUN",
+     "u": "https://any.run/",
+     "w": "Interactive malware sandbox: watch a sample run live in a VM.",
+     "c": "Free tier reports are public."
+    },
+    {
+     "n": "urlscan.io",
+     "u": "https://urlscan.io/",
+     "w": "Safely load a suspicious link and see screenshot, redirects, requests and hosting.",
+     "c": "Public scans are listed; mark private if the URL contains tokens."
+    },
+    {
+     "n": "MalwareBazaar",
+     "u": "https://bazaar.abuse.ch/",
+     "w": "Look up and download known malware samples by hash (for lab use only).",
+     "c": "Handle only inside an isolated VM."
+    },
+    {
+     "n": "CyberChef",
+     "u": "https://gchq.github.io/CyberChef/",
+     "w": "Decode base64, hex, XOR, URL encoding and more by chaining operations. Runs in your browser.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "email and account checks",
+   "items": [
+    {
+     "n": "Have I Been Pwned",
+     "u": "https://haveibeenpwned.com/",
+     "w": "Is my email in a known breach? Also check passwords through the k-anonymity range search.",
+     "c": "Only enter your own addresses."
+    },
+    {
+     "n": "MXToolbox",
+     "u": "https://mxtoolbox.com/",
+     "w": "Check a domain's MX, SPF, DKIM and DMARC records, blacklists and header analysis.",
+     "c": ""
+    },
+    {
+     "n": "Google Admin Toolbox: Messageheader",
+     "u": "https://toolbox.googleapps.com/apps/messageheader/",
+     "w": "Paste an email's headers to see the path and delays. Good for phishing triage.",
+     "c": "Headers can contain addresses: redact before sharing."
+    },
+    {
+     "n": "EmailRep",
+     "u": "https://emailrep.io/",
+     "w": "Reputation lookup for an email address (age, spam and breach signals).",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "history and OSINT",
+   "items": [
+    {
+     "n": "Internet Archive Wayback Machine",
+     "u": "https://web.archive.org/",
+     "w": "See old versions of a page, recover deleted content, or save a snapshot as evidence.",
+     "c": ""
+    },
+    {
+     "n": "archive.today",
+     "u": "https://archive.ph/",
+     "w": "Snapshot a page you want to preserve without visiting it again.",
+     "c": ""
+    },
+    {
+     "n": "Shodan",
+     "u": "https://www.shodan.io/",
+     "w": "Search engine for internet-connected devices. Great for checking YOUR OWN exposure.",
+     "c": "Look, don't touch anything that isn't yours."
+    },
+    {
+     "n": "crt.sh",
+     "u": "https://crt.sh/",
+     "w": "Certificate transparency search: find subdomains and certificates for a domain.",
+     "c": ""
+    },
+    {
+     "n": "AbuseIPDB",
+     "u": "https://www.abuseipdb.com/",
+     "w": "Is this IP reported for attacks? Check suspicious IPs from your logs.",
+     "c": ""
+    },
+    {
+     "n": "WHOIS / DomainTools Whois",
+     "u": "https://whois.domaintools.com/",
+     "w": "Domain age and registrar. A days-old domain in an email is a red flag.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "setup and software",
+   "items": [
+    {
+     "n": "Ninite",
+     "u": "https://ninite.com/",
+     "w": "Pick apps (Chrome, 7-Zip, VLC...) and get ONE installer that silently installs them with no toolbars. Handy for fresh Windows builds.",
+     "c": "Only from ninite.com."
+    },
+    {
+     "n": "Chocolatey / winget",
+     "u": "https://learn.microsoft.com/windows/package-manager/winget/",
+     "w": "Install and update Windows software from the command line.",
+     "c": ""
+    },
+    {
+     "n": "Ventoy",
+     "u": "https://www.ventoy.net/",
+     "w": "One USB stick that boots many ISO files. Copy ISOs on, pick at boot.",
+     "c": ""
+    },
+    {
+     "n": "Sysinternals",
+     "u": "https://learn.microsoft.com/sysinternals/",
+     "w": "Process Explorer, Autoruns, TCPView and friends for Windows troubleshooting and forensics.",
+     "c": ""
+    },
+    {
+     "n": "Microsoft Security Compliance Toolkit",
+     "u": "https://www.microsoft.com/download/details.aspx?id=55319",
+     "w": "Baseline GPOs for hardening Windows.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "study",
+   "items": [
+    {
+     "n": "Professor Messer: Security+ SY0-701",
+     "u": "https://www.professormesser.com/security-plus/sy0-701/sy0-701-video/sy0-701-comptia-security-plus-course/",
+     "w": "The free video course; the objectives page lists every topic.",
+     "c": ""
+    },
+    {
+     "n": "CompTIA SY0-701 objectives (PDF)",
+     "u": "https://www.comptia.org/certifications/security",
+     "w": "The official exam objectives. Study to this list.",
+     "c": ""
+    },
+    {
+     "n": "TryHackMe",
+     "u": "https://tryhackme.com/",
+     "w": "Guided hands-on rooms in a browser VM.",
+     "c": ""
+    },
+    {
+     "n": "MITRE ATT&CK",
+     "u": "https://attack.mitre.org/",
+     "w": "The catalog of attacker techniques; ties to the detections and the attack chain on this site.",
+     "c": ""
+    }
+   ]
+  }
+ ]
+}

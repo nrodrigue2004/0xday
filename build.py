@@ -158,12 +158,11 @@ import build_roadmap
 ROADMAP = build_roadmap.build(page, esc)
 
 # ---------- resources ----------
-RES = [("reverse engineering & malware", [("Ghidra", "https://ghidra-sre.org/"), ("IDA Free", "https://hex-rays.com/ida-free"), ("PE-bear", "https://github.com/hasherezade/pe-bear")]),
-       ("forensics", [("Autopsy", "https://www.autopsy.com/"), ("Volatility", "https://volatilityfoundation.org/"), ("Wireshark", "https://www.wireshark.org/")]),
-       ("homelab", [("Proxmox VE", "https://www.proxmox.com/"), ("pfSense", "https://www.pfsense.org/"), ("Security Onion", "https://securityonionsolutions.com/"), ("Tailscale", "https://tailscale.com/")]),
-       ("practice", [("PortSwigger Web Security Academy", "https://portswigger.net/web-security"), ("OverTheWire", "https://overthewire.org/wargames/"), ("picoCTF", "https://picoctf.org/"), ("CTFtime", "https://ctftime.org/")])]
-body = '<p class="cmd">cat ~/bookmarks</p><h1>~/resources</h1><p>Tools and references I use in my labs and projects.</p>'
-body += "".join(f'<h2>{esc(h)}</h2><ul class="arrow">{"".join(f"<li><a href=\"{u}\">{esc(n)}</a></li>" for n, u in L)}</ul>' for h, L in RES)
+RES = json.load(open("content/resources.json"))["groups"]
+body = '<p class="cmd">cat ~/bookmarks</p><h1>~/resources</h1><p>Sites and tools I reach for. Each one says when to use it and what to be careful about.</p>'
+for g in RES:
+    body += f'<h2>{esc(g["h"])}</h2><ul class="arrow res">' + "".join(
+        f'<li><a href="{i["u"]}" rel="noopener">{esc(i["n"])}</a> <span class="muted">{esc(i["w"])}</span>' + (f' <span class="warn">⚠ {esc(i["c"])}</span>' if i["c"] else "") + "</li>" for i in g["items"]) + "</ul>"
 page("resources.html", "resources :: 0xDay", body, cur="resources")
 
 # ---------- about ----------
