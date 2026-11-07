@@ -1,0 +1,25 @@
+/* ~/bigo */
+.bad{color:var(--red)}
+.bo__cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin:1rem 0}
+.bo__card{border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:4px 14px;min-width:0}
+.bo__card h3{margin:.6rem 0 .3rem;font-size:1rem}
+.bo__card pre{overflow-x:auto;font-size:.8rem}
+.bo__o{color:var(--green)}
+.bo__viz,.bo__drill{border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:8px 14px;margin:1rem 0}
+.bo__slider{display:flex;align-items:center;gap:10px;font-size:.9rem}
+.bo__slider input{flex:1;accent-color:var(--green)}
+.bo__bars{margin:12px 0}
+.bo__row{display:grid;grid-template-columns:6.5rem 1fr 9rem 6.5rem;gap:10px;align-items:center;font-size:.85rem;margin:6px 0}
+.bo__track{height:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:3px;overflow:hidden}
+.bo__fill{display:block;height:100%;background:var(--green);box-shadow:0 0 8px var(--green-glow);transition:width .15s}
+.bo__ops{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--strong);font-variant-numeric:tabular-nums}
+.bo__code{font-size:.88rem;overflow-x:auto}
+.bo__ch{display:flex;flex-wrap:wrap;gap:6px}
+.bo__opt--ok{color:var(--green);border-color:var(--green)}
+.bo__opt--bad{color:var(--red);border-color:var(--red)}
+.bo__tw{overflow-x:auto}
+.bo__t{border-collapse:collapse;width:100%;font-size:.84rem}
+.bo__t th,.bo__t td{border-bottom:1px solid var(--border);padding:5px 8px;text-align:left;white-space:nowrap}
+.bo__t td:last-child{white-space:normal;color:var(--muted);min-width:12rem}
+.bo__t th{color:var(--green);font-weight:500}
+@media (max-width:560px){.bo__row{grid-template-columns:5.5rem 1fr 6rem}.bo__time{display:none}}
