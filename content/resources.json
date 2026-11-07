@@ -175,6 +175,110 @@
      "c": ""
     }
    ]
+  },
+  {
+   "h": "reverse engineering and malware",
+   "items": [
+    {
+     "n": "Ghidra",
+     "u": "https://ghidra-sre.org/",
+     "w": "Free NSA disassembler and decompiler.",
+     "c": ""
+    },
+    {
+     "n": "IDA Free",
+     "u": "https://hex-rays.com/ida-free",
+     "w": "Free tier of the classic disassembler.",
+     "c": ""
+    },
+    {
+     "n": "PE-bear",
+     "u": "https://github.com/hasherezade/pe-bear",
+     "w": "Inspect Windows PE headers.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "forensics",
+   "items": [
+    {
+     "n": "Autopsy",
+     "u": "https://www.autopsy.com/",
+     "w": "Disk image analysis.",
+     "c": ""
+    },
+    {
+     "n": "Volatility",
+     "u": "https://volatilityfoundation.org/",
+     "w": "Memory forensics.",
+     "c": ""
+    },
+    {
+     "n": "Wireshark",
+     "u": "https://www.wireshark.org/",
+     "w": "Packet capture and analysis.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "homelab",
+   "items": [
+    {
+     "n": "Proxmox VE",
+     "u": "https://www.proxmox.com/",
+     "w": "Hypervisor.",
+     "c": ""
+    },
+    {
+     "n": "pfSense",
+     "u": "https://www.pfsense.org/",
+     "w": "Firewall and router.",
+     "c": ""
+    },
+    {
+     "n": "Security Onion",
+     "u": "https://securityonionsolutions.com/",
+     "w": "IDS, logs and hunting.",
+     "c": ""
+    },
+    {
+     "n": "Tailscale",
+     "u": "https://tailscale.com/",
+     "w": "Mesh VPN.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "practice",
+   "items": [
+    {
+     "n": "PortSwigger Web Security Academy",
+     "u": "https://portswigger.net/web-security",
+     "w": "Free web hacking labs.",
+     "c": ""
+    },
+    {
+     "n": "OverTheWire",
+     "u": "https://overthewire.org/wargames/",
+     "w": "Wargames.",
+     "c": ""
+    },
+    {
+     "n": "picoCTF",
+     "u": "https://picoctf.org/",
+     "w": "Beginner CTF.",
+     "c": ""
+    },
+    {
+     "n": "CTFtime",
+     "u": "https://ctftime.org/",
+     "w": "CTF calendar.",
+     "c": ""
+    }
+   ]
   }
  ]
 }
