@@ -1,5 +1,15 @@
 [
   {
+    "slug": "slammer-worm-teardown",
+    "title": "Tearing Down a SQL Slammer-Style Worm: 376 Bytes of UDP",
+    "date": "2026-11-07",
+    "tags": [
+      "malware",
+      "reverse-engineering",
+      "assembly"
+    ]
+  },
+  {
     "slug": "wg2-rat-teardown",
     "title": "Tearing Down wg2: An HTTP RAT in Ghidra",
     "date": "2026-11-07",

