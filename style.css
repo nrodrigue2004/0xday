@@ -254,6 +254,8 @@ a.ctf__name{border:0;color:var(--strong)}a.ctf__name:hover{background:none;color
 .man dd{margin:.1rem 0 0 2em;color:var(--fg)}
 .manidx .ls-row{grid-template-columns:14em 1fr}
 .manidx .ls-perm{color:var(--green)}
+.man-toc{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.85rem;border:1px dashed var(--border);padding:.5rem .75rem;margin:.75rem 0 1rem}.man-toc a{color:var(--green)}
+[id^="g-"]{scroll-margin-top:3.5rem}
 .hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:1.2rem}
 .tile__n{color:var(--amber);font-size:.8rem;margin-top:4px}
 @media print{

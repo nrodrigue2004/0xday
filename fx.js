@@ -208,11 +208,11 @@
   document.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") { e.preventDefault(); fzf(); } });
 
   /* ---------------- boot sequence + GRUB ---------------- */
-  const POST = ["0xBIOS v4.04 (C) 2026 0xDay Systems", "CPU: Caffeinated Core i7 @ 4.04GHz", "Memory Test: 16777216K OK",
-    "Detecting drives ... /dev/sda: 0xDAY-SSD 1TB", "Detecting drives ... /dev/sdb: homelab-raid (7 VMs)", "USB: 1 keyboard, 1 very tired student",
+  const POST = ["0xBIOS v4.04 (C) 2026 0xDay Systems", "CPU: x86_64 @ 4.04GHz, 8 cores", "Memory Test: 16777216K OK",
+    "Detecting drives ... /dev/sda: 0xDAY-SSD 1TB", "Detecting drives ... /dev/sdb: homelab-raid (7 VMs)", "USB: 1 keyboard, 1 mouse",
     "", "Press DEL to enter setup, any key to skip"];
   const SYSTEMD = ["Started Journal Service.", "Mounted /home/guest.", "Started ghost.service (terminal assistant).", "Reached target Network.",
-    "Started sshd... just kidding.", "Reached target Graphical Interface."];
+    "sshd.service: disabled.", "Reached target Graphical Interface."];
   function boot(force) {
     const booting = html.classList.contains("booting");
     if (!force && !booting) return;
@@ -230,7 +230,7 @@
       SYSTEMD.forEach((l, i) => T(() => { pre.innerHTML += `[  <span class="ok">OK</span>  ] ${esc(l)}\n`; beep(600 + i * 40, .02); }, i * 90));
       T(() => { o.classList.add("bs-out"); html.classList.remove("boot-lock"); T(() => o.remove(), 400); }, SYSTEMD.length * 90 + 250);
     };
-    const GRUB = ["0xDay GNU/Linux (graphical)", "0xDay GNU/Linux (tty mode)", "memtest86+ (please don't)"];
+    const GRUB = ["0xDay GNU/Linux (graphical)", "0xDay GNU/Linux (tty mode)", "memtest86+"];
     const grub = () => {
       clear(); stage = "grub"; count = 5;
       const draw = () => {
@@ -245,7 +245,7 @@
     const memtest = () => {
       clear(); stage = "memtest"; let pct = 0, pass = 0;
       const draw = () => {
-        pre.innerHTML = `<div class="memtest"><div class="mt-head">Memtest86+ v7.04      | Pass ${pass}  ${"#".repeat(Math.floor(pct / 5)).padEnd(20, ".")} ${pct}%\nCPU: Caffeinated i7    | Test 4 [Moving inversions, random pattern]\nMemory: 16 GB          | Errors: 0     (your RAM is fine, your sleep schedule is not)\n</div>\n<span class="muted">(ESC) reboot to GRUB</span></div>`;
+        pre.innerHTML = `<div class="memtest"><div class="mt-head">Memtest86+ v7.04      | Pass ${pass}  ${"#".repeat(Math.floor(pct / 5)).padEnd(20, ".")} ${pct}%\nCPU: x86_64 @ 4.04GHz | Test 4 [Moving inversions, random pattern]\nMemory: 16 GB          | Errors: 0     PASS\n</div>\n<span class="muted">(ESC) reboot to GRUB</span></div>`;
       };
       const tick = () => { pct += 7; if (pct >= 100) { pct = 0; pass++; } draw(); T(tick, 120); };
       tick();
@@ -260,7 +260,7 @@
         else if (e.key === "ArrowDown") { grubSel = (grubSel + 1) % GRUB.length; o._draw(); }
         else if (e.key === "Enter") choose();
         else if (e.key === "Escape") done("gui");
-        else if (e.key === "e" || e.key === "c") { o._draw(); pre.innerHTML += `\n<span class="err">error: you can't edit this one, it's a website.</span>`; }
+        else if (e.key === "e" || e.key === "c") { o._draw(); pre.innerHTML += `\n<span class="err">error: editing is disabled on this system.</span>`; }
       }
     };
     addEventListener("keydown", key, true);
@@ -340,8 +340,8 @@
       return setOpt(k, v) ? `${k} = <b>${S[k] ? "on" : "off"}</b>` : `<span class="err">set: unknown option ${esc(k)}</span>\n${optList()}`;
     };
     C.crt = () => C.set(["crt"]); C.sound = () => C.set(["sound"]); C.vim = (a) => (a.length ? C.set(["vim", ...a]) : `${C.set(["vim"])}\n<span class="sys">j/k scroll, gg/G, h/l prev/next window, / find, : command, i ghost</span>`);
-    C.emacs = () => `<span class="err">emacs: command not found.</span> <span class="sys">try vim. or don't. nobody's watching.</span>`;
-    C.nano = () => `real ones use nano. respect.`;
+    C.emacs = () => `<span class="err">emacs: command not found.</span> <span class="sys">try: vim</span>`;
+    C.nano = () => `<span class="err">nano: read-only file system.</span>`;
     C.reboot = () => { ls.set("oxday-booted", ""); setTimeout(() => boot(true), 300); return "rebooting ..."; };
     C.tty = () => { goto(ROOT + "tty.html"); return "switching to tty1 ..."; };
     C.htop = () => { goto(ROOT + "htop.html"); return "starting htop ..."; };
