@@ -43,7 +43,7 @@
     if (!/[*?]/.test(arg)) return [arg];
     const a = norm(arg), re = new RegExp("^" + a.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*").replace(/\?/g, "[^/]") + "$");
     const m = Object.keys(FS).filter(f => re.test(f)).sort();
-    return m.length ? m.map(f => (arg.startsWith("/") ? f : f.startsWith(cwd + "/") ? f.slice(cwd.length + 1) : f)) : [arg];
+    return m.length ? m.map(f => (arg.startsWith("/") || arg.startsWith("~") ? f : f.startsWith(cwd + "/") ? f.slice(cwd.length + 1) : f)) : [arg];
   }
 
   /* ---------- tokenizer: quotes, pipes, redirects, ; and && ---------- */
@@ -174,8 +174,9 @@
   solution         walkthrough (after solving)  clear       clear the screen
 <b>shell</b>
   ls cd pwd cat head tail grep wc sort uniq cut awk sed tr find file strings nano
-  base64 xxd rev nl tee echo sha256sum whoami hostname id date uname history
-  pipes (|), redirects (&gt; &gt;&gt;), ; and &amp;&amp; all work.${LAB.cmdnames && LAB.cmdnames.length ? "\n<b>lab tools</b>\n  " + LAB.cmdnames.join("  ") : ""}${LAB.js ? "\n  node &lt;file.js&gt; | node -e '&lt;code&gt;'   runs real JavaScript" : ""}${LAB.sql ? "\n  sqlite3 &lt;db&gt; [\"SQL\"]   runs real SQLite" : ""}
+  base64 xxd rev nl tee echo sha256sum ipcalc whoami hostname id date uname history
+  pipes (|), redirects (&gt; &gt;&gt;), ; &amp;&amp; ||, $VAR, $(cmd), $((math)),
+  for/while/if one-liners and bash script.sh all work.${LAB.cmdnames && LAB.cmdnames.length ? "\n<b>lab tools</b>\n  " + LAB.cmdnames.join("  ") : ""}${LAB.js ? "\n  node &lt;file.js&gt; | node -e '&lt;code&gt;'   runs real JavaScript" : ""}${LAB.sql ? "\n  sqlite3 &lt;db&gt; [\"SQL\"]   runs real SQLite" : ""}${LAB.py ? "\n  python3 &lt;file.py&gt; | python3 -c '&lt;code&gt;'   runs real Python (Pyodide)" : ""}
 Tip: every <b>▶</b> button in the guide types that example in here.\n`,
     pwd: () => cwd + "\n",
     whoami: () => USER + "\n", hostname: () => HOST + "\n",
@@ -186,17 +187,17 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
     history: () => hist.map((h, i) => `${String(i + 1).padStart(5)}  ${h}`).join("\n") + "\n",
     cd: a => { const d = norm(a[0] || "~"); if (isFile(d)) throw new Error(`cd: ${a[0]}: Not a directory`); if (!isDir(d)) throw new Error(`cd: ${a[0]}: No such file or directory`); cwd = d; return ""; },
     ls: a => {
-      const [f, rest] = flags(a); const targets = rest.length ? rest : ["."]; const o = [];
+      const [f, rest] = flags(a); const targets = rest.length ? rest : ["."]; const o = [], plain = [];
       for (const t of targets) {
         const p = norm(t);
-        if (isFile(p)) { o.push(f.l ? lsl(t, FS[p]) : t); continue; }
+        if (isFile(p)) { o.push(f.l ? lsl(t, FS[p]) : t); plain.push(o[o.length - 1]); continue; }
         if (!isDir(p)) throw new Error(`ls: cannot access '${t}': No such file or directory`);
         if (targets.length > 1) o.push(t + ":");
         const k = kids(p).filter(([n]) => f.a || !n.startsWith("."));
-        if (f.l) { o.push("total " + k.length); k.forEach(([n, d]) => o.push(d ? `drwxr-xr-x 2 ${USER} ${USER}  4096 Nov  7 09:00 <b>${esc(n)}/</b>` : lsl(n, FS[p === "/" ? "/" + n : p + "/" + n]))); }
-        else o.push(k.map(([n, d]) => (d ? `<b>${esc(n)}/</b>` : esc(n))).join("  "));
+        if (f.l) { const L = ["total " + k.length, ...k.map(([n, d]) => (d ? `drwxr-xr-x 2 ${USER} ${USER}  4096 Nov  7 09:00 <b>${esc(n)}/</b>` : lsl(n, FS[p === "/" ? "/" + n : p + "/" + n])))]; o.push(...L); plain.push(...L); }
+        else { o.push(k.map(([n, d]) => (d ? `<b>${esc(n)}/</b>` : esc(n))).join("  ")); plain.push(...k.map(([n]) => n)); }
       }
-      return { html: o.join("\n") + "\n" };
+      return { html: o.join("\n") + "\n", text: join(plain.map(x => x.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"))) };
     },
     cat: (a, i) => { const [f, files] = flags(a); const s = inputs(files.flatMap(glob), i, "cat"); return f.n ? join(lines(s).map((l, k) => `${String(k + 1).padStart(6)}\t${l}`)) : s; },
     head: (a, i) => { const [f, files] = flags(a.map(x => (/^-\d+$/.test(x) ? "-n" + x.slice(1) : x)), "nc"); return join(lines(inputs(files.flatMap(glob), i, "head")).slice(0, +(f.n || 10))); },
@@ -326,7 +327,7 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
       const H = LAB.hints || [];
       if (!H.length) return "no hints for this one.\n";
       if (hintN >= H.length) return `no more hints (${H.length}/${H.length} used).\n`;
-      hintN++; return { html: `<b>hint ${hintN}/${H.length}:</b> ${H[hintN - 1]}\n` };
+      hintN++; paintTicket(); return { html: `<b>hint ${hintN}/${H.length}:</b> ${H[hintN - 1]}\n` };
     },
     reset: () => { reset(); return "lab files restored.\n"; },
     solution: () => (solved() || hintN >= (LAB.hints || []).length ? { html: `<b>// walkthrough</b>\n${b64d(LAB.solution || "")}\n` } : `solve it first, or use all ${(LAB.hints || []).length} hints, then try again.\n`),
@@ -334,6 +335,7 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
       if (!a.length) throw new Error("usage: submit <answer>");
       const h = await sha("SHA-256", normAns(a.join(" ")));
       if ((LAB.answers || []).includes(h)) { markSolved(); return { html: `<span class="ok">[ PASS ] correct.</span> lab solved and saved. type <b>solution</b> for the walkthrough.\n` }; }
+      document.dispatchEvent(new CustomEvent("oxday-lab-wrong"));
       throw new Error("[ FAIL ] not quite. try again, or type hint");
     },
     node: (a, i) => {
@@ -368,6 +370,17 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
     });
     el.classList.add("sb--open"); el.append(ed); setTimeout(() => ta.focus(), 0);
     return a[0] === "vim" ? "" : "";
+  };
+  B.ipcalc = a => {
+    const arg = a.find(x => !x.startsWith("-")) || ""; const m = arg.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)(?:\/(\d+))?$/);
+    if (!m) throw new Error("usage: ipcalc 192.168.1.10/24");
+    const ip = ((+m[1] << 24) >>> 0) + (+m[2] << 16) + (+m[3] << 8) + +m[4], bits = m[5] === undefined ? 24 : +m[5];
+    const mask = bits === 0 ? 0 : (0xffffffff << (32 - bits)) >>> 0, net = (ip & mask) >>> 0, bc = (net | (~mask >>> 0)) >>> 0;
+    const q = n => [24, 16, 8, 0].map(s => (n >>> s) & 255).join(".");
+    const hosts = bits >= 31 ? (bits === 32 ? 1 : 2) : bc - net - 1;
+    const cls = +m[1] < 128 ? "A" : +m[1] < 192 ? "B" : +m[1] < 224 ? "C" : "D/E";
+    const priv = /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(arg) ? ", Private Internet" : /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(arg) ? ", CGNAT (RFC 6598)" : "";
+    return `Address:   ${q(ip)}\nNetmask:   ${q(mask)} = ${bits}\nWildcard:  ${q(~mask >>> 0)}\n=>\nNetwork:   ${q(net)}/${bits}\nHostMin:   ${bits >= 31 ? q(net) : q(net + 1)}\nHostMax:   ${bits >= 31 ? q(bc) : q(bc - 1)}\nBroadcast: ${bits >= 31 ? "-" : q(bc)}\nHosts/Net: ${hosts}   (Class ${cls}${priv})\n`;
   };
   B.ll = a => B.ls(["-l", ...a]); B.dir = B.ls; B.type = B.cat; B.cls = B.clear;
   for (const name of ["sudo", "su"]) B[name] = () => { throw new Error(`${USER} is not in the sudoers file. This incident will be reported.`); };
@@ -406,49 +419,175 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
 
   /* ---------- runner ---------- */
   const CANNED = (LAB.cmds || []).map(c => ({ re: new RegExp(c.re), out: c.out }));
-  async function runSeg(words, stdin) {
-    const [cmd, ...args] = words; if (!cmd) return { out: stdin };
-    const raw = words.join(" ");
-    for (const c of CANNED) if (c.re.test(raw)) return { out: c.out.endsWith("\n") || !c.out ? c.out : c.out + "\n" };
+  const VARS = {}; let lastCode = 0, ARGV = [];
+  const canned = raw => { for (const c of CANNED) if (c.re.test(raw)) return c.out.endsWith("\n") || !c.out ? c.out : c.out + "\n"; return null; };
+  async function runSeg(words, stdin, sink) {
+    while (words.length && /^[A-Za-z_]\w*=/.test(words[0])) { const [k, ...v] = words.shift().split("="); VARS[k] = v.join("="); }
+    if (words[0] === "export") { words.slice(1).forEach(w => { const [k, ...v] = w.split("="); if (v.length) VARS[k] = v.join("="); }); return { out: "" }; }
+    const [cmd, ...args] = words; if (!cmd) return { out: stdin || "" };
+    const c0 = canned(words.join(" ")); if (c0 !== null) return { out: c0 };
+    if (cmd === "bash" || cmd === "sh" || (cmd.startsWith("./") && /\.sh$/.test(cmd))) {
+      const f = cmd.startsWith("./") ? cmd : args.shift();
+      if (!f) throw new Error("bash: interactive subshells aren't supported here; run a script: bash file.sh");
+      return { out: await script(read(f, "bash"), cmd.startsWith("./") ? args : args) };
+    }
+    if (cmd === "python3" || cmd === "python") return { out: await python(args, stdin) };
+    if (cmd === "[" || cmd === "test") return { out: "", code: test(cmd === "[" ? args.slice(0, -1) : args) ? 0 : 1 };
     const fn = B[cmd];
     if (!fn) {
       const p = norm(cmd);
       if (cmd.includes("/") && isFile(p)) {
-        if (/\.js$/.test(p) && LAB.js) return runSeg(["node", cmd, ...args], stdin);
+        if (/\.js$/.test(p) && LAB.js) return runSeg(["node", cmd, ...args], stdin, sink);
+        if (/\.py$/.test(p)) return runSeg(["python3", cmd, ...args], stdin, sink);
         throw new Error(`${cmd}: Permission denied (this sandbox only runs its built-in tools)`);
       }
       throw new Error(`${cmd}: command not found. type help for what this sandbox can run`);
     }
     const expanded = ["grep", "sed", "awk", "find", "echo", "tr", "submit", "node", "sqlite3"].includes(cmd) ? args : args.flatMap(x => (/[*?]/.test(x) && !x.startsWith("-") ? glob(x) : [x]));
     const r = await fn(expanded, stdin || "");
-    if (r && typeof r === "object") return r.html !== undefined ? { html: r.html, code: 0 } : { out: r.out, code: r.code ?? 0 };
+    if (r && typeof r === "object") return r.html !== undefined ? { html: r.html, text: r.text, code: 0 } : { out: r.out, code: r.code ?? 0 };
     return { out: r ?? "", code: 0 };
   }
-  async function exec(line) {
-    const toks = tokenize(line); const chains = [[]];
-    const conds = [];
-    for (const t of toks) { if (t.op === ";" || t.op === "&&" || t.op === "||") { conds.push(t.op); chains.push([]); } else chains[chains.length - 1].push(t); }
-    let last = 0;
+  function test(a) {
+    if (a[0] === "!") return !test(a.slice(1));
+    if (a.length === 2) { const [o, x] = a; const p = norm(x || "");
+      return { "-f": isFile(p), "-e": isFile(p) || isDir(p), "-d": isDir(p) && !isFile(p), "-z": !x, "-n": !!x, "-s": isFile(p) && FS[p].length > 0 }[o] ?? false; }
+    if (a.length === 3) { const [x, o, y] = a;
+      return { "=": x === y, "==": x === y, "!=": x !== y, "-eq": +x === +y, "-ne": +x !== +y, "-gt": +x > +y, "-lt": +x < +y, "-ge": +x >= +y, "-le": +x <= +y }[o] ?? false; }
+    return a.length === 1 && !!a[0];
+  }
+  // $VAR, ${VAR}, $1, $?, $(cmd), $((math)); nothing inside single quotes
+  async function expand(line) {
+    let o = "", q = null;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === "'" && q !== '"') { q = q ? null : "'"; o += c; continue; }
+      if (c === '"' && q !== "'") { q = q ? null : '"'; o += c; continue; }
+      if (c === "\\" && q !== "'") { o += c + (line[++i] ?? ""); continue; }
+      if (c !== "$" || q === "'") { o += c; continue; }
+      const rest = line.slice(i + 1); let m;
+      if (rest.startsWith("((")) {
+        let d = 0, j = i + 1; for (; j < line.length; j++) { if (line[j] === "(") d++; else if (line[j] === ")" && --d === 0) break; }
+        const ex = line.slice(i + 3, j - 1).replace(/\$?([A-Za-z_]\w*)/g, (_, v) => +(VARS[v] ?? 0));
+        if (!/^[\d\s+\-*/%()<>=!&|]*$/.test(ex)) throw new Error("bash: bad arithmetic: " + ex);
+        o += String(Math.trunc(Function(`"use strict";return (${ex || 0})`)())); i = j; continue;
+      }
+      if (rest.startsWith("(")) {
+        let d = 0, j = i + 1; for (; j < line.length; j++) { if (line[j] === "(") d++; else if (line[j] === ")" && --d === 0) break; }
+        const buf = []; await exec(line.slice(i + 2, j), (t) => buf.push(t)); o += buf.join("").replace(/\n+$/, ""); i = j; continue;
+      }
+      if ((m = rest.match(/^\{(\w+)\}/)) || (m = rest.match(/^([A-Za-z_]\w*|\d|\?|#|@)/))) {
+        const k = m[1], v = k === "?" ? String(lastCode) : k === "#" ? String(ARGV.length) : k === "@" ? ARGV.join(" ") : /^\d$/.test(k) ? (k === "0" ? "bash" : ARGV[+k - 1] ?? "")
+          : k === "HOME" ? HOME : k === "USER" ? USER : k === "PWD" ? cwd : k === "HOSTNAME" ? HOST : VARS[k] ?? "";
+        o += v; i += m[0].length; continue;
+      }
+      o += c;
+    }
+    return o;
+  }
+  // split a line on top-level ; while keeping for/while/if blocks together
+  function statements(line) {
+    const parts = []; let cur = "", q = null, depth = 0, word = "", atStart = true;
+    const endWord = () => {
+      if (word) {
+        if (atStart && /^(for|while|if|until)$/.test(word)) depth++;
+        else if (atStart && /^(done|fi)$/.test(word)) depth = Math.max(0, depth - 1);
+        atStart = /^(do|then|else|!)$/.test(word);
+      }
+      word = "";
+    };
+    for (const c of line) {
+      if (q) { if (c === q) q = null; cur += c; word += c; continue; }
+      if (c === "'" || c === '"') { q = c; cur += c; word += c; continue; }
+      if (/\s/.test(c)) { endWord(); cur += c; continue; }
+      if (c === ";" || c === "|" || c === "&") {
+        endWord(); atStart = true;
+        if (c === ";" && depth === 0) { if (cur.trim()) parts.push(cur.trim()); cur = ""; } else cur += c;
+        continue;
+      }
+      cur += c; word += c;
+    }
+    endWord(); if (cur.trim()) parts.push(cur.trim());
+    return parts;
+  }
+  async function exec(line, sink) {
+    sink = sink || ((t, cls, html) => print(html ? t : esc(t), cls));
+    for (const st of statements(line)) {
+      let m;
+      if ((m = st.match(/^for\s+(\w+)\s+in\s+([\s\S]*?);?\s*do\s+([\s\S]*?);?\s*done$/))) {
+        const items = tokenize(await expand(m[2])).filter(t => typeof t === "string").flatMap(x => (/[*?]/.test(x) ? glob(x) : [x]));
+        for (const it of items) { VARS[m[1]] = it; await exec(m[3], sink); }
+        continue;
+      }
+      if ((m = st.match(/^while\s+read\s+(\w+)\s*;?\s*do\s+([\s\S]*?);?\s*done\s*<\s*(\S+)$/))) {
+        for (const l of lines(read(m[3], "bash"))) { VARS[m[1]] = l; await exec(m[2], sink); }
+        continue;
+      }
+      if ((m = st.match(/^if\s+([\s\S]*?);\s*then\s+([\s\S]*?)(?:;\s*else\s+([\s\S]*?))?;?\s*fi$/))) {
+        await exec(m[1], () => {}); if (lastCode === 0) await exec(m[2], sink); else if (m[3]) await exec(m[3], sink);
+        continue;
+      }
+      await pipeline(await expand(st), sink);
+    }
+  }
+  async function pipeline(line, sink) {
+    const c0 = canned(line.trim()); if (c0 !== null && /\|/.test(line)) { sink(c0.replace(/\n$/, "")); lastCode = 0; return; }
+    const toks = tokenize(line); const chains = [[]], conds = [];
+    for (const t of toks) { if (t.op === "&&" || t.op === "||") { conds.push(t.op); chains.push([]); } else chains[chains.length - 1].push(t); }
     for (let c = 0; c < chains.length; c++) {
-      if (c > 0 && ((conds[c - 1] === "&&" && last !== 0) || (conds[c - 1] === "||" && last === 0))) continue;
-      const segs = [[]]; let redir = null;
-      const ch = chains[c];
+      if (c > 0 && ((conds[c - 1] === "&&" && lastCode !== 0) || (conds[c - 1] === "||" && lastCode === 0))) continue;
+      const segs = [[]]; let redir = null; const ch = chains[c];
       for (let k = 0; k < ch.length; k++) {
         const t = ch[k];
         if (t.op === "|") segs.push([]);
         else if (t.op === ">" || t.op === ">>") { redir = { op: t.op, file: ch[++k] }; if (typeof redir.file !== "string") throw new Error("syntax error near redirect"); }
-        else if (t.op === "&") continue;
+        else if (t.op === "&" || t.op === ";") continue;
         else segs[segs.length - 1].push(t);
       }
       if (!segs[0].length) continue;
-      let data = "", html = null; last = 0;
+      let data = "", html = null; lastCode = 0;
       try {
-        for (const s of segs) { const r = await runSeg(s, data); if (r.html !== undefined) { html = r.html; data = r.html.replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"'); } else { html = null; data = r.out; } last = r.code || 0; }
-      } catch (e) { print(esc(e.message), "err"); last = 1; continue; }
-      if (redir) { const p = norm(redir.file); FS[p] = redir.op === ">>" && isFile(p) ? FS[p] + data : data; }
-      else if (html !== null) print(html.replace(/\n$/, ""));
-      else if (data) print(esc(data.replace(/\n$/, "")));
+        for (const s of segs) { const r = await runSeg(s.slice(), data, sink); if (r.html !== undefined) { html = r.html; data = r.text !== undefined ? r.text : r.html.replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"'); } else { html = null; data = r.out; } lastCode = r.code || 0; }
+      } catch (e) { sink(e.message, "err"); lastCode = 1; continue; }
+      if (redir) { const p = norm(redir.file === "/dev/null" ? "/dev/null" : redir.file); if (p !== "/dev/null") FS[p] = redir.op === ">>" && isFile(p) ? FS[p] + data : data; }
+      else if (html !== null) sink(html.replace(/\n$/, ""), "", true);
+      else if (data) sink(data.replace(/\n$/, ""));
     }
+  }
+  async function script(src, argv) {
+    const saved = ARGV; ARGV = argv;
+    const L = src.split("\n").map(l => l.replace(/^\s+/, "")).filter(l => l && !l.startsWith("#"));
+    const joined = L.join("; ").replace(/\b(do|then|else|in)\s*;\s*/g, "$1 ").replace(/;\s*;/g, ";");
+    const buf = []; try { await exec(joined, t => buf.push(t + "\n")); } finally { ARGV = saved; }
+    return buf.join("");
+  }
+
+  /* ---------- Python via Pyodide (only loaded on Python labs) ---------- */
+  let pyP = null;
+  function loadPy() {
+    if (pyP) return pyP;
+    const base = "https://cdn.jsdelivr.net/npm/pyodide@0.26.4/";
+    pyP = new Promise(res => {
+      const s = document.createElement("script"); s.src = base + "pyodide.js";
+      s.onload = () => window.loadPyodide({ indexURL: base }).then(res, () => res(null));
+      s.onerror = () => { pyP = null; res(null); };
+      document.head.append(s);
+    });
+    return pyP;
+  }
+  async function python(args, stdin) {
+    if (!LAB.py) { const c = canned(["python3", ...args].join(" ")); if (c !== null) return c; throw new Error("python3: not installed in this lab"); }
+    let code, file = null;
+    if (args[0] === "-c") code = args.slice(1).join(" "); else if (args[0]) { file = norm(args[0]); code = read(args[0], "python3"); } else code = stdin;
+    print("[ starting python (first run downloads ~10 MB) ... ]", "sys");
+    const py = await loadPy(); if (!py) throw new Error("python3: couldn't load Python (needs a network connection to cdn.jsdelivr.net)");
+    for (const [p, c] of Object.entries(FS)) { const d = p.slice(0, p.lastIndexOf("/")); py.FS.mkdirTree(d || "/"); py.FS.writeFile(p, c); }
+    py.FS.chdir(cwd);
+    const o = []; py.setStdout({ batched: t => o.push(t) }); py.setStderr({ batched: t => o.push(t) });
+    py.setStdin({ stdin: (() => { const L = lines(stdin || ""); return () => L.shift(); })() });
+    try { py.globals.set("__argv", [file || "-c", ...args.slice(1)]); await py.runPythonAsync("import sys; sys.argv = list(__argv)\n"); await py.runPythonAsync(code); }
+    catch (e) { o.push(String(e.message || e).split("\n").filter(l => l.trim()).slice(-3).join("\n")); }
+    return join(o);
   }
 
   /* ---------- solved state ---------- */
@@ -468,7 +607,7 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
   if (solved()) el.classList.add("sb--solved");
   const out = el.querySelector(".sb__out"), form = el.querySelector("form"), input = el.querySelector("input"), ps1 = el.querySelector(".sb__ps1");
   function print(h, cls = "") { const d = document.createElement("div"); d.className = "sb__blk " + cls; d.innerHTML = h; out.append(d); out.scrollTop = out.scrollHeight; }
-  const prompt = () => (sqlMode ? "sqlite&gt; " : `<span class="p-u">${esc(USER)}@${esc(HOST)}</span>:<span class="p-d">${esc(short(cwd))}</span>$ `);
+  const prompt = () => (sqlMode ? "sqlite&gt; " : (LAB.style === "debug") ? '<span class="p-u">(gdb)</span> ' : `<span class="p-u">${esc(USER)}@${esc(HOST)}</span>:<span class="p-d">${esc(short(cwd))}</span>$ `);
   const setPs1 = () => (ps1.innerHTML = prompt());
   async function run(line) {
     print(prompt() + `<span class="sb__cmd">${esc(line)}</span>`);
@@ -514,10 +653,94 @@ Tip: every <b>▶</b> button in the guide types that example in here.\n`,
     if (sqlMode) { sqlMode = null; setPs1(); }
     input.value = ""; const d = Math.min(12, 450 / cmd.length);
     for (const ch of cmd) { input.value += ch; if (!fast) await new Promise(r => setTimeout(r, d)); }
-    input.value = ""; typing = false; await run(cmd); input.focus({ preventScroll: true });
+    input.value = ""; try { await run(cmd); } finally { typing = false; } input.focus({ preventScroll: true });
   });
+
+  /* ================= lab styles: ticket queue and step-through debugger ================= */
+  const STYLE = LAB.style || "shell";
+  let wrong = 0;
+  const score = () => Math.max(10, 100 - 15 * hintN - 5 * wrong);
+  document.addEventListener("oxday-lab-wrong", () => { wrong++; paintTicket(); });
+  function paintTicket() {
+    const s = el.querySelector(".tk__pts"); if (s) s.innerHTML = `score <b>${solved() ? (store.get("oxday-labs", {})[LAB.id + ":score"] ?? score()) : score()}</b>/100 <span class="muted">· hints -15 · wrong -5</span>`;
+  }
+  if (STYLE === "ticket") {
+    const T = LAB.ticket || {};
+    el.classList.add("sb--ticket");
+    el.querySelector(".term__title").textContent = `${T.system || "osTicket"} · ticket ${T.id || "#1000"}`;
+    const tk = document.createElement("div"); tk.className = "tk";
+    const att = Object.keys(LAB.fs || {}).filter(p => !p.endsWith("/.keep") && (!T.attach || T.attach.split(",").map(x => x.trim()).some(a => p.endsWith(a))));
+    tk.innerHTML = `<div class="tk__head"><span class="tk__subj">${esc(T.subject || LAB.title)}</span>
+        <span class="tk__meta"><span class="tk__chip tk__chip--${esc((T.priority || "P3").toLowerCase())}">${esc(T.priority || "P3")}</span><span class="tk__chip">from: ${esc(T.from || "user")}</span><span class="tk__chip tk__sla">SLA ${esc(T.sla || "4h")}</span><span class="tk__chip tk__status">${solved() ? "resolved" : "open"}</span></span></div>
+      <div class="tk__body">${LAB.brief}</div>
+      <div class="tk__att"><span class="muted">attachments:</span> ${att.map(p => `<button type="button" class="tk__file" data-p="${esc(p)}">📎 ${esc(p.split("/").pop())}</button>`).join(" ")}</div>
+      <form class="tk__res"><input aria-label="resolution" placeholder="resolution: your answer" spellcheck="false"><button class="btn" type="submit">[ resolve ]</button><span class="tk__pts"></span></form>`;
+    el.insertBefore(tk, el.querySelector(".sb__out"));
+    tk.addEventListener("click", e => { const b = e.target.closest(".tk__file"); if (b) { run("cat " + b.dataset.p); input.focus({ preventScroll: true }); } });
+    tk.querySelector(".tk__res").addEventListener("submit", e => { e.preventDefault(); const v = e.target.querySelector("input").value.trim(); if (v) run("submit " + v); });
+    document.addEventListener("oxday-lab-solved", () => { tk.querySelector(".tk__status").textContent = "resolved"; const all = store.get("oxday-labs", {}); all[LAB.id + ":score"] = score(); store.set("oxday-labs", all); paintTicket(); });
+    // SLA clock counts down from the ticket's SLA while the page is open
+    const m = String(T.sla || "4h").match(/(\d+)\s*([hm])/); let left = m ? +m[1] * (m[2] === "h" ? 3600 : 60) : 14400;
+    setInterval(() => { if (solved()) return; left = Math.max(0, left - 1); const sla = tk.querySelector(".tk__sla"); sla.textContent = `SLA ${Math.floor(left / 3600)}h ${String(Math.floor(left / 60) % 60).padStart(2, "0")}m ${String(left % 60).padStart(2, "0")}s`; sla.classList.toggle("late", left < 600); }, 1000);
+    paintTicket();
+  }
+
+  let dbg = null;
+  if (STYLE === "debug") {
+    el.classList.add("sb--debug");
+    const TR = LAB.trace || [], SRC = (LAB.fs[LAB.source] || "").replace(/\n$/, "").split("\n");
+    dbg = { i: -1, bps: new Set(), prev: {} };
+    const pane = document.createElement("div"); pane.className = "dbg";
+    pane.innerHTML = `<pre class="dbg__src" aria-label="source"></pre><div class="dbg__vars" aria-label="locals"></div>`;
+    el.insertBefore(pane, el.querySelector(".sb__out"));
+    el.querySelector(".term__title").textContent = `gdb · ${LAB.source.split("/").pop()}`;
+    const paint = () => {
+      const cur = TR[dbg.i], ln = cur ? cur.line : 0;
+      pane.querySelector(".dbg__src").innerHTML = SRC.map((l, k) => {
+        const n = k + 1, bp = dbg.bps.has(n);
+        return `<span class="dbg__l${n === ln ? " cur" : ""}${bp ? " bp" : ""}" data-n="${n}"><span class="dbg__n">${bp ? "●" : " "}${String(n).padStart(3)}${n === ln ? "→" : " "}</span>${esc(l) || " "}</span>`;
+      }).join("");
+      const v = cur ? cur.vars : {}, prev = TR[dbg.i - 1] ? TR[dbg.i - 1].vars : {};
+      pane.querySelector(".dbg__vars").innerHTML = `<div class="dbg__h">${cur ? `step ${dbg.i + 1}/${TR.length}` : "not running · type <b>start</b>"}</div>` +
+        Object.entries(v).map(([k, x]) => `<div class="dbg__v${prev[k] !== x ? " chg" : ""}"><span>${esc(k)}</span><span>${esc(x)}</span></div>`).join("");
+      const c = pane.querySelector(".cur"); if (c) c.scrollIntoView({ block: "nearest" });
+    };
+    pane.querySelector(".dbg__src").addEventListener("click", e => { const l = e.target.closest(".dbg__l"); if (l) run((dbg.bps.has(+l.dataset.n) ? "delete " : "break ") + l.dataset.n); });
+    const at = () => { const c = TR[dbg.i]; return c ? `${c.line}\t${SRC[c.line - 1].trim()}` + (c.out ? "" : "") : ""; };
+    const go = (n) => {
+      if (dbg.i < 0) return "The program is not being run. Type start.\n";
+      const outs = [];
+      for (let k = 0; k < n; k++) {
+        if (dbg.i >= TR.length - 1) { paint(); return join(outs) + `[Inferior 1 (process 4242) exited normally]\n`; }
+        dbg.i++; if (TR[dbg.i].out) outs.push(TR[dbg.i].out);
+      }
+      paint(); return join(outs.concat([at()]));
+    };
+    const D = {
+      start: () => { dbg.i = 0; paint(); return `Temporary breakpoint 1 at main\nStarting program: ./${LAB.source.split("/").pop().replace(/\.\w+$/, "")}\n${at()}\n`; },
+      step: a => go(+(a[0] || 1)),
+      back: a => { if (dbg.i > 0) dbg.i = Math.max(0, dbg.i - (+(a[0] || 1))); paint(); return at() + "\n"; },
+      continue: () => {
+        if (dbg.i < 0) return "The program is not being run. Type start.\n";
+        const outs = [];
+        while (dbg.i < TR.length - 1) { dbg.i++; if (TR[dbg.i].out) outs.push(TR[dbg.i].out); if (dbg.bps.has(TR[dbg.i].line)) { paint(); return join(outs.concat([`Breakpoint, line ${TR[dbg.i].line}`, at()])); } }
+        paint(); return join(outs.concat(["[Inferior 1 (process 4242) exited normally]"]));
+      },
+      break: a => { const n = +String(a[0] || "").replace(/^.*:/, ""); if (!n || n > SRC.length) throw new Error("usage: break <line number>"); dbg.bps.add(n); paint(); return `Breakpoint at line ${n}.\n`; },
+      delete: a => { a.length ? a.forEach(n => dbg.bps.delete(+n)) : dbg.bps.clear(); paint(); return ""; },
+      print: a => { const c = TR[dbg.i]; if (!c) throw new Error("No frame selected. Type start."); const k = a.join(" ").replace(/^\$/, ""); if (!(k in c.vars)) throw new Error(`No symbol "${k}" in current context.`); return `$1 = ${c.vars[k]}\n`; },
+      info: () => { const c = TR[dbg.i]; if (!c) throw new Error("No frame selected. Type start."); return join(Object.entries(c.vars).map(([k, v]) => `${k.padEnd(10)} ${v}`)); },
+      list: () => join(SRC.map((l, k) => `${String(k + 1).padStart(3)}  ${l}`)),
+      finish: () => go(TR.length),
+      kill: () => { dbg.i = -1; paint(); return "[Inferior 1 (process 4242) killed]\n"; }
+    };
+    Object.assign(B, D, { s: D.step, n: D.step, next: D.step, si: D.step, stepi: D.step, nexti: D.step, ni: D.step, r: D.start, run: D.start, c: D.continue, b: D.break, p: D.print, l: D.list, rs: D.back, "reverse-step": D.back, gdb: () => "(already attached)\n" });
+    paint();
+  }
 
   reset(); setPs1();
   print(`<b>0xDay sandbox</b> · lab: ${esc(LAB.title || LAB.id)}\nEverything here runs in your browser. Type <b>help</b>, or press a <b>▶</b> in the guide.`, "sys");
-  print(`<b>// challenge</b>\n${LAB.brief}`);
+  if (STYLE === "ticket") print("The ticket is above. Click an attachment to open it here, or type <b>help</b>.", "sys");
+  else if (STYLE === "debug") print("Debugger loaded. <b>start</b> runs to main, <b>step</b> / <b>back</b> move one line, <b>break N</b> (or click a line) sets a breakpoint, <b>continue</b> runs to it, <b>print x</b> / <b>info locals</b> inspect.", "sys");
+  if (STYLE !== "ticket") print(`<b>// challenge</b>\n${LAB.brief}`);
 })();

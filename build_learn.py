@@ -11,7 +11,7 @@ Guide file format (content/guides/<skill-slug>.txt):
     output lines are shown dimmed
     ```
     :: mid / :: complex
-    :: lab               # optional key: value lines: host, user, cwd, js (yes), title
+    :: lab               # optional key: value lines: host, user, cwd, js (yes), py (yes: real Python via Pyodide)
     :: brief             # the challenge (markdown)
     :: answer            # one accepted answer per line (case/space-insensitive, only hashes ship)
     :: hint              # repeat for more hints, given in order
@@ -19,6 +19,13 @@ Guide file format (content/guides/<skill-slug>.txt):
     :: file /home/user/x.log
     :: cmd REGEX         # canned output for a simulated tool, matched against each pipeline stage
     :: sql               # SQL run into an in-browser SQLite db (enables sqlite3)
+    :: trace             # debug style: one step per line: "<source line> | var=val var=val | optional output"
+
+Lab styles (":: lab" key "style"), picked per skill:
+    shell   (default) a sandbox terminal
+    ticket  a help-desk/SOC ticket: keys id, subject, priority, from, sla, system, attach (comma list of file names);
+            files become attachments, there's a console, and the answer resolves the ticket. Hints cost points.
+    debug   a gdb-style stepper: key source (path of a :: file); :: trace lists each step's line and variables
 """
 import json, os, re, hashlib, base64, html
 
@@ -117,6 +124,16 @@ def parse_guide(text):
             name = re.sub(r"^\^", "", arg).split("\\")[0].split(" ")[0].split("(")[0]
             if name and re.match(r"^[\w.-]+$", name) and name not in lab["cmdnames"]: lab["cmdnames"].append(name)
         elif cur == "sql": lab["sql"] = body
+        elif cur == "trace":
+            tr = []
+            for l in buf:
+                if not l.strip() or l.startswith("#"): continue
+                parts = [x.strip() for x in l.split(" | ")]
+                vars_ = {m.group(1): m.group(2).strip('"') for m in re.finditer(r'([\w$\[\].>-]+)=("[^"]*"|\S+)', parts[1] if len(parts) > 1 else "")}
+                st = {"line": int(parts[0]), "vars": vars_}
+                if len(parts) > 2 and parts[2]: st["out"] = parts[2]
+                tr.append(st)
+            lab["trace"] = tr
         else: raise ValueError(f"unknown section :: {cur}")
 
     for line in text.split("\n"):
@@ -140,7 +157,14 @@ def lab_json(g, sid, title):
            "fs": lab["fs"], "cmds": lab["cmds"], "cmdnames": lab["cmdnames"]}
     if lab.get("cwd"): out["cwd"] = lab["cwd"]
     if lab.get("js"): out["js"] = True
+    if lab.get("py"): out["py"] = True
     if lab.get("sql"): out["sql"] = lab["sql"]
+    out["style"] = lab.get("style", "shell")
+    if out["style"] == "ticket":
+        out["ticket"] = {k: lab[k] for k in ("id", "subject", "priority", "from", "sla", "system", "attach") if lab.get(k)}
+    if out["style"] == "debug":
+        out["source"] = lab["source"]; out["trace"] = lab.get("trace", [])
+        assert lab["source"] in lab["fs"], f"{sid}: source file missing"
     return json.dumps(out).replace("</", "<\\/")
 
 
@@ -167,9 +191,12 @@ def build(page, SKILLS, LV, bar):
                      f'{md(g["tiers"][key])}<p><button class="btn got" type="button" data-tier="{key}">[ ] got it</button></p></section>')
         lab = lab_json(g, s, k["name"])
         if lab:
-            secs += (f'<section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// your turn, in the sandbox</span></h2>'
-                     f'{md(g["lab"]["brief"])}<p class="muted">Solve it in the sandbox{" to the right" if True else ""}. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. '
-                     f'Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section>')
+            style = g["lab"].get("style", "shell")
+            how = {"shell": ("sandbox shell", "Solve it in the sandbox. Every <span class=\"ok\">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it."),
+                   "ticket": ("ticket queue", "This one is a ticket in the queue. Open the attachments, investigate in the console under the ticket (every <span class=\"ok\">▶ run</span> above works there), then resolve it with your answer. Hints cost 15 points, wrong answers 5."),
+                   "debug": ("debugger", "This one runs in a step-through debugger. <code>start</code>, then <code>step</code> / <code>back</code> through the code and watch the variables change, or set a <code>break</code> and <code>continue</code>. Every <span class=\"ok\">▶ run</span> above is a debugger command. <code>submit &lt;answer&gt;</code> when you have it.")}[style]
+            secs += (f'<section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// {how[0]}</span></h2>'
+                     f'{md(g["lab"]["brief"])}<p class="muted">{how[1]}</p></section>')
         proof = k.get("proof")
         proof_html = f' · <a href="../{proof}">proof</a>' if proof and not proof.startswith("http") else (f' · <a href="{proof}">proof</a>' if proof else "")
         body = f'''<p class="cmd">learn --skill {s}</p>
@@ -260,7 +287,7 @@ def build(page, SKILLS, LV, bar):
         groups.setdefault(gname, []).append((k, s, has))
     for gname, items in groups.items():
         gl += f'<h2>{esc(gname)}</h2><ul class="ls guides">' + "".join(
-            (f'<li class="guiderow" data-skill="{s}"><a class="ls-row" href="learn/{s}.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">{esc(k["name"])}</span><span class="ls-tags">lab</span></a></li>' if has else
+            (f'<li class="guiderow" data-skill="{s}"><a class="ls-row" href="learn/{s}.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">{esc(k["name"])}</span><span class="ls-tags">{guides[s][2]["lab"].get("style", "shell")}</span></a></li>' if has else
              f'<li class="muted"><span class="ls-row"><span class="ls-perm">[....]</span><span class="ls-title">{esc(k["name"])}</span><span class="ls-tags">soon</span></span></li>')
             for k, s, has in items) + "</ul>"
     page("learn.html", "learn :: 0xDay", f'''<p class="cmd">ls ~/learn</p><h1>~/learn</h1>
