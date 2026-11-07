@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>deep-dives :: 0xDay</title>
+<meta name="description" content="In-depth write-ups of Nathan&#x27;s cybersecurity homelab and enterprise IT support lab.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=cbd83726">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="homelab.css?v=1a09071b">
+<script src="homelab.js?v=1a09071b" defer></script>
+<script src="data.js?v=cbd83726" defer></script>
+<script src="site.js?v=cbd83726" defer></script>
+<script src="fx.js?v=cbd83726" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="posts.html">./blog</a></li><li><a href="projects.html" aria-current="page">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html">./learn</a></li><li><a href="lab.html">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ls ~/deep-dives</p>
+<h1>~/deep-dives</h1>
+<p>Long-form write-ups of the two labs I keep coming back to: how they're built, why, and what they taught me. My other projects have their own <a href="posts.html">blog posts</a>.</p>
+<p class="muted">jump to: <a href="#homelab">Cybersecurity Homelab</a> · <a href="#it-lab">Enterprise IT Support Lab</a></p>
+<article class="hl-dive" id="homelab">
+  <div class="hl-dive__bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="hl-pane__t">less homelab.md</span></div>
+  <div class="hl-dive__body">
+    <h2>Cybersecurity Homelab</h2>
+    <p class="hl-dive__sum">A seven-VM enterprise network on a single Proxmox host, built so I have somewhere to practice both attacking and defending something that looks like a real company.</p>
+    <p class="hl-dive__stack"><span class="hl-tag">Proxmox VE</span><span class="hl-tag">pfSense</span><span class="hl-tag">Tailscale</span><span class="hl-tag">Windows Server / AD</span><span class="hl-tag">Windows 11</span><span class="hl-tag">Ubuntu + Docker</span><span class="hl-tag">Kali</span><span class="hl-tag">Metasploitable</span><span class="hl-tag">Security Onion</span><span class="hl-tag">Zeek</span><span class="hl-tag">Suricata</span></p>
+    <h3>The idea</h3><p>I wanted one environment where I could run an attack and then go watch what it looked like from the defender&#x27;s chair, instead of treating offense and defense as separate worlds. Everything runs on one box: an i7-10900K with 64 GB of RAM and a 2 TB SSD, virtualized with Proxmox.</p><p>The whole thing is isolated. Nothing is published to the internet, remote access is over Tailscale only, and every public note uses placeholders instead of the real address plan.</p><h3>Design decisions</h3><p>pfSense sits between the upstream network and the lab segment and does all the routing, DHCP, DNS and firewalling. The rules are default-deny: the vulnerable boxes get no internet at all, and traffic is only allowed where an exercise needs it.</p><p>Security Onion watches a mirrored copy of the lab traffic on a sniffing interface with no IP of its own, so monitoring never changes what it&#x27;s monitoring. Remote admin goes through Tailscale&#x27;s subnet routing, which means I never had to forward a single port to reach the lab from outside.</p><h3>Build log</h3><p>Stood up Proxmox and carved the network into virtual bridges for the upstream path and the lab segment.</p><p>Installed pfSense and wrote the segmentation rules, with DHCP and DNS for the lab.</p><p>Built the Windows Server domain controller, created the lab.local domain, OUs, users and groups, then joined a Windows 11 workstation.</p><p>Added the Ubuntu box with DVWA and WebGoat in Docker, plus Kali and Metasploitable for controlled testing.</p><p>Deployed Security Onion against a span port and confirmed Zeek and Suricata were seeing lab traffic.</p><h3>What I learned</h3><p>Segmentation is the feature. Half of what makes the lab safe is just pfSense refusing traffic that has no reason to exist.</p><p>You can&#x27;t defend what you can&#x27;t see. Getting the mirror port right so Security Onion actually received traffic taught me more about network monitoring than any reading did.</p><p>Document as you go, and sanitize as you go. Writing public-safe notes forced me to be deliberate about what&#x27;s an identifier and what&#x27;s a concept.</p><h3>What&#x27;s next</h3><p>Evidence-based attack-and-detection walkthroughs with sanitized screenshots, so the detections are backed by real telemetry instead of expectations. The attack chain on this site is the scripted version of exactly that.</p>
+    <p class="hl-dive__links"><a href="https://github.com/nrodrigue2004/cybersecurity-homelab">repo &rarr;</a> · <a href="homelab.html">the homelab map</a> · <a href="attack-chain.html">the attack chain</a> · <a href="posts/proxmox-homelab.html">the blog post</a></p>
+  </div>
+</article><article class="hl-dive" id="it-lab">
+  <div class="hl-dive__bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="hl-pane__t">less it-lab.md</span></div>
+  <div class="hl-dive__body">
+    <h2>Enterprise IT Support Lab</h2>
+    <p class="hl-dive__sum">A Windows domain with a real help-desk ticketing system on top, built to practice the day-one work of IT support: AD, Group Policy, PowerShell, permissions, and actually closing a ticket.</p>
+    <p class="hl-dive__stack"><span class="hl-tag">Proxmox</span><span class="hl-tag">Windows Server / AD</span><span class="hl-tag">Windows 11</span><span class="hl-tag">Group Policy</span><span class="hl-tag">PowerShell</span><span class="hl-tag">NTFS / SMB</span><span class="hl-tag">Ubuntu</span><span class="hl-tag">osTicket</span><span class="hl-tag">Apache</span><span class="hl-tag">PHP</span><span class="hl-tag">MariaDB</span></p>
+    <h3>The idea</h3><p>The homelab is for security; this one is for the support fundamentals underneath it. I built a lab.local domain and stood up osTicket so I could work tickets end to end the way a help desk actually does, not just click around in Active Directory.</p><h3>Design decisions</h3><p>Windows Server runs Active Directory and a Finance SMB share. The share is protected with both share-level and NTFS permissions on purpose, so I could see layered access control behave the way it does in a real environment.</p><p>osTicket runs on Ubuntu with Apache, PHP and MariaDB, with an IT Support department and public help topics, so every exercise ends in a documented, closed ticket instead of a loose note.</p><h3>The signature ticket</h3><p>A user can sign in and reach the Finance share but gets access denied when they open it. The fix is a lesson in itself:</p><p>Reproduce it from the domain-joined workstation, check the user&#x27;s AD group membership, find they&#x27;re missing from Finance-Share-Read, add them with PowerShell, and have them sign out and back in so Windows issues a fresh token.</p><p>The sign-out is the whole point: group membership is baked into the access token at logon, so adding someone to a group does nothing for their current session. That one detail is behind a huge share of &#x27;but I fixed it&#x27; tickets.</p><h3>What I learned</h3><p>PowerShell beats clicking. Provisioning a user, placing them in an OU, setting a password and adding them to a group is a few lines, and it&#x27;s repeatable.</p><p>Group Policy is how one change reaches every machine. I used a GPO to map the Finance share as a drive automatically, then validated it with gpupdate and gpresult.</p><p>Closing the ticket matters as much as fixing the problem. Writing the resolution in osTicket is the part that makes it support work and not just tinkering.</p><h3>What&#x27;s next</h3><p>More ticket scenarios: printer and GPO conflicts, roaming-profile issues, and account lockouts, each written up as a reproducible walkthrough.</p>
+    <p class="hl-dive__links"><a href="https://github.com/nrodrigue2004/enterprise-it-support-lab">repo &rarr;</a> · <a href="posts/finance-share-access-denied.html">the help-desk post</a> · <a href="deep-dives.html#homelab">the homelab deep-dive</a></p>
+  </div>
+</article>
+<p><a href="projects.html">cd ../projects</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -136,7 +136,7 @@
     if (act) { e.preventDefault(); act(); if (k !== ":" && k !== "i") { mode = "NORMAL"; } }
   });
   document.addEventListener("focusout", () => { if (S.vim && mode === "INSERT") { mode = "NORMAL"; renderBar(); } });
-  const PAGEALIAS = Object.fromEntries(WINDOWS.map(([n, h]) => [n, h]).concat([["posts", "posts.html"], ["tty", "tty.html"], ["htop", "htop.html"], ["desktop", "desktop.html"], ["i3", "desktop.html"], ["resume", "resume.html"], ["ctf", "ctf.html"], ["man", "man.html"], ["tags", "tags.html"], ["changelog", "changelog.html"]]));
+  const PAGEALIAS = Object.fromEntries(WINDOWS.map(([n, h]) => [n, h]).concat([["posts", "posts.html"], ["tty", "tty.html"], ["htop", "htop.html"], ["desktop", "desktop.html"], ["i3", "desktop.html"], ["resume", "resume.html"], ["ctf", "ctf.html"], ["man", "man.html"], ["tags", "tags.html"], ["changelog", "changelog.html"], ["homelab", "homelab.html"], ["attack-chain", "attack-chain.html"], ["deep-dives", "deep-dives.html"]]));
   function exCommand(v) {
     v = v.trim(); if (!v) return;
     const [c, ...a] = v.split(/\s+/);
@@ -157,7 +157,7 @@
     const it = [];
     const P = (n, h, kind) => it.push({ n, h: h.startsWith("http") ? h : ROOT + h, kind });
     WINDOWS.forEach(([n, h]) => P("~/" + n, h, "page"));
-    [["tty mode", "tty.html"], ["htop", "htop.html"], ["i3 desktop", "desktop.html"], ["resume", "resume.html"], ["ctf scoreboard", "ctf.html"], ["man pages", "man.html"], ["tags", "tags.html"], ["changelog", "changelog.html"], ["resources", "resources.html"]].forEach(([n, h]) => P(n, h, "page"));
+    [["homelab map", "homelab.html"], ["attack chain", "attack-chain.html"], ["deep-dives", "deep-dives.html"], ["tty mode", "tty.html"], ["htop", "htop.html"], ["i3 desktop", "desktop.html"], ["resume", "resume.html"], ["ctf scoreboard", "ctf.html"], ["man pages", "man.html"], ["tags", "tags.html"], ["changelog", "changelog.html"], ["resources", "resources.html"]].forEach(([n, h]) => P(n, h, "page"));
     (D.posts || []).forEach(p => P(p.title, "posts/" + p.slug + ".html", "post"));
     (D.projects || []).forEach(p => P(p.name, p.url || "projects.html", "project"));
     (D.man || []).forEach(m => P("man " + m.name, "man/" + m.slug + ".html", "man"));
