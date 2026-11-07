@@ -1,0 +1,442 @@
+{
+ "_help": "name, url, when to use, caution (shown in amber). Add freely.",
+ "groups": [
+  {
+   "h": "check a file, link or hash",
+   "items": [
+    {
+     "n": "VirusTotal",
+     "u": "https://www.virustotal.com/",
+     "w": "Scan a file hash, URL, domain or IP against ~70 AV engines and see what others found.",
+     "c": "Uploads are PUBLIC to paying customers. Search by hash first; never upload private or work files."
+    },
+    {
+     "n": "Hybrid Analysis",
+     "u": "https://www.hybrid-analysis.com/",
+     "w": "Free sandbox report: what a sample did when run (processes, network, dropped files).",
+     "c": "Same rule: submissions can be shared."
+    },
+    {
+     "n": "ANY.RUN",
+     "u": "https://any.run/",
+     "w": "Interactive malware sandbox: watch a sample run live in a VM.",
+     "c": "Free tier reports are public."
+    },
+    {
+     "n": "urlscan.io",
+     "u": "https://urlscan.io/",
+     "w": "Safely load a suspicious link and see screenshot, redirects, requests and hosting.",
+     "c": "Public scans are listed; mark private if the URL contains tokens."
+    },
+    {
+     "n": "MalwareBazaar",
+     "u": "https://bazaar.abuse.ch/",
+     "w": "Look up and download known malware samples by hash (for lab use only).",
+     "c": "Handle only inside an isolated VM."
+    },
+    {
+     "n": "CyberChef",
+     "u": "https://gchq.github.io/CyberChef/",
+     "w": "Decode base64, hex, XOR, URL encoding and more by chaining operations. Runs in your browser.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "passwords and hashes",
+   "items": [
+    {
+     "n": "CrackStation",
+     "u": "https://crackstation.net/",
+     "w": "Paste an unsalted hash (MD5, SHA-1, NTLM...) and it looks it up in a huge table of known passwords. Shows why weak and unsalted hashes are dangerous.",
+     "c": "Only hashes from your own labs or CTFs. Never paste a real account's hash: you'd be sending it to a stranger."
+    },
+    {
+     "n": "hashcat",
+     "u": "https://hashcat.net/hashcat/",
+     "w": "The GPU password-auditing tool, like John the Ripper. Used on your own lab to test how fast weak passwords fall.",
+     "c": "Authorized targets only."
+    },
+    {
+     "n": "hashes.com hash identifier",
+     "u": "https://hashes.com/en/tools/hash_identifier",
+     "w": "Paste a hash to see which type it is (MD5, bcrypt, NTLM...) before choosing a tool.",
+     "c": "Lab hashes only."
+    },
+    {
+     "n": "Have I Been Pwned: Pwned Passwords",
+     "u": "https://haveibeenpwned.com/Passwords",
+     "w": "Check if a password is in known breaches. Uses k-anonymity, so the full password never leaves your browser.",
+     "c": "Still prefer the range API or a password manager's built-in check."
+    }
+   ]
+  },
+  {
+   "h": "email and account checks",
+   "items": [
+    {
+     "n": "Have I Been Pwned",
+     "u": "https://haveibeenpwned.com/",
+     "w": "Is my email in a known breach? Also check passwords through the k-anonymity range search.",
+     "c": "Only enter your own addresses."
+    },
+    {
+     "n": "MXToolbox",
+     "u": "https://mxtoolbox.com/",
+     "w": "Check a domain's MX, SPF, DKIM and DMARC records, blacklists and header analysis.",
+     "c": ""
+    },
+    {
+     "n": "Google Admin Toolbox: Messageheader",
+     "u": "https://toolbox.googleapps.com/apps/messageheader/",
+     "w": "Paste an email's headers to see the path and delays. Good for phishing triage.",
+     "c": "Headers can contain addresses: redact before sharing."
+    },
+    {
+     "n": "EmailRep",
+     "u": "https://emailrep.io/",
+     "w": "Reputation lookup for an email address (age, spam and breach signals).",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "history and OSINT",
+   "items": [
+    {
+     "n": "Internet Archive Wayback Machine",
+     "u": "https://web.archive.org/",
+     "w": "See old versions of a page, recover deleted content, or save a snapshot as evidence.",
+     "c": ""
+    },
+    {
+     "n": "archive.today",
+     "u": "https://archive.ph/",
+     "w": "Snapshot a page you want to preserve without visiting it again.",
+     "c": ""
+    },
+    {
+     "n": "Shodan",
+     "u": "https://www.shodan.io/",
+     "w": "Search engine for internet-connected devices. Great for checking YOUR OWN exposure.",
+     "c": "Look, don't touch anything that isn't yours."
+    },
+    {
+     "n": "crt.sh",
+     "u": "https://crt.sh/",
+     "w": "Certificate transparency search: find subdomains and certificates for a domain.",
+     "c": ""
+    },
+    {
+     "n": "AbuseIPDB",
+     "u": "https://www.abuseipdb.com/",
+     "w": "Is this IP reported for attacks? Check suspicious IPs from your logs.",
+     "c": ""
+    },
+    {
+     "n": "WHOIS / DomainTools Whois",
+     "u": "https://whois.domaintools.com/",
+     "w": "Domain age and registrar. A days-old domain in an email is a red flag.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "setup and software",
+   "items": [
+    {
+     "n": "Ninite",
+     "u": "https://ninite.com/",
+     "w": "Pick apps (Chrome, 7-Zip, VLC...) and get ONE installer that silently installs them with no toolbars. Handy for fresh Windows builds.",
+     "c": "Only from ninite.com."
+    },
+    {
+     "n": "Chocolatey / winget",
+     "u": "https://learn.microsoft.com/windows/package-manager/winget/",
+     "w": "Install and update Windows software from the command line.",
+     "c": ""
+    },
+    {
+     "n": "Ventoy",
+     "u": "https://www.ventoy.net/",
+     "w": "One USB stick that boots many ISO files. Copy ISOs on, pick at boot.",
+     "c": ""
+    },
+    {
+     "n": "Sysinternals",
+     "u": "https://learn.microsoft.com/sysinternals/",
+     "w": "Process Explorer, Autoruns, TCPView and friends for Windows troubleshooting and forensics.",
+     "c": ""
+    },
+    {
+     "n": "Microsoft Security Compliance Toolkit",
+     "u": "https://www.microsoft.com/download/details.aspx?id=55319",
+     "w": "Baseline GPOs for hardening Windows.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "study",
+   "items": [
+    {
+     "n": "Professor Messer: Security+ SY0-701",
+     "u": "https://www.professormesser.com/security-plus/sy0-701/sy0-701-video/sy0-701-comptia-security-plus-course/",
+     "w": "The free video course; the objectives page lists every topic.",
+     "c": ""
+    },
+    {
+     "n": "CompTIA SY0-701 objectives (PDF)",
+     "u": "https://www.comptia.org/certifications/security",
+     "w": "The official exam objectives. Study to this list.",
+     "c": ""
+    },
+    {
+     "n": "TryHackMe",
+     "u": "https://tryhackme.com/",
+     "w": "Guided hands-on rooms in a browser VM.",
+     "c": ""
+    },
+    {
+     "n": "MITRE ATT&CK",
+     "u": "https://attack.mitre.org/",
+     "w": "The catalog of attacker techniques; ties to the detections and the attack chain on this site.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "reverse engineering and malware",
+   "items": [
+    {
+     "n": "Ghidra",
+     "u": "https://ghidra-sre.org/",
+     "w": "Free NSA disassembler and decompiler.",
+     "c": ""
+    },
+    {
+     "n": "IDA Free",
+     "u": "https://hex-rays.com/ida-free",
+     "w": "Free tier of the classic disassembler.",
+     "c": ""
+    },
+    {
+     "n": "PE-bear",
+     "u": "https://github.com/hasherezade/pe-bear",
+     "w": "Inspect Windows PE headers.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "forensics",
+   "items": [
+    {
+     "n": "Autopsy",
+     "u": "https://www.autopsy.com/",
+     "w": "Disk image analysis.",
+     "c": ""
+    },
+    {
+     "n": "Volatility",
+     "u": "https://volatilityfoundation.org/",
+     "w": "Memory forensics.",
+     "c": ""
+    },
+    {
+     "n": "Wireshark",
+     "u": "https://www.wireshark.org/",
+     "w": "Packet capture and analysis.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "homelab",
+   "items": [
+    {
+     "n": "Proxmox VE",
+     "u": "https://www.proxmox.com/",
+     "w": "Hypervisor.",
+     "c": ""
+    },
+    {
+     "n": "pfSense",
+     "u": "https://www.pfsense.org/",
+     "w": "Firewall and router.",
+     "c": ""
+    },
+    {
+     "n": "Security Onion",
+     "u": "https://securityonionsolutions.com/",
+     "w": "IDS, logs and hunting.",
+     "c": ""
+    },
+    {
+     "n": "Tailscale",
+     "u": "https://tailscale.com/",
+     "w": "Mesh VPN.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "practice",
+   "items": [
+    {
+     "n": "PortSwigger Web Security Academy",
+     "u": "https://portswigger.net/web-security",
+     "w": "Free web hacking labs.",
+     "c": ""
+    },
+    {
+     "n": "OverTheWire",
+     "u": "https://overthewire.org/wargames/",
+     "w": "Wargames.",
+     "c": ""
+    },
+    {
+     "n": "picoCTF",
+     "u": "https://picoctf.org/",
+     "w": "Beginner CTF.",
+     "c": ""
+    },
+    {
+     "n": "CTFtime",
+     "u": "https://ctftime.org/",
+     "w": "CTF calendar.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "security tools I use (from my resume)",
+   "items": [
+    {
+     "n": "FTK Imager",
+     "u": "https://www.exterro.com/digital-forensics-software/ftk-imager",
+     "w": "Create forensic disk images and preview evidence without altering it.",
+     "c": ""
+    },
+    {
+     "n": "Kali Linux",
+     "u": "https://www.kali.org/",
+     "w": "Pentest distro with the standard tools preinstalled; lab use only.",
+     "c": ""
+    },
+    {
+     "n": "Nmap",
+     "u": "https://nmap.org/",
+     "w": "Port and service scanning. Scan only what you own or are authorized to test.",
+     "c": ""
+    },
+    {
+     "n": "Metasploit Framework",
+     "u": "https://www.metasploit.com/",
+     "w": "Exploitation framework, used in my isolated lab.",
+     "c": ""
+    },
+    {
+     "n": "John the Ripper",
+     "u": "https://www.openwall.com/john/",
+     "w": "Password auditing against hashes from my own lab.",
+     "c": ""
+    },
+    {
+     "n": "IDA Pro",
+     "u": "https://hex-rays.com/ida-pro",
+     "w": "The commercial disassembler; IDA Free covers a lot of it.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "virtualization and IT (from my resume)",
+   "items": [
+    {
+     "n": "VMware Workstation",
+     "u": "https://www.vmware.com/products/desktop-hypervisor.html",
+     "w": "Desktop hypervisor for lab VMs.",
+     "c": ""
+    },
+    {
+     "n": "VirtualBox",
+     "u": "https://www.virtualbox.org/",
+     "w": "Free desktop hypervisor.",
+     "c": ""
+    },
+    {
+     "n": "osTicket",
+     "u": "https://osticket.com/",
+     "w": "Open-source help desk ticketing.",
+     "c": ""
+    },
+    {
+     "n": "PowerShell docs",
+     "u": "https://learn.microsoft.com/powershell/",
+     "w": "Windows automation and admin.",
+     "c": ""
+    },
+    {
+     "n": "Active Directory docs",
+     "u": "https://learn.microsoft.com/windows-server/identity/ad-ds/get-started/virtual-dc/active-directory-domain-services-overview",
+     "w": "Domains, users, Group Policy.",
+     "c": ""
+    }
+   ]
+  },
+  {
+   "h": "development (from my resume)",
+   "items": [
+    {
+     "n": "Git",
+     "u": "https://git-scm.com/doc",
+     "w": "Version control reference.",
+     "c": ""
+    },
+    {
+     "n": "GitHub Docs",
+     "u": "https://docs.github.com/",
+     "w": "Repos, Actions, Pages.",
+     "c": ""
+    },
+    {
+     "n": "Flutter",
+     "u": "https://flutter.dev/",
+     "w": "Cross-platform apps in Dart.",
+     "c": ""
+    },
+    {
+     "n": "Firebase",
+     "u": "https://firebase.google.com/docs",
+     "w": "Auth, Firestore and hosting.",
+     "c": ""
+    },
+    {
+     "n": "Spring Boot",
+     "u": "https://spring.io/projects/spring-boot",
+     "w": "Java backend framework.",
+     "c": ""
+    },
+    {
+     "n": "MongoDB docs",
+     "u": "https://www.mongodb.com/docs/",
+     "w": "Document database.",
+     "c": ""
+    },
+    {
+     "n": "SQLite",
+     "u": "https://www.sqlite.org/docs.html",
+     "w": "Embedded SQL database.",
+     "c": ""
+    },
+    {
+     "n": "TypeScript Handbook",
+     "u": "https://www.typescriptlang.org/docs/",
+     "w": "Typed JavaScript.",
+     "c": ""
+    }
+   ]
+  }
+ ]
+}
