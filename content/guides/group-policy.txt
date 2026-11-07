@@ -1,0 +1,104 @@
+tagline: Group Policy is how one admin configures ten thousand Windows machines. Learn where GPOs link, the LSDOU order that decides who wins, and how to troubleshoot with gpresult, then find why a security setting isn't applying.
+:: simple
+A **Group Policy Object** (GPO) is a bundle of settings (password rules, firewall, drive mappings, software, desktop restrictions) that Active Directory pushes to computers and users. You create a GPO once and **link** it to a site, the domain, or an OU, and every machine or user in that scope gets it.
+
+- **Computer Configuration** applies at boot to the machine, whoever logs in
+- **User Configuration** applies at logon to the user, wherever they log in
+- Machines refresh policy about every 90 minutes; `gpupdate /force` does it now
+
+```
+$ cat ~/gpo/links.txt
+```
+:: mid
+### LSDOU: who wins
+When GPOs conflict, they're applied in order **L**ocal, **S**ite, **D**omain, **O**U (parent OU first, then child OU). Each later one overwrites earlier ones, so **the closest OU wins**. Two exceptions:
+- **Enforced** on a link makes that GPO win over everything below it
+- **Block Inheritance** on an OU stops parent GPOs from applying (except enforced ones)
+
+Within one container, GPOs with a lower **link order** number win.
+
+```
+$ grep -i "lockout\|password" ~/gpo/settings.txt
+```
+
+### Troubleshooting with gpresult
+`gpresult /r` (summary) or `gpresult /h report.html` shows which GPOs applied, which were **filtered out** and why (security filtering, WMI filters, disabled links):
+
+```
+$ gpresult /r
+```
+:: complex
+### Security baselines through GPO
+Most Windows hardening is GPO: account lockout and password length, disabling LLMNR and NetBIOS, SMB signing, restricting who can log on locally, Windows Firewall rules, LAPS, AppLocker/WDAC, PowerShell logging (script block logging, event 4104). Microsoft's Security Compliance Toolkit ships ready-made baseline GPOs.
+
+> One important exception: **domain password and lockout policy** only works from a GPO linked at the **domain** level (for domain accounts). The same settings in an OU GPO only affect local accounts on those machines. Different policies per group need **Fine-Grained Password Policies**.
+
+### Attack surface
+GPOs are also an attack path: anyone who can edit a GPO linked to an OU can run code on every machine in it. Old Group Policy Preferences stored passwords (cpassword) in SYSVOL with a published key, which is why that feature was removed and why SYSVOL is worth auditing.
+
+```
+$ grep -ri "cpassword" ~/gpo/sysvol
+```
+:: lab
+style: ticket
+host: dc01
+user: admin
+system: IT ops
+id: #GPO-0442
+subject: New screen lock policy isn't applying to Finance laptops
+priority: P3
+from: security team
+sla: 1 business day
+attach: links.txt, settings.txt, gpresult-FIN-LT-022.txt
+:: brief
+Security created **"SEC-ScreenLock-5min"** to lock screens after 5 minutes of inactivity and linked it to `OU=Laptops`. Finance laptops still lock after **30 minutes**.
+
+Use the links, the GPO settings and the gpresult from a Finance laptop to work out which GPO is winning.
+
+Resolve the ticket with the **name of the GPO that's overriding** the new policy.
+:: answer
+FIN-Kiosk-Legacy
+:: hint
+Where does FIN-LT-022 sit in the OU tree? Look at the computer's distinguished name in the gpresult.
+:: hint
+LSDOU: the GPO linked closest to the computer applies last and wins. Is anything linked below `OU=Laptops`?
+:: hint
+Check `settings.txt` for which GPOs set the screen lock timeout, and what value each sets.
+:: solution
+gpresult shows FIN-LT-022 lives in `OU=Finance,OU=Laptops,OU=Computers,DC=corp,DC=local`. `SEC-ScreenLock-5min` is linked to `OU=Laptops` and does apply, but `OU=Finance` (a child OU, applied later) has **FIN-Kiosk-Legacy** linked, which sets the screen saver timeout to 1800 seconds (30 minutes). Closest OU wins, so **FIN-Kiosk-Legacy** overrides it. Fix: remove the setting from the legacy GPO (or unlink the GPO if nothing else needs it), or mark the security GPO's link **Enforced**. Then `gpupdate /force` and recheck with gpresult.
+:: verify
+grep -i "timeout" ~/gpo/settings.txt
+:: file /home/admin/gpo/links.txt
+Container                                       GPO (link order)            Enforced  Status
+DC=corp,DC=local                                Default Domain Policy (1)   No        Enabled
+DC=corp,DC=local                                SEC-Baseline-2026 (2)       No        Enabled
+OU=Computers,DC=corp,DC=local                   COMP-Defender (1)           No        Enabled
+OU=Laptops,OU=Computers,DC=corp,DC=local        SEC-ScreenLock-5min (1)     No        Enabled
+OU=Laptops,OU=Computers,DC=corp,DC=local        LAPTOP-VPN (2)              No        Enabled
+OU=Finance,OU=Laptops,OU=Computers,...          FIN-Kiosk-Legacy (1)        No        Enabled
+OU=Finance,OU=Laptops,OU=Computers,...          FIN-Drive-Maps (2)          No        Enabled
+:: file /home/admin/gpo/settings.txt
+Default Domain Policy  Minimum password length: 14 | Account lockout threshold: 5 | Lockout duration: 15 min
+SEC-Baseline-2026      Turn off multicast name resolution (LLMNR): Enabled | SMB signing: Required
+SEC-ScreenLock-5min    Screen saver timeout: 300 | Password protect the screen saver: Enabled
+LAPTOP-VPN             Always On VPN profile: corp-vpn
+FIN-Kiosk-Legacy       Screen saver timeout: 1800 | Password protect the screen saver: Enabled | Hide Control Panel
+FIN-Drive-Maps         Map F: to \\fileserver\finance
+COMP-Defender          Real-time protection: On | Cloud-delivered protection: On
+:: file /home/admin/gpo/gpresult-FIN-LT-022.txt
+COMPUTER SETTINGS
+    CN=FIN-LT-022,OU=Finance,OU=Laptops,OU=Computers,DC=corp,DC=local
+    Applied Group Policy Objects
+        Default Domain Policy
+        SEC-Baseline-2026
+        COMP-Defender
+        SEC-ScreenLock-5min
+        LAPTOP-VPN
+        FIN-Kiosk-Legacy
+        FIN-Drive-Maps
+    The following GPOs were not applied because they were filtered out
+        None
+:: file /home/admin/gpo/sysvol/Policies/{31B2F340}/Machine/Preferences/Groups/Groups.xml
+<Groups><User name="Administrator (built-in)" changed="2019-03-01"><Properties action="U" newName="" userName="Administrator (built-in)" cpassword="" acctDisabled="0"/></User></Groups>
+:: cmd ^gpresult
+(run on the laptop) see ~/gpo/gpresult-FIN-LT-022.txt for the copy attached to this ticket
