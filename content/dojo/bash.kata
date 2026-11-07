@@ -1,0 +1,184 @@
+lang: bash
+name: Bash
+ext: sh
+mode: local
+runtime: your own bash 4+ (Linux, macOS with brew bash, WSL, or the Kali box)
+run: bash kata.sh
+blurb: Shell one-liners and functions for the box you just landed on. Write the function here, copy the self-test, run it in a real terminal, and paste the output back.
+
+=== count-lines
+title: Count lines from stdin
+level: 1
+tags: pipes, stdin
+prompt:
+  Write a function `count_lines` that reads stdin and prints how many lines it got, as a bare number with no padding.
+starter:
+  count_lines() {
+    :
+  }
+solution:
+  count_lines() {
+    local n=0
+    while IFS= read -r _; do
+      n=$((n + 1))
+    done
+    echo "$n"
+  }
+hints:
+  - "`wc -l` counts newlines but pads the number on macOS; `wc -l | tr -d ' '` fixes that."
+  - Or a pure-bash loop with `while IFS= read -r line`.
+test: three lines :: printf 'a\nb\nc\n' | count_lines :: 3
+test: nothing :: printf '' | count_lines :: 0
+test: blank lines count :: printf '\n\n' | count_lines :: 2
+
+=== upper
+title: Uppercase with parameter expansion
+level: 1
+tags: strings, expansion
+prompt:
+  Write `shout` that prints its first argument in upper case followed by `!`. Use bash parameter expansion, not `tr` or `awk`.
+starter:
+  shout() {
+    echo "$1"
+  }
+solution:
+  shout() {
+    echo "${1^^}!"
+  }
+hints:
+  - "`${var^^}` upper-cases a variable in bash 4+, and `${var,,}` lower-cases it."
+test: word :: shout hello :: HELLO!
+test: mixed :: shout 'root shell' :: ROOT SHELL!
+
+=== valid-ip
+title: Validate an IPv4 address
+level: 2
+tags: regex, exit codes
+prompt:
+  Write `is_ipv4` that **returns** exit code 0 if `$1` is a valid dotted-quad (four parts, each 0-255) and 1 otherwise. Print nothing. Tests call it like `is_ipv4 10.0.0.1 && echo yes || echo no`.
+starter:
+  is_ipv4() {
+    return 1
+  }
+solution:
+  is_ipv4() {
+    local ip=$1 IFS=. part
+    [[ $ip =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || return 1
+    for part in $ip; do
+      (( 10#$part <= 255 )) || return 1
+    done
+    return 0
+  }
+hints:
+  - "`[[ $s =~ regex ]]` does regex matching right in bash."
+  - "Split on dots by setting `IFS=.` and looping. `10#$part` stops `08` from being read as octal."
+test: valid :: is_ipv4 192.168.1.10 && echo yes || echo no :: yes
+test: too big :: is_ipv4 10.0.0.256 && echo yes || echo no :: no
+test: too short :: is_ipv4 10.0.1 && echo yes || echo no :: no
+test: letters :: is_ipv4 10.0.a.1 && echo yes || echo no :: no
+test: leading zero is still a number :: is_ipv4 10.0.0.08 && echo yes || echo no :: yes
+
+=== top-ip
+title: Top talker from an access log
+level: 3
+tags: pipes, sort, uniq
+prompt:
+  Write `top_ip` that reads web access log lines on stdin (the client IP is the first field) and prints the single most frequent IP. Ties go to the IP that sorts first. The classic `cut | sort | uniq -c | sort` pipeline.
+support:
+  LOG=$'10.0.0.5 - - "GET / HTTP/1.1" 200\n10.0.0.9 - - "GET /admin HTTP/1.1" 403\n10.0.0.5 - - "GET /login HTTP/1.1" 200\n172.16.0.2 - - "GET / HTTP/1.1" 200\n10.0.0.9 - - "GET /admin HTTP/1.1" 403\n10.0.0.9 - - "POST /admin HTTP/1.1" 403'
+starter:
+  top_ip() {
+    :
+  }
+solution:
+  top_ip() {
+    awk '{print $1}' | sort | uniq -c | sort -k1,1nr -k2,2 | awk 'NR==1 {print $2}'
+  }
+hints:
+  - "`awk '{print $1}'` (or `cut -d' ' -f1`) pulls out the IPs; `sort | uniq -c` counts them."
+  - "`sort -k1,1nr -k2,2` sorts by count descending, then IP ascending. Keep the first line."
+test: busiest :: echo "$LOG" | top_ip :: 10.0.0.9
+test: tie goes to the lower IP :: printf '10.0.0.2 x\n10.0.0.1 x\n' | top_ip :: 10.0.0.1
+
+=== rev-words
+title: Reverse words with an array
+level: 3
+tags: arrays
+prompt:
+  Write `rev_words` that prints its arguments in reverse order on one line, separated by single spaces. Use a bash array, no `tac` or `rev`.
+starter:
+  rev_words() {
+    echo "$@"
+  }
+solution:
+  rev_words() {
+    local -a w=("$@") out=()
+    local i
+    for (( i=${#w[@]}-1; i>=0; i-- )); do
+      out+=("${w[i]}")
+    done
+    echo "${out[*]}"
+  }
+hints:
+  - "`local -a w=(\"$@\")` copies the arguments into an array; `${#w[@]}` is its length."
+  - "A C-style loop `for (( i=n-1; i>=0; i-- ))` walks it backwards. `\"${out[*]}\"` joins with spaces."
+test: three :: rev_words one two three :: three two one
+test: one :: rev_words solo :: solo
+test: quoted words stay whole :: rev_words 'a b' c :: c a b
+
+=== kv-config
+title: Parse a config into an associative array
+level: 4
+tags: associative arrays, parsing
+prompt:
+  Write `parse_conf` that reads `key = value` lines from stdin into an associative array, then prints them as `key=value`, sorted by key. Skip blank lines and `#` comments, trim spaces around keys and values, and let a later duplicate key win.
+support:
+  CONF=$'# sshd-ish\nPort = 2222\n\nPermitRootLogin=no\n  PasswordAuthentication   =   no\nPort = 22'
+starter:
+  parse_conf() {
+    :
+  }
+solution:
+  parse_conf() {
+    local -A conf=()
+    local line key val k
+    while IFS= read -r line || [[ -n $line ]]; do
+      [[ $line =~ ^[[:space:]]*(#|$) ]] && continue
+      key=${line%%=*}; val=${line#*=}
+      key=${key#"${key%%[![:space:]]*}"}; key=${key%"${key##*[![:space:]]}"}
+      val=${val#"${val%%[![:space:]]*}"}; val=${val%"${val##*[![:space:]]}"}
+      conf[$key]=$val
+    done
+    for k in $(printf '%s\n' "${!conf[@]}" | sort); do
+      echo "$k=${conf[$k]}"
+    done
+  }
+hints:
+  - "`local -A conf` declares an associative array; `${!conf[@]}` lists its keys."
+  - "`${line%%=*}` is everything before the first `=`, `${line#*=}` everything after."
+  - "Trimming in pure bash: `${s#\"${s%%[![:space:]]*}\"}` strips leading spaces. Or pipe through `xargs` if you don't mind a subshell."
+test: sorted, trimmed, last wins :: echo "$CONF" | parse_conf :: PasswordAuthentication=no\nPermitRootLogin=no\nPort=22
+test: only comments :: printf '# nothing\n\n' | parse_conf ::
+
+=== failed-ssh
+title: Failed SSH report
+level: 5
+tags: awk, pipelines, logs
+prompt:
+  Write `failed_report` that reads auth.log lines on stdin and prints the top 3 source IPs for `Failed password` lines as `COUNT IP`, highest count first, ties broken by IP. The IP is the field after the word `from` (careful: `invalid user` lines have extra words).
+support:
+  AUTH=$'Nov 7 03:12:01 lab sshd[811]: Failed password for root from 10.0.0.5 port 50122 ssh2\nNov 7 03:12:04 lab sshd[811]: Failed password for invalid user admin from 10.0.0.5 port 50124 ssh2\nNov 7 03:13:00 lab sshd[815]: Accepted password for nate from 10.0.0.9 port 50200 ssh2\nNov 7 03:14:10 lab sshd[817]: Failed password for nate from 192.168.56.20 port 41000 ssh2\nNov 7 03:15:00 lab sshd[818]: Failed password for root from 10.0.0.5 port 50190 ssh2\nNov 7 03:16:00 lab sshd[819]: Failed password for invalid user test from 203.0.113.9 port 1 ssh2\nNov 7 03:16:01 lab sshd[819]: Failed password for invalid user oracle from 203.0.113.9 port 2 ssh2\nNov 7 03:17:00 lab sshd[820]: Failed password for root from 198.51.100.1 port 3 ssh2'
+starter:
+  failed_report() {
+    :
+  }
+solution:
+  failed_report() {
+    awk '/Failed password/ { for (i = 1; i < NF; i++) if ($i == "from") { print $(i + 1); break } }' |
+      sort | uniq -c | sort -k1,1nr -k2,2 | head -n 3 | awk '{print $1, $2}'
+  }
+hints:
+  - "In awk, loop over fields: `for (i = 1; i < NF; i++) if ($i == \"from\") print $(i+1)`."
+  - "Then `sort | uniq -c | sort -k1,1nr -k2,2 | head -n 3`. The last `awk '{print $1, $2}'` strips `uniq`'s padding."
+test: top three :: echo "$AUTH" | failed_report :: 3 10.0.0.5\n2 203.0.113.9\n1 192.168.56.20
+test: no failures :: echo 'Accepted password for nate from 10.0.0.9 port 1 ssh2' | failed_report ::

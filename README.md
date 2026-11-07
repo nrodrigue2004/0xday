@@ -35,3 +35,12 @@ The hidden site CTF flags live in `FLAGS` in `build.py` (only their SHA-256 hash
 ## Weird UI (all optional)
 
 `fx.js` adds the tmux status bar, settings (`set` in ghost, or the toggles in the bar: crt, snd, fx, vim, boot), the first-visit boot + GRUB screen, glitch page transitions, sound, opt-in vim keys (`:` commands), the Ctrl+P fuzzy finder, the split-pane reader on the posts page and the `[ xxd ]` toggle on posts. `tty.js` is the shell at `tty.html`, `htop.js` the homelab dashboard at `htop.html`, `desktop.js` the i3 desktop at `desktop.html` (pages load inside it with `?embed=1`).
+
+## ~/dojo (coding katas)
+
+`dojo.html` and `dojo/<lang>.html` are built by `build_dojo.py` from `content/dojo/<lang>.kata` (format documented at the top of `build_dojo.py`). Python, C, x86, JavaScript, TypeScript and SQL katas run in the browser inside a Web Worker (`dojo/worker.js`): Pyodide, picoc compiled to WebAssembly (`dojo/picoc.wasm`, see `dojo/picoc/README.md`), `dojo/x86.js`, the TypeScript compiler and sql.js. Java, Bash and PowerShell katas hand out a self-test file to run locally. After adding or editing a kata, check that every reference solution passes:
+
+```sh
+npm i --no-save pyodide@0.26.4 sql.js@1.10.3 typescript@5.4.5
+node scripts/check_dojo.js        # or: node scripts/check_dojo.js c python
+```

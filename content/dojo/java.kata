@@ -1,0 +1,226 @@
+lang: java
+name: Java
+ext: java
+mode: local
+runtime: your own JDK 11+ (single-file launch, no build step)
+run: java Main.java
+blurb: Java, the language I built JavaShooter in. These run on a real JVM: write your class here, copy the self-test, and launch it with java Main.java. Paste the output back to log the belt.
+
+=== reverse-words
+title: Reverse the words
+level: 1
+tags: strings
+prompt:
+  Write `static String reverseWords(String s)` in `class Kata` that reverses the order of words. Words are separated by one or more spaces; the result uses single spaces and no leading or trailing space.
+starter:
+  class Kata {
+      static String reverseWords(String s) {
+          return s;
+      }
+  }
+solution:
+  class Kata {
+      static String reverseWords(String s) {
+          String[] words = s.trim().split("\\s+");
+          StringBuilder sb = new StringBuilder();
+          for (int i = words.length - 1; i >= 0; i--) {
+              sb.append(words[i]);
+              if (i > 0) sb.append(' ');
+          }
+          return sb.toString();
+      }
+  }
+hints:
+  - "`s.trim().split(\"\\\\s+\")` splits on runs of whitespace."
+  - Walk the array backwards into a `StringBuilder`.
+test: three words :: Kata.reverseWords("red team blue") :: "blue team red"
+test: extra spaces :: Kata.reverseWords("  keep   it   tidy ") :: "tidy it keep"
+test: one word :: Kata.reverseWords("solo") :: "solo"
+
+=== anagram
+title: Anagram check
+level: 2
+tags: strings, counting
+prompt:
+  Write `static boolean isAnagram(String a, String b)`: true if the two strings use exactly the same letters the same number of times, ignoring case and spaces.
+starter:
+  class Kata {
+      static boolean isAnagram(String a, String b) {
+          return false;
+      }
+  }
+solution:
+  class Kata {
+      static boolean isAnagram(String a, String b) {
+          int[] counts = new int[26];
+          for (char c : a.toLowerCase().toCharArray()) if (Character.isLetter(c)) counts[c - 'a']++;
+          for (char c : b.toLowerCase().toCharArray()) if (Character.isLetter(c)) counts[c - 'a']--;
+          for (int n : counts) if (n != 0) return false;
+          return true;
+      }
+  }
+hints:
+  - Count letters with an `int[26]`: add for `a`, subtract for `b`, everything must end at zero.
+test: classic :: Kata.isAnagram("Listen", "Silent") :: true
+test: with spaces :: Kata.isAnagram("Dormitory", "dirty room") :: true
+test: not one :: Kata.isAnagram("hello", "world") :: false
+test: counts matter :: Kata.isAnagram("aab", "abb") :: false
+
+=== binary-search
+title: Binary search
+level: 2
+tags: arrays, search
+prompt:
+  Write `static int indexOf(int[] sorted, int target)` that returns the index of `target` in an ascending array, or `-1`. O(log n), no `Arrays.binarySearch`. Watch the midpoint overflow trap.
+starter:
+  class Kata {
+      static int indexOf(int[] sorted, int target) {
+          return -1;
+      }
+  }
+solution:
+  class Kata {
+      static int indexOf(int[] sorted, int target) {
+          int lo = 0, hi = sorted.length - 1;
+          while (lo <= hi) {
+              int mid = lo + (hi - lo) / 2;
+              if (sorted[mid] == target) return mid;
+              if (sorted[mid] < target) lo = mid + 1;
+              else hi = mid - 1;
+          }
+          return -1;
+      }
+  }
+hints:
+  - "Keep `lo` and `hi`, loop while `lo <= hi`."
+  - "`(lo + hi) / 2` can overflow on huge arrays; `lo + (hi - lo) / 2` can't."
+test: middle :: Kata.indexOf(new int[]{1, 3, 5, 7, 9}, 5) :: 2
+test: first :: Kata.indexOf(new int[]{1, 3, 5, 7, 9}, 1) :: 0
+test: last :: Kata.indexOf(new int[]{1, 3, 5, 7, 9}, 9) :: 4
+test: missing :: Kata.indexOf(new int[]{1, 3, 5, 7, 9}, 4) :: -1
+test: empty :: Kata.indexOf(new int[]{}, 1) :: -1
+
+=== transpose
+title: Transpose a matrix
+level: 3
+tags: 2d arrays
+prompt:
+  Write `static int[][] transpose(int[][] m)` that returns a new matrix with rows and columns swapped. The input is rectangular (not necessarily square).
+starter:
+  class Kata {
+      static int[][] transpose(int[][] m) {
+          return m;
+      }
+  }
+solution:
+  class Kata {
+      static int[][] transpose(int[][] m) {
+          if (m.length == 0) return new int[0][0];
+          int[][] t = new int[m[0].length][m.length];
+          for (int r = 0; r < m.length; r++)
+              for (int c = 0; c < m[0].length; c++)
+                  t[c][r] = m[r][c];
+          return t;
+      }
+  }
+hints:
+  - "The result has `m[0].length` rows and `m.length` columns; then `t[c][r] = m[r][c]`."
+test: square :: Kata.transpose(new int[][]{{1, 2}, {3, 4}}) :: new int[][]{{1, 3}, {2, 4}}
+test: wide to tall :: Kata.transpose(new int[][]{{1, 2, 3}}) :: new int[][]{{1}, {2}, {3}}
+test: 2x3 :: Kata.transpose(new int[][]{{1, 2, 3}, {4, 5, 6}}) :: new int[][]{{1, 4}, {2, 5}, {3, 6}}
+
+=== rpn
+title: RPN calculator
+level: 4
+tags: stacks, parsing
+prompt:
+  Write `static int rpn(String expr)` that evaluates Reverse Polish Notation like `"3 4 + 2 *"` (which is 14). Tokens are integers (possibly negative, like `-3`) and `+ - * /`, separated by spaces. `/` is integer division. Throw `IllegalArgumentException` if the expression is malformed.
+starter:
+  class Kata {
+      static int rpn(String expr) {
+          return 0;
+      }
+  }
+solution:
+  import java.util.ArrayDeque;
+  import java.util.Deque;
+
+  class Kata {
+      static int rpn(String expr) {
+          Deque<Integer> st = new ArrayDeque<>();
+          for (String t : expr.trim().split("\\s+")) {
+              if (t.matches("-?\\d+")) { st.push(Integer.parseInt(t)); continue; }
+              if (st.size() < 2) throw new IllegalArgumentException("stack underflow at " + t);
+              int b = st.pop(), a = st.pop();
+              switch (t) {
+                  case "+": st.push(a + b); break;
+                  case "-": st.push(a - b); break;
+                  case "*": st.push(a * b); break;
+                  case "/": st.push(a / b); break;
+                  default: throw new IllegalArgumentException("bad token " + t);
+              }
+          }
+          if (st.size() != 1) throw new IllegalArgumentException("leftover values");
+          return st.pop();
+      }
+  }
+support:
+  class Check {
+      static String throwsIAE(String e) {
+          try { Kata.rpn(e); return "no throw"; }
+          catch (IllegalArgumentException x) { return "IAE"; }
+          catch (Exception x) { return x.getClass().getSimpleName(); }
+      }
+  }
+hints:
+  - "Push numbers. On an operator, pop `b` first, then `a`, and push `a op b`. Order matters for `-` and `/`."
+  - "`-3` is a number, `-` alone is an operator: test tokens with `t.matches(\"-?\\\\d+\")`."
+test: sample :: Kata.rpn("3 4 + 2 *") :: 14
+test: order of operands :: Kata.rpn("10 3 -") :: 7
+test: division :: Kata.rpn("20 6 /") :: 3
+test: negative numbers :: Kata.rpn("-3 4 *") :: -12
+test: longer :: Kata.rpn("5 1 2 + 4 * + 3 -") :: 14
+test: too few operands :: Check.throwsIAE("1 +") :: "IAE"
+test: leftovers :: Check.throwsIAE("1 2") :: "IAE"
+
+=== merge-intervals
+title: Merge overlapping intervals
+level: 5
+tags: sorting, arrays
+prompt:
+  Write `static int[][] merge(int[][] intervals)`: given `[start, end]` pairs in any order, merge every overlapping or touching pair (`[1,3]` and `[3,5]` touch) and return the result sorted by start. Useful for collapsing port ranges or IP ranges from a scan.
+starter:
+  class Kata {
+      static int[][] merge(int[][] intervals) {
+          return intervals;
+      }
+  }
+solution:
+  import java.util.ArrayList;
+  import java.util.Arrays;
+  import java.util.List;
+
+  class Kata {
+      static int[][] merge(int[][] intervals) {
+          int[][] xs = intervals.clone();
+          Arrays.sort(xs, (a, b) -> Integer.compare(a[0], b[0]));
+          List<int[]> out = new ArrayList<>();
+          for (int[] iv : xs) {
+              if (!out.isEmpty() && iv[0] <= out.get(out.size() - 1)[1]) {
+                  int[] last = out.get(out.size() - 1);
+                  last[1] = Math.max(last[1], iv[1]);
+              } else {
+                  out.add(new int[]{iv[0], iv[1]});
+              }
+          }
+          return out.toArray(new int[0][]);
+      }
+  }
+hints:
+  - "Sort by start with `Arrays.sort(xs, (a, b) -> Integer.compare(a[0], b[0]))`."
+  - Then one pass: if the next start is at most the last end, extend the last end; otherwise start a new interval.
+test: overlapping :: Kata.merge(new int[][]{{1, 3}, {2, 6}, {8, 10}}) :: new int[][]{{1, 6}, {8, 10}}
+test: touching :: Kata.merge(new int[][]{{1, 3}, {3, 5}}) :: new int[][]{{1, 5}}
+test: unsorted :: Kata.merge(new int[][]{{8, 9}, {1, 2}, {2, 4}}) :: new int[][]{{1, 4}, {8, 9}}
+test: contained :: Kata.merge(new int[][]{{1, 10}, {2, 3}}) :: new int[][]{{1, 10}}
+test: empty :: Kata.merge(new int[][]{}) :: new int[][]{}

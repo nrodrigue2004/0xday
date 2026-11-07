@@ -1,0 +1,265 @@
+diff --git a/cstdlib/stdio.c b/cstdlib/stdio.c
+index fe86c61..51d1520 100644
+--- a/cstdlib/stdio.c
++++ b/cstdlib/stdio.c
+@@ -18,7 +18,7 @@ static int FILENAME_MAXValue = FILENAME_MAX;
+ static int _IOFBFValue = _IOFBF;
+ static int _IOLBFValue = _IOLBF;
+ static int _IONBFValue = _IONBF;
+-static int L_tmpnamValue = L_tmpnam;
++static int L_tmpnamValue = 20;
+ static int GETS_MAXValue = 255;  /* arbitrary maximum size of a gets() file */
+ 
+ static FILE *stdinValue;
+@@ -869,7 +869,7 @@ void StdioSetupFunc(Picoc *pc)
+     /* make a "struct __FILEStruct" which is the same size as a
+         native FILE structure */
+     StructFileType = TypeCreateOpaqueStruct(pc, NULL,
+-        TableStrRegister(pc, "__FILEStruct"), sizeof(FILE));
++        TableStrRegister(pc, "__FILEStruct"), 256);
+ 
+     /* get a FILE * type */
+     FilePtrType = TypeGetMatching(pc, NULL, StructFileType, TypePointer, 0,
+@@ -878,7 +878,7 @@ void StdioSetupFunc(Picoc *pc)
+     /* make a "struct __va_listStruct" which is the same size as
+         our struct StdVararg */
+     TypeCreateOpaqueStruct(pc, NULL, TableStrRegister(pc, "__va_listStruct"),
+-        sizeof(FILE));
++        256);
+ 
+     /* define EOF equal to the system EOF */
+     VariableDefinePlatformVar(pc, NULL, "EOF", &pc->IntType,
+diff --git a/expression.c b/expression.c
+index ca2eedb..ab02fbd 100644
+--- a/expression.c
++++ b/expression.c
+@@ -1,3 +1,4 @@
++#define IS_UNS_BASE(b) ((b) == TypeUnsignedInt || (b) == TypeUnsignedLong || (b) == TypeUnsignedShort || (b) == TypeUnsignedChar)
+ /* picoc expression evaluator - a stack-based expression evaluation system
+  * which handles operator precedence */
+ #include "interpreter.h"
+@@ -235,29 +236,29 @@ int IsTypeToken(struct ParseState *Parser, enum LexToken t,
+     return 0;
+ }
+ 
+-long ExpressionCoerceInteger(struct Value *Val)
++long long ExpressionCoerceInteger(struct Value *Val)
+ {
+     switch (Val->Typ->Base) {
+     case TypeInt:
+-        return (long)Val->Val->Integer;
++        return (long long)Val->Val->Integer;
+     case TypeChar:
+-        return (long)Val->Val->Character;
++        return (long long)Val->Val->Character;
+     case TypeShort:
+-        return (long)Val->Val->ShortInteger;
++        return (long long)Val->Val->ShortInteger;
+     case TypeLong:
+-        return (long)Val->Val->LongInteger;
++        return (long long)Val->Val->LongInteger;
+     case TypeUnsignedInt:
+-        return (long)Val->Val->UnsignedInteger;
++        return (long long)Val->Val->UnsignedInteger;
+     case TypeUnsignedShort:
+-        return (long)Val->Val->UnsignedShortInteger;
++        return (long long)Val->Val->UnsignedShortInteger;
+     case TypeUnsignedLong:
+-        return (long)Val->Val->UnsignedLongInteger;
++        return (long long)Val->Val->UnsignedLongInteger;
+     case TypeUnsignedChar:
+-        return (long)Val->Val->UnsignedCharacter;
++        return (long long)Val->Val->UnsignedCharacter;
+     case TypePointer:
+-        return (long)Val->Val->Pointer;
++        return (long long)(unsigned long)Val->Val->Pointer;
+     case TypeFP:
+-        return (long)Val->Val->FP;
++        return (long long)Val->Val->FP;
+     default:
+         return 0;
+     }
+@@ -437,6 +438,21 @@ void ExpressionStackPushDereference(struct ParseState *Parser,
+     ExpressionStackPushValueNode(Parser, StackTop, ValueLoc);
+ }
+ 
++static void ExpressionPushUnsigned(struct ParseState *Parser,
++            struct ExpressionStack **StackTop, unsigned long IntValue)
++{
++    struct Value *ValueLoc = VariableAllocValueFromType(Parser->pc, Parser,
++                            &Parser->pc->UnsignedIntType, false, NULL, false);
++    ValueLoc->Val->UnsignedLongInteger = IntValue;
++    ValueLoc->Val->LongInteger = (long)IntValue;
++    ValueLoc->Val->Integer = (int)IntValue;
++    ValueLoc->Val->UnsignedInteger = (unsigned int)IntValue;
++    ValueLoc->Val->ShortInteger = (short)IntValue;
++    ValueLoc->Val->UnsignedShortInteger = (unsigned short)IntValue;
++    ValueLoc->Val->UnsignedCharacter = (unsigned char)IntValue;
++    ExpressionStackPushValueNode(Parser, StackTop, ValueLoc);
++}
++
+ void ExpressionPushInt(struct ParseState *Parser,
+             struct ExpressionStack **StackTop, long IntValue)
+ {
+@@ -1002,9 +1018,10 @@ void ExpressionInfixOperator(struct ParseState *Parser,
+         else
+             ExpressionPushFP(Parser, StackTop, ResultFP);
+     } else if (IS_NUMERIC_COERCIBLE(TopValue) && IS_NUMERIC_COERCIBLE(BottomValue)) {
+-        /* integer operation */
+-        long TopInt = ExpressionCoerceInteger(TopValue);
+-        long BottomInt = ExpressionCoerceInteger(BottomValue);
++        /* integer operation (wasm build: 64-bit math so 32-bit unsigned values keep their sign) */
++        long long TopInt = ExpressionCoerceInteger(TopValue);
++        long long BottomInt = ExpressionCoerceInteger(BottomValue);
++        int IsUns = IS_UNS_BASE(TopValue->Typ->Base) || IS_UNS_BASE(BottomValue->Typ->Base);
+         switch (Op) {
+         case TokenAssign:
+             ResultInt = ExpressionAssignInt(Parser, BottomValue, TopInt, false);
+@@ -1090,7 +1107,10 @@ void ExpressionInfixOperator(struct ParseState *Parser,
+             ResultInt = BottomInt << TopInt;
+             break;
+         case TokenShiftRight:
+-            ResultInt = BottomInt >> TopInt;
++            if (IS_UNS_BASE(BottomValue->Typ->Base))
++                ResultInt = (long)((unsigned int)BottomInt >> TopInt);
++            else
++                ResultInt = (long)((int)BottomInt >> TopInt);
+             break;
+         case TokenPlus:
+             ResultInt = BottomInt + TopInt;
+@@ -1111,7 +1131,13 @@ void ExpressionInfixOperator(struct ParseState *Parser,
+             ProgramFail(Parser, "invalid operation");
+             break;
+         }
+-        ExpressionPushInt(Parser, StackTop, ResultInt);
++        if (IsUns && (Op == TokenArithmeticOr || Op == TokenArithmeticExor || Op == TokenAmpersand ||
++                Op == TokenShiftLeft || Op == TokenShiftRight || Op == TokenPlus || Op == TokenMinus ||
++                Op == TokenAsterisk || Op == TokenSlash || Op == TokenModulus) &&
++                !(Op == TokenShiftRight || Op == TokenShiftLeft) | IS_UNS_BASE(BottomValue->Typ->Base))
++            ExpressionPushUnsigned(Parser, StackTop, (unsigned long)ResultInt);
++        else
++            ExpressionPushInt(Parser, StackTop, ResultInt);
+     } else if (BottomValue->Typ->Base == TypePointer &&
+             IS_NUMERIC_COERCIBLE(TopValue)) {
+         /* pointer/integer infix arithmetic */
+@@ -1549,7 +1575,10 @@ int ExpressionParse(struct ParseState *Parser, struct Value **Result)
+                         higher precedence so we evaluate it in reverse order */
+                     /* for left to right order, collapse down to this precedence
+                         so we evaluate it in forward order */
+-                    if (IS_LEFT_TO_RIGHT(OperatorPrecedence[(int)Token].InfixPrecedence))
++                    /* wasm build: '?' must not collapse an earlier ':' so chained
++                        a ? b : c ? d : e nests to the right like real C */
++                    if (IS_LEFT_TO_RIGHT(OperatorPrecedence[(int)Token].InfixPrecedence) &&
++                            Token != TokenQuestionMark)
+                         ExpressionStackCollapse(Parser, &StackTop, Precedence,
+                             &IgnorePrecedence);
+                     else
+diff --git a/include.c b/include.c
+index 7359007..a537f63 100644
+--- a/include.c
++++ b/include.c
+@@ -19,7 +19,7 @@ void IncludeInit(Picoc *pc)
+     IncludeRegister(pc, "string.h", &StringSetupFunc, &StringFunctions[0], NULL);
+     IncludeRegister(pc, "time.h", &StdTimeSetupFunc, &StdTimeFunctions[0], StdTimeDefs);
+ # ifndef WIN32
+-    IncludeRegister(pc, "unistd.h", &UnistdSetupFunc, &UnistdFunctions[0], UnistdDefs);
++    /* unistd.h removed in wasm build */
+ # endif
+ }
+ 
+diff --git a/interpreter.h b/interpreter.h
+index 02b90ae..2eaa11f 100644
+--- a/interpreter.h
++++ b/interpreter.h
+@@ -494,7 +494,7 @@ struct Picoc_Struct {
+     int LittleEndian;
+ 
+     IOFILE *CStdOut;
+-    IOFILE CStdOutBase;
++    /* CStdOutBase dropped */
+ 
+     /* the picoc version string */
+     const char *VersionString;
+@@ -559,7 +559,7 @@ extern int ExpressionParse(struct ParseState *Parser, struct Value **Result);
+ extern long ExpressionParseInt(struct ParseState *Parser);
+ extern void ExpressionAssign(struct ParseState *Parser, struct Value *DestValue,
+     struct Value *SourceValue, int Force, const char *FuncName, int ParamNo, int AllowPointerCoercion);
+-extern long ExpressionCoerceInteger(struct Value *Val);
++extern long long ExpressionCoerceInteger(struct Value *Val);
+ extern unsigned long ExpressionCoerceUnsignedInteger(struct Value *Val);
+ extern double ExpressionCoerceFP(struct Value *Val);
+ 
+diff --git a/lex.c b/lex.c
+index 6bce2cb..9a1070b 100644
+--- a/lex.c
++++ b/lex.c
+@@ -178,16 +178,17 @@ enum LexToken LexGetNumber(Picoc *pc, struct LexState *Lexer, struct Value *Valu
+             LEXER_INC(Lexer))
+         Result = Result * Base + GET_BASE_DIGIT(*Lexer->Pos);
+ 
++    int IsUnsigned = ((unsigned long)Result > 0x7fffffffUL);
+     if (*Lexer->Pos == 'u' || *Lexer->Pos == 'U') {
+         LEXER_INC(Lexer);
+-        /* IsUnsigned = 1; */
++        IsUnsigned = 1;
+     }
+     if (*Lexer->Pos == 'l' || *Lexer->Pos == 'L') {
+         LEXER_INC(Lexer);
+         /* IsLong = 1; */
+     }
+ 
+-    Value->Typ = &pc->LongType; /* ignored? */
++    Value->Typ = IsUnsigned ? &pc->UnsignedLongType : &pc->LongType;
+     Value->Val->LongInteger = Result;
+ 
+     ResultToken = TokenIntegerConstant;
+@@ -832,6 +833,10 @@ enum LexToken LexGetRawToken(struct ParseState *Parser, struct Value **Value,
+             memcpy((void*)pc->LexValue.Val,
+                 (void*)((char*)Parser->Pos+TOKEN_DATA_OFFSET), ValueSize);
+             pc->LexValue.ValOnHeap = false;
++            /* wasm build: literals above INT_MAX (0xdeadbeef, 2166136261) are unsigned */
++            if (Token == TokenIntegerConstant &&
++                    (unsigned long)pc->LexValue.Val->LongInteger > 0x7fffffffUL)
++                pc->LexValue.Typ = &pc->UnsignedLongType;
+             pc->LexValue.ValOnStack = false;
+             pc->LexValue.IsLValue = false;
+             pc->LexValue.LValueFrom = NULL;
+diff --git a/picoc.c b/picoc.c
+index b2ef12f..e4785bd 100644
+--- a/picoc.c
++++ b/picoc.c
+@@ -16,7 +16,7 @@
+ #include "LICENSE.h"
+ 
+ /* Override via STACKSIZE environment variable */
+-#define PICOC_STACK_SIZE (128000*4)
++#define PICOC_STACK_SIZE (8*1024*1024)
+ 
+ int main(int argc, char **argv)
+ {
+diff --git a/platform.h b/platform.h
+index 627ed37..5107694 100644
+--- a/platform.h
++++ b/platform.h
+@@ -30,7 +30,7 @@
+  #define DEBUGGER
+  #define USE_READLINE (defined by default for UNIX_HOST)
+  */
+-#define USE_READLINE
++
+ 
+ #if defined(WIN32) /*(predefined on MSVC)*/
+ #undef USE_READLINE
+diff --git a/platform/platform_unix.c b/platform/platform_unix.c
+index 5d4a9c4..9935fde 100644
+--- a/platform/platform_unix.c
++++ b/platform/platform_unix.c
+@@ -134,6 +134,7 @@ void PicocPlatformScanFile(Picoc *pc, const char *FileName)
+ void PlatformExit(Picoc *pc, int RetVal)
+ {
+     pc->PicocExitValue = RetVal;
+-    longjmp(pc->PicocExitBuf, 1);
++    fflush(stdout);
++    _Exit(RetVal);
+ }
+ 

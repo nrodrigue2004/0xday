@@ -1,0 +1,283 @@
+lang: x86
+name: x86 assembly
+ext: asm
+mode: browser
+runtime: 32-bit x86 emulator (Intel syntax, NASM-style) written for this site
+run: nasm -f elf32 kata.asm && ./harness
+blurb: Raw 32-bit x86, the dialect Ghidra and IDA show you. Each kata is a routine: the harness loads registers and memory, calls your code, and checks the result when you ret.
+notes: Supported: mov movzx movsx lea xchg add sub adc sbb inc dec neg not and or xor test cmp shl shr sar rol ror imul mul div idiv cdq push pop call ret jmp, every jcc, and loop. Registers eax-edi plus ax/al/ah style parts. Memory is a 64 KiB sandbox; size memory operands with byte/word/dword when the register doesn't say. Comments start with ;.
+
+=== add-two
+title: Add two numbers
+level: 1
+tags: registers
+prompt:
+  The harness puts two numbers in `ecx` and `edx`. Return their sum in `eax`. Every routine ends with `ret`.
+starter:
+  ; in:  ecx, edx
+  ; out: eax = ecx + edx
+      ret
+solution:
+  ; in:  ecx, edx
+  ; out: eax = ecx + edx
+      mov eax, ecx
+      add eax, edx
+      ret
+hints:
+  - `mov` a copy into `eax` first, then `add` the other one.
+test: 2 + 3 :: ecx=2, edx=3 :: eax=5
+test: wraps at 32 bits :: ecx=0xFFFFFFFF, edx=2 :: eax=1
+test: zero :: ecx=0, edx=0 :: eax=0
+
+=== max
+title: Signed max
+level: 1
+tags: branches, flags
+prompt:
+  Return the larger of `ecx` and `edx` in `eax`, treating both as **signed** 32-bit numbers. That decides which conditional jump you need: `jg`/`jl` are signed, `ja`/`jb` are unsigned.
+starter:
+  ; in:  ecx, edx (signed)
+  ; out: eax = max(ecx, edx)
+      ret
+solution:
+  ; in:  ecx, edx (signed)
+  ; out: eax = max(ecx, edx)
+      mov eax, ecx
+      cmp eax, edx
+      jge .done
+      mov eax, edx
+  .done:
+      ret
+hints:
+  - `cmp a, b` sets flags as if it computed `a - b`. Follow it with `jge` to skip the swap.
+test: first is bigger :: ecx=9, edx=4 :: eax=9
+test: second is bigger :: ecx=4, edx=9 :: eax=9
+test: negatives :: ecx=-5, edx=-2 :: eax=-2
+test: signed, not unsigned :: ecx=0xFFFFFFFF, edx=1 :: eax=1
+
+=== factorial
+title: Factorial with a loop
+level: 2
+tags: loops
+prompt:
+  Return `ecx!` in `eax` (with `0! = 1`). Inputs stay small enough to fit in 32 bits.
+starter:
+  ; in:  ecx = n
+  ; out: eax = n!
+      ret
+solution:
+  ; in:  ecx = n
+  ; out: eax = n!
+      mov eax, 1
+  .loop:
+      test ecx, ecx
+      jz .done
+      imul eax, ecx
+      dec ecx
+      jmp .loop
+  .done:
+      ret
+hints:
+  - Start with `mov eax, 1`, multiply by `ecx` with `imul eax, ecx`, `dec ecx`, repeat until it hits zero.
+  - `test ecx, ecx` / `jz` is the idiomatic zero check.
+test: 5! :: ecx=5 :: eax=120
+test: 0! :: ecx=0 :: eax=1
+test: 1! :: ecx=1 :: eax=1
+test: 12! :: ecx=12 :: eax=479001600
+
+=== strlen
+title: strlen
+level: 2
+tags: strings, memory
+prompt:
+  `esi` points at a NUL-terminated string. Return its length in `eax`. Read one byte at a time with `byte [esi + eax]` or by walking `esi`.
+starter:
+  ; in:  esi = char *s
+  ; out: eax = strlen(s)
+      ret
+solution:
+  ; in:  esi = char *s
+  ; out: eax = strlen(s)
+      xor eax, eax
+  .next:
+      cmp byte [esi + eax], 0
+      je .done
+      inc eax
+      jmp .next
+  .done:
+      ret
+hints:
+  - `xor eax, eax` zeroes a register in two bytes of machine code. You'll see it everywhere.
+  - Compare `byte [esi + eax]` with 0; if not zero, `inc eax` and loop.
+test: hello :: esi=0x1000, mem:0x1000='hello\0' :: eax=5
+test: empty :: esi=0x1000, mem:0x1000='\0' :: eax=0
+test: longer :: esi=0x2000, mem:0x2000='0xDay dojo\0' :: eax=10
+
+=== sum-array
+title: Sum a dword array
+level: 3
+tags: memory, loops
+prompt:
+  `esi` points at an array of `ecx` signed 32-bit integers. Return their sum in `eax`. Remember each element is 4 bytes, so use a scaled index like `[esi + edx*4]`. Try the `loop` instruction.
+starter:
+  ; in:  esi = int *arr, ecx = count
+  ; out: eax = sum
+      ret
+solution:
+  ; in:  esi = int *arr, ecx = count
+  ; out: eax = sum
+      xor eax, eax
+      test ecx, ecx
+      jz .done
+  .next:
+      add eax, dword [esi + ecx*4 - 4]
+      loop .next
+  .done:
+      ret
+hints:
+  - `loop label` decrements `ecx` and jumps while it isn't zero, so walk the array backwards: `[esi + ecx*4 - 4]`.
+  - Guard against `ecx = 0` first, or `loop` will run 4 billion times.
+test: three items :: esi=0x1000, ecx=3, mem:0x1000=[1,0,0,0, 2,0,0,0, 3,0,0,0] :: eax=6
+test: empty array :: esi=0x1000, ecx=0 :: eax=0
+test: negative values :: esi=0x1000, ecx=2, mem:0x1000=[0xff,0xff,0xff,0xff, 0x0a,0,0,0] :: eax=9
+
+=== upper
+title: Uppercase in place
+level: 3
+tags: strings, memory
+prompt:
+  `esi` points at a NUL-terminated ASCII string. Uppercase every `a`-`z` in place (other bytes stay). Return the number of letters you changed in `eax`. Lowercase and uppercase differ by exactly one bit, `0x20`.
+starter:
+  ; in:  esi = char *s
+  ; out: s uppercased in place, eax = letters changed
+      ret
+solution:
+  ; in:  esi = char *s
+  ; out: s uppercased in place, eax = letters changed
+      xor eax, eax
+  .next:
+      mov dl, [esi]
+      test dl, dl
+      jz .done
+      cmp dl, 'a'
+      jb .skip
+      cmp dl, 'z'
+      ja .skip
+      and dl, 0xDF
+      mov [esi], dl
+      inc eax
+  .skip:
+      inc esi
+      jmp .next
+  .done:
+      ret
+hints:
+  - Load a byte with `mov dl, [esi]`, check it's between `'a'` and `'z'` with unsigned jumps (`jb`, `ja`).
+  - `and dl, 0xDF` clears bit 5 and turns `a` into `A`. Store it back with `mov [esi], dl`.
+test: mixed :: esi=0x1000, mem:0x1000='Hello, x86!\0' :: eax=5, mem:0x1000='HELLO, X86!\0'
+test: already upper :: esi=0x1000, mem:0x1000='ABC\0' :: eax=0, mem:0x1000='ABC\0'
+test: brackets are not letters :: esi=0x1000, mem:0x1000='[a]{z}\0' :: eax=2, mem:0x1000='[A]{Z}\0'
+
+=== xor-decrypt
+title: XOR-decrypt a buffer
+level: 4
+tags: malware, memory, bytes
+prompt:
+  The classic malware string decryptor. `esi` points at `ecx` encrypted bytes and `dl` holds a one-byte key. XOR every byte with the key in place. Then return the first decrypted byte in `eax` (zero-extended) so the caller can sanity-check it.
+starter:
+  ; in:  esi = buf, ecx = len, dl = key
+  ; out: buf decrypted in place, eax = buf[0]
+      ret
+solution:
+  ; in:  esi = buf, ecx = len, dl = key
+  ; out: buf decrypted in place, eax = buf[0]
+      push esi
+      test ecx, ecx
+      jz .done
+  .next:
+      xor byte [esi], dl
+      inc esi
+      loop .next
+  .done:
+      pop esi
+      movzx eax, byte [esi]
+      ret
+hints:
+  - `xor byte [esi], dl` works directly on memory. `inc esi`, `loop`.
+  - You moved `esi`, so `push esi` at the start and `pop esi` before reading the first byte. `movzx eax, byte [esi]` zero-extends it.
+test: decrypts http :: esi=0x1000, ecx=4, edx=0x41, mem:0x1000=[0x29,0x35,0x35,0x31] :: mem:0x1000='http', eax=0x68
+test: key 0 changes nothing :: esi=0x1000, ecx=3, edx=0, mem:0x1000='abc' :: mem:0x1000='abc', eax=0x61
+test: only ecx bytes :: esi=0x1000, ecx=1, edx=0x20, mem:0x1000='ab' :: mem:0x1000='Ab', eax=0x41
+
+=== popcount-asm
+title: popcount
+level: 4
+tags: bits, loops
+prompt:
+  Return the number of 1 bits in `ecx` in `eax`. Same problem as the C kata, now with `shr` and the carry flag, or the `x & (x - 1)` trick.
+starter:
+  ; in:  ecx
+  ; out: eax = number of set bits
+      ret
+solution:
+  ; in:  ecx
+  ; out: eax = number of set bits
+      xor eax, eax
+  .next:
+      test ecx, ecx
+      jz .done
+      lea edx, [ecx - 1]
+      and ecx, edx
+      inc eax
+      jmp .next
+  .done:
+      ret
+hints:
+  - `shr ecx, 1` moves the low bit into CF; `adc eax, 0` adds it. Loop until `ecx` is zero.
+  - `lea edx, [ecx - 1]` then `and ecx, edx` clears the lowest set bit.
+test: zero :: ecx=0 :: eax=0
+test: 0xF0 :: ecx=0xF0 :: eax=4
+test: all ones :: ecx=0xFFFFFFFF :: eax=32
+test: 0xDEADBEEF :: ecx=0xDEADBEEF :: eax=24
+
+=== itoa
+title: Unsigned int to decimal string
+level: 5
+tags: div, strings, stack
+prompt:
+  Convert the unsigned number in `eax` to decimal ASCII at `edi`, NUL-terminated, and return the number of digits in `eax`. `div ecx` divides `edx:eax` by `ecx` (quotient in `eax`, remainder in `edx`), so zero `edx` before every divide. Digits come out backwards; the stack is a handy way to flip them.
+starter:
+  ; in:  eax = value, edi = output buffer
+  ; out: decimal string at edi, eax = digit count
+      ret
+solution:
+  ; in:  eax = value, edi = output buffer
+  ; out: decimal string at edi, eax = digit count
+      push ebx
+      mov ebx, 10
+      xor ecx, ecx
+  .divide:
+      xor edx, edx
+      div ebx
+      add edx, '0'
+      push edx
+      inc ecx
+      test eax, eax
+      jnz .divide
+      mov eax, ecx
+  .write:
+      pop edx
+      mov [edi], dl
+      inc edi
+      loop .write
+      mov byte [edi], 0
+      pop ebx
+      ret
+hints:
+  - Loop: `xor edx, edx`, `div ebx` (with `ebx = 10`), `add edx, '0'`, `push edx`, count it. Stop when `eax` is 0, but run at least once so 0 prints as "0".
+  - Then pop each digit and store it with `mov [edi], dl` / `inc edi`. Don't forget the NUL.
+  - `ebx` is callee-saved in the cdecl convention: `push ebx` at the start and `pop ebx` before `ret`.
+test: 1337 :: eax=1337, edi=0x2000 :: eax=4, mem:0x2000='1337\0'
+test: zero :: eax=0, edi=0x2000 :: eax=1, mem:0x2000='0\0'
+test: max unsigned :: eax=0xFFFFFFFF, edi=0x2000 :: eax=10, mem:0x2000='4294967295\0'
+test: keeps ebx :: eax=42, edi=0x2000, ebx=0xB0B :: ebx=0xB0B, mem:0x2000='42\0'

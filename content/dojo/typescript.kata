@@ -1,0 +1,201 @@
+lang: typescript
+name: TypeScript
+ext: ts
+mode: browser
+runtime: the real TypeScript 5.4 compiler (tsc --strict) in a Web Worker, then your browser's JS engine
+run: tsc --strict kata.ts && node kata.js
+blurb: Types as a design tool. Every kata is type-checked with --strict before the tests run, so a type error fails the kata just like a wrong answer.
+
+=== first-generic
+title: A generic first()
+level: 1
+tags: generics
+prompt:
+  Write `first<T>(xs: T[]): T | undefined` that returns the first element, or `undefined` for an empty array. It must be generic: `first(["a"])` has type `string | undefined`, not `any`.
+starter:
+  function first(xs: any): any {
+  }
+solution:
+  function first<T>(xs: T[]): T | undefined {
+    return xs.length ? xs[0] : undefined;
+  }
+support:
+  // compile-time check: this only type-checks if first() is generic
+  const _probe: string | undefined = first(["probe"]);
+  const _probe2: number = (first([1, 2]) ?? 0) + 1;
+hints:
+  - "Declare a type parameter: `function first<T>(xs: T[]): T | undefined`."
+test: strings :: first(["ssh", "rdp"]) :: "ssh"
+test: numbers :: first([22, 80]) :: 22
+test: empty :: first([]) :: undefined
+
+=== shapes
+title: Exhaustive union
+level: 2
+tags: unions, narrowing
+prompt:
+  Given the union below, write `area(s: Shape): number`. Use a `switch` on `s.kind`, and in the `default` branch assign `s` to a variable of type `never`, so adding a new shape later becomes a compile error until you handle it. Round nothing; tests compare with a small tolerance.
+
+      type Shape =
+        | { kind: "circle"; r: number }
+        | { kind: "rect"; w: number; h: number }
+        | { kind: "tri"; base: number; height: number };
+starter:
+  type Shape =
+    | { kind: "circle"; r: number }
+    | { kind: "rect"; w: number; h: number }
+    | { kind: "tri"; base: number; height: number };
+
+  function area(s: Shape): number {
+    return 0;
+  }
+solution:
+  type Shape =
+    | { kind: "circle"; r: number }
+    | { kind: "rect"; w: number; h: number }
+    | { kind: "tri"; base: number; height: number };
+
+  function area(s: Shape): number {
+    switch (s.kind) {
+      case "circle": return Math.PI * s.r ** 2;
+      case "rect": return s.w * s.h;
+      case "tri": return (s.base * s.height) / 2;
+      default: {
+        const never: never = s;
+        return never;
+      }
+    }
+  }
+support:
+  const close = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+hints:
+  - "Inside `case \"rect\":` TypeScript already knows `s` has `w` and `h`. That's narrowing."
+  - "`const x: never = s;` in `default` only compiles if every case was handled."
+test: circle :: close(area({ kind: "circle", r: 2 }), 4 * Math.PI) :: true
+test: rect :: area({ kind: "rect", w: 3, h: 4 }) :: 12
+test: triangle :: area({ kind: "tri", base: 10, height: 3 }) :: 15
+
+=== log-entry
+title: Parse a log line into a type
+level: 3
+tags: interfaces, parsing
+prompt:
+  Define `interface LogEntry { ts: string; level: "INFO" | "WARN" | "ERROR"; msg: string }` and write `parseLine(line: string): LogEntry | null` for lines like `2026-11-07T10:00:00Z [WARN] disk 91% full`. Return `null` if the line doesn't match or the level isn't one of the three. No `any`, no `as` casts allowed on the level. Narrow it with a type guard instead.
+starter:
+  interface LogEntry {
+    ts: string;
+    level: "INFO" | "WARN" | "ERROR";
+    msg: string;
+  }
+
+  function parseLine(line: string): LogEntry | null {
+    return null;
+  }
+solution:
+  interface LogEntry {
+    ts: string;
+    level: "INFO" | "WARN" | "ERROR";
+    msg: string;
+  }
+
+  const LEVELS = ["INFO", "WARN", "ERROR"] as const;
+  function isLevel(s: string): s is LogEntry["level"] {
+    return (LEVELS as readonly string[]).includes(s);
+  }
+
+  function parseLine(line: string): LogEntry | null {
+    const m = /^(\S+) \[(\w+)\] (.*)$/.exec(line);
+    if (!m || !isLevel(m[2])) return null;
+    return { ts: m[1], level: m[2], msg: m[3] };
+  }
+hints:
+  - "A regex like `/^(\\S+) \\[(\\w+)\\] (.*)$/` grabs the three parts."
+  - "A type guard is a function returning `s is LogEntry[\"level\"]`. After `if (isLevel(x))`, TypeScript treats `x` as the union."
+test: warn line :: parseLine("2026-11-07T10:00:00Z [WARN] disk 91% full") :: ({ ts: "2026-11-07T10:00:00Z", level: "WARN", msg: "disk 91% full" })
+test: error line :: parseLine("t0 [ERROR] boom")?.level :: "ERROR"
+test: unknown level :: parseLine("t0 [DEBUG] noisy") :: null
+test: garbage :: parseLine("not a log line") :: null
+
+=== group-typed
+title: Typed groupBy
+level: 4
+tags: generics, Record
+prompt:
+  Write `groupBy<T, K extends string>(xs: T[], key: (x: T) => K): Record<K, T[]>`. The return type should know the keys: grouping alerts by a `"low" | "high"` field gives a `Record<"low" | "high", Alert[]>`. Only keys that actually occur appear in the object.
+starter:
+  function groupBy(xs: any[], key: any): any {
+    return {};
+  }
+solution:
+  function groupBy<T, K extends string>(xs: T[], key: (x: T) => K): Record<K, T[]> {
+    const out = {} as Record<K, T[]>;
+    for (const x of xs) {
+      const k = key(x);
+      (out[k] ??= []).push(x);
+    }
+    return out;
+  }
+support:
+  type Alert = { id: number; sev: "low" | "high" };
+  const ALERTS: Alert[] = [{ id: 1, sev: "high" }, { id: 2, sev: "low" }, { id: 3, sev: "high" }];
+  // compile-time check: the result must be keyed by the union
+  const _g: Record<"low" | "high", Alert[]> = groupBy(ALERTS, a => a.sev);
+  const _ids: number[] = _g.high.map(a => a.id);
+hints:
+  - "Two type parameters: `T` for the items and `K extends string` for the keys."
+  - "Start from `{} as Record<K, T[]>` and fill it with `(out[k] ??= []).push(x)`."
+test: groups :: groupBy(ALERTS, a => a.sev) :: ({ high: [{ id: 1, sev: "high" }, { id: 3, sev: "high" }], low: [{ id: 2, sev: "low" }] })
+test: by first letter :: groupBy(["nmap", "netcat", "gdb"], s => s[0]) :: ({ n: ["nmap", "netcat"], g: ["gdb"] })
+
+=== result-type
+title: A Result type
+level: 5
+tags: unions, generics, errors
+prompt:
+  Errors as values. Define `type Result<T> = { ok: true; value: T } | { ok: false; error: string }`. Then write:
+
+  - `parsePort(s: string): Result<number>`: ok for a whole number 1-65535, else an error string
+  - `all<T>(rs: Result<T>[]): Result<T[]>`: ok with every value if all are ok, otherwise the **first** error
+
+  The compiler must stop you from reading `.value` without checking `.ok` first.
+starter:
+  type Result<T> = any;
+
+  function parsePort(s: string): Result<number> {
+  }
+
+  function all<T>(rs: Result<T>[]): Result<T[]> {
+  }
+solution:
+  type Result<T> = { ok: true; value: T } | { ok: false; error: string };
+
+  function parsePort(s: string): Result<number> {
+    if (!/^\d+$/.test(s)) return { ok: false, error: `not a number: ${s}` };
+    const n = Number(s);
+    if (n < 1 || n > 65535) return { ok: false, error: `out of range: ${s}` };
+    return { ok: true, value: n };
+  }
+
+  function all<T>(rs: Result<T>[]): Result<T[]> {
+    const values: T[] = [];
+    for (const r of rs) {
+      if (!r.ok) return r;
+      values.push(r.value);
+    }
+    return { ok: true, value: values };
+  }
+support:
+  // compile-time check: Result must be a real discriminated union
+  const _r = parsePort("22");
+  const _v: number = _r.ok ? _r.value : -1;
+  // @ts-expect-error  reading .value without checking .ok must not compile
+  const _bad: number = _r.value;
+hints:
+  - "With a discriminated union, `if (r.ok)` narrows `r` to the success branch, so `r.value` is allowed there and nowhere else."
+  - "In `all`, `if (!r.ok) return r;` works because an error result for `T` is also a valid error result for `T[]`."
+test: good port :: parsePort("443") :: ({ ok: true, value: 443 })
+test: not a number :: parsePort("ssh").ok :: false
+test: out of range :: parsePort("70000").ok :: false
+test: zero is invalid :: parsePort("0").ok :: false
+test: all ok :: all(["22", "80"].map(parsePort)) :: ({ ok: true, value: [22, 80] })
+test: first error wins :: all(["22", "x", "99999"].map(parsePort)) :: ({ ok: false, error: "not a number: x" })
