@@ -43,6 +43,35 @@
    ]
   },
   {
+   "h": "passwords and hashes",
+   "items": [
+    {
+     "n": "CrackStation",
+     "u": "https://crackstation.net/",
+     "w": "Paste an unsalted hash (MD5, SHA-1, NTLM...) and it looks it up in a huge table of known passwords. Shows why weak and unsalted hashes are dangerous.",
+     "c": "Only hashes from your own labs or CTFs. Never paste a real account's hash: you'd be sending it to a stranger."
+    },
+    {
+     "n": "hashcat",
+     "u": "https://hashcat.net/hashcat/",
+     "w": "The GPU password-auditing tool, like John the Ripper. Used on your own lab to test how fast weak passwords fall.",
+     "c": "Authorized targets only."
+    },
+    {
+     "n": "hashes.com hash identifier",
+     "u": "https://hashes.com/en/tools/hash_identifier",
+     "w": "Paste a hash to see which type it is (MD5, bcrypt, NTLM...) before choosing a tool.",
+     "c": "Lab hashes only."
+    },
+    {
+     "n": "Have I Been Pwned: Pwned Passwords",
+     "u": "https://haveibeenpwned.com/Passwords",
+     "w": "Check if a password is in known breaches. Uses k-anonymity, so the full password never leaves your browser.",
+     "c": "Still prefer the range API or a password manager's built-in check."
+    }
+   ]
+  },
+  {
    "h": "email and account checks",
    "items": [
     {
