@@ -54,7 +54,7 @@
      "pitch": "An e-ink screen on the desk showing VM health, SIEM alert counts and TryHackMe streak, refreshed every few minutes.",
      "stack": ["esp32", "e-paper", "micropython"], "first_step": "Draw text on the panel from the ESP32."},
     {"name": "Macro pad", "slug": "macropad", "area": "hardware", "status": "idea", "difficulty": 2, "size": "weekend",
-     "pitch": "A 3D-printed 9-key macro pad with a rotary encoder running QMK: one key per VM snapshot, one to open ghost, one for coffee.",
+     "pitch": "A 3D-printed 9-key macro pad with a rotary encoder running QMK: one key per VM snapshot, one to open ghost, one to lock the screen.",
      "stack": ["rp2040", "qmk", "3d printing"], "first_step": "Hand-wire 4 switches to a Pico and get keypresses."},
     {"name": "DIY handheld", "slug": "handheld", "area": "hardware", "status": "idea", "difficulty": 4, "size": "months",
      "pitch": "A pocket game console: Pi Zero 2 W, a small IPS screen, a custom PCB for the buttons, and my own games preloaded.",

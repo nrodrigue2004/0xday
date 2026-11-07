@@ -65,7 +65,7 @@
     F1: () => (detail.innerHTML = "Click a VM for details. Click a column to sort. ↑/↓ select. F9 kill. F10 quit."),
     F3: () => window.OX && OX.fzf && OX.fzf(),
     F6: () => { const ks = ["c", "m", "t", "pid", "name"]; sortKey = ks[(ks.indexOf(sortKey) + 1) % ks.length]; draw(); },
-    F9: () => { detail.innerHTML = `<span class="err">kill -9 ${VMS[sel].pid}: Operation not permitted.</span> ${VMS[sel].name === "security-onion" ? "nice try, the SIEM stays up." : "this VM has feelings."}`; window.OX && OX.unlock && OX.unlock("sudo"); },
+    F9: () => { detail.innerHTML = `<span class="err">kill -9 ${VMS[sel].pid}: Operation not permitted.</span> ${VMS[sel].name === "security-onion" ? "the SIEM stays up." : "guest cannot signal VM processes."}`; window.OX && OX.unlock && OX.unlock("sudo"); },
     F10: () => (location.href = (document.documentElement.dataset.root || "") + "lab.html")
   };
   el.querySelectorAll(".ht-keys button").forEach(b => b.addEventListener("click", () => F[b.dataset.f]()));

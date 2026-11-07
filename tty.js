@@ -109,7 +109,7 @@ start with: <b>cd posts</b> then <b>ls</b> then <b>cat proxmox-homelab.md</b>`;
     tree: () => `<span class="p-d">~</span>\n` + tree(FS),
     neofetch: fetchPart("about.html", ".neofetch"),
     whoami: () => "guest",
-    id: () => "uid=1001(guest) gid=1001(guest) groups=1001(guest),27(sudo? no.)",
+    id: () => "uid=1001(guest) gid=1001(guest) groups=1001(guest)",
     exit: () => { location.href = ROOT + "index.html"; return "logout"; }, logout: () => BUILTIN.exit(),
     startx: () => { location.href = ROOT + "desktop.html"; return "starting X ..."; },
     history: () => hist.map((h, i) => `${String(i + 1).padStart(4)}  ${esc(h)}`).join("\n"),

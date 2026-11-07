@@ -16,7 +16,7 @@
     document.querySelectorAll(".year").forEach(e => (e.textContent = new Date().getFullYear()));
     buildGhost();
     konami();
-    console.log("%c0xDay%c\nlooking under the hood? respect.\nhere's something for you (hex): " + (D.consoleFlag || ""),
+    console.log("%c0xDay%c\nreading the console. good habit.\nflag (hex): " + (D.consoleFlag || ""),
       "color:#3bff7f;font:700 28px monospace", "color:#c3cfc7;font:13px monospace");
   });
 
@@ -24,11 +24,11 @@
   const ACH = {
     ghost: "hello, ghost: opened the terminal",
     sudo: "nice try: attempted sudo",
-    hack: "hackerman: ran hack",
+    hack: "wake up: ran hack",
     konami: "old school: entered the Konami code",
     flag_source: "view-source: found the flag in the page source",
-    flag_console: "console cowboy: found the flag in the console",
-    flag_robots: "robots don't lie: found the flag via robots.txt",
+    flag_console: "devtools: found the flag in the console",
+    flag_robots: "disallowed: found the flag via robots.txt",
     all_flags: "0xDAY champion: captured every flag"
   };
   const got = () => { try { return JSON.parse(store.get("oxday-ach") || "[]"); } catch (e) { return []; } };
@@ -88,7 +88,7 @@
   <b>now</b>           what I'm focused on right now
   <b>tags</b>          post topics         <b>changelog</b>     recent site updates
   <b>hire</b>          the recruiter summary   <b>resume</b>  printable resume
-  <b>man</b> &lt;tool&gt;    cheatsheets: nmap, wireshark, volatility, ad-powershell
+  <b>man</b> &lt;page&gt;    cmd, powershell, linux, macos, nmap, wireshark, volatility, ad
   <b>ctf</b>           TryHackMe scoreboard   <b>lab</b>     everything else
   <b>contact</b>       where to find me
   <b>cd</b> &lt;page&gt;     blog, projects, skills, certs, now, about, home
@@ -126,14 +126,14 @@
     echo: (a) => esc(a.join(" ")),
     pwd: () => "/home/guest/" + (location.pathname.split("/").pop() || "index.html"),
     uname: () => "0xDay 6.6.6-ghost x86_64 GNU/Linux",
-    sudo: (a) => (unlock("sudo"), a.join(" ").includes("rm")) ? `<span class="err">nice try.</span>` : `guest is not in the sudoers file. This incident will be reported.`,
-    rm: () => `<span class="err">rm: permission denied (and rude)</span>`,
+    sudo: (a) => (unlock("sudo"), a.join(" ").includes("rm")) ? `<span class="err">permission denied.</span>` : `guest is not in the sudoers file. This incident will be reported.`,
+    rm: () => `<span class="err">rm: cannot remove: Read-only file system</span>`,
     nmap: () => `Starting Nmap ( https://nmap.org )\nNmap scan report for 0xday.local\nPORT    STATE  SERVICE\n22/tcp  closed ssh\n80/tcp  open   http     <span class="sys">(you're looking at it)</span>\n443/tcp open   https\n1337/tcp filtered elite`,
-    hack: () => { unlock("hack"); matrix(); return `<span class="sys">initiating totally real hack... click or press any key to stop</span>`; },
+    hack: () => { unlock("hack"); matrix(); return `<span class="sys">click or press any key to stop</span>`; },
     matrix: () => CMDS.hack(),
     ping: () => "PONG 64 bytes from ghost: icmp_seq=1 ttl=64 time=0.042 ms",
-    hello: () => `hey 👋 I'm ghost. type <b>help</b> to see what I can do.`, hi: () => CMDS.hello(), hey: () => CMDS.hello(),
-    jarvis: () => `close. I'm <b>ghost</b>, the budget version. type <b>help</b>.`,
+    hello: () => `ghost here. type <b>help</b> for commands.`, hi: () => CMDS.hello(), hey: () => CMDS.hello(),
+    jarvis: () => `this is <b>ghost</b>. type <b>help</b>.`,
     certs: () => {
       const c = (D.certs || []).map(c => `[${c.status}] <b>${esc(c.name)}</b> ${esc(c.code)}  ${c.progress}%  target: ${esc(c.target || "TBD")}`).join("\n");
       const s = D.secplus ? `\n\nSecurity+ progress: <b>${D.secplus.overall}%</b>\n` + D.secplus.domains.map(d => `  ${d.n}.0 ${esc(d.name.padEnd(40))} ${bar(d.progress, 10)} ${d.progress}%`).join("\n") : "";
@@ -164,7 +164,7 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
       const fresh = unlock("flag_" + hit[0]);
       const n = Object.keys(D.flags).filter(k => got().includes("flag_" + k)).length, total = Object.keys(D.flags).length;
       if (n === total) unlock("all_flags");
-      return `<b>correct!</b> flag "${hit[0]}" ${fresh ? "captured" : "(already captured)"}. ${n}/${total} found.` + (n === total ? "\nyou found them all. go tell Nathan on LinkedIn." : "");
+      return `<b>correct!</b> flag "${hit[0]}" ${fresh ? "captured" : "(already captured)"}. ${n}/${total} found.` + (n === total ? "\nall flags captured." : "");
     },
     flags: () => { const k = Object.keys(D.flags || {}); const n = k.filter(x => got().includes("flag_" + x)).length; return `${n}/${k.length} flags captured.\n<span class="sys">hints: the page source, the browser console, and what robots shouldn't read.</span>`; },
     achievements: () => { const g = got(); return Object.entries(ACH).map(([k, v]) => `${g.includes(k) ? "<b>[x]</b>" : "[ ]"} ${g.includes(k) ? esc(v) : esc(v.split(":")[0]) + ": ???"}`).join("\n"); },
@@ -172,7 +172,9 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
     man: (a, log) => {
       if (!a.length) return "What manual page do you want?\n" + (D.man || []).map(m => `  <b>${esc(m.name)}</b>  ${esc(m.summary)}`).join("\n") + "\n<span class=\"sys\">man &lt;name&gt; for a quick view, man &lt;name&gt; --open for the full page</span>";
       const q = a[0].toLowerCase().replace(/^-+/, "");
-      const m = (D.man || []).find(m => m.slug.startsWith(q) || m.name.startsWith(q) || ((q === "ps" || q === "powershell" || q === "ad") && m.slug === "ad-powershell") || (q === "vol" && m.slug === "volatility"));
+      const ALIAS = { ps: "powershell", pwsh: "powershell", windows: "cmd", win: "cmd", bash: "linux", shell: "linux", sh: "linux", mac: "macos", osx: "macos", ad: "ad-powershell", vol: "volatility" };
+      const k = ALIAS[q] || q;
+      const m = (D.man || []).find(m => m.slug === k) || (D.man || []).find(m => m.slug.startsWith(k) || m.name.startsWith(k));
       if (!m) return `No manual entry for ${esc(a[0])}`;
       if (a.includes("--open")) return go(ROOT + "man/" + m.slug + ".html", log);
       const top = m.groups.flatMap(g => g.rows.slice(0, 2).map(r => `  <b>${esc(r[0])}</b>\n      ${esc(r[1])}`)).slice(0, 8).join("\n");
@@ -198,13 +200,13 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
   // keyword answers for plain-English questions
   const INTENTS = [
     [/who (are|is)|about (you|nathan|him)|yourself|bio/, () => CMDS.whoami()],
-    [/what (are|is) you|ghost/, () => `I'm <b>ghost</b>, a tiny scripted assistant living in this page. I know about Nathan's posts, projects and skills. No AI, no tracking, just JavaScript.`],
+    [/what (are|is) you|ghost/, () => `<b>ghost</b>: a scripted assistant built into 0xDay. It knows the posts, projects, skills and man pages. No AI, no tracking, just JavaScript.`],
     [/contact|email|reach|linkedin|github|hire|socials?/, () => CMDS.contact()],
     [/cert|security\+|sec\+|comptia|exam/, () => CMDS.certs()],
     [/flag|ctf|secret|easter/, () => CMDS.flags()],
     [/resume|cv\b/, () => CMDS.hire() + `\n\n${link(ROOT + "resume.html", "full resume")}`],
     [/hire|recruit/, () => CMDS.hire()],
-    [/cheat ?sheet|nmap|volatility|powershell/, () => CMDS.man([])],
+    [/cheat ?sheet|man pages?|commands?|nmap|volatility|powershell|\bcmd\b|linux|mac ?os|terminal/, () => CMDS.man([])],
     [/tryhackme|thm\b|room/, () => CMDS.ctf()],
     [/(right )?now|current|working on|studying/, () => CMDS.now()],
     [/skill|tool|language|stack|know/, () => CMDS.skills()],
@@ -255,7 +257,7 @@ ${link(D.li, "linkedin")}  ${link(D.gh, "github")}  ${link(ROOT + "skills.html",
     const open = () => {
       box.hidden = false; fab.hidden = true;
       unlock("ghost");
-      if (!greeted) { greeted = true; log(`ghost v0.1 · connected to 0xday\nhey. I'm <b>ghost</b>. type <b>help</b> or just ask me something.`, "sys"); }
+      if (!greeted) { greeted = true; log(`ghost v0.1 · connected to 0xday\ntype <b>help</b>, or ask a question.`, "sys"); }
       setTimeout(() => input.focus(), 0);
     };
     const close = () => { box.hidden = true; fab.hidden = false; fab.focus(); };

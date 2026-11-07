@@ -3,7 +3,7 @@
 Edit content/posts.json + content/posts/<slug>.html (post bodies) and content/projects.json,
 then run:  python3 build.py
 """
-import json, html, os, hashlib, base64, datetime
+import json, html, os, hashlib, base64, datetime, re
 ROOT = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ROOT)
 NAME = "Nathan"; FULL_NAME = "Nathan Rodrigue"  # last name only on the resume
@@ -90,7 +90,7 @@ def row(p, depth=0):
             f'<span class="ls-tags">{tags}</span></a></li>')
 
 # ---------- home ----------
-boot = ["[  OK  ] Mounting /dev/brain ...", "[  OK  ] Starting caffeine.service", "[  OK  ] Reached target: curiosity"]
+boot = ["[  OK  ] Mounted /home/nathan", "[  OK  ] Started ghost.service", "[  OK  ] Reached target: homelab.target"]
 home = f'''<section class="term" aria-label="Intro">
   <div class="term__bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term__title">{USER}@{HOST}: ~</span></div>
   <div class="term__body">
@@ -295,7 +295,7 @@ page("404.html", "kernel panic :: 0xDay", """<div class="panic">
 </div>""", root="/0xday/", head='\n<meta name="robots" content="noindex">')
 
 # ---------- flag 3: robots.txt points at a "hidden" page ----------
-open("robots.txt", "w").write("User-agent: *\nAllow: /\nDisallow: /0xday/s3cr3t/\n# nothing to see here. definitely don't look.\n")
+open("robots.txt", "w").write("User-agent: *\nAllow: /\nDisallow: /0xday/s3cr3t/\n# not for crawlers.\n")
 os.makedirs("s3cr3t", exist_ok=True)
 page("s3cr3t/index.html", "s3cr3t :: 0xDay", f"""<p class="cmd">cat /s3cr3t/flag.txt</p><h1>you found it</h1>
 <p>robots.txt lists the places people don't want crawled, which makes it a list of places worth looking.</p>
@@ -435,17 +435,21 @@ page("books.html", "books :: 0xDay", f'<p class="cmd">ls ~/bookshelf</p><h1>~/bo
 
 # ---------- man pages ----------
 os.makedirs("man", exist_ok=True)
+def gid(t): return "g-" + re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
 for sh in SHEETS:
-    grp = "".join(f'<h2>{esc(g["title"])}</h2><dl class="man">' + "".join(
+    grp = "".join(f'<h2 id="{gid(g["title"])}">{esc(g["title"])}</h2><dl class="man">' + "".join(
         f'<dt><code>{esc(c)}</code></dt><dd>{esc(d)}</dd>' for c, d in g["rows"]) + "</dl>" for g in sh["groups"])
+    toc = (f'<p class="man-toc"><span class="muted">SECTIONS</span> ' + " ".join(f'<a href="#{gid(g["title"])}">{esc(g["title"])}</a>' for g in sh["groups"]) + "</p>") if len(sh["groups"]) > 4 else ""
     title = f'{sh["name"].upper()}({sh["section"]})'
     page(f'man/{sh["slug"]}.html', f'man {sh["name"]} :: 0xDay', f'''<p class="cmd">man {esc(sh["name"])}</p>
 <div class="manhead"><span>{esc(title)}</span><span>0xDay Field Manual</span><span>{esc(title)}</span></div>
 <h1>{esc(sh["name"])} <span class="muted">- {esc(sh["summary"])}</span></h1>
-{grp}
+{toc}{grp}
 <p><a href="../man.html">cd ..</a></p>''', depth=1, desc=f'{sh["name"]} cheatsheet: {sh["summary"]}')
-mi = "".join(f'<li><a class="ls-row" href="man/{s["slug"]}.html"><span class="ls-perm">{esc(s["name"])}({s["section"]})</span><span class="ls-title">{esc(s["summary"])}</span></a></li>' for s in SHEETS)
-page("man.html", "man :: 0xDay", f'<p class="cmd">apropos .</p><h1>~/man</h1><p>Cheatsheets I keep coming back to, written as man pages.</p><ul class="ls manidx">{mi}</ul>')
+def manrow(s): return f'<li><a class="ls-row" href="man/{s["slug"]}.html"><span class="ls-perm">{esc(s["name"])}({s["section"]})</span><span class="ls-title">{esc(s["summary"])}</span></a></li>'
+MANCATS = [("os", "operating systems", "apropos shell"), ("tools", "security tools", "apropos security")]
+mi = "".join(f'<p class="cmd">{cmd}</p><h2>{label}</h2><ul class="ls manidx">{"".join(manrow(s) for s in SHEETS if s.get("category", "tools") == k)}</ul>' for k, label, cmd in MANCATS)
+page("man.html", "man :: 0xDay", f'<p class="cmd">apropos .</p><h1>~/man</h1><p>Command references for Windows, Linux and macOS, plus the security tools I use most, written as man pages.</p>{mi}')
 
 # ---------- dojo (coding katas, see build_dojo.py) ----------
 import build_dojo
