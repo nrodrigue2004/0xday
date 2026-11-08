@@ -23,7 +23,7 @@ FLAGS = {"source": "0xDAY{v13w_s0urc3_4lw4ys}", "console": "0xDAY{c0ns0l3_c0wb0y
 for p in POSTS:
     p["body"] = open(f"content/posts/{p['slug']}.html").read()
 esc = html.escape
-V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "train.js", "train.css", "resume.js", "glossary.js", "chat.js", "chatcore.js")).encode()).hexdigest()[:8]  # cache-buster
+V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "train.js", "train.css", "resume.js", "glossary.js", "chat.js", "chatcore.js", "sync.js")).encode()).hexdigest()[:8]  # cache-buster
 
 def short(d):
     import datetime
@@ -54,6 +54,7 @@ def page(fn, title, body, depth=0, cur=None, desc=f"0xDay by {NAME}: notes on cy
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{p}style.css?v={V}">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="{SITE}feed.xml">{head}
+<script src="{p}sync.js?v={V}" defer></script>
 <script src="{p}data.js?v={V}" defer></script>
 <script src="{p}site.js?v={V}" defer></script>
 <script src="{p}fx.js?v={V}" defer></script>{"".join(f'\n<script src="{p}{x}?v={V}" defer></script>' for x in scripts)}
@@ -72,7 +73,7 @@ def page(fn, title, body, depth=0, cur=None, desc=f"0xDay by {NAME}: notes on cy
 </main>
 <footer class="footer">
   <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> {NAME}</span>
-  <span class="footer__links"><a href="{p}tags.html">tags</a> <a href="{p}resources.html">resources</a> <a href="{p}changelog.html">changelog</a> <a href="{p}feed.xml">rss</a> <a href="{GH}">github</a> <a href="{LI}">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+  <span class="footer__links"><a href="{p}tags.html">tags</a> <a href="{p}resources.html">resources</a> <a href="{p}changelog.html">changelog</a> <a href="{p}sync.html" id="sync-link">sync</a> <a href="{p}feed.xml">rss</a> <a href="{GH}">github</a> <a href="{LI}">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
 </footer>
 </div>
 </body>
@@ -297,6 +298,39 @@ cl = "".join(f'<li class="commit"><div><span class="sha">commit {fake_sha(e)}</s
              f'<div class="muted">Date:   {esc(e["date"])}</div><div class="msg"><span class="ctype">{esc(e["type"])}:</span> {esc(e["msg"])}</div></li>'
              for i, e in enumerate(CHANGELOG))
 page("changelog.html", "changelog :: 0xDay", f'<p class="cmd">git log</p><h1>~/changelog</h1><ul class="commits">{cl}</ul>')
+
+# ---------- sync ----------
+page("sync.html", "sync :: 0xDay", """<p class="cmd">./sync --status</p><h1>~/sync</h1>
+<p>Your progress (quizzes, checklists, flashcards, labs, settings) is saved in this browser. Link it once and it also saves itself to a <strong>secret GitHub Gist you own</strong>, then loads on every other device you link. Nothing goes to any server of mine, and nothing is stored in the site's repo.</p>
+<div id="sy-root">
+<p>Status: <span id="sy-status" class="muted">checking</span></p>
+<div id="sy-setup">
+<h2>Link this device (about a minute)</h2>
+<ol>
+<li>Open <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=0xday%20sync" rel="noopener">github.com/settings/tokens/new</a> (classic token, the <code>gist</code> box is already ticked). Set expiration to "No expiration", click Generate, copy the token.</li>
+<li>Paste it here and press link:</li>
+</ol>
+<p><input id="sy-token" type="password" autocomplete="off" placeholder="ghp_..." size="44"> <button id="sy-link" type="button" class="btn">link</button></p>
+<p><label><input id="sy-jobs" type="checkbox"> also sync the ~/jobs application tracker (off by default; company names would sit in the gist)</label></p>
+<p class="muted">On your other device, do the same with the <strong>same token</strong>: it finds the gist by itself. If both devices already hold progress, the most recently changed copy of each item wins, so use the export below first if you want a backup.</p>
+</div>
+<div id="sy-linked" hidden>
+<h2>Linked</h2>
+<p>It saves a few seconds after each change and when you leave a page, and loads when you open the site.</p>
+<p><button id="sy-now" type="button" class="btn">sync now</button> <button id="sy-unlink" type="button" class="btn">unlink this device</button></p>
+<p><label><input id="sy-jobs2" type="checkbox"> also sync the ~/jobs application tracker</label></p>
+</div>
+<h2>Backup file</h2>
+<p>Works with or without linking: download everything, or load a file made on another device.</p>
+<p><button id="sy-export" type="button" class="btn">export file</button> <label class="btn">import file <input id="sy-import" type="file" accept="application/json,.json" hidden></label></p>
+<p id="sy-msg" class="ok"></p>
+</div>
+<h2>How safe is it</h2>
+<ul>
+<li>The token is kept only in this browser's storage (not synced, not exported, not in the repo). It can do one thing: read and write your gists. Revoke it any time at github.com/settings/tokens.</li>
+<li>A secret gist is not listed publicly but anyone with its link could read it. It holds only study progress. Do not put anything private in notes fields you sync.</li>
+<li>Merging is per item, newest change wins. Two devices changing the same item between syncs keeps the later one.</li>
+</ul>""", cur="learn")
 
 # ---------- 404 (GitHub Pages serves this for any missing path, so asset paths are absolute) ----------
 page("404.html", "kernel panic :: 0xDay", """<div class="panic">

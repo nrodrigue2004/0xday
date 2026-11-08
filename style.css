@@ -652,3 +652,8 @@ pre.ex--code code{color:#b6f5c9}
 .chat__code{margin:.4rem 0 .3rem;padding:.5rem .9rem;border-left:3px solid var(--green-dim);background:var(--panel-2);color:var(--strong);overflow-x:auto;font-size:.82rem}
 .chat__list{margin:.3rem 0 .4rem;padding-left:1.2rem}
 @media(max-width:600px){.chat__form label{display:none}}
+
+/* sync */
+#sync-link.sync-ok{color:var(--accent,#3bff7f)}
+#sync-link.sync-err{color:#ff6b6b}
+label.btn{display:inline-block;cursor:pointer}
