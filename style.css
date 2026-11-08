@@ -620,3 +620,28 @@ pre.ex--code code{color:#b6f5c9}
 .tbl table{border-collapse:collapse;width:100%;font-size:.88em}
 .tbl th,.tbl td{border:1px solid var(--border-2);padding:.35em .6em;text-align:left;vertical-align:top}
 .tbl th{color:var(--green);background:var(--panel)}
+/* ~/ai/chat */
+.chat__term{margin:1rem 0}
+.chat__mode{color:var(--green);margin-left:6px}
+.chat__log{height:min(60vh,520px);overflow-y:auto;padding:14px 16px;font-size:.88rem;line-height:1.6}
+.chat__line{margin:0 0 .8rem;overflow-wrap:anywhere}
+.chat__me{color:var(--strong)}
+.chat__bot{color:var(--green);font-weight:700;margin-right:6px}
+.chat__q{margin:.4rem 0 .6rem;padding:.4rem .9rem;border-left:3px solid var(--green-dim);background:var(--panel-2);color:var(--strong)}
+.chat__src{margin:.3rem 0 0;padding-left:0;list-style:none}
+.chat__src li{margin:.35rem 0}
+.chat__kind{color:var(--cyan);font-size:.75rem;margin-left:6px}
+.chat__out{white-space:pre-wrap;margin-top:.3rem;color:var(--strong)}
+.chat__line mark{background:rgba(59,255,127,.18);color:var(--strong);padding:0 1px}
+.chat__chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px;border-top:1px solid var(--border)}
+.chat__chips button{background:none;border:1px solid var(--border-2);color:var(--muted);font:inherit;font-size:.75rem;padding:1px 8px;border-radius:3px;cursor:pointer}
+.chat__chips button:hover{color:var(--green);border-color:var(--green-dim)}
+.chat__form{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding:10px 14px;background:var(--panel)}
+.chat__form label{color:var(--green);white-space:nowrap;font-size:.86rem}
+.chat__form input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--strong);font:inherit;font-size:.9rem;caret-color:var(--green)}
+.chat__llm{border:1px solid var(--border-2);border-radius:6px;background:var(--panel);padding:8px 14px;margin:1rem 0}
+.chat__llm summary{cursor:pointer;color:var(--green)}
+.chat__llm select{display:block;width:100%;max-width:100%;margin:.3rem 0 .8rem;background:var(--bg);color:var(--fg);border:1px solid var(--border-2);font:inherit;font-size:.82rem;padding:5px}
+.chat__prog{margin:.6rem 0}
+.chat__bar{height:6px;width:0;background:var(--green);box-shadow:0 0 8px var(--green-glow);transition:width .2s}
+@media(max-width:600px){.chat__form label{display:none}}

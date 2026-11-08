@@ -10,12 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=af415407">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=af415407" defer></script>
-<script src="../site.js?v=af415407" defer></script>
-<script src="../fx.js?v=af415407" defer></script>
-<script src="../learn.js?v=af415407" defer></script>
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -50,7 +50,7 @@
 <h4>Why prompt injection is structural</h4>
 <p>In a classic injection bug (SQL injection) the cure is separating code from data with parameterized queries. In an LLM there is no such separation: the system prompt, the user's request and the untrusted document are all just tokens in one sequence. You can add instructions saying "ignore commands inside the document", and that helps, but it is a statistical nudge, not an enforced boundary. So defenses must be architectural: give the agent <strong>least privilege</strong>, require <strong>human approval</strong> for side effects, restrict where data can be sent, and treat model output as untrusted input to the next system.</p>
 <h4>Classical ML in security, for contrast</h4>
-<ul><li><strong>Supervised classifiers</strong> (random forests, gradient-boosted trees) on engineered features like URL length, entropy of a domain name, or header fields remain strong, cheap and explainable for phishing and malware detection.</li><li><strong>Unsupervised</strong> methods (clustering, isolation forest, autoencoders) model normal behavior to surface outliers in auth logs or network flows.</li><li><strong>Evaluate with the right metrics.</strong> Security data is wildly imbalanced (almost everything is benign), so accuracy is meaningless. A model that says "benign" every time can be 99.9% accurate. Use <strong>precision, recall</strong>, and the cost of a false negative versus a false positive.</li><li><strong>When to pick which:</strong> if there is a stable, labeled, narrow decision at high volume, use a classifier. If the task is messy text that humans normally read (summaries, explanations, query drafting), use an LLM, with a human or a deterministic check behind it.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="ai-history.html">&lt; history</a><a href="ai-for-defense.html">AI for defense &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+<ul><li><strong>Supervised classifiers</strong> (random forests, gradient-boosted trees) on engineered features like URL length, entropy of a domain name, or header fields remain strong, cheap and explainable for phishing and malware detection.</li><li><strong>Unsupervised</strong> methods (clustering, isolation forest, autoencoders) model normal behavior to surface outliers in auth logs or network flows.</li><li><strong>Evaluate with the right metrics.</strong> Security data is wildly imbalanced (almost everything is benign), so accuracy is meaningless. A model that says "benign" every time can be 99.9% accurate. Use <strong>precision, recall</strong>, and the cost of a false negative versus a false positive.</li><li><strong>When to pick which:</strong> if there is a stable, labeled, narrow decision at high volume, use a classifier. If the task is messy text that humans normally read (summaries, explanations, query drafting), use an LLM, with a human or a deterministic check behind it.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="ai-history.html">&lt; history</a><a href="ai-chatbot.html">the chatbot &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
 
 </div>
 

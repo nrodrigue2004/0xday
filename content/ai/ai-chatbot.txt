@@ -1,0 +1,64 @@
+tagline: How the chatbot on this site works: search first, then optionally a small model running on your own machine. Why it can still be wrong.
+:: simple
+The chatbot at [~/ai/chat](chat.html) does not call any server. Everything runs in your browser tab.
+
+It has two modes:
+- **Search mode (default).** Your question is matched against the text of this site: the guides, the Security+ notes, the glossary, the cheatsheets and the AI chapters. You get the best-matching passages back, each with a link to the page it came from. Nothing is generated, so nothing is invented. If the site doesn't cover it, it says so.
+- **Local model mode (optional).** You can download a small language model into your browser. It then writes an answer in sentences, using the passages from search mode as its source material. It is slower, needs a recent Chrome or Edge with WebGPU, and is much weaker than the big hosted chatbots.
+
+Why not just plug in a famous model? A website can't hold a secret. Anything in the page's JavaScript is visible to every visitor, so an API key placed there would be copied and used on someone else's bill within hours. A hosted model needs a small server in the middle that holds the key. This site is static files, so it has no middle.
+
+Rules for any chatbot, including this one:
+- **It can be wrong, and it sounds sure either way.** Check anything that matters against the cited page or official docs.
+- **Citations are the point.** An answer with no source you can open is a guess.
+- **Never paste secrets** into a chat box, local or hosted.
+:: mid
+### The pattern: retrieval-augmented generation (RAG)
+A language model only knows what was in its training data, and it can't look things up. RAG fixes that in three steps:
+1. **Retrieve.** Search your own documents for passages relevant to the question.
+2. **Augment.** Paste those passages into the prompt: "Answer using only this text. Cite it."
+3. **Generate.** The model writes the answer from the pasted text instead of from memory.
+
+```code
+question  ->  search the site index  ->  top 4 passages
+          ->  prompt = rules + passages + question
+          ->  model writes the answer, citing [1] [2]
+```
+
+### How the search works here
+At build time a script reads every built page, splits it into chunks at each heading, and writes one JSON index. In the browser the chat loads that file and scores each chunk with **BM25**, a classic ranking formula:
+- words that are **rare** across the site count more than common ones ("kerberos" beats "the")
+- a word that **repeats** in a chunk helps, with diminishing returns
+- **short** chunks are not punished or favored unfairly (length normalization)
+- matches in a chunk's **title** get a boost
+
+That is keyword search, not meaning search. It finds "kerberos" when you type "kerberos". It can miss "how do tickets work in AD" if those words never appear together. Embedding-based search fixes that at the cost of a model and more data.
+
+### What a small local model is and isn't
+The optional model is a few hundred million to about 1.5 billion parameters, **quantized** (weights stored in 4 bits instead of 16 or 32) so it fits in GPU memory. It runs through **WebGPU**, the browser's access to your graphics card. The weights are downloaded once and cached by the browser. They are not sent anywhere, and neither is your question.
+
+Expect: fine at rephrasing the retrieved passages, poor at multi-step reasoning, prone to confident mistakes. Frontier models are hundreds of times larger.
+
+- **Search mode:** runs in your browser, no setup, never invents facts, no prose of its own (it quotes the site).
+- **Local model:** runs on your GPU, 200 MB to 1.5 GB download, sometimes invents facts, basic prose.
+- **Hosted model (API):** runs in a data center, needs a server to hold the key, sometimes invents facts but less often, best prose.
+:: complex
+### Hallucination, precisely
+A language model predicts a plausible next token. Plausible is not the same as true. When retrieval returns nothing useful, a model still produces fluent text, and that text is a **hallucination**. RAG reduces this but doesn't remove it:
+- retrieval can return the **wrong passage**, and the model faithfully summarizes it
+- the model can **ignore** the passage and answer from memory
+- the model can **blend** two passages into a claim neither makes
+
+Mitigations used here and in real products: instruct the model to answer only from the context and say "not covered" otherwise, number the sources so claims can be traced, show the sources next to the answer, and keep the generated text visibly separate from the quoted text.
+
+### Security angles
+- **Prompt injection.** Retrieved text goes into the prompt, so the model can't tell your instructions from instructions hidden in a document. A RAG system that indexes untrusted content (web pages, tickets, email) can be steered by that content. This site only indexes its own pages, which is why a local model here is low risk. See [attacking AI](attacking-ai.html).
+- **Data leakage.** A RAG index returns whatever it holds, to anyone who can ask. Per-user access control has to happen at retrieval time, not in the prompt.
+- **Key exposure.** Client-side API keys are public keys. The standard fix is a thin proxy that holds the key, authenticates the caller, rate limits, and logs. Without those limits, an exposed proxy is an open bill.
+- **Supply chain.** The local mode loads a JavaScript library from a CDN and weights from a model host. Pin versions, and know that you are running third-party code and data. Model files can be tampered with the same way packages can.
+
+### Tuning knobs in a RAG system
+- **Chunk size.** Too small loses context, too large dilutes the match. Splitting at headings, as done here, keeps each chunk about one idea.
+- **Top-k.** More passages give more coverage and more distraction. Small models do worse with long prompts, so this site passes four.
+- **Hybrid search.** Combine keyword scores (BM25) with embedding similarity. Keyword search nails exact terms like port numbers and CVE ids, embeddings catch paraphrases.
+- **Evaluation.** Keep a list of questions with known source pages and measure how often the right page lands in the top results. Without that, "it seems better" is the only evidence.
