@@ -2,6 +2,16 @@
   {
     "date": "2026-11-08",
     "type": "feat",
+    "msg": "add ~/basics/number-systems (binary, hex, decimal and octal both ways, IP masks, ASCII, bitwise ops, two's complement, endianness, hands-on hex lab), a live converter and 60-second conversion sprint at ~/arcade/bits, a numbers cheatsheet and eight glossary terms"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "feat",
+    "msg": "add ~/cloud: cloud basics for AWS and Azure (shared concepts, IAM, networking, storage and compute, cloud security, free-tier lab guidance), six simulated hands-on labs and man pages for cloud, aws and az"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "feat",
     "msg": "homelab practice: ~/harden (per-system hardening checklist with before/after score), ~/report (notes to incident report), ~/weekly (weekly lab routine), plus two drills: Security Onion intrusion hunt and password hygiene audit"
   },
   {

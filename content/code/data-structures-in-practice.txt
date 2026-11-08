@@ -1,0 +1,185 @@
+tagline: Dictionaries, sets, stacks, queues and heaps are the tools you reach for in security scripts. See each one solve a real detection problem. Practice with a sliding-window brute-force detector.
+sheet: data-structures-and-algorithms
+sheet_summary: Data structures and algorithms commands and terms
+:: simple
+A **data structure** is a way of holding data so a certain question is cheap to answer. Choosing the right one is most of the skill. The five worth knowing cold, with a security use for each:
+
+- **List / array:** ordered, indexed. The lines of a log in order.
+- **Dictionary (hash map):** key to value, near-instant lookup. IP address to failure count.
+- **Set:** unique items, near-instant "is it in here?". The blocklist, or the IPs already seen.
+- **Stack:** last in, first out. Undo history, nested brackets, a call stack.
+- **Queue:** first in, first out. Jobs waiting for a worker, events in arrival order.
+
+```
+$ python3 -c "ips=['a','b','a','c','a']; print(len(set(ips)), 'unique', ips.count('a'), 'times')"
+```
+
+> "Is this IP on the blocklist?" in a **list** means checking every entry. In a **set** it is one step. With 500,000 entries and a million log lines, that choice is the difference between a second and an afternoon.
+
+### Which one?
+Need order and position: list. Need to count or group by a key: dictionary. Need uniqueness or membership: set. Need the most recent first: stack. Need the oldest first, or a moving window: queue.
+:: mid
+### Counting with dictionaries
+```code
+from collections import Counter, defaultdict
+fails = Counter(ip for ip in ips)            # ip -> count
+by_user = defaultdict(set)                    # ip -> set of usernames tried
+for ip, user in pairs: by_user[ip].add(user)
+spray = [ip for ip, us in by_user.items() if len(us) >= 4]
+```
+
+`defaultdict(set)` creates the empty set for a new key automatically. A scanner that tries many usernames is a **spray**; one that tries many passwords on one user is a **brute force**. Different data structure question, different alert.
+
+### Sets for membership and comparison
+`a & b` (in both), `a | b` (either), `a - b` (in a, not in b). "IPs that failed **and** later succeeded" is `failed_ips & success_ips`, one line, and it is the shape of most correlation rules.
+
+### Queues and the sliding window
+Detection usually means "N things within T seconds". Keep a **deque** of recent timestamps per key: add the new one on the right, drop old ones from the left, and check the length.
+
+```code
+from collections import deque
+window = deque()
+for ts in times:
+    window.append(ts)
+    while window and ts - window[0] > 30:   # older than 30 s
+        window.popleft()
+    if len(window) >= 5:
+        print("alert at", ts)
+```
+
+`deque.popleft()` is O(1). `list.pop(0)` is O(n), because it shifts every element, which is why you do not use a plain list as a queue.
+
+### Stacks
+The call stack, an undo list, matching `(` with `)`: `append` to push, `pop` to take the last. A stack is also how a depth-first search over a directory tree or an attack graph works.
+:: complex
+### What each choice costs
+| Structure | Lookup | Add | Remove | Note |
+| --- | --- | --- | --- | --- |
+| list | O(n) | O(1) at end | O(n) | index by position O(1) |
+| dict / set | O(1) avg | O(1) avg | O(1) avg | unordered keys, O(n) worst case |
+| deque | O(n) | O(1) both ends | O(1) both ends | the right tool for windows |
+| heap | min O(1) | O(log n) | O(log n) | top-k, "what is next" |
+| sorted list + bisect | O(log n) | O(n) | O(n) | range queries on timestamps |
+
+More detail and a visualizer on the [Big-O page](../bigo.html).
+
+### Patterns you will reuse
+- **Dedup a stream:** `seen = set()`; `if x in seen: continue; seen.add(x)`. Memory grows with distinct items, so cap it or use a Bloom filter when it will not fit
+- **Top-k:** `heapq.nlargest(10, counts.items(), key=...)` is O(n log k), better than sorting everything when k is small
+- **Rate limiting / detection:** the per-key deque above, or a **token bucket**: a counter that refills over time
+- **Graphs:** hosts and connections are nodes and edges. A dict of sets (`{host: {neighbours}}`) plus **breadth-first search** answers "how far can an attacker get from this machine", the lateral-movement question
+- **Trie / prefix tree:** match a log line against thousands of indicator prefixes at once
+- **Memory versus time:** a bigger dict can answer faster. Streaming a log with fixed-size state is how you handle logs larger than RAM
+
+The honest rule of thumb: reach for dict, set and deque first. They cover most of it, and the katas in the [Python dojo](../dojo/python.html) drill each one.
+:: ref
+### data structures in scripts
+Counter(items).most_common(5) | frequency table
+defaultdict(set) | key to set, creates empty sets on demand
+set(a) & set(b) | in both (intersection)
+set(a) - set(b) | in a but not b
+x in my_set | membership in O(1) on average
+deque(); d.append(x); d.popleft() | queue with O(1) at both ends
+stack.append(x); stack.pop() | stack (a list used last-in first-out)
+heapq.nlargest(10, items, key=f) | top-k without sorting everything
+bisect.bisect_left(sorted_list, x) | binary search in a sorted list
+sorted(items, key=f, reverse=True) | O(n log n) sort with a key
+:: lab
+host: soc
+user: analyst
+cwd: /home/analyst/work
+py: yes
+:: brief
+`auth_events.txt` has one line per authentication event: `epoch-seconds ip user OK|FAIL`.
+
+The rule: alert when one IP has **5 or more FAIL events inside any 30-second window**. Finish `detector.py` with a per-IP `deque` as a sliding window.
+
+Careful: one IP fails far more often overall, but slowly. Only one IP actually trips the rule. Submit that **IP address**.
+:: answer
+203.0.113.77
+:: hint
+Keep `windows = defaultdict(deque)`. For each FAIL, `windows[ip].append(ts)`.
+:: hint
+Drop old entries: `while w and ts - w[0] > 30: w.popleft()`. After that, `len(w)` is the failures in the last 30 seconds.
+:: hint
+When `len(w) >= 5`, add the IP to a `set` of alerts, then print it.
+:: solution
+`for each FAIL: w = windows[ip]; w.append(ts); while ts - w[0] > 30: w.popleft(); if len(w) >= 5: flagged.add(ip)`.
+
+Only **203.0.113.77** trips it: six failures within about 25 seconds. 198.51.100.23 fails 14 times but 40 seconds apart, so the window never holds more than one or two. 192.0.2.140 gets to four twice and never reaches five. Total count alone would have flagged the wrong IP, and that is the difference between a counter and a window.
+:: verify
+python3 detector.py
+:: file /home/analyst/work/detector.py
+from collections import defaultdict, deque
+
+WINDOW = 30      # seconds
+THRESHOLD = 5    # failures inside the window
+windows = defaultdict(deque)
+flagged = set()
+
+for line in open("/home/analyst/work/auth_events.txt"):
+    ts, ip, user, result = line.split()
+    ts = int(ts)
+    if result != "FAIL":
+        continue
+    # TODO: add ts to this IP's window
+    # TODO: drop timestamps older than WINDOW seconds from the left
+    # TODO: if the window holds THRESHOLD or more, flag the IP
+
+print("not finished yet")
+:: file /home/analyst/work/auth_events.txt
+1762500050 198.51.100.23 root FAIL
+1762500084 10.0.10.31 root FAIL
+1762500089 10.0.10.15 test FAIL
+1762500090 198.51.100.23 test FAIL
+1762500100 192.0.2.140 root FAIL
+1762500101 10.0.10.22 root OK
+1762500106 192.0.2.140 admin FAIL
+1762500112 192.0.2.140 admin FAIL
+1762500118 192.0.2.140 backup FAIL
+1762500130 198.51.100.23 root FAIL
+1762500133 10.0.10.15 test OK
+1762500170 198.51.100.23 oracle FAIL
+1762500177 10.0.10.31 oracle OK
+1762500210 198.51.100.23 backup FAIL
+1762500218 10.0.10.22 admin OK
+1762500223 10.0.10.31 root OK
+1762500250 198.51.100.23 root FAIL
+1762500268 10.0.10.22 root OK
+1762500290 198.51.100.23 admin FAIL
+1762500317 10.0.10.22 oracle OK
+1762500330 198.51.100.23 admin FAIL
+1762500356 10.0.10.31 oracle FAIL
+1762500370 198.51.100.23 test FAIL
+1762500385 10.0.10.15 oracle OK
+1762500399 10.0.10.22 root OK
+1762500402 10.0.10.15 admin FAIL
+1762500402 203.0.113.77 root FAIL
+1762500406 203.0.113.77 admin FAIL
+1762500409 203.0.113.77 test FAIL
+1762500410 198.51.100.23 backup FAIL
+1762500412 203.0.113.77 root FAIL
+1762500417 203.0.113.77 admin FAIL
+1762500420 203.0.113.77 root FAIL
+1762500439 10.0.10.31 root OK
+1762500450 198.51.100.23 admin FAIL
+1762500451 10.0.10.31 backup FAIL
+1762500464 10.0.10.15 admin OK
+1762500474 10.0.10.22 backup FAIL
+1762500490 198.51.100.23 root FAIL
+1762500499 10.0.10.31 root OK
+1762500530 198.51.100.23 test FAIL
+1762500563 10.0.10.31 test OK
+1762500570 198.51.100.23 oracle FAIL
+1762500582 10.0.10.15 oracle OK
+1762500629 10.0.10.15 admin FAIL
+1762500640 10.0.10.15 root OK
+1762500666 10.0.10.22 admin FAIL
+1762500700 192.0.2.140 backup FAIL
+1762500706 192.0.2.140 oracle FAIL
+1762500712 192.0.2.140 oracle FAIL
+1762500718 192.0.2.140 oracle FAIL
+1762500739 10.0.10.15 test OK
+1762500786 10.0.10.31 backup OK
+1762500809 10.0.10.22 backup OK
+1762500815 10.0.10.22 backup FAIL

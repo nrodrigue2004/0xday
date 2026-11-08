@@ -10,7 +10,7 @@ NAME = "Nathan"; FULL_NAME = "Nathan Rodrigue"  # last name only on the resume
 USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
-NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("ai", "ai.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
+NAV = [("start", "start.html"), ("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("ai", "ai.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
 SITE = "https://nrodrigue2004.github.io/0xday/"
 POSTS = json.load(open("content/posts.json"))
 PROJECTS = json.load(open("content/projects.json"))
@@ -106,6 +106,7 @@ home = f'''<section class="term" aria-label="Intro">
   </div>
 </section>
 <section class="quick">
+  <a class="tile" href="start.html"><span class="tile__k">./start</span><span class="tile__v">what to study next</span></a>
   <a class="tile" href="projects.html"><span class="tile__k">./projects</span><span class="tile__v">{len(PROJECTS)} builds, labs &amp; challenges</span></a>
   <a class="tile" href="posts.html"><span class="tile__k">./blog</span><span class="tile__v">{len(POSTS)} writeups</span></a>
   <button class="tile ghost-open" type="button"><span class="tile__k">./ghost</span><span class="tile__v">ask my terminal assistant</span></button>
@@ -229,7 +230,7 @@ page("certs.html", "certs :: 0xDay", f"""<p class="cmd">apt list --installed | g
 <ul class="pkgs">{cert_rows}</ul>
 <h2>security+ tracker</h2>
 <p class="cmd">./progress --exam SY0-701</p>
-<p>Studying with my own system: <a href="secplus.html">~/secplus</a> (objectives, notes, flashcards, labs).</p>
+<p>Studying with my own system: <a href="secplus.html">~/secplus</a> (objectives, notes, flashcards, labs). Later and optional: <a href="comptia.html">~/comptia</a> (CySA+, Network+, A+).</p>
 <p>Overall, weighted by exam domain: <strong class="ok">{overall}%</strong></p>
 <ul class="doms">{dom_rows}</ul>
 <h3>practice exams</h3>{chart}
@@ -255,6 +256,8 @@ page("skills.html", "skills :: 0xDay", f"""<p class="cmd">skills --matrix</p><h1
 <p>Self-rated, and every rating links to the work behind it. Each <strong>learn</strong> link opens a guide (simple, mid, complex) with a hands-on sandbox lab. <span class="muted">1 aware · 2 familiar · 3 working · 4 strong · 5 expert</span></p>
 {groups_html}""", cur="skills")
 GUIDES, SP, NCARDS = build_learn.build(page, SKILLS, LV, bar)
+import build_comptia
+COMPTIA = build_comptia.build(page)
 import build_ai
 AI = build_ai.build(page)
 import build_careers
@@ -334,6 +337,10 @@ DETS = json.load(open("content/detections.json"))["rules"]
 BOOKS = json.load(open("content/books.json"))["books"]
 SHEETS = json.load(open("content/cheatsheets.json"))
 build_learn.merge_sheets(SHEETS, GUIDES)
+import build_code
+CODE = build_code.build(page, SHEETS)
+import build_cloud
+CLOUD = build_cloud.build(page, SHEETS)
 
 def empty(what, file, example):
     # public pages show a short placeholder; the entry format lives in README.md
@@ -476,12 +483,15 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("books", "books.html", "bookshelf", n(BOOKS, "book")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
-       ("basics", "basics.html", "OSI, ports, OSINT, crypto, OS basics", f'{len(BASICS)} chapters'),
+       ("code", "code.html", "programming path: Python, Bash, PowerShell, SQL, git", f'{len(CODE)} chapters'),
+       ("basics", "basics.html", "OSI, binary and hex, ports, OSINT, crypto, OS, web, APIs, databases", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
+       ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
        ("interview", "interview.html", "pitches + questions for each resume project", f'{INTERVIEW["questions"]} questions'),
        ("log", "log.html", "weekly study log + streak", "saved in browser"),
        ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
+       ("comptia", "comptia.html", "CySA+, Network+, A+ (after Security+)", f'{len(COMPTIA)} certs'),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
 HUB = [x for x in HUB if x[3] != "coming soon"]
@@ -494,10 +504,12 @@ HUB.insert(2, ("glossary", "glossary.html", "terms linked to guides", f"{len(GLO
 import build_hlops
 HUB += build_hlops.build(page, esc)
 import build_arcade
-HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
+HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet, bits", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
+HUB.insert(0, ("start", "start.html", "ordered roadmap with progress", "start here"))
+HUB += [("jobs", "jobs.html", "application tracker, follow-ups", "browser-only"), ("bullets", "bullets.html", "resume bullets + posting matcher", "from resume.json")]
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
 
@@ -513,6 +525,9 @@ page("htop.html", "htop :: 0xDay", '<p class="cmd">htop --homelab</p><h1 class="
      scripts=("htop.js",), desc="htop-style dashboard of Nathan's homelab.")
 page("desktop.html", "i3 :: 0xDay", '<div id="i3" class="i3" aria-label="tiling desktop"></div><noscript><p>The desktop needs JavaScript. <a href="index.html">Back</a>.</p></noscript>',
      htmlcls="i3-page", scripts=("desktop.js",), desc="0xDay as an i3 tiling desktop.")
+
+import build_start
+START = build_start.build(page, esc)  # last: its "if" hooks look for pages the other builders wrote
 
 # ---------- data for the ghost assistant ----------
 data = {"name": NAME, "gh": GH, "li": LI,
@@ -533,6 +548,8 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "careers": CAREERS["paths"],
         "interview": INTERVIEW["projects"],
         "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
+        "code": [{"slug": c[0], "name": c[1]} for c in CODE],
+        "cloud": [{"slug": c[0], "name": c[1]} for c in CLOUD],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags,", len(GUIDES), "guides,", len(SP["objectives"]), "objectives,", NCARDS, "cards")

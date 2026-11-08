@@ -1,0 +1,151 @@
+tagline: HTTP is the conversation every browser, app and API has with a server. Learn the request, the response, the status codes, the headers, and how cookies turn a stateless protocol into a login.
+:: simple
+**HTTP** (HyperText Transfer Protocol) is a plain request/response protocol. The client (browser, `curl`, a phone app) sends a **request**. The server sends back one **response**. That is the whole idea. HTTPS is the same thing wrapped in TLS so nobody on the path can read or change it (see [crypto basics](cia-and-crypto.html)). Web servers listen on **80** (HTTP) and **443** (HTTPS).
+
+A request is text: a **request line** (method, path, version), **headers**, and an optional **body**.
+
+```
+GET /products?id=7 HTTP/1.1
+Host: shop.example
+User-Agent: curl/8.5.0
+Accept: application/json
+```
+
+The response has a **status line**, headers and a body:
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 41
+
+{"id":7,"name":"USB-C cable","price":9}
+```
+
+The **method** says what you want to do. The **status code** says how it went. Remember the families:
+
+| Code | Family | Examples |
+|---|---|---|
+| 1xx | informational | 101 switching protocols (WebSockets) |
+| 2xx | success | 200 OK, 201 created, 204 no content |
+| 3xx | redirect | 301 moved permanently, 302 found, 304 not modified |
+| 4xx | client error | 400 bad request, 401 unauthenticated, 403 forbidden, 404 not found, 429 too many requests |
+| 5xx | server error | 500 internal error, 502 bad gateway, 503 unavailable, 504 gateway timeout |
+
+> HTTP is **stateless**: the server does not remember you between requests. Logins work because the browser sends a **cookie** with every request, and the cookie holds (or points to) your session.
+:: mid
+### Methods
+| Method | Meaning | Safe | Idempotent |
+|---|---|---|---|
+| GET | read a resource | yes | yes |
+| HEAD | like GET, headers only | yes | yes |
+| POST | create or submit something | no | no |
+| PUT | replace a resource | no | yes |
+| PATCH | change part of a resource | no | no |
+| DELETE | remove a resource | no | yes |
+| OPTIONS | ask what is allowed (CORS preflight) | yes | yes |
+
+**Safe** means it should not change anything. **Idempotent** means doing it twice has the same effect as once. A GET that deletes something is a bug and a security problem, because browsers, crawlers and link previews fire GETs freely.
+
+### Headers worth knowing
+- `Host`: which site on this IP (one server hosts many).
+- `User-Agent`, `Referer` (sic), `Accept`, `Accept-Language`: what the client is and wants.
+- `Content-Type` and `Content-Length`: what the body is (`application/json`, `application/x-www-form-urlencoded`, `multipart/form-data`) and how big.
+- `Authorization: Bearer <token>`: API credentials.
+- `Cookie` (request) and `Set-Cookie` (response).
+- `Location`: where a 3xx sends you.
+- `Cache-Control`, `ETag`: caching. `Server`, `X-Powered-By`: often leak software and version, which helps an attacker fingerprint you.
+- `X-Forwarded-For`: the original client IP when a proxy or load balancer sits in front. Clients can forge it, so never trust it for security decisions unless your own proxy sets it.
+
+### Cookies and sessions
+The server answers a login with `Set-Cookie: sid=9f2c...; Path=/; Secure; HttpOnly; SameSite=Lax`. From then on the browser sends `Cookie: sid=9f2c...`. The server looks the value up in its **session store** and knows who you are. Whoever holds the value is you, so a stolen session cookie is a login without a password.
+
+| Attribute | What it does |
+|---|---|
+| `Secure` | only sent over HTTPS |
+| `HttpOnly` | JavaScript cannot read it, which blunts XSS cookie theft |
+| `SameSite=Lax/Strict` | not sent on most cross-site requests, which blunts CSRF |
+| `Domain`, `Path` | which hosts and paths receive it |
+| `Max-Age` / `Expires` | lifetime. No value means a session cookie that dies with the browser |
+
+Other state mechanisms: **server-side sessions** (cookie holds a random id), **signed tokens** such as JWTs (the cookie or header holds the data itself plus a signature), and **localStorage** (readable by any script on the page, so a poor place for secrets).
+
+### Try it
+```
+$ curl -I https://shop.example
+$ curl -v https://shop.example/login
+$ curl -s -H "Accept: application/json" https://shop.example/products/7
+$ curl -i -X POST -d "user=demo&pass=demo" https://shop.example/login
+```
+`-I` is headers only, `-i` includes headers with the body, `-v` shows the whole request and response, `-X` sets the method, `-d` sends a body, `-H` adds a header, `-L` follows redirects, `-k` skips cert checks (never as a habit).
+:: complex
+### HTTP versions
+- **HTTP/1.1**: text, one request at a time per connection (browsers open several). `Connection: keep-alive` reuses it.
+- **HTTP/2**: binary, many requests multiplexed over one connection, header compression. Same methods and status codes.
+- **HTTP/3**: HTTP/2 semantics over **QUIC** (UDP 443), which avoids TCP head-of-line blocking.
+Request smuggling attacks exist because a front-end proxy and a back-end server can disagree about where one request ends (`Content-Length` vs `Transfer-Encoding`). Concept only: it is a reason to keep proxies and servers patched and consistent.
+
+### Security headers (the server tells the browser how strict to be)
+| Header | Purpose |
+|---|---|
+| `Strict-Transport-Security` (HSTS) | browser must use HTTPS for this host from now on |
+| `Content-Security-Policy` | which sources may load scripts, styles, frames. The main defense in depth against XSS |
+| `X-Content-Type-Options: nosniff` | don't guess MIME types |
+| `X-Frame-Options` / `frame-ancestors` | stop other sites framing yours (clickjacking) |
+| `Referrer-Policy` | how much URL leaks to other sites |
+| `Permissions-Policy` | switch off camera, mic, geolocation etc. |
+
+### Same-origin policy and CORS
+An **origin** is scheme + host + port. By default a script on `https://a.example` cannot read responses from `https://b.example`. **CORS** (cross-origin resource sharing) lets a server opt in with `Access-Control-Allow-Origin`. Misconfigurations: reflecting any `Origin` back, or `Allow-Origin: *` together with credentials. CORS protects *reading* responses in the browser; it does **not** stop the request from being sent, which is why CSRF needs its own defenses.
+
+### Session handling done properly
+- Session ids are long, random and unguessable (128 bits or more from a CSPRNG), never sequential.
+- **Regenerate the id on login** (stops session fixation, where an attacker plants a known id before you authenticate) and invalidate it on logout, server-side.
+- Set `Secure`, `HttpOnly`, `SameSite`. Use short idle and absolute timeouts. Bind sensitive actions to a recent re-authentication.
+- Never put session ids in URLs; they end up in logs, history and `Referer`.
+- Cache: responses that carry personal data need `Cache-Control: no-store`.
+
+### As a defender
+Web server logs are in the **combined log format**: `ip - user [time] "METHOD /path HTTP/1.1" status bytes "referer" "user-agent"`. Reading them is a core SOC skill: a burst of 404s is scanning, a burst of 401/403 is guessing or probing, one IP with thousands of requests is a bot, and 500s right after odd input is a bug being poked. Pair with [log analysis](../learn/log-analysis.html).
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, training only):** the dev team at **Shopwell**, a made-up store, saved one captured login exchange from their own test server into `~/capture`. A reviewer asks one question: **which cookie is the session cookie, and what is it missing?** Read the exchange with `cat ~/capture/login.txt` and the notes in `README.txt`.
+
+The session cookie is the one the server uses to recognise a logged-in user. Submit its **name** followed by the **flags it lacks**, in the order `Secure` then `HttpOnly`, e.g. `submit foo Secure`. If it lacks only one, submit just that one.
+:: answer
+sid httponly
+:: hint
+Three cookies are set. One is a theme preference and one is a CSRF token. Neither identifies a logged-in user.
+:: hint
+Look at the attribute list on the `sid` line with `grep -i set-cookie ~/capture/login.txt`. `Secure` is already there.
+:: solution
+`grep -i set-cookie` shows `theme=dark` (a preference), `csrf=...; Secure; SameSite=Strict` (an anti-CSRF value) and `sid=...; Path=/; Secure; SameSite=Lax`. The `sid` cookie is the one sent as `Cookie: sid=...` on the follow-up request and mapped to user 14 in the notes, so it is the session cookie. It has `Secure` but **no `HttpOnly`**, which means any script injected into the page (XSS) could read it and hand an attacker the session. The fix is one attribute. Note the pattern: reading a capture is passive work on your own test traffic.
+:: verify
+cat ~/capture/login.txt
+grep -i set-cookie ~/capture/login.txt
+:: file /home/analyst/capture/README.txt
+Shopwell (FICTIONAL training scenario). Captured from the team's own test server.
+  login.txt   one login request, the response, and the next request
+Notes: the app maps the cookie that identifies a logged-in user to user id 14 (demo account).
+Rules: read only.
+:: file /home/analyst/capture/login.txt
+> POST /login HTTP/1.1
+> Host: test.shopwell.example
+> Content-Type: application/x-www-form-urlencoded
+> Content-Length: 27
+>
+> user=demo&pass=correct-horse
+
+< HTTP/1.1 302 Found
+< Location: /account
+< Set-Cookie: theme=dark; Path=/; Max-Age=31536000
+< Set-Cookie: csrf=7d1e0b; Path=/; Secure; SameSite=Strict
+< Set-Cookie: sid=9f2c41a8d03b77e5; Path=/; Secure; SameSite=Lax
+< Cache-Control: no-store
+< Server: nginx/1.24.0
+
+> GET /account HTTP/1.1
+> Host: test.shopwell.example
+> Cookie: theme=dark; csrf=7d1e0b; sid=9f2c41a8d03b77e5

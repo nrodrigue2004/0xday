@@ -655,5 +655,165 @@
       ["tcpdump -nn -r cap.txt | awk '{print $3}' | sort | uniq -c | sort -rn | head", "who sent the most packets"],
       ["... | grep 'length 1448' | awk '{print $5}' | sort | uniq -c", "who received bulk data"],
       ["... | grep 'Flags \\[S\\]' | awk '{print $5}' | sort | uniq -c", "who got the most connection attempts"],
-      ["Drill", "practice this on the fictional capture in ~/drills/read-a-packet-capture"]]}]}
+      ["Drill", "practice this on the fictional capture in ~/drills/read-a-packet-capture"]]}]},
+  {"slug": "http", "name": "http", "section": "1", "category": "skills", "summary": "HTTP, curl, cookies, headers, status codes and the browser dev tools Network tab",
+   "groups": [
+    {"title": "curl: requests", "rows": [
+      ["curl -i URL", "print response headers and body"],
+      ["curl -I URL", "headers only (sends HEAD)"],
+      ["curl -v URL", "full request and response, including the TLS handshake"],
+      ["curl -s URL | jq .", "quiet mode, pretty-print JSON"],
+      ["curl -X POST -d 'a=1&b=2' URL", "form-encoded POST"],
+      ["curl -X POST -H 'Content-Type: application/json' -d '{\"a\":1}' URL", "JSON POST"],
+      ["curl -H 'Authorization: Bearer $TOKEN' URL", "send a bearer token"],
+      ["curl -b 'sid=abc' URL  ·  curl -c jar.txt -b jar.txt URL", "send a cookie / keep a cookie jar across calls"],
+      ["curl -L URL", "follow redirects"],
+      ["curl -o out.bin URL  ·  curl -O URL", "save to a file / keep the remote file name"],
+      ["curl --max-time 10 --retry 2 URL", "bound the wait, retry on failure"],
+      ["curl --resolve shop.example:443:10.0.0.5 https://shop.example", "pin a hostname to an IP (test a backend directly)"]
+    ]},
+    {"title": "methods", "rows": [
+      ["GET", "read; safe and idempotent"],
+      ["POST", "create or submit; not idempotent"],
+      ["PUT", "replace the whole resource; idempotent"],
+      ["PATCH", "change part of a resource"],
+      ["DELETE", "remove; idempotent"],
+      ["OPTIONS", "what is allowed (CORS preflight)"],
+      ["HEAD", "GET without the body"]
+    ]},
+    {"title": "status codes", "rows": [
+      ["200 · 201 · 204", "OK · created · OK with no body"],
+      ["301 · 302 · 304", "permanent redirect · temporary redirect · not modified"],
+      ["400 · 401 · 403 · 404", "bad request · not authenticated · not allowed · not found"],
+      ["405 · 409 · 429", "wrong method · conflict · rate limited"],
+      ["500 · 502 · 503 · 504", "server error · bad upstream · unavailable · upstream timeout"]
+    ]},
+    {"title": "headers", "rows": [
+      ["Host · User-Agent · Accept · Referer", "who, what and from where the client says it is"],
+      ["Content-Type · Content-Length", "type and size of the body"],
+      ["Authorization · Cookie", "credentials and session state from the client"],
+      ["Set-Cookie: sid=..; Secure; HttpOnly; SameSite=Lax", "server sets a cookie; the flags limit where it travels and who can read it"],
+      ["Location", "target of a 3xx redirect"],
+      ["Strict-Transport-Security", "force HTTPS for this host"],
+      ["Content-Security-Policy", "limit where scripts and other content may load from"],
+      ["X-Content-Type-Options: nosniff · X-Frame-Options", "no MIME guessing · no framing by other sites"],
+      ["Access-Control-Allow-Origin", "CORS: which other origins may read the response"],
+      ["Server · X-Powered-By", "version leaks, remove them"]
+    ]},
+    {"title": "browser dev tools (F12)", "rows": [
+      ["Network tab", "every request with status, timing, headers, payload, response; tick Preserve log"],
+      ["Network > Fetch/XHR", "only the API calls"],
+      ["right-click request > Copy as cURL", "replay the exact call in a terminal"],
+      ["Application tab", "cookies and their flags, localStorage, sessionStorage"],
+      ["Console", "JS errors, mixed content, CSP and CORS blocks, and a prompt"],
+      ["Elements", "live DOM and CSS; see hidden form fields"],
+      ["Export HAR", "save the whole session as JSON (strip cookies and tokens before sharing)"]
+    ]},
+    {"title": "log hunting (combined format)", "rows": [
+      ["awk '{print $9}' access.log | sort | uniq -c | sort -rn", "count status codes"],
+      ["awk '$9==404{print $1}' access.log | sort | uniq -c | sort -rn | head", "IPs causing the most 404s (scanning)"],
+      ["grep -iE \"union|%27|<script|\\.\\./\" access.log", "injection, XSS and traversal tells"],
+      ["awk '$9==200 && $10>20000' access.log", "unusually large successful responses"]
+    ]}
+  ]},
+  {"slug": "rdbms", "name": "rdbms", "section": "1", "category": "skills", "summary": "SQL and relational database concepts: queries, joins, aggregates, keys, safety and the client commands",
+   "groups": [
+    {"title": "queries", "rows": [
+      ["SELECT col1, col2 FROM t WHERE x = 1 ORDER BY col1 DESC LIMIT 10;", "read rows, filter, sort, cap"],
+      ["SELECT DISTINCT col FROM t;", "unique values"],
+      ["WHERE a LIKE 'ab%' AND b IN (1,2) AND c IS NOT NULL", "pattern, list and NULL tests"],
+      ["INSERT INTO t (a,b) VALUES (1,'x');", "add a row"],
+      ["UPDATE t SET a = 2 WHERE id = 5;", "change rows (no WHERE = every row)"],
+      ["DELETE FROM t WHERE id = 5;", "remove rows (no WHERE = every row)"]
+    ]},
+    {"title": "joins & aggregates", "rows": [
+      ["FROM a JOIN b ON b.a_id = a.id", "INNER JOIN: only rows that match in both"],
+      ["FROM a LEFT JOIN b ON b.a_id = a.id WHERE b.id IS NULL", "rows in a with no partner in b (orphan check)"],
+      ["SELECT col, COUNT(*) FROM t GROUP BY col HAVING COUNT(*) > 3;", "count per group, keep big groups"],
+      ["SUM(x) · AVG(x) · MIN(x) · MAX(x)", "aggregate functions"],
+      ["WHERE id IN (SELECT a_id FROM b)", "subquery"]
+    ]},
+    {"title": "schema & keys", "rows": [
+      ["CREATE TABLE t (id INTEGER PRIMARY KEY, name TEXT NOT NULL, owner_id INTEGER REFERENCES u(id));", "table with primary key and foreign key"],
+      ["CREATE INDEX idx_t_name ON t(name);", "speed up lookups on name"],
+      ["PRIMARY KEY · FOREIGN KEY · UNIQUE · NOT NULL · CHECK", "constraints the database enforces for you"],
+      ["BEGIN; ... COMMIT; / ROLLBACK;", "group statements so they succeed or fail together"],
+      ["EXPLAIN SELECT ...", "show the query plan (did it use an index?)"]
+    ]},
+    {"title": "client commands", "rows": [
+      ["sqlite3 db.sqlite  ·  .tables  ·  .schema t  ·  .quit", "SQLite shell"],
+      ["mysql -u user -p -h host db  ·  SHOW TABLES;  ·  DESCRIBE t;  ·  SHOW GRANTS;", "MySQL/MariaDB"],
+      ["psql -U user -h host db  ·  \\dt  ·  \\d t  ·  \\du", "PostgreSQL"],
+      ["default ports: 3306 MySQL · 5432 PostgreSQL · 1433 SQL Server · 1521 Oracle · 27017 MongoDB", "keep these off the internet"]
+    ]},
+    {"title": "safe use (defense)", "rows": [
+      ["cursor.execute(\"... WHERE email = ?\", (email,))", "parameterized query: the only real fix for SQL injection"],
+      ["GRANT SELECT, INSERT, UPDATE ON shop.* TO 'app'@'10.0.0.%';", "least-privilege app account"],
+      ["store passwords with argon2id / bcrypt, never plaintext or fast hashes", "password storage"],
+      ["enable audit logging; alert on mass SELECT, schema changes, new admins", "detection"]
+    ]}
+  ]},
+  {"slug": "numbers", "name": "numbers", "section": "1", "category": "skills", "summary": "Binary, hex, decimal and octal: conversions on the command line, bit tricks, ASCII and common values",
+   "groups": [
+    {"title": "bash and printf", "rows": [
+      ["echo $((2#11001010))", "binary to decimal (202)"],
+      ["echo $((16#CA))", "hex to decimal"],
+      ["echo $((8#312))", "octal to decimal"],
+      ["printf '%d\\n' 0xCA", "hex to decimal with printf (for binary input use the 2# form above)"],
+      ["printf '%x\\n' 202", "decimal to hex (lowercase; %X for uppercase)"],
+      ["printf '%o\\n' 202", "decimal to octal"],
+      ["printf '%08d\\n' $(echo 'obase=2;202'|bc)", "decimal to zero-padded 8-bit binary"],
+      ["echo $((0xC0A8010A & 0xFFFFFF00))", "bitwise AND (mask) in bash; also | ^ ~ << >>"]
+    ]},
+    {"title": "bc", "rows": [
+      ["echo 'obase=2; 202' | bc", "decimal to binary"],
+      ["echo 'obase=16; 202' | bc", "decimal to hex"],
+      ["echo 'ibase=2; 11001010' | bc", "binary to decimal"],
+      ["echo 'ibase=16; CA' | bc", "hex to decimal (hex digits must be uppercase in bc)"],
+      ["echo 'obase=2; ibase=16; CA' | bc", "hex to binary in one go: obase is set first, so it is read in base 10"]
+    ]},
+    {"title": "python3", "rows": [
+      ["bin(202) / hex(202) / oct(202)", "decimal to '0b11001010' / '0xca' / '0o312'"],
+      ["int('11001010', 2)", "binary string to int (use 16 for hex, 8 for octal, 0 to honor a 0x prefix)"],
+      ["format(202, '08b')", "zero-padded 8-bit binary"],
+      ["format(202, '02x')", "two-digit hex"],
+      ["bytes.fromhex('48656c6c6f')", "hex string to bytes (b'Hello')"],
+      ["'Hello'.encode().hex()", "text to hex"],
+      ["ord('A') / chr(65)", "character to number and back"],
+      ["x & 0xFF, x | 0x80, x ^ 0x41, ~x & 0xFF", "AND, OR, XOR, 8-bit NOT"],
+      ["x << 4, x >> 1", "shift left (multiply by 16), shift right (divide by 2)"],
+      ["int.from_bytes(b'\\x00\\x10\\x40\\x00','little')", "bytes to int with explicit endianness"],
+      ["import ipaddress; int(ipaddress.ip_address('192.168.1.10'))", "IPv4 to a single 32-bit integer"]
+    ]},
+    {"title": "dumps and encodings", "rows": [
+      ["xxd file", "hex dump with offsets and ASCII view"],
+      ["xxd -p file", "plain hex, no formatting"],
+      ["xxd -r -p hex.txt", "plain hex back to bytes"],
+      ["xxd -b file", "bytes as binary"],
+      ["echo -n 'Hi!' | xxd", "hex of a string (-n stops echo adding a newline 0a)"],
+      ["od -An -tx1 file", "hex bytes with od"],
+      ["base64 / base64 -d", "encode and decode base64 (3 bytes become 4 characters)"],
+      ["python3 -c \"import urllib.parse as u;print(u.quote('a b<'))\"", "URL encoding: space is %20, < is %3C"]
+    ]},
+    {"title": "powers of two", "rows": [
+      ["2^0 .. 2^7", "1 2 4 8 16 32 64 128 (one byte)"],
+      ["2^8 / 2^10 / 2^16", "256 / 1,024 (KiB) / 65,536 (ports)"],
+      ["2^20 / 2^30 / 2^32", "1,048,576 (MiB) / 1,073,741,824 (GiB) / 4,294,967,296 (IPv4 space)"],
+      ["mask octets", "128 192 224 240 248 252 254 255 (1 to 8 one-bits)"],
+      ["/24 /16 /8", "255.255.255.0 / 255.255.0.0 / 255.0.0.0"],
+      ["hosts in a /n", "2^(32-n) addresses, minus 2 usable"]
+    ]},
+    {"title": "ascii and magic numbers", "rows": [
+      ["0x30-0x39", "'0'-'9'"],
+      ["0x41-0x5A / 0x61-0x7A", "'A'-'Z' / 'a'-'z' (differ by 0x20)"],
+      ["0x20 / 0x0A / 0x0D / 0x00", "space / newline LF / carriage return CR / NUL"],
+      ["4D 5A", "'MZ': Windows PE executable (.exe, .dll)"],
+      ["7F 45 4C 46", "ELF: Linux executable"],
+      ["50 4B 03 04", "'PK': zip, docx, xlsx, jar"],
+      ["89 50 4E 47", "PNG image"],
+      ["FF D8 FF", "JPEG image"],
+      ["25 50 44 46", "'%PDF'"],
+      ["1F 8B", "gzip"]
+    ]}
+  ]}
 ]

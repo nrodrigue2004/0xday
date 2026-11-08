@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>binary, hex and number systems :: ~/basics :: 0xDay</title>
+<meta name="description" content="Fundamentals, binary, hex and number systems: Binary, decimal, hex and octal both ways, powers of two, IP masks, ASCII, bitwise ops, two&#x27;s complement. Live converter and drill in the arcade. Lab: decode a hex capture.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">basics --chapter number-systems</p>
+<h1>~/basics/number-systems</h1>
+<p>Binary, decimal, hex and octal, converting between them both ways, plus the bit tricks behind IP masks, ASCII, bitwise operators and two's complement. Practice here, then run the drill in the arcade.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="number-systems">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Computers store everything as <strong>bits</strong>: a bit is a 0 or a 1. A <strong>byte</strong> is 8 bits, so one byte holds 256 values (0-255). A <strong>number system</strong> (a <strong>base</strong>) is just a way to write a number using a fixed set of digits. Same quantity, different spelling.</p>
+<div class="tbl"><table><thead><tr><th>Name</th><th>Base</th><th>Digits</th><th>Example for 202</th></tr></thead><tbody><tr><td>Binary</td><td>2</td><td>0 1</td><td><code>11001010</code></td></tr><tr><td>Octal</td><td>8</td><td>0-7</td><td><code>312</code></td></tr><tr><td>Decimal</td><td>10</td><td>0-9</td><td><code>202</code></td></tr><tr><td>Hexadecimal</td><td>16</td><td>0-9 A-F</td><td><code>CA</code> (written <code>0xCA</code>)</td></tr></tbody></table></div>
+<p class="callout">Try it live: the converter and the drill are on <a href="../arcade/bits.html">arcade/bits</a>. Type a number in any box and the others update.</p>
+<h4>Place value is the whole trick</h4>
+<p>In decimal each place is worth 10 times the one to its right: 1, 10, 100, 1000. In binary each place is worth <strong>2</strong> times the one to its right. Memorize the powers of two, because you will use them forever:</p>
+<div class="tbl"><table><thead><tr><th>2^7</th><th>2^6</th><th>2^5</th><th>2^4</th><th>2^3</th><th>2^2</th><th>2^1</th><th>2^0</th></tr></thead><tbody><tr><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td></tr></tbody></table></div>
+<p>Bigger ones worth knowing: 2^8 = 256, 2^10 = 1024 (1 KiB), 2^16 = 65,536 (the number of ports), 2^20 = 1,048,576 (1 MiB), 2^32 = 4,294,967,296 (the number of IPv4 addresses).</p>
+<h4>Binary to decimal: add up the places that are 1</h4>
+<p>Write the value under the place-value row and add the columns with a 1.</p>
+<pre class="ex"><code><span class="o">128 64 32 16  8  4  2  1</span>
+<span class="o">  1   1   0   0  1  0  1  0</span></code></pre>
+<p>128 + 64 + 8 + 2 = <strong>202</strong>. Another one: <code>00101101</code> = 32 + 8 + 4 + 1 = <strong>45</strong>.</p>
+<h4>Decimal to binary: subtract the biggest place that fits</h4>
+<p>Convert 77. Walk down the row, and at each place ask "does it fit?" If yes write 1 and subtract, otherwise write 0.</p>
+<ul><li>128 fits in 77? No: <strong>0</strong></li><li>64 fits? Yes: <strong>1</strong>, 77 - 64 = 13</li><li>32? No: <strong>0</strong>. 16? No: <strong>0</strong></li><li>8? Yes: <strong>1</strong>, 13 - 8 = 5</li><li>4? Yes: <strong>1</strong>, 5 - 4 = 1</li><li>2? No: <strong>0</strong>. 1? Yes: <strong>1</strong></li></ul>
+<p>Result: <code>01001101</code>. Check: 64 + 8 + 4 + 1 = 77.</p>
+<h4>Hex in one paragraph</h4>
+<p>Hex has 16 digits: 0-9 then A=10, B=11, C=12, D=13, E=14, F=15. One hex digit is exactly <strong>4 bits</strong> (a <strong>nibble</strong>), so a byte is always two hex digits. That is why hex is everywhere: MAC addresses, colors (<code>#FF8800</code>), memory dumps, hashes, IPv6.</p>
+<div class="tbl"><table><thead><tr><th>Dec</th><th>Bin</th><th>Hex</th><th></th><th>Dec</th><th>Bin</th><th>Hex</th></tr></thead><tbody><tr><td>0</td><td>0000</td><td>0</td><td></td><td>8</td><td>1000</td><td>8</td></tr><tr><td>1</td><td>0001</td><td>1</td><td></td><td>9</td><td>1001</td><td>9</td></tr><tr><td>2</td><td>0010</td><td>2</td><td></td><td>10</td><td>1010</td><td>A</td></tr><tr><td>3</td><td>0011</td><td>3</td><td></td><td>11</td><td>1011</td><td>B</td></tr><tr><td>4</td><td>0100</td><td>4</td><td></td><td>12</td><td>1100</td><td>C</td></tr><tr><td>5</td><td>0101</td><td>5</td><td></td><td>13</td><td>1101</td><td>D</td></tr><tr><td>6</td><td>0110</td><td>6</td><td></td><td>14</td><td>1110</td><td>E</td></tr><tr><td>7</td><td>0111</td><td>7</td><td></td><td>15</td><td>1111</td><td>F</td></tr></tbody></table></div>
+<h4>Binary to hex: group by four</h4>
+<p>Split the bits into groups of four from the right and swap each group for its hex digit. <code>1100 1010</code> is <code>C</code> and <code>A</code>, so <strong>0xCA</strong>. Going back is the same table in reverse: <code>0x3F</code> is <code>0011 1111</code>.</p>
+<h4>Bits and bytes</h4>
+<ul><li>1 byte = 8 bits. An IPv4 address is 4 bytes (32 bits). A MAC address is 6 bytes (48 bits). An IPv6 address is 16 bytes (128 bits).</li><li><strong>Network speeds</strong> are in bits (1 Gbps = 1 gigabit per second). <strong>File sizes</strong> are in bytes. Divide by 8 to compare: 1 Gbps moves at most about 125 MB per second.</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Hex to decimal and back</h4>
+<p>Hex place values are powers of 16: 1, 16, 256, 4096. So <code>0x2F</code> = 2 x 16 + 15 = <strong>47</strong>. And <code>0xC0</code> = 12 x 16 = <strong>192</strong> (which is why 192 is the first octet of 192.168.x.x).</p>
+<p>Decimal to hex: divide by 16. The quotient is the first digit, the remainder is the second. 202 / 16 = 12 remainder 10, so C and A: <strong>0xCA</strong>. For anything over 255, keep dividing the quotient by 16 and read the remainders from the last one back to the first.</p>
+<p>Fast route for a byte: convert to binary first, then group in fours. 202 = <code>1100 1010</code> = <code>CA</code>. Most people find that more reliable than dividing.</p>
+<h4>Octal, because Linux permissions</h4>
+<p>Octal digits are 3 bits each. That is the whole reason <code>chmod 754</code> works: each digit is a <code>rwx</code> triple.</p>
+<div class="tbl"><table><thead><tr><th>Digit</th><th>Bits</th><th>Permission</th></tr></thead><tbody><tr><td>7</td><td>111</td><td>rwx</td></tr><tr><td>6</td><td>110</td><td>rw-</td></tr><tr><td>5</td><td>101</td><td>r-x</td></tr><tr><td>4</td><td>100</td><td>r--</td></tr><tr><td>0</td><td>000</td><td>---</td></tr></tbody></table></div>
+<p>So <code>754</code> = <code>rwx r-x r--</code>. <code>chmod 600</code> on a private key = <code>rw-</code> for the owner and nothing for anyone else. Convert a decimal by dividing by 8, same as the hex method but with 8.</p>
+<h4>The doubling shortcut for binary to decimal</h4>
+<p>Read the bits left to right. Start at 0. For each bit, double the running total and add the bit. For <code>1101</code>: 0 -&gt; 1 -&gt; 3 -&gt; 6 -&gt; 13. It needs no table and works on any length.</p>
+<h4>Binary to dotted decimal (IPv4)</h4>
+<p>An IPv4 address is 32 bits written as 4 bytes in decimal, separated by dots. Convert each byte on its own.</p>
+<pre class="ex"><code><span class="o">11000000.10101000.00000001.00001010</span>
+<span class="o">   192  .  168   .   1    .   10</span></code></pre>
+<p><code>11000000</code> = 128 + 64 = 192. <code>10101000</code> = 128 + 32 + 8 = 168. So this is <strong>192.168.1.10</strong>.</p>
+<h4>Subnet masks are runs of ones</h4>
+<p>A mask is some 1s followed by all 0s. Only nine byte values can appear in a mask octet. Memorize the pattern:</p>
+<div class="tbl"><table><thead><tr><th>Ones in the octet</th><th>Binary</th><th>Decimal</th></tr></thead><tbody><tr><td>0</td><td>00000000</td><td>0</td></tr><tr><td>1</td><td>10000000</td><td>128</td></tr><tr><td>2</td><td>11000000</td><td>192</td></tr><tr><td>3</td><td>11100000</td><td>224</td></tr><tr><td>4</td><td>11110000</td><td>240</td></tr><tr><td>5</td><td>11111000</td><td>248</td></tr><tr><td>6</td><td>11111100</td><td>252</td></tr><tr><td>7</td><td>11111110</td><td>254</td></tr><tr><td>8</td><td>11111111</td><td>255</td></tr></tbody></table></div>
+<p><code>/22</code> is 22 ones: three full octets would be 24, so it is 8 + 8 + 6 = <code>255.255.252.0</code>. The <strong>host bits</strong> are the zeros, and a subnet holds 2^(host bits) addresses. <code>/22</code> has 10 host bits, so 1024 addresses and 1022 usable. Practice that in the <a href="../arcade/subnet.html">subnet drill</a> and in the <a href="../learn/networking-tcp-ip-dhcp-nat-subnets.html">subnetting guide</a>.</p>
+<h4>ASCII: letters are numbers</h4>
+<p><strong>ASCII</strong> maps characters to numbers 0-127, one byte each. The ones worth knowing:</p>
+<div class="tbl"><table><thead><tr><th>Char</th><th>Dec</th><th>Hex</th><th>Binary</th></tr></thead><tbody><tr><td><code>0</code></td><td>48</td><td>0x30</td><td>00110000</td></tr><tr><td><code>A</code></td><td>65</td><td>0x41</td><td>01000001</td></tr><tr><td><code>a</code></td><td>97</td><td>0x61</td><td>01100001</td></tr><tr><td>space</td><td>32</td><td>0x20</td><td>00100000</td></tr><tr><td>newline</td><td>10</td><td>0x0A</td><td>00001010</td></tr></tbody></table></div>
+<p>Digits start at 0x30, so <code>&#x27;7&#x27;</code> is 0x37. Upper and lower case differ by exactly <strong>32</strong> (one bit, 0x20): <code>A</code> is 0x41 and <code>a</code> is 0x61. That is why a hex dump of <code>Hello</code> reads <code>48 65 6c 6c 6f</code>. Learn to spot readable text in a dump: bytes <code>20</code> to <code>7E</code> are printable.</p>
+<h4>Bitwise operators</h4>
+<p>These work on each bit position independently.</p>
+<div class="tbl"><table><thead><tr><th>Op</th><th>Rule</th><th>1100 vs 1010</th></tr></thead><tbody><tr><td>AND</td><td>1 only if both are 1</td><td><code>1000</code></td></tr><tr><td>OR</td><td>1 if either is 1</td><td><code>1110</code></td></tr><tr><td>XOR</td><td>1 if they differ</td><td><code>0110</code></td></tr><tr><td>NOT</td><td>flip every bit</td><td>NOT <code>1100</code> = <code>0011</code></td></tr></tbody></table></div>
+<p>Uses you will meet:</p>
+<ul><li><strong>AND with a mask</strong> finds the network: <code>192.168.1.77 AND 255.255.255.0 = 192.168.1.0</code>. This is how a router decides if a host is local.</li><li><strong>OR</strong> sets bits (turn on a flag). <strong>AND with the inverse</strong> clears them.</li><li><strong>XOR</strong> flips bits and is its own inverse: <code>x XOR k XOR k = x</code>. Malware and simple ciphers use a single-byte XOR key for exactly this reason, and it is trivial to brute force (only 256 keys).</li><li>Shifts: <code>x &lt;&lt; 1</code> doubles a number, <code>x &gt;&gt; 1</code> halves it. <code>1 &lt;&lt; 4</code> is 16.</li></ul>
+<h4>Worked example: network, broadcast, hosts</h4>
+<p><code>172.16.37.200/21</code>. The mask is 21 ones = <code>255.255.248.0</code>. Only the third octet matters: 37 = <code>00100101</code>, mask 248 = <code>11111000</code>, AND = <code>00100000</code> = 32. Network <strong>172.16.32.0</strong>. The host bits in that octet are the last 3, so the block runs 32 to 39 and the broadcast is <strong>172.16.39.255</strong>.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Signed numbers and two's complement</h4>
+<p>A byte can hold 0-255 (<strong>unsigned</strong>) or -128 to 127 (<strong>signed</strong>). Computers store negatives in <strong>two's complement</strong>: the top bit counts as -128 instead of +128.</p>
+<ul><li><code>00000101</code> = 5</li><li><code>11111011</code> = -128 + 64 + 32 + 16 + 8 + 2 + 1 = <strong>-5</strong></li></ul>
+<p>To negate: <strong>flip all the bits, then add 1</strong>. 5 = <code>00000101</code>, flipped <code>11111010</code>, plus 1 = <code>11111011</code> = -5. Do it again and you are back at 5.</p>
+<div class="tbl"><table><thead><tr><th>Bits</th><th>Unsigned</th><th>Signed</th></tr></thead><tbody><tr><td>00000000</td><td>0</td><td>0</td></tr><tr><td>01111111</td><td>127</td><td>127</td></tr><tr><td>10000000</td><td>128</td><td>-128</td></tr><tr><td>11111111</td><td>255</td><td>-1</td></tr></tbody></table></div>
+<p>Range for n bits: unsigned 0 to 2^n - 1, signed -2^(n-1) to 2^(n-1) - 1. For 16 bits that is 0-65535 or -32768 to 32767.</p>
+<h4>Why this matters for security: overflow</h4>
+<p>Add 1 to the largest value and it wraps. A signed byte at 127 plus 1 becomes -128. An unsigned byte at 255 plus 1 becomes 0. <strong>Integer overflow</strong> bugs happen when code multiplies or adds a length and the result wraps small, so a buffer is allocated too short and a copy then overruns it. Also a <strong>signed/unsigned mismatch</strong>: a length of -1 compares as "less than the max" as signed, then is treated as 4 billion once converted to unsigned. This is classic material for the binary exploitation guide.</p>
+<h4>Endianness</h4>
+<p>A multi-byte value has to be laid out in memory in some byte order. <strong>Big-endian</strong> puts the most significant byte first (how network protocols do it, "network byte order"). <strong>Little-endian</strong> puts the least significant byte first (x86 and most ARM). The 32-bit value <code>0x0A0B0C0D</code> in memory:</p>
+<pre class="ex"><code><span class="o">big-endian:    0A 0B 0C 0D</span>
+<span class="o">little-endian: 0D 0C 0B 0A</span></code></pre>
+<p>In a debugger or hex dump on x86, an address like 0x00401000 appears as <code>00 10 40 00</code>. Reading it backwards is the first thing every reverse engineer learns.</p>
+<h4>Reading a hex dump</h4>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">echo -n &quot;Hi!&quot; | xxd</span><button class="run" type="button" data-cmd="echo -n &quot;Hi!&quot; | xxd" title="run in the sandbox">▶ run</button>
+<span class="o">00000000: 4869 21                                  Hi!</span></code></pre>
+<p>Left: offset in hex. Middle: bytes in hex, pairs grouped. Right: ASCII view with <code>.</code> for non-printable. A file's first bytes are its <strong>magic number</strong>: <code>4D 5A</code> ("MZ") is a Windows executable, <code>7F 45 4C 46</code> ("\x7fELF") is Linux, <code>50 4B</code> ("PK") is a zip or Office file, <code>89 50 4E 47</code> is PNG, <code>25 50 44 46</code> ("%PDF") is a PDF. Forensics uses these to spot a renamed file.</p>
+<h4>Related encodings</h4>
+<ul><li><strong>Base64</strong> packs 3 bytes (24 bits) into 4 characters of 6 bits each, using A-Z a-z 0-9 + /. It is an <strong>encoding</strong> for text-safe transport, not encryption. Output length is always a multiple of 4 (padding with <code>=</code>).</li><li><strong>Hex encoding</strong> is 2 characters per byte, so it doubles the size.</li><li><strong>URL encoding</strong> writes unsafe bytes as <code>%</code> plus hex: space is <code>%20</code>, <code>&lt;</code> is <code>%3C</code>, <code>&#x27;</code> is <code>%27</code>. You will see this in every web log attack.</li><li><strong>IPv6</strong> is 128 bits written as 8 groups of 4 hex digits. Leading zeros can drop and one run of zero groups can become <code>::</code>, so <code>2001:0db8:0000:0000:0000:0000:0000:0001</code> is <code>2001:db8::1</code>.</li><li><strong>MAC addresses</strong> are 48 bits, 6 hex pairs. The first 3 bytes are the vendor (OUI).</li></ul>
+<h4>Commands that do the conversion</h4>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">echo $((2#11001010))</span><button class="run" type="button" data-cmd="echo $((2#11001010))" title="run in the sandbox">▶ run</button>
+<span class="o">202</span>
+<span class="ps">$</span> <span class="c">echo $((16#CA))</span><button class="run" type="button" data-cmd="echo $((16#CA))" title="run in the sandbox">▶ run</button>
+<span class="o">202</span>
+<span class="ps">$</span> <span class="c">printf &#x27;%d\n&#x27; 0xCA</span><button class="run" type="button" data-cmd="printf &#x27;%d\n&#x27; 0xCA" title="run in the sandbox">▶ run</button>
+<span class="o">202</span>
+<span class="ps">$</span> <span class="c">printf &#x27;%x\n&#x27; 202</span><button class="run" type="button" data-cmd="printf &#x27;%x\n&#x27; 202" title="run in the sandbox">▶ run</button>
+<span class="o">ca</span>
+<span class="ps">$</span> <span class="c">printf &#x27;%o\n&#x27; 202</span><button class="run" type="button" data-cmd="printf &#x27;%o\n&#x27; 202" title="run in the sandbox">▶ run</button>
+<span class="o">312</span>
+<span class="ps">$</span> <span class="c">echo &quot;obase=2; 202&quot; | bc</span><button class="run" type="button" data-cmd="echo &quot;obase=2; 202&quot; | bc" title="run in the sandbox">▶ run</button>
+<span class="o">11001010</span>
+<span class="ps">$</span> <span class="c">echo &quot;ibase=2; 11001010&quot; | bc</span><button class="run" type="button" data-cmd="echo &quot;ibase=2; 11001010&quot; | bc" title="run in the sandbox">▶ run</button>
+<span class="o">202</span>
+<span class="ps">$</span> <span class="c">python3 -c &#x27;print(bin(202), hex(202), oct(202))&#x27;</span><button class="run" type="button" data-cmd="python3 -c &#x27;print(bin(202), hex(202), oct(202))&#x27;" title="run in the sandbox">▶ run</button>
+<span class="o">0b11001010 0xca 0o312</span>
+<span class="ps">$</span> <span class="c">python3 -c &#x27;print(int(&quot;11001010&quot;, 2), int(&quot;CA&quot;, 16))&#x27;</span><button class="run" type="button" data-cmd="python3 -c &#x27;print(int(&quot;11001010&quot;, 2), int(&quot;CA&quot;, 16))&#x27;" title="run in the sandbox">▶ run</button>
+<span class="o">202 202</span></code></pre>
+<p>Careful with <code>bc</code>: set <code>obase</code> first when going out, and with <code>ibase</code> set, the next number you type is read in that base (so to change <code>ibase</code> back to 10 you must type <code>ibase=A</code>).</p>
+<p>Byte tricks in Python: <code>bytes.fromhex(&quot;48656c6c6f&quot;)</code> gives <code>b&#x27;Hello&#x27;</code>, <code>&quot;Hello&quot;.encode().hex()</code> gives <code>48656c6c6f</code>, <code>ord(&quot;A&quot;)</code> is 65, <code>chr(65)</code> is <code>A</code>, <code>0xC0A8010A &amp; 0xFFFFFF00</code> is the network, <code>x ^ 0x41</code> is a one-byte XOR, <code>~x &amp; 0xFF</code> is a byte NOT.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><strong>Scenario (fictional, training only):</strong> an analyst on your team left two notes. <code>~/notes/mask.txt</code> has a subnet mask in binary. <code>~/notes/capture.hex</code> has a short plaintext message pulled from a packet, written as hex bytes. The message ends with a code word you need.</p>
+<p>Decode the hex into text with <code>xxd -r -p ~/notes/capture.hex</code>, read the message, and submit the <strong>code word</strong> it names.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="osi-and-tcpip.html">&lt; OSI and TCP/IP</a><a href="ports-and-protocols.html">ports and protocols &gt;</a></nav><p><a href="../basics.html">cd ~/basics</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "number-systems", "title": "binary, hex and number systems", "user": "analyst", "host": "analyst01", "brief": "<strong>Scenario (fictional, training only):<\/strong> an analyst on your team left two notes. <code>~/notes/mask.txt<\/code> has a subnet mask in binary. <code>~/notes/capture.hex<\/code> has a short plaintext message pulled from a packet, written as hex bytes. The message ends with a code word you need.\n\nDecode the hex into text with <code>xxd -r -p ~/notes/capture.hex<\/code>, read the message, and submit the <strong>code word<\/strong> it names.", "hints": ["<code>xxd -r -p<\/code> turns plain hex pairs back into bytes, and the sandbox prints them as text. Try <code>xxd -r -p ~/notes/capture.hex<\/code>.", "Hex <code>41<\/code> is <code>A<\/code>, <code>62<\/code> is <code>b<\/code>. The code word is the last word of the decoded message. For the mask note, count the ones: 22 ones is <code>255.255.252.0<\/code>."], "answers": ["0390e2e3ed567406da77cbb28858352c77b88edd2e40e12989aa4005a525e84a"], "solution": "PGNvZGU+eHhkIC1yIC1wIH4vbm90ZXMvY2FwdHVyZS5oZXg8L2NvZGU+IHByaW50cyA8Y29kZT5jb2RlIHdvcmQ6IGIxdHcxc2U8L2NvZGU+LiBFYWNoIHBhaXIgb2YgaGV4IGRpZ2l0cyBpcyBvbmUgQVNDSUkgYnl0ZSAoPGNvZGU+NjM8L2NvZGU+IGlzIDxjb2RlPmM8L2NvZGU+LCA8Y29kZT42ZjwvY29kZT4gaXMgPGNvZGU+bzwvY29kZT4sIGFuZCBzbyBvbiksIHdoaWNoIGlzIHdoeSB5b3UgY2FuIHJlYWQgYSBoZXggZHVtcCBzdHJhaWdodCBvZmYgdGhlIHJpZ2h0LWhhbmQgY29sdW1uLiBUaGUgbWFzayBub3RlLCAxMTExMTExMS4xMTExMTExMS4xMTExMTEwMC4wMDAwMDAwMCwgaGFzIDggKyA4ICsgNiA9IDIyIG9uZXMsIHNvIGl0IGlzIDxjb2RlPi8yMjwvY29kZT4gPSA8Y29kZT4yNTUuMjU1LjI1Mi4wPC9jb2RlPiwgd2l0aCAxMCBob3N0IGJpdHMgKDEwMjQgYWRkcmVzc2VzKS4K", "fs": {"/home/analyst/notes/mask.txt": "mask (binary): 11111111.11111111.11111100.00000000\nwhat is it as dotted decimal and as a prefix length?\n", "/home/analyst/notes/capture.hex": "636f646520776f72643a2062317477317365\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

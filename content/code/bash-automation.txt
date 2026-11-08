@@ -1,0 +1,215 @@
+tagline: One-liners, loops and small scripts that turn a pile of logs into an answer. Practice with the grep, sort and uniq pipeline every analyst ends up using.
+sheet: bash-scripting
+sheet_summary: Bash scripting commands and terms
+:: simple
+The shell lets you chain small tools: each does one job and passes its output to the next with a pipe (`|`). Most log questions are the same four stages:
+
+- **Select** the rows you care about: `grep`
+- **Extract** the field: `awk '{print $1}'` or `cut`
+- **Count** how often each value appears: `sort | uniq -c`
+- **Rank** them: `sort -rn | head`
+
+```
+$ cut -d' ' -f1 logs/access.log | sort | uniq -c | sort -rn | head -3
+$ grep " 404 " logs/access.log | wc -l
+```
+
+> `uniq` only collapses neighbours, so it needs `sort` first. Forgetting that is the most common wrong answer from this pipeline.
+
+### Reading it aloud
+"Take column 1 of the log, sort it, count the duplicates, sort by count high to low, show the top 3." If you can say it, you can build it one stage at a time. Run the first stage alone, check the output, then add the next.
+:: mid
+### Fields and filters
+```
+$ awk '{print $1, $7}' logs/access.log | head -3
+$ awk '$9 == 404 {print $1}' logs/access.log | sort | uniq -c | sort -rn | head
+$ grep -c "curl/" logs/access.log
+```
+
+In a combined-format web log, `$1` is the client IP, `$7` the path, `$9` the HTTP status. `grep -c` counts matching lines, `-v` inverts a match, `-E` allows `a|b` alternatives.
+
+### Distinct versus total
+Counting requests per IP is one question. Counting **different paths** per IP is another, and it is the one that finds scanners: a person browses a few pages many times, a scanner hits many pages once. `sort -u` removes duplicate lines, so unique (ip, path) pairs come first:
+
+```
+$ awk '{print $1, $7}' logs/access.log | sort -u | cut -d' ' -f1 | sort | uniq -c | sort -rn | head -3
+```
+
+### Loops and scripts
+```
+for f in logs/*.log; do
+  echo "$f: $(grep -c ' 404 ' "$f") not-found"
+done
+```
+
+Put it in a file with `#!/usr/bin/env bash` on the first line, `chmod +x`, run with `./script.sh arg`. `$1` is the first argument, `$#` the count, `$(...)` captures output.
+:: complex
+### Write scripts that fail loudly
+Start every non-trivial script with:
+
+```code
+#!/usr/bin/env bash
+set -euo pipefail
+```
+
+- `-e` stops at the first failing command instead of ploughing on
+- `-u` makes an unset variable an error (so `rm -rf "$DIR/"` with an empty `DIR` does not become `rm -rf /`)
+- `-o pipefail` makes a pipeline fail if any stage failed, not just the last
+
+Other habits that matter: **quote your variables** (`"$f"`), check arguments (`[ $# -eq 1 ] || { echo "usage: $0 <log>"; exit 2; }`), use `mktemp` instead of fixed `/tmp` names, and `trap 'rm -f "$tmp"' EXIT` to clean up.
+
+### Automate it
+- **cron:** `0 2 * * * /home/ops/bin/scan_report.sh /var/log/nginx/access.log > /var/log/scan_report.txt 2>&1` runs it at 02:00 and keeps the output. Cron has a tiny `PATH`, so use absolute paths.
+- **systemd timers** are the modern alternative: they log to the journal and can retry
+- **Exit codes:** `exit 1` when the report finds something, so a wrapper can alert
+- **shellcheck** catches quoting and portability mistakes before they reach production
+- **Know when to stop:** past about 50 lines, or once you need a real data structure, move to Python (see the Python chapter)
+
+### Cost of a pipeline
+`sort` is O(n log n), so `sort | uniq -c` is dominated by the sort, while a one-pass counter in a dictionary (what Python's `Counter` does) is O(n). For a few hundred megabytes of log either is fine. More reps in the [Bash dojo](../dojo/bash.html), and see [Big-O](../bigo.html) for the cost model.
+:: ref
+### log pipelines
+cut -d' ' -f1 file | first space-separated column
+awk '{print $1, $7}' file | pick columns (IP and path in a web log)
+awk '$9 == 404' file | filter on a column value
+grep -c PATTERN file | count matching lines
+grep -v PATTERN file | everything that does not match
+sort | uniq -c | sort -rn | head | frequency table, top N
+sort -u | unique lines only
+wc -l file | count lines
+while read -r line; do ...; done < file | loop over lines safely
+for f in logs/*.log; do ...; done | loop over files
+set -euo pipefail | stop on errors, unset variables, failed pipes
+trap 'rm -f "$tmp"' EXIT | clean up however the script ends
+crontab -e | edit scheduled jobs
+shellcheck script.sh | lint a script
+:: lab
+host: web01
+user: analyst
+cwd: /home/analyst
+:: brief
+`~/logs/access.log` has a few hours of web traffic. One client is a **scanner**: instead of browsing, it requested a long list of different paths (admin pages, `.env`, `.git/config`, backups).
+
+Another client is noisy for a different reason, and has the most total requests of the bad ones. Do not report that one. Find the IP that requested the **most distinct paths**.
+
+Submit the **IP address**.
+:: answer
+203.0.113.77
+:: hint
+Column 1 is the IP and column 7 is the path. `awk '{print $1, $7}' logs/access.log` shows both.
+:: hint
+Remove repeated (ip, path) pairs with `sort -u` before counting, so hammering one path many times stops mattering.
+:: hint
+`awk '{print $1, $7}' logs/access.log | sort -u | cut -d' ' -f1 | sort | uniq -c | sort -rn | head -3`
+:: solution
+Unique pairs first, then count per IP: the top row is **203.0.113.77** with 18 distinct paths, all `curl/8.4.0`. The decoy, 198.51.100.23, sent 30 requests but only to `/login` (a credential-stuffing pattern, a different alert), so counting plain requests would have pointed at the wrong client.
+:: verify
+awk '{print $1, $7}' logs/access.log | sort -u | cut -d' ' -f1 | sort | uniq -c | sort -rn | head -1
+:: file /home/analyst/logs/access.log
+192.0.2.51 - - [07/Nov/2026:03:00:00 +0000] "GET /contact HTTP/1.1" 304 3633 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:00:01 +0000] "GET /robots.txt HTTP/1.1" 404 2416 "-" "curl/8.4.0"
+10.0.10.22 - - [07/Nov/2026:03:00:02 +0000] "GET /static/app.js HTTP/1.1" 304 543 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:00:03 +0000] "GET /sitemap.xml HTTP/1.1" 404 2324 "-" "curl/8.4.0"
+10.0.10.15 - - [07/Nov/2026:03:00:04 +0000] "GET /blog HTTP/1.1" 200 3272 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:00:05 +0000] "GET /phpmyadmin/ HTTP/1.1" 404 2307 "-" "curl/8.4.0"
+203.0.113.77 - - [07/Nov/2026:03:00:06 +0000] "GET /console HTTP/1.1" 404 322 "-" "curl/8.4.0"
+10.0.10.15 - - [07/Nov/2026:03:00:07 +0000] "GET /index.html HTTP/1.1" 200 1470 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:00:08 +0000] "GET /.aws/credentials HTTP/1.1" 404 2662 "-" "curl/8.4.0"
+198.51.100.23 - - [07/Nov/2026:03:00:09 +0000] "GET /login HTTP/1.1" 401 559 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:00:10 +0000] "GET /login HTTP/1.1" 401 2169 "-" "python-requests/2.31"
+203.0.113.77 - - [07/Nov/2026:03:00:11 +0000] "GET /cgi-bin/test.cgi HTTP/1.1" 404 291 "-" "curl/8.4.0"
+198.51.100.23 - - [07/Nov/2026:03:00:12 +0000] "GET /login HTTP/1.1" 401 1142 "-" "python-requests/2.31"
+203.0.113.77 - - [07/Nov/2026:03:00:13 +0000] "GET /admin HTTP/1.1" 404 3060 "-" "curl/8.4.0"
+198.51.100.23 - - [07/Nov/2026:03:00:14 +0000] "GET /login HTTP/1.1" 401 662 "-" "python-requests/2.31"
+198.51.100.88 - - [07/Nov/2026:03:00:15 +0000] "GET / HTTP/1.1" 200 2236 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:00:16 +0000] "GET /backup.zip HTTP/1.1" 404 3394 "-" "curl/8.4.0"
+10.0.10.15 - - [07/Nov/2026:03:00:17 +0000] "GET /login HTTP/1.1" 200 2717 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:00:18 +0000] "GET /.env HTTP/1.1" 404 2903 "-" "curl/8.4.0"
+10.0.10.22 - - [07/Nov/2026:03:00:19 +0000] "GET / HTTP/1.1" 200 3970 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:00:20 +0000] "GET /blog HTTP/1.1" 200 2191 "-" "Mozilla/5.0"
+10.0.10.15 - - [07/Nov/2026:03:00:21 +0000] "GET /pricing HTTP/1.1" 304 1247 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:22 +0000] "GET /login HTTP/1.1" 401 3871 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:00:23 +0000] "GET /login HTTP/1.1" 401 246 "-" "python-requests/2.31"
+10.0.10.22 - - [07/Nov/2026:03:00:24 +0000] "GET /blog HTTP/1.1" 200 1707 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:25 +0000] "GET /login HTTP/1.1" 401 1433 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:00:26 +0000] "GET /login HTTP/1.1" 401 786 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:00:27 +0000] "GET /login HTTP/1.1" 401 2977 "-" "python-requests/2.31"
+10.0.10.15 - - [07/Nov/2026:03:00:28 +0000] "GET /pricing HTTP/1.1" 200 2705 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:29 +0000] "GET /login HTTP/1.1" 401 1029 "-" "python-requests/2.31"
+10.0.10.22 - - [07/Nov/2026:03:00:30 +0000] "GET /static/style.css HTTP/1.1" 200 2323 "-" "Mozilla/5.0"
+192.0.2.51 - - [07/Nov/2026:03:00:31 +0000] "GET /login HTTP/1.1" 200 894 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:00:32 +0000] "GET /api/v1/users HTTP/1.1" 404 3287 "-" "curl/8.4.0"
+10.0.10.22 - - [07/Nov/2026:03:00:33 +0000] "GET / HTTP/1.1" 200 3909 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:34 +0000] "GET /login HTTP/1.1" 401 1602 "-" "python-requests/2.31"
+10.0.10.31 - - [07/Nov/2026:03:00:35 +0000] "GET /login HTTP/1.1" 200 2903 "-" "Mozilla/5.0"
+198.51.100.88 - - [07/Nov/2026:03:00:36 +0000] "GET /index.html HTTP/1.1" 200 2010 "-" "Mozilla/5.0"
+192.0.2.51 - - [07/Nov/2026:03:00:37 +0000] "GET /contact HTTP/1.1" 200 2241 "-" "Mozilla/5.0"
+198.51.100.88 - - [07/Nov/2026:03:00:38 +0000] "GET /index.html HTTP/1.1" 200 3852 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:00:39 +0000] "GET /static/style.css HTTP/1.1" 200 1189 "-" "Mozilla/5.0"
+198.51.100.88 - - [07/Nov/2026:03:00:40 +0000] "GET /static/style.css HTTP/1.1" 200 1539 "-" "Mozilla/5.0"
+192.0.2.51 - - [07/Nov/2026:03:00:41 +0000] "GET /static/style.css HTTP/1.1" 200 1857 "-" "Mozilla/5.0"
+198.51.100.88 - - [07/Nov/2026:03:00:42 +0000] "GET /api/items HTTP/1.1" 200 2927 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:43 +0000] "GET /login HTTP/1.1" 401 1226 "-" "python-requests/2.31"
+192.0.2.51 - - [07/Nov/2026:03:00:44 +0000] "GET /about HTTP/1.1" 200 1013 "-" "Mozilla/5.0"
+192.0.2.51 - - [07/Nov/2026:03:00:45 +0000] "GET / HTTP/1.1" 200 2797 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:46 +0000] "GET /login HTTP/1.1" 401 1964 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:00:47 +0000] "GET /login HTTP/1.1" 401 3492 "-" "python-requests/2.31"
+10.0.10.22 - - [07/Nov/2026:03:00:48 +0000] "GET /contact HTTP/1.1" 200 3501 "-" "Mozilla/5.0"
+198.51.100.88 - - [07/Nov/2026:03:00:49 +0000] "GET /static/app.js HTTP/1.1" 304 3290 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:50 +0000] "GET /login HTTP/1.1" 401 3944 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:00:51 +0000] "GET /login HTTP/1.1" 401 1020 "-" "python-requests/2.31"
+10.0.10.15 - - [07/Nov/2026:03:00:52 +0000] "GET /contact HTTP/1.1" 200 3805 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:53 +0000] "GET /login HTTP/1.1" 401 1077 "-" "python-requests/2.31"
+198.51.100.88 - - [07/Nov/2026:03:00:54 +0000] "GET /blog HTTP/1.1" 200 1774 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:55 +0000] "GET /login HTTP/1.1" 401 1099 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:00:56 +0000] "GET /login HTTP/1.1" 401 2588 "-" "python-requests/2.31"
+10.0.10.31 - - [07/Nov/2026:03:00:57 +0000] "GET /api/items HTTP/1.1" 200 3971 "-" "Mozilla/5.0"
+192.0.2.51 - - [07/Nov/2026:03:00:58 +0000] "GET /static/style.css HTTP/1.1" 304 1496 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:00:59 +0000] "GET /login HTTP/1.1" 401 1059 "-" "python-requests/2.31"
+192.0.2.51 - - [07/Nov/2026:03:01:00 +0000] "GET /about HTTP/1.1" 304 757 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:01:01 +0000] "GET /api/items HTTP/1.1" 200 751 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:01:02 +0000] "GET /login HTTP/1.1" 401 2233 "-" "python-requests/2.31"
+203.0.113.77 - - [07/Nov/2026:03:01:03 +0000] "GET /id_rsa HTTP/1.1" 404 1636 "-" "curl/8.4.0"
+10.0.10.22 - - [07/Nov/2026:03:01:04 +0000] "GET /api/items HTTP/1.1" 304 3628 "-" "Mozilla/5.0"
+192.0.2.51 - - [07/Nov/2026:03:01:05 +0000] "GET /api/items HTTP/1.1" 200 3868 "-" "Mozilla/5.0"
+10.0.10.15 - - [07/Nov/2026:03:01:06 +0000] "GET / HTTP/1.1" 200 3676 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:01:07 +0000] "GET /login HTTP/1.1" 401 366 "-" "python-requests/2.31"
+203.0.113.77 - - [07/Nov/2026:03:01:08 +0000] "GET /xmlrpc.php HTTP/1.1" 404 3113 "-" "curl/8.4.0"
+192.0.2.51 - - [07/Nov/2026:03:01:09 +0000] "GET / HTTP/1.1" 200 462 "-" "Mozilla/5.0"
+10.0.10.31 - - [07/Nov/2026:03:01:10 +0000] "GET /static/style.css HTTP/1.1" 200 1333 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:01:11 +0000] "GET /login HTTP/1.1" 401 3566 "-" "python-requests/2.31"
+10.0.10.15 - - [07/Nov/2026:03:01:12 +0000] "GET /api/items HTTP/1.1" 200 892 "-" "Mozilla/5.0"
+10.0.10.15 - - [07/Nov/2026:03:01:13 +0000] "GET /blog HTTP/1.1" 304 662 "-" "Mozilla/5.0"
+10.0.10.31 - - [07/Nov/2026:03:01:14 +0000] "GET /static/style.css HTTP/1.1" 200 2045 "-" "Mozilla/5.0"
+198.51.100.88 - - [07/Nov/2026:03:01:15 +0000] "GET / HTTP/1.1" 200 2130 "-" "Mozilla/5.0"
+198.51.100.88 - - [07/Nov/2026:03:01:16 +0000] "GET /blog HTTP/1.1" 200 1327 "-" "Mozilla/5.0"
+10.0.10.31 - - [07/Nov/2026:03:01:17 +0000] "GET /index.html HTTP/1.1" 200 3991 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:01:18 +0000] "GET /login HTTP/1.1" 401 1076 "-" "python-requests/2.31"
+10.0.10.15 - - [07/Nov/2026:03:01:19 +0000] "GET /about HTTP/1.1" 304 3603 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:01:20 +0000] "GET /api/items HTTP/1.1" 304 1895 "-" "Mozilla/5.0"
+10.0.10.31 - - [07/Nov/2026:03:01:21 +0000] "GET / HTTP/1.1" 200 1766 "-" "Mozilla/5.0"
+10.0.10.31 - - [07/Nov/2026:03:01:22 +0000] "GET /static/app.js HTTP/1.1" 200 2763 "-" "Mozilla/5.0"
+10.0.10.15 - - [07/Nov/2026:03:01:23 +0000] "GET /blog HTTP/1.1" 200 2329 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:01:24 +0000] "GET /login HTTP/1.1" 401 2222 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:01:25 +0000] "GET /login HTTP/1.1" 401 2953 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:01:26 +0000] "GET /login HTTP/1.1" 401 1491 "-" "python-requests/2.31"
+203.0.113.77 - - [07/Nov/2026:03:01:27 +0000] "GET /debug HTTP/1.1" 404 3133 "-" "curl/8.4.0"
+203.0.113.77 - - [07/Nov/2026:03:01:28 +0000] "GET /.git/config HTTP/1.1" 404 3637 "-" "curl/8.4.0"
+10.0.10.31 - - [07/Nov/2026:03:01:29 +0000] "GET / HTTP/1.1" 304 3648 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:01:30 +0000] "GET /pricing HTTP/1.1" 200 2759 "-" "Mozilla/5.0"
+10.0.10.15 - - [07/Nov/2026:03:01:31 +0000] "GET /contact HTTP/1.1" 200 2053 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:01:32 +0000] "GET /login HTTP/1.1" 200 1512 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:01:33 +0000] "GET /config.php HTTP/1.1" 404 505 "-" "curl/8.4.0"
+192.0.2.51 - - [07/Nov/2026:03:01:34 +0000] "GET /login HTTP/1.1" 200 3594 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:01:35 +0000] "GET /wp-login.php HTTP/1.1" 404 328 "-" "curl/8.4.0"
+203.0.113.77 - - [07/Nov/2026:03:01:36 +0000] "GET /db.sql HTTP/1.1" 404 1339 "-" "curl/8.4.0"
+198.51.100.88 - - [07/Nov/2026:03:01:37 +0000] "GET /api/items HTTP/1.1" 304 3775 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:01:38 +0000] "GET /login HTTP/1.1" 401 2688 "-" "python-requests/2.31"
+198.51.100.88 - - [07/Nov/2026:03:01:39 +0000] "GET /login HTTP/1.1" 304 369 "-" "Mozilla/5.0"
+198.51.100.23 - - [07/Nov/2026:03:01:40 +0000] "GET /login HTTP/1.1" 401 2978 "-" "python-requests/2.31"
+198.51.100.23 - - [07/Nov/2026:03:01:41 +0000] "GET /login HTTP/1.1" 401 3102 "-" "python-requests/2.31"
+10.0.10.31 - - [07/Nov/2026:03:01:42 +0000] "GET /static/style.css HTTP/1.1" 304 1351 "-" "Mozilla/5.0"
+10.0.10.31 - - [07/Nov/2026:03:01:43 +0000] "GET /blog HTTP/1.1" 200 2537 "-" "Mozilla/5.0"
+203.0.113.77 - - [07/Nov/2026:03:01:44 +0000] "GET /server-status HTTP/1.1" 403 1650 "-" "curl/8.4.0"
+10.0.10.15 - - [07/Nov/2026:03:01:45 +0000] "GET /index.html HTTP/1.1" 304 1465 "-" "Mozilla/5.0"
+10.0.10.22 - - [07/Nov/2026:03:01:46 +0000] "GET / HTTP/1.1" 304 2859 "-" "Mozilla/5.0"

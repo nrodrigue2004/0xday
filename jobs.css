@@ -1,0 +1,29 @@
+/* 0xDay ~/jobs */
+.jb__stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:1.2rem 0}
+.jb .tile{cursor:default}.jb .tile:hover{background:var(--panel);border-color:var(--border)}
+.jb .tile__k{font-size:1.5rem}
+.jb__form{border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:12px 16px;margin:1rem 0}
+.jb__row{display:flex;flex-wrap:wrap;gap:12px}
+.jb__row label{flex:1 1 180px}
+.jb__form label{display:flex;flex-direction:column;gap:3px;font-size:.85rem;color:var(--muted);margin:6px 0}
+.jb__wide{width:100%}
+.jb input,.jb select{background:var(--bg);color:var(--fg);border:1px solid var(--border-2);border-radius:4px;padding:6px 8px;font:inherit;min-height:36px;max-width:100%}
+.jb input:focus,.jb select:focus{outline:1px solid var(--green);border-color:var(--green)}
+.jb__bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:1.2rem 0 .6rem}
+.jb__goal{margin-left:auto;display:flex;gap:6px;align-items:center;color:var(--muted);font-size:.85rem}
+.jb__chip{background:none;color:var(--fg);font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--border-2);border-radius:4px;padding:0 8px;margin-right:4px}
+.jb__chip[aria-pressed="true"]{border-color:var(--green);color:var(--green)}
+.jb__list{display:grid;gap:8px}
+.jb__app{border:1px solid var(--border);border-left:3px solid var(--border-2);border-radius:6px;background:var(--panel);padding:8px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 12px}
+.jb__app.due{border-left-color:var(--amber)}
+.jb__app.s-offer{border-left-color:var(--green)}
+.jb__app.s-rejected,.jb__app.s-ghosted,.jb__app.s-withdrawn{opacity:.65}
+.jb__app h3{margin:0;font-size:1rem;color:var(--strong)}
+.jb__meta{color:var(--muted);font-size:.82rem}
+.jb__meta .due{color:var(--amber)}
+.jb__note{grid-column:1/-1;font-size:.88rem}
+.jb__act{display:flex;gap:6px;align-items:start;flex-wrap:wrap;justify-content:flex-end}
+.jb__act select{min-height:30px;padding:2px 6px;font-size:.8rem}
+.jb__act button{background:none;border:0;color:var(--muted);font:inherit;font-size:.85rem;cursor:pointer}
+.jb__act button:hover{color:var(--green)}.jb__act .x:hover{color:var(--red)}
+.jb__tools{margin-top:1.2rem}

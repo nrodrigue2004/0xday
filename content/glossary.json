@@ -63,6 +63,14 @@
    ]
   },
   {
+   "t": "ASCII",
+   "d": "American Standard Code for Information Interchange: the table that maps characters to numbers 0-127, one byte each ('A' is 65 or 0x41, 'a' is 97 or 0x61, '0' is 48 or 0x30).",
+   "c": "data",
+   "l": [
+    "m:numbers"
+   ]
+  },
+  {
    "t": "Asymmetric encryption",
    "d": "Encryption with a key pair: a public key to encrypt or verify, a private key to decrypt or sign. Examples: RSA, ECC.",
    "c": "crypto",
@@ -136,6 +144,22 @@
    "l": [
     "s:5.2",
     "s:3.4"
+   ]
+  },
+  {
+   "t": "Binary",
+   "d": "Base 2: numbers written with only 0 and 1, where each place is worth double the one to its right (128 64 32 16 8 4 2 1 for a byte).",
+   "c": "concepts",
+   "l": [
+    "m:numbers"
+   ]
+  },
+  {
+   "t": "Bitwise operation",
+   "d": "An operation applied to each bit position separately: AND (both 1), OR (either 1), XOR (they differ), NOT (flip). AND with a mask is how a host finds its network address.",
+   "c": "concepts",
+   "l": [
+    "m:numbers"
    ]
   },
   {
@@ -400,6 +424,14 @@
    ]
   },
   {
+   "t": "Endianness",
+   "d": "The byte order of a multi-byte value in memory. Big-endian stores the most significant byte first (network byte order); little-endian stores the least significant first (x86).",
+   "c": "concepts",
+   "l": [
+    "m:numbers"
+   ]
+  },
+  {
    "t": "Event ID",
    "d": "A number identifying a type of Windows event, such as 4624 successful logon or 4625 failed logon.",
    "c": "windows",
@@ -492,6 +524,14 @@
    ]
   },
   {
+   "t": "Hexadecimal",
+   "d": "Base 16, digits 0-9 and A-F. One hex digit is 4 bits, so a byte is two hex digits (0xCA = 1100 1010 = 202). Used in dumps, MAC addresses, hashes and IPv6.",
+   "c": "concepts",
+   "l": [
+    "m:numbers"
+   ]
+  },
+  {
    "t": "Honeypot",
    "d": "A decoy system built to be attacked so you can observe the attacker.",
    "c": "tools",
@@ -563,6 +603,14 @@
    "c": "soc",
    "l": [
     "s:2.4"
+   ]
+  },
+  {
+   "t": "Integer overflow",
+   "d": "A value wraps past the largest number its type can hold (a signed byte at 127 plus 1 becomes -128), which can make a buffer size too small and enable a memory-corruption bug.",
+   "c": "vulns",
+   "l": [
+    "m:numbers"
    ]
   },
   {
@@ -656,6 +704,14 @@
    "c": "network",
    "l": [
     "g:computer-networks"
+   ]
+  },
+  {
+   "t": "Magic number",
+   "d": "The first bytes of a file that identify its type regardless of its name: 4D 5A (MZ) for a Windows executable, 7F 45 4C 46 for ELF, 50 4B (PK) for zip and Office files.",
+   "c": "dfir",
+   "l": [
+    "m:numbers"
    ]
   },
   {
@@ -1156,6 +1212,14 @@
    ]
   },
   {
+   "t": "Two's complement",
+   "d": "How computers store negative integers: the top bit counts as a negative place value, and you negate a number by flipping all bits and adding 1 (an 8-bit 11111111 is -1).",
+   "c": "concepts",
+   "l": [
+    "m:numbers"
+   ]
+  },
+  {
    "t": "UDP",
    "d": "User Datagram Protocol: fast, connectionless, no delivery guarantee. DNS and VoIP use it.",
    "c": "network",
@@ -1270,6 +1334,80 @@
    "l": [
     "s:1.2",
     "s:3.1"
+   ]
+  },
+  {
+   "t": "Cookie",
+   "d": "A small value the server asks the browser to store and send back on every request. Session cookies carry the login. The Secure, HttpOnly and SameSite flags limit where they travel and who can read them.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "Session",
+   "d": "The server's memory of a logged-in user between HTTP requests, found by a random id in a cookie or a signed token. Stealing the id is the same as stealing the login.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "REST API",
+   "d": "An HTTP API where URLs name things and methods (GET, POST, PUT, PATCH, DELETE) say what to do to them, usually exchanging JSON.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "JWT",
+   "d": "JSON Web Token: header.payload.signature. The payload is readable by anyone, the signature proves it was not changed. Check expiry, audience and the allowed algorithm.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "IDOR",
+   "d": "Insecure direct object reference, a form of broken access control: changing an id in a request returns another user's data because the server never checked ownership.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "SSRF",
+   "d": "Server-side request forgery: tricking a server into fetching a URL of the attacker's choice, such as internal services or cloud metadata. Fix with destination allow-lists and egress filtering.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "CORS",
+   "d": "Cross-origin resource sharing: how a server lets other origins read its responses in the browser. A browser rule, not a substitute for authentication.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "Parameterized query",
+   "d": "A SQL statement with placeholders where values are sent separately from the query text, so input can never change the query. The main defense against SQL injection.",
+   "c": "web",
+   "l": [
+    "m:rdbms",
+    "g:databases-and-sql"
+   ]
+  },
+  {
+   "t": "Primary key / foreign key",
+   "d": "A primary key uniquely identifies a row. A foreign key in another table points at it, which is how relational databases link records.",
+   "c": "web",
+   "l": [
+    "m:rdbms",
+    "g:databases-and-sql"
    ]
   }
  ]

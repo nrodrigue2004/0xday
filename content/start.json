@@ -1,0 +1,560 @@
+{
+ "_help": "Ordered curriculum for ~/start. Step: id (stable; progress is keyed on it), t, h (href from site root), w, m (minutes), topic (~/log topic key). Add \"if\": \"page.html\" to include a step only when that built page exists (hooks for sections from other branches). Hrefs without \"if\" must exist or the build fails.",
+ "stages": [
+  {
+   "id": "orient",
+   "name": "0. orient",
+   "blurb": "Pick a target so the rest has a direction. One evening.",
+   "steps": [
+    {
+     "id": "pick-path",
+     "t": "Pick a career path",
+     "h": "careers.html",
+     "w": "Skim all eight paths. Choose a primary and a backup. Everything below serves that choice.",
+     "m": 30,
+     "topic": "other"
+    },
+    {
+     "id": "skills-audit",
+     "t": "Read the skills matrix",
+     "h": "skills.html",
+     "w": "Know what is already proven and what is thin before studying anything.",
+     "m": 15,
+     "topic": "other"
+    },
+    {
+     "id": "cert-plan",
+     "t": "Read the cert roadmap",
+     "h": "certs.html",
+     "w": "Security+ first, the rest follow. Write down the exam date.",
+     "m": 15,
+     "topic": "other"
+    },
+    {
+     "id": "log-setup",
+     "t": "Set a weekly study goal in the log",
+     "h": "log.html",
+     "w": "Three to five days a week. Streaks beat intensity.",
+     "m": 5,
+     "topic": "other"
+    }
+   ]
+  },
+  {
+   "id": "foundations",
+   "name": "1. foundations",
+   "blurb": "Networking, operating systems and vocabulary. Security+ assumes all of it.",
+   "steps": [
+    {
+     "id": "osi",
+     "t": "OSI and TCP/IP",
+     "h": "basics/osi-and-tcpip.html",
+     "w": "Layers, encapsulation, what a packet is. Read it twice.",
+     "m": 45,
+     "topic": "secplus"
+    },
+    {
+     "id": "ports",
+     "t": "Ports and protocols",
+     "h": "basics/ports-and-protocols.html",
+     "w": "Memorize the common ones. They show up on the exam and in every log.",
+     "m": 45,
+     "topic": "secplus"
+    },
+    {
+     "id": "cia",
+     "t": "CIA triad and crypto basics",
+     "h": "basics/cia-and-crypto.html",
+     "w": "Confidentiality, integrity, availability; hashing versus encryption.",
+     "m": 40,
+     "topic": "secplus"
+    },
+    {
+     "id": "os-basics",
+     "t": "Linux and Windows basics",
+     "h": "basics/linux-windows-basics.html",
+     "w": "Filesystems, users, processes, services on both.",
+     "m": 45,
+     "topic": "homelab"
+    },
+    {
+     "id": "linux-cli",
+     "t": "Linux command line",
+     "h": "learn/linux-command-line.html",
+     "w": "Do the lab in the sandbox, don't just read it.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "ip-subnets",
+     "t": "TCP/IP, DHCP, NAT and subnets",
+     "h": "learn/networking-tcp-ip-dhcp-nat-subnets.html",
+     "w": "Subnet by hand until it stops hurting.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "os-concepts",
+     "t": "Operating systems",
+     "h": "learn/operating-systems.html",
+     "w": "Processes, memory, scheduling, permissions.",
+     "m": 60,
+     "topic": "other"
+    },
+    {
+     "id": "glossary",
+     "t": "Skim the glossary",
+     "h": "glossary.html",
+     "w": "Terms are linked to guides. Look up anything unfamiliar as it appears.",
+     "m": 15,
+     "topic": "reading"
+    }
+   ]
+  },
+  {
+   "id": "tools",
+   "name": "2. everyday tools",
+   "blurb": "Scripting, Git, SQL and Windows administration. Used in every job on the list.",
+   "steps": [
+    {
+     "id": "bash",
+     "t": "Bash scripting",
+     "h": "learn/bash-scripting.html",
+     "w": "Loops, pipes, small scripts that parse logs.",
+     "m": 60,
+     "topic": "dojo"
+    },
+    {
+     "id": "python",
+     "t": "Python",
+     "h": "learn/python.html",
+     "w": "The default glue language for security work.",
+     "m": 60,
+     "topic": "dojo"
+    },
+    {
+     "id": "git",
+     "t": "Git and GitHub",
+     "h": "learn/git-github.html",
+     "w": "Branches, PRs, undoing mistakes.",
+     "m": 45,
+     "topic": "dojo"
+    },
+    {
+     "id": "sql",
+     "t": "SQL",
+     "h": "learn/sql.html",
+     "w": "Selects, joins, aggregates. Analyst and SOC roles both want it.",
+     "m": 60,
+     "topic": "dojo"
+    },
+    {
+     "id": "powershell",
+     "t": "Windows admin and PowerShell",
+     "h": "learn/windows-admin-powershell.html",
+     "w": "Users, services and event logs from the shell.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "ad",
+     "t": "Active Directory",
+     "h": "learn/active-directory.html",
+     "w": "OUs, groups, authentication. Most corporate networks are this.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "dojo-week",
+     "t": "One week of dojo katas",
+     "h": "dojo.html",
+     "w": "Short daily drills in the language your target path uses.",
+     "m": 90,
+     "topic": "dojo"
+    }
+   ]
+  },
+  {
+   "id": "secplus",
+   "name": "3. Security+ (SY0-701)",
+   "blurb": "The first cert. Work the domains in order, then drill weak spots until they stop being weak.",
+   "steps": [
+    {
+     "id": "sp-d1",
+     "t": "Domain 1: general security concepts",
+     "h": "secplus/1.1.html",
+     "w": "Controls, CIA, zero trust, crypto, PKI. Objectives 1.1 to 1.4.",
+     "m": 240,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-d2",
+     "t": "Domain 2: threats, vulnerabilities, mitigations",
+     "h": "secplus/2.1.html",
+     "w": "Threat actors, attacks, indicators, hardening. 2.1 to 2.5.",
+     "m": 300,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-d3",
+     "t": "Domain 3: security architecture",
+     "h": "secplus/3.1.html",
+     "w": "Cloud, segmentation, resilience, data protection. 3.1 to 3.4.",
+     "m": 240,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-d4",
+     "t": "Domain 4: security operations",
+     "h": "secplus/4.1.html",
+     "w": "Biggest domain: monitoring, IR, identity, automation. 4.1 to 4.9.",
+     "m": 420,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-d5",
+     "t": "Domain 5: governance, risk, compliance",
+     "h": "secplus/5.1.html",
+     "w": "Policies, risk math, audits, awareness. 5.1 to 5.6.",
+     "m": 240,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-acr",
+     "t": "Acronym trainer",
+     "h": "secplus/acronyms.html",
+     "w": "Run it daily until accuracy is high. Cheap points on the exam.",
+     "m": 20,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-pbq",
+     "t": "Performance-based question sims",
+     "h": "secplus/pbq.html",
+     "w": "PBQs are what people fail on. Practice the format.",
+     "m": 60,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-scen",
+     "t": "Scenario cards",
+     "h": "secplus/scenarios.html",
+     "w": "Pick the best answer under realistic wording.",
+     "m": 45,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-weak",
+     "t": "Weak-spot drill",
+     "h": "secplus/weak.html",
+     "w": "Targets whatever you keep missing. Repeat until clean.",
+     "m": 45,
+     "topic": "secplus"
+    },
+    {
+     "id": "sp-exam",
+     "t": "Book the exam",
+     "h": "secplus.html",
+     "w": "Practice scores steady above target, then schedule. Target: Q1 2027.",
+     "m": 30,
+     "topic": "secplus"
+    }
+   ]
+  },
+  {
+   "id": "blue",
+   "name": "4. defensive skills",
+   "blurb": "What a SOC analyst does day to day. This is where the first security job comes from.",
+   "steps": [
+    {
+     "id": "logs",
+     "t": "Log analysis",
+     "h": "learn/log-analysis.html",
+     "w": "Read logs, find the one line that matters.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "pipes",
+     "t": "Drill: parse logs with pipes",
+     "h": "drills/parse-logs-with-pipes.html",
+     "w": "grep, awk, sort, uniq until it's reflex.",
+     "m": 45,
+     "topic": "homelab"
+    },
+    {
+     "id": "regex",
+     "t": "Drill: regex for logs",
+     "h": "drills/regex-for-logs.html",
+     "w": "Patterns for IPs, users, timestamps.",
+     "m": 45,
+     "topic": "homelab"
+    },
+    {
+     "id": "pcap",
+     "t": "Network traffic analysis",
+     "h": "learn/network-traffic-analysis.html",
+     "w": "Wireshark filters, following streams.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "pcap-drill",
+     "t": "Drill: read a packet capture",
+     "h": "drills/read-a-packet-capture.html",
+     "w": "Find the exfiltration in a real capture.",
+     "m": 45,
+     "topic": "homelab"
+    },
+    {
+     "id": "siem",
+     "t": "SIEM with Security Onion",
+     "h": "learn/siem-security-onion.html",
+     "w": "Alerts, dashboards, pivoting.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "ids",
+     "t": "IDS with Snort",
+     "h": "learn/ids-snort.html",
+     "w": "Rules, what they catch, false positives.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "ir",
+     "t": "Incident response",
+     "h": "learn/incident-response.html",
+     "w": "The lifecycle, and what to write down.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "phish",
+     "t": "Phishing analysis",
+     "h": "learn/phishing-analysis.html",
+     "w": "Headers, URLs, attachments. A daily SOC task.",
+     "m": 45,
+     "topic": "homelab"
+    },
+    {
+     "id": "dfir",
+     "t": "Digital forensics",
+     "h": "learn/digital-forensics.html",
+     "w": "Disk images, timelines, evidence handling.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "hardening",
+     "t": "System hardening",
+     "h": "learn/system-hardening-windows-linux.html",
+     "w": "Baselines on Windows and Linux.",
+     "m": 60,
+     "topic": "homelab"
+    },
+    {
+     "id": "fw",
+     "t": "Firewalls with pfSense",
+     "h": "learn/firewalls-pfsense.html",
+     "w": "Rules, NAT, segmentation.",
+     "m": 60,
+     "topic": "homelab"
+    }
+   ]
+  },
+  {
+   "id": "labs",
+   "name": "5. labs and proof",
+   "blurb": "Reading is not evidence. Build, break and write it up so an interviewer can check.",
+   "steps": [
+    {
+     "id": "homelab",
+     "t": "Extend the homelab",
+     "h": "homelab.html",
+     "w": "Add one thing: a log source, a detection rule, a segment. Document it.",
+     "m": 180,
+     "topic": "homelab"
+    },
+    {
+     "id": "lab-sec",
+     "t": "Drill: Security Onion intrusion hunt",
+     "h": "drills/security-onion-intrusion-hunt.html",
+     "w": "End-to-end hunt, then write the report.",
+     "m": 90,
+     "topic": "homelab"
+    },
+    {
+     "id": "ctf",
+     "t": "One TryHackMe or CTF room",
+     "h": "ctf.html",
+     "w": "One room a week. Log it and write up the interesting ones.",
+     "m": 60,
+     "topic": "thm"
+    },
+    {
+     "id": "recon",
+     "t": "Recon with Nmap and Metasploit",
+     "h": "learn/recon-nmap-metasploit.html",
+     "w": "Know the attacker side so the detections make sense.",
+     "m": 60,
+     "topic": "thm"
+    },
+    {
+     "id": "writeup",
+     "t": "Publish one write-up",
+     "h": "posts.html",
+     "w": "Post it. Link it from the resume.",
+     "m": 120,
+     "topic": "reading"
+    }
+   ]
+  },
+  {
+   "id": "adv",
+   "name": "6. going deeper",
+   "blurb": "Optional for SOC, central for malware and exploit roles. Do these after the first application round, not before.",
+   "steps": [
+    {
+     "id": "pass",
+     "t": "Password cracking",
+     "h": "learn/password-cracking-john.html",
+     "w": "Hashes, wordlists, why policy matters.",
+     "m": 45,
+     "topic": "thm"
+    },
+    {
+     "id": "crypto",
+     "t": "Applied cryptography",
+     "h": "learn/cryptography-applied.html",
+     "w": "Where crypto actually breaks.",
+     "m": 60,
+     "topic": "other"
+    },
+    {
+     "id": "asm",
+     "t": "C and x86 assembly",
+     "h": "learn/c-x86-assembly.html",
+     "w": "Prerequisite for reversing.",
+     "m": 90,
+     "topic": "dojo"
+    },
+    {
+     "id": "re",
+     "t": "Reverse engineering",
+     "h": "learn/reverse-engineering.html",
+     "w": "Ghidra and IDA basics.",
+     "m": 90,
+     "topic": "homelab"
+    },
+    {
+     "id": "mal",
+     "t": "Malware analysis",
+     "h": "learn/malware-analysis.html",
+     "w": "Static first, then dynamic, in an isolated VM.",
+     "m": 90,
+     "topic": "homelab"
+    },
+    {
+     "id": "bin",
+     "t": "Binary exploitation",
+     "h": "learn/binary-exploitation.html",
+     "w": "Stack, heap, mitigations.",
+     "m": 90,
+     "topic": "thm"
+    },
+    {
+     "id": "bigo",
+     "t": "Big-O and data structures",
+     "h": "bigo.html",
+     "w": "Needed for software interviews.",
+     "m": 45,
+     "topic": "dojo"
+    },
+    {
+     "id": "cloud",
+     "t": "Cloud fundamentals",
+     "h": "cloud.html",
+     "w": "IAM, storage, networking and logging in a cloud provider.",
+     "m": 90,
+     "topic": "other",
+     "if": "cloud.html"
+    },
+    {
+     "id": "prog",
+     "t": "Programming track",
+     "h": "programming.html",
+     "w": "Structured path through the programming sections.",
+     "m": 90,
+     "topic": "dojo",
+     "if": "programming.html"
+    },
+    {
+     "id": "web",
+     "t": "Web and databases track",
+     "h": "web.html",
+     "w": "HTTP, auth, injection, schema design.",
+     "m": 90,
+     "topic": "other",
+     "if": "web.html"
+    }
+   ]
+  },
+  {
+   "id": "jobs",
+   "name": "7. job hunt",
+   "blurb": "Start this at stage 3, not at the end. Applications teach you what the market wants.",
+   "steps": [
+    {
+     "id": "resume",
+     "t": "Pick a resume view and fix the headline",
+     "h": "resume.html",
+     "w": "One per role: IT, Cyber, Software / Data.",
+     "m": 30,
+     "topic": "other"
+    },
+    {
+     "id": "bullets",
+     "t": "Read the bullet bank",
+     "h": "bullets.html",
+     "w": "Match real experience to a posting's keywords.",
+     "m": 30,
+     "topic": "other"
+    },
+    {
+     "id": "track",
+     "t": "Start the application tracker",
+     "h": "jobs.html",
+     "w": "Log every application the day you send it.",
+     "m": 15,
+     "topic": "other"
+    },
+    {
+     "id": "int-prep",
+     "t": "Interview prep: your own projects",
+     "h": "interview.html",
+     "w": "Be able to explain every line on the resume.",
+     "m": 90,
+     "topic": "other"
+    },
+    {
+     "id": "int-q",
+     "t": "Practice the path's interview questions",
+     "h": "careers.html",
+     "w": "Easy, normal and hard tiers per path.",
+     "m": 60,
+     "topic": "other"
+    },
+    {
+     "id": "apply",
+     "t": "Send five applications this week",
+     "h": "jobs.html",
+     "w": "Quantity early, tailoring later. Follow up after a week.",
+     "m": 120,
+     "topic": "other"
+    }
+   ]
+  }
+ ]
+}

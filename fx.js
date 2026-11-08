@@ -46,7 +46,7 @@
   document.addEventListener("keydown", e => { if (/input|textarea/i.test(document.activeElement.tagName) && e.key.length === 1) clack(); });
 
   /* ---------------- tmux status bar ---------------- */
-  const WINDOWS = [["home", "index.html"], ["blog", "posts.html"], ["projects", "projects.html"], ["skills", "skills.html"],
+  const WINDOWS = [["home", "index.html"], ["start", "start.html"], ["blog", "posts.html"], ["projects", "projects.html"], ["skills", "skills.html"],
     ["certs", "certs.html"], ["learn", "learn.html"], ["ai", "ai.html"], ["lab", "lab.html"], ["now", "now.html"], ["about", "about.html"]];
   const here = (location.pathname.split("/").pop() || "index.html");
   const inPosts = /\/posts\//.test(location.pathname);
@@ -158,7 +158,7 @@
     const it = [];
     const P = (n, h, kind) => it.push({ n, h: h.startsWith("http") ? h : ROOT + h, kind });
     WINDOWS.forEach(([n, h]) => P("~/" + n, h, "page"));
-    [["homelab map", "homelab.html"], ["attack chain", "attack-chain.html"], ["deep-dives", "deep-dives.html"], ["tty mode", "tty.html"], ["htop", "htop.html"], ["i3 desktop", "desktop.html"], ["resume", "resume.html"], ["ctf scoreboard", "ctf.html"], ["man pages", "man.html"], ["tags", "tags.html"], ["changelog", "changelog.html"], ["resources", "resources.html"]].forEach(([n, h]) => P(n, h, "page"));
+    [["job tracker", "jobs.html"], ["resume bullets", "bullets.html"], ["study log", "log.html"], ["homelab map", "homelab.html"], ["attack chain", "attack-chain.html"], ["deep-dives", "deep-dives.html"], ["tty mode", "tty.html"], ["htop", "htop.html"], ["i3 desktop", "desktop.html"], ["resume", "resume.html"], ["ctf scoreboard", "ctf.html"], ["man pages", "man.html"], ["tags", "tags.html"], ["changelog", "changelog.html"], ["resources", "resources.html"]].forEach(([n, h]) => P(n, h, "page"));
     (D.posts || []).forEach(p => P(p.title, "posts/" + p.slug + ".html", "post"));
     (D.projects || []).forEach(p => P(p.name, p.url || "projects.html", "project"));
     (D.man || []).forEach(m => P("man " + m.name, "man/" + m.slug + ".html", "man"));
@@ -168,6 +168,8 @@
     (D.guides || []).forEach(g => P("learn " + g.name, "learn/" + g.slug + ".html", "learn"));
     P("ai", "ai.html", "ai"); P("ai reading list", "ai/news.html", "ai");
     (D.ai || []).forEach(c => P("ai " + c.name, "ai/" + c.slug + ".html", "ai"));
+    P("cloud", "cloud.html", "learn");
+    (D.cloud || []).forEach(c => P("cloud " + c.name, "cloud/" + c.slug + ".html", "learn"));
     (D.secplus_objs || []).forEach(o => P("sec+ " + o.id + " " + o.title, "secplus/" + o.id + ".html", "sec+"));
     Object.keys(D.tags || {}).forEach(t => P("#" + t, "tags.html#" + t, "tag"));
     return it;

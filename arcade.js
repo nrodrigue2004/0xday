@@ -1,4 +1,4 @@
-/* ~/arcade: iptables, crack, ports (flashcards), subnet (timed sprint).
+/* ~/arcade: iptables, crack, ports (flashcards), subnet (timed sprint), bits (converter + conversion sprint).
    No dependencies. High scores live in localStorage under oxday-hi-<game>. */
 (() => {
   "use strict";
@@ -508,6 +508,150 @@ Status.....: ${solved ? `<span class="ok">Cracked</span>  ${h.slice(0, 12)}...:<
     }
     el.opts.addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) { answer(+b.dataset.i); b.blur(); } });
     el.over.addEventListener("click", e => { if (e.target.closest("#sn-again")) start(); });
+    document.addEventListener("keydown", e => {
+      if (typing() || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === "Enter" && !el.over.hidden) start();
+      else if (/^[1-4]$/.test(e.key)) answer(+e.key - 1);
+      else return;
+      e.preventDefault(); e.stopImmediatePropagation();
+    });
+    start();
+  }
+
+  /* =================================================================== */
+  /*            bits: number-system converter + conversion sprint        */
+  /* =================================================================== */
+  if (DATA.game === "bits") {
+    /* ---------- live converter ---------- */
+    (function converter() {
+      const box = $("#cv"); if (!box) return;
+      const F = { bin: [2, /^[01]+$/], oct: [8, /^[0-7]+$/], dec: [10, /^[0-9]+$/], hex: [16, /^[0-9a-f]+$/i] };
+      const inp = {}; Object.keys(F).forEach(k => inp[k] = $("#cv-" + k));
+      const strip = $("#cv-bits"), info = $("#cv-info"), wsel = $("#cv-w");
+      let val = 202, width = 8, pref = 8;
+      const MAXV = 4294967295;
+      const fmt = (n, base) => n.toString(base).toUpperCase();
+      const grp = (s, n) => s.replace(new RegExp("(?=(.{" + n + "})+$)", "g"), " ").trim();
+      function paint(skip) {
+        const need = val > 65535 ? 32 : val > 255 ? 16 : 8;
+        width = Math.max(need, pref);
+        wsel.value = String(width);
+        if (skip !== "bin") inp.bin.value = grp(fmt(val, 2).padStart(Math.ceil(fmt(val, 2).length / 4) * 4, "0"), 4);
+        if (skip !== "oct") inp.oct.value = fmt(val, 8);
+        if (skip !== "dec") inp.dec.value = String(val);
+        if (skip !== "hex") inp.hex.value = fmt(val, 16);
+        const b = fmt(val, 2).padStart(width, "0");
+        strip.innerHTML = [...b].map((c, i) => `<button type="button" class="cv-bit${c === "1" ? " on" : ""}${(i + 1) % 8 === 0 && i < width - 1 ? " byte" : ""}" data-i="${i}" aria-label="bit ${width - 1 - i} is ${c}">${c}</button>`).join("");
+        const pw = width <= 16 ? `<div class="cv-pw">${[...b].map((_, i) => `<span class="${(i + 1) % 8 === 0 && i < width - 1 ? "byte" : ""}">${Math.pow(2, width - 1 - i)}</span>`).join("")}</div>` : "";
+        $("#cv-pw").innerHTML = pw;
+        const signed = val >= Math.pow(2, width - 1) ? val - Math.pow(2, width) : val;
+        const rows = [`unsigned ${width}-bit: <b>${val}</b>`, `signed (two's complement): <b>${signed}</b>`, `bytes: <b>${(fmt(val, 16).padStart(width / 4, "0")).match(/../g).join(" ")}</b>`];
+        if (width === 32) rows.push(`as IPv4: <b>${[val >>> 24, (val >>> 16) & 255, (val >>> 8) & 255, val & 255].join(".")}</b>`);
+        if (val >= 32 && val <= 126) rows.push(`as ASCII: <b>${esc(String.fromCharCode(val))}</b>`);
+        if (width === 32) { const ones = fmt(val, 2).padStart(32, "0"); if (/^1*0*$/.test(ones)) rows.push(`as a subnet mask: <b>/${(ones.match(/1/g) || []).length}</b>`); }
+        info.innerHTML = rows.join("<br>");
+      }
+      Object.keys(F).forEach(k => inp[k].addEventListener("input", () => {
+        const [base, re] = F[k]; let t = inp[k].value.replace(/[\s_]/g, "").replace(k === "hex" ? /^0x/i : /^$/, "");
+        if (!t) { inp[k].classList.remove("bad"); return; }
+        if (!re.test(t)) { inp[k].classList.add("bad"); return; }
+        const n = parseInt(t, base);
+        if (!(n <= MAXV)) { inp[k].classList.add("bad"); info.innerHTML = '<span class="err">max is 32 bits (4294967295)</span>'; return; }
+        Object.values(inp).forEach(i => i.classList.remove("bad"));
+        val = n; paint(k);
+      }));
+      strip.addEventListener("click", e => {
+        const b = e.target.closest("[data-i]"); if (!b) return;
+        val = (val ^ Math.pow(2, width - 1 - +b.dataset.i)) >>> 0; paint();
+        const nb = strip.querySelector(`[data-i="${b.dataset.i}"]`); if (nb) nb.focus();
+      });
+      wsel.addEventListener("change", () => { pref = +wsel.value; width = pref; if (val >= Math.pow(2, width)) val = val % Math.pow(2, width); paint(); });
+      $("#cv-clr").addEventListener("click", () => { val = 0; paint(); });
+      paint();
+    })();
+
+    /* ---------- conversion sprint ---------- */
+    const TIME = 60, PENALTY = 3;
+    const bn = (n, w) => n.toString(2).padStart(w, "0");
+    const hx = (n, w) => n.toString(16).toUpperCase().padStart(w, "0");
+    const nib = s => s.replace(/(.{4})(?=.)/g, "$1 ");
+    const dist = (right, gen) => { const out = new Set([right]); let g = 0; while (out.size < 4 && g++ < 200) { const v = gen(); if (v !== undefined) out.add(v); } return [...out].sort(() => Math.random() - .5); };
+    const flip1 = (s, w) => { const a = s.replace(/ /g, "").split(""); const i = rnd(a.length); a[i] = a[i] === "0" ? "1" : "0"; return a.join(""); };
+    const nums = (n, span) => () => String(Math.max(0, n + rnd(span * 2 + 1) - span));
+    const MASKS = [128, 192, 224, 240, 248, 252, 254, 255];
+    const TYPES = {
+      b2d(w, max) { const n = 1 + rnd(max); const b = bn(n, w); return { q: `<b>${nib(b)}</b> in decimal?`, a: String(n), o: dist(String(n), () => String(Math.max(0, n + pick([-8, -4, -2, -1, 1, 2, 4, 8, 16]) ))), why: `add the places that are 1: ${[...b].map((c, i) => c === "1" ? Math.pow(2, w - 1 - i) : null).filter(x => x !== null).join(" + ")} = ${n}` }; },
+      d2b(w, max) { const n = 1 + rnd(max); const b = nib(bn(n, w)); return { q: `<b>${n}</b> in binary?`, a: b, o: dist(b, () => nib(flip1(b))), why: `subtract the biggest place that fits each time: ${b}` }; },
+      h2d(w, max) { const n = 16 + rnd(max - 16); const h = hx(n, 2); return { q: `<b>0x${h}</b> in decimal?`, a: String(n), o: dist(String(n), () => String(Math.max(0, n + pick([-16, -10, -6, -1, 1, 6, 10, 16])))), why: `${h[0]} x 16 + ${h[1]} = ${parseInt(h[0], 16) * 16} + ${parseInt(h[1], 16)} = ${n}` }; },
+      d2h(w, max) { const n = 16 + rnd(max - 16); const h = "0x" + hx(n, 2); return { q: `<b>${n}</b> in hex?`, a: h, o: dist(h, () => "0x" + hx(Math.max(0, n + pick([-16, -10, -6, -1, 1, 6, 10, 16])) & 255, 2)), why: `${n} / 16 = ${n >> 4} remainder ${n & 15}, so ${hx(n >> 4, 1)} and ${hx(n & 15, 1)}` }; },
+      nibble() { const n = rnd(16); const asDec = rnd(2); return asDec ? { q: `hex digit <b>${hx(n, 1)}</b> is how many?`, a: String(n), o: dist(String(n), nums(n, 4).bind(null)), why: "A=10 B=11 C=12 D=13 E=14 F=15" } : { q: `<b>${n}</b> as one hex digit?`, a: hx(n, 1), o: dist(hx(n, 1), () => hx(rnd(16), 1)), why: "A=10 B=11 C=12 D=13 E=14 F=15" }; },
+      b2h() { const n = rnd(256); const b = bn(n, 8); const h = "0x" + hx(n, 2); return { q: `<b>${nib(b)}</b> in hex?`, a: h, o: dist(h, () => "0x" + hx(parseInt(flip1(b), 2), 2)), why: `${b.slice(0, 4)} = ${hx(n >> 4, 1)}, ${b.slice(4)} = ${hx(n & 15, 1)}` }; },
+      h2b() { const n = rnd(256); const b = nib(bn(n, 8)); return { q: `<b>0x${hx(n, 2)}</b> in binary?`, a: b, o: dist(b, () => nib(flip1(b))), why: `${hx(n >> 4, 1)} = ${b.slice(0, 4)}, ${hx(n & 15, 1)} = ${b.slice(5)}` }; },
+      pow() { const e = 1 + rnd(16); const v = Math.pow(2, e); return rnd(2) ? { q: `2<sup>${e}</sup> = ?`, a: String(v), o: dist(String(v), () => String(Math.pow(2, Math.max(0, e + pick([-2, -1, 1, 2]))))), why: `double 1 ${e} times = ${v}` } : { q: `${v} is 2 to the power of?`, a: String(e), o: dist(String(e), () => String(Math.max(0, e + pick([-2, -1, 1, 2, 3])))), why: `2^${e} = ${v}` }; },
+      ascii() { const c = pick([..."ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"]); const n = c.charCodeAt(0), h = "0x" + hx(n, 2); return rnd(2) ? { q: `ASCII <b>${c}</b> in hex?`, a: h, o: dist(h, () => "0x" + hx(n + pick([-32, -2, -1, 1, 2, 32]) & 127, 2)), why: `${c} = ${n} = ${h}` } : { q: `hex <b>${h}</b> is which ASCII character?`, a: c, o: dist(c, () => String.fromCharCode(n + pick([-32, -2, -1, 1, 2, 32, 3]))), why: `${h} = ${n} = ${c}. Upper and lower case differ by 32 (0x20)` }; },
+      octet() { const n = rnd(256); const b = bn(n, 8); return { q: `<b>${b}</b> as an IP octet?`, a: String(n), o: dist(String(n), () => String(Math.max(0, Math.min(255, n + pick([-16, -8, -2, -1, 1, 2, 8, 16]))))), why: `${[...b].map((c, i) => c === "1" ? Math.pow(2, 7 - i) : null).filter(x => x !== null).join(" + ")} = ${n}` }; },
+      maskoct() { const k = 1 + rnd(8); const v = MASKS[k - 1]; return rnd(2) ? { q: `a mask octet with <b>${k}</b> one-bits?`, a: String(v), o: dist(String(v), () => String(pick(MASKS))), why: `${bn(v, 8)} = ${v}` } : { q: `mask octet <b>${v}</b> has how many one-bits?`, a: String(k), o: dist(String(k), () => String(1 + rnd(8))), why: `${bn(v, 8)} has ${k} ones` }; },
+      prefix() { const p = pick([16, 20, 21, 22, 23, 25, 26, 27, 28, 29]); const oct = p < 24 ? 3 : 4, ones = p - (oct - 1) * 8, v = MASKS[ones - 1]; const m = [255, 255, 255, 0].map((x, i) => i === oct - 1 ? v : (i < oct - 1 ? 255 : 0)).join("."); return { q: `<b>/${p}</b> as a mask?`, a: m, o: dist(m, () => { const pp = pick([16, 20, 21, 22, 23, 25, 26, 27, 28, 29]), oc = pp < 24 ? 3 : 4; return [255, 255, 255, 0].map((x, i) => i === oc - 1 ? MASKS[pp - (oc - 1) * 8 - 1] : (i < oc - 1 ? 255 : 0)).join("."); }), why: `/${p} = ${p} ones; the odd octet has ${ones} ones = ${v}` }; },
+      signed() { const n = 1 + rnd(127), neg = -n, b = bn((256 + neg) & 255, 8); return rnd(2) ? { q: `8-bit signed <b>${nib(b)}</b> = ?`, a: String(neg), o: dist(String(neg), () => pick([String(parseInt(b, 2)), String(-(n + pick([-2, -1, 1, 2]))), String(n)])), why: `flip the bits and add 1: ${nib(bn(n, 8))} = ${n}, so ${neg}` } : { q: `<b>${neg}</b> as 8-bit two's complement?`, a: nib(b), o: dist(nib(b), () => nib(flip1(b))), why: `${n} = ${nib(bn(n, 8))}; flip = ${nib(bn(255 - n, 8))}; add 1 = ${nib(b)}` }; },
+      bitop() { const a = rnd(256), c = rnd(256), op = pick(["AND", "OR", "XOR"]); const r = op === "AND" ? a & c : op === "OR" ? a | c : a ^ c; const ans = nib(bn(r, 8)); return { q: `<b>${nib(bn(a, 8))}</b> ${op} <b>${nib(bn(c, 8))}</b> = ?`, a: ans, o: dist(ans, () => nib(flip1(ans))), why: `${op}: ${nib(bn(a, 8))} / ${nib(bn(c, 8))} = ${ans}` }; },
+      net() { const m = pick([192, 224, 240, 248, 252]), x = rnd(256), r = x & m; return { q: `<b>${x}</b> AND <b>${m}</b> (one octet, as a mask) = ?`, a: String(r), o: dist(String(r), () => String(((x & m) + pick([-1, 1, 2, 4, 8, 16, 32]) * pick([1, -1])) & 255)), why: `${bn(x, 8)} AND ${bn(m, 8)} = ${bn(r, 8)} = ${r}` }; },
+      shift() { const n = 1 + rnd(31), s = 1 + rnd(3), left = rnd(2); const r = left ? (n << s) & 255 : n >> s; return { q: `<b>${n}</b> ${left ? "&lt;&lt;" : "&gt;&gt;"} <b>${s}</b> (8-bit) = ?`, a: String(r), o: dist(String(r), () => String(Math.max(0, r + pick([-2, -1, 1, 2, 4, -4])))), why: left ? `each left shift doubles: ${n} x ${Math.pow(2, s)} = ${n * Math.pow(2, s)}` : `each right shift halves (drop the remainder): ${n} / ${Math.pow(2, s)} = ${r}` }; },
+      endian() { const bytes = [rnd(256), rnd(256), rnd(256), rnd(256)]; const be = bytes.map(x => hx(x, 2)).join(" "), le = bytes.slice().reverse().map(x => hx(x, 2)).join(" "); return { q: `little-endian memory shows <b>${le}</b>. The 32-bit value is?`, a: "0x" + be.replace(/ /g, ""), o: dist("0x" + be.replace(/ /g, ""), () => "0x" + [...bytes].sort(() => Math.random() - .5).map(x => hx(x, 2)).join("")), why: `little-endian stores the least significant byte first, so reverse the byte order: ${be}` }; }
+    };
+    const TIERS = {
+      easy: { label: "easy", pool: [["b2d", 4, 15], ["d2b", 4, 15], ["nibble"], ["pow"], ["b2d", 8, 31], ["d2b", 8, 31]] },
+      normal: { label: "normal", pool: [["b2d", 8, 255], ["d2b", 8, 255], ["h2d", 8, 255], ["d2h", 8, 255], ["b2h"], ["h2b"], ["ascii"], ["octet"], ["maskoct"], ["pow"], ["prefix"]] },
+      hard: { label: "hard", pool: [["signed"], ["bitop"], ["net"], ["shift"], ["endian"], ["prefix"], ["h2b"], ["b2h"], ["ascii"], ["d2b", 8, 255], ["h2d", 8, 255]] }
+    };
+    const el = { q: $("#bt-q"), opts: $("#bt-opts"), msg: $("#bt-msg"), t: $("#bt-t"), score: $("#bt-score"), streak: $("#bt-streak"), over: $("#bt-over"), bar: $("#bt-bar"), modes: $("#bt-modes") };
+    let st = null, timer = null, tier = "easy";
+    try { const t = ls.get("oxday-bits-tier"); if (TIERS[t]) tier = t; } catch (e) {}
+    const paintModes = () => el.modes.querySelectorAll("[data-tier]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tier === tier)));
+    function ask() {
+      const sp = pick(TIERS[tier].pool);
+      let q = TYPES[sp[0]](sp[1], sp[2]);
+      if (st.last && q.q === st.last) q = TYPES[sp[0]](sp[1], sp[2]);
+      st.last = q.q; st.q = q; st.locked = false;
+      el.q.innerHTML = q.q;
+      el.opts.className = "sn-opts";
+      el.opts.innerHTML = q.o.map((o, i) => `<button class="btn ar-big sn-o" type="button" data-i="${i}"><kbd>${i + 1}</kbd> ${esc(o)}</button>`).join("");
+      el.msg.innerHTML = "";
+      paint();
+    }
+    function paint() {
+      el.t.textContent = Math.max(0, Math.ceil(st.left)) + "s";
+      el.score.textContent = st.score; el.streak.textContent = st.streak;
+      el.bar.style.width = Math.max(0, st.left / TIME * 100) + "%";
+      el.bar.classList.toggle("low", st.left < 10);
+    }
+    function answer(i) {
+      if (!st || !st.run || st.locked || !st.q.o[i]) return;
+      const q = st.q, good = q.o[i] === q.a;
+      st.locked = true;
+      el.opts.querySelectorAll(".sn-o").forEach((b, j) => { if (q.o[j] === q.a) b.classList.add("good"); else if (j === i) b.classList.add("bad"); });
+      if (good) { st.right++; st.streak++; st.best = Math.max(st.best, st.streak); st.score += 10 + Math.min(st.streak - 1, 5) * 2; el.msg.innerHTML = '<span class="ok">+</span>'; }
+      else { st.streak = 0; st.wrong++; st.left -= PENALTY; st.log.push(q); el.msg.innerHTML = `<span class="err">-${PENALTY}s</span> ${esc(q.a)} <span class="muted">&middot; ${esc(q.why)}</span>`; }
+      paint();
+      setTimeout(() => { if (st && st.run) { if (st.left <= 0) end(); else ask(); } }, good ? 180 : 1400);
+    }
+    function tick() { if (!st.run) return; const now = performance.now(); st.left -= (now - st.last_t) / 1000; st.last_t = now; paint(); if (st.left <= 0) end(); }
+    function end() {
+      st.run = false; clearInterval(timer);
+      const hi = setHi("bits-" + tier, st.score);
+      const miss = st.log.slice(0, 5).map(q => `  ${q.q.replace(/<[^>]+>/g, "")}\n    ${q.a}  (${q.why})`).join("\n");
+      el.over.hidden = false;
+      el.over.innerHTML = `<pre>time. ${st.score} pts${hi ? " &middot; NEW HIGH SCORE" : ""} &middot; ${tier} &middot; ${st.right} right, ${st.wrong} wrong &middot; best streak ${st.best}${miss ? "\n\nmissed:\n" + esc(miss) : ""}</pre><button class="btn ar-big" type="button" id="bt-again">[ Enter ] go again</button>`;
+      $("#bt-again").focus(); paintHi(); paintBitsHi();
+    }
+    function paintBitsHi() { document.querySelectorAll("[data-hi='bits']").forEach(b => { const v = getHi("bits-" + tier); b.textContent = v ? v : "---"; }); }
+    function start() {
+      clearInterval(timer);
+      st = { run: true, left: TIME, last_t: performance.now(), score: 0, right: 0, wrong: 0, streak: 0, best: 0, log: [], locked: false };
+      el.over.hidden = true; paintModes(); paintBitsHi(); ask(); timer = setInterval(tick, 200);
+    }
+    el.modes.addEventListener("click", e => { const b = e.target.closest("[data-tier]"); if (!b) return; tier = b.dataset.tier; try { ls.set("oxday-bits-tier", tier); } catch (er) {} b.blur(); start(); });
+    el.opts.addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) { answer(+b.dataset.i); b.blur(); } });
+    el.over.addEventListener("click", e => { if (e.target.closest("#bt-again")) start(); });
     document.addEventListener("keydown", e => {
       if (typing() || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === "Enter" && !el.over.hidden) start();

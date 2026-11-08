@@ -1,0 +1,12 @@
+{
+  "certs": [
+    {"slug": "cysa", "name": "CompTIA CySA+", "code": "CS0-004", "file": "cysa.txt", "status": "notes", "built": true,
+     "exam": "up to 85 questions (multiple choice and performance-based), 165 minutes, pass at 750 of 900",
+     "domains": {"1": ["Security Operations", 34], "2": ["Vulnerability Management", 26], "3": ["Incident Response and Management", 24], "4": ["Reporting and Communication", 16]},
+     "role": "SOC analyst (tier 2), vulnerability analyst, detection engineer"},
+    {"slug": "netplus", "name": "CompTIA Network+", "code": "N10-009", "file": "netplus.txt", "status": "waiting", "built": false,
+     "role": "help desk to network admin; backbone of every SOC analyst's packet reading"},
+    {"slug": "aplus", "name": "CompTIA A+", "code": "Core 1 + Core 2", "file": "aplus.txt", "status": "waiting", "built": false,
+     "role": "help desk, desktop support, field tech"}
+  ]
+}
