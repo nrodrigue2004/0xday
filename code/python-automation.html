@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python for automation :: ~/code :: 0xDay</title>
+<meta name="description" content="Programming path, Python for automation: read logs, parse JSON, enrich with an API, write a tool that exits cleanly. Simple, mid and complex levels plus a hands-on lab.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=29aef6d8" defer></script>
+<script src="../site.js?v=29aef6d8" defer></script>
+<script src="../fx.js?v=29aef6d8" defer></script>
+<script src="../sandbox.js?v=29aef6d8" defer></script>
+<script src="../learn.js?v=29aef6d8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">code --stage python-automation</p>
+<h1>~/code/python-automation</h1>
+<p class="learn__meta"><span class="muted">stage 1 · script</span> · practice with: <a href="../learn/python.html">python guide</a> · <a href="../dojo/python.html">python dojo</a></p>
+<p>Small Python scripts that read logs, call APIs and tell you which alert to look at first. Practice with the boring parts that save an hour a day.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="python-automation">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>script</strong> is a program you run once to do a chore. In security the chores repeat: read a log, count something, look an IP up, write a report. Python is good at this because the standard library already reads files, parses JSON, handles dates and talks HTTP.</p>
+<p>Every automation script has the same four steps:</p>
+<ul><li><strong>Read</strong> the input (a log file, a JSON export, a CSV)</li><li><strong>Parse</strong> each line into fields</li><li><strong>Decide</strong> what matters (count, filter, compare)</li><li><strong>Report</strong> the result (print it, write a file, send it)</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">python3 -c &quot;print(sum(int(x) for x in &#x27;4 8 15 16 23 42&#x27;.split()))&quot;</span><button class="run" type="button" data-cmd="python3 -c &quot;print(sum(int(x) for x in &#x27;4 8 15 16 23 42&#x27;.split()))&quot;" title="run in the sandbox">▶ run</button></code></pre>
+<p class="callout">Start with <code>print()</code> after every step. A script that prints what it thinks is easy to debug, and the prints become the report later.</p>
+<h4>Parsing a log line</h4>
+<p>A log line is a string with structure. <code>line.split()</code> breaks it on whitespace and gives you a list. Pick fields by position, or look for a keyword and take the word after it.</p>
+<pre class="ex ex--code"><code>line = &quot;Nov  7 03:00:05 bastion sshd[4104]: Failed password for root from 198.51.100.23 port 51329 ssh2&quot;
+parts = line.split()
+ip = parts[parts.index(&quot;from&quot;) + 1]     # the word after &quot;from&quot;
+print(ip)                               # 198.51.100.23</code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The standard-library toolbox</h4>
+<ul><li><code>open(path)</code> and <code>for line in f</code> read a file one line at a time, so a 4 GB log does not fill memory</li><li><code>json.loads(line)</code> turns a JSON line into a dict, <code>json.load(f)</code> reads a whole file</li><li><code>collections.Counter</code> counts things: <code>Counter(ips).most_common(5)</code> is the top-5 table</li><li><code>re.search(r&quot;from (\S+)&quot;, line)</code> pulls a field out with a regular expression when <code>split()</code> is too fragile</li><li><code>argparse</code> makes the script take <code>--log path</code> and <code>--threshold 5</code> instead of editing the code</li><li><code>pathlib.Path(&quot;logs&quot;).glob(&quot;*.log&quot;)</code> loops over files</li></ul>
+<h4>Enrich: join your data with someone else's</h4>
+<p>Enrichment means adding context. The alert has an IP; a reputation service knows how many engines flagged it. The pattern is always the same: load the lookup once into a dict, then look each item up.</p>
+<pre class="ex ex--code"><code>import json
+from collections import Counter
+
+rep = json.load(open(&quot;vt_cache.json&quot;))        # {ip: {&quot;malicious&quot;: 14, ...}}
+hits = Counter()
+for line in open(&quot;alerts.jsonl&quot;):
+    a = json.loads(line)
+    if rep.get(a[&quot;src&quot;], {}).get(&quot;malicious&quot;, 0) &gt;= 5:
+        hits[a[&quot;src&quot;]] += 1
+print(hits.most_common())</code></pre>
+<p><code>dict.get(key, default)</code> is the safe lookup: an IP the service has never seen should count as zero, not crash the script.</p>
+<h4>Calling a web API</h4>
+<p>Real enrichment calls an HTTP API. The shape never changes: build a URL, send a key in a header, check the status, parse the JSON.</p>
+<pre class="ex ex--code"><code>import os, requests
+
+KEY = os.environ[&quot;VT_API_KEY&quot;]                # never in the source file
+def lookup(ip):
+    r = requests.get(f&quot;https://www.virustotal.com/api/v3/ip_addresses/{ip}&quot;,
+                     headers={&quot;x-apikey&quot;: KEY}, timeout=10)
+    r.raise_for_status()                      # 4xx/5xx becomes an exception
+    stats = r.json()[&quot;data&quot;][&quot;attributes&quot;][&quot;last_analysis_stats&quot;]
+    return stats[&quot;malicious&quot;]</code></pre>
+<p>This lab does not call the network. The response was saved to <code>vt_cache.json</code>, which is also what you should do for real: cache lookups so one noisy log does not burn your daily quota. Public example IPs only, and read the provider's terms before scripting anything against them.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Make it a tool, not a throwaway</h4>
+<ul><li><strong>Keys come from the environment</strong>, never from the file. A key in source ends up in git history (see the git chapter for how that goes).</li><li><strong>Timeouts on every request.</strong> <code>requests.get</code> waits forever by default; a hung API call stalls the whole script.</li><li><strong>Respect rate limits.</strong> Free tiers allow a few requests per minute. Sleep between calls, cache results, and back off when you see HTTP 429.</li><li><strong>Retry with backoff</strong> for 5xx and network errors: wait 1s, 2s, 4s, then give up and report the failure instead of silently skipping the IP.</li><li><strong>Skip bad lines, count them.</strong> Real logs contain garbage. <code>try/except json.JSONDecodeError</code> plus a <code>skipped += 1</code> counter beats a crash at line 90,211.</li><li><strong>Stream, do not slurp.</strong> Iterate the file instead of <code>f.read().splitlines()</code> unless it fits in memory.</li><li><strong>Exit codes.</strong> <code>sys.exit(1)</code> when the script finds something, so cron or CI can alert on it.</li></ul>
+<pre class="ex ex--code"><code>import sys, json, argparse
+from collections import Counter
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(&quot;log&quot;); ap.add_argument(&quot;--min-bad&quot;, type=int, default=5)
+    args = ap.parse_args()
+    bad = Counter(); skipped = 0
+    for line in open(args.log):
+        try: a = json.loads(line)
+        except json.JSONDecodeError: skipped += 1; continue
+        bad[a[&quot;src&quot;]] += 1
+    print(f&quot;{len(bad)} sources, {skipped} lines skipped&quot;)
+    sys.exit(1 if any(n &gt;= args.min_bad for n in bad.values()) else 0)
+
+if __name__ == &quot;__main__&quot;: main()</code></pre>
+<p>Complexity check: this is one pass, so <strong>O(n)</strong> in the number of lines, with O(1) average dict updates. Lookups in a list instead of a dict would turn it into O(n times k); see <a href="../bigo.html">Big-O</a>. Practice the same moves as katas in the <a href="../dojo/python.html">Python dojo</a>.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>Your firewall exported <code>alerts.jsonl</code> (one JSON object per line) and you saved the reputation lookups to <code>vt_cache.json</code> (a dict keyed by IP, with <code>malicious</code> = how many engines flagged it).</p>
+<p>Finish <code>enrich.py</code>. Among IPs flagged malicious by <strong>5 or more engines</strong>, find the one with the most <strong>bytes in traffic the firewall allowed</strong>. Denied traffic does not count: it never got through.</p>
+<p>Run it with <code>python3 enrich.py</code>. Submit the <strong>IP address</strong>.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/python.html">cheatsheet</a></span></h2><h3>automation: python</h3><dl class="man"><dt><code>python3 script.py args</code></dt><dd>run a script with arguments</dd><dt><code>python3 -m venv .venv</code></dt><dd>isolated environment for a project's packages</dd><dt><code>pip install requests</code></dt><dd>HTTP library (not in the stdlib)</dd><dt><code>for line in open(path)</code></dt><dd>read a file one line at a time</dd><dt><code>json.loads(line)</code></dt><dd>JSON text to dict</dd><dt><code>json.dump(obj, f, indent=2)</code></dt><dd>write JSON to a file</dd><dt><code>Counter(items).most_common(5)</code></dt><dd>top-5 table</dd><dt><code>re.search(r&quot;from (\S+)&quot;, s)</code></dt><dd>pull a field out of a line with a regex</dd><dt><code>dict.get(key, default)</code></dt><dd>lookup that never raises KeyError</dd><dt><code>os.environ[&quot;KEY&quot;]</code></dt><dd>read a secret from the environment</dd><dt><code>argparse.ArgumentParser()</code></dt><dd>give a script command-line flags</dd><dt><code>requests.get(url, headers=h, timeout=10)</code></dt><dd>web API call, always with a timeout</dd><dt><code>r.raise_for_status()</code></dt><dd>turn HTTP 4xx/5xx into an exception</dd><dt><code>sys.exit(1)</code></dt><dd>non-zero exit so cron and CI notice</dd></dl></section><nav class="pager"><span></span><a href="bash-automation.html">Bash pipelines and scripts &gt;</a></nav><p><a href="../code.html">cd ~/code</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "python-automation", "title": "Python for automation", "user": "analyst", "host": "soc", "brief": "Your firewall exported <code>alerts.jsonl<\/code> (one JSON object per line) and you saved the reputation lookups to <code>vt_cache.json<\/code> (a dict keyed by IP, with <code>malicious<\/code> = how many engines flagged it).\n\nFinish <code>enrich.py<\/code>. Among IPs flagged malicious by <strong>5 or more engines<\/strong>, find the one with the most <strong>bytes in traffic the firewall allowed<\/strong>. Denied traffic does not count: it never got through.\n\nRun it with <code>python3 enrich.py<\/code>. Submit the <strong>IP address<\/strong>.", "hints": ["Load the cache with <code>json.load(open(&quot;vt_cache.json&quot;))<\/code>, then loop the alerts and <code>json.loads(line)<\/code> each one.", "Skip the line unless <code>a[&quot;action&quot;] == &quot;allow&quot;<\/code> and <code>rep.get(a[&quot;src&quot;], {}).get(&quot;malicious&quot;, 0) &gt;= 5<\/code>.", "Add <code>a[&quot;bytes&quot;]<\/code> into a <code>Counter<\/code> keyed by <code>a[&quot;src&quot;]<\/code>, then <code>print(total.most_common(1)[0][0])<\/code>."], "answers": ["0c25434b09c62046f88142b1412b949ea7e9bc61479d71b2b74ab8dbc3d2d946"], "solution": "PGNvZGU+dG90YWwgPSBDb3VudGVyKCk8L2NvZGU+IGFuZCBmb3IgZWFjaCBhbGVydCA8Y29kZT5pZiBhWyZxdW90O2FjdGlvbiZxdW90O10gPT0gJnF1b3Q7YWxsb3cmcXVvdDsgYW5kIHJlcC5nZXQoYVsmcXVvdDtzcmMmcXVvdDtdLCB7fSkuZ2V0KCZxdW90O21hbGljaW91cyZxdW90OywgMCkgJmd0Oz0gNTogdG90YWxbYVsmcXVvdDtzcmMmcXVvdDtdXSArPSBhWyZxdW90O2J5dGVzJnF1b3Q7XTwvY29kZT4sIHRoZW4gPGNvZGU+cHJpbnQodG90YWwubW9zdF9jb21tb24oMSlbMF1bMF0pPC9jb2RlPi4KCkl0IHByaW50cyA8c3Ryb25nPjIwMy4wLjExMy43Nzwvc3Ryb25nPi4gMTk4LjUxLjEwMC45IGhhcyB0aGUgbW9zdCByYXcgdHJhZmZpYyBhbmQgMTEgZGV0ZWN0aW9ucywgYnV0IGV2ZXJ5IG9uZSBvZiBpdHMgY29ubmVjdGlvbnMgd2FzIGRlbmllZCwgc28gaXQgaXMgYSBub2lzeSBzY2FuIHRoYXQgZGlkIG5vdCBsYW5kLiBUaGUgb3JkZXJpbmcgcXVlc3Rpb24gKHdoYXQgZ2V0cyBsb29rZWQgYXQgZmlyc3QpIGlzIHRoZSByZWFzb24gdG8gZW5yaWNoIGF0IGFsbC4K", "fs": {"/home/analyst/work/enrich.py": "import json\nfrom collections import Counter\n\nrep = json.load(open(\"/home/analyst/work/vt_cache.json\"))\ntotal = Counter()\n\nfor line in open(\"/home/analyst/work/alerts.jsonl\"):\n    a = json.loads(line)\n    # TODO: count a[\"bytes\"] per a[\"src\"] into `total`, but only when\n    #       the firewall allowed it AND the IP has >= 5 malicious verdicts\n\n# TODO: print the single IP with the most allowed bytes\nprint(\"not finished yet\")\n", "/home/analyst/work/vt_cache.json": "{\n  \"203.0.113.77\": {\n    \"malicious\": 14,\n    \"suspicious\": 2,\n    \"country\": \"NL\"\n  },\n  \"198.51.100.9\": {\n    \"malicious\": 11,\n    \"suspicious\": 0,\n    \"country\": \"RU\"\n  },\n  \"192.0.2.140\": {\n    \"malicious\": 9,\n    \"suspicious\": 3,\n    \"country\": \"US\"\n  },\n  \"203.0.113.200\": {\n    \"malicious\": 2,\n    \"suspicious\": 1,\n    \"country\": \"DE\"\n  },\n  \"198.51.100.23\": {\n    \"malicious\": 0,\n    \"suspicious\": 0,\n    \"country\": \"US\"\n  },\n  \"10.0.10.15\": {\n    \"malicious\": 0,\n    \"suspicious\": 0,\n    \"country\": \"--\"\n  }\n}\n", "/home/analyst/work/alerts.jsonl": "{\"ts\": 1762500046, \"src\": \"203.0.113.77\", \"dport\": 443, \"action\": \"allow\", \"bytes\": 6668}\n{\"ts\": 1762500134, \"src\": \"203.0.113.77\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 1386}\n{\"ts\": 1762500207, \"src\": \"203.0.113.77\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 6191}\n{\"ts\": 1762500286, \"src\": \"203.0.113.77\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 8513}\n{\"ts\": 1762500318, \"src\": \"198.51.100.9\", \"dport\": 22, \"action\": \"deny\", \"bytes\": 5832}\n{\"ts\": 1762500378, \"src\": \"198.51.100.9\", \"dport\": 8080, \"action\": \"deny\", \"bytes\": 4778}\n{\"ts\": 1762500413, \"src\": \"198.51.100.9\", \"dport\": 22, \"action\": \"deny\", \"bytes\": 36313}\n{\"ts\": 1762500472, \"src\": \"198.51.100.9\", \"dport\": 22, \"action\": \"deny\", \"bytes\": 37257}\n{\"ts\": 1762500492, \"src\": \"198.51.100.9\", \"dport\": 443, \"action\": \"deny\", \"bytes\": 38407}\n{\"ts\": 1762500504, \"src\": \"198.51.100.9\", \"dport\": 8080, \"action\": \"deny\", \"bytes\": 3449}\n{\"ts\": 1762500537, \"src\": \"198.51.100.9\", \"dport\": 22, \"action\": \"deny\", \"bytes\": 36681}\n{\"ts\": 1762500559, \"src\": \"198.51.100.9\", \"dport\": 3389, \"action\": \"deny\", \"bytes\": 27668}\n{\"ts\": 1762500582, \"src\": \"198.51.100.9\", \"dport\": 22, \"action\": \"deny\", \"bytes\": 37615}\n{\"ts\": 1762500626, \"src\": \"192.0.2.140\", \"dport\": 443, \"action\": \"allow\", \"bytes\": 1044}\n{\"ts\": 1762500705, \"src\": \"192.0.2.140\", \"dport\": 443, \"action\": \"allow\", \"bytes\": 3250}\n{\"ts\": 1762500722, \"src\": \"192.0.2.140\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 4823}\n{\"ts\": 1762500734, \"src\": \"192.0.2.140\", \"dport\": 443, \"action\": \"allow\", \"bytes\": 4266}\n{\"ts\": 1762500807, \"src\": \"192.0.2.140\", \"dport\": 8080, \"action\": \"allow\", \"bytes\": 2773}\n{\"ts\": 1762500871, \"src\": \"203.0.113.200\", \"dport\": 8080, \"action\": \"allow\", \"bytes\": 1681}\n{\"ts\": 1762500914, \"src\": \"203.0.113.200\", \"dport\": 443, \"action\": \"allow\", \"bytes\": 936}\n{\"ts\": 1762500950, \"src\": \"203.0.113.200\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 1429}\n{\"ts\": 1762501022, \"src\": \"203.0.113.200\", \"dport\": 8080, \"action\": \"allow\", \"bytes\": 1606}\n{\"ts\": 1762501084, \"src\": \"203.0.113.200\", \"dport\": 3389, \"action\": \"allow\", \"bytes\": 499}\n{\"ts\": 1762501104, \"src\": \"203.0.113.200\", \"dport\": 8080, \"action\": \"allow\", \"bytes\": 875}\n{\"ts\": 1762501152, \"src\": \"198.51.100.23\", \"dport\": 443, \"action\": \"allow\", \"bytes\": 2202}\n{\"ts\": 1762501210, \"src\": \"198.51.100.23\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 2937}\n{\"ts\": 1762501224, \"src\": \"198.51.100.23\", \"dport\": 3389, \"action\": \"allow\", \"bytes\": 1593}\n{\"ts\": 1762501273, \"src\": \"198.51.100.23\", \"dport\": 8080, \"action\": \"allow\", \"bytes\": 2575}\n{\"ts\": 1762501336, \"src\": \"198.51.100.23\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 583}\n{\"ts\": 1762501375, \"src\": \"198.51.100.23\", \"dport\": 8080, \"action\": \"allow\", \"bytes\": 2920}\n{\"ts\": 1762501388, \"src\": \"198.51.100.23\", \"dport\": 22, \"action\": \"allow\", \"bytes\": 1468}\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst/work", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

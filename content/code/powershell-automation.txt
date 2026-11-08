@@ -1,0 +1,165 @@
+tagline: PowerShell passes objects, not text, so pulling failed logons out of the Windows event log takes four short stages. Practice with Get-WinEvent, Group-Object and Invoke-RestMethod.
+sheet: powershell
+sheet_summary: PowerShell commands and terms
+:: simple
+In bash a pipe passes **text**. In PowerShell a pipe passes **objects** with properties, so you filter on `.Status` instead of cutting column 7. That makes admin chores short:
+
+- `Get-Service` returns service objects
+- `Where-Object` keeps the ones you want
+- `Select-Object` picks properties
+- `Sort-Object`, `Group-Object` and `Measure-Object` order and count
+
+```
+$ Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
+```
+
+Commands are named **Verb-Noun** (`Get-`, `Set-`, `New-`, `Remove-`). `Get-Command *event*` finds commands by keyword and `Get-Help Get-WinEvent -Examples` shows how to use one. `Get-Member` shows what properties an object has, which is the key to every pipeline.
+
+> A `$_` inside a script block means "the object currently in the pipeline". `Where-Object { $_.Id -eq 4625 }` reads "keep objects whose Id is 4625".
+
+### Why it matters for security
+Windows logs everything as structured events. Event ID **4625** is a failed logon, **4624** a successful one, **4688** a new process. PowerShell reads them as objects, so you never parse text.
+:: mid
+### Failed logons, step by step
+```
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=(Get-Date).AddHours(-24)}
+```
+
+The `-FilterHashtable` form filters inside the log service, which is far faster than pulling everything and using `Where-Object` afterwards. Filter early, shape late.
+
+The event's useful fields (account, source address) sit in the message. Many people export to CSV first, or use `Import-Csv` on an export, and then everything is a property:
+
+```
+$ Import-Csv .\4625.csv | Group-Object TargetUserName | Sort-Object Count -Descending | Select-Object -First 5 Name,Count
+$ Import-Csv .\4625.csv | Where-Object TargetUserName -eq 'svc-backup' | Group-Object IpAddress | Sort-Object Count -Descending
+```
+
+### Output you can hand to someone
+- `Export-Csv -NoTypeInformation out.csv` for a spreadsheet
+- `ConvertTo-Json` and `ConvertFrom-Json` for APIs and configs
+- `Format-Table -AutoSize` for the screen only (it produces formatting objects, so do not pipe it onward)
+
+### Calling an API
+`Invoke-RestMethod` does the request and parses the JSON in one step:
+
+```code
+$key = $env:VT_API_KEY
+$r = Invoke-RestMethod -Uri "https://www.virustotal.com/api/v3/ip_addresses/203.0.113.77" `
+       -Headers @{ "x-apikey" = $key } -TimeoutSec 10
+$r.data.attributes.last_analysis_stats.malicious
+```
+
+Same rules as Python: the key comes from an environment variable, there is a timeout, and results are cached.
+:: complex
+### Write functions, not one-offs
+```code
+function Get-FailedLogons {
+    [CmdletBinding()]
+    param([int]$Hours = 24, [int]$Threshold = 10)
+    $since = (Get-Date).AddHours(-$Hours)
+    Get-WinEvent -FilterHashtable @{ LogName='Security'; Id=4625; StartTime=$since } |
+        Group-Object { $_.Properties[5].Value } |
+        Where-Object Count -ge $Threshold |
+        Select-Object Name, Count
+}
+```
+
+- **Parameters with types and defaults** make a function safe to reuse. `[CmdletBinding()]` adds `-Verbose`, `-ErrorAction` and friends for free
+- **Return objects**, not formatted strings, so the caller can pipe the result
+- **Error handling:** `try { ... } catch { ... }` only catches terminating errors; add `-ErrorAction Stop` to turn a cmdlet's non-terminating errors into catchable ones
+- **Remoting:** `Invoke-Command -ComputerName srv01,srv02 -ScriptBlock { ... }` runs it on many machines at once (needs WinRM and permission)
+- **Scheduling:** `Register-ScheduledTask` runs a script on a timer; run it as a least-privileged service account, never your admin account
+- **Execution policy** is a guardrail against accidents, not a security boundary. Sign scripts that others will run, and review any script before `-ExecutionPolicy Bypass`
+- **Logging:** turn on Script Block Logging (event 4104); it is how defenders see what PowerShell actually ran, and why attackers' obfuscated scripts show up in the log anyway
+- **Complexity:** `Group-Object` builds a hash table (O(n)); calling `Where-Object` once per item inside another loop is O(n times m). Build the lookup once
+
+Compare the same idea in [bash](bash-automation.html) and [Python](python-automation.html). More reps in the [PowerShell dojo](../dojo/powershell.html).
+:: ref
+### automation: powershell
+Get-Command *event* | find commands by keyword
+Get-Help Get-WinEvent -Examples | usage examples
+Get-Member | list the properties of the objects coming down the pipe
+Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625} | read failed logons, filtered in the log service
+Import-Csv file.csv | read a CSV as objects
+Where-Object Prop -eq 'x' | keep matching objects
+Group-Object Prop | count by value
+Sort-Object Count -Descending | rank
+Select-Object -First 5 Name,Count | top 5, chosen columns
+Export-Csv -NoTypeInformation out.csv | save as CSV
+ConvertTo-Json -Depth 5 | object to JSON
+Invoke-RestMethod -Uri $url -Headers $h -TimeoutSec 10 | web API call that parses the JSON
+Invoke-Command -ComputerName srv01 -ScriptBlock {...} | run on a remote machine
+Register-ScheduledTask | run a script on a timer
+:: lab
+host: ws-admin
+user: admin
+cwd: C:\Users\admin
+:: brief
+The SOC exported the last day of failed logons (event 4625) from the file server as `4625.csv`, with the columns `TargetUserName`, `IpAddress` and `LogonType`.
+
+First find which account was hit hardest. Then find out **which source IP** is doing it, using the same pipeline filtered to that account.
+
+Submit the **IP address** attacking the most-targeted account.
+:: answer
+10.0.40.23
+:: hint
+`Import-Csv .\4625.csv | Group-Object TargetUserName | Sort-Object Count -Descending | Select-Object -First 5 Name,Count`
+:: hint
+The top account is a service account. Filter to it with `Where-Object TargetUserName -eq '<name>'`.
+:: hint
+Then group that subset by `IpAddress` and sort by `Count`.
+:: solution
+`svc-backup` took 412 failures. Grouping only its events by `IpAddress` gives **10.0.40.23** (398 failures) with a handful of stray attempts from other hosts. An internal address means a compromised workstation or a misconfigured job rather than an internet scan: the next step is to look at that machine, and to check whether `svc-backup` has an interactive logon right it should not.
+:: verify
+Import-Csv .\4625.csv | Where-Object TargetUserName -eq 'svc-backup' | Group-Object IpAddress | Sort-Object Count -Descending
+:: cmd ^Import-Csv \.\\4625\.csv \| Group-Object TargetUserName \| Sort-Object Count -Descending \| Select-Object -First 5 Name,Count$
+Name           Count
+----           -----
+svc-backup       412
+administrator     57
+jsmith            19
+mlee              11
+kiosk01            6
+:: cmd ^Import-Csv \.\\4625\.csv \| Where-Object TargetUserName -eq .svc-backup. \| Group-Object IpAddress \| Sort-Object Count -Descending$
+Count Name
+----- ----
+  398 10.0.40.23
+    9 10.0.40.31
+    5 10.0.40.8
+:: cmd ^Import-Csv \.\\4625\.csv \| Group-Object IpAddress \| Sort-Object Count -Descending \| Select-Object -First 5 Name,Count$
+Name        Count
+----        -----
+10.0.40.23    398
+203.0.113.77   61
+10.0.40.31     29
+10.0.40.8      21
+10.0.40.19     13
+:: cmd ^Import-Csv \.\\4625\.csv \| Measure-Object$
+Count    : 505
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+:: cmd ^Import-Csv \.\\4625\.csv \| Select-Object -First 3$
+TargetUserName IpAddress     LogonType
+-------------- ---------     ---------
+svc-backup     10.0.40.23    3
+administrator  203.0.113.77  10
+svc-backup     10.0.40.23    3
+:: cmd ^Import-Csv \.\\4625\.csv \| Get-Member$
+   TypeName: System.Management.Automation.PSCustomObject
+
+Name           MemberType   Definition
+----           ----------   ----------
+IpAddress      NoteProperty string IpAddress=
+LogonType      NoteProperty string LogonType=
+TargetUserName NoteProperty string TargetUserName=
+:: cmd ^Get-Process \| Sort-Object CPU -Descending \| Select-Object -First 5$
+Handles  CPU(s)  Id ProcessName
+-------  ------  -- -----------
+   1120  412.31 4612 MsMpEng
+    860   97.04 5120 explorer
+    402   40.22 2280 svchost
+    311   12.87  988 lsass
+    190    3.40 7340 powershell

@@ -1,0 +1,221 @@
+tagline: Small Python scripts that read logs, call APIs and tell you which alert to look at first. Practice with the boring parts that save an hour a day.
+sheet: python
+sheet_summary: Python commands and terms
+:: simple
+A **script** is a program you run once to do a chore. In security the chores repeat: read a log, count something, look an IP up, write a report. Python is good at this because the standard library already reads files, parses JSON, handles dates and talks HTTP.
+
+Every automation script has the same four steps:
+
+- **Read** the input (a log file, a JSON export, a CSV)
+- **Parse** each line into fields
+- **Decide** what matters (count, filter, compare)
+- **Report** the result (print it, write a file, send it)
+
+```
+$ python3 -c "print(sum(int(x) for x in '4 8 15 16 23 42'.split()))"
+```
+
+> Start with `print()` after every step. A script that prints what it thinks is easy to debug, and the prints become the report later.
+
+### Parsing a log line
+A log line is a string with structure. `line.split()` breaks it on whitespace and gives you a list. Pick fields by position, or look for a keyword and take the word after it.
+
+```code
+line = "Nov  7 03:00:05 bastion sshd[4104]: Failed password for root from 198.51.100.23 port 51329 ssh2"
+parts = line.split()
+ip = parts[parts.index("from") + 1]     # the word after "from"
+print(ip)                               # 198.51.100.23
+```
+:: mid
+### The standard-library toolbox
+- `open(path)` and `for line in f` read a file one line at a time, so a 4 GB log does not fill memory
+- `json.loads(line)` turns a JSON line into a dict, `json.load(f)` reads a whole file
+- `collections.Counter` counts things: `Counter(ips).most_common(5)` is the top-5 table
+- `re.search(r"from (\S+)", line)` pulls a field out with a regular expression when `split()` is too fragile
+- `argparse` makes the script take `--log path` and `--threshold 5` instead of editing the code
+- `pathlib.Path("logs").glob("*.log")` loops over files
+
+### Enrich: join your data with someone else's
+Enrichment means adding context. The alert has an IP; a reputation service knows how many engines flagged it. The pattern is always the same: load the lookup once into a dict, then look each item up.
+
+```code
+import json
+from collections import Counter
+
+rep = json.load(open("vt_cache.json"))        # {ip: {"malicious": 14, ...}}
+hits = Counter()
+for line in open("alerts.jsonl"):
+    a = json.loads(line)
+    if rep.get(a["src"], {}).get("malicious", 0) >= 5:
+        hits[a["src"]] += 1
+print(hits.most_common())
+```
+
+`dict.get(key, default)` is the safe lookup: an IP the service has never seen should count as zero, not crash the script.
+
+### Calling a web API
+Real enrichment calls an HTTP API. The shape never changes: build a URL, send a key in a header, check the status, parse the JSON.
+
+```code
+import os, requests
+
+KEY = os.environ["VT_API_KEY"]                # never in the source file
+def lookup(ip):
+    r = requests.get(f"https://www.virustotal.com/api/v3/ip_addresses/{ip}",
+                     headers={"x-apikey": KEY}, timeout=10)
+    r.raise_for_status()                      # 4xx/5xx becomes an exception
+    stats = r.json()["data"]["attributes"]["last_analysis_stats"]
+    return stats["malicious"]
+```
+
+This lab does not call the network. The response was saved to `vt_cache.json`, which is also what you should do for real: cache lookups so one noisy log does not burn your daily quota. Public example IPs only, and read the provider's terms before scripting anything against them.
+:: complex
+### Make it a tool, not a throwaway
+- **Keys come from the environment**, never from the file. A key in source ends up in git history (see the git chapter for how that goes).
+- **Timeouts on every request.** `requests.get` waits forever by default; a hung API call stalls the whole script.
+- **Respect rate limits.** Free tiers allow a few requests per minute. Sleep between calls, cache results, and back off when you see HTTP 429.
+- **Retry with backoff** for 5xx and network errors: wait 1s, 2s, 4s, then give up and report the failure instead of silently skipping the IP.
+- **Skip bad lines, count them.** Real logs contain garbage. `try/except json.JSONDecodeError` plus a `skipped += 1` counter beats a crash at line 90,211.
+- **Stream, do not slurp.** Iterate the file instead of `f.read().splitlines()` unless it fits in memory.
+- **Exit codes.** `sys.exit(1)` when the script finds something, so cron or CI can alert on it.
+
+```code
+import sys, json, argparse
+from collections import Counter
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("log"); ap.add_argument("--min-bad", type=int, default=5)
+    args = ap.parse_args()
+    bad = Counter(); skipped = 0
+    for line in open(args.log):
+        try: a = json.loads(line)
+        except json.JSONDecodeError: skipped += 1; continue
+        bad[a["src"]] += 1
+    print(f"{len(bad)} sources, {skipped} lines skipped")
+    sys.exit(1 if any(n >= args.min_bad for n in bad.values()) else 0)
+
+if __name__ == "__main__": main()
+```
+
+Complexity check: this is one pass, so **O(n)** in the number of lines, with O(1) average dict updates. Lookups in a list instead of a dict would turn it into O(n times k); see [Big-O](../bigo.html). Practice the same moves as katas in the [Python dojo](../dojo/python.html).
+:: ref
+### automation: python
+python3 script.py args | run a script with arguments
+python3 -m venv .venv | isolated environment for a project's packages
+pip install requests | HTTP library (not in the stdlib)
+for line in open(path) | read a file one line at a time
+json.loads(line) | JSON text to dict
+json.dump(obj, f, indent=2) | write JSON to a file
+Counter(items).most_common(5) | top-5 table
+re.search(r"from (\S+)", s) | pull a field out of a line with a regex
+dict.get(key, default) | lookup that never raises KeyError
+os.environ["KEY"] | read a secret from the environment
+argparse.ArgumentParser() | give a script command-line flags
+requests.get(url, headers=h, timeout=10) | web API call, always with a timeout
+r.raise_for_status() | turn HTTP 4xx/5xx into an exception
+sys.exit(1) | non-zero exit so cron and CI notice
+:: lab
+host: soc
+user: analyst
+cwd: /home/analyst/work
+py: yes
+:: brief
+Your firewall exported `alerts.jsonl` (one JSON object per line) and you saved the reputation lookups to `vt_cache.json` (a dict keyed by IP, with `malicious` = how many engines flagged it).
+
+Finish `enrich.py`. Among IPs flagged malicious by **5 or more engines**, find the one with the most **bytes in traffic the firewall allowed**. Denied traffic does not count: it never got through.
+
+Run it with `python3 enrich.py`. Submit the **IP address**.
+:: answer
+203.0.113.77
+:: hint
+Load the cache with `json.load(open("vt_cache.json"))`, then loop the alerts and `json.loads(line)` each one.
+:: hint
+Skip the line unless `a["action"] == "allow"` and `rep.get(a["src"], {}).get("malicious", 0) >= 5`.
+:: hint
+Add `a["bytes"]` into a `Counter` keyed by `a["src"]`, then `print(total.most_common(1)[0][0])`.
+:: solution
+`total = Counter()` and for each alert `if a["action"] == "allow" and rep.get(a["src"], {}).get("malicious", 0) >= 5: total[a["src"]] += a["bytes"]`, then `print(total.most_common(1)[0][0])`.
+
+It prints **203.0.113.77**. 198.51.100.9 has the most raw traffic and 11 detections, but every one of its connections was denied, so it is a noisy scan that did not land. The ordering question (what gets looked at first) is the reason to enrich at all.
+:: verify
+python3 -c 'import json;from collections import Counter;r=json.load(open("/home/analyst/work/vt_cache.json"));t=Counter();[t.update({a["src"]:a["bytes"]}) for a in map(json.loads,open("/home/analyst/work/alerts.jsonl")) if a["action"]=="allow" and r.get(a["src"],{}).get("malicious",0)>=5];print(t.most_common(1)[0][0])'
+:: file /home/analyst/work/enrich.py
+import json
+from collections import Counter
+
+rep = json.load(open("/home/analyst/work/vt_cache.json"))
+total = Counter()
+
+for line in open("/home/analyst/work/alerts.jsonl"):
+    a = json.loads(line)
+    # TODO: count a["bytes"] per a["src"] into `total`, but only when
+    #       the firewall allowed it AND the IP has >= 5 malicious verdicts
+
+# TODO: print the single IP with the most allowed bytes
+print("not finished yet")
+:: file /home/analyst/work/vt_cache.json
+{
+  "203.0.113.77": {
+    "malicious": 14,
+    "suspicious": 2,
+    "country": "NL"
+  },
+  "198.51.100.9": {
+    "malicious": 11,
+    "suspicious": 0,
+    "country": "RU"
+  },
+  "192.0.2.140": {
+    "malicious": 9,
+    "suspicious": 3,
+    "country": "US"
+  },
+  "203.0.113.200": {
+    "malicious": 2,
+    "suspicious": 1,
+    "country": "DE"
+  },
+  "198.51.100.23": {
+    "malicious": 0,
+    "suspicious": 0,
+    "country": "US"
+  },
+  "10.0.10.15": {
+    "malicious": 0,
+    "suspicious": 0,
+    "country": "--"
+  }
+}
+:: file /home/analyst/work/alerts.jsonl
+{"ts": 1762500046, "src": "203.0.113.77", "dport": 443, "action": "allow", "bytes": 6668}
+{"ts": 1762500134, "src": "203.0.113.77", "dport": 22, "action": "allow", "bytes": 1386}
+{"ts": 1762500207, "src": "203.0.113.77", "dport": 22, "action": "allow", "bytes": 6191}
+{"ts": 1762500286, "src": "203.0.113.77", "dport": 22, "action": "allow", "bytes": 8513}
+{"ts": 1762500318, "src": "198.51.100.9", "dport": 22, "action": "deny", "bytes": 5832}
+{"ts": 1762500378, "src": "198.51.100.9", "dport": 8080, "action": "deny", "bytes": 4778}
+{"ts": 1762500413, "src": "198.51.100.9", "dport": 22, "action": "deny", "bytes": 36313}
+{"ts": 1762500472, "src": "198.51.100.9", "dport": 22, "action": "deny", "bytes": 37257}
+{"ts": 1762500492, "src": "198.51.100.9", "dport": 443, "action": "deny", "bytes": 38407}
+{"ts": 1762500504, "src": "198.51.100.9", "dport": 8080, "action": "deny", "bytes": 3449}
+{"ts": 1762500537, "src": "198.51.100.9", "dport": 22, "action": "deny", "bytes": 36681}
+{"ts": 1762500559, "src": "198.51.100.9", "dport": 3389, "action": "deny", "bytes": 27668}
+{"ts": 1762500582, "src": "198.51.100.9", "dport": 22, "action": "deny", "bytes": 37615}
+{"ts": 1762500626, "src": "192.0.2.140", "dport": 443, "action": "allow", "bytes": 1044}
+{"ts": 1762500705, "src": "192.0.2.140", "dport": 443, "action": "allow", "bytes": 3250}
+{"ts": 1762500722, "src": "192.0.2.140", "dport": 22, "action": "allow", "bytes": 4823}
+{"ts": 1762500734, "src": "192.0.2.140", "dport": 443, "action": "allow", "bytes": 4266}
+{"ts": 1762500807, "src": "192.0.2.140", "dport": 8080, "action": "allow", "bytes": 2773}
+{"ts": 1762500871, "src": "203.0.113.200", "dport": 8080, "action": "allow", "bytes": 1681}
+{"ts": 1762500914, "src": "203.0.113.200", "dport": 443, "action": "allow", "bytes": 936}
+{"ts": 1762500950, "src": "203.0.113.200", "dport": 22, "action": "allow", "bytes": 1429}
+{"ts": 1762501022, "src": "203.0.113.200", "dport": 8080, "action": "allow", "bytes": 1606}
+{"ts": 1762501084, "src": "203.0.113.200", "dport": 3389, "action": "allow", "bytes": 499}
+{"ts": 1762501104, "src": "203.0.113.200", "dport": 8080, "action": "allow", "bytes": 875}
+{"ts": 1762501152, "src": "198.51.100.23", "dport": 443, "action": "allow", "bytes": 2202}
+{"ts": 1762501210, "src": "198.51.100.23", "dport": 22, "action": "allow", "bytes": 2937}
+{"ts": 1762501224, "src": "198.51.100.23", "dport": 3389, "action": "allow", "bytes": 1593}
+{"ts": 1762501273, "src": "198.51.100.23", "dport": 8080, "action": "allow", "bytes": 2575}
+{"ts": 1762501336, "src": "198.51.100.23", "dport": 22, "action": "allow", "bytes": 583}
+{"ts": 1762501375, "src": "198.51.100.23", "dport": 8080, "action": "allow", "bytes": 2920}
+{"ts": 1762501388, "src": "198.51.100.23", "dport": 22, "action": "allow", "bytes": 1468}

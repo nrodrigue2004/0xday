@@ -32,6 +32,10 @@ git add -A && git commit -m "Update site" && git push
 
 The hidden site CTF flags live in `FLAGS` in `build.py` (only their SHA-256 hashes ship to the browser, but the flags themselves are discoverable on purpose).
 
+## ~/code
+
+The programming path. Chapters are `content/code/<slug>.txt` in the same format as the learn guides; order, stage labels and cross-links are in `CHAPTERS` in `build_code.py`. Each chapter's `:: ref` is merged into the cheatsheet named by its `sheet:` header, so commands show up on ~/man too. Lab data is generated, so keep answers and `:: verify` lines in sync when you edit it.
+
 ## ~/ai
 
 Chapters are `content/ai/<slug>.txt` in the same format as the learn guides (tiers plus optional lab); order and blurbs are in `CHAPTERS` in `build_ai.py`. The reading list is `content/ai/news.json` (hand-curated and dated, the site is static, so update it by hand and bump `updated`).
