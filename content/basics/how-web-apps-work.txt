@@ -1,0 +1,125 @@
+tagline: Follow one click from the browser to the database and back: DNS, TCP, TLS, proxies, the app, the data store. Then learn the browser dev tools that let you watch it happen.
+:: simple
+When you type `https://shop.example/cart` and press Enter, a lot happens in about a tenth of a second:
+
+1. **DNS**: the browser asks for the IP address of `shop.example` (cached if it asked recently).
+2. **TCP**: it opens a connection to that IP on port 443 (the three-way handshake).
+3. **TLS**: both sides agree on encryption and the server proves its identity with a certificate.
+4. **HTTP**: the browser sends `GET /cart` with its cookies.
+5. **The server side**: a **reverse proxy** or **load balancer** receives it, passes it to an **application server**, which runs your code, which asks a **database** for the cart rows, builds a response and sends it back.
+6. **Rendering**: the browser reads the **HTML**, then fetches the **CSS**, **JavaScript**, images and API calls it mentions, and draws the page.
+
+The pieces:
+
+| Piece | Job | Examples |
+|---|---|---|
+| Browser (client) | shows pages, runs JavaScript | Firefox, Chrome |
+| DNS | name to IP | `1.1.1.1`, your router |
+| CDN | caches static files near the user | Cloudflare, Fastly |
+| Reverse proxy / load balancer | TLS termination, routing, spreading load | nginx, HAProxy |
+| WAF | filters known-bad requests | ModSecurity, cloud WAF |
+| App server | business logic | Node, Django, Spring, PHP |
+| Database | stores the data | PostgreSQL, MySQL, SQLite |
+| Cache / queue | speed and background jobs | Redis, RabbitMQ |
+
+> **Never trust the browser.** Everything on the client side (form limits, hidden fields, disabled buttons, JavaScript checks) can be changed by the person using it. The server must validate and authorize every request.
+:: mid
+### Front end and back end
+- **Front end**: HTML (structure), CSS (looks), JavaScript (behavior). Runs in the user's browser, so the user can read and change all of it.
+- **Back end**: the code and data on servers you control. This is where authentication, authorization, validation and business rules belong.
+- **Static site**: files served as-is (this site is one). Tiny attack surface.
+- **Server-rendered app**: the server builds the HTML for each request from templates and data (PHP, Rails, Django).
+- **Single-page app (SPA)**: the browser loads one JS bundle (React, Vue) that calls a JSON API and draws the page itself. The API becomes the real attack surface (see [APIs, REST and JSON](apis-rest-json.html)).
+- Typical stack names: **LAMP** (Linux, Apache, MySQL, PHP), **MERN** (MongoDB, Express, React, Node). Deeper on the full stack: [full-stack guide](../learn/full-stack-web-typescript-react-mongodb.html).
+
+### Where state lives
+The browser holds cookies, `localStorage`, and the page itself. The server holds sessions, the database, and uploaded files. Each place has different rules about who can read or change it. Questions that find bugs: *which of these did the client choose, and did the server check it?*
+
+### Browser developer tools (F12)
+| Tab | Use |
+|---|---|
+| **Elements** | the live DOM and CSS; edit anything to test layouts, see hidden fields |
+| **Console** | JavaScript errors and warnings (mixed content, CSP and CORS blocks show here) and a prompt to run JS on the page |
+| **Network** | every request: URL, method, status, size, timing, headers, payload, response. The most useful tab |
+| **Application** (Storage) | cookies and their flags, localStorage, sessionStorage, service workers |
+| **Sources** | the page's JavaScript, with breakpoints |
+| **Security** | certificate details |
+
+Network tab habits: tick *Preserve log* so a redirect doesn't wipe it, filter by `Fetch/XHR` to see only API calls, click a request and read **Headers**, **Payload**, **Response**, **Timing**. Right-click a request, *Copy as cURL*, and replay it in a terminal. *Export HAR* saves the whole session as JSON for a colleague or a ticket (**remove cookies and tokens first**, a HAR contains your session).
+
+### Reading a failure like a pro
+| Symptom | Likely cause |
+|---|---|
+| page loads, button does nothing | check Console for a JS error, Network for a failed API call |
+| `502 Bad Gateway` | proxy reached no healthy app server, look at the upstream |
+| `504 Gateway Timeout` | upstream too slow |
+| `403` on one file only | permissions or WAF rule |
+| padlock warning / blocked scripts | mixed content: an `http://` resource on an `https://` page |
+| works for you, fails for them | cache, CDN, DNS, or a cookie difference |
+| `CORS` error in console | the API did not allow this origin |
+:: complex
+### Where each layer can fail or be attacked
+| Layer | Failure or attack | Defense |
+|---|---|---|
+| DNS | poisoning, hijack, expired domain | DNSSEC, registrar lock, monitor records |
+| TLS | expired cert, weak ciphers, downgrade | auto-renew, TLS 1.2+, HSTS |
+| Proxy / CDN | origin IP exposed, request smuggling, cache poisoning | restrict origin to proxy, keep software patched |
+| WAF | bypassed or too loud | tune rules, but fix the bug, a WAF is not a patch |
+| App | injection, broken access control, logic bugs | validation, parameterized queries, authz middleware |
+| Session | theft, fixation | see [HTTP and the web](http-and-the-web.html) |
+| Database | exposed port, default credentials, excess privileges | private network, least-privilege DB user (see [relational databases](relational-databases.html)) |
+| Dependencies | known-vulnerable libraries | inventory, scanning, updates |
+| Secrets | keys in repos, `.env` served publicly | secret scanning, vaults |
+
+### Scale and operations
+- **Load balancers** spread requests over several app servers, so the app must keep state in shared stores (database, Redis), not in one machine's memory.
+- **Caching** layers: browser, CDN, proxy, app, database. A cache that ignores `Vary` or cookies can serve one user's page to another.
+- **Logs and metrics**: access logs at the proxy, application logs, database slow query log. Put them in a SIEM ([siem guide](../learn/siem-security-onion.html)); correlate by request id.
+- **Containers and CI/CD**: apps typically ship as container images through a pipeline. Pipeline credentials and base images are part of the attack surface.
+- **Environments**: development, staging, production. Staging with real data and weak auth is a classic breach.
+
+### A methodical walkthrough (own app or lab)
+1. Open the Network tab and use the app normally. List the hosts and endpoints.
+2. Note what the client sends that the server should not trust: ids, prices, roles, hidden form fields.
+3. In Application, check cookie flags and what is stored in localStorage.
+4. Read the response headers for version leaks and missing security headers.
+5. Write down findings with the request, response and a one-line fix. That write-up is the deliverable.
+:: lab
+style: ticket
+host: web01
+user: support
+cwd: /home/support
+system: web ops
+id: #WEB-0412
+subject: "Login button does nothing" after Friday's deploy (some users only)
+priority: P2
+from: help desk
+sla: 4h
+attach: network.txt, console.txt
+:: brief
+**Scenario (fictional):** for some users of **Shopwell** the login button does nothing since the deploy. A tester saved the browser's Network tab as `network.txt` and the Console as `console.txt` from a failing attempt. The load balancer adds an `X-Upstream` header naming which backend answered each request.
+
+Read both attachments in the console. Resolve the ticket with the **name of the backend host** that is returning the error on the login call.
+:: answer
+app-02
+:: hint
+Find the one request on the `/api/v1/login` path with a 5xx status. The 404s and 304s are noise.
+:: hint
+Look at the `X-Upstream` value on that same request, not the one on the static files.
+:: solution
+`network.txt` shows every static file coming back 200 or 304 from `cdn`, a harmless 404 for `favicon.ico` and `app.js.map`, and then `POST /api/v1/login` returning **502 Bad Gateway** with `X-Upstream: app-02`. The console error `Login failed: 502` confirms the page code is fine and the button "does nothing" because the failed call has no visible message. The earlier `GET /api/v1/health` shows app-01 healthy, so the load balancer sends only some users to the broken node, which is why it hits "some users". Fix: pull app-02 from the pool, check its deploy, and add an error message to the login form. The skill: match symptom, tab, and header.
+:: file /home/support/network.txt
+#  METHOD  URL                       STATUS  X-Upstream  NOTE
+1  GET     /                         200     cdn         html
+2  GET     /static/app.js            200     cdn
+3  GET     /static/app.css           304     cdn
+4  GET     /favicon.ico              404     cdn
+5  GET     /static/app.js.map        404     cdn         source map missing, harmless
+6  GET     /api/v1/health            200     app-01
+7  GET     /api/v1/products          200     app-01
+8  POST    /api/v1/login             502     app-02      Bad Gateway
+9  POST    /api/v1/login             502     app-02      retry
+:: file /home/support/console.txt
+[info]  app.js loaded
+[warn]  GET /static/app.js.map 404
+[error] Login failed: 502 (POST /api/v1/login)

@@ -1,0 +1,113 @@
+tagline: Nearly every web app keeps its data in a relational database. Learn tables, keys, joins, indexes and transactions, how the app talks to the database, and how to keep that conversation safe.
+:: simple
+A **relational database** stores data in **tables**. A table is like a spreadsheet: each **row** is one record (one customer, one order) and each **column** is one field (name, email, total). Software that manages them is a **DBMS**: PostgreSQL, MySQL/MariaDB, SQL Server, Oracle, SQLite.
+
+Two kinds of keys tie the tables together:
+
+- **Primary key**: a column that uniquely identifies each row (`customers.id`).
+- **Foreign key**: a column that points at another table's primary key (`orders.customer_id` points at `customers.id`). That is how "this order belongs to that customer" is stored once, instead of copying the customer's details into every order.
+
+```
+customers                    orders
+id | name  | email           id   | customer_id | total
+1  | alice | a@x.example     5001 | 1           | 40
+2  | bob   | b@x.example     5002 | 2           | 15
+```
+
+You talk to the database in **SQL**. The four basic moves are **CRUD**:
+
+| Action | SQL |
+|---|---|
+| Create | `INSERT INTO customers (name) VALUES ('carol');` |
+| Read | `SELECT name FROM customers WHERE id = 1;` |
+| Update | `UPDATE orders SET total = 20 WHERE id = 5002;` |
+| Delete | `DELETE FROM orders WHERE id = 5002;` |
+
+> `UPDATE` or `DELETE` without a `WHERE` hits **every row**. Real admins run it as a `SELECT` first, wrap it in a transaction, and have a backup.
+
+This chapter is the concept layer. For syntax practice with a live SQLite database, use [databases and SQL](../learn/databases-and-sql.html), [SQL basics](../learn/sql.html) and the SQL katas in the [dojo](../dojo.html).
+:: mid
+### How the web app uses it
+The app server holds a **connection** to the database (usually pooled) and sends it SQL on behalf of each request: login looks up a user, a cart page reads cart rows, checkout inserts an order. The database is almost never exposed to the internet; only the app server can reach it, on a private network and a specific port (**3306** MySQL, **5432** PostgreSQL, **1433** SQL Server, **1521** Oracle, **27017** MongoDB).
+
+The app connects as a **database user**. That user should have only the rights it needs (`SELECT`, `INSERT`, `UPDATE` on its own tables), never `DROP`, never admin. If an attacker finds a flaw in the app, the damage is capped by what that account can do.
+
+### Joins
+A **join** combines rows from two tables on matching keys.
+
+| Join | Returns |
+|---|---|
+| `INNER JOIN` | rows with a match in both tables |
+| `LEFT JOIN` | every row from the left table, with NULLs where nothing matches |
+| `RIGHT JOIN` / `FULL JOIN` | the mirror image / both sides |
+
+```
+SELECT c.name, o.id, o.total
+FROM customers c JOIN orders o ON o.customer_id = c.id
+WHERE o.total > 20;
+```
+A `LEFT JOIN ... WHERE right.id IS NULL` finds **orphans**: rows with no partner, a quick data-integrity check.
+
+### Aggregates
+`COUNT`, `SUM`, `AVG`, `MIN`, `MAX` with `GROUP BY` to summarize, `HAVING` to filter groups, `ORDER BY ... DESC` and `LIMIT` to rank. Example: `SELECT customer_id, SUM(total) FROM orders GROUP BY customer_id ORDER BY 2 DESC LIMIT 5;`
+
+### Indexes, normalization and transactions
+- **Index**: a side structure (usually a B-tree) that makes lookups on a column fast, like a book index. Costs space and slows writes. Primary keys are indexed automatically; index columns you search and join on. `EXPLAIN` shows whether a query used one. (See [Big-O](../bigo.html) for why.)
+- **Normalization**: store each fact once. Split repeated data into its own table and link by key. Fewer update mistakes, more joins.
+- **Transaction**: a group of statements that succeed or fail together (`BEGIN; ...; COMMIT;` or `ROLLBACK;`). Moving money is two updates that must both happen.
+- **ACID**: **A**tomic (all or nothing), **C**onsistent (rules always hold), **I**solated (concurrent transactions don't see each other's half-done work), **D**urable (committed means saved even after a crash).
+- **Constraints** enforce the rules in the database itself: `NOT NULL`, `UNIQUE`, `PRIMARY KEY`, `FOREIGN KEY`, `CHECK`.
+
+### Relational vs NoSQL
+Relational: fixed schema, joins, strong consistency. **NoSQL** (MongoDB documents, Redis key-value, Cassandra wide-column, Neo4j graph): flexible shape or extreme scale, fewer guarantees. Both can be misconfigured and injected; MongoDB databases left open with no password are a repeat headline.
+:: complex
+### Keeping the database safe
+- **Parameterized queries (prepared statements)** keep SQL code and user data apart. The query text is fixed with placeholders (`WHERE email = ?`), the values travel separately, so input can never become commands. This is *the* defense against SQL injection; escaping strings by hand and blocklisting characters are not.
+- **Least privilege** per application and per role; separate read-only accounts for reporting. No shared admin account in app configs.
+- **Network**: private subnet, firewall to the app server only, no public listener. Check with `nmap` from outside, and look for default ports in Shodan results for your own range.
+- **Authentication**: no default or empty passwords, secrets in a vault not in the repo, rotate. Enforce TLS between app and database.
+- **Passwords in the table**: never plaintext. Store a slow salted hash (**argon2id**, **bcrypt**, **scrypt**). See [CIA and crypto](cia-and-crypto.html).
+- **Encryption** at rest (disk or column level) and in backups. Sensitive fields (card numbers, ids) should be minimized or tokenized.
+- **Auditing and monitoring**: enable query/audit logs, alert on mass `SELECT`, schema changes, new admin users, and logins from odd hosts. Slow-query logs double as an anomaly signal.
+- **Backups**: 3-2-1, tested restores, and protected from the app account so ransomware can't delete them.
+- **Data minimization and retention**: data you don't keep can't leak. Delete test data copied from production.
+
+### Reading the schema
+```
+sqlite> .tables
+sqlite> .schema orders
+mysql> SHOW TABLES; DESCRIBE orders;
+psql> \dt  \d orders
+```
+Look for: columns holding credentials or tokens, tables with personal data, missing foreign keys, nullable columns that shouldn't be, and who has which rights (`SHOW GRANTS;`).
+
+### Forensics angle
+Databases keep evidence: login tables, audit tables, transaction logs, binlog/WAL. Rows deleted by an attacker may still be in logs or backups. Capture before you repair, and note timestamps and the DB timezone.
+:: lab
+host: db01
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, training only):** the **Shopwell** test database `shop.db` has customers and orders. After a cleanup script ran, QA suspects some orders now point at customers that **no longer exist** (orphans), which breaks the "my orders" page.
+
+Open it with `sqlite3 shop.db ".schema"` and look at the keys. Then find the **order id** whose `customer_id` has no matching row in `customers`. Submit that number, e.g. `submit 5000`.
+:: answer
+5004
+:: hint
+This is a LEFT JOIN question: start from `orders`, join `customers` on `customers.id = orders.customer_id`, and keep rows where the customer side is NULL.
+:: hint
+`SELECT o.id FROM orders o LEFT JOIN customers c ON c.id = o.customer_id WHERE c.id IS NULL;`
+:: solution
+`.schema` shows `orders.customer_id` is meant to reference `customers.id`, but SQLite does not enforce foreign keys unless `PRAGMA foreign_keys=ON` is set, so the cleanup deleted customer 4 and left their order behind. The LEFT JOIN query returns one row: **5004**. In a real system you would restore or reassign the order, turn on foreign key enforcement (`ON DELETE RESTRICT`), and run an orphan check after every cleanup job. Equivalent form: `SELECT id FROM orders WHERE customer_id NOT IN (SELECT id FROM customers);`
+:: verify
+sqlite3 shop.db "SELECT o.id FROM orders o LEFT JOIN customers c ON c.id = o.customer_id WHERE c.id IS NULL;"
+:: file /home/analyst/shop.db
+SQLite format 3 (binary). Open it with: sqlite3 shop.db
+:: file /home/analyst/README.txt
+shop.db (FICTIONAL training data): customers, orders.
+Try: sqlite3 shop.db ".tables"   then   sqlite3 shop.db ".schema"
+:: sql
+CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE);
+INSERT INTO customers VALUES (1,'Alice Ng','alice@shop.example'),(2,'Bob Reyes','bob@shop.example'),(3,'Carol Diaz','carol@shop.example'),(5,'Eve Park','eve@shop.example');
+CREATE TABLE orders(id INTEGER PRIMARY KEY, customer_id INTEGER REFERENCES customers(id), total REAL, status TEXT);
+INSERT INTO orders VALUES (5001,1,40.0,'shipped'),(5002,2,15.5,'shipped'),(5003,3,72.0,'paid'),(5004,4,23.0,'paid'),(5005,5,9.99,'shipped'),(5006,1,18.0,'paid');

@@ -13,6 +13,11 @@ CHAPTERS = [
     ("osint", "OSINT", "Open-source intelligence: methods, tools, and the legal and ethical limits. Lab: profile a fictional company"),
     ("cia-and-crypto", "CIA and crypto basics", "Confidentiality, integrity, availability, hashing, symmetric, asymmetric, TLS"),
     ("linux-windows-basics", "Linux and Windows basics", "File systems, permissions, processes, services, logs and the commands for each"),
+    ("http-and-the-web", "HTTP and the web", "Requests, responses, methods, status codes, headers, cookies and sessions. Lab: find the weak session cookie in a captured login"),
+    ("apis-rest-json", "APIs, REST and JSON", "How apps talk to servers, how tokens work, and the authorization bug that shows up everywhere. Lab: spot the IDOR in an API log"),
+    ("how-web-apps-work", "how web apps work", "One click from DNS to database and back, plus the browser dev tools. Lab: trace a broken login to the failing backend"),
+    ("relational-databases", "relational databases", "Tables, keys, joins, indexes, transactions and how the app and database stay safe. Lab: find the orphaned order"),
+    ("web-attack-classes", "web attack classes", "Injection, XSS, CSRF, access control, SSRF at concept level, with defenses and detection. Lab: find the injection that worked in a web log"),
 ]
 HOWMAP = {"shell": ("sandbox shell", "Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it."),
           "ticket": ("ticket queue", "Open the attachments, investigate in the console, then resolve the ticket with your answer.")}
@@ -55,5 +60,5 @@ def build(page):
 <p>The foundations everything else sits on. Each chapter goes <strong>simple, mid, complex</strong>, and commands live in the chapter, not just the theory.</p>
 <ul class="ls guides">{rows}</ul>
 <p class="muted small">progress: <span class="bar__on">[####]</span> = all levels read (plus lab solved, if any). Saved in your browser.</p>''',
-         cur="learn", scripts=("learn.js",), desc="Fundamentals: OSI and TCP/IP, ports and protocols, OSINT, CIA and crypto, Linux and Windows basics.")
+         cur="learn", scripts=("learn.js",), desc="Fundamentals: OSI and TCP/IP, ports and protocols, OSINT, CIA and crypto, Linux and Windows basics, HTTP, APIs, web apps, databases and web attack classes.")
     return chs
