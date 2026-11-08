@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>access control, CSRF and SSRF :: ~/web :: 0xDay</title>
+<meta name="description" content="Web security, access control, CSRF and SSRF: IDOR, privilege escalation, CSRF tokens and server-side request forgery. Lab: find the broken authorization in an access log.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">web --chapter access-control-and-ssrf</p>
+<h1>~/web/access-control-and-ssrf</h1>
+<p>Access control bugs let one user reach another user's data or an admin's features. Learn IDOR, privilege escalation, CSRF and SSRF, how they show up in logs, and the checks that stop them.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="access-control-and-ssrf">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Logging in proves who you are. <strong>Access control</strong> decides what you may do. The bug is almost never that the check is hard. It is that the check is <strong>missing</strong> on one route that the developer forgot, or only done in the browser.</p>
+<h4>IDOR: insecure direct object reference</h4>
+<p>The app uses an ID from the request to fetch a record, and never asks whether *this user* owns it.</p>
+<pre class="ex"><code><span class="o">GET /invoices/1001   &lt;- your invoice</span>
+<span class="o">GET /invoices/1002   &lt;- someone else&#x27;s, and the server happily returns it</span></code></pre>
+<p>*Fix:* on the server, look up the record <strong>and</strong> confirm it belongs to the signed-in user (or return 404). Random IDs (UUIDs) make guessing harder but do not replace the check.</p>
+<h4>Two directions of escalation</h4>
+<ul><li><strong>Horizontal</strong>: reach another user at the same level (user A reads user B's messages)</li><li><strong>Vertical</strong>: reach a higher level (a normal user opens <code>/admin</code> or sends <code>role=admin</code>)</li></ul>
+<h4>Forced browsing</h4>
+<p>Hiding the "Admin" link is not security. If <code>/admin/users</code> returns data to any logged-in user, the page is open. Every route needs its own server-side check.</p>
+<h4>The default rule</h4>
+<p><strong>Deny by default.</strong> A new endpoint should be forbidden until someone writes the rule that allows it. Forgetting then fails closed, not open.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/logs/access.log | head</span><button class="run" type="button" data-cmd="cat ~/logs/access.log | head" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Where the checks go wrong</h4>
+<ul><li>Checking only in the UI or the JavaScript, not on the API the UI calls</li><li>Protecting <code>GET /orders/5</code> but not <code>PUT /orders/5</code> or <code>DELETE</code></li><li>Trusting a field the client sends (<code>userId</code>, <code>isAdmin</code>, <code>role</code>)</li><li>Different code paths for the web app and the mobile API, with checks in only one</li><li>Method override headers and alternate URLs (<code>/Admin</code>, <code>/admin/</code>, <code>/admin;x</code>) slipping past a path-based rule</li><li>Multi-step processes where step 3 trusts that step 2 happened</li></ul>
+<h4>CSRF: cross-site request forgery</h4>
+<p>Your browser automatically attaches cookies to requests for a site. If a malicious page makes your browser send <code>POST /transfer</code> to your bank, the cookie goes along, and the bank thinks it was you.</p>
+<p>Defenses that work:</p>
+<ul><li><strong>Anti-CSRF tokens</strong>: a random value in each form that the attacker's page cannot know</li><li><strong>SameSite cookies</strong> (<code>Lax</code> is the browser default now), which stop most cross-site sends</li><li>Require a custom header for API calls, and check <code>Origin</code></li><li>Re-authenticate for sensitive actions</li></ul>
+<p>CSRF needs the victim to be logged in and the action to be predictable. It does not let the attacker read responses.</p>
+<h4>SSRF: server-side request forgery</h4>
+<p>A feature fetches a URL on the user's behalf (link preview, image import, webhook). The attacker supplies a URL that points inward:</p>
+<ul><li><code>http://localhost:8080/admin</code> or <code>http://10.0.0.5/</code> (internal services)</li><li><code>http://169.254.169.254/latest/meta-data/</code> (the <strong>cloud metadata service</strong>, which can hand out credentials)</li></ul>
+<p>Because the request comes from the trusted server, firewalls and "internal only" pages do not stop it. This is the Capital One breach pattern.</p>
+<p>*Fixes:* allow-list the destinations you really need, resolve the hostname and check the <strong>IP</strong> after DNS, block link-local and private ranges, do not follow redirects blindly, never return the raw response, and on AWS use IMDSv2 (it needs a token header, which many SSRF bugs cannot send).</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Finding IDOR at scale</h4>
+<p>Build two test accounts. Do an action as A, then replay A's requests with B's cookie (Autorize does this). Look beyond URLs: IDs hide in JSON bodies, headers, GraphQL arguments and cookies. Test every verb. Also check <strong>indirect</strong> references: an export file name that is a sequential number.</p>
+<h4>Authorization models, quickly</h4>
+<ul><li><strong>RBAC</strong>: roles (admin, editor, viewer) carry permissions</li><li><strong>ABAC</strong>: rules over attributes (department, time, record owner)</li><li><strong>ACL</strong>: a list per object saying who may do what</li><li><strong>Ownership checks</strong>: the rule behind most IDOR fixes (<code>record.owner_id == session.user_id</code>)</li></ul>
+<p>Centralize the check in one policy layer (middleware, decorator, policy engine) so a new route cannot skip it.</p>
+<h4>Blind SSRF and bypasses</h4>
+<p>When the response is not shown, you prove SSRF with a callback you control, or by timing. Attackers get around naive blacklists with decimal or hex IPs (<code>2130706433</code>), IPv6, a domain that resolves to <code>127.0.0.1</code>, <strong>DNS rebinding</strong> (a name that resolves to a public IP at check time, then an internal one at use time), and open redirects on an allowed host. This is why the check belongs *after* resolution, on the real connect address.</p>
+<h4>Other related bugs</h4>
+<ul><li><strong>Open redirect</strong>: <code>?next=https://evil.example</code> after login. Allow-list the destination</li><li><strong>Path traversal</strong>: <code>../</code> in a file parameter; resolve and confirm the final path stays inside the allowed folder</li><li><strong>CORS misconfiguration</strong>: reflecting any <code>Origin</code> with credentials allowed lets a hostile site read responses</li><li><strong>Clickjacking</strong>: framing the page; use <code>X-Frame-Options</code> or CSP <code>frame-ancestors</code></li></ul>
+<h4>Detection</h4>
+<ul><li>One session requesting many sequential or random IDs it does not own (low 200 rate for foreign IDs, many 403/404)</li><li>A 200 for a resource whose owner differs from the session user: log owner and caller together</li><li>Outbound requests from the app tier to metadata IPs or internal ranges</li><li>Cross-site POSTs with a missing or foreign <code>Origin</code> header</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>~/logs/access.log</code> is an access log from a <strong>fictional</strong> invoice app. The app returns <code>200</code> for any invoice number to any signed-in user. Each line shows the signed-in user, the request and the status.</p>
+<p>One user requested a long run of invoices that are not theirs. Give that <strong>username</strong>, e.g. <code>submit jdoe</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it. Everything is simulated.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/web-sec.html">cheatsheet</a></span></h2><h3>idor and access</h3><dl class="man"><dt><code>GET /resource/ID</code></dt><dd>try IDs you do not own, with two test accounts</dd><dt><code>Autorize (Burp)</code></dt><dd>replays requests with a low-privilege cookie</dd><dt><code>403 vs 404</code></dt><dd>404 avoids confirming that a record exists</dd><dt><code>deny by default</code></dt><dd>no rule means no access</dd></dl><h3>csrf</h3><dl class="man"><dt><code>Anti-CSRF token</code></dt><dd>unguessable value tied to the session, checked on POST</dd><dt><code>SameSite=Lax</code></dt><dd>cookie not sent on cross-site POSTs</dd><dt><code>Origin / Referer check</code></dt><dd>reject requests from foreign sites</dd></dl><h3>ssrf</h3><dl class="man"><dt><code>http://169.254.169.254/</code></dt><dd>cloud instance metadata address (block it)</dd><dt><code>IMDSv2</code></dt><dd>AWS metadata that requires a session token header</dd><dt><code>allow-list</code></dt><dd>only permit named destinations</dd><dt><code>DNS rebinding</code></dt><dd>name that flips to an internal IP after the check</dd></dl><h3>terms</h3><dl class="man"><dt><code>IDOR</code></dt><dd>direct object reference with no ownership check</dd><dt><code>BOLA</code></dt><dd>the API name for IDOR (OWASP API Top 10 #1)</dd><dt><code>CSRF</code></dt><dd>forged cross-site request using the victim's cookies</dd><dt><code>SSRF</code></dt><dd>server fetches an attacker-chosen URL</dd><dt><code>CORS</code></dt><dd>browser rule for which sites may read responses</dd></dl></section><nav class="pager"><a href="auth-and-sessions.html">&lt; authentication and sessions</a><a href="api-security.html">API security &gt;</a></nav><p><a href="../web.html">cd ~/web</a> </p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "access-control-and-ssrf", "title": "access control, CSRF and SSRF", "user": "analyst", "host": "web-logs", "brief": "<code>~/logs/access.log<\/code> is an access log from a <strong>fictional<\/strong> invoice app. The app returns <code>200<\/code> for any invoice number to any signed-in user. Each line shows the signed-in user, the request and the status.\n\nOne user requested a long run of invoices that are not theirs. Give that <strong>username<\/strong>, e.g. <code>submit jdoe<\/code>.", "hints": ["Look for one user whose requests walk through consecutive invoice numbers.", "<code>awk &#x27;{print $2}&#x27; access.log | sort | uniq -c | sort -rn<\/code> counts requests per user."], "answers": ["2ba4a0d035676b504d199aab7def1fb77bb0868d6f449e82904d2c13a531b605"], "solution": "PGNvZGU+dC5uZzwvY29kZT4gcmVxdWVzdGVkIDxjb2RlPi9pbnZvaWNlcy8yMDAxPC9jb2RlPiB0aHJvdWdoIDxjb2RlPi9pbnZvaWNlcy8yMDEyPC9jb2RlPiBpbiBvcmRlciBhbmQgZ290IDxjb2RlPjIwMDwvY29kZT4gZm9yIGV2ZXJ5IG9uZSwgd2hpbGUgdGhlIG90aGVyIHVzZXJzIG9ubHkgcmVxdWVzdGVkIG9uZSBvciB0d28gaW52b2ljZXMuIFdhbGtpbmcgc2VxdWVudGlhbCBJRHMgYW5kIGdldHRpbmcgZGF0YSBiYWNrIGlzIHRoZSBzaWduYXR1cmUgb2YgYW4gSURPUiBiZWluZyBleHBsb2l0ZWQuIFRoZSBmaXggaXMgYW4gb3duZXJzaGlwIGNoZWNrIGluIHRoZSBpbnZvaWNlIGhhbmRsZXIsIGFuZCBhbiBhbGVydCBmb3IgYSBzaW5nbGUgc2Vzc2lvbiByZWFkaW5nIG1hbnkgZGlzdGluY3QgSURzLgo=", "fs": {"/home/analyst/logs/access.log": "09:01:02 m.lee GET /invoices/1044 200\n09:01:40 r.sun GET /invoices/1090 200\n09:02:11 t.ng GET /invoices/2001 200\n09:02:12 t.ng GET /invoices/2002 200\n09:02:12 t.ng GET /invoices/2003 200\n09:02:13 t.ng GET /invoices/2004 200\n09:02:13 t.ng GET /invoices/2005 200\n09:02:14 t.ng GET /invoices/2006 200\n09:02:14 t.ng GET /invoices/2007 200\n09:02:15 t.ng GET /invoices/2008 200\n09:02:15 t.ng GET /invoices/2009 200\n09:02:16 t.ng GET /invoices/2010 200\n09:02:16 t.ng GET /invoices/2011 200\n09:02:17 t.ng GET /invoices/2012 200\n09:03:50 m.lee GET /invoices/1045 200\n09:04:20 r.sun GET /invoices/1091 200\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst/logs", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
