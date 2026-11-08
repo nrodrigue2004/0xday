@@ -1,0 +1,165 @@
+tagline: Ask a table of alerts real questions: who, how many, which asset. SQL for the analyst who lives in the SIEM. Practice with GROUP BY, JOIN and HAVING.
+sheet: sql
+sheet_summary: SQL commands and terms
+:: simple
+A SIEM or IDS stores events as **rows** in tables. SQL lets you ask the table a question instead of scrolling it. If you can say the question in a sentence, you can usually write it:
+
+- "show me the alerts from this IP" is `SELECT ... WHERE src = '...'`
+- "how many alerts per signature" is `GROUP BY sig` with `COUNT(*)`
+- "which alerts hit important machines" is a `JOIN` to the asset table
+
+```
+$ sqlite3 soc.db "SELECT sig, COUNT(*) FROM alerts GROUP BY sig ORDER BY 2 DESC"
+```
+
+> Read a query in this order: `FROM` (which table), `WHERE` (which rows), `GROUP BY` (bucket them), `SELECT` (what to show), `ORDER BY`, `LIMIT`. It is not the order you type it, and it explains most beginner errors.
+
+### Three habits
+- `LIMIT 20` while you explore so a huge table does not flood the screen
+- `COUNT(*)` first, to see how big the answer is before printing it
+- Quote text values with single quotes: `WHERE sig = 'ET SCAN Nmap'`
+:: mid
+### Counting and grouping
+`GROUP BY` collapses rows that share a value, and an aggregate (`COUNT`, `SUM`, `MIN`, `MAX`, `AVG`) summarises each group.
+
+```
+$ sqlite3 soc.db "SELECT src, COUNT(*) AS n FROM alerts GROUP BY src ORDER BY n DESC LIMIT 5"
+$ sqlite3 soc.db "SELECT dst, COUNT(DISTINCT src) AS sources FROM alerts GROUP BY dst ORDER BY sources DESC"
+```
+
+`COUNT(*)` counts alerts. `COUNT(DISTINCT src)` counts **different attackers**. They answer different questions, and mixing them up is the classic analyst bug: one noisy scanner makes a quiet asset look busy.
+
+### WHERE versus HAVING
+`WHERE` filters rows **before** grouping. `HAVING` filters groups **after** it.
+
+```
+$ sqlite3 soc.db "SELECT src, COUNT(*) FROM alerts WHERE sev >= 2 GROUP BY src HAVING COUNT(*) > 5"
+```
+
+### Joins: add the context
+The alert table has IPs. The asset table knows which IP is the domain controller. A `JOIN` lines them up on a shared column.
+
+```
+$ sqlite3 soc.db "SELECT a.host, a.crit, COUNT(*) FROM alerts x JOIN assets a ON a.ip = x.dst GROUP BY a.host ORDER BY 3 DESC"
+```
+
+An `INNER JOIN` (the default) drops alerts whose destination is not in `assets`. `LEFT JOIN` keeps them with empty asset columns, which is how you find machines nobody inventoried.
+:: complex
+### Windows, subqueries and CTEs
+- **Subquery:** `WHERE src IN (SELECT src FROM alerts WHERE sig LIKE '%Cobalt%')` finds everything else that attacker did
+- **CTE** (`WITH noisy AS (...) SELECT ...`) names an intermediate result so a long query reads top to bottom
+- **Window function:** `COUNT(*) OVER (PARTITION BY src)` keeps every row and adds the group total beside it
+- **Time buckets:** timestamps are epoch seconds here, so `ts / 3600` groups by hour: `GROUP BY ts / 3600`
+
+```
+$ sqlite3 soc.db "WITH per AS (SELECT dst, COUNT(DISTINCT src) AS srcs FROM alerts GROUP BY dst) SELECT a.host, per.srcs FROM per JOIN assets a ON a.ip = per.dst WHERE a.crit = 'high' ORDER BY per.srcs DESC"
+```
+
+### Habits that hold up on a real SIEM
+- **Index the columns you filter and join on** (`CREATE INDEX idx_src ON alerts(src)`). A lookup on an indexed column is a tree walk, O(log n), instead of reading every row, O(n). Same idea as the [Big-O page](../bigo.html).
+- **`EXPLAIN QUERY PLAN`** shows whether the query uses the index or scans the table.
+- **Parameterise, never concatenate.** Building SQL from user input is SQL injection; every language has a placeholder syntax (`?` in sqlite).
+- **Query read-only.** Use an account that cannot `UPDATE` or `DELETE` when you are only investigating.
+- SIEMs have their own languages (SPL, KQL), but the same ideas carry over: filter, group, count, join. More reps in the [SQL dojo](../dojo/sql.html).
+:: ref
+### analyst queries
+SELECT * FROM t LIMIT 10 | peek at a table
+SELECT col, COUNT(*) FROM t GROUP BY col | how many of each
+COUNT(DISTINCT col) | how many different values
+ORDER BY n DESC LIMIT 5 | top-5
+WHERE ts >= 1762500000 | filter by time window
+HAVING COUNT(*) > 5 | filter after grouping
+JOIN a ON a.ip = t.dst | add asset context
+LEFT JOIN a ON a.ip = t.dst | keep rows with no match (unknown assets)
+WHERE src IN (SELECT ...) | everything else that attacker did
+WITH x AS (SELECT ...) SELECT ... | name an intermediate result
+ts / 3600 | bucket epoch seconds by hour
+CREATE INDEX i ON t(col) | make lookups on col fast
+EXPLAIN QUERY PLAN SELECT ... | scan or index?
+sqlite3 db ".schema" | show the tables
+:: lab
+host: siem
+user: analyst
+cwd: /home/analyst
+:: brief
+The IDS wrote its alerts to `soc.db` (table `alerts`), and the asset inventory is in `assets` (`crit` is `high`, `med` or `low`).
+
+Management asks: **which high-criticality host was touched by the most different source IPs?** Raw alert count is not the question. One scanner hammering a box does not make it the most targeted.
+
+Submit the **host name**, e.g. `submit dc01`.
+:: answer
+hr-db
+:: hint
+`sqlite3 soc.db ".schema"` shows both tables. alerts.dst matches assets.ip.
+:: hint
+You need `COUNT(DISTINCT src)` grouped by destination, joined to assets, filtered to `crit = 'high'`.
+:: hint
+`SELECT a.host, COUNT(DISTINCT x.src) AS srcs FROM alerts x JOIN assets a ON a.ip = x.dst WHERE a.crit = 'high' GROUP BY a.host ORDER BY srcs DESC LIMIT 1`
+:: solution
+Group by the host and count **distinct** sources: `hr-db` was touched by 4 different IPs. `files01` and `dc01` have the most raw alerts (9 each) but from one and two attackers, which is the trap in `COUNT(*)`. `lt-fin-04` has even more distinct sources but it is a `med` asset, so the `crit = 'high'` filter drops it.
+:: verify
+sqlite3 soc.db "SELECT a.host FROM alerts x JOIN assets a ON a.ip = x.dst WHERE a.crit = 'high' GROUP BY a.host ORDER BY COUNT(DISTINCT x.src) DESC LIMIT 1"
+:: file /home/analyst/soc.db
+SQLite format 3 (binary). Open it with: sqlite3 soc.db
+:: file /home/analyst/README.txt
+soc.db: alerts (id, ts epoch seconds, sig, src, dst, sev 1-3) and assets (ip, host, crit).
+Try: sqlite3 soc.db ".schema"
+:: sql
+CREATE TABLE assets(ip TEXT PRIMARY KEY, host TEXT, crit TEXT);
+INSERT INTO assets VALUES ('10.0.20.5','dc01','high'),('10.0.20.6','files01','high'),('10.0.20.7','hr-db','high'),('10.0.30.11','lt-fin-04','med'),('10.0.30.12','lt-dev-09','low'),('10.0.30.13','kiosk-lobby','low'),('10.0.20.9','backup01','high');
+CREATE TABLE alerts(id INTEGER PRIMARY KEY, ts INTEGER, sig TEXT, src TEXT, dst TEXT, sev INTEGER);
+INSERT INTO alerts VALUES
+(1,1762500622,'ET MALWARE Cobalt Beacon','203.0.113.77','10.0.20.5',1),
+(2,1762501520,'ET WEB SQLi Attempt','203.0.113.77','10.0.20.5',3),
+(3,1762501865,'ET DNS Tunnel','203.0.113.77','10.0.20.5',2),
+(4,1762502292,'ET DNS Tunnel','203.0.113.77','10.0.20.5',2),
+(5,1762502588,'ET POLICY RDP Brute','203.0.113.77','10.0.20.5',1),
+(6,1762502828,'ET POLICY RDP Brute','203.0.113.77','10.0.20.5',1),
+(7,1762503562,'ET POLICY RDP Brute','198.51.100.9','10.0.20.5',1),
+(8,1762504118,'ET SCAN SSH Brute','198.51.100.9','10.0.20.5',1),
+(9,1762504447,'ET MALWARE Cobalt Beacon','198.51.100.9','10.0.20.5',1),
+(10,1762504656,'ET WEB SQLi Attempt','203.0.113.77','10.0.20.6',3),
+(11,1762505094,'ET SCAN SSH Brute','203.0.113.77','10.0.20.6',3),
+(12,1762505480,'ET POLICY RDP Brute','203.0.113.77','10.0.20.6',3),
+(13,1762506067,'ET SCAN SSH Brute','203.0.113.77','10.0.20.6',3),
+(14,1762506819,'ET DNS Tunnel','203.0.113.77','10.0.20.6',1),
+(15,1762507346,'ET DNS Tunnel','203.0.113.77','10.0.20.6',3),
+(16,1762507807,'ET WEB SQLi Attempt','203.0.113.77','10.0.20.6',2),
+(17,1762508270,'ET SCAN Nmap','203.0.113.77','10.0.20.6',2),
+(18,1762508979,'ET WEB SQLi Attempt','203.0.113.77','10.0.20.6',1),
+(19,1762509234,'ET SCAN Nmap','203.0.113.77','10.0.20.7',1),
+(20,1762509745,'ET POLICY RDP Brute','203.0.113.77','10.0.20.7',1),
+(21,1762510153,'ET SCAN SSH Brute','198.51.100.9','10.0.20.7',1),
+(22,1762510317,'ET SCAN Nmap','198.51.100.9','10.0.20.7',3),
+(23,1762510531,'ET SCAN SSH Brute','192.0.2.140','10.0.20.7',1),
+(24,1762510963,'ET SCAN SSH Brute','192.0.2.140','10.0.20.7',1),
+(25,1762511095,'ET POLICY RDP Brute','198.51.100.23','10.0.20.7',3),
+(26,1762511540,'ET POLICY RDP Brute','198.51.100.23','10.0.20.7',3),
+(27,1762511858,'ET MALWARE Cobalt Beacon','192.0.2.140','10.0.20.9',3),
+(28,1762512290,'ET WEB SQLi Attempt','192.0.2.140','10.0.20.9',1),
+(29,1762512468,'ET WEB SQLi Attempt','192.0.2.140','10.0.20.9',2),
+(30,1762513019,'ET WEB SQLi Attempt','192.0.2.140','10.0.20.9',2),
+(31,1762513166,'ET POLICY RDP Brute','192.0.2.140','10.0.20.9',1),
+(32,1762513993,'ET MALWARE Cobalt Beacon','198.51.100.9','10.0.30.11',3),
+(33,1762514324,'ET WEB SQLi Attempt','198.51.100.9','10.0.30.11',3),
+(34,1762514549,'ET SCAN SSH Brute','198.51.100.9','10.0.30.11',1),
+(35,1762514819,'ET SCAN SSH Brute','198.51.100.9','10.0.30.11',2),
+(36,1762515029,'ET DNS Tunnel','198.51.100.23','10.0.30.11',3),
+(37,1762515116,'ET SCAN SSH Brute','198.51.100.23','10.0.30.11',2),
+(38,1762515834,'ET SCAN Nmap','198.51.100.23','10.0.30.11',3),
+(39,1762516161,'ET SCAN SSH Brute','198.51.100.23','10.0.30.11',2),
+(40,1762516392,'ET MALWARE Cobalt Beacon','192.0.2.140','10.0.30.11',1),
+(41,1762516997,'ET SCAN SSH Brute','192.0.2.140','10.0.30.11',3),
+(42,1762517394,'ET DNS Tunnel','192.0.2.140','10.0.30.11',1),
+(43,1762518081,'ET POLICY RDP Brute','203.0.113.200','10.0.30.11',1),
+(44,1762518978,'ET WEB SQLi Attempt','203.0.113.200','10.0.30.11',3),
+(45,1762519860,'ET POLICY RDP Brute','203.0.113.200','10.0.30.11',1),
+(46,1762520450,'ET WEB SQLi Attempt','203.0.113.77','10.0.30.11',2),
+(47,1762521258,'ET SCAN Nmap','203.0.113.200','10.0.30.12',1),
+(48,1762522127,'ET MALWARE Cobalt Beacon','203.0.113.200','10.0.30.12',2),
+(49,1762522452,'ET POLICY RDP Brute','203.0.113.200','10.0.30.12',3),
+(50,1762523131,'ET MALWARE Cobalt Beacon','203.0.113.200','10.0.30.12',2),
+(51,1762524018,'ET DNS Tunnel','203.0.113.200','10.0.30.12',2),
+(52,1762524451,'ET SCAN Nmap','198.51.100.23','10.0.30.13',1),
+(53,1762524615,'ET POLICY RDP Brute','198.51.100.23','10.0.30.13',2),
+(54,1762524876,'ET MALWARE Cobalt Beacon','198.51.100.23','10.0.30.13',1);

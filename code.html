@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>code :: 0xDay</title>
+<meta name="description" content="A programming and scripting path for security work: Python, Bash, PowerShell, SQL, git and data structures, with browser labs.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="data.js?v=cf7b0008" defer></script>
+<script src="site.js?v=cf7b0008" defer></script>
+<script src="fx.js?v=cf7b0008" defer></script>
+<script src="learn.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="start.html">./start</a></li><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html" aria-current="page">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ls ~/code</p><h1>~/code</h1>
+<p>A practice path for the programming a security job actually uses: Python, shell, PowerShell, SQL, git and the data structures behind detection logic. Every chapter has three levels (<strong>simple, mid, complex</strong>), a hands-on lab in the browser, and its commands on the <a href="man.html">cheatsheets</a>.</p>
+<p>Each lab is a small piece of real work: parse an auth log, enrich alerts with an API response, rank assets in an IDS table, find the commit that deleted the logs, write a sliding-window brute-force detector. Do them in order, or jump to whichever language the job post asks for.</p>
+<ul class="ls guides"><li class="guiderow" data-skill="python-automation"><a class="ls-row" href="code/python-automation.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">1 · script · Python for automation <span class="muted small">read logs, parse JSON, enrich with an API, write a tool that exits cleanly</span></span><span class="ls-tags">lab</span></a></li><li class="guiderow" data-skill="bash-automation"><a class="ls-row" href="code/bash-automation.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">2 · shell · Bash pipelines and scripts <span class="muted small">grep, awk, sort, uniq, loops, set -euo pipefail, cron</span></span><span class="ls-tags">lab</span></a></li><li class="guiderow" data-skill="powershell-automation"><a class="ls-row" href="code/powershell-automation.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">3 · windows · PowerShell for admins <span class="muted small">object pipelines, event logs, CSV, Invoke-RestMethod, functions</span></span><span class="ls-tags">lab</span></a></li><li class="guiderow" data-skill="sql-for-analysts"><a class="ls-row" href="code/sql-for-analysts.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">4 · data · SQL for analysts <span class="muted small">group, join and count your way through an alert table</span></span><span class="ls-tags">lab</span></a></li><li class="guiderow" data-skill="git-for-scripts"><a class="ls-row" href="code/git-for-scripts.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">5 · history · Git for your scripts <span class="muted small">history, blame, bisect, secrets and guardrails for automation</span></span><span class="ls-tags">lab</span></a></li><li class="guiderow" data-skill="data-structures-in-practice"><a class="ls-row" href="code/data-structures-in-practice.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">6 · structures · Data structures in practice <span class="muted small">dict, set, deque and heap solving real detection problems</span></span><span class="ls-tags">lab</span></a></li></ul>
+<p class="muted small">progress: <span class="bar__on">[####]</span> = all levels read and the lab solved. Saved in your browser.</p>
+<h2>pair it with</h2>
+<ul class="arrow">
+<li><a href="dojo.html">~/dojo</a>: daily katas in nine languages. Chapters here teach the task, the dojo is the reps.</li>
+<li><a href="bigo.html">~/bigo</a>: why a set beats a list and a window beats a counter. The cost tables behind stage 6.</li>
+<li><a href="learn.html">~/learn</a>: the full guides for each language and tool, and <a href="drills.html">~/drills</a> for log, regex and permission labs.</li>
+<li><a href="man.html">~/man</a>: the commands from every chapter, as man pages.</li>
+</ul>
+<p class="muted small">Scripts here run against made-up logs and public example IPs only. Never point automation at systems or APIs you are not allowed to use, and keep keys in the environment, not the file.</p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

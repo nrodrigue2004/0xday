@@ -32,6 +32,10 @@ git add -A && git commit -m "Update site" && git push
 
 The hidden site CTF flags live in `FLAGS` in `build.py` (only their SHA-256 hashes ship to the browser, but the flags themselves are discoverable on purpose).
 
+## ~/code
+
+The programming path. Chapters are `content/code/<slug>.txt` in the same format as the learn guides; order, stage labels and cross-links are in `CHAPTERS` in `build_code.py`. Each chapter's `:: ref` is merged into the cheatsheet named by its `sheet:` header, so commands show up on ~/man too. Lab data is generated, so keep answers and `:: verify` lines in sync when you edit it.
+
 ## ~/comptia
 
 Later/optional certs after Security+. `content/comptia/certs.json` lists them; each built cert has `content/comptia/<slug>.txt` (format in the `build_comptia.py` docstring: per objective `@notes`, `@cards`, `@check`, `@lab`, `@answer`). CySA+ (CS0-004) is built. Network+ and A+ are placeholders until Nate's notes arrive: add `netplus.txt` / `aplus.txt`, set `built: true` and a `domains` map in certs.json.
