@@ -1,0 +1,118 @@
+tagline: Disk forensics starts with a perfect copy and a hash, and ends with a timeline. Learn FTK Imager for acquisition and Autopsy for analysis, then find a deleted file by its hash.
+:: simple
+**Disk forensics** is examining a drive's contents without changing them. Two jobs, two tools:
+- **FTK Imager** acquires: it makes a bit-for-bit **image** of a drive (`.E01` or raw `.dd`) and records its hash.
+- **Autopsy** analyzes: it opens the image read-only, lists files (including deleted ones), builds timelines and runs keyword and hash searches.
+
+The rule that everything else follows: **never work on the original**. Image it, hash it, store the original, examine a copy.
+
+```
+$ sha256sum case/disk.dd
+$ cat case/acquisition.txt
+```
+
+### Words to know
+- **Image**: an exact copy of a drive or partition, including free space and deleted data
+- **Hash**: SHA-256 (or MD5) of the image. If it matches at acquisition and again later, nothing changed
+- **Write blocker**: hardware or software that stops the examiner's machine writing to the evidence drive
+- **Chain of custody**: the log of who held the evidence, when, and why
+- **Unallocated space**: disk area no file currently owns; deleted data often survives there
+:: mid
+### Acquiring with FTK Imager
+1. Attach the source through a write blocker (or use a read-only mount)
+2. File > Create Disk Image > pick Physical Drive > format **E01** (compressed, stores case info) or raw
+3. Fill in case number, evidence number, examiner, notes
+4. Turn on **Verify images after they are created**; keep the hash report beside the image
+FTK Imager can also add an image as evidence, browse its file tree read-only, export files, and capture memory or protected registry files from a live system.
+
+### Autopsy workflow
+1. New case, add a **data source** (the image), let ingest modules run: hash lookup, file type id, recent activity, keyword search, extension mismatch
+2. **File Views > Deleted Files**: entries still in the file table but marked deleted
+3. **Data Artifacts**: browser history, USB devices, recent documents, installed programs, web downloads
+4. **Timeline**: every file and artifact timestamp on one axis (MACB: modified, accessed, changed, born)
+5. **Keyword search** and **hash set** matches; tag items and export a report
+
+### Deleted does not mean gone
+Deleting removes the directory entry or flags it free, but the data stays until overwritten. Where it hides: deleted entries still in the file table, **unallocated space** (carve it by file signature), the recycle bin (`$Recycle.Bin`), shadow copies, and slack space. SSDs with TRIM can really erase it, so say so in a report.
+
+### Evidence you check on Windows
+`NTUSER.DAT` (recent files, run keys), `$MFT` (file records, timestamps), `Prefetch` (programs run), `UsrClass.dat`, browser profiles, `setupapi.dev.log` and `USBSTOR` (plugged-in USB drives), event logs.
+:: complex
+### Timeline discipline
+Timestamps lie in two ways: clocks are wrong, and the filesystem updates some times on copy and move. Note the machine's timezone, then compare several sources before claiming a time. A file copied to a USB drive keeps its **modified** time but gets a new **created** time on the destination: created later than modified is a copy signature.
+
+### Anti-forensics to expect
+Wiping tools, timestomping (altered times: compare `$STANDARD_INFORMATION` with `$FILE_NAME` in the MFT), renamed extensions (check the file signature, not the name), encrypted containers, and data in alternate data streams. Extension mismatch ingest catches the second one.
+
+### Hash sets
+A **known-good** set (NSRL) filters out the operating system so you read what is left. A **known-bad** set flags files you already care about, like the stolen document's hash. Matching a hash proves content, even if the filename changed.
+
+### Verifying and reporting
+Re-hash the image before and after the case. A report states what was examined, what tools and versions, what was found with path and timestamps, and what it does **not** show. Findings and opinions go in separate paragraphs.
+
+### Command line equivalents (Sleuth Kit)
+Autopsy sits on The Sleuth Kit: `mmls` shows partitions, `fls -r -o 2048 image.dd` lists files with deleted ones starred, `icat` extracts by inode, `istat` shows an inode's metadata, `tsk_recover` pulls deleted files, `blkls` dumps unallocated space for carving.
+:: ref
+### acquisition
+sha256sum disk.dd | hash an image; compare with the acquisition record
+dd if=/dev/sdb of=disk.dd bs=4M conv=noerror,sync | raw copy from a read-only attached drive (Linux)
+ewfinfo disk.E01 | show case metadata of an E01 image
+ewfverify disk.E01 | verify an E01 image against its stored hash
+### sleuth kit
+mmls disk.dd | partition table with sector offsets
+fls -r -o 2048 disk.dd | recursive file list; deleted entries marked with *
+icat -o 2048 disk.dd 4417 | extract the file with inode 4417
+istat -o 2048 disk.dd 4417 | metadata and timestamps for one inode
+tsk_recover -o 2048 disk.dd out/ | recover deleted files into out/
+fsstat -o 2048 disk.dd | filesystem type, cluster size, serial
+### autopsy views
+Deleted Files | file-table entries flagged deleted
+Data Artifacts | browser, USB, recent docs, programs, downloads
+Timeline | every timestamp on one axis
+Hash Lookup | compare against known-good and known-bad sets
+Extension Mismatch | name says .jpg, signature says .zip
+### terms
+E01 | EnCase image format with compression, hashes and case metadata
+MFT | NTFS master file table, one record per file
+MACB | modified, accessed, changed, born timestamps
+Unallocated space | not owned by any file; may hold deleted data
+File carving | rebuilding files from signatures, ignoring the file table
+Chain of custody | log of who handled the evidence
+:: lab
+host: forensics-ws
+user: examiner
+cwd: /home/examiner/case
+:: brief
+An engineer is suspected of copying a design archive before resigning. The drive image `laptop.dd` has been processed already: `fls.txt` is the Sleuth Kit file listing (deleted entries are marked with `*`) and `hashes.txt` holds the SHA-256 of each file. `stolen.txt` has the SHA-256 of the real archive from the company file server. All data is fictional.
+
+The suspect renamed and then deleted the archive. Find which **deleted** file matches the stolen hash.
+
+Submit the **filename** of the match, e.g. `submit report.zip`.
+:: answer
+photos-backup.zip
+:: hint
+Start with `cat stolen.txt`, then `grep` that hash in `hashes.txt`. The name will not look like a design file.
+:: hint
+Several files may share a similar name. Check which line in `fls.txt` has the same filename and a `*` in front.
+:: solution
+`stolen.txt` gives the archive's SHA-256 (ending `e41c`). In `hashes.txt` it matches `photos-backup.zip` in `Users/jlee/Documents/`, and `fls.txt` lists it as `* 4417` (deleted). The name is harmless but the content is the stolen archive, so the hash proves it. The undeleted `holiday-pics.zip` has a different hash and is a real photo archive. Next: carve or recover the file with `icat`, check the MFT times for when it was created and deleted, and look for USB history around that time.
+:: verify
+grep 7f3a9c1e hashes.txt
+:: file /home/examiner/case/stolen.txt
+7f3a9c1e2b84d05a6c19e8f7b3d24a50c8e61f9d3b7a24c05e8d91f6a2b3e41c
+:: file /home/examiner/case/fls.txt
+r/r 4401-128-1:   Users/jlee/Documents/budget-2026.xlsx
+r/r 4409-128-1:   Users/jlee/Documents/holiday-pics.zip
+r/r 4410-128-1:   Users/jlee/Pictures/IMG_2201.jpg
+* r/r 4417-128-1: Users/jlee/Documents/photos-backup.zip
+* r/r 4420-128-1: Users/jlee/Downloads/installer.exe
+r/r 4433-128-1:   Users/jlee/Desktop/notes.txt
+* r/r 4440-128-1: Users/jlee/Documents/old-resume.docx
+:: file /home/examiner/case/hashes.txt
+5b0e3d8a1c4f7692b5e0d3a8c1f47692b5e0d3a8c1f47692b5e0d3a8c1f47692  budget-2026.xlsx  inode 4401
+3c6d1a7e9f2b4058a1d3e6c9b7f20458d1e3a6c9b2f7054e8d1a3c6b9f2e7051  holiday-pics.zip  inode 4409
+8aa2c4e60d1b93f7e5a4c2d8b6f10397e4a2c5d8f1b60493a7c2e5d8b1f46093  IMG_2201.jpg  inode 4410
+7f3a9c1e2b84d05a6c19e8f7b3d24a50c8e61f9d3b7a24c05e8d91f6a2b3e41c  photos-backup.zip  inode 4417
+d41f5e90a2c7b6381e4f9a05c3d7b261e8f40a95c3d1b7620e4a8f95c1d3b762  installer.exe  inode 4420
+9b2c6e1f4a8d3057c1e9b4f6a2d80375c1e9b4f6a2d8037c5e1b9f4a6d2c8035  notes.txt  inode 4433
+e04a7d3c91b5f628a0d4e7c3b91f5628a0d4e7c3b91f5628a0d4e7c3b91f5628  old-resume.docx  inode 4440

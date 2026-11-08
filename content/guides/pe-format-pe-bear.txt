@@ -1,0 +1,130 @@
+tagline: Every Windows program is a PE file. Learn the headers, sections and import table, how PE-bear shows them, and the tells of a packed sample, then spot the packed section in a dump.
+:: simple
+A **PE** (Portable Executable) is the file format of Windows programs: `.exe`, `.dll`, `.sys`. Before you run or disassemble a sample, its **headers** already tell you a lot: what it was built for, what it imports, whether it looks packed.
+
+**PE-bear** is a free viewer that opens a PE and shows the headers, sections and imports in tabs. It never runs the file, so it's a safe first look.
+
+```
+$ cat ~/pe/sample.txt
+$ strings ~/pe/sample.exe
+```
+
+### The layout in one picture
+- **DOS header**: starts with `MZ` (the two bytes every PE begins with) and points to the real header
+- **PE header**: starts with `PE\0\0`, says the CPU (x86 or x64), the number of sections, the compile timestamp
+- **Optional header**: the entry point, image base, subsystem (GUI or console), and the data directories (imports, exports, resources)
+- **Section table and sections**: the actual content, in named blocks
+:: mid
+### Sections and what they hold
+- `.text`: code (the instructions)
+- `.data`: global variables
+- `.rdata`: constants, strings, and often the import table
+- `.rsrc`: resources (icons, dialogs, sometimes an embedded payload)
+- `.reloc`: relocation info for loading at a different address
+Each section has a **virtual size** (in memory), a **raw size** (on disk), **characteristics** (read, write, execute) and an **entropy** (how random the bytes look, 0 to 8).
+
+### Imports and exports
+The **import table** lists the Windows functions the program asks for, by DLL. It is a summary of intent:
+- `CreateRemoteThread`, `VirtualAllocEx`, `WriteProcessMemory`: process injection
+- `URLDownloadToFile`, `InternetOpenUrl`, `WinHttp*`: network downloads
+- `RegSetValueEx`, `CreateService`: persistence
+- `IsDebuggerPresent`, `GetTickCount`: anti-debug and anti-analysis
+A **DLL** also has an **export table** (what it offers to others).
+
+### Signs of packing
+A **packer** compresses or encrypts the real code and adds a small stub that unpacks it in memory. In PE-bear look for:
+- a section with **high entropy** (above about 7.0)
+- an **executable and writable** section
+- raw size near zero but virtual size huge (space reserved for the unpacked code)
+- odd section names (`UPX0`, `UPX1`, random strings), or a missing `.text`
+- a tiny import table (only `LoadLibrary` and `GetProcAddress`), because the real imports are resolved at runtime
+- an entry point that sits in the last section
+
+### Other quick tells
+Compile timestamp (can be faked, but 1970 or a future date is suspicious), a missing or unsigned certificate, a `.rsrc` that is bigger than the whole program, and a rich header mismatch.
+:: complex
+### Header fields that matter when you analyze
+- `AddressOfEntryPoint` (RVA): where execution starts; compare with the section it lands in
+- `ImageBase`: preferred load address; ASLR (`DYNAMIC_BASE` flag) may move it
+- `Subsystem`: console (3) or GUI (2); a GUI exe with no windows is often a hidden tool
+- `DllCharacteristics`: ASLR, DEP (`NX_COMPAT`), control flow guard. Malware often has none
+- `TimeDateStamp`: the build time; a batch of samples with the same stamp are likely one builder
+
+### RVA vs file offset
+Fields give **RVAs** (relative to where the image loads). On disk the data sits at a **file offset**. To convert: find the section containing the RVA, then `offset = RVA - section.VirtualAddress + section.PointerToRawData`. PE-bear does it for you, and shows both.
+
+### Hashes for identification
+The **import hash** (imphash) hashes the ordered list of imported functions, so two builds of the same family often share it. Section hashes and the SHA-256 identify exact files. Look them up in a reputation service before spending hours.
+
+### Dealing with a packed sample
+Run it in the lab VM under a debugger and stop **after** the unpacking stub finishes (usually at the jump to the original entry point), then **dump** the process from memory and fix the imports (Scylla, or a PE rebuild in x64dbg). A faster route for UPX itself: `upx -d sample.exe`. Then reopen the dump in PE-bear: the sections and imports now look normal.
+
+### Where it connects
+Use PE-bear to triage, Ghidra or IDA to read code, [memory forensics](memory-forensics-volatility.html) to find injected PE images with `malfind`, and the [malware analysis](malware-analysis.html) guide for the full workflow.
+:: ref
+### headers
+MZ | first two bytes of the DOS header; the file is a PE candidate
+PE\0\0 | signature of the PE header (e_lfanew points to it)
+Machine | CPU: 0x14c is x86, 0x8664 is x64
+NumberOfSections | how many sections follow
+TimeDateStamp | build time (can be forged)
+AddressOfEntryPoint | RVA where execution begins
+ImageBase | preferred load address
+Subsystem | 2 GUI, 3 console, 1 driver/native
+### sections
+.text | code
+.data | writable globals
+.rdata | read-only data, often imports
+.rsrc | resources: icons, dialogs, embedded files
+.reloc | relocations for ASLR
+Entropy | 0 to 8; above ~7 means compressed or encrypted
+VirtualSize vs RawSize | in memory vs on disk; big gap means unpacking space
+Characteristics | R/W/X flags; W+X is a red flag
+### imports
+CreateRemoteThread + WriteProcessMemory | process injection
+VirtualAlloc + VirtualProtect | allocating or changing executable memory
+LoadLibrary + GetProcAddress | resolving APIs at runtime, common in packed code
+URLDownloadToFile | downloads a file from a URL
+RegSetValueEx | writes registry values, often for persistence
+IsDebuggerPresent | anti-debug check
+### tools
+PE-bear | GUI viewer for headers, sections, imports, hex
+strings -n 8 f.exe | printable strings of 8+ chars
+sha256sum f.exe | hash for lookup and reporting
+upx -d f.exe | unpack a UPX-packed file
+pefile (Python) | read PE fields from scripts
+imphash | hash of the import table order
+:: lab
+host: re-lab
+user: student
+cwd: /home/student/pe
+:: brief
+`sample.txt` is a PE-bear-style summary of `invoice_viewer.exe` (all fictional). It's small, strangely quiet, and your colleague says it "doesn't import anything". The section table and import list are in the file.
+
+Find the section that is **packed**: it has very high entropy, is writable and executable, and holds the code the program runs first.
+
+Submit the **section name**, e.g. `submit .text`.
+:: answer
+UPX1
+:: hint
+`cat sample.txt` and read the sections table. Look at the Entropy column.
+:: hint
+Two sections have unusually small raw sizes or odd names. Which one also has the entry point inside it and the W+X flags?
+:: solution
+`UPX1` has entropy 7.91, characteristics `R W X`, and the entry point RVA `0x1B340` falls inside it (its range is `0x1A000` to `0x1F000`). `UPX0` is empty on disk (raw size 0) and exists only as space for the unpacked code. The import table only lists `LoadLibraryA`, `GetProcAddress` and `VirtualProtect`, as the unpack stub needs. Unpack with `upx -d` or by dumping from memory, then reopen it in PE-bear for the real imports.
+:: verify
+cat sample.txt
+:: file /home/student/pe/sample.txt
+File: invoice_viewer.exe   Machine: x86   Subsystem: GUI
+TimeDateStamp: 1998-09-18 03:11:42  (suspicious: pre-dates the product)
+EntryPoint RVA: 0x1B340   ImageBase: 0x00400000
+
+Sections
+Name    VirtSize   VirtAddr   RawSize   Entropy  Flags
+UPX0    0x00010000 0x00001000 0x000000   0.00     R W X
+UPX1    0x00005000 0x0001A000 0x004E00   7.91     R W X
+.rsrc   0x00001000 0x0001F000 0x000600   3.40     R
+
+Imports
+KERNEL32.DLL: LoadLibraryA, GetProcAddress, VirtualProtect, ExitProcess
+USER32.DLL:   MessageBoxA

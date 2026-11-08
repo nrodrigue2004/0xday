@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man pe-format-pe-bear :: 0xDay</title>
+<meta name="description" content="pe-format-pe-bear cheatsheet: PE format (PE-bear) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man pe-format-pe-bear</p>
+<div class="manhead"><span>PE-FORMAT-PE-BEAR(7)</span><span>0xDay Field Manual</span><span>PE-FORMAT-PE-BEAR(7)</span></div>
+<h1>pe-format-pe-bear <span class="muted">- PE format (PE-bear) commands and terms</span></h1>
+<h2 id="g-headers">headers</h2><dl class="man"><dt><code>MZ</code></dt><dd>first two bytes of the DOS header; the file is a PE candidate</dd><dt><code>PE\0\0</code></dt><dd>signature of the PE header (e_lfanew points to it)</dd><dt><code>Machine</code></dt><dd>CPU: 0x14c is x86, 0x8664 is x64</dd><dt><code>NumberOfSections</code></dt><dd>how many sections follow</dd><dt><code>TimeDateStamp</code></dt><dd>build time (can be forged)</dd><dt><code>AddressOfEntryPoint</code></dt><dd>RVA where execution begins</dd><dt><code>ImageBase</code></dt><dd>preferred load address</dd><dt><code>Subsystem</code></dt><dd>2 GUI, 3 console, 1 driver/native</dd></dl><h2 id="g-sections">sections</h2><dl class="man"><dt><code>.text</code></dt><dd>code</dd><dt><code>.data</code></dt><dd>writable globals</dd><dt><code>.rdata</code></dt><dd>read-only data, often imports</dd><dt><code>.rsrc</code></dt><dd>resources: icons, dialogs, embedded files</dd><dt><code>.reloc</code></dt><dd>relocations for ASLR</dd><dt><code>Entropy</code></dt><dd>0 to 8; above ~7 means compressed or encrypted</dd><dt><code>VirtualSize vs RawSize</code></dt><dd>in memory vs on disk; big gap means unpacking space</dd><dt><code>Characteristics</code></dt><dd>R/W/X flags; W+X is a red flag</dd></dl><h2 id="g-imports">imports</h2><dl class="man"><dt><code>CreateRemoteThread + WriteProcessMemory</code></dt><dd>process injection</dd><dt><code>VirtualAlloc + VirtualProtect</code></dt><dd>allocating or changing executable memory</dd><dt><code>LoadLibrary + GetProcAddress</code></dt><dd>resolving APIs at runtime, common in packed code</dd><dt><code>URLDownloadToFile</code></dt><dd>downloads a file from a URL</dd><dt><code>RegSetValueEx</code></dt><dd>writes registry values, often for persistence</dd><dt><code>IsDebuggerPresent</code></dt><dd>anti-debug check</dd></dl><h2 id="g-tools">tools</h2><dl class="man"><dt><code>PE-bear</code></dt><dd>GUI viewer for headers, sections, imports, hex</dd><dt><code>strings -n 8 f.exe</code></dt><dd>printable strings of 8+ chars</dd><dt><code>sha256sum f.exe</code></dt><dd>hash for lookup and reporting</dd><dt><code>upx -d f.exe</code></dt><dd>unpack a UPX-packed file</dd><dt><code>pefile (Python)</code></dt><dd>read PE fields from scripts</dd><dt><code>imphash</code></dt><dd>hash of the import table order</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

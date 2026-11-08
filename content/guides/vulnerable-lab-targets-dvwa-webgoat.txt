@@ -1,0 +1,130 @@
+tagline: Metasploitable 2, DVWA and WebGoat are machines and apps built to be broken, so you can practice safely. Learn how to run them without exposing them, what each one teaches, and how to read the vulnerable code.
+:: simple
+A **vulnerable-by-design target** is software with known holes, made for practice. Attacking something you own, in an isolated lab, is legal and the best way to learn. Attacking anyone else's system is not.
+
+The three in the homelab:
+- **Metasploitable 2**: a whole Linux VM full of old services (FTP, SMB, Tomcat, a backdoored vsftpd). Practice: scanning, service exploits, Metasploit
+- **DVWA** (Damn Vulnerable Web App): a PHP/MySQL site with SQL injection, XSS, command injection, file upload and more, with security levels low, medium, high and impossible
+- **WebGoat**: a Java teaching app that walks you through lessons (injection, broken access control, JWT, XXE) with hints and a check for each one
+
+```
+$ cat ~/targets/README.txt
+$ ls ~/targets/dvwa
+```
+
+### Rule one: keep them contained
+These machines are **meant to be compromised**. Put them on an isolated lab subnet (a pfSense interface with no route to your home network, no port forwarding, no bridged adapter). Never expose them to the internet: scanners will own them within hours and use your IP.
+:: mid
+### Setting them up
+- **Metasploitable 2**: import the VM into Proxmox/VirtualBox, give it a host-only or isolated lab network, log in with the credentials printed on its banner, and snapshot it before you start
+- **DVWA**: run it in Docker (`docker run -p 127.0.0.1:8080:80 vulnerables/web-dvwa`) or on a Linux VM; open `/setup.php`, click create database, log in, then set **DVWA Security** from the menu
+- **WebGoat**: `java -jar webgoat-*.jar` or the Docker image; browse to port 8080 `/WebGoat`, register a local account (nothing leaves your machine)
+Always bind to localhost or the lab network only. Take a snapshot so you can reset in a minute.
+
+### What to practice on each
+- **Metasploitable**: `nmap -sV` the host, search each version in searchsploit, try Metasploit modules (vsftpd 2.3.4, Samba usermap, distcc), read the resulting logs from the defender's side in [Security Onion](siem-security-onion.html)
+- **DVWA**: SQL injection (`' OR '1'='1`), reflected and stored XSS, command injection (`; id`), file inclusion and upload. Use Burp Suite or the browser dev tools to see the requests
+- **WebGoat**: follow the lessons in order; they teach the idea, then make you exploit it
+
+### Read the source at every level
+DVWA lets you view the source of each page. Compare `low` (no checks), `medium` (a weak filter that can be bypassed), `high` (stronger but quirky) and `impossible` (parameterized queries, tokens). Seeing why `impossible` is safe is worth more than the exploit.
+
+### Think like both sides
+Every attack you run leaves a trail. After each success, look at what the web server log, the pfSense log and Security Onion saw. A good lab note says: what I did, what the log showed, and the control that would have stopped it.
+:: complex
+### Lab hygiene and safety
+- Separate VLAN/subnet per purpose: **attacker** (Kali), **targets**, **monitoring**, **management**; allow attacker to targets only
+- pfSense default-deny with explicit rules; log blocked traffic, since a blocked attempt is a lesson too
+- Snapshots before and after each exercise; revert to a clean state
+- Never reuse a real password on a deliberately weak machine; treat anything typed into it as public
+- Keep the lab off a work or school network, and disable shared folders and clipboard in the VM
+
+### Mapping exercises to real frameworks
+Tag each practice with the **OWASP Top 10** category (A01 Broken Access Control, A03 Injection, A07 Identification and Authentication Failures) and, for the whole-network exercises, the **MITRE ATT&CK** technique (T1190 exploit public-facing app, T1059 command interpreter). It turns a weekend of poking at DVWA into interview answers.
+
+### Sample write-up shape
+1. Target and version, date, network location
+2. Recon: ports and services, with the command
+3. Finding: the flaw, where it is, how you confirmed it
+4. Impact: what an attacker gets
+5. Evidence: request, response, screenshot (redact nothing sensitive because it is a lab)
+6. Fix: the code or config change, and the detection that would catch it
+
+### Beyond the basics
+Move on to other practice platforms (TryHackMe rooms, Hack The Box, VulnHub machines, OWASP Juice Shop, bWAPP) when these feel easy. The skill is the method: enumerate, form a hypothesis, test it, write down what happened.
+:: ref
+### setup
+docker run -p 127.0.0.1:8080:80 vulnerables/web-dvwa | run DVWA reachable from this machine only
+java -jar webgoat.jar --server.address=127.0.0.1 | run WebGoat bound to localhost
+nmap -sV 10.0.30.5 | enumerate a Metasploitable VM on the lab subnet
+searchsploit vsftpd 2.3.4 | find a public exploit for a version
+msfconsole | start Metasploit
+### dvwa practice inputs
+' OR '1'='1 | SQL injection test in a vulnerable text field
+' UNION SELECT user,password FROM users# | read other columns via UNION
+<script>alert(1)</script> | reflected XSS probe
+127.0.0.1; id | command injection test
+Security: low / medium / high / impossible | difficulty menu; compare source at each level
+### metasploitable targets
+vsftpd 2.3.4 | backdoor opens a shell on port 6200 (CVE-2011-2523)
+Samba 3.0.20 | usermap_script command execution
+distccd | remote command execution
+Tomcat manager | default credentials, deploy a WAR
+UnrealIRCd 3.2.8.1 | backdoor in a downloaded release
+### terms
+OWASP Top 10 | list of the most critical web app risks
+CVE | public ID for a vulnerability
+SQL injection | user input becomes part of a query
+XSS | script injected into a page that others view
+Snapshot | VM save point to revert to
+Isolated subnet | no route to production networks
+:: lab
+host: web-lab
+user: student
+cwd: /home/student/targets/dvwa
+:: brief
+Compare the `low` and `impossible` versions of DVWA's "SQL Injection" page in `~/targets/dvwa`. The low version builds its query straight from user input, which is why `' OR '1'='1` returns every user.
+
+Submit the **name of the request parameter** (in `$_GET`) that the low-level page pastes into the query.
+
+e.g. `submit page`.
+:: answer
+id
+:: hint
+Compare `low.php` and `impossible.php` side by side with `diff` or `cat`.
+:: hint
+Look for `$_GET[` in `low.php`, then follow where its value ends up.
+:: solution
+`low.php` reads `$id = $_GET['id'];` and runs `SELECT first_name, last_name FROM users WHERE user_id = '$id';` with no escaping, so input like `1' OR '1'='1` changes the query. `impossible.php` checks an anti-CSRF token, verifies the value is numeric and uses a **prepared statement** (`:id` bound with `bindParam`), so the input can never become SQL. The vulnerable parameter is **id**.
+:: verify
+cat low.php
+:: file /home/student/targets/README.txt
+Lab targets (isolated subnet 10.0.30.0/24, no route to the internet):
+  10.0.30.5   Metasploitable 2
+  10.0.30.6   DVWA (docker)
+  10.0.30.7   WebGoat
+:: file /home/student/targets/dvwa/low.php
+<?php
+// SQL Injection, security level: low
+if( isset( $_REQUEST[ 'Submit' ] ) ) {
+    $id = $_GET[ 'id' ];
+    $query = "SELECT first_name, last_name FROM users WHERE user_id = '$id';";
+    $result = mysqli_query($GLOBALS["___mysqli_ston"], $query) or die( '<pre>' . mysqli_error() . '</pre>' );
+    while( $row = mysqli_fetch_assoc( $result ) ) {
+        echo "<pre>ID: {$id}<br />First name: {$row['first_name']}<br />Surname: {$row['last_name']}</pre>";
+    }
+}
+?>
+:: file /home/student/targets/dvwa/impossible.php
+<?php
+// SQL Injection, security level: impossible
+if( isset( $_GET[ 'Submit' ] ) ) {
+    checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'index.php' );
+    $id = $_GET[ 'id' ];
+    if(is_numeric( $id )) {
+        $data = $db->prepare( 'SELECT first_name, last_name FROM users WHERE user_id = (:id) LIMIT 1;' );
+        $data->bindParam( ':id', $id, PDO::PARAM_INT );
+        $data->execute();
+    }
+}
+?>

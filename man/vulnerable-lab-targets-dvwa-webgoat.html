@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man vulnerable-lab-targets-dvwa-webgoat :: 0xDay</title>
+<meta name="description" content="vulnerable-lab-targets-dvwa-webgoat cheatsheet: Vulnerable lab targets (DVWA / WebGoat) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man vulnerable-lab-targets-dvwa-webgoat</p>
+<div class="manhead"><span>VULNERABLE-LAB-TARGETS-DVWA-WEBGOAT(7)</span><span>0xDay Field Manual</span><span>VULNERABLE-LAB-TARGETS-DVWA-WEBGOAT(7)</span></div>
+<h1>vulnerable-lab-targets-dvwa-webgoat <span class="muted">- Vulnerable lab targets (DVWA / WebGoat) commands and terms</span></h1>
+<h2 id="g-setup">setup</h2><dl class="man"><dt><code>docker run -p 127.0.0.1:8080:80 vulnerables/web-dvwa</code></dt><dd>run DVWA reachable from this machine only</dd><dt><code>java -jar webgoat.jar --server.address=127.0.0.1</code></dt><dd>run WebGoat bound to localhost</dd><dt><code>nmap -sV 10.0.30.5</code></dt><dd>enumerate a Metasploitable VM on the lab subnet</dd><dt><code>searchsploit vsftpd 2.3.4</code></dt><dd>find a public exploit for a version</dd><dt><code>msfconsole</code></dt><dd>start Metasploit</dd></dl><h2 id="g-dvwa-practice-inputs">dvwa practice inputs</h2><dl class="man"><dt><code>&#x27; OR &#x27;1&#x27;=&#x27;1</code></dt><dd>SQL injection test in a vulnerable text field</dd><dt><code>&#x27; UNION SELECT user,password FROM users#</code></dt><dd>read other columns via UNION</dd><dt><code>&lt;script&gt;alert(1)&lt;/script&gt;</code></dt><dd>reflected XSS probe</dd><dt><code>127.0.0.1; id</code></dt><dd>command injection test</dd><dt><code>Security: low / medium / high / impossible</code></dt><dd>difficulty menu; compare source at each level</dd></dl><h2 id="g-metasploitable-targets">metasploitable targets</h2><dl class="man"><dt><code>vsftpd 2.3.4</code></dt><dd>backdoor opens a shell on port 6200 (CVE-2011-2523)</dd><dt><code>Samba 3.0.20</code></dt><dd>usermap_script command execution</dd><dt><code>distccd</code></dt><dd>remote command execution</dd><dt><code>Tomcat manager</code></dt><dd>default credentials, deploy a WAR</dd><dt><code>UnrealIRCd 3.2.8.1</code></dt><dd>backdoor in a downloaded release</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>OWASP Top 10</code></dt><dd>list of the most critical web app risks</dd><dt><code>CVE</code></dt><dd>public ID for a vulnerability</dd><dt><code>SQL injection</code></dt><dd>user input becomes part of a query</dd><dt><code>XSS</code></dt><dd>script injected into a page that others view</dd><dt><code>Snapshot</code></dt><dd>VM save point to revert to</dd><dt><code>Isolated subnet</code></dt><dd>no route to production networks</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
