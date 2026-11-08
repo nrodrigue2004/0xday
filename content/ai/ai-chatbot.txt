@@ -3,7 +3,7 @@ tagline: How the chatbot on this site works: search first, then optionally a sma
 The chatbot at [~/ai/chat](chat.html) does not call any server. Everything runs in your browser tab.
 
 It has two modes:
-- **Search mode (default).** Your question is matched against the text of this site: the guides, the Security+ notes, the glossary, the cheatsheets and the AI chapters. You get the best-matching passages back, each with a link to the page it came from. Nothing is generated, so nothing is invented. If the site doesn't cover it, it says so.
+- **Search mode (default).** Your question is matched against the text of this site: the guides, the Security+ notes, the glossary, the cheatsheets and the AI chapters. First it works out what kind of question you asked: a definition, a comparison (it builds a side-by-side table), how or why, a list of steps, a command, advice, or a follow-up like "tell me more". It then answers from the glossary, a table of curated comparisons, a set of curated answers, or the best-matching passages, each with a link to the page it came from. Nothing is generated, so nothing is invented. If the site doesn't cover it, it says so and points to the closest pages.
 - **Local model mode (optional).** You can download a small language model into your browser. It then writes an answer in sentences, using the passages from search mode as its source material. It is slower, needs a recent Chrome or Edge with WebGPU, and is much weaker than the big hosted chatbots.
 
 Why not just plug in a famous model? A website can't hold a secret. Anything in the page's JavaScript is visible to every visitor, so an API key placed there would be copied and used on someone else's bill within hours. A hosted model needs a small server in the middle that holds the key. This site is static files, so it has no middle.
@@ -24,6 +24,18 @@ question  ->  search the site index  ->  top 4 passages
           ->  prompt = rules + passages + question
           ->  model writes the answer, citing [1] [2]
 ```
+
+### How a question is routed
+Before any ranking, small rules in `chatcore.js` classify the question. They are ordinary pattern matching, not a model:
+1. **Small talk and out-of-scope** ("hello", "what's the weather") get a short reply instead of a bad search result.
+2. **Multi-part** questions ("what is TCP and how is it different from UDP") are split and answered one part at a time, and a follow-up like "tell me more" or "what about UDP" reuses the topic of the last answer.
+3. **Comparisons** ("X vs Y", "difference between X and Y", "is X the same as Y") look for a curated side-by-side table first, and otherwise line up the two glossary definitions.
+4. **Definitions** ("what is X", "X meaning") use the glossary, with typo repair for misspelled terms.
+5. **Curated answers** cover advice and troubleshooting ("why is my DNS not resolving", "which cert should I get first") by matching your words against several phrasings of each question.
+6. **How, why, list and command** questions run the BM25 search below, preferring cheatsheets for commands and showing a list for steps.
+7. **When nothing matches well**, it says it doesn't know, rather than guessing.
+
+The routing is checked by `scripts/chat_test.js`, which asks thousands of generated and hand-written questions and reports a pass rate per category.
 
 ### How the search works here
 At build time a script reads every built page, splits it into chunks at each heading, and writes one JSON index. In the browser the chat loads that file and scores each chunk with **BM25**, a classic ranking formula:

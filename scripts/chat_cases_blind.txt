@@ -1,0 +1,103 @@
+# Blind set: written once, run once before any tuning against it, to estimate how the chat does on questions it was not built around.
+b-def | what is a nonce ==> once|random|iv|value
+b-def | what does idempotent mean ==> same|repeat|multiple
+b-def | what is a reverse proxy used for ==> server|load|tls|front
+b-def | what's a vlan trunk ==> vlan|tag|802
+b-def | what is cidr notation ==> prefix|slash|/24|address
+b-def | what is a mutex ==> lock|one thread|exclusive|shared
+b-def | what is the kernel ==> core|operating system|hardware
+b-def | what does ssh stand for ==> secure shell
+b-def | what is a rootkit used for ==> hide|persist|privilege
+b-def | what is an air gap ==> disconnect|isolated|physical|network
+b-def | what is a security group in aws ==> firewall|instance|rule|traffic
+b-def | what is a data lake ==> raw|storage|large
+b-def | what is jitter ==> variation|delay
+b-def | what is a false positive ==> alert|nothing|benign|wrong|legit
+b-def | what's a bastion host ==> hardened|jump|entry|access
+b-def | what is tokenization ==> replace|token|sensitive
+b-def | what is a web shell ==> script|server|command
+b-def | what is attack surface ==> exposed|entry|points|ways|get in
+b-def | what is the principle of least privilege ==> minimum|only|access
+b-def | what is pii ==> personal|identif
+b-def | explain what a certificate is in tls ==> public key|identity|ca|signed
+b-def | what is a rainbow table attack ==> precomputed|hash
+b-def | what is a logic bomb ==> condition|trigger|dormant|date
+b-def | what is arp ==> address resolution|mac|ip
+b-def | what is a trojan horse ==> disguise|legit|pretend|trick
+b-cmp | arp vs dns ==> arp|dns
+b-cmp | what's the difference between a worm and a trojan ==> spread|self|trick
+b-cmp | public cloud vs private cloud ==> shared|dedicated|provider|organization
+b-cmp | bash vs zsh ==> bash|zsh
+b-cmp | difference between sha256 and md5 ==> collision|broken|256|128
+b-cmp | python 2 vs python 3 ==> python
+b-cmp | static vs dynamic ip ==> fixed|changes|dhcp|assigned
+b-cmp | is nmap the same as metasploit ==> scan|exploit
+b-cmp | encryption vs tokenization ==> encrypt|token
+b-cmp | difference between a vpn and a vpc ==> vpn|vpc|network
+b-cmp | git vs github ==> hosted|version|tool|website
+b-cmp | threat hunting vs threat intelligence ==> hunt|intel
+b-cmp | hids vs nids ==> host|network
+b-cmp | which one should i learn first sql or python ==> python|sql
+b-cmp | a+ vs network+ ==> hardware|network|support
+b-cmp | agile or waterfall ==> iter|sequential|phase|feedback
+b-cmp | cpu vs gpu ==> core|parallel|general
+b-cmp | stateful vs stateless firewall ==> connection|track|state
+b-cmp | symmetric or asymmetric for encrypting large files ==> symmetric|fast|bulk
+b-faq | how can i protect myself from ransomware ==> backup|patch|mfa|email|offline
+b-faq | what should a beginner do first in tryhackme ==> room|path|learn|start|beginner|fundamental
+b-faq | how do i find a cybersecurity mentor ==> community|discord|linkedin|local|meetup|mentor
+b-faq | what is the best way to take notes while studying ==> notes|write|flashcard|own words|spaced
+b-faq | what are good cybersecurity communities to join ==> discord|reddit|meetup|community|local|bsides|chapter
+b-faq | what do i do if i find a vulnerability in a website ==> report|disclos|permission|security.txt|bug bounty|contact|do not exploit
+b-faq | how do i set up a wazuh server ==> wazuh|siem|agent|install|manager
+b-faq | how do i get started with active directory ==> domain|controller|server|lab|vm
+b-faq | what certifications are good for sysadmins ==> a\+|network\+|security\+|linux|microsoft|azure|rhcsa|lpic|server
+b-faq | what is the cheapest way to build a homelab ==> old|used|free|virtual|pc|raspberry|laptop|virtualbox
+b-faq | can i use a mac for cybersecurity ==> yes|vm|works|macos|apple|parallels|utm
+b-faq | what should i do if my account gets locked out ==> unlock|lockout|password|admin|help desk|reset
+b-faq | my laptop is overheating what do i do ==> fan|dust|vents|cooling|thermal|temperature|clean
+b-faq | how do i reset a router ==> reset button|factory|default|hold|10 seconds|admin
+b-faq | why is my internet slow when many people are connected ==> bandwidth|congest|speed|channel|qos|share|traffic
+b-faq | what happens if a certificate expires ==> warning|error|not trusted|browser|renew|outage|expired
+b-faq | what is the first thing to do when you suspect a breach ==> contain|isolate|preserve|evidence|incident|report|disconnect|escalat
+b-faq | how do i remove malware from my computer ==> scan|safe mode|isolate|offline|reinstall|remove|reimage|backup|antivirus
+b-faq | is it okay to use the same password everywhere ==> no|unique|reuse|breach|manager
+b-faq | how do security teams detect insider threats ==> behavior|dlp|logs|monitor|access|ueba|anomal
+b-ask | how does a rainbow table attack work ==> precomputed|hash|lookup|salt
+b-ask | why are default passwords dangerous ==> known|published|attackers|everyone|guess|change
+b-ask | how does a reverse shell connect back ==> attacker|listener|outbound|connect|target
+b-ask | how do you detect a port scan in logs ==> many|ports|syn|connection|ids|sequential|firewall|short
+b-ask | how is data encrypted in transit ==> tls|vpn|ssh|encrypt|https
+b-ask | how does multi factor authentication stop attacks ==> factor|password|second|stolen
+b-ask | how do i investigate a suspicious process on windows ==> task manager|process|path|hash|parent|autoruns|netstat|sysmon|procmon
+b-ask | what are common indicators of compromise ==> hash|ip|domain|file|registry|indicator|unusual
+b-ask | how do containers differ from virtual machines in security ==> kernel|isolation|share|escape
+b-ask | what does the transport layer do ==> tcp|udp|port|segment|end-to-end|layer 4
+b-ask | how does spf work ==> dns|sender|authorized|mail server|ip|record|txt
+b-ask | what is the purpose of a siem in a soc ==> log|correlat|alert|central|collect
+b-ask | how do i read nmap output ==> open|closed|filtered|port|service|state|version
+b-ask | how can i find subdomains of a site ==> subdomain|dns|certificate|sublist|amass|enumerat|osint|brute|crt
+b-ask | how is a docker container different from an image ==> image|template|running|instance|container
+b-typo | whta is a vpn ==> tunnel|encrypt
+b-typo | how do i lern linux ==> command line|vm|practice|daily|ubuntu
+b-typo | differnce between a switch and router ==> layer|mac|ip
+b-typo | whats a bufer overflow ==> memory|overwrit|buffer
+b-typo | explian dns to me ==> name|ip|resolver
+b-typo | is kali linuks good for begginers ==> not|vm|daily|penetration|tools|learn
+b-typo | how to make a strong pasword ==> long|unique|manager|passphrase
+b-typo | what is a hash colision ==> two|same|different
+b-multi | what is a vpn and how is it different from a proxy ==> vpn.*(proxy|tunnel)|proxy.*vpn
+b-multi | explain hashing and give an example ==> hash
+b-multi | what is a botnet and how do i protect against it ==> bot|patch|update|mfa|segment|infected|firewall
+b-multi | what is sql and what is nosql ==> sql.*nosql|nosql.*sql
+b-multi | what does a firewall do and where should i put it ==> firewall.*(edge|perimeter|network|traffic|rule)|(traffic|rule).*firewall
+b-neg | what is the population of china
+b-neg | who is the best soccer player
+b-neg | how do i cook rice
+b-neg | what time is the game tonight
+b-neg | what is the best vacation spot
+b-neg | explain how photosynthesis works
+b-neg | whats the lyrics to bohemian rhapsody
+b-neg | how many calories are in a banana
+b-neg | what's the best phone to buy
+b-neg | give me a recipe for pancakes

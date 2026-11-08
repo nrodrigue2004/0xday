@@ -10,12 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="stylesheet" href="../style.css?v=c270779c">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=82337135" defer></script>
-<script src="../site.js?v=82337135" defer></script>
-<script src="../fx.js?v=82337135" defer></script>
-<script src="../learn.js?v=82337135" defer></script>
+<script src="../data.js?v=c270779c" defer></script>
+<script src="../site.js?v=c270779c" defer></script>
+<script src="../fx.js?v=c270779c" defer></script>
+<script src="../learn.js?v=c270779c" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -34,7 +34,7 @@
 <div class="learn" data-skill="ai-chatbot">
 <div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>The chatbot at <a href="chat.html">~/ai/chat</a> does not call any server. Everything runs in your browser tab.</p>
 <p>It has two modes:</p>
-<ul><li><strong>Search mode (default).</strong> Your question is matched against the text of this site: the guides, the Security+ notes, the glossary, the cheatsheets and the AI chapters. You get the best-matching passages back, each with a link to the page it came from. Nothing is generated, so nothing is invented. If the site doesn't cover it, it says so.</li><li><strong>Local model mode (optional).</strong> You can download a small language model into your browser. It then writes an answer in sentences, using the passages from search mode as its source material. It is slower, needs a recent Chrome or Edge with WebGPU, and is much weaker than the big hosted chatbots.</li></ul>
+<ul><li><strong>Search mode (default).</strong> Your question is matched against the text of this site: the guides, the Security+ notes, the glossary, the cheatsheets and the AI chapters. First it works out what kind of question you asked: a definition, a comparison (it builds a side-by-side table), how or why, a list of steps, a command, advice, or a follow-up like "tell me more". It then answers from the glossary, a table of curated comparisons, a set of curated answers, or the best-matching passages, each with a link to the page it came from. Nothing is generated, so nothing is invented. If the site doesn't cover it, it says so and points to the closest pages.</li><li><strong>Local model mode (optional).</strong> You can download a small language model into your browser. It then writes an answer in sentences, using the passages from search mode as its source material. It is slower, needs a recent Chrome or Edge with WebGPU, and is much weaker than the big hosted chatbots.</li></ul>
 <p>Why not just plug in a famous model? A website can't hold a secret. Anything in the page's JavaScript is visible to every visitor, so an API key placed there would be copied and used on someone else's bill within hours. A hosted model needs a small server in the middle that holds the key. This site is static files, so it has no middle.</p>
 <p>Rules for any chatbot, including this one:</p>
 <ul><li><strong>It can be wrong, and it sounds sure either way.</strong> Check anything that matters against the cited page or official docs.</li><li><strong>Citations are the point.</strong> An answer with no source you can open is a guess.</li><li><strong>Never paste secrets</strong> into a chat box, local or hosted.</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The pattern: retrieval-augmented generation (RAG)</h4>
@@ -43,6 +43,10 @@
 <pre class="ex ex--code"><code>question  -&gt;  search the site index  -&gt;  top 4 passages
           -&gt;  prompt = rules + passages + question
           -&gt;  model writes the answer, citing [1] [2]</code></pre>
+<h4>How a question is routed</h4>
+<p>Before any ranking, small rules in <code>chatcore.js</code> classify the question. They are ordinary pattern matching, not a model:</p>
+<ol><li><strong>Small talk and out-of-scope</strong> ("hello", "what's the weather") get a short reply instead of a bad search result.</li><li><strong>Multi-part</strong> questions ("what is TCP and how is it different from UDP") are split and answered one part at a time, and a follow-up like "tell me more" or "what about UDP" reuses the topic of the last answer.</li><li><strong>Comparisons</strong> ("X vs Y", "difference between X and Y", "is X the same as Y") look for a curated side-by-side table first, and otherwise line up the two glossary definitions.</li><li><strong>Definitions</strong> ("what is X", "X meaning") use the glossary, with typo repair for misspelled terms.</li><li><strong>Curated answers</strong> cover advice and troubleshooting ("why is my DNS not resolving", "which cert should I get first") by matching your words against several phrasings of each question.</li><li><strong>How, why, list and command</strong> questions run the BM25 search below, preferring cheatsheets for commands and showing a list for steps.</li><li><strong>When nothing matches well</strong>, it says it doesn't know, rather than guessing.</li></ol>
+<p>The routing is checked by <code>scripts/chat_test.js</code>, which asks thousands of generated and hand-written questions and reports a pass rate per category.</p>
 <h4>How the search works here</h4>
 <p>At build time a script reads every built page, splits it into chunks at each heading, and writes one JSON index. In the browser the chat loads that file and scores each chunk with <strong>BM25</strong>, a classic ranking formula:</p>
 <ul><li>words that are <strong>rare</strong> across the site count more than common ones ("kerberos" beats "the")</li><li>a word that <strong>repeats</strong> in a chunk helps, with diminishing returns</li><li><strong>short</strong> chunks are not punished or favored unfairly (length normalization)</li><li>matches in a chunk's <strong>title</strong> get a boost</li></ul>

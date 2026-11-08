@@ -1,0 +1,620 @@
+# More glossary terms. Format:  Term | category | definition | links (space separated, or -) | aliases (comma separated, or -)
+# Written in plain language. Links use prefix:slug (see chatdata.py) and are checked at build time.
+# ---- networking ----
+Ethernet | network | The standard wired LAN technology. Devices send frames to MAC addresses over cable (twisted pair or fiber) through switches. | g:computer-networks | wired network
+Frame | network | The unit of data at layer 2 (data link). It wraps a packet with source and destination MAC addresses and a checksum. | b:osi-and-tcpip | -
+Segment | network | The unit of data at layer 4. A TCP segment carries a chunk of a stream plus sequence numbers and flags. | b:osi-and-tcpip | datagram
+Encapsulation | network | Wrapping data in headers as it moves down the layers: data, segment, packet, frame, bits. | b:osi-and-tcpip | -
+MTU | network | Maximum transmission unit: the largest packet a link carries without fragmenting. 1500 bytes on standard Ethernet. | - | maximum transmission unit
+TTL | network | Time to live: a counter in each IP packet that drops by one at every router. At zero the packet is discarded, which stops loops. Traceroute uses it. | - | time to live
+Hop | network | One router a packet passes through on its way to the destination. | - | -
+Unicast | network | Traffic from one sender to one receiver. | - | -
+Broadcast | network | Traffic sent to every device on the local network, such as ARP requests and DHCP discovers. | - | broadcast domain
+Multicast | network | Traffic sent to a group of subscribed devices, used for streaming and some routing protocols. | - | -
+Collision domain | network | A network segment where two devices sending at once cause a collision. Each switch port is its own domain; a hub is one shared domain. | - | -
+Default gateway | network | The router a device sends traffic to when the destination is outside its own subnet. | g:networking-tcp-ip-dhcp-nat-subnets | gateway address
+Subnet mask | network | A value like 255.255.255.0 that says which part of an IP address is the network and which is the host. /24 is the same thing. | g:networking-tcp-ip-dhcp-nat-subnets | netmask
+Domain name | network | A human-readable name like example.com that DNS maps to an IP address. | - | -
+FQDN | network | Fully qualified domain name: the complete name of a host including every label, such as mail.example.com. | - | fully qualified domain name
+TLD | network | Top-level domain: the last part of a domain name, such as .com, .org or .edu. | - | top level domain
+URL | web | A web address: scheme, host, port, path, query and fragment, such as https://example.com:443/path?x=1. | b:http-and-the-web | uniform resource locator, web address, link
+A record | network | A DNS record that maps a name to an IPv4 address. AAAA does the same for IPv6. | - | AAAA record, address record
+CNAME | network | A DNS record that makes one name an alias for another name. | - | cname record, canonical name
+MX record | network | A DNS record that says which mail servers accept email for a domain. | - | mail exchange
+TXT record | network | A DNS record holding free text. Used for SPF, DKIM, DMARC and domain verification. | - | -
+NS record | network | A DNS record naming the authoritative name servers for a zone. | - | name server
+PTR record | network | A reverse DNS record that maps an IP address back to a name. | - | reverse dns
+DNS resolver | network | The server that looks up names for clients, asking other servers and caching answers. Your ISP or 1.1.1.1 are resolvers. | - | recursive resolver
+Authoritative DNS server | network | The server that holds the real records for a domain and gives the final answer. | - | authoritative name server
+DNS over HTTPS | network | DoH: DNS lookups inside HTTPS so on-path observers can't read or change them. DNS over TLS (DoT) is the same idea on port 853. | s:pairs | DoH, DoT, DNS over TLS
+DNSSEC | network | Signatures on DNS records so a resolver can check that an answer wasn't forged. It does not encrypt. | - | -
+DNS poisoning | attacks | Putting a forged DNS answer into a resolver's cache so users are sent to the wrong address. | - | DNS cache poisoning, DNS spoofing
+Zone transfer | attacks | A DNS feature that copies all records of a zone to another server. If left open to anyone, it leaks every hostname. | - | AXFR
+HTTP | web | HyperText Transfer Protocol: the request and response protocol of the web. Stateless, text based, port 80 (443 with TLS). | b:http-and-the-web | hypertext transfer protocol
+HTTP methods | web | The verbs of a request: GET reads, POST sends data, PUT replaces, PATCH changes part, DELETE removes, HEAD gets headers only, OPTIONS asks what is allowed. | b:http-and-the-web m:http | GET, POST, PUT, DELETE
+HTTP header | web | Key-value metadata on a request or response, such as Host, Cookie, Content-Type and Set-Cookie. | m:http | headers, request header
+Web server | web | Software that answers HTTP requests with pages or data. Apache, Nginx and IIS are common. | - | apache, nginx, iis
+WebSocket | web | A persistent two-way connection between browser and server, used for chat and live updates. | - | websockets
+Webhook | web | A URL your service calls when an event happens, so another system gets pushed the news instead of polling. | - | -
+SMTP | email | The protocol that sends email between servers, port 25, and from clients on 587 or 465. | - | simple mail transfer protocol
+IMAP | email | Email access protocol that keeps mail on the server and syncs across devices. Port 143, or 993 with TLS. | - | imaps
+POP3 | email | Email access protocol that downloads mail to one device. Port 110, or 995 with TLS. | - | pop
+SNMP | network | Simple Network Management Protocol: lets tools read status from routers, switches and printers. Use v3; v1 and v2c send community strings in cleartext. | - | simple network management protocol
+NTP | network | Network Time Protocol: keeps clocks in sync. Accurate time matters for logs, Kerberos and certificates. | - | network time protocol
+Telnet | network | An old remote shell protocol on port 23 that sends everything, including passwords, in cleartext. Replaced by SSH. | s:pairs | -
+TFTP | network | Trivial FTP: a bare-bones file transfer over UDP port 69 with no authentication. Used to boot and configure network gear. | - | trivial file transfer protocol
+SFTP | network | File transfer over SSH, port 22. Not the same as FTPS (FTP inside TLS). | s:pairs | ssh file transfer protocol
+SMB | network | Server Message Block: the Windows file and printer sharing protocol, port 445. Attacked by relay and EternalBlue-style bugs. | - | smb protocol, cifs
+NFS | network | Network File System: the Unix and Linux way to share directories over the network, port 2049. | - | network file system
+RDP | network | Remote Desktop Protocol: Windows remote desktop, port 3389. Heavily attacked when exposed to the internet. | s:pairs | remote desktop, remote desktop protocol
+VNC | network | Virtual Network Computing: remote desktop sharing over port 5900 with weak default security. Tunnel it. | - | -
+RADIUS | access | A protocol for central network authentication, used for Wi-Fi (802.1X) and VPN logins. TACACS+ is the Cisco alternative for device admin. | - | tacacs+, tacacs
+802.1X | access | Port-based network access control: a device must authenticate (often via RADIUS) before the switch port or Wi-Fi lets it on. | - | 8021x, dot1x
+SSID | network | The name of a Wi-Fi network that you see in the list. | - | network name
+WEP | network | The original Wi-Fi security. Broken in minutes by IV reuse. Never use it. | s:pairs | wired equivalent privacy
+Access point | network | A device that provides Wi-Fi and connects it to the wired network. | - | wap, ap, wireless access point
+Rogue access point | attacks | An unauthorized Wi-Fi access point connected to a network, or one set up to lure users. | - | rogue ap
+Evil twin | attacks | A fake Wi-Fi access point that copies a real network's name so victims connect to the attacker. | - | -
+Deauthentication attack | attacks | Sending forged Wi-Fi management frames that kick clients off a network, often to capture the handshake when they reconnect. | - | deauth attack, deauth
+Modem | network | Converts the ISP's signal (cable, DSL, fiber) into Ethernet your router can use. | - | -
+Bridge | network | A device that joins two network segments at layer 2. A switch is a multi-port bridge. | - | -
+Stateful firewall | network | A firewall that tracks connections, so it allows replies to traffic you started and blocks unsolicited traffic. | g:firewalls-pfsense | stateless firewall, packet filtering
+NGFW | network | Next-generation firewall: adds application awareness, intrusion prevention and user identity to a normal firewall. | - | next generation firewall
+Port forwarding | network | A rule that sends traffic arriving at one public port to a specific internal host and port. | - | -
+Port mirroring | network | Copying traffic from one switch port to another so a sensor or analyzer can watch it. Called SPAN on Cisco. | - | span port, span, tap, network tap
+QoS | network | Quality of service: prioritizing some traffic, like voice, over other traffic. | - | quality of service
+Jitter | network | Variation in packet delay. Bad jitter breaks voice and video calls. | - | -
+Spanning Tree Protocol | network | STP: switches use it to block redundant links so loops don't flood the network. | - | stp
+Trunk port | network | A switch port that carries traffic for many VLANs, tagged with 802.1Q. | - | 8021q, vlan trunk
+Routing table | network | The list of networks a router knows and which next hop to use for each. | - | -
+Static routing | network | Routes entered by hand. Dynamic routing protocols such as OSPF and BGP learn them automatically. | - | dynamic routing
+MPLS | network | A carrier technology that forwards packets by labels instead of IP lookups. Used for private WAN circuits. | - | -
+SD-WAN | network | Software-managed WAN that steers traffic over several links (broadband, LTE, MPLS) by policy. | - | software defined wan
+Peer-to-peer | network | A design where devices share directly with each other instead of through a central server. | - | p2p
+Client-server | network | A design where clients request things and a central server provides them. | - | -
+Intranet | network | A private network or site used inside an organization. An extranet shares part of it with partners. | - | extranet
+Loopback | network | The address a machine uses to talk to itself: 127.0.0.1 for IPv4, ::1 for IPv6. | - | 127.0.0.1
+APIPA | network | The 169.254.x.x address Windows assigns itself when it can't reach a DHCP server. A sign DHCP is broken. | - | 169.254, link local
+DHCP lease | network | The time a client may keep the IP address a DHCP server gave it before renewing. | - | lease
+Socket | network | One endpoint of a network connection: an IP address plus a port. | - | -
+Ephemeral port | network | A high temporary port (often 49152 and up) a client picks for the source side of a connection. | - | -
+Well-known ports | network | Ports 0 to 1023, reserved for standard services such as 22 SSH, 53 DNS, 80 HTTP and 443 HTTPS. | b:ports-and-protocols | port numbers, common ports
+Banner grabbing | recon | Connecting to a service and reading its greeting to learn its software and version. | - | banner
+SYN flood | attacks | A DoS attack that sends many TCP SYNs and never finishes the handshake, filling the server's connection table. | - | syn attack
+Smurf attack | attacks | A DDoS that sends ICMP echo requests with a spoofed source to a broadcast address so many hosts flood the victim. | - | -
+MAC flooding | attacks | Overwhelming a switch's address table so it fails open and acts like a hub, letting an attacker sniff traffic. | - | cam table overflow
+MAC spoofing | attacks | Changing a device's MAC address to impersonate another device or bypass filtering. | - | -
+VLAN hopping | attacks | Sending traffic into a VLAN you shouldn't reach, by switch spoofing or double tagging. | - | -
+Sniffing | attacks | Capturing traffic passing on a network to read it. Works on unencrypted protocols and on shared or mirrored links. | - | packet sniffing, eavesdropping
+Promiscuous mode | network | A network card mode that accepts all frames it sees, not only those addressed to it. Needed for sniffing. | - | -
+Network segmentation | hardening | Splitting a network into zones with controls between them so a breach can't spread everywhere. | - | segmentation
+Air gap | hardening | Keeping a system physically disconnected from other networks. | - | air gapped
+NAC | access | Network access control: checks a device's identity and health before it can join the network. | - | network access control
+Bastion host | hardening | A hardened server exposed on purpose as the one way in to a private network. Also called a jump box. | - | jump box, jump host
+BYOD | it | Bring your own device: staff use personal phones and laptops for work. MDM software enforces rules on them. | - | bring your own device, mdm, mobile device management
+# ---- operating systems ----
+Service | os | A background program with no window, such as a web server or print spooler. On Linux it is called a daemon. | - | daemon, services
+systemd | linux | The init system on most modern Linux distros. It starts services and is controlled with systemctl. | g:linux-server-admin-ubuntu | systemctl, init
+Boot process | os | Power on, firmware (BIOS/UEFI) runs, the bootloader loads, the kernel starts, then services and the login screen. | - | startup process
+Bootloader | os | The small program that loads the operating system kernel. GRUB on Linux, Windows Boot Manager on Windows. | - | grub, boot manager
+MBR | os | Master Boot Record: the first sector of a disk, holding boot code and a partition table. Limited to 2 TB disks. | - | master boot record
+GPT | os | GUID Partition Table: the modern partition scheme that supports huge disks and is used with UEFI. | - | guid partition table
+Partition | os | A separate section of a disk that is formatted and used on its own. | - | disk partition
+File system | os | The structure that organizes files on a disk. NTFS (Windows), ext4 (Linux), APFS (macOS) and FAT32 (USB drives) are common. | - | filesystem, ext4, fat32, apfs, exfat
+Inode | linux | The Linux file system record holding a file's metadata and where its data lives. The file name is stored in the directory. | - | -
+Mount | linux | Attaching a file system to a directory so its files become reachable. | - | mounting
+Swap | linux | Disk space used as overflow when RAM is full. Windows calls it the page file. | - | page file, swap space
+Virtual memory | os | Giving each process its own address space, mapped to RAM or disk by the OS. | - | paging
+System call | os | The way a program asks the kernel to do something, such as open a file or create a process. | - | syscall
+User space and kernel space | os | Kernel space is the privileged part of memory where the OS runs. User space is where normal programs run, with limited rights. | g:operating-systems | kernel mode, user mode, privilege rings
+Root | linux | The all-powerful Linux account (UID 0). The Windows equivalent is Administrator or SYSTEM. | - | superuser, uid 0
+UAC | windows | User Account Control: the Windows prompt that asks before a program gets administrator rights. | - | user account control
+sudo | linux | Runs a single command as root (or another user) after your password, according to /etc/sudoers. | m:linux | sudoers, su
+Environment variable | os | A named value, such as PATH or HOME, that programs can read from their surroundings. | - | env var, path variable, path
+Pipe | linux | The vertical bar symbol: connects the output of one command to the input of the next, as in ps aux piped into grep ssh. | g:linux-command-line m:linux | pipes, redirection
+stdin, stdout and stderr | linux | The three standard streams of a program: input, normal output and error output. Redirection with >, >> and 2> changes where they go. | - | stdin, stdout, stderr
+Exit code | linux | The number a program returns when it ends. 0 means success; anything else means some kind of failure. | - | return code, exit status
+Package manager | os | A tool that installs, updates and removes software and handles dependencies: apt, dnf, brew, winget, pip, npm. | - | apt, yum, dnf, brew, winget, apt-get
+WSL | windows | Windows Subsystem for Linux: runs a real Linux environment inside Windows without a separate VM. | - | windows subsystem for linux
+Event Viewer | windows | The Windows tool for reading event logs (Application, Security, System). The first place to look when something fails. | - | windows event log, event log
+Task Manager | windows | The Windows tool that lists processes and resource use. Ctrl+Shift+Esc opens it. | - | -
+Safe mode | windows | A Windows startup with only core drivers and services, used to fix problems or remove malware. | - | -
+Dual boot | os | Installing two operating systems side by side and picking one at startup. | - | -
+Live USB | linux | Running an operating system straight from a USB stick without installing it. Used for rescue and forensics. | - | live cd, live boot
+ISO image | os | A single file that is a copy of an optical disc, used to install an operating system. | - | iso
+Snapshot | virtualization | A saved point-in-time state of a VM or disk that you can roll back to. Not a replacement for backups. | g:virtualization-proxmox | vm snapshot
+SELinux | linux | Mandatory access control for Linux: policies limit what each process may touch, even when it runs as root. | - | apparmor, mac
+chmod | linux | Linux command that changes file permissions, for example chmod 640 file or chmod +x script.sh. | d:linux-permissions | file permissions, rwx
+chown | linux | Linux command that changes a file's owner and group. | d:linux-permissions | -
+SSH key | access | A key pair used to log in over SSH without a password. The private key stays with you; the public key goes in ~/.ssh/authorized_keys on the server. | g:kali-linux | authorized_keys, ssh keys, ssh-keygen
+Log rotation | linux | Automatically archiving and deleting old log files so they don't fill the disk. | - | logrotate
+Shell script | linux | A text file of shell commands run as a program. | g:bash-scripting | bash script
+Terminal | linux | The window where you type commands. The shell is the program inside it that interprets them. | - | command line, cli, tty, console
+PID | os | Process ID: the number the OS gives each running process. | - | process id
+Zombie process | os | A process that has finished but whose parent hasn't collected its exit status yet. | - | -
+Fork | os | A system call that creates a copy of the running process. | - | fork bomb
+Mutex | os | A lock that lets only one thread use a shared resource at a time. | - | semaphore, lock
+Deadlock | os | Two or more processes each waiting for something the other holds, so none can continue. | - | -
+Scheduler | os | The part of the OS that decides which process uses the CPU and for how long. | g:operating-systems | cpu scheduling, context switch
+Page fault | os | What happens when a program touches memory that isn't currently in RAM, so the OS has to load it. | - | -
+DLL | windows | Dynamic-link library: a Windows file of shared code that programs load at run time. Attackers abuse it with DLL hijacking and injection. | - | dll hijacking, dynamic link library
+ELF | linux | The executable file format on Linux. Windows uses PE. | - | elf file
+PE file | windows | Portable Executable: the Windows format for .exe and .dll files. | g:pe-format-pe-bear | pe format, portable executable
+Executable | os | A file the OS can run as a program. | - | exe
+Library | programming | A bundle of reusable code you call from your own program. | - | libraries
+# ---- hardware ----
+Motherboard | hardware | The main circuit board that connects the CPU, memory, storage and expansion cards. | g:hardware-diagnostics-and-repair | mainboard
+PSU | hardware | Power supply unit: converts wall power into the voltages a computer uses. | g:hardware-diagnostics-and-repair | power supply
+NIC | hardware | Network interface card: the hardware that connects a computer to a network. | - | network card, network adapter, network interface card
+Core | hardware | One processing unit inside a CPU. More cores mean more tasks at once. | - | cpu core, multicore
+Clock speed | hardware | How many cycles per second a CPU runs, in GHz. | - | ghz
+x86 | hardware | The CPU instruction set family used in most PCs and servers. x64 or AMD64 is its 64-bit version. | g:c-x86-assembly | x64, amd64, x86-64
+ARM | hardware | A CPU architecture common in phones, Macs and Raspberry Pis, known for low power use. | - | arm processor, apple silicon
+Register | hardware | A tiny, very fast storage slot inside the CPU. On x86, examples are EAX, RSP and RIP. | g:c-x86-assembly | cpu register
+Instruction set | hardware | The set of operations a CPU understands. Assembly language is a readable form of it. | - | isa
+PCIe | hardware | The fast expansion bus used for graphics cards, NVMe drives and network cards. | - | pci express
+SATA | hardware | The common interface for SSDs and hard drives. Slower than NVMe. | - | -
+NVMe | hardware | A fast storage protocol that runs over PCIe, used by M.2 SSDs. | - | m.2
+USB | hardware | Universal Serial Bus: the common connector for peripherals. A malicious USB device can act as a keyboard (BadUSB, Rubber Ducky). | - | usb drive, rubber ducky, badusb
+TPM | hardware | Trusted Platform Module: a chip that stores keys and checks that boot software hasn't been tampered with. BitLocker and Windows 11 use it. | - | trusted platform module
+HSM | hardware | Hardware security module: a tamper-resistant device that stores and uses cryptographic keys without exposing them. | - | hardware security module
+Hardware security key | access | A small device such as a YubiKey that proves your identity with FIDO2/WebAuthn. It resists phishing. | - | yubikey, fido2 key, security key
+Full disk encryption | hardening | Encrypting the whole drive so a stolen laptop or disk is unreadable. BitLocker, FileVault and LUKS do this. | s:3.3 | bitlocker, luks, filevault, fde
+Embedded system | hardware | A small computer built into a device for one job, such as a router, thermostat or car controller. | - | embedded device, embedded
+Microcontroller | hardware | A tiny computer on one chip with CPU, memory and I/O. Arduino boards use them. | - | arduino
+Raspberry Pi | hardware | A cheap credit-card sized Linux computer, popular for homelabs and projects. | - | raspberry
+Side-channel attack | attacks | Learning secrets from physical effects like timing, power use or cache behavior instead of attacking the algorithm. | - | timing attack
+Spectre and Meltdown | vulns | CPU flaws from speculative execution that let a program read memory it shouldn't. Fixed partly in hardware, partly in software. | - | spectre, meltdown
+Rowhammer | vulns | Repeatedly reading one memory row to flip bits in neighboring rows, which can break memory protections. | - | -
+UART | hardware | A simple serial connection often exposed on devices as a debug console. Common first step in hardware hacking. | - | serial console, jtag
+ECC memory | hardware | RAM that detects and corrects single-bit errors. Used in servers. | - | error correcting memory
+Overclocking | hardware | Running a CPU or GPU faster than its rated speed. Faster, hotter, less stable. | - | -
+# ---- attacks, malware and exploitation ----
+Shellcode | attacks | A small piece of machine code injected into a process, usually to open a shell. | g:binary-exploitation | -
+ROP | attacks | Return-oriented programming: chaining small snippets of existing code (gadgets) to run an attack when the stack can't execute code. | u:rev/rop-basics | return oriented programming, rop chain, gadget
+ASLR | hardening | Address space layout randomization: loads programs and libraries at random addresses so attackers can't predict where code is. | u:rev/mitigations | address space layout randomization
+DEP | hardening | Data execution prevention (NX): marks memory like the stack as non-executable so injected code can't run there. | u:rev/mitigations | nx, no execute, nx bit
+Stack canary | hardening | A secret value placed before the return address; if a buffer overflow changes it, the program stops. | u:rev/mitigations | stack cookie, canary
+Format string vulnerability | vulns | A bug where user input is used as the format string of printf-like functions, allowing memory reads and writes. | u:rev/format-strings | format string
+Code injection | attacks | Getting a program to run attacker-supplied code. SQL injection, command injection and DLL injection are kinds of it. | - | injection
+Process injection | attacks | Running malicious code inside another running process to hide and borrow its privileges. | - | dll injection, process hollowing
+Persistence | attacks | The ways an attacker keeps access after a reboot: run keys, scheduled tasks, services, cron jobs, new accounts. | - | persistence mechanism
+Pass the hash | attacks | Logging in with a stolen NTLM password hash directly, without ever cracking the password. | g:active-directory | pth
+Pass the ticket | attacks | Reusing a stolen Kerberos ticket to authenticate as its owner. | g:active-directory | -
+Golden ticket | attacks | A forged Kerberos ticket-granting ticket made with the krbtgt account's key. It gives domain-wide access. | g:active-directory | silver ticket
+Kerberoasting | attacks | Requesting Kerberos service tickets for service accounts and cracking them offline to recover weak passwords. | u:pentest/ad-attacks | -
+AS-REP roasting | attacks | Asking for authentication data for accounts that don't require Kerberos pre-authentication, then cracking it offline. | u:pentest/ad-attacks | asrep roasting
+DCSync | attacks | Pretending to be a domain controller to ask for password hashes through directory replication. | u:pentest/ad-attacks | -
+Mimikatz | tools | A tool that pulls passwords, hashes and Kerberos tickets out of Windows memory (LSASS). | u:pentest/ad-attacks | -
+BloodHound | tools | A tool that maps Active Directory relationships to find the shortest path to Domain Admin. | u:pentest/ad-attacks | -
+LSASS | windows | Local Security Authority Subsystem Service: the Windows process that holds credentials in memory. Dumping it is a common attack. | - | lsass.exe, credential dumping
+Rainbow table | attacks | A precomputed table of hashes for reversing unsalted password hashes quickly. Salting defeats it. | g:password-cracking-john | rainbow tables
+Dictionary attack | attacks | Trying passwords from a word list instead of every combination. | g:password-cracking-john | wordlist, word list
+Hashcat | tools | A fast password cracker that uses GPUs. | g:password-cracking-john | -
+John the Ripper | tools | A classic password cracking tool for many hash formats. | g:password-cracking-john | john, jtr
+Hydra | tools | A tool that guesses logins against live services such as SSH, FTP and web forms. | - | thc-hydra
+Credential harvesting | attacks | Collecting usernames and passwords, for instance through fake login pages. | - | -
+Clickjacking | web | Tricking someone into clicking something hidden under what they think they're clicking, by layering a transparent frame. | w:owasp-top-10 | -
+Drive-by download | attacks | Malware installed just by visiting a compromised page, with no click. | - | -
+Malvertising | attacks | Malicious ads that deliver malware or send users to attacker sites. | - | -
+Cryptojacking | malware | Secretly using someone's computer or cloud account to mine cryptocurrency. | - | cryptominer
+Wiper | malware | Malware that destroys data instead of holding it for ransom. | - | -
+Logic bomb | malware | Code that lies dormant until a condition is met, such as a date or a deleted account. | - | -
+PUP | malware | Potentially unwanted program: bundled software like toolbars that isn't quite malware but isn't wanted. | - | potentially unwanted program, bloatware
+Macro malware | malware | Malicious macros inside Office documents that run when a user enables content. | - | malicious macro, maldoc
+Polymorphic malware | malware | Malware that changes its own code each time it spreads, to avoid signature detection. | g:malware-analysis | metamorphic malware
+Packer | malware | A tool that compresses or encrypts a program so its real code is hidden until it runs. UPX is a common one. | u:rev/unpacking | packing, upx, crypter
+Anti-analysis | malware | Tricks malware uses to avoid study: detecting VMs and debuggers, delaying, scrambling code. | - | anti-debugging, anti-vm, evasion
+Debugger | tools | A tool that runs a program step by step, with breakpoints and memory inspection. gdb, x64dbg and WinDbg are examples. | g:ghidra-and-ida-pro | gdb, x64dbg, windbg, breakpoint
+Ghidra | tools | A free reverse engineering suite from the NSA, with a disassembler and decompiler. | g:ghidra-and-ida-pro | -
+IDA Pro | tools | A leading commercial disassembler and debugger for reverse engineering. | g:ghidra-and-ida-pro | ida
+Strings | tools | Pulling readable text out of a binary. Often the quickest hint about what a program does. | g:malware-analysis | strings command
+VirusTotal | tools | A website that scans files, hashes and URLs with many antivirus engines. Don't upload sensitive files; they become visible to others. | - | virus total
+TTP | soc | Tactics, techniques and procedures: how an attacker behaves, from goal to exact method. | u:detect/attack-mapping | tactics techniques procedures
+Threat modeling | concepts | Thinking through what can go wrong with a system before building it, to design defenses. | u:sdl/threat-modeling | threat model
+STRIDE | concepts | A threat modeling checklist: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege. | u:sdl/threat-modeling | -
+Attack vector | threats | The path an attacker uses to get in, such as email, an exposed service, a USB drive or a supplier. | s:2.2 | threat vector
+STIX and TAXII | soc | STIX is a format for describing threat intelligence. TAXII is the protocol for sharing it. | - | stix, taxii
+MISP | tools | An open source platform for sharing threat intelligence and indicators. | - | -
+Deep web | threats | The part of the web not indexed by search engines, such as your email or bank account pages. Not the same as the dark web. | - | -
+Doxxing | threats | Publishing someone's private information online to harass them. | - | doxing
+CWE | vulns | Common Weakness Enumeration: a list of types of software weaknesses, such as CWE-79 for XSS. CVE is a specific instance. | s:4.3 | common weakness enumeration
+NVD | vulns | National Vulnerability Database: the US database that adds severity scores and details to CVEs. | s:4.3 | national vulnerability database
+EPSS | vulns | Exploit Prediction Scoring System: a score for how likely a vulnerability is to be exploited soon. | s:4.3 | -
+KEV catalog | vulns | CISA's list of vulnerabilities known to be exploited in the wild. A strong signal to patch first. | s:4.3 | known exploited vulnerabilities
+Patch Tuesday | windows | The second Tuesday of each month, when Microsoft releases security updates. | - | -
+Virtual patching | hardening | Blocking an exploit with a WAF or IPS rule when you can't patch the software yet. | - | -
+Compensating control | governance | An alternative control used when the normal one isn't possible, such as network isolation for an unpatchable system. | s:1.1 | compensating controls
+Security control | governance | Anything that reduces risk: technical, managerial, operational or physical; preventive, detective, corrective, deterrent, compensating or directive. | s:1.1 | security controls, control types
+Baseline | hardening | The approved standard configuration of a system. Changes from it are detected as drift. | - | secure baseline, configuration baseline
+STIG | hardening | Security Technical Implementation Guide: detailed hardening checklists published by the US DoD. | - | -
+Change management | governance | The process for approving, testing and recording changes so they don't break systems or open holes. | s:1.3 | change control
+Asset management | governance | Keeping a current list of every device, application and data store you must protect. You can't protect what you don't know about. | s:4.2 | asset inventory, cmdb
+Vulnerability management | governance | The cycle of finding, ranking, fixing and rechecking weaknesses. | s:4.3 | remediation
+Rules of engagement | recon | The written agreement of what a pentest may and may not do: scope, targets, times, methods and contacts. | u:pentest/pentest-methodology | roe
+Pivoting | attacks | Using a compromised machine as a stepping stone to reach other parts of the network. | u:pentest/pivoting | tunneling, port forwarding
+Beacon | malware | A small periodic check-in from malware to its C2 server asking for instructions. | - | beacons, heartbeat
+Post-exploitation | attacks | What an attacker does after getting access: escalate privileges, loot credentials, move laterally, persist. | u:pentest/windows-privesc | post exploitation
+LOLBins | attacks | Living-off-the-land binaries: legitimate built-in tools such as certutil, powershell and mshta that attackers abuse. | - | lolbas, lolbin
+Cobalt Strike | tools | A commercial adversary simulation tool whose Beacon payload is widely used by red teams and criminals alike. | - | -
+Meterpreter | tools | Metasploit's flexible payload for controlling a compromised host. | g:recon-nmap-metasploit | -
+Netcat | tools | The "network Swiss army knife": reads and writes data over TCP or UDP. Used for listeners, banner grabs and file transfers. | - | nc, ncat
+Nessus | tools | A widely used commercial vulnerability scanner. OpenVAS is a free alternative. | - | openvas, greenbone
+Nikto | tools | A web server scanner that looks for dangerous files and outdated software. | - | -
+Gobuster | tools | A tool that guesses directories, files and subdomains from a wordlist. | - | dirb, ffuf, feroxbuster
+sqlmap | tools | An automatic SQL injection testing and exploitation tool. | - | -
+Aircrack-ng | tools | A suite for auditing Wi-Fi security: capture handshakes and test passphrase strength. | - | -
+Responder | tools | A tool that answers LLMNR and NBT-NS name lookups to capture Windows hashes on a local network. | - | llmnr, nbt-ns
+Impacket | tools | A Python library and set of scripts for working with Windows network protocols, widely used in AD attacks. | - | -
+Zeek | tools | A network monitoring tool that turns traffic into detailed logs of connections, DNS, HTTP and files. | g:siem-security-onion | bro
+Snort | tools | An open source network intrusion detection and prevention system with signature rules. | g:ids-snort | suricata
+Splunk | tools | A SIEM and log search platform. Queries are written in SPL. | m:splunk | splunk enterprise
+Elastic Stack | tools | Elasticsearch, Logstash and Kibana (ELK): open source tools to collect, store, search and visualize logs. | - | elk, elasticsearch, kibana, logstash
+Security Onion | tools | A free Linux distro bundling Zeek, Suricata, Elastic and analysis tools for network monitoring. | g:siem-security-onion | -
+Volatility | tools | The standard open source tool for analyzing memory dumps in forensics. | g:memory-forensics-volatility | memory forensics
+Autopsy | tools | A GUI forensics platform for examining disk images. | g:disk-forensics-autopsy-ftk-imager | ftk imager, sleuth kit
+OWASP ZAP | tools | A free web application scanner and intercepting proxy, an alternative to Burp Suite. | - | zap, zed attack proxy
+Juice Shop | tools | OWASP's deliberately vulnerable web app for practicing attacks legally. DVWA and WebGoat are others. | g:vulnerable-lab-targets-dvwa-webgoat | dvwa, webgoat, vulnerable lab
+# ---- SOC, incident response, forensics ----
+Playbook | soc | A documented set of steps for handling a type of alert or incident, so response is consistent. A runbook is similar. | s:4.8 | runbook
+Triage | soc | Quickly judging an alert: is it real, how severe, who needs to act? | u:careers/soc-analyst | alert triage
+Escalation | soc | Handing an alert or incident to a more senior analyst or another team. | - | escalate
+True positive | soc | An alert that fired correctly because something bad really happened. | - | true negative
+Event, alert and incident | soc | An event is anything logged. An alert is an event worth a look. An incident is a confirmed security problem needing response. | s:4.8 | security incident
+Dwell time | soc | How long an attacker stays inside a network before being detected. | - | -
+MTTD and MTTR | soc | Mean time to detect and mean time to respond or recover: metrics for how fast a team notices and fixes problems. | - | mttd, mttr
+Containment | dfir | Limiting the spread of an incident, for instance by isolating a host or disabling an account. | g:incident-response | isolation
+Eradication | dfir | Removing the cause of an incident: malware, attacker accounts, vulnerable configuration. | g:incident-response | -
+Incident response phases | dfir | Preparation, detection and analysis, containment, eradication, recovery, and lessons learned (NIST 800-61). | g:incident-response s:4.8 | ir phases, incident response lifecycle, nist 800-61
+Lessons learned | dfir | The post-incident review of what happened, what worked and what to change. | g:incident-response | post-incident review, postmortem, after action review
+Chain of custody | dfir | The record of who handled evidence and when, proving it wasn't altered. | g:digital-forensics | custody
+Order of volatility | dfir | Collect the most short-lived evidence first: CPU and memory, then network state, processes, disk, logs and backups. | g:digital-forensics | volatility order
+Write blocker | dfir | A hardware or software device that lets you read a disk without changing it. | g:disk-forensics-autopsy-ftk-imager | -
+Disk forensics | dfir | Examining disk images for files, deleted data, timelines and artifacts. | g:disk-forensics-autopsy-ftk-imager | disk image
+Memory forensics | dfir | Examining a RAM dump for running processes, network connections, injected code and keys. | g:memory-forensics-volatility | ram dump, memory dump
+File carving | dfir | Recovering files from raw disk data by looking for their headers and footers instead of using the file system. | - | carving
+Timeline analysis | dfir | Putting events from many sources in time order to reconstruct what happened. | - | timeline
+Artifact (forensics) | dfir | A trace left by user or system activity that can be used as evidence: logs, prefetch, registry keys, browser history. | - | forensic artifact, artifacts
+Prefetch | dfir | Windows files that record which programs ran and when. Useful evidence of execution. | - | -
+MFT | dfir | Master File Table: NTFS's database of every file and its metadata. | - | master file table, ntfs
+Alternate data streams | dfir | An NTFS feature that lets a file carry hidden extra data streams. Sometimes abused to hide payloads. | - | ads
+Volume Shadow Copy | windows | Windows snapshots of files and volumes. Attackers delete them to stop recovery; ransomware often does. | - | vss, shadow copy
+Tabletop exercise | resilience | A talk-through of an incident scenario with the response team, with no systems touched. | s:4.8 | tabletop
+Business continuity | resilience | Planning so key operations keep running through a disruption. | s:3.4 | bcp, business continuity plan
+Disaster recovery | resilience | Planning to restore IT systems after a major failure or disaster. | s:3.4 | drp, disaster recovery plan, dr
+High availability | resilience | Designing so a system keeps working if parts fail, using redundancy and failover. | s:3.4 | ha, redundancy, failover, fault tolerance
+Clustering | resilience | Several servers working together so one can take over when another fails. | s:3.4 | cluster
+Immutable backup | resilience | A backup that can't be changed or deleted for a set time, so ransomware can't destroy it. | s:3.4 | immutable backups, offsite backup, air-gapped backup
+Alert | soc | A notice from a security tool that something may be wrong. Too many low-value ones cause alert fatigue. | - | alerts
+Log source | soc | A system that sends logs to the SIEM: firewalls, servers, endpoints, applications, cloud. | g:log-analysis | log sources
+Correlation | soc | Linking events from different sources to spot a pattern, such as a failed login on one system followed by a success on another. | g:siem-security-onion | correlation rule
+Detection engineering | soc | Designing, testing and tuning the rules that detect attacks. | u:detect/sigma-rules | detection rule
+# ---- governance, privacy, human factors ----
+AUP | governance | Acceptable use policy: what staff may and may not do with company systems and data. | s:5.1 | acceptable use policy
+NDA | governance | Non-disclosure agreement: a contract to keep information confidential. | - | non-disclosure agreement
+Third-party risk | governance | The risk that comes from vendors and suppliers with access to your data or systems. | s:5.3 | vendor risk, supply chain risk, vendor risk management
+Due diligence and due care | governance | Due diligence is investigating before acting (checking a vendor). Due care is doing what a reasonable organization would to protect assets. | s:5.1 | due diligence, due care
+Data classification | governance | Labeling data by sensitivity (public, internal, confidential, restricted) so it gets the right protection. | s:3.3 | data labeling
+Data owner and custodian | governance | The owner decides how data is classified and used. The custodian looks after it technically. | s:5.1 | data custodian, data steward
+Data retention | governance | Rules for how long data is kept before it is deleted. | s:5.1 | retention policy
+Data masking | hardening | Hiding sensitive parts of data, like showing only the last four digits of a card number. | s:3.3 | masking, obfuscation of data
+Anonymization | governance | Removing identifying details so data can't be linked back to a person. Pseudonymization replaces them with codes that can be reversed with a key. | - | pseudonymization
+Data sovereignty | governance | The rule that data is subject to the laws of the country where it is stored. | s:3.3 | data residency
+Privacy by design | governance | Building privacy protections into a system from the start instead of adding them later. | - | -
+CCPA | governance | California Consumer Privacy Act: gives California residents rights over their personal data. | u:grc/privacy-law | california consumer privacy act, cpra
+SOX | governance | Sarbanes-Oxley Act: US law requiring accurate financial reporting and controls at public companies. | u:grc/privacy-law | sarbanes-oxley
+FedRAMP | governance | The US program that approves cloud services for federal government use. | - | -
+CMMC | governance | Cybersecurity Maturity Model Certification: the US DoD's requirement for contractors that handle sensitive government data. | - | -
+SOC 2 | governance | An audit report on a service provider's controls for security, availability, confidentiality, processing integrity and privacy. | u:grc/audits-and-compliance | soc2
+NIST 800-53 | governance | NIST's large catalogue of security and privacy controls for US federal systems. | u:grc/grc-frameworks | nist sp 800-53
+Security awareness training | governance | Teaching staff to recognize phishing and handle data safely. | s:5.6 | awareness training, phishing simulation
+Pretexting | attacks | Making up a believable story, like pretending to be IT support, to get someone to give up information. | s:2.2 | pretext
+Tailgating | attacks | Following an authorized person through a secured door without using your own credentials. | s:2.2 | piggybacking
+Shoulder surfing | attacks | Watching someone enter a password or read their screen. | - | -
+Dumpster diving | attacks | Searching trash for documents or media with useful information. | - | -
+Pharming | attacks | Redirecting users from a real site to a fake one, usually by tampering with DNS or the hosts file. | - | -
+Whaling | attacks | Phishing aimed at senior executives. | - | executive phishing, ceo fraud
+Deepfake | threats | Audio, video or images made or altered by AI to look real. Used in fraud and impersonation. | a:ai-for-attackers | deepfakes, voice cloning
+Brand impersonation | attacks | Pretending to be a well-known company in messages, sites or ads. | - | -
+Quid pro quo | attacks | Offering a service or benefit in exchange for information or access. | - | -
+CISO | career | Chief information security officer: the executive responsible for an organization's security. | - | chief information security officer
+# ---- cryptography ----
+Plaintext and ciphertext | crypto | Plaintext is readable data. Ciphertext is the scrambled result after encryption. | b:cia-and-crypto | plaintext, ciphertext
+Key (cryptography) | crypto | The secret value that controls encryption and decryption. Security should rest on the key, not on hiding the algorithm. | b:cia-and-crypto | encryption key, crypto key
+Key exchange | crypto | Two parties agreeing on a shared secret over an open network, for example with Diffie-Hellman. | u:crypto/public-key | key agreement
+Diffie-Hellman | crypto | A key exchange method that lets two sides create a shared secret over an open channel. Used in TLS and VPNs. | u:crypto/public-key | dh, ecdh, dhe
+RSA | crypto | A widely used asymmetric algorithm for encryption and signatures, based on the difficulty of factoring large numbers. | u:crypto/public-key | rivest shamir adleman
+ECC | crypto | Elliptic curve cryptography: public key crypto with much smaller keys than RSA for the same strength. | u:crypto/public-key | elliptic curve, elliptic curve cryptography, ecdsa
+DES and 3DES | crypto | Old symmetric block ciphers. DES (56-bit) is broken; 3DES is deprecated. AES replaced them. | u:crypto/symmetric-modes | des, 3des, triple des
+ChaCha20 | crypto | A modern stream cipher, fast on devices without AES hardware. Used with Poly1305 in TLS and WireGuard. | - | chacha, poly1305
+Block cipher modes | crypto | How a block cipher handles more than one block: ECB (insecure, leaks patterns), CBC, CTR and GCM (adds authentication). | u:crypto/symmetric-modes | ecb, cbc, gcm, ctr, mode of operation
+Initialization vector | crypto | A random starting value used so the same plaintext doesn't encrypt to the same ciphertext. A nonce is similar. | u:crypto/symmetric-modes | iv, nonce
+HMAC | crypto | A hash combined with a secret key to prove that a message is authentic and unaltered. | - | message authentication code, mac tag
+bcrypt | crypto | A deliberately slow password hashing function with a built-in salt. scrypt and Argon2 are similar. | - | scrypt, argon2, pbkdf2, password hashing
+Key derivation function | crypto | A function that turns a password into a strong key, slowly, to resist guessing. PBKDF2 and Argon2 are examples. | - | kdf
+Pepper | crypto | A secret added to passwords before hashing and stored separately from the database, unlike a salt. | - | -
+Hash collision | crypto | Two different inputs that produce the same hash. Why MD5 and SHA-1 are no longer trusted. | - | collision attack, birthday attack
+Perfect forward secrecy | crypto | Each session uses a throwaway key, so stealing the server's long-term key later doesn't reveal past traffic. | u:crypto/tls-pki | pfs, forward secrecy
+Certificate pinning | crypto | An app accepting only a specific known certificate or key, to block fake certificates. | - | pinning
+OCSP and CRL | crypto | Ways to check whether a certificate has been revoked: OCSP asks online per certificate, a CRL is a downloaded list. | u:crypto/tls-pki | ocsp, crl, certificate revocation
+Root CA | crypto | The top trusted certificate authority. Intermediate CAs sign certificates on its behalf so the root key stays offline. | u:crypto/tls-pki | intermediate ca, certificate chain, trust chain
+Self-signed certificate | crypto | A certificate signed by its own key instead of a CA. Browsers don't trust it by default. | u:crypto/tls-pki | self signed
+CSR | crypto | Certificate signing request: what you send a CA to get a certificate. It contains your public key and name. | u:crypto/tls-pki | certificate signing request
+X.509 | crypto | The standard format of digital certificates. | u:crypto/tls-pki | x509
+Let's Encrypt | crypto | A free, automated certificate authority that made HTTPS certificates easy to get. | - | lets encrypt, acme
+HSTS | web | HTTP Strict Transport Security: a header telling browsers to use only HTTPS for a site. | - | strict transport security
+SSL stripping | attacks | Downgrading a victim's HTTPS connection to HTTP through a man-in-the-middle position. HSTS prevents it. | - | ssl strip
+Downgrade attack | attacks | Forcing a connection to use an older, weaker protocol or cipher. | u:crypto/crypto-attacks | -
+Padding oracle | attacks | An attack that decrypts data by watching how a system responds to bad padding in ciphertext. | u:crypto/crypto-attacks | -
+Steganography | crypto | Hiding a message inside another file, such as an image, so no one suspects it exists. | - | stego
+Post-quantum cryptography | crypto | Algorithms designed to stay secure against future quantum computers, which could break RSA and ECC. | - | quantum computing, pqc, quantum
+Blockchain | concepts | A shared ledger where records are chained together with hashes so they're hard to change. Bitcoin uses it. | - | bitcoin, cryptocurrency
+Entropy | crypto | Measure of randomness. Keys need high-entropy random numbers or they can be guessed. | - | random number generator, rng
+Cryptanalysis | crypto | Studying ways to break ciphers without having the key. | u:crypto/crypto-attacks | -
+Hybrid encryption | crypto | Using public key crypto to exchange a symmetric key, then symmetric crypto for the data. How TLS and PGP work. | u:crypto/public-key | -
+One-time pad | crypto | A perfectly secure cipher that uses a truly random key as long as the message and never reuses it. Impractical for most uses. | - | otp
+# ---- web and application security ----
+DOM | web | Document Object Model: the browser's tree of a page that JavaScript reads and changes. | - | document object model
+CSS | web | Cascading Style Sheets: the language that styles web pages. | - | cascading style sheets
+Same-origin policy | web | The browser rule that a page can read data only from its own origin (scheme, host and port). CORS relaxes it. | w:auth-and-sessions | sop, same origin
+CSP | web | Content Security Policy: a header telling the browser which sources of scripts and content are allowed. It limits XSS. | w:injection-and-xss | content security policy
+Cookie flags | web | HttpOnly hides a cookie from JavaScript. Secure sends it only over HTTPS. SameSite limits sending it on cross-site requests. | w:auth-and-sessions | httponly, samesite, secure flag
+Web storage | web | localStorage and sessionStorage: browser key-value storage readable by any script on the page, so don't keep tokens there. | - | localstorage, sessionstorage
+Session fixation | web | Making a victim use a session ID the attacker already knows, then taking over that session after login. | w:auth-and-sessions | -
+Broken access control | vulns | Users can do or see things they shouldn't, such as other people's data. Number one on the OWASP Top 10. | w:access-control-and-ssrf | access control flaw
+RCE | vulns | Remote code execution: an attacker can run their own code on a target from afar. The most serious kind of bug. | - | remote code execution
+LFI and RFI | vulns | Local and remote file inclusion: tricking a web app into loading a file the attacker chooses. | - | lfi, rfi, file inclusion
+File upload vulnerability | vulns | A site accepts a dangerous file, such as a web shell, because it doesn't check type, name or location. | - | unrestricted file upload
+SSTI | vulns | Server-side template injection: user input gets evaluated by the server's template engine, often leading to RCE. | - | server side template injection
+Blind SQL injection | vulns | SQL injection where results aren't shown, so the attacker infers data from true/false responses or timing. | w:injection-and-xss | blind sqli
+Stored, reflected and DOM XSS | vulns | Stored: the script is saved on the server. Reflected: it comes back from a request. DOM: it runs from client-side code. | w:injection-and-xss | stored xss, reflected xss, dom xss, dom-based xss
+Web shell | malware | A script uploaded to a web server that gives an attacker a command interface through the browser. | - | webshell
+Input validation | hardening | Checking that input matches what's expected before using it. It's a layer of defense, not a replacement for parameterized queries and output encoding. | w:injection-and-xss | sanitization, output encoding
+API key | access | A secret string that identifies and authorizes an application calling an API. Don't commit it to Git. | w:api-security | api token
+Rate limiting | hardening | Capping how many requests a client can make in a period, to slow brute force and abuse. | w:api-security | throttling
+GraphQL | web | An API query language where the client asks for exactly the fields it wants from one endpoint. | w:api-security | -
+Subdomain takeover | vulns | Claiming a forgotten external service that a DNS record still points to, so you control that subdomain. | - | -
+WordPress | web | The most popular content management system. Its plugins are a common source of vulnerabilities. | - | cms
+SBOM | sdl | Software bill of materials: a list of every component and dependency inside a piece of software. | u:sdl/dependency-scanning | software bill of materials
+Software composition analysis | sdl | Scanning your dependencies for known vulnerabilities. | u:sdl/dependency-scanning | sca, dependency scanning, dependabot
+DevSecOps | concepts | Building security checks into the DevOps pipeline so they run on every change. | u:cs/cicd | secure devops
+Secrets management | hardening | Storing passwords, keys and tokens in a vault instead of in code or config files. | - | secrets manager, vault, hardcoded secrets
+# ---- programming and computer science ----
+Variable | programming | A named place in a program that holds a value. | g:python | -
+Function | programming | A named, reusable block of code that takes inputs and may return a value. | g:python | method, subroutine
+Class | programming | A blueprint for objects: it defines their data and behavior. | g:object-oriented-programming-java | object
+Loop | programming | Code that repeats: for loops run a set number of times, while loops run until a condition fails. | g:python | for loop, while loop
+Array | algorithms | A fixed-size, ordered collection of items accessed by index. | g:data-structures-and-algorithms | list
+Dictionary | algorithms | A collection of key-value pairs with fast lookup by key. Also called a map or hash map. | g:data-structures-and-algorithms | hash map, hashmap, map
+Hash table | algorithms | A data structure that uses a hash function to place keys in buckets, giving average O(1) lookup. | u:cs/hashing | hash map
+Linked list | algorithms | A chain of nodes where each node points to the next. Easy to insert into, slow to index. | g:data-structures-and-algorithms | -
+Stack (data structure) | algorithms | A last-in, first-out collection: push on top, pop from top. | g:data-structures-and-algorithms | lifo
+Queue | algorithms | A first-in, first-out collection: add at the back, remove from the front. | g:data-structures-and-algorithms | fifo
+Tree | algorithms | A hierarchical data structure of nodes with one parent each. A binary tree has at most two children per node. | u:cs/trees | binary tree, binary search tree, bst
+Graph | algorithms | Nodes connected by edges. Models networks, maps and relationships. | u:cs/graphs | graph theory
+Sorting algorithm | algorithms | A method of putting items in order: bubble sort and insertion sort are simple but slow; merge sort and quicksort are O(n log n). | u:cs/sorting | merge sort, quicksort, bubble sort
+Binary search | algorithms | Finding an item in a sorted list by repeatedly halving the search range. O(log n). | g:data-structures-and-algorithms | -
+Time complexity | algorithms | How the running time of an algorithm grows with input size, written in Big O. | u:cs/analysis | space complexity, runtime
+Dynamic programming | algorithms | Solving a problem by saving answers to overlapping subproblems so each is computed once. | u:cs/dp | dp, memoization
+Pointer | programming | A variable that holds a memory address. The source of many C bugs. | g:c-x86-assembly | pointers
+Memory leak | programming | A program that keeps allocating memory and never frees it, until it runs out. | - | -
+Garbage collection | programming | Automatic memory cleanup in languages such as Java, Python and Go. | - | gc
+Null pointer | programming | A pointer that points to nothing. Using it crashes the program or throws an exception. | - | null, nullpointerexception
+Exception | programming | An error condition that a program can catch and handle with try and catch. | g:java | try catch, error handling
+Unit test | programming | A small automated test of one piece of code. | u:cs/testing | unit testing, integration test, tdd
+Refactoring | programming | Restructuring code without changing what it does, to make it clearer. | - | -
+Version control | programming | Tracking changes to files over time so you can compare, undo and collaborate. Git is the standard. | g:git-github | source control, scm
+Branch | programming | A separate line of work in Git. You merge it back when ready. | g:git-github | git branch
+Commit | programming | A saved snapshot of changes in Git with a message. | g:git-github | git commit
+Pull request | programming | A request to merge your branch into another on GitHub, for review. | g:git-github | pr
+Merge conflict | programming | When Git can't combine two sets of changes to the same lines automatically and needs you to choose. | g:git-github | -
+Agile | programming | A way of building software in short cycles with constant feedback. Scrum and Kanban are common forms. | u:cs/agile | scrum, kanban, sprint, waterfall
+IDE | programming | Integrated development environment: an editor with debugging, running and tooling built in. VS Code and IntelliJ are examples. | - | vs code, visual studio code, intellij
+Source code | programming | The human-readable text of a program, before it is compiled or run. | - | -
+Bytecode | programming | An intermediate code that a virtual machine runs, such as Java bytecode on the JVM. | g:java | jvm, java virtual machine
+Static and dynamic typing | programming | Static typing checks types before running (Java, C). Dynamic typing checks them while running (Python, JavaScript). | u:langs/types | static typing, dynamic typing, type system, typing
+Polymorphism | programming | One interface, many implementations: different classes respond to the same method in their own way. | g:object-oriented-programming-java | inheritance, encapsulation, abstraction
+Design pattern | programming | A reusable solution to a common design problem, such as Singleton, Factory or Observer. | u:cs/patterns | singleton, factory, observer
+Lambda | programming | A small anonymous function written inline. | g:python | anonymous function, closure
+Callback | programming | A function passed to another function to be called later, often when something finishes. | g:typescript-javascript | -
+Async | programming | Letting a program start a slow task, like a network call, and continue with other work until it finishes. | g:typescript-javascript | asynchronous, promise, async await
+Concurrency | programming | Making progress on several tasks at once, whether by interleaving or true parallelism. | - | parallelism, multithreading
+Stack overflow | vulns | Running out of call stack memory, usually from endless recursion. Not the same as a stack buffer overflow. | - | -
+Bit and byte | programming | A bit is a 0 or 1. A byte is 8 bits, enough for 256 values. | u:basics/number-systems | bit, byte
+Octal | programming | Base 8 numbering. Linux permissions are written in octal, such as 755. | u:basics/number-systems | base 8
+Floating point | programming | How computers store numbers with decimals. It is approximate, so 0.1 + 0.2 isn't exactly 0.3. | - | float, double
+Unicode and UTF-8 | programming | Unicode is the standard list of characters. UTF-8 is the common way to store it as bytes, compatible with ASCII. | - | unicode, utf-8, utf8
+Base64 | crypto | An encoding that turns bytes into text using 64 characters. It is not encryption. | - | base 64
+Boolean | programming | A true or false value. | - | bool
+Syntax and semantics | programming | Syntax is the grammar of code. Semantics is what the code means. | u:langs/parser | syntax
+Abstract syntax tree | programming | The tree a compiler builds from source code to represent its structure. | u:langs/parser | ast
+Machine code | programming | The binary instructions a CPU runs directly. | g:c-x86-assembly | opcode, native code
+C | programming | A fast, low-level language with manual memory management. Operating systems and many exploits are written in it. | g:c-x86-assembly | c language, c programming
+C++ | programming | C with classes, templates and a large standard library. | - | cpp, cplusplus
+Java | programming | A compiled, object-oriented language that runs on the JVM, common in enterprise systems and Android. | g:java | jdk
+Go | programming | A compiled language from Google, popular for network tools and cloud software. | - | golang
+Rust | programming | A systems language that prevents many memory bugs at compile time without a garbage collector. | - | -
+TypeScript | programming | JavaScript with static types, compiled to plain JavaScript. | g:typescript-javascript | ts
+Node.js | programming | A runtime that runs JavaScript outside the browser, on servers. | g:typescript-javascript | node, nodejs, npm
+React | programming | A JavaScript library for building user interfaces from components. | g:full-stack-web-typescript-react-mongodb | reactjs
+PHP | programming | A server-side scripting language behind much of the web, including WordPress. | - | -
+C# | programming | Microsoft's object-oriented language for .NET, used for Windows software and games. | - | csharp, dotnet
+Markdown | programming | A simple text format that turns into formatted pages, used in READMEs and notes. | - | md
+YAML | programming | A human-friendly data format used in configuration files, Kubernetes and CI pipelines. | - | yml
+XML | programming | A tag-based data format. Parsers that mishandle it can suffer XXE. | - | -
+CSV | programming | Comma-separated values: a plain text table format. | - | comma separated values
+CLI and GUI | programming | A CLI is a text command-line interface. A GUI is a graphical one with windows and buttons. | - | cli, gui, command line interface
+Script | programming | A short program, usually interpreted, used to automate tasks. | g:python | scripting, scripting language
+Framework | programming | A structure of ready-made code that your program fits into, such as Spring, Django or React. | - | frameworks
+Dependency | programming | A library or package your code needs. Vulnerable dependencies are a major risk. | u:sdl/dependency-scanning | package, dependencies
+# ---- databases ----
+Table, row and column | database | A table stores records. A row is one record; a column is one field of it. | b:relational-databases | row, column, record, field
+Schema | database | The definition of a database's structure: its tables, columns, types and relationships. | g:databases-and-sql | -
+Query | database | A request to a database to read or change data. | g:databases-and-sql | sql query
+JOIN | database | An SQL operation that combines rows from two tables based on a related column. | g:databases-and-sql m:sql | inner join, left join, joins
+SELECT | database | The SQL statement that reads data: SELECT columns FROM table WHERE condition. | m:sql | insert, update, delete, crud
+Transaction | database | A group of database operations that all succeed or all fail together. | g:databases-and-sql | commit, rollback
+ACID | database | The four guarantees of a reliable transaction: atomicity, consistency, isolation, durability. | g:databases-and-sql | atomicity
+Normalization | database | Organizing tables to reduce duplicated data. | b:relational-databases | -
+Stored procedure | database | SQL code saved in the database and run by name. | - | -
+MySQL | database | A popular open source relational database. MariaDB is a close fork. | g:databases-and-sql | mariadb
+PostgreSQL | database | A powerful open source relational database. | g:databases-and-sql | postgres
+SQLite | database | A small database stored in a single file, used inside apps and phones. | - | -
+MongoDB | database | A document database that stores flexible JSON-like records. | g:mongodb-and-nosql | document database
+Redis | database | An in-memory key-value store, used for caches and queues. | - | key-value store
+DBMS | database | Database management system: the software that stores, serves and secures a database. | - | database management system
+Data warehouse | data | A large database built for analysis and reporting across many sources. A data lake holds raw data in its original form. | - | data lake, etl
+Big data | data | Data too large or fast for ordinary tools, handled by distributed systems. | u:dist/dist-fundamentals | hadoop, spark
+Replication | database | Copying data to other servers to keep it available and spread the load. | u:dist/dist-replication | -
+Sharding | database | Splitting a large database across several servers by key. | u:dist/dist-replication | partitioning
+# ---- cloud and DevOps ----
+Region and availability zone | cloud | A region is a geographic area of a cloud provider. Availability zones are separate data centers inside it. | u:cloud/cloud-basics | region, availability zone, az
+EC2 | cloud | Amazon's rentable virtual servers. | u:cloud/aws-basics | aws ec2, instance
+VPC | cloud | Virtual private cloud: your isolated network inside a cloud provider. | u:cloud/cloud-networking | virtual private cloud, vnet
+Security group | cloud | A cloud virtual firewall that allows traffic to and from instances by rule. | u:cloud/cloud-networking | nsg, network security group
+AWS Lambda | cloud | AWS serverless functions: code that runs on demand without managing a server. Azure Functions is the Microsoft equivalent. | u:cloud/aws-basics | azure functions, faas, serverless function
+Microsoft Entra ID | cloud | Microsoft's cloud identity service (formerly Azure AD) for sign-in and access to Microsoft 365 and Azure. | u:cloud/azure-basics | azure ad, entra, azure active directory
+CloudTrail | cloud | The AWS log of API calls and account activity. Critical for investigating cloud incidents. | u:cloud/cloud-security | aws cloudtrail
+Multi-tenancy | cloud | Many customers sharing the same underlying infrastructure, kept apart by software. | u:cloud/cloud-basics | multitenant
+Public, private and hybrid cloud | cloud | Public is rented from a provider. Private is dedicated to one organization. Hybrid mixes cloud with on-premises systems. | u:cloud/cloud-basics | public cloud, private cloud, hybrid cloud, multi-cloud, on-premises, on-prem
+Microservices | concepts | Building an application as many small services that talk over APIs, instead of one big program (a monolith). | u:dist/dist-fundamentals | monolith
+Orchestration | concepts | Automatically deploying, connecting and healing many containers or workloads. Kubernetes is the main example. | u:dist/cluster | -
+Container image | cloud | A packaged, read-only template for a container, with app and dependencies. | g:virtualization-proxmox | docker image, registry, dockerfile
+Terraform | cloud | A tool for defining cloud infrastructure in code and creating it automatically. Ansible automates configuring servers. | - | ansible
+CSPM | cloud | Cloud security posture management: tools that find misconfigurations in cloud accounts. | u:cloud/cloud-security | -
+CASB | cloud | Cloud access security broker: sits between users and cloud services to enforce security policy. | - | -
+SASE | cloud | Secure access service edge: networking and security (SD-WAN, firewall, zero trust) delivered as a cloud service. | - | -
+Auto scaling | cloud | Adding or removing servers automatically as demand changes. | u:cloud/cloud-basics | elasticity, scalability
+Edge computing | cloud | Processing data close to where it is created instead of in a distant data center. | - | -
+Data egress | cloud | Data leaving a cloud provider's network, which is usually charged for. | - | -
+# ---- AI and machine learning ----
+Neural network | ai | A model made of layers of connected nodes that learns patterns by adjusting weights. | a:ml-intro | neural net, neural networks, deep learning
+Training data | ai | The examples a model learns from. Test data is held back to check it on unseen examples. | a:ml-intro | test set, validation set, dataset
+Features and labels | ai | Features are the inputs the model sees. The label is the correct answer it should predict. | a:ml-intro | feature, label
+Supervised learning | ai | Learning from examples that come with the correct answer. | a:ml-intro | labeled data
+Unsupervised learning | ai | Finding structure in data with no labels, such as clusters. | a:ml-intro | clustering
+Reinforcement learning | ai | Learning by trial and error, with rewards for good actions. | a:ml-intro | rl
+Classification | ai | Predicting a category, such as spam or not spam. | a:ml-classifiers | classifier
+Regression | ai | Predicting a number, such as a price or a temperature. | a:ml-regression | linear regression
+Gradient descent | ai | The method that trains many models by repeatedly nudging weights in the direction that lowers the error. | a:ml-math | loss function, epoch, learning rate
+Hyperparameter | ai | A setting you choose before training, like learning rate or number of layers. | a:ml-intro | hyperparameters
+Underfitting | ai | A model too simple to learn the pattern, so it does poorly even on its training data. | a:ml-evaluation | -
+Bias and variance | ai | Bias is error from a model that's too simple. Variance is error from a model too sensitive to the training data. | a:ml-evaluation | bias, variance, bias-variance tradeoff
+Precision and recall | ai | Precision: of the things flagged, how many were right. Recall: of the real cases, how many were found. | a:ml-evaluation | precision, recall, f1 score, accuracy
+Embedding | ai | A list of numbers that represents the meaning of a word, sentence or image so similar things sit close together. | a:how-ai-works | embeddings, vector
+Token | ai | A chunk of text, often a word or part of a word, that a language model reads and writes. | a:how-ai-works | tokens, tokenizer
+Transformer | ai | The neural network design behind modern language models, built around attention. | a:how-ai-works | attention, self-attention
+Fine-tuning | ai | Training an existing model further on specific data to specialize it. | a:how-ai-works | fine tuning
+RAG | ai | Retrieval-augmented generation: look up relevant documents first and give them to the model so its answer is grounded in them. | a:ai-chatbot | retrieval augmented generation, retrieval-augmented generation
+Hallucination | ai | When a language model states something false with confidence. | a:ai-use-it-well | hallucinations, making things up
+Prompt engineering | ai | Writing instructions and context for a model to get better, more reliable answers. | a:pe-basics | prompt, prompting, prompts, system prompt
+Context window | ai | The maximum amount of text a model can consider at once. | a:pe-basics | context length
+Temperature | ai | A setting that controls randomness in a model's output. Low is predictable; high is varied. | a:pe-basics | top p, sampling
+Jailbreak | ai | Prompting a model to ignore its safety rules. | a:attacking-ai | jailbreaking
+Data poisoning | ai | Corrupting training data so a model learns wrong or backdoored behavior. | a:attacking-ai | training data poisoning, model poisoning
+Adversarial example | ai | An input changed slightly, often invisibly, to make a model give a wrong answer. | a:attacking-ai | adversarial attack, evasion attack
+Model inversion | ai | Extracting information about the training data from a model's outputs. | a:attacking-ai | membership inference, model extraction, model theft
+Guardrails | ai | Rules and filters around an AI system that limit what it can take in or send out. | a:ai-for-defense | -
+AI agent | ai | A system that uses a model to decide on actions, use tools and work toward a goal with some independence. | a:attacking-ai | agent, agentic
+Generative AI | ai | AI that produces new text, images, audio or code. | a:how-ai-works | genai, gen ai, chatgpt, gpt
+NLP | ai | Natural language processing: computers working with human language. | a:ml-intro | natural language processing
+Computer vision | ai | AI that works with images and video. | a:ml-intro | image recognition
+Inference | ai | Using a trained model to make predictions, as opposed to training it. | a:how-ai-works | -
+Vector database | ai | A database that stores embeddings and finds the items closest in meaning to a query. | a:ai-chatbot | vector search, semantic search
+BM25 | ai | A classic ranking formula for keyword search. It scores passages by how often query words appear, weighted by how rare they are. This site's chat uses it. | a:ai-chatbot | tf-idf, bm25 ranking
+AI red teaming | ai | Testing an AI system by attacking it the way an adversary would. | a:attacking-ai | -
+Explainability | ai | How well humans can understand why a model made a decision. | a:ml-evaluation | interpretability, xai
+# ---- careers, certifications and practice ----
+Security+ (certification) | career | CompTIA's entry-level security certification (SY0-701). Widely requested for SOC and government jobs. | u:secplus | security plus, sy0-701, comptia security+
+CySA+ | career | CompTIA Cybersecurity Analyst: a defensive certification on analysis, detection and response. | u:comptia/cysa | cysa plus, cs0-003
+Network+ | career | CompTIA's networking certification covering the OSI model, routing, switching and troubleshooting. | u:comptia/netplus | network plus
+A+ | career | CompTIA's entry-level IT support certification: hardware, operating systems and troubleshooting. | u:comptia/aplus | a plus
+CISSP | career | A senior-level security management certification that requires years of experience. | - | cissp certification
+OSCP | career | Offensive Security Certified Professional: a hands-on 24-hour practical pentesting exam. | - | oscp certification
+CEH | career | Certified Ethical Hacker: an EC-Council certification on attack tools and techniques. | - | certified ethical hacker
+CCNA | career | Cisco Certified Network Associate: a networking certification with hands-on routing and switching. | - | ccna certification
+DoD 8140 | career | The US Department of Defense rules for which certifications cleared roles need. It replaced 8570. | - | dod 8570, 8570
+Security clearance | career | Government approval to access classified information, after a background investigation. | - | clearance
+TryHackMe | career | A site of guided hands-on cybersecurity rooms in the browser. A good place to start practicing. | u:resources | tryhackme.com, thm
+Hack The Box | career | A platform of vulnerable machines and challenges for harder, less guided practice. | u:resources | htb, hackthebox
+Homelab | career | A personal set of computers or VMs at home for practicing IT and security. | g:virtualization-proxmox u:homelab | home lab, lab
+SOC analyst | career | Watches alerts and logs, triages possible incidents and escalates real ones. A common first security job. | u:careers/soc-analyst | security analyst, soc tier 1
+Penetration tester | career | Tests systems with permission to find weaknesses and writes up the findings. | u:careers/pentester | pentester, ethical hacker
+Systems administrator | career | Keeps servers, accounts and updates working. | u:careers/sysadmin | sysadmin, system administrator
+GRC | career | Governance, risk and compliance: the policy, risk and audit side of security. | u:grc/grc-frameworks | grc analyst
+MSP and MSSP | career | A managed service provider runs IT for other companies. An MSSP does security monitoring for them. | - | msp, mssp, managed service provider
+RMM | it | Remote monitoring and management: software IT teams use to manage many computers remotely. | - | remote monitoring and management
+ATS | career | Applicant tracking system: software that filters and ranks resumes. Plain formatting and matching keywords help. | u:jobs | applicant tracking system
+# ---- Windows and Active Directory ----
+Domain (Active Directory) | windows | A group of computers and users managed together by domain controllers. | g:active-directory | ad domain, forest
+Organizational unit | windows | A container in Active Directory for users and computers, used to organize and apply Group Policy. | g:active-directory | ou
+SID | windows | Security identifier: the unique ID Windows assigns to a user, group or computer. | - | security identifier
+Domain admin | windows | A member of the all-powerful Domain Admins group. The main target of AD attacks. | g:active-directory | domain admins, enterprise admin
+Service account | access | An account used by a program or service, not a person. Often over-privileged and rarely rotated. | - | service accounts
+KDC and TGT | windows | The key distribution center runs on a domain controller and issues Kerberos tickets. The ticket-granting ticket proves you logged in. | g:active-directory | kdc, tgt, tgs, ticket granting ticket
+NTDS.dit | windows | The Active Directory database file holding all password hashes. A prime target. | - | ntds
+NTLM | windows | An older Windows challenge-response authentication protocol that is weaker than Kerberos and still found on networks. | g:active-directory | ntlm hash, ntlmv2
+Scheduled task | windows | A Windows job that runs at a set time or event. Also a favorite persistence method. | - | schtasks, scheduled tasks
+WMI | windows | Windows Management Instrumentation: a way to query and control Windows systems locally and remotely, used by admins and attackers. | - | windows management instrumentation
+PsExec | tools | A Sysinternals tool that runs commands on remote Windows machines. Common in lateral movement. | - | sysinternals
+WinRM | windows | Windows Remote Management: remote PowerShell over HTTP(S) ports 5985 and 5986. | - | winrm, powershell remoting
+AppLocker | hardening | Windows feature that restricts which programs can run. | - | application whitelisting, allowlisting, application control
+Run key | windows | Registry locations under Run and RunOnce that start programs at login. A common persistence spot. | - | run keys, autorun
+AMSI | windows | Antimalware Scan Interface: lets Windows security software scan scripts like PowerShell at run time. | - | -
+BitLocker | hardening | Microsoft's full disk encryption for Windows. | - | -
+Windows Defender | windows | Microsoft's built-in antivirus and endpoint protection. | - | microsoft defender, defender
+# ---- basics ----
+Cryptography | crypto | The science of protecting information with math: encryption, hashing, signatures and key exchange. | b:cia-and-crypto | crypto, cryptology
+Cybersecurity | concepts | Protecting computers, networks and data from attack, damage and unauthorized access. | u:start | cyber security, information security, infosec, cyber
+Network | network | Two or more devices connected so they can share data. A LAN covers a small area; the internet links networks together. | g:computer-networks | computer network, networking
+Protocol | network | An agreed set of rules for how devices communicate, such as TCP, HTTP or DNS. | b:ports-and-protocols | network protocol, protocols
+Internet | network | The global network of networks that carries the web, email and more. The web is only one service on it. | b:how-web-apps-work | the internet, world wide web, www, web
+Server | it | A computer (or program) that provides a service to other computers, such as web pages, files or email. | - | servers
+Client | it | The device or program that asks a server for something, such as a browser or email app. | - | clients
+Software | it | Programs and data that tell hardware what to do, as opposed to the physical hardware itself. | - | application, app
+Hardware | hardware | The physical parts of a computer: CPU, RAM, storage, motherboard, peripherals. | g:hardware-diagnostics-and-repair | computer hardware
+Computer | hardware | A machine that follows instructions to process data, built from a CPU, memory, storage and input and output. | g:operating-systems | pc
+Data | data | Raw facts and figures a computer stores and processes. Information is data with meaning. | - | information
+Hacker | threats | Someone skilled at finding ways around computer systems. White hats do it with permission, black hats do not, and gray hats sit between. | u:grc/ethics-and-disclosure | white hat, black hat, gray hat, ethical hacker, hackers
+Cyberattack | attacks | An attempt to damage, disrupt or gain access to computer systems or data. | - | cyber attack, cybercrime, cyber crime
+Threat | threats | Anything that could cause harm to systems or data, such as an attacker, malware, or a natural disaster. | s:2.1 | threats
+Antivirus | hardening | Software that detects and removes known malware, mostly by signature, with some behavior checks. | - | anti-virus, av
+Spam | email | Unwanted bulk email, often carrying scams or malware. | - | junk mail
+Scam | threats | A dishonest scheme to take money or information, such as a fake tech-support call. | - | fraud, identity theft
+Browser | web | The program that fetches and displays web pages, such as Chrome or Firefox. | b:how-web-apps-work | web browser
+Website | web | A collection of web pages served from a domain. A web application adds logic, accounts and data. | b:how-web-apps-work | web page, web application, web app
+Email | email | Electronic mail sent between servers over SMTP and read through IMAP or POP3. | - | e-mail
+Password | access | A secret string used to prove identity. Longer is stronger, and each account should have its own. | d:password-hygiene-audit | passwords, passphrase
+Username | access | The name that identifies an account at login. | - | user name, account, user account
+Virtualization | virtualization | Running several virtual computers on one physical machine using a hypervisor. | g:virtualization-proxmox | virtual
+Cloud | cloud | Computing resources rented over the internet instead of owned on site: servers, storage, databases and apps. | u:cloud/cloud-basics | the cloud
+Artificial intelligence | ai | Computer systems doing tasks that normally need human intelligence, such as understanding language or recognizing images. | a:how-ai-works | ai basics, what is ai
+Chatbot | ai | A program that talks with users in text or voice. Some are rule-based and some use language models. | a:ai-chatbot | chat bot, bot
+Digital footprint | privacy | The trail of data you leave online: accounts, posts, searches, tracking. | - | digital footprints, online footprint
+Privacy | privacy | Control over who collects and uses information about you. | u:grc/privacy-law | data privacy
+Identity theft | threats | Using someone's personal details to impersonate them, usually for money. | - | -
+Ethical hacking | concepts | Testing systems for weaknesses with the owner's written permission, to fix them before attackers find them. | u:grc/ethics-and-disclosure | ethical hacker, white hat hacking
+Open Systems Interconnection | network | Another name for the OSI model: seven layers that describe how network communication works. | b:osi-and-tcpip | -
+TCP/IP model | network | The four-layer practical model of the internet: link, internet, transport and application. The OSI model has seven. | b:osi-and-tcpip | tcp ip, tcp/ip, tcpip
+Windows | os | Microsoft's family of operating systems, the most common on business desktops. Managed with Active Directory and PowerShell. | b:linux-windows-basics g:windows-admin-powershell | microsoft windows, windows 10, windows 11, windows server
+macOS | os | Apple's desktop operating system, built on a Unix base. | m:macos | mac os, os x, mac
+Ubuntu | linux | A popular, beginner-friendly Linux distribution, widely used on servers and in the cloud. Debian-based. | g:linux-server-admin-ubuntu | debian
+# ---- OSI layers and cabling / support basics ----
+Physical layer | network | OSI layer 1: the actual signals on cables, fiber or radio, plus connectors and voltages. Hubs and cables live here. | b:osi-and-tcpip | layer 1, osi layer 1
+Data link layer | network | OSI layer 2: moves frames between devices on the same network using MAC addresses. Switches and Wi-Fi work here. ARP and VLANs relate to it. | b:osi-and-tcpip | layer 2, osi layer 2
+Network layer | network | OSI layer 3: addresses and routes packets between networks using IP. Routers work here. ICMP lives here. | b:osi-and-tcpip | layer 3, osi layer 3
+Transport layer | network | OSI layer 4: delivers data between applications using ports. TCP gives reliable, ordered delivery; UDP is fast and connectionless. Firewalls often filter here. | b:osi-and-tcpip | layer 4, osi layer 4, transport
+Session layer | network | OSI layer 5: starts, manages and ends conversations between applications, including checkpoints and reconnection. | b:osi-and-tcpip | layer 5, osi layer 5
+Presentation layer | network | OSI layer 6: formats and translates data: encryption, compression and character encoding. TLS is often placed here. | b:osi-and-tcpip | layer 6, osi layer 6
+Application layer | network | OSI layer 7: the protocols programs use directly, such as HTTP, DNS, SMTP and FTP. Not the app itself. | b:osi-and-tcpip | layer 7, osi layer 7
+Cat6 and Ethernet cable | hardware | Twisted-pair copper cabling with RJ-45 plugs. Cat5e handles 1 Gbps, Cat6 up to 10 Gbps over short runs. Max run is 100 m. | u:comptia/netplus | cat5e, cat6, rj45, rj-45, utp, twisted pair
+Fiber optic cable | hardware | Cable that carries data as light. Longer distances and higher speeds than copper, and immune to electrical interference. Single-mode goes farther than multimode. | u:comptia/netplus | fiber, fibre, single-mode, multimode
+PoE | hardware | Power over Ethernet: delivers power and data over one network cable, for access points, cameras and phones. | u:comptia/netplus | power over ethernet
+UPS | hardware | Uninterruptible power supply: a battery that keeps equipment running briefly when power fails and cleans up surges. | u:comptia/aplus | uninterruptible power supply, surge protector
+POST | hardware | Power-on self-test: the check the firmware runs at startup. Beep codes or error lights show which part failed. | g:hardware-diagnostics-and-repair | power on self test, beep codes
+CMOS battery | hardware | The small coin battery that keeps the motherboard's clock and BIOS settings. A dead one resets the time. | g:hardware-diagnostics-and-repair | cmos
+Device Manager | windows | The Windows tool listing hardware and drivers. A yellow warning icon marks a device with a problem. | g:windows-deployment-and-drivers | drivers, driver rollback
+Thermal paste | hardware | A compound between CPU and cooler that moves heat across tiny gaps. Old or missing paste causes overheating. | g:hardware-diagnostics-and-repair | thermal compound, overheating
+Print spooler | windows | The Windows service that queues print jobs. Restarting it clears many stuck-printer problems. | u:comptia/aplus | spooler, print queue
+Imaging | it | Capturing a full system setup as an image so it can be deployed to many computers quickly. | g:windows-deployment-and-drivers | system image, sysprep, deployment
+Spaced repetition | study | A study method that reviews flashcards at growing intervals, right as you are about to forget. Anki uses it. | - | anki, flashcards, active recall

@@ -1,0 +1,243 @@
+# Hand-written chat test cases:  category | question ==> regex (matched case-insensitively against the plain text of the answer)
+# category "neg" means the chat must say it doesn't know (or is out of scope) and must not give a confident answer.
+def | what is a firewall ==> firewall
+def | what is kerberoasting ==> service ticket|service account|kerberos
+def | define phishing ==> phishing
+def | what does dns stand for ==> domain name
+def | what's a vpn ==> tunnel|encrypt
+def | what is the cia triad ==> confidentiality
+def | explain zero trust ==> never trust|verify
+def | tell me about ransomware ==> encrypt|ransom
+def | what is mfa ==> factor|multi
+def | what is an api ==> interface|request
+def | what is a subnet mask ==> network|host
+def | whats a hash ==> one-way|digest|fixed
+def | what is ssh ==> secure shell|encrypt|remote
+def | what is nmap ==> scan|port
+def | what is sql injection ==> query|input
+def | what is an exploit ==> vulnerab
+def | what is malware ==> malicious|software
+def | what's the dark web ==> tor|not indexed|hidden|anonym
+def | what is a botnet ==> infected|controlled|bot
+def | what is a rootkit ==> hide|kernel|privilege
+def | what is lateral movement ==> move|network|pivot
+def | what is a siem ==> log|correlat
+def | what is bm25 ==> rank|keyword
+def | what is rag ==> retrieval
+def | what is a transformer in ai ==> attention|neural|language model
+def | what is a token in an llm ==> chunk|word|text
+def | what is a docker container ==> container|package|kernel
+def | what is chmod ==> permission
+def | what is the registry ==> windows|configuration|settings
+def | what is a cname record ==> alias
+def | what is an mx record ==> mail
+def | what is the loopback address ==> 127
+def | what is apipa ==> 169.254
+def | what is csrf ==> request|browser|forged
+def | what is a buffer overflow ==> memory|buffer|overwrit
+def | what is aslr ==> random|address
+def | what is a certificate authority ==> trust|sign|issue
+def | what is pki ==> certificate|public key
+def | what is ntp ==> time
+def | what is a tpm ==> chip|keys
+def | what is big o notation ==> complexity|growth|time
+def | what is recursion ==> itself|calls
+def | what is oop ==> object|class
+def | what is a race condition ==> timing|order|simultaneous|threads
+def | what is a load balancer ==> traffic|servers|distribut
+def | what is cloud computing ==> internet|on-demand|servers|rent
+def | what is the shared responsibility model ==> provider|customer
+def | what is rbac ==> role
+def | what is a honeypot ==> decoy|trap|lure|fake
+def | what is steganography ==> hid
+def | what is pass the hash ==> ntlm|hash
+def | what is a golden ticket ==> kerberos|forged
+def | what is edr ==> endpoint|detect
+def | what is yara ==> rule|malware|pattern
+def | what is the mitre att&ck framework ==> tactic|technique
+def | what is a vlan ==> broadcast|segment|virtual
+def | what is bgp ==> border gateway|autonomous|routing
+def | what is a reverse shell ==> connect|attacker|shell
+def | what is the owasp top 10 ==> web|vulnerab|injection
+def | what is tailscale ==> vpn|mesh|wireguard
+def | what is wazuh ==> siem|xdr|agent|open source
+def | what is proxmox ==> hypervisor|virtual
+cmp | what is the difference between ipv4 and ipv6 ==> 128|32
+cmp | whats the difference between ipv4 and ipv6 ==> 128
+cmp | ipv4 vs ipv6 ==> 128
+cmp | difference between tcp and udp ==> handshake|connectionless
+cmp | tcp vs udp ==> reliab
+cmp | what is the difference between a hub and a switch ==> layer 2|mac
+cmp | hub vs switch vs router ==> router
+cmp | difference between a virus and a worm ==> own|self
+cmp | virus vs trojan ==> pretend|host
+cmp | siem vs soar ==> playbook|automat
+cmp | symmetric vs asymmetric encryption ==> shared|pair|public
+cmp | difference between encryption and hashing ==> one-way|reversible
+cmp | encoding vs encryption ==> base64|key
+cmp | compare red team and blue team ==> attack|defen
+cmp | http vs https ==> tls|443
+cmp | difference between authentication and authorization ==> who are you|allowed
+cmp | vpn vs proxy ==> tunnel|relay
+cmp | ids vs ips ==> block|alert
+cmp | sast vs dast ==> source|running
+cmp | xss vs csrf ==> script|request
+cmp | python vs java which should i learn ==> python
+cmp | security+ or network+ first ==> a\+|networking
+cmp | should i get security+ or cissp ==> experience
+cmp | docker vs vm ==> kernel
+cmp | vm vs container ==> kernel|isolation
+cmp | sql or nosql ==> flexible|schema
+cmp | difference between stack and heap ==> automatic|lifo|manual
+cmp | what is the difference between a process and a thread ==> memory
+cmp | tls vs ssl ==> deprecated|1.3
+cmp | ssd vs hdd ==> flash|platter|spinning
+cmp | ram vs storage ==> volatile|working
+cmp | hashing vs encoding ==> reversible|one-way
+cmp | bfs vs dfs ==> queue|level
+cmp | linux vs windows ==> bash|powershell|shell
+cmp | kali or ubuntu ==> penetration|tools
+cmp | difference between a router and a switch ==> layer 3|mac
+cmp | threat vs vulnerability vs risk ==> likelihood|weakness
+cmp | dos vs ddos ==> distributed|many
+cmp | false positive vs false negative ==> missed|nothing|wasted
+cmp | ssh vs telnet ==> cleartext|22
+cmp | rdp or ssh ==> 3389|desktop
+cmp | ping vs traceroute ==> hop
+cmp | wpa2 vs wpa3 ==> sae|handshake
+cmp | cve vs cvss ==> score|severity
+cmp | what is the difference between rto and rpo ==> recover|lose
+cmp | hot site vs cold site ==> minutes|power
+cmp | difference between ids and firewall ==> ids|firewall
+cmp | how is a worm different from a virus ==> own|self
+cmp | is https the same as tls ==> tls
+cmp | is a vpn the same as a proxy ==> tunnel|relay
+cmp | what's better kali or parrot ==> kali
+cmp | difference between kerberos and ntlm ==> ticket|challenge
+cmp | active vs passive recon ==> packets|public
+cmp | tcp or udp for video streaming ==> speed|udp
+cmp | whats the difference between a vulnerability scan and a penetration test ==> exploit|human
+cmp | difference between a+ and security+ ==> support|security
+cmp | tryhackme vs hack the box ==> guided|less guidance
+cmp | splunk vs elk ==> splunk
+cmp | tcp/ip model vs osi model ==> layer
+cmp | compare iaas paas and saas ==> provider
+cmp | difference between public key and private key ==> secret|share
+cmp | what is better, bash or powershell ==> object|text
+cmp | difference between the dark web and the deep web ==> index|tor
+faq | how do i become a soc analyst ==> siem|security\+
+faq | how to get a job in cybersecurity with no experience ==> help desk|projects|homelab
+faq | what should i learn first in cyber ==> networking|linux
+faq | which cert should i get first ==> a\+|security\+
+faq | how many questions are on the security+ exam ==> 90
+faq | how should i study for security+ ==> flashcards|practice|objective
+faq | why is my dns not resolving ==> nslookup|resolver|dns
+faq | what does connection refused mean ==> nothing listens|rejected|no service
+faq | how do i scan ports with nmap ==> nmap
+faq | what are the osi layers ==> physical
+faq | list the layers of the osi model ==> physical|application
+faq | i clicked a phishing link what should i do ==> password|disconnect
+faq | how to find my ip address ==> ipconfig|ip a
+faq | what happens when you type a url into a browser ==> dns
+faq | how does https work ==> certificate|key
+faq | what are the phases of incident response ==> containment|eradication|lessons
+faq | what are the steps of a pentest ==> recon|scanning|exploit
+faq | what ports should i know for security+ ==> 443|22
+faq | how do i make a homelab ==> proxmox|virtualbox|vm
+faq | how to learn python for security ==> python
+faq | what is a good beginner project for a cyber resume ==> homelab|write-up|github
+faq | can you hack my ex's instagram ==> won't|illegal|not yours
+faq | my computer is running slow ==> task manager|ram|disk
+faq | printer won't print ==> queue|driver|spooler
+faq | how do i prepare for a soc interview ==> star|triage
+faq | how do i check if a port is open ==> nc|nmap|test-netconnection
+faq | what is event id 4625 ==> failed
+faq | where are linux logs ==> /var/log
+faq | what are private ip ranges ==> 192.168|10\.
+faq | how many hosts in a /24 ==> 254
+faq | how do i prevent sql injection ==> parameter|prepared
+faq | how to harden a server ==> patch|least privilege|benchmark
+faq | what is the best antivirus ==> defender
+faq | do i need a vpn ==> untrusted|trust
+faq | how does kerberos work ==> ticket
+faq | how does a firewall work ==> rule
+faq | how does dns work ==> resolver|authoritative|root
+faq | how does the three way handshake work ==> syn
+faq | what is a good laptop for cyber ==> ram|16
+faq | is a degree required for cybersecurity ==> not always|certs
+faq | what's on the security+ exam ==> 22%|domain
+faq | how much does security+ cost ==> \$|usd|voucher
+faq | what is the next step after security+ ==> cysa|labs|apply
+faq | quiz me on security+ ==> flashcards|drill
+ask | how does arp spoofing work ==> arp
+ask | why do we salt passwords ==> rainbow|salt
+ask | how do i read a pcap ==> wireshark|packet
+ask | why is ssh safer than telnet ==> encrypt
+ask | when should i use udp instead of tcp ==> speed|dns|real-time|video
+ask | how does dns tunneling work ==> dns|exfil|tunnel
+ask | how do attackers escalate privileges on linux ==> suid|sudo|privilege
+ask | what are the steps to analyze a malware sample ==> static|dynamic|sandbox
+ask | how do i use wireshark filters ==> filter|ip.addr|tcp
+ask | how does a rootkit hide ==> hide|kernel
+ask | how do i investigate a phishing email ==> header|sender|url|link
+ask | what is the order of volatility ==> memory|volatile|ram
+ask | how do i find open ports with nmap ==> nmap
+ask | what are common web vulnerabilities ==> injection|xss|access
+ask | how does a vpn tunnel work ==> encrypt|tunnel
+ask | how to detect lateral movement ==> 4624|smb|rdp|logon|event
+ask | how do security analysts triage alerts ==> alert|severity|false positive|triage
+ask | how can i detect brute force attacks in logs ==> failed|4625|login|auth
+ask | what does a sigma rule look like ==> detection|logsource|title
+ask | how to use yara ==> rule|string|condition
+ask | how does sql injection bypass login ==> or|query|quote|input
+ask | what do i need to know about linux permissions ==> chmod|rwx|owner
+ask | how does ssl stripping work ==> http|downgrade|hsts
+ask | tell me about subnetting ==> subnet|mask|cidr
+ask | what happens in the kill chain ==> reconnaissance|delivery|exploit
+ask | what is the difference between a port scan and a vulnerability scan ==> port|vulnerab
+typo | wat is a firwall ==> firewall
+typo | diffrence between tcp and udp ==> handshake|connectionless
+typo | whats a vpn thing ==> tunnel|encrypt
+typo | kerberos? ==> ticket
+typo | what is cross site scripting aka xss ==> script
+typo | ssl vs tls differnce ==> deprecated|tls
+typo | how do i becom a pentester ==> practice|tryhackme|fundamentals
+typo | explan sql injection ==> query|input
+typo | port 443 ==> https|443
+typo | port 22 ==> ssh|22
+typo | what is an ids vs ips ==> block|alert
+typo | whats the differnce between hash and encrypt ==> one-way|reversible
+typo | wats kerberoasting ==> kerberos|service
+typo | define cryptografy ==> crypt
+typo | what is a rainbow tabel ==> hash|precomputed
+typo | what is a pasword spray ==> password|accounts
+typo | tell me bout malware ==> malicious|software
+typo | what s dhcp ==> ip|address
+typo | tcp ip ==> tcp|ip
+multi | what is tcp and what is udp ==> tcp.*udp|udp.*tcp
+multi | what is a firewall? what is an ids? ==> firewall.*ids|ids.*firewall
+multi | explain dns and dhcp ==> dns.*dhcp|dhcp.*dns
+multi | what is a worm and how is it different from a virus ==> worm.*virus|virus.*worm
+multi | what is phishing and how do i spot it ==> phishing.*(sender|link|urgen)
+multi | what is nmap and how do i use it ==> nmap
+multi | what is a vpn, and do i need one ==> vpn.*(untrusted|trust)
+neg | what is the capital of france
+neg | who won the super bowl
+neg | whats the weather today
+neg | best pizza near me
+neg | what is a flibbertigibbet
+neg | asdf qwerty zxcv
+neg | tell me a joke
+neg | how do i bake a cake
+neg | what is the meaning of life
+neg | who is the president
+neg | what is quantum chromodynamics
+neg | how tall is mount everest
+neg | recommend a movie
+neg | how do i lose weight
+neg | what is the stock price of apple
+neg | translate hello to spanish
+neg | write me a poem
+neg | how do i fix my car
+neg | what is the best dog breed
+neg | who invented the telephone

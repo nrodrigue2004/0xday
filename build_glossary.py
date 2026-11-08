@@ -2,6 +2,7 @@
 that covers it. Called from build.py. Standard library only.
 Link prefixes: g=learn guide, s=Security+ objective id, m=cheatsheet, d=drill, a=ai chapter. Every link is checked at build time."""
 import json, os, html
+import chatdata
 
 esc = html.escape
 KINDS = {"g": ("learn/{}.html", "guide"), "s": ("secplus/{}.html", "Security+ "), "m": ("man/{}.html", "man "),
@@ -18,16 +19,14 @@ def label(kind, slug):
 
 
 def build(page):
-    terms = json.load(open("content/glossary.json"))["terms"]
+    terms = chatdata.load_terms()
     cats = sorted({t["c"] for t in terms})
     rows, letters = "", []
     for t in terms:
         links = []
         for l in t["l"]:
-            k, s = l.split(":", 1)
-            if not check(k, s):
-                raise SystemExit(f"glossary: '{t['t']}' links to missing {l}")
-            links.append(f'<a href="{KINDS[k][0].format(s)}">{esc(label(k, s))}</a>')
+            url, lab = chatdata.resolve(l)
+            links.append(f'<a href="{url}">{esc(lab)}</a>')
         ch = t["t"][0].upper()
         anchor = ""
         if ch not in letters:

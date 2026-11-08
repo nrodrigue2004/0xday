@@ -2,6 +2,11 @@
   {
     "date": "2026-11-08",
     "type": "feat",
+    "msg": "~/ai/chat now routes questions by type: comparisons (126 curated side-by-side tables plus a glossary fallback), definitions with typo repair, 197 curated answers for advice, troubleshooting, commands and lists, multi-part questions and follow-ups. Glossary grew from 332 to about 950 terms. Says so when it doesn't know. scripts/chat_test.js checks it against thousands of questions"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "feat",
     "msg": "add CS320 distributed systems (~/dist, cluster simulator) and CS330 AI/ML (ML chapters, in-browser playground) courses"
   },
   {
