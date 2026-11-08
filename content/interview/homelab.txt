@@ -1,0 +1,23 @@
+slug: homelab
+title: Cybersecurity Homelab
+resume: Cybersecurity Homelab
+guides: virtualization-proxmox, firewalls-pfsense, siem-security-onion, vpn-tailscale
+posts: proxmox-homelab
+tagline: A 7-VM enterprise simulation on Proxmox with segmentation, an AD domain and Security Onion watching the traffic.
+:: pitch
+**30-second version.** "I built a seven-VM enterprise simulation on Proxmox: pfSense for routing and firewall rules, Kali and a couple of intentionally vulnerable targets as the attack side, a Windows Server 2022 domain with a Windows 11 client, and Security Onion watching the network. I split it into isolated subnets so attacks stay contained, and used Tailscale subnet routing to reach it remotely."
+**What the interviewer is testing:** whether you understand *why* it is built that way (segmentation, monitoring, containment), not just that you installed things. Be ready to draw it on a whiteboard.
+:: prep
+- Draw the topology from memory: subnets, what pfSense allows between them, where Security Onion's sensor sits.
+- Pick one attack you ran and the alert it produced, or the gap where it produced none.
+- Know one thing that broke and how you fixed it. Write the real story down here before the interview.
+- Check the [~/homelab map](homelab.html) and [attack chain](attack-chain.html) so your explanation matches what is published.
+:: q
+- [e] Walk me through your homelab. => Start with the goal, then the layout. "I wanted a safe place to practice both attacking and defending, so I built seven VMs on Proxmox: pfSense as the router and firewall, Kali, Metasploitable 2 and DVWA/WebGoat as targets, a Windows Server 2022 domain controller with a Windows 11 client, and Security Onion for monitoring." Then give one concrete thing you did with it.
+- [e] Why Proxmox? => It is free, runs on bare metal, handles VMs and containers, and has snapshots, which matter when you are detonating or exploiting things and need a clean rollback. Be honest about alternatives you know (VMware, VirtualBox) and why this fit a dedicated lab box.
+- [n] Why did you segment the network, and how? => Containment and realism. Vulnerable machines sit on their own subnet so a compromised target can't freely reach the domain or the management network. pfSense interfaces define the subnets, with default-deny rules and only the flows needed (for example attacker to target, everything to the sensor's mirror). Mention DHCP and NAT on pfSense in your own words.
+- [n] What did Security Onion show you, and what did it miss? => Describe a real run: you scan or exploit a target from Kali, then find the matching Suricata alert or Zeek log in Security Onion. Then give an honest miss, such as encrypted traffic, a custom payload, or an attack that stayed inside one host. Knowing the blind spots is the point.
+- [n] How do you reach the lab remotely, and is that safe? => Tailscale subnet routing: a node advertises the lab subnet to the tailnet, so approved devices reach it without opening inbound ports on the home router. Safety: access is limited to my own devices, MFA on the identity provider, and the vulnerable subnet is not exposed to the internet.
+- [n] What would you do differently if you rebuilt it? => A good answer is specific and shows learning: central log collection from the Windows hosts into the SIEM, infrastructure as code or templates so rebuilds are fast, tighter firewall rules written down before building, and documented baselines. Pick two that you really would do.
+- [h] A Metasploitable box on your lab network starts scanning your other subnets. How do you find out and respond? => Detection: Security Onion sees the scan (Suricata or Zeek connection logs, many ports or hosts from one source). Containment: pfSense block rule or disable the VM's virtual NIC, then snapshot for analysis. Then work out why: a misconfigured rule that let the target reach other subnets is the real finding, so fix the rule and add a deny.
+- [h] How would you detect Kerberoasting or password spraying against your domain? => Windows event logs: 4769 with RC4 ticket encryption for many service accounts in a short window (Kerberoasting), and repeated 4625 failures across many accounts from one source (spraying). Forward them to the SIEM and alert on the pattern. Say which you have actually tested versus which you know from study.
