@@ -170,6 +170,10 @@
     (D.ai || []).forEach(c => P("ai " + c.name, "ai/" + c.slug + ".html", "ai"));
     P("cloud", "cloud.html", "learn");
     (D.cloud || []).forEach(c => P("cloud " + c.name, "cloud/" + c.slug + ".html", "learn"));
+    P("history", "history.html", "learn");
+    (D.history || []).forEach(c => P("history " + c.name, "history/" + c.slug + ".html", "learn"));
+    P("cases", "cases.html", "learn");
+    (D.cases || []).forEach(c => P("case " + c.name, "cases/" + c.slug + ".html", "learn"));
     (D.secplus_objs || []).forEach(o => P("sec+ " + o.id + " " + o.title, "secplus/" + o.id + ".html", "sec+"));
     Object.keys(D.tags || {}).forEach(t => P("#" + t, "tags.html#" + t, "tag"));
     return it;

@@ -1,0 +1,108 @@
+tagline: The first widely known cyberweapon built to cause physical damage. It crossed an air gap on a USB stick, used four zero-days and stolen certificates, and lied to the operators while it wrecked centrifuges.
+sheet: cases
+sources: Nicolas Falliere, Liam O Murchu, Eric Chien, *W32.Stuxnet Dossier* (Symantec, 2011); Ralph Langner, *To Kill a Centrifuge* (2013); David Sanger, *Confront and Conceal* (2012) and reporting in The New York Times; Kim Zetter, *Countdown to Zero Day* (2014); Microsoft security bulletins MS10-046, MS10-061, MS10-073, MS10-092; ISIS (Institute for Science and International Security) reports on Natanz; VirusBlokAda's June 2010 discovery notes.
+:: simple
+### The story
+In **June 2010** a small Belarusian security firm, **VirusBlokAda**, was asked to look at an Iranian customer's computers that kept crashing and rebooting. They found a worm unlike anything before: it used several unpublished Windows flaws, its drivers were signed with valid stolen certificates, and it carried a payload aimed at one specific industrial system.
+
+Analysis by **Symantec** and the German engineer **Ralph Langner** over the next months showed what it was for. It looked for **Siemens S7 PLCs** (industrial controllers) running a particular configuration, in a facility with a very specific arrangement of frequency converters, the kind that spin uranium-enrichment **centrifuges**. When it found them, it quietly changed their rotor speeds, wearing the machines out, while showing operators normal readings.
+
+The target was almost certainly Iran's **Natanz** enrichment plant. Reporting by the New York Times and others attributed Stuxnet to a joint US and Israeli effort (codename **Olympic Games**). Neither government has officially confirmed it, so treat attribution as widely reported, not proven. Independent estimates suggest on the order of a thousand centrifuges were taken out of service.
+
+### Why it matters
+It showed that malware can break physical things, that **air gaps are not safe** (a USB stick crossed it), and that a well-funded actor will chain several unknown flaws and stolen identities. It started industrial control system (ICS/OT) security as a mainstream field.
+
+### Timeline (approximate)
+- **2007 to 2009:** earlier versions appear to have run, and a more aggressive one in 2009 to 2010.
+- **Jun 2010:** VirusBlokAda reports the worm; Microsoft begins working on the shortcut-file bug.
+- **Jul 2010:** the vulnerable-shortcut flaw is made public; Siemens and Microsoft respond.
+- **Sep 2010:** Langner publishes his analysis of the PLC payload, and Iranian officials acknowledge infections.
+- **Feb 2011:** Symantec's dossier is published.
+:: mid
+### How it worked (concept level)
+Stuxnet was a long chain. No single trick is the story; the **chaining** is.
+
+1. **Delivery by USB.** A flaw in how Windows rendered the icon of a shortcut (`.LNK`) file ran code the moment you opened a folder on a USB drive (CVE-2010-2568). No click on the file was needed. This crossed the air gap.
+2. **Spread inside the network.** Used an older network-service flaw (MS08-067, the same one Conficker used), a **print spooler** flaw (CVE-2010-2729), and shared folders. It also used the **default password** that Siemens software used to talk to its database (CVE-2010-2772).
+3. **Gain SYSTEM.** Two local privilege-escalation zero-days (in the keyboard layout code and in Task Scheduler) gave full control.
+4. **Hide.** A **rootkit driver**, signed with certificates stolen from the Taiwanese chipmakers **Realtek** and **JMicron**, so Windows loaded it without complaint.
+5. **Find the target.** On machines with Siemens **Step 7** engineering software, it replaced a library (`s7otbxdx.dll`) that sits between Step 7 and the PLC. Now it could see, and change, everything the engineer sent to the PLC.
+6. **Sabotage with patience.** It checked that the PLC matched the intended target. It then waited, recorded normal sensor data, changed the speeds at intervals (reports describe both speeding up and slowing down), and **replayed the recorded good data** to the operators' screens during the attack.
+
+### The logic as pseudo-code (a description, not working code)
+```code
+on_usb_insert:
+    if windows_shortcut_flaw_present: run_loader()         # CVE-2010-2568
+run_loader:
+    install_signed_rootkit()
+    spread(network_flaws, shared_folders, usb)
+    if step7_installed:
+        hook(s7otbxdx.dll)
+        if plc_matches(target_fingerprint):
+            record(normal_sensor_values)
+            wait(weeks)
+            modify(rotor_speed_commands, sometimes)
+            while attacking: show_operators(recorded_values)   # replay
+        else:
+            do_nothing()                                  # stay quiet elsewhere
+```
+This is a paraphrase of the structure documented by Symantec, not their code and not malware. The point is the shape: **a gate** that only fires on the right target, and **a lie** to the monitoring.
+
+### Defensive lessons
+- **Air gap is a speed bump, not a wall.** Treat removable media as hostile; scan and restrict USB.
+- **Sensors can lie when the controller is compromised.** Cross-check with independent measurements, like vibration sensors on the shaft.
+- **Code signing proves origin, not intent.** Protect signing keys in hardware, and watch for unusual driver loads.
+- **Patch the boring stuff**, and change default passwords on industrial software.
+:: complex
+### Why it was so unusual
+- **Four zero-days in one piece of malware** (a typical campaign uses zero or one). Zero-days are expensive. Spending four on one target says a lot about the actor's budget.
+- **A specificity gate.** It spread widely (some infected machines were outside Iran) but did damage only when it found one narrow configuration. This reduced the chance of detection and collateral damage, but it did not prevent either.
+- **The payload was in the PLC code**, written in an industrial language (STL), a place almost no antivirus looked.
+
+### Detection and why it took a year
+Stuxnet was found because a bug in the malware crashed machines, not because defenders saw it. Typical antivirus relied on known samples. Detection ideas that would have worked: unusual DLL replacement in the Step 7 directory, unsigned or oddly signed drivers loaded from a USB path, new `.LNK` files on removable media, network traffic from the engineering workstation to the PLC outside change windows, and **process data that disagrees with an independent measurement**.
+
+### Descendants
+Duqu (2011) shared code and stole data; Flame (2012) was a large espionage tool; Industroyer (2016) and Triton (2017) attacked Ukrainian power and a Saudi petrochemical safety system, respectively. They moved from "destroy equipment quietly" to "cut the power" to "disable safety systems".
+
+### OT security basics (what to do now)
+1. **Segment IT from OT** with a controlled boundary (the Purdue model).
+2. **Inventory** every controller and engineering workstation.
+3. **Allow-list** applications on engineering stations.
+4. **Monitor protocols** such as Modbus and S7comm for unexpected writes.
+5. **Safety systems independent of control systems**, as a physical backstop.
+:: ref
+### at a glance
+Discovered | June 2010 (VirusBlokAda); analysed by Symantec, Langner
+Target | Siemens S7 PLCs controlling centrifuge drives, Natanz, Iran
+Attribution | widely reported to be US and Israel; not officially confirmed
+Zero-days | LNK shortcut (CVE-2010-2568), print spooler (CVE-2010-2729), two local privilege escalations
+Other flaws | MS08-067 SMB, default Siemens database password (CVE-2010-2772)
+Stealth | signed drivers with stolen Realtek and JMicron certificates; rootkit; replayed sensor data
+Key lesson | air gaps and monitoring that trusts the controller can be defeated
+Descendants | Duqu, Flame, Industroyer, Triton
+:: lab
+host: historian
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** an engineer pulls an hourly record from the plant historian, `~/hmi_vs_sensor.csv`. Columns are `hour,hmi_hz,vibration_hz`. The operator screen (`hmi_hz`) should match the independent vibration sensor (`vibration_hz`). Find the **first hour** where they disagree. Submit it as `HH:00`, e.g. `submit 06:00`.
+:: answer
+14:00
+:: hint
+Compare the second and third columns. `awk -F, '$2!=$3' ~/hmi_vs_sensor.csv` prints only the rows that differ.
+:: hint
+Skip the header line, then take the first row printed.
+:: solution
+From 14:00 the HMI shows a steady 1064 Hz while the independent vibration sensor sees speeds moving between 1410 Hz and 2 Hz. The operator screen is being fed recorded "normal" data while the real rotor speed changes: the same trick Stuxnet used. The control is exactly what the lab practices: **cross-check controller-reported values against an independent sensor** that the controller cannot influence.
+:: verify
+awk -F, '$2!=$3' ~/hmi_vs_sensor.csv
+:: file /home/analyst/hmi_vs_sensor.csv
+hour,hmi_hz,vibration_hz
+10:00,1064,1064
+11:00,1064,1064
+12:00,1064,1064
+13:00,1064,1064
+14:00,1064,1410
+15:00,1064,2
+16:00,1064,1410

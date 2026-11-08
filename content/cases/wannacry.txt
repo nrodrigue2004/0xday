@@ -1,0 +1,96 @@
+tagline: A stolen NSA exploit plus ransomware equals a worm that hit hospitals, factories and railways in a weekend. Told at concept level: what the bug was, how the worm spread, the accidental kill switch, and how to avoid being the next headline.
+sheet: cases
+sources: Microsoft Security Bulletin MS17-010 (14 March 2017); Microsoft's customer guidance for WannaCrypt attacks (12 May 2017); UK National Audit Office, *Investigation: WannaCry cyber attack and the NHS* (2018); Marcus Hutchins (MalwareTech), *How to Accidentally Stop a Global Cyber Attacks* (2017); US-CERT/NCSC advisories on WannaCry attribution (Dec 2017); Symantec and Kaspersky technical write-ups; the Shadow Brokers leak coverage (April 2017).
+:: simple
+### The story
+On **Friday 12 May 2017**, a ransomware program called **WannaCry** began spreading by itself between Windows computers. It encrypted files and displayed a demand for roughly **$300 in bitcoin**, rising to $600 after a few days. Within a day it had hit about **230,000 computers in some 150 countries**, including parts of Britain's **NHS**, where ambulances were diverted and operations cancelled, plus a Spanish telecom, FedEx and a car maker's plants.
+
+It spread because of a flaw in an old, rarely-needed Windows file-sharing protocol, **SMBv1**. An exploit for that flaw, codenamed **EternalBlue**, had been developed by the US NSA. In April 2017 a group calling itself the **Shadow Brokers** published it online. **Microsoft had already patched the flaw in March 2017** (bulletin **MS17-010**). Machines that had applied the patch were safe. Millions had not.
+
+A young researcher, **Marcus Hutchins** (MalwareTech), noticed the malware tried to contact a nonsense web address and registered it for about ten dollars. The malware treated "this address resolves" as "stop", which slowed the first wave. It was a **kill switch**, probably intended as a way to detect sandboxes. Later variants removed it.
+
+US and UK governments attributed WannaCry to the **Lazarus Group**, linked to North Korea.
+
+### Timeline
+- **Mid 2016 to 2017:** the Shadow Brokers appear and leak tools claimed to belong to the Equation Group (linked by researchers to the NSA).
+- **14 Mar 2017:** Microsoft issues MS17-010.
+- **14 Apr 2017:** the Shadow Brokers release the Windows tools, including EternalBlue.
+- **12 May 2017:** WannaCry outbreak begins; the kill switch is found by the evening.
+- **13 to 15 May:** Microsoft ships emergency patches even for unsupported Windows XP.
+:: mid
+### How it worked (concept level)
+WannaCry was three things in one:
+1. **A worm component.** Scan for machines with TCP port **445** open (SMB). Try the SMB flaw. If it works, run the malware on the target and repeat. It scanned the local network and random internet addresses.
+2. **A backdoor implant** (DoublePulsar, also from the leak) installed on compromised machines, which other attackers later reused.
+3. **A ransomware payload.** Generate a key for each file, encrypt files with it, protect that key with a public key from the attacker, and show the ransom note.
+
+### The bug, in one paragraph
+SMBv1 handles client requests in a kernel driver (`srv.sys`). A mistake in how a size value was converted, and then used to allocate and copy data, allowed a specially built request to overwrite kernel memory, and gave **remote code execution as SYSTEM with no login**. The details are public in the Microsoft bulletin and many analyses. This page does not reproduce the exploit; what matters for defenders is the class: **an unauthenticated, network-reachable parser in the kernel**, which is the worst combination.
+
+> If you want to read the actual mechanism, read the original research write-ups, not a PoC. Understanding the bug class (integer errors leading to heap overflow) is enough to patch, detect and design around it.
+
+### What stopped it, and what would have
+| Control | Effect |
+|---|---|
+| Installing MS17-010 (two months earlier) | stops the exploit entirely |
+| Disabling SMBv1 | removes the vulnerable code path |
+| Blocking 445 at the internet edge and between segments | stops spread |
+| Offline, tested backups | makes ransom unnecessary |
+| The kill-switch domain | slowed the first wave |
+| Network segmentation | contains a spread |
+
+### Detection ideas
+- **Network:** many hosts suddenly scanning port 445; SMB sessions to many different targets; DNS lookups of the kill-switch name (a defender's tell, and a reason not to block that name).
+- **Endpoint:** a process creating files with the `.WNCRY` extension; shadow-copy deletion commands (`vssadmin delete shadows`); mass file renames.
+- **Vulnerability scanning:** Nessus, OpenVAS and nmap's `smb-vuln-ms17-010` script (use on your own hosts) show who is unpatched.
+:: complex
+### Why hospitals
+Many health systems ran **Windows XP/7 on medical devices** that vendors had not certified for updates, on flat networks where file shares reached everything. The UK National Audit Office later found that at least **81 of 236 trusts** were disrupted, and that the NHS was not specifically targeted: it was collateral damage of an untargeted worm. A basic fix existed and had been recommended by the NHS months earlier.
+
+### The leak as policy problem
+The case reopened an old debate: should a government keep software flaws secret to use them, or disclose them for patching? Microsoft's president Brad Smith compared it to the military losing missiles. NSA reportedly told Microsoft about the flaw shortly before the leak, which is why a patch existed. Reasonable people disagree on the policy; the defender's lesson is simpler: **assume any secret exploit will leak eventually.**
+
+### Related incident: NotPetya (June 2017)
+Another EternalBlue-based tool, plus credential theft (Mimikatz-style), spread via a poisoned update to Ukrainian tax software. It looked like ransomware but was destructive, with no workable recovery. Costs ran into billions (Maersk, Merck, FedEx/TNT). It shows how quickly the same exploit gets repurposed.
+
+### Defensive lessons
+- **Patch SLAs for critical remote bugs: days, not months.**
+- **Retire legacy protocols** (SMBv1, Telnet) once nothing needs them. Audit with `Get-SmbServerConfiguration` on Windows or Nmap's `smb-protocols` script.
+- **Segment.** Workstations rarely need to reach each other on 445.
+- **Backups must be offline or immutable, and restore-tested.**
+- **Know your unpatchable assets** and wrap them: isolate, restrict, monitor.
+- **Do not block a kill-switch domain** in your own DNS: it can make the malware run.
+:: ref
+### at a glance
+Date | outbreak 12 May 2017
+Exploit | EternalBlue (leaked 14 April 2017); patch MS17-010, 14 March 2017
+CVEs | CVE-2017-0143 to CVE-2017-0148 (SMBv1 family)
+Component | SMBv1 server, kernel driver srv.sys, TCP 445
+Impact | about 230,000 computers in ~150 countries; NHS disruption
+Kill switch | an unregistered domain; registering it halted the first wave
+Attribution | Lazarus Group / North Korea (US, UK governments)
+Fix | patch, disable SMBv1, block 445, segment, backups
+Detect | 445 scanning, .WNCRY files, shadow copy deletion, nmap smb-vuln-ms17-010 (own hosts)
+:: lab
+host: vuln-mgmt
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** it is 12 May 2017, a Friday afternoon. You have the asset list `~/assets.csv` with columns `host,os,smb1,ms17_010_patched,port445_from_internet`. Which **one host** is the most urgent: SMBv1 **on**, not patched, **and** reachable on 445 from the internet? Submit its hostname, e.g. `submit web01`.
+:: answer
+clinic-pc3
+:: hint
+You need a row where smb1 is `on`, patched is `no`, and internet exposure is `yes`.
+:: hint
+Try `grep 'on,no,yes' ~/assets.csv`.
+:: solution
+`clinic-pc3,win7,on,no,yes` is the only host with all three conditions: the worm's exact preferred target. `ward-pc1` is unpatched with SMBv1 on, but not reachable from the internet: still fix it, because the worm can reach it from inside. Order of work: patch or isolate clinic-pc3, block 445 at the edge, disable SMBv1 everywhere, then patch the rest.
+:: verify
+grep 'on,no,yes' ~/assets.csv
+:: file /home/analyst/assets.csv
+host,os,smb1,ms17_010_patched,port445_from_internet
+reception-pc,win10,off,yes,no
+ward-pc1,win7,on,no,no
+clinic-pc3,win7,on,no,yes
+file-srv,win2012,off,yes,no
+xray-ws,winxp,on,no,no

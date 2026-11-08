@@ -1,0 +1,126 @@
+tagline: November 1988: a graduate student's experiment takes down a large part of the early internet. One unchecked gets() call, one debug feature, and a lot of weak passwords.
+sheet: cases
+sources: Eugene Spafford, *The Internet Worm Program: An Analysis* (Purdue TR CSD-TR-823, 1988); Mark Eichin and Jon Rochlis, *With Microscope and Tweezers: An Analysis of the Internet Virus of November 1988* (MIT, 1989); the 4.3BSD fingerd source; US v. Morris, 928 F.2d 504 (2d Cir. 1991).
+:: simple
+### The story
+On the evening of **2 November 1988**, a program began copying itself between Unix computers on the internet. Within hours, machines slowed to a crawl, mail queues jammed, and administrators at universities and research labs pulled their systems off the network. About **6,000 machines** were affected, which was commonly estimated at roughly a tenth of the internet at that time (the internet then had around 60,000 hosts).
+
+The author was **Robert Tappan Morris**, a Cornell graduate student. He said he wanted to measure the size of the internet, and he launched the worm from an MIT computer to hide where it came from. A bug in the worm's own logic made it copy itself far more often than intended, which is why it overloaded machines instead of staying quiet.
+
+In 1990 he became the first person convicted under the US Computer Fraud and Abuse Act: three years of probation, 400 hours of community service and a fine.
+
+### Why it matters
+It was the first worm to spread widely over the internet. It proved that one program could cripple many machines, and it led directly to the creation of **CERT/CC** at Carnegie Mellon to coordinate responses.
+
+### Timeline (times approximate, US Eastern)
+- **2 Nov, ~18:00:** worm released.
+- **2 Nov, ~21:00:** machines at Berkeley, MIT and elsewhere noticeably slow.
+- **2 Nov, night:** teams at Berkeley and MIT begin disassembling the worm.
+- **3 Nov, early morning:** methods to stop it spread by phone and mailing lists (many of which were down).
+- **3 to 4 Nov:** fixes for sendmail and fingerd published; the worm's code was analysed in around 24 to 48 hours.
+- **Nov 1988:** DARPA announces CERT/CC.
+:: mid
+### How it got in (four doors)
+1. **fingerd buffer overflow.** The `finger` daemon read a request into a 512-byte stack buffer with `gets()`, which never checks length. The worm sent a longer request that overwrote the stack and ran the worm's own code. (This door worked on VAX machines.)
+2. **sendmail DEBUG mode.** Some sendmail servers were left with a debug option on, which let a remote sender give a command in the place of a recipient, and the command was run.
+3. **Trust relationships.** `rsh` and `rexec` with `.rhosts` / `hosts.equiv` let a machine log in to others it trusted without a password. Once a user's account was taken, the worm hopped to everywhere that user was trusted.
+4. **Weak passwords.** The worm tried the user's name, common variations, a built-in list of about 400 words, and the system dictionary against the password hashes it could read in `/etc/passwd`.
+
+### The vulnerable code (abridged)
+This is from the 4.3BSD `fingerd.c`. Only the lines that matter are shown.
+```code
+main(argc, argv)
+{
+    register char *sp;
+    char line[512];            /* 1: fixed-size buffer on the stack */
+    struct sockaddr_in sin;
+    int i, p[2], pid, status;
+    FILE *fp;
+    char *av[4];
+
+    i = sizeof (sin);
+    if (getpeername(0, &sin, &i) < 0)
+        fatal(argv[0], "getpeername");
+    line[0] = '\0';
+    gets(line);                /* 2: reads until newline, ANY length */
+    ...
+```
+### Line by line
+1. `char line[512];` reserves 512 bytes on the stack for the request. The stack also holds this function's saved return address, a little above the buffer.
+2. `gets(line);` copies bytes from the network into `line` until it sees a newline. It has **no idea how big `line` is**, so a 600-byte request writes past the end of the buffer and over whatever is next on the stack, including the saved return address.
+3. When the function returns, the CPU jumps to the address on the stack. If an attacker controls that address, they control what runs next.
+
+The C standard library has carried a warning on `gets` ever since; it was removed from the language in C11. The compiler warns today.
+
+### The fix
+Bound the read to the size of the buffer: `fgets(line, sizeof(line), stdin)` (or check the result of `read`). Patched fingerds bounded the read, and `gets` is now banned by most coding standards. Modern systems add stack canaries, non-executable stacks (NX) and ASLR so that even a missed overflow is harder to turn into code execution.
+:: complex
+### The replication bug
+To avoid infecting a machine twice, the worm asked a machine whether it already had a worm running, and gave up if so. Morris worried an administrator might fake the answer, so one time in seven the worm **ignored** the answer and infected anyway. That meant machines accumulated many copies, each using CPU, until they stopped working. A bit of defensive design against a countermeasure made the worm into a denial-of-service attack. It is a classic example of **unintended consequences in self-replicating code**.
+
+### How it was detected and stopped
+- Administrators noticed load averages spiking, many processes called `sh`, and full process tables. The telltale: `ps` showed shells running from `/usr/tmp`.
+- The worm deleted its files after loading, which made analysis hard, but researchers recovered the binary from memory and disassembled it.
+- Fixes: patch fingerd, turn off sendmail DEBUG, clean up trust files.
+
+### Defensive lessons (still current)
+- **Never use unbounded reads.** `gets`, `strcpy`, `sprintf` and `scanf("%s")` are red flags in code review. Modern tooling: static analysis, `-fstack-protector`, AddressSanitizer and fuzzing.
+- **Debug features are attack surface.** Disable them in production.
+- **Trust relationships are lateral-movement paths.** Use SSH keys, no shared trust, least privilege.
+- **Password hashes were readable by all users** in early Unix. Shadow passwords moved them into a root-only file.
+- **Coordination is a control.** CERT exists because no one knew who to call.
+- **Self-propagating code needs a kill switch.** WannaCry had one (by accident); this worm did not.
+
+### Where this fits
+Same bug class as [Heartbleed](heartbleed.html), 26 years later, but there the unchecked length was read instead of written.
+:: ref
+### at a glance
+Date | 2 November 1988
+Author | Robert Tappan Morris (Cornell student; launched from MIT)
+Scale | roughly 6,000 machines, commonly cited as about 10% of the internet then
+Bug class | stack buffer overflow (CWE-121), also CWE-242: use of an inherently dangerous function
+Entry points | fingerd gets(), sendmail DEBUG, rsh/rexec trust, weak passwords
+Fix | bounded reads (fgets), disable DEBUG, remove trust, shadow passwords
+Aftermath | CERT/CC; first CFAA conviction
+:: lab
+style: debug
+host: bsd43
+user: student
+source: /home/student/echod.c
+:: brief
+**Scenario (fictional, simulated):** `echod.c` is a toy network daemon with the same bug class as fingerd. It reads one line into a 16-byte buffer and echoes it. Next to the buffer sits a flag, `is_admin`, that must stay 0. Step through the debugger with a long request, watch the flag, then name the **safe standard C function** that should replace `gets` here. Submit its name, e.g. `submit strcpy` (that is the wrong answer).
+:: answer
+fgets
+:: hint
+Look at what changes in `is_admin` when the input is longer than 16 characters.
+:: hint
+The replacement takes the buffer, its size, and the input stream.
+:: solution
+The 16-byte `buf` is followed in memory by `is_admin`. Sending 20 bytes overwrote the buffer and spilled into `is_admin`, changing it from 0 to non-zero, which flipped the daemon into admin mode with no password. `gets` cannot know the buffer size. `fgets(buf, sizeof(buf), stdin)` stops after `sizeof(buf) - 1` characters and adds the terminator. A real fix would also reject over-long lines instead of silently truncating them.
+:: verify
+echo fgets
+:: trace
+10 | buf="" is_admin=0 | listening on 7777
+11 | buf="" is_admin=0 | client connected, sending 20 bytes: AAAAAAAAAAAAAAAAAAAA
+11 | buf="AAAAAAAAAAAAAAAA" is_admin=0x41414141 | gets() wrote 20 bytes + NUL into a 16-byte buffer
+12 | buf="AAAAAAAAAAAAAAAA" is_admin=0x41414141 | is_admin != 0 -> granting admin shell
+13 | buf="AAAAAAAAAAAAAAAA" is_admin=0x41414141 | granting admin shell
+:: file /home/student/echod.c
+#include <stdio.h>
+
+/* FICTIONAL toy daemon. Same bug class as 4.3BSD fingerd, not the real code. */
+void serve(void) {
+    struct {
+        char buf[16];     /* request line */
+        int  is_admin;    /* must stay 0 */
+    } s = { "", 0 };
+
+    printf("listening on 7777\n");
+    gets(s.buf);                   /* <- the bug */
+    if (s.is_admin)
+        printf("granting admin shell\n");
+    else
+        printf("echo: %s\n", s.buf);
+}
+
+int main(void) { serve(); return 0; }

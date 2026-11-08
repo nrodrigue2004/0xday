@@ -1,0 +1,94 @@
+tagline: Where this is going: AI agents, quantum computers, post-quantum cryptography, memory-safe code. Predictions are labeled as opinion, the dates and standards are not.
+sheet: history
+:: simple
+> **Read this chapter differently.** The earlier chapters are history. This one mixes **facts** (published standards, announced results) with **opinion** (what I think is likely). Opinions are marked. Check the sources, and expect parts of this page to age badly.
+
+### Quantum computers
+A normal bit is 0 or 1. A **qubit** can be in a blend of both until you measure it, and qubits can be **entangled**. For a few specific problems, that lets a quantum computer take shortcuts no ordinary computer can. It does **not** make every program faster.
+
+Two algorithms matter for security:
+- **Shor's algorithm (1994).** Factors large numbers and solves discrete logarithms efficiently. That breaks **RSA, Diffie-Hellman and elliptic-curve** cryptography, which protect almost all web traffic and signatures today.
+- **Grover's algorithm (1996).** Speeds up brute-force search by a square root. That roughly halves the strength of a symmetric key, so **AES-256** stays fine.
+
+Today's machines are small and noisy. Nobody has yet built one that can break real RSA keys, and it needs many thousands of error-corrected qubits, which is much harder than adding raw qubits. Nobody knows exactly when it will happen.
+
+### Post-quantum cryptography (PQC)
+New algorithms that run on ordinary computers but are believed to resist quantum attacks. In **August 2024 NIST published the first standards**: ML-KEM (key exchange, from Kyber), ML-DSA (signatures, from Dilithium) and SLH-DSA (hash-based signatures, from SPHINCS+). More are in progress.
+
+### The threat to plan for now
+**Harvest now, decrypt later.** An attacker records encrypted traffic today and decrypts it when a quantum computer exists. Data that must stay secret for 10 to 30 years is already at risk.
+:: mid
+### Other bets on where tech goes (labeled opinion)
+- **Opinion: AI agents become normal coworkers.** Tools that read, write code, run commands and call APIs. The security job shifts toward permissions, audit trails and review, and away from typing every command by hand.
+- **Opinion: memory-safe languages gradually replace C and C++ in new code.** Rust, Go, Swift and managed languages remove whole bug classes (see Heartbleed). In 2024 the White House and CISA publicly urged the shift. Old C code will be around for decades.
+- **Fact-ish trend: passwordless login** (passkeys, FIDO2) spreads. Phishing-resistant authentication beats every password policy.
+- **Fact-ish trend: software supply-chain controls** (SBOMs, signed builds, provenance such as SLSA) become requirements for vendors.
+- **Opinion: AI finds bugs faster than people fix them.** Government and industry programs (such as DARPA's AI Cyber Challenge) test automatic bug finding and patching. Defenders and attackers both get the tools.
+- **Hard to predict:** neuromorphic chips, brain-computer interfaces, 6G, space networks. Treat any confident date as marketing.
+
+### The state of quantum, plainly
+- A "physical qubit" is noisy. A "logical qubit" is built from many physical ones with error correction.
+- Published resource estimates have fallen over time. A 2019 estimate (Gidney and Ekerå) put RSA-2048 at around twenty million noisy qubits running for hours. A 2025 update by Gidney cut that to under a million. Real machines are still orders of magnitude smaller.
+- In late 2024 Google reported error correction improving as it added qubits (its "Willow" chip), a necessary milestone, not a break of anything.
+
+### What to do about it (this is the defender part)
+1. **Inventory** where you use RSA, ECC and Diffie-Hellman: TLS, VPNs, SSH, code signing, certificates, stored data.
+2. **Crypto agility:** make algorithms swappable without rewriting systems.
+3. **Prioritise long-lived secrets** (medical, legal, state data) for early PQC.
+4. **Hybrid mode:** combine a classical and a PQC key exchange. Browsers and large providers already do this for TLS.
+5. Follow the NIST schedule: its 2024 draft guidance (IR 8547) proposes deprecating RSA and ECC around 2030 and disallowing them by 2035.
+:: complex
+### Mosca's inequality
+Let **X** = how many years the data must stay secret. **Y** = how many years your migration to PQC will take. **Z** = years until a cryptographically relevant quantum computer exists. If **X + Y > Z**, the data is already exposed to harvest-now-decrypt-later. You do not need to know Z precisely; the point is that X and Y are *your* numbers and are usually larger than people think.
+
+### What the NIST algorithms are built on
+- **Lattice-based (ML-KEM, ML-DSA):** hard problems about finding short vectors in high-dimensional grids (Learning With Errors). Fast, but key and signature sizes are larger than ECC.
+- **Hash-based (SLH-DSA):** security reduces to hash functions only. Conservative, big signatures.
+- **Code-based (HQC, selected by NIST in 2025 as a backup KEM):** error-correcting codes.
+- A lesson from the process: **SIKE**, a finalist-stage candidate, was broken in 2022 on a laptop by classical means (Castryck and Decru). New math needs years of public attack before trust.
+
+### Symmetric and hashing
+Use 256-bit symmetric keys and SHA-256 or better; Grover costs a square root, not everything. AES-128 is probably fine in practice but the margin is smaller.
+
+### Open problems and honest uncertainty
+- Whether large-scale fault-tolerant quantum computers arrive in 10, 20 or 50 years: experts disagree.
+- Whether lattice assumptions hold up.
+- Whether AI changes the offense/defense balance, and for how long.
+- Side-channels and bugs in *implementations* will break PQC deployments before the math does, as with every earlier algorithm.
+
+### Sources to read
+NIST FIPS 203, 204, 205 (2024); NIST IR 8547 draft; Shor (1994); Grover (1996); Gidney and Ekerå (2019) and Gidney (2025) resource estimates; Mosca, *Cybersecurity in an era with quantum computers* (2018); CISA/NSA/NIST joint factsheet on quantum readiness.
+:: ref
+### quantum and PQC terms
+qubit | quantum bit; holds a blend of 0 and 1 until measured
+entanglement | linked qubits whose results are correlated
+Shor | quantum algorithm that breaks RSA, DH and ECC
+Grover | quantum search speedup; halves effective symmetric key strength
+CRQC | cryptographically relevant quantum computer: one big enough to break real keys
+PQC | post-quantum cryptography: classical algorithms believed quantum-resistant
+ML-KEM / ML-DSA / SLH-DSA | NIST FIPS 203 / 204 / 205 (2024)
+HNDL | harvest now, decrypt later
+crypto agility | being able to swap algorithms without a rebuild
+hybrid | classical + PQC key exchange together
+:: lab
+host: planner
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** a hospital archives scans that must stay confidential for decades. `~/plan/inputs.txt` lists three numbers. Using Mosca's inequality, work out **how many years the data is exposed** if a quantum computer arrives at the estimated date, that is `X + Y - Z`. Submit the number, e.g. `submit 4`.
+:: answer
+8
+:: hint
+Read `~/plan/inputs.txt` for X (years data must stay secret), Y (years to migrate) and Z (years until a quantum computer).
+:: hint
+X is 20, Y is 4 and Z is 16.
+:: solution
+X + Y - Z = 20 + 4 - 16 = **8 years** of exposure. Even with the quantum computer 16 years away, data that must stay secret for 20 years, on a migration that takes 4 years, is exposed for 8 of them. Options: start the migration sooner (reduces Y), encrypt the archive with hybrid or PQC key exchange now, or shorten how long the data is retained (reduces X).
+:: verify
+cat ~/plan/inputs.txt
+:: file /home/analyst/plan/inputs.txt
+Hospital archive planning (FICTIONAL numbers)
+X  years the scan archive must stay confidential : 20
+Y  years our migration to post-quantum crypto will take : 4
+Z  estimated years until a quantum computer can break RSA : 16
+exposure_years = X + Y - Z   (if positive, data is at risk)

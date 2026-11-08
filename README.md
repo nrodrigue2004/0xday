@@ -76,3 +76,7 @@ node scripts/check_dojo.js        # or: node scripts/check_dojo.js c python
 ## ~/start, ~/jobs, ~/bullets
 
 `content/start.json` is the ordered curriculum for `~/start` (stages, then steps: `id`, `t`, `h`, `w`, `m` minutes, `topic` = a ~/log topic key). Progress is keyed on `id`, so don't rename ids. Add `"if": "page.html"` to a step to include it only when that built page exists, which is how sections from other branches (cloud, programming, web) link in once they land; hrefs without `if` must exist or the build fails. `~/jobs` (application tracker) and `~/bullets` (bank built from `content/resume.json`, plus a job-posting keyword matcher whose terms are `KEYWORDS` in `build_start.py`) keep all data in the browser. All three are built by `build_start.py`, called last in `build.py`.
+
+## ~/history and ~/cases
+
+`content/history/<slug>.txt` (tech history from Lovelace to quantum, hacking timeline, future) and `content/cases/<slug>.txt` (real exploit and malware case studies) use the learn-guide format; order and blurbs are in `HISTORY` and `CASES` in `build_history.py`. A header `sources:` line is printed as a sources section; `sheet: history|cases` publishes the `:: ref` as a man page. Case studies explain public bugs for defenders: abridged excerpts of the public vulnerable source with the fix, never working exploits or malware. Labs are fictional toy programs with the same bug class (debug style stepper, or sandbox files).
