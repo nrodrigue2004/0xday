@@ -1,0 +1,19 @@
+slug: work
+title: Work experience
+resume: Work
+guides: hardware-diagnostics-and-repair, secure-data-sanitization, windows-deployment-and-drivers
+posts: 
+tagline: Laptop technician (data sanitization, repair, imaging) and AI trainer (evaluating LLM output).
+:: pitch
+**30-second version.** "As a laptop technician I sanitize drives securely before resale, diagnose and repair hardware and software faults across many models, and install Windows, drivers and software. I also work as an AI trainer, where I evaluate language model output and give structured feedback."
+**What the interviewer is testing:** reliability, process, and attention to detail. Numbers help: how many laptops, how long per unit, what you cut.
+:: prep
+- Fill in real numbers (units per week, turnaround) before the interview. Do not invent them.
+- Know what NIST 800-88 says about media sanitization at a basic level.
+:: q
+- [e] What does a day as a laptop technician look like? => Intake and inspection, diagnosis, repair or part swap, sanitize the drive, install the OS and drivers, test, document. Add your own details.
+- [e] Why does secure data sanitization matter? => Resold devices can leak the previous owner's data if the drive isn't properly wiped. Compliance and customer trust depend on it, and a wipe should be verified, not assumed.
+- [n] How do you diagnose a laptop that won't boot? => Power and charger first, then listen and look (lights, beeps), reseat RAM and drive, try a known-good part, check BIOS detection of the drive, boot from external media. Isolate hardware versus software by what changes.
+- [n] How did you reduce turnaround time? => Describe the actual change: a standard imaging process, checklists, batching, keeping common parts on hand. Quantify only if you measured it.
+- [n] What does an AI trainer do, and what skills transfer to security? => Reading carefully, finding factual and logical errors, and writing precise feedback against criteria. That maps to triage, analysis and report writing. Don't reveal confidential details of the work.
+- [h] A customer insists their data was left on a device you sanitized. What do you do? => Take it seriously: pull the record of the wipe method and verification for that unit, inspect the device if possible, escalate to a lead, and report the finding honestly. Document and fix the process if there was a gap.

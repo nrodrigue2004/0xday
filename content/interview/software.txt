@@ -1,0 +1,22 @@
+slug: software
+title: Software projects
+resume: Software
+guides: full-stack-web-typescript-react-mongodb, mobile-apps-flutter-firebase, databases-and-sql, java
+posts: eru, roomr, supermarket-dbms, javashooter
+tagline: ERU (TypeScript, React, MongoDB), Room'r (Flutter, Firebase), Supermarket DBMS (SQL) and JavaShooter (Java).
+:: pitch
+**30-second version.** "I've built a web app with TypeScript, React and MongoDB, a mobile app with Flutter and Firebase, a relational database project for a supermarket in SQL, and a Java game. The common thread is that I care about the data model first, then the interface."
+**What the interviewer is testing:** that you can explain design decisions and trade-offs for work that is yours. Choose one project and know it deeply rather than skimming all four.
+:: prep
+- Pick the project you know best and prepare: the problem, the architecture, one bug, one thing you'd redo.
+- For the SQL project, be able to sketch the tables and write a join from memory.
+- Check the [~/projects page](projects.html) matches what you say.
+:: q
+- [e] Tell me about a project you're proud of. => Choose one. Problem, your role, the stack and why, one hard problem and how you solved it, the result. Under two minutes, then stop and let them ask.
+- [e] Why MongoDB for ERU, and when would you choose SQL instead? => Document stores fit flexible, nested data and quick iteration. SQL fits structured, related data where integrity and joins matter. Give the reason you actually chose it; if it was a course requirement, say so and then explain the trade-off.
+- [n] Describe the schema of your Supermarket DBMS. => Name the tables (for example products, customers, orders, order items), the keys, and the relationships, then explain one query you wrote with a join and an aggregate. Mention normalization at a basic level.
+- [n] How does state flow in a React app? => Components hold state with hooks, pass data down through props, and lift state up or use context when siblings need it. Describe how your app handled it.
+- [n] What does Firebase give you in Room'r, and what are the downsides? => Managed auth, a real-time database and hosting without running a server. Downsides: vendor lock-in, security rules to get right, and query limits. Say what you used.
+- [n] How did you test and debug your code? => Be honest: what testing you did (unit tests, manual) and how you debug (logging, debugger, reproducing the bug first). If you did little testing, say what you would add.
+- [h] A page in your web app is slow. How do you find out why? => Measure first: browser dev tools network and performance tabs, then server logs and database query time. Common causes: unindexed queries, too many round trips, large payloads, unnecessary re-renders. Fix the biggest one and measure again.
+- [h] How would you secure the login on one of your apps? => Hash passwords with a slow algorithm (bcrypt or argon2), never store them in plain text, use HTTPS, validate input, protect against injection and XSS, rate-limit attempts, use short-lived tokens. Connect to your security coursework.
