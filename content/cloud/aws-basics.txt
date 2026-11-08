@@ -1,0 +1,118 @@
+tagline: AWS has hundreds of services, and a handful carry nearly every beginner workload. Learn those, the CLI that drives them, and how to stay inside the free tier.
+sheet: aws
+sheet_summary: AWS CLI commands for identity, storage, compute and logs
+:: simple
+**Amazon Web Services (AWS)** is the largest cloud. Start with the core services and ignore the rest until you need them:
+
+- **IAM**: identities and permissions. Everything starts here.
+- **EC2**: virtual machines. **EBS**: their disks. **Lambda**: functions.
+- **S3**: object storage (buckets).
+- **VPC**: your private network. **Route 53**: DNS. **CloudFront**: CDN.
+- **RDS**: managed databases. **DynamoDB**: managed NoSQL.
+- **CloudTrail**: a log of every API call. **CloudWatch**: metrics, logs and alarms.
+- **GuardDuty**: threat detection. **Security Hub**: security findings in one place.
+
+How you talk to AWS: the **web console** (clicking), the **CLI** (`aws ...`), and **SDKs** (code). All three are the same API underneath, which is why one leaked key works from anywhere.
+
+> Free-tier and credit terms have changed more than once and differ by account age. Read the current AWS Free Tier page before you create anything, set a billing alert first, and delete what you build.
+:: mid
+### Account structure
+- **Root user**: owns the account. Enable MFA, create an admin identity for daily use, and stop using root.
+- **Organizations**: group accounts (prod, dev, security, logging) with **SCPs** as guardrails. Separate accounts are the strongest isolation boundary.
+- **Region** is a setting on most calls. `--region` or `AWS_DEFAULT_REGION`. Many resources are per-region, IAM is global.
+
+### CLI basics
+```
+$ aws --version
+$ aws sts get-caller-identity
+```
+`sts get-caller-identity` answers "who am I right now", the first command to run in any session. Credentials come from `aws configure`, environment variables, a shared profile in `~/.aws/credentials`, or a role. Prefer **IAM Identity Center** (SSO) sessions over stored keys. Output formats: `--output json|table|text`; filter with `--query` (JMESPath).
+
+### Where to look when investigating
+- **CloudTrail**: management events (who created, deleted, changed what) in the console's Event history for 90 days; set up a trail to keep it longer and in a protected bucket.
+- **CloudWatch Logs** for application and VPC flow logs.
+- **IAM credential report**: all users, key ages, MFA status.
+- **AWS Config**: configuration history and compliance rules.
+:: complex
+### Account-level security baseline
+1. MFA on root, no root access keys. 2. Organizations with SCPs (deny leaving the org, deny disabling CloudTrail/GuardDuty, restrict regions). 3. Organization CloudTrail in all regions to a locked-down log-archive account. 4. GuardDuty, Security Hub, Config and Access Analyzer on. 5. S3 Block Public Access at account level. 6. Budgets and billing alarms. 7. IMDSv2 required. 8. No long-lived keys for humans.
+
+### Detecting stolen keys
+Typical sequence: `GetCallerIdentity`, `ListBuckets`, `ListUsers`, `GetAccountAuthorizationDetails` (recon with a stolen key), then `CreateAccessKey` / `CreateUser` / `AttachUserPolicy` (persistence), then `RunInstances` in unusual regions (cryptomining) or mass `GetObject` (theft). GuardDuty flags many of these; so do CloudTrail alarms on root use, console logins without MFA and IAM policy changes.
+
+### Billing as a security signal
+A sudden spend spike is often the first sign of compromise. Billing alarms and anomaly detection are security controls.
+
+### Cost control for learners
+Use the smallest instance types, one region, and tags. Check the Billing console's Free Tier usage page. Stop is not delete: terminate instances, release Elastic IPs, delete NAT gateways, snapshots and load balancers. IaC (CloudFormation or Terraform) makes teardown one command.
+
+### Services you will meet next
+ECS/EKS/Fargate (containers), Systems Manager (patching, Session Manager), Secrets Manager and KMS, WAF and Shield, SQS/SNS (queues and notifications), CloudFormation, Athena (query logs in S3 with SQL), Macie (find personal data in S3), Inspector (vulnerability scanning).
+:: ref
+### identity and account
+aws configure | store access key, secret and default region in a profile (prefer SSO or roles)
+aws sts get-caller-identity | who am I, which account
+aws iam list-users | list IAM users
+aws iam list-access-keys --user-name NAME | key ids, status and creation date for a user
+aws iam list-mfa-devices --user-name NAME | MFA devices for a user
+aws iam generate-credential-report | build the account-wide key and MFA report
+aws iam get-credential-report | download that report (CSV, base64)
+### storage and compute
+aws s3 ls | list buckets
+aws s3 ls s3://BUCKET --recursive | list objects
+aws s3api get-public-access-block --bucket BUCKET | is Block Public Access on
+aws s3api get-bucket-policy --bucket BUCKET | read the bucket policy
+aws ec2 describe-instances | instances, IPs, groups and state
+aws ec2 describe-security-groups | firewall rules
+aws ec2 terminate-instances --instance-ids ID | delete an instance (stop only pauses compute billing)
+aws lambda list-functions | serverless functions
+### logs and cost
+aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=ConsoleLogin | recent console logins
+aws logs tail GROUP --follow | stream a CloudWatch log group
+aws guardduty list-findings --detector-id ID | threat findings
+aws budgets describe-budgets --account-id ID | spend alarms
+aws ce get-cost-and-usage | cost by service and time
+:: lab
+host: auditor
+user: auditor
+cwd: /home/auditor
+:: brief
+**Scenario (fictional, simulated):** a **simulated AWS CLI** is running against a made-up account called **Litware Labs**. Nothing here is real and no key can be created. Try `aws sts get-caller-identity`, then `aws iam list-users`.
+
+Policy says access keys older than 90 days are stale (assume today is 2026-11-08), and any user with a console password must have MFA. Find the **one user with an active, stale access key and no MFA device**. Submit the **user name**.
+:: answer
+pat
+:: hint
+Run `aws iam list-users`, then `aws iam list-access-keys --user-name NAME` and `aws iam list-mfa-devices --user-name NAME` for each user.
+:: hint
+Disqualify users with an Inactive key, a recent key, or an MFA device. One user is left.
+:: solution
+`dana` has a 2021 key but an MFA device. `lee` has a 2020 key that is Inactive, so it cannot be used. `ci-bot` has no MFA but its key was created in 2026, within the window. `pat` has an **Active** key created 2021-03-14 and **no** MFA device: stale, usable and unprotected. Fix: deactivate the key, confirm in CloudTrail nobody used it unexpectedly, issue SSO access or a role instead, and require MFA.
+:: verify
+aws iam list-access-keys --user-name pat
+aws iam list-mfa-devices --user-name pat
+:: cmd ^aws --version$
+aws-cli/2.x (simulated)
+:: cmd ^aws sts get-caller-identity$
+{"UserId": "AIDASIMULATED0001", "Account": "111122223333", "Arn": "arn:aws:iam::111122223333:user/auditor"}
+:: cmd ^aws iam list-users$
+dana
+ci-bot
+pat
+lee
+:: cmd ^aws iam list-access-keys --user-name dana$
+AKIA...DANA1  Active    created 2021-03-02
+:: cmd ^aws iam list-access-keys --user-name ci-bot$
+AKIA...CIB01  Active    created 2026-09-20
+:: cmd ^aws iam list-access-keys --user-name pat$
+AKIA...PAT01  Active    created 2021-03-14
+:: cmd ^aws iam list-access-keys --user-name lee$
+AKIA...LEE01  Inactive  created 2020-07-09
+:: cmd ^aws iam list-mfa-devices --user-name dana$
+arn:aws:iam::111122223333:mfa/dana
+:: cmd ^aws iam list-mfa-devices --user-name ci-bot$
+(none)
+:: cmd ^aws iam list-mfa-devices --user-name pat$
+(none)
+:: cmd ^aws iam list-mfa-devices --user-name lee$
+(none)

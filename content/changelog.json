@@ -2,6 +2,11 @@
   {
     "date": "2026-11-08",
     "type": "feat",
+    "msg": "add ~/cloud: cloud basics for AWS and Azure (shared concepts, IAM, networking, storage and compute, cloud security, free-tier lab guidance), six simulated hands-on labs and man pages for cloud, aws and az"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "feat",
     "msg": "homelab practice: ~/harden (per-system hardening checklist with before/after score), ~/report (notes to incident report), ~/weekly (weekly lab routine), plus two drills: Security Onion intrusion hunt and password hygiene audit"
   },
   {

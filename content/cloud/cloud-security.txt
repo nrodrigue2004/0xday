@@ -1,0 +1,97 @@
+tagline: Cloud breaches are mostly misconfigurations and stolen credentials, not clever exploits. Know the usual failures, turn on the logs before you need them, and learn to read a CloudTrail trail.
+sheet: cloud
+:: simple
+Cloud security is the usual security goals (confidentiality, integrity, availability) applied to API-driven infrastructure. The same handful of problems cause most incidents:
+
+1. **Misconfiguration**: public buckets, open security groups, disabled logging, default passwords.
+2. **Leaked or over-privileged credentials**: access keys in git, wildcard policies, no MFA.
+3. **Unpatched or exposed workloads**: old VMs and container images with known bugs.
+4. **No visibility**: nobody turned on logging, so nobody knows what happened.
+5. **Shadow IT**: someone spins up a resource outside the rules.
+
+> Defend in this order: **identity** (MFA, least privilege, no long-lived keys), **logging** (record every API call somewhere safe), **configuration** (scan for public and open things), then **workloads** (patch, scan images). Most of the value is in the first three.
+
+Your toolbox in plain words: logs tell you what happened, **posture tools** (CSPM) tell you what is misconfigured right now, and **threat detection** (GuardDuty, Defender) tells you what looks malicious.
+:: mid
+### Logging you must have
+| What | AWS | Azure |
+|---|---|---|
+| Control-plane audit | CloudTrail (all regions, to a protected bucket) | Activity Log (export to Log Analytics) |
+| Identity events | CloudTrail sign-in events, IAM Access Analyzer | Entra sign-in and audit logs |
+| Network | VPC Flow Logs | NSG flow logs |
+| Resource data plane | S3 access logs, CloudWatch | Storage/Key Vault diagnostic settings |
+| Threat findings | GuardDuty | Defender for Cloud, Sentinel |
+Send logs to a **separate** account or workspace with write-only access, so an attacker who owns production cannot erase them.
+
+### Reading a CloudTrail event
+Each event has: `eventTime`, `eventName` (the API call, e.g. `CreateAccessKey`), `userIdentity` (who: user, role, root), `sourceIPAddress`, `userAgent`, `awsRegion`, `errorCode` (blank on success) and request parameters. Questions to ask: is the identity expected, is the IP expected, was MFA used, is the region one you use, and what happened right after?
+
+### Red-flag events
+Root account use; `ConsoleLogin` without MFA from a new IP; `CreateAccessKey`, `CreateUser`, `AttachUserPolicy` or `PutUserPolicy` (persistence); `StopLogging` or `DeleteTrail` (covering tracks); `PutBucketPolicy` making a bucket public; `RunInstances` in unused regions (mining); large numbers of `GetObject` (theft).
+
+### Encryption
+Know who controls the key (provider-managed, customer-managed in KMS/Key Vault, or customer-held). Encrypt at rest and in transit, restrict who can use the key as tightly as who can read the data, and never store keys beside the data they protect.
+:: complex
+### Incident response in the cloud
+1. **Contain**: disable or delete the access key, revoke sessions, attach a deny-all policy to the role, isolate instances with a quarantine security group. Don't terminate: you lose memory and disk evidence.
+2. **Preserve**: snapshot disks, export logs, record timestamps in UTC.
+3. **Scope**: use CloudTrail/Activity Log to list everything that identity did, across all regions, including actions that created new identities or keys.
+4. **Eradicate and recover**: rotate everything the identity could read, rebuild from clean images or IaC.
+5. **Learn**: close the gap that let the key leak, add a detection for the same sequence.
+Plan this before the incident: the first incident is a bad time to learn how to snapshot a disk.
+
+### Posture and policy as code
+**CSPM** (Security Hub, Defender for Cloud, third-party) continuously compares your settings with benchmarks such as **CIS Foundations**. Shift left: scan Terraform/Bicep in CI so a public bucket never deploys. Use guardrails (SCPs, Azure Policy) so mistakes are impossible, not just detected.
+
+### Frameworks and responsibilities
+CSA Cloud Controls Matrix, CIS Benchmarks, NIST SP 800-53/800-144, and the providers' well-architected security pillars. For exams know **CASB** (cloud app policy and visibility), **CSPM**, **CWPP**, **SASE/SSE** (network and security delivered from the cloud) and **DLP** (stop sensitive data leaving).
+
+### Common beginner mistakes to avoid in your own labs
+Committing keys to a public repo (bots find them in minutes), leaving a test VM running over a weekend, opening SSH to the world "just for a minute", and sharing a screenshot with an account ID or key in it.
+:: ref
+### detection and response terms
+CloudTrail / Activity Log | audit log of control-plane API calls
+GuardDuty / Defender for Cloud | managed threat detection and posture findings
+CSPM | cloud security posture management: finds misconfiguration
+CIS Benchmark | consensus hardening checklist per cloud and service
+StopLogging / DeleteTrail | CloudTrail events that mean someone is hiding activity
+CreateAccessKey | persistence signal when done by an unexpected identity
+quarantine security group | deny-all group to isolate an instance without destroying evidence
+credential rotation | replace keys/secrets after exposure, even if "only briefly" public
+:: lab
+style: ticket
+host: soc
+user: analyst
+system: Cloud SOC queue
+id: #CLD-2207
+subject: GuardDuty alert: console login without MFA, then new access key
+priority: P2
+from: GuardDuty (simulated)
+sla: 2h
+attach: cloudtrail.log, expected_ips.txt
+:: brief
+A (fictional, simulated) alert says someone logged in to the console without MFA and then created an access key. `cloudtrail.log` has an excerpt of events and `expected_ips.txt` lists the company's known source addresses.
+
+Find the **source IP** of the suspicious console login that was followed by `CreateAccessKey`, and resolve the ticket with that IP address.
+:: answer
+198.51.100.77
+:: hint
+Filter to the interesting events: `grep -E "ConsoleLogin|CreateAccessKey" cloudtrail.log`.
+:: hint
+Compare each login's IP and `mfa=` field. Then check the IP list in `expected_ips.txt`.
+:: solution
+Two console logins appear. `m.lee` signed in from 192.0.2.18 with MFA, and that IP is on the expected list. `admin-svc` signed in from **198.51.100.77** with `mfa=false`, an address not on the list, and four minutes later that same IP called `CreateAccessKey` for `admin-svc`: persistence. It then ran `ListBuckets` and `StopLogging`. Contain: delete the new key, reset the password, revoke sessions, turn logging back on, review everything `admin-svc` did, and add a policy that denies actions from sessions without MFA.
+:: verify
+grep -E "ConsoleLogin|CreateAccessKey" ~/case/cloudtrail.log | grep 198.51.100.77
+:: file /home/analyst/case/expected_ips.txt
+192.0.2.18   HQ office
+192.0.2.44   branch office
+203.0.113.50 CI runners
+:: file /home/analyst/case/cloudtrail.log
+2026-11-07T09:02:11Z ConsoleLogin     user=m.lee      ip=192.0.2.18     mfa=true   region=us-east-1 result=Success
+2026-11-07T09:10:40Z ListBuckets      user=m.lee      ip=192.0.2.18     mfa=true   region=us-east-1 result=Success
+2026-11-07T10:41:07Z ConsoleLogin     user=admin-svc  ip=198.51.100.77  mfa=false  region=us-east-1 result=Success
+2026-11-07T10:45:19Z CreateAccessKey  user=admin-svc  ip=198.51.100.77  mfa=false  region=us-east-1 result=Success
+2026-11-07T10:46:02Z ListBuckets      user=admin-svc  ip=198.51.100.77  mfa=false  region=us-east-1 result=Success
+2026-11-07T10:47:30Z StopLogging      user=admin-svc  ip=198.51.100.77  mfa=false  region=us-east-1 result=Success
+2026-11-07T11:15:00Z DescribeInstances user=ci-bot    ip=203.0.113.50   mfa=false  region=us-east-1 result=Success
