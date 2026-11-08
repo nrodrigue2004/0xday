@@ -10,12 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../study.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../study.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -23,7 +23,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -40,7 +40,22 @@
 <h2>key ideas</h2>
 <div class="prose"><ul><li>Attestation; internal (compliance, audit committee, self-assessments) and external (regulatory, examinations, assessment, independent third-party audit).</li><li>Penetration testing: physical, offensive, defensive, integrated; known, partially known, unknown environment; reconnaissance (passive, active).</li></ul></div>
 <h2>study notes</h2>
-<p class="muted">// full notes from the Professor Messer videos land here once the transcript is imported.</p>
+<div class="prose notes"><p>Audits and assessments check that controls exist, work, and follow the rules. They differ by who does them and what question they answer.</p>
+<h4>Attestation</h4>
+<p>Formal statement by a responsible party (or an auditor) that the requirements are met. For example, a SOC 2 report is an auditor's attestation about a provider's controls.</p>
+<h4>Internal vs external</h4>
+<div class="tbl"><table><thead><tr><th></th><th>Internal</th><th>External</th></tr></thead><tbody><tr><td><strong>Who</strong></td><td>Your own staff or internal audit team</td><td>Independent third party</td></tr><tr><td><strong>Purpose</strong></td><td>Self-assessment, readiness, ongoing improvement, audit committee reporting</td><td>Independent assurance for regulators, customers, partners; required certifications</td></tr><tr><td><strong>Bias</strong></td><td>Closer knowledge, less independence</td><td>Independent, more credible, costs more</td></tr></tbody></table></div>
+<ul><li><strong>Internal audits</strong> include <strong>compliance</strong> checks, <strong>audit committee</strong> reporting, and <strong>self-assessments</strong>.</li><li><strong>External audits</strong> include <strong>regulatory</strong> examinations (government or industry regulators), <strong>examinations</strong> by independent auditors, and <strong>independent third-party audits</strong> (ISO, SOC 2, PCI QSA assessments).</li><li><strong>Assessment</strong> is a broader evaluation of security posture; <strong>audit</strong> compares to a defined standard and gives a conclusion.</li></ul>
+<h4>Penetration testing</h4>
+<p>An authorized simulated attack that tries to exploit weaknesses (see 4.3).</p>
+<p><strong>Environment (what the tester knows):</strong></p>
+<ul><li><strong>Known environment (white box)</strong>: full knowledge and access.</li><li><strong>Partially known (gray box)</strong>: some information.</li><li><strong>Unknown environment (black box)</strong>: no insider information.</li></ul>
+<p><strong>Test type / what's tested:</strong> <strong>physical</strong>, <strong>offensive</strong>, <strong>defensive</strong>, and <strong>integrated</strong> testing.</p>
+<p><strong>Reconnaissance:</strong> <strong>passive</strong> (public sources) and <strong>active</strong> (touches the target).</p>
+<p><strong>Teams:</strong> <strong>red team</strong> (attackers), <strong>blue team</strong> (defenders), <strong>purple team</strong> (red and blue work together to improve defenses), and <strong>white team</strong> (referees/coordinators).</p>
+<p><strong>Rules of engagement</strong>, <strong>scope</strong>, <strong>authorization</strong> and <strong>reporting</strong> are essential. Findings are ranked and tracked to remediation.</p>
+<h4>Exam traps</h4>
+<ul><li><strong>Black box</strong> = tester knows nothing; <strong>white box</strong> = knows everything.</li><li><strong>Passive recon</strong> = no direct contact with target systems.</li><li><strong>Red</strong> attacks, <strong>blue</strong> defends, <strong>purple</strong> combines both, <strong>white</strong> oversees.</li><li>An <strong>audit</strong> compares against a standard; a <strong>penetration test</strong> attempts to break in.</li><li>External audits provide independence; internal audits provide readiness.</li></ul></div>
 <h2>flashcards</h2>
 <div class="deck" data-deck="5.5"></div>
 <h2>practice it</h2><ul class="arrow"><li><a href="../learn/recon-nmap-metasploit.html">Recon / Nmap / Metasploit</a> <span class="muted">hands-on lab</span></li></ul>
@@ -50,7 +65,7 @@
 </div>
 <nav class="pager"><a href="5.4.html">&lt; 5.4</a><a href="5.6.html">5.6 &gt;</a></nav>
 <p><a href="../secplus.html">cd ~/secplus</a></p>
-<script type="application/json" id="cards-data">[{"id": "5.5-0", "q": "Known vs unknown environment pen test?", "a": "Known (white box): testers get full information; unknown (black box): no prior information, like an outside attacker."}, {"id": "5.5-1", "q": "Passive vs active reconnaissance?", "a": "Passive gathers info without touching the target (OSINT); active interacts with it (port scans)."}, {"id": "5.5-2", "q": "What's the purpose of rules of engagement in a pen test?", "a": "Defining scope, timing, allowed techniques and contacts, so testing is authorized and safe."}, {"id": "5.5-3", "q": "What is attestation?", "a": "A formal statement (often by an auditor) that controls or reports are accurate."}]</script>
+<script type="application/json" id="cards-data">[{"id": "5.5-0", "q": "Known vs unknown environment pen test?", "a": "Known (white box): testers get full information; unknown (black box): no prior information, like an outside attacker."}, {"id": "5.5-1", "q": "Passive vs active reconnaissance?", "a": "Passive gathers info without touching the target (OSINT); active interacts with it (port scans)."}, {"id": "5.5-2", "q": "What's the purpose of rules of engagement in a pen test?", "a": "Defining scope, timing, allowed techniques and contacts, so testing is authorized and safe."}, {"id": "5.5-3", "q": "What is attestation?", "a": "A formal statement (often by an auditor) that controls or reports are accurate."}, {"id": "5.5-4", "q": "Internal vs external audit?", "a": "Internal is done by your own staff for readiness and improvement. External is independent and gives credible assurance to others."}, {"id": "5.5-5", "q": "Known, partially known and unknown environment tests?", "a": "White box (full information), gray box (some), black box (none)."}, {"id": "5.5-6", "q": "Red, blue, purple and white teams?", "a": "Red attacks, blue defends, purple combines both to improve defenses, white oversees and referees."}, {"id": "5.5-7", "q": "What are rules of engagement?", "a": "The agreed scope, timing, methods and limits for a penetration test."}, {"id": "5.5-8", "q": "Audit vs penetration test?", "a": "An audit compares controls to a standard. A penetration test tries to break in."}, {"id": "5.5-9", "q": "What is an attestation in an audit context?", "a": "A formal statement or report that controls meet requirements."}, {"id": "5.5-10", "q": "Why might a regulator examine you?", "a": "To check compliance with laws and industry regulations."}]</script>
 </main>
 <footer class="footer">
   <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>

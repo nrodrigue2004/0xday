@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -52,7 +52,7 @@
 <ul><li><strong>DNS</strong> is usually UDP port 53. A query line has the question (<code>A? shop.example.com.</code>) and the answer line has the result. DNS comes *before* most connections: a name is looked up, then a connection follows to the answer.</li><li><strong>A scan</strong> is one source sending SYNs to many ports on one host (or one port across many hosts) in a few milliseconds. Closed ports answer with <code>R.</code>, open ports with <code>S.</code>.</li><li><strong>An upload</strong> is a long run of packets from your machine with a large <code>length</code> (often 1448 on Ethernet) to one outside address. A download is the same, reversed.</li><li><strong>A beacon</strong> is the same small connection at an even interval (every 60 seconds, say) to the same host.</li></ul>
 <p class="callout">Direction matters. A lot of bytes *from* a server to your workstation is a download. The same number of bytes *from* your workstation is data leaving.</p>
 <h4>Questions to ask a capture</h4>
-<p>1. Who is talking the most? (count by address) 2. Who is receiving the most data *from my hosts*? (sum lengths by destination) 3. Which conversations never completed a handshake? (SYNs without SYN-ACKs) 4. Is there a name lookup just before the odd connection?</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Sequence numbers and what they give you</h4>
+<ol><li>Who is talking the most? (count by address)</li><li>Who is receiving the most data *from my hosts*? (sum lengths by destination)</li><li>Which conversations never completed a handshake? (SYNs without SYN-ACKs)</li><li>Is there a name lookup just before the odd connection?</li></ol><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Sequence numbers and what they give you</h4>
 <p>Each side numbers the bytes it sends. <code>seq 2001:3449</code> means "bytes 2001 up to, not including, 3449" and the <code>length</code> is the difference, 1448. The other side acknowledges with <code>ack 3449</code>. From this you can tell:</p>
 <ul><li><strong>Retransmissions</strong>: the same <code>seq</code> range twice means the first copy was lost or ignored. Many of them mean a bad link, or a firewall silently dropping.</li><li><strong>Missing data</strong>: a hole between ranges that never gets filled.</li><li><strong>Total bytes in a flow</strong>: last <code>seq</code> minus first <code>seq</code>. Handy when the capture is huge and you cannot sum by hand.</li></ul>
 <h4>Why 1448?</h4>

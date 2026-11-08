@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -52,7 +52,7 @@
 <p><code>local</code> holds ISOs and templates, <code>local-lvm</code> (or ZFS) holds VM disks. <code>pvesm status</code> shows how full each is.</p>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">pvesm status</span><button class="run" type="button" data-cmd="pvesm status" title="run in the sandbox">▶ run</button></code></pre>
 <h4>Creating a VM, in the order that matters</h4>
-<p>1. Upload an ISO to a storage that allows ISO images. 2. Create VM: give it a name and ID, pick the ISO, set the OS type. 3. Disk: use <strong>VirtIO SCSI</strong> on local-lvm or similar. CPU: type <code>host</code> unless you plan to migrate across different CPUs. Memory: set what it really needs. 4. Network: attach to a bridge (<code>vmbr0</code>), with a VLAN tag if your network uses them. 5. Install, then install the <strong>QEMU guest agent</strong> inside so Proxmox can see its IP and shut it down cleanly.</p>
+<ol><li>Upload an ISO to a storage that allows ISO images.</li><li>Create VM: give it a name and ID, pick the ISO, set the OS type.</li><li>Disk: use <strong>VirtIO SCSI</strong> on local-lvm or similar. CPU: type <code>host</code> unless you plan to migrate across different CPUs. Memory: set what it really needs.</li><li>Network: attach to a bridge (<code>vmbr0</code>), with a VLAN tag if your network uses them.</li><li>Install, then install the <strong>QEMU guest agent</strong> inside so Proxmox can see its IP and shut it down cleanly.</li></ol>
 <h4>Resource rules of thumb</h4>
 <p>Do not give a guest more vCPUs than it will use, because idle vCPUs still need scheduling. RAM is the usual limit in a homelab, so budget it. Use thin provisioning for disks but keep an eye on the pool filling, because a full thin pool freezes every guest on it.</p>
 <h4>Backups, 3-2-1</h4>

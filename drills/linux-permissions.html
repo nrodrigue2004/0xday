@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -62,7 +62,7 @@
 <ul><li><strong>ACLs</strong> add per-user and per-group rules on top: <code>setfacl -m u:bob:rw file</code>, <code>getfacl file</code>. A <code>+</code> at the end of the mode in <code>ls -l</code> (<code>-rw-r--r--+</code>) means an ACL exists, so the nine characters are not the whole story.</li><li><strong>Capabilities</strong> split root into pieces. <code>getcap -r / 2&gt;/dev/null</code> lists binaries given e.g. <code>cap_net_raw</code> or the dangerous <code>cap_setuid</code>.</li><li><strong>Immutable flag</strong>: <code>chattr +i file</code> blocks changes even by root until removed (<code>lsattr</code> shows it). Malware and admins both use it.</li><li><strong>SELinux and AppArmor</strong> can deny an action even when classic permissions allow it.</li></ul>
 <h4>Privilege escalation, defender's view</h4>
 <p>Attackers follow a checklist. Each item is a permissions mistake you can audit:</p>
-<p>1. <strong>Writable file executed by a more privileged user.</strong> A world-writable <code>/opt/backup.sh</code> called from root's crontab hands root to anyone who can edit it. 2. <strong>SUID/SGID binaries</strong> that can read or write files or spawn shells (<code>find</code>, <code>vim</code>, <code>bash</code> copies). 3. <strong>Writable service files</strong>: <code>/etc/systemd/system/*.service</code>, <code>/etc/cron.d/*</code>, <code>/etc/profile.d/*</code>. 4. **<code>sudo</code> rules too broad**: <code>NOPASSWD: ALL</code>, or allowing editors and interpreters. 5. **Writable directories in root's <code>PATH</code>**, so a fake <code>ls</code> runs instead of the real one. 6. <strong>Readable secrets</strong>: <code>/etc/shadow</code> readable by group <code>shadow</code> members, a <code>.env</code> with mode 644, SSH keys with 644.</p>
+<ol><li><strong>Writable file executed by a more privileged user.</strong> A world-writable <code>/opt/backup.sh</code> called from root's crontab hands root to anyone who can edit it.</li><li><strong>SUID/SGID binaries</strong> that can read or write files or spawn shells (<code>find</code>, <code>vim</code>, <code>bash</code> copies).</li><li><strong>Writable service files</strong>: <code>/etc/systemd/system/*.service</code>, <code>/etc/cron.d/*</code>, <code>/etc/profile.d/*</code>.</li><li>**<code>sudo</code> rules too broad**: <code>NOPASSWD: ALL</code>, or allowing editors and interpreters.</li><li>**Writable directories in root's <code>PATH</code>**, so a fake <code>ls</code> runs instead of the real one.</li><li><strong>Readable secrets</strong>: <code>/etc/shadow</code> readable by group <code>shadow</code> members, a <code>.env</code> with mode 644, SSH keys with 644.</li></ol>
 <h4>Fixing, not just finding</h4>
 <p>Least privilege: scripts run by root should be owned by root, mode 755 or 750, in a directory only root can write. Services run as their own accounts. <code>sudo -l</code> should print short, specific lines. Check recursively with <code>find / -xdev -perm -0002 -type f 2&gt;/dev/null</code> (world-writable files) and <code>find / -nouser -o -nogroup</code> (orphans).</p>
 <h4>Reading a crontab</h4>

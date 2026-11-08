@@ -1,0 +1,761 @@
+# CySA+ CS0-004 objectives. Notes, cards, checks and labs are in my own words. Parsed by build_comptia.py.
+
+## 1.1 Explain concepts related to system and network architecture in security operations
+labs: log-analysis, system-hardening-windows-linux
+@notes
+An analyst can only investigate what was logged, so architecture questions are mostly "where does the evidence come from and can I trust it".
+
+### Logging
+- **Ingestion**: agents, syslog forwarders or API pulls ship logs to a central store (a SIEM). Normalize fields (timestamp, host, user, src/dst IP) or correlation breaks.
+- **Time sync**: every device syncs to NTP. Two hosts five minutes apart make a timeline impossible and can wreck Kerberos too. Store in UTC.
+- **Integrity and security**: send logs off the box immediately, over TLS, write-once if possible. An attacker with admin deletes local logs first (Windows event 1102 means the Security log was cleared).
+- **Retention**: set by compliance and by dwell time. Intrusions often sit unnoticed for months, so hot storage for weeks and cold storage for a year or more is common.
+
+### Operating system
+- **Hardening**: remove unused services and software, patch, least privilege, disable default accounts, host firewall, secure baselines (CIS).
+- **Critical files**: Windows has the registry hives, SAM, `System32`, startup folders and `Windows\Temp`. Linux has `/etc/passwd`, `/etc/shadow`, `/etc/sudoers`, `/var/log`, cron entries and `~/.ssh/authorized_keys`. Know what normal looks like so deviations stand out.
+- **System processes**: `lsass.exe`, `svchost.exe`, `services.exe` and `explorer.exe` are common impersonation targets. Wrong parent process, wrong path or a misspelling (`svch0st`) are classic tells.
+
+### Infrastructure
+- **Cloud native**: services built for the cloud. Evidence lives in provider logs (CloudTrail, Azure Activity, VPC flow logs) and you cannot image a managed service.
+- **Virtualization**: many VMs per host. Snapshots help forensics. VM escape is the rare worst case.
+- **Containerization**: short-lived, so logs and artifacts vanish when the container does. Ship logs out, scan images, avoid privileged containers.
+- **APIs**: the glue between tools and a major attack surface. Authenticate, rate-limit, log, and keep keys out of code.
+
+### Devices and networks
+- **Mobile and endpoint management** (MDM/UEM, EDR) lets you enforce policy, wipe lost devices and collect telemetry.
+- **ZTNA**: no implicit trust from network location, verify each request on identity, device health and context.
+- **SASE**: network and security services (SWG, CASB, ZTNA, firewall-as-a-service) delivered from the cloud edge for remote users and branches.
+- **Hybrid cloud**: on-prem plus cloud means two sets of logs and identity to stitch together.
+
+### Identity and data
+- **PAM**: vault admin credentials, check them out per session, record the session, rotate afterwards. **Secrets management** keeps API keys and passwords in a vault, not in repos.
+- **AuthN vs AuthZ**: MFA, SSO with SAML/OIDC, OAuth for delegated access, Kerberos in AD.
+- **Encryption**: AES at rest, TLS in transit, hashing with salt for passwords. **Data protection**: classification, DLP, masking, tokenization, backups.
+
+### Critical infrastructure
+**OT** runs physical processes. **ICS** is the control system, **SCADA** supervises many remote sites. These favor availability and safety over confidentiality, run legacy protocols (Modbus, DNP3) with no authentication and cannot be patched casually. Segment them from IT, monitor passively, never active-scan a PLC carelessly.
+@cards
+Q: Why must all devices use NTP?
+A: Event correlation and timelines depend on consistent timestamps. Clock drift hides or reorders attacker steps.
+Q: Why forward logs off the host immediately?
+A: Attackers with admin rights clear local logs. A remote copy preserves integrity.
+Q: Windows event ID for a cleared Security log?
+A: 1102 (System log cleared is 104).
+Q: Why is process path and parent relevant to spotting malware?
+A: Malware imitates names like svchost.exe. The legit one runs from System32 under services.exe. Wrong path or parent is suspicious.
+Q: What does SASE bundle?
+A: Cloud-delivered networking plus security: SWG, CASB, ZTNA, FWaaS.
+Q: What does PAM add that a plain admin account does not?
+A: Vaulting, per-use checkout, session recording and rotation of privileged credentials.
+Q: Priority order in OT versus IT?
+A: OT puts availability and safety first; IT usually puts confidentiality first.
+Q: Biggest evidence problem with containers?
+A: They are ephemeral. Logs and artifacts disappear unless exported.
+@check
+? A server's clock is 7 minutes ahead of the rest of the network. What is the most direct security impact?
+a) Certificates stop working
+b) Event timelines across systems cannot be correlated reliably
+c) Packets get dropped
+d) Logs are encrypted twice
+= b | Correlation relies on consistent time. (Kerberos also has a skew limit, but the analyst-facing issue is the timeline.)
+? Where should you send logs so an intruder with local admin cannot erase them?
+a) A second folder on the same disk
+b) The same server's backup
+c) A remote, access-controlled log collector
+d) The user's laptop
+= c | Off-host, restricted storage preserves integrity.
+@lab
+Spot the impostor process
+A process list shows `svchost.exe` running from `C:\Users\Public\svchost.exe`, parent `winword.exe`. Another shows `svchost.exe` from `C:\Windows\System32\` with parent `services.exe`. Which is suspicious and what are the three tells? What would you collect next?
+@answer
+The first one. Tells: wrong path (Users\Public instead of System32), wrong parent (an Office app should never spawn it), and it's a well-known name used for camouflage. Next: grab the hash, check it on VirusTotal, pull the Word document and macro, look at network connections from that PID, and isolate the host through EDR.
+
+## 1.2 Given a scenario, analyze indicators of potential malicious activity
+labs: network-traffic-analysis, phishing-analysis, log-analysis
+@notes
+The job here is pattern recognition: a single odd event is noise, several in a chain are an incident.
+
+### Network indicators
+- **Rogue devices**: unknown MACs, a rogue AP or DHCP server. Compare against the asset inventory.
+- **Enumeration**: many connection attempts across hosts or ports in a short time (port scans, ping sweeps, SMB or LDAP queries from a workstation).
+- **Anomalous activity**: beaconing (fixed-interval small callbacks, often with jitter), large outbound transfers, DNS with long random subdomains (tunneling or DGA), traffic at 3 a.m., unusual protocols.
+- **Unexpected ports**: HTTP on 4444, SSH on 443, high ports to external hosts. Reverse shells often use common ports to slip through.
+
+### Host indicators
+- **Resource consumption**: sustained CPU and GPU use (cryptominer), disk churn (ransomware encrypting), memory spikes.
+- **Unauthorized software** and **unauthorized configuration changes**: new services, scheduled tasks, run keys, disabled AV, edited hosts file, new local admin.
+- **Suspicious or rogue processes**: odd parent-child pairs (Office spawning PowerShell, `cmd` under a browser).
+- **LOLBins**: legitimate tools abused so nothing "malicious" is dropped: `certutil -urlcache`, `mshta`, `rundll32`, `regsvr32`, `bitsadmin`, PowerShell with `-enc`, `wmic`. Detection is behavioral, so hunt the command line.
+- **File system changes**: new executables in temp or AppData, mass renames, changed extensions, deleted shadow copies (`vssadmin delete shadows`).
+- **Data exfiltration**: archives staged then sent out, big uploads to cloud storage, DNS or ICMP tunneling.
+
+### Application and cloud
+- **Application**: service disruption, spikes of 500s, injection strings in logs (`' OR 1=1`, `../../`), new admin users, unusual API calls.
+- **Cloud**: new access keys, resources created in odd regions (mining), public buckets, disabled logging, privilege escalation in IAM, API calls from unfamiliar IPs.
+
+### Social engineering and identity
+- **Typosquatting** (`rnicrosoft.com`), **URL shorteners** that hide the target, lookalike Unicode domains.
+- **Impossible travel**: logins from two far-apart places faster than a plane could go. Verify first: VPNs and mobile carriers cause false positives.
+- Other identity tells: MFA fatigue (burst of push prompts), new inbox rules forwarding mail, logins at odd hours, many failures then a success (spray or brute force), service accounts logging in interactively.
+- **BEC**: attacker (or a lookalike domain) impersonates an exec or vendor to redirect payments. Look for reply-to mismatch, changed bank details, urgency, inbox rules that hide replies.
+@cards
+Q: What does beaconing look like in network logs?
+A: Small, regular outbound connections to the same host at fixed intervals (often with a little jitter).
+Q: Name four LOLBins.
+A: certutil, mshta, rundll32, regsvr32 (also bitsadmin, wmic, PowerShell).
+Q: Why do LOLBins evade AV?
+A: The binaries are signed and legitimate. Only the behavior or command line gives them away.
+Q: What is impossible travel?
+A: Sign-ins from locations too far apart for the time between them. Rule out VPN or proxy before escalating.
+Q: Which indicator suggests ransomware is running?
+A: High disk activity with mass file renames/extension changes and shadow copy deletion.
+Q: What are the classic signs of BEC?
+A: Spoofed or lookalike sender, reply-to mismatch, urgent payment or banking change, hidden inbox rules.
+Q: Long random-looking DNS subdomains point to what?
+A: DNS tunneling/exfiltration or a domain generation algorithm.
+Q: A workstation queries LDAP for every account and hits hundreds of hosts on 445. What phase?
+A: Internal enumeration/reconnaissance.
+@check
+? An HR laptop shows winword.exe launching powershell.exe -enc JAB... . Most likely?
+a) Normal macro-free document
+b) Malicious macro executing an encoded payload
+c) Windows update
+d) Printer driver install
+= b | Office spawning an encoded PowerShell command is a textbook malicious-document pattern.
+? A user signs in from Chicago, and 20 minutes later from Singapore. First step?
+a) Reset the whole domain
+b) Verify for VPN/proxy, check device and MFA details, then contain if unexplained
+c) Ignore it
+d) Block all of Singapore forever
+= b | Confirm before disruptive action, but treat as a likely account compromise if nothing explains it.
+@lab
+Read a suspicious command
+Decode and judge: `powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA...` The flags: `-nop` skips the profile, `-w hidden` hides the window, `-enc` takes base64 UTF-16LE. In your own words, what do those flags tell you before you decode a single byte? Then decode this beginning in a shell: `echo 'SQBFAFgA' | base64 -d | iconv -f UTF-16LE`.
+@answer
+Hidden window plus encoded command is rarely administrator behavior, so treat as hostile until proven otherwise. The decoded fragment is `IEX`, the invoke-expression cradle that normally precedes a download-and-run (`IEX (New-Object Net.WebClient).DownloadString(...)`). Next steps: get the full command, extract the URL, block it, find the parent process and scope other hosts that ran the same command line.
+
+## 1.3 Given a scenario, use tools to determine malicious activity
+labs: network-traffic-analysis, ids-snort, siem-security-onion, malware-analysis
+@notes
+Know what each tool is for and what its output looks like. Exam scenarios hand you a snippet and ask what it means.
+
+### Decode and parse
+- **CyberChef**: browser "recipe" tool for base64, hex, XOR, URL decoding, gunzip, regex extraction. Chain operations on the fly.
+
+### Packets and network sensors
+- **Wireshark**: GUI packet analysis. Display filters: `ip.addr == 10.0.0.5`, `tcp.port == 4444`, `http.request`, `dns`, `tcp.flags.syn == 1 && tcp.flags.ack == 0`. Follow TCP stream shows a whole conversation.
+- **tcpdump**: CLI capture, BPF filters: `tcpdump -i eth0 -w cap.pcap host 10.0.0.5 and port 443`. `-nn` skips name resolution.
+- **Snort / Suricata**: signature IDS/IPS. Rules look like `alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"SSH brute"; flags:S; threshold:...; sid:1000001;)`. Suricata is multi-threaded and also writes EVE JSON.
+- **Zeek**: not signatures. It turns traffic into structured logs (`conn.log`, `dns.log`, `http.log`, `ssl.log`, `files.log`), ideal for hunting.
+
+### Logs and intelligence
+- **SIEM**: collects, normalizes, correlates and alerts (Splunk, Elastic, Sentinel). Know queries by shape: filter, group, count, sort.
+- **Threat intel platforms**: **OTX** (community pulses of IoCs), **MISP** (open-source sharing platform), **OpenCTI** (knowledge graph for CTI).
+
+### Endpoint
+- **EDR/XDR**: endpoint telemetry with response (isolate host, kill process). XDR also pulls in email, network and cloud. **MDM** manages mobile devices (wipe, policy).
+
+### Reputation and file analysis
+- **WHOIS**, **AbuseIPDB**, **GEO-IP** for domain/IP age, ownership, abuse reports and location. A domain registered three days ago is suspicious.
+- **strings** finds readable text in binaries (URLs, commands). **VirusTotal** checks hashes/files against many engines (do not upload sensitive files, upload the hash). **YARA** rules match patterns in files or memory: `rule X { strings: $a="cmd.exe /c" condition: $a }`.
+- **Sandboxes** (**Joe Sandbox**, **Cuckoo**) run a sample safely and report behavior (files, registry, network). Beware sandbox-aware malware that sleeps.
+- **MXToolbox** checks mail records (MX, SPF, DKIM, DMARC) and blacklists.
+- **UEBA** (for example OpenUBA) baselines user behavior and flags deviations.
+
+### Patterns, formats, scripts
+- **Regex**: `\d{3}-\d{2}-\d{4}` (SSN-like), `(?:\d{1,3}\.){3}\d{1,3}` (IPv4), `[A-Za-z0-9+/=]{40,}` (base64 blob).
+- **Formats**: JSON (objects, key/value), XML (tags), YAML (indentation, config and rules), EVTX (Windows event log, read with Event Viewer or `Get-WinEvent`).
+- **Scripting**: Python for parsing and API calls, PowerShell for Windows admin and hunting (`Get-WinEvent`, `Get-Process`), shell for quick `grep`/`awk` pipelines.
+@cards
+Q: Which tool turns traffic into per-protocol logs for hunting instead of signatures?
+A: Zeek.
+Q: Wireshark filter for TCP SYN scan packets?
+A: tcp.flags.syn == 1 && tcp.flags.ack == 0
+Q: tcpdump flag to write a pcap?
+A: -w file.pcap (and -nn disables name/port resolution).
+Q: What is YARA for?
+A: Pattern-matching rules to classify malware in files or memory.
+Q: What does MISP do?
+A: An open platform for sharing and correlating threat-intel IoCs.
+Q: Why upload a hash rather than a file to VirusTotal?
+A: Uploaded files become public. A hash lookup leaks nothing.
+Q: What do EDR and XDR differ in?
+A: XDR correlates telemetry beyond endpoints: email, network, cloud, identity.
+Q: What can malware do to defeat sandboxes?
+A: Detect the VM, wait/sleep, or check for user activity before acting.
+Q: What file format are Windows event logs?
+A: EVTX.
+@check
+? You need a quick view of every DNS query a host made last week, from sensor data. Best source?
+a) Zeek dns.log
+b) strings
+c) YARA rule
+d) MXToolbox
+= a | Zeek records protocol metadata like DNS in structured logs.
+? Which is a signature-based network IDS/IPS?
+a) Zeek
+b) Suricata
+c) CyberChef
+d) OTX
+= b | Suricata (like Snort) matches rules against traffic.
+@lab
+Pull the beacon out of a conn.log
+Given Zeek-style lines of `ts, src, dst, dport, bytes`: ten rows from 10.0.0.23 to 185.220.1.9:443 at 60-second intervals, 412 bytes each, plus normal browsing to many hosts. Which host is beaconing, how do you prove regularity, and what do you do next?
+@answer
+10.0.0.23. Compute the deltas between timestamps: near-constant 60 s gaps and a constant byte size is machine-driven. Then enrich 185.220.1.9 (WHOIS age, AbuseIPDB, OTX), find the process behind the connection with EDR, check for other internal hosts talking to it, block the IP at the firewall and isolate the host.
+
+## 1.4 Explain threat intelligence and threat-hunting concepts
+labs: incident-response
+@notes
+### Threat actors
+- **APT**: well-funded, patient, targeted, persistent. Usually nation-state or state-linked, with custom tooling and long dwell time.
+- **Insider threat**: current/former employee or contractor with legitimate access. Intentional or accidental. Detect with DLP, UEBA and access reviews.
+- Others to separate: hacktivists (ideology), organized crime (money), script kiddies (low skill).
+
+### TTPs and models
+- **TTPs** describe how an adversary operates: tactic = goal, technique = method, procedure = the specific implementation.
+- **MITRE ATT&CK** catalogs tactics and techniques (Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion, Credential Access, Discovery, Lateral Movement, Collection, C2, Exfiltration, Impact). **Heat maps** overlay your detection coverage or an actor's techniques on the matrix to show gaps.
+- **Pyramid of Pain** ranks IoC types by how much it hurts the attacker when you block them. Bottom to top: hash values, IP addresses, domain names, network/host artifacts, tools, TTPs. Hashes are trivial to change, TTPs are painful.
+- **Attribution** (who did it) is hard and rarely needed to defend. Do not over-invest.
+
+### Confidence
+Rate intel on **timeliness** (stale IPs lie), **relevance** (does it touch your sector/tech?) and **accuracy** (corroborated by multiple sources?). Low-confidence intel gets monitored, high-confidence gets blocked.
+
+### Sources
+- **OSINT**: public (news, social media, paste sites, WHOIS, Shodan, vendor blogs). **Closed-source**: paid feeds, government, private vendors. **Sharing**: ISACs/ISAOs, MISP communities, STIX/TAXII formats.
+
+### Indicators of compromise
+Collect, analyze (is it real, scope, context), apply (detections, blocks, retro-hunts). **Atomic** IoCs stand alone (IP, hash, domain). **Behavioral** IoCs describe actions (Office spawns PowerShell, then LSASS access). Atomic ages fast, behavioral lasts.
+
+### Threat modeling and deception
+- **STRIDE**: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege, a checklist to find threats per component.
+- **Threat mapping** ties threats to your assets and attack paths. **Deception**: honeypots, honeytokens, decoy accounts. Any touch is a high-fidelity alert.
+
+### Hunting
+Proactive, hypothesis-driven search that assumes breach and does not wait for alerts. Flow: hypothesis (from intel or ATT&CK) → pick data → query → investigate → document → turn findings into detections.
+@cards
+Q: Order the Pyramid of Pain bottom to top.
+A: Hashes, IPs, domains, network/host artifacts, tools, TTPs.
+Q: Which Pyramid of Pain level hurts attackers most?
+A: TTPs.
+Q: STRIDE stands for?
+A: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.
+Q: Atomic vs behavioral IoC?
+A: Atomic: single data points (IP, hash). Behavioral: patterns of actions.
+Q: What three things set confidence in threat intel?
+A: Timeliness, relevance, accuracy.
+Q: What starts a threat hunt?
+A: A hypothesis, from intel, ATT&CK or an anomaly, not an alert.
+Q: What are ISACs?
+A: Industry groups that share threat intel among members.
+Q: What does a honeytoken do?
+A: A fake credential/record that alerts when anyone touches it.
+@check
+? A feed lists an IP flagged 14 months ago. Which confidence factor is weakest?
+a) Relevance
+b) Timeliness
+c) Accuracy
+d) Attribution
+= b | Old IPs get reassigned, so the indicator is probably stale.
+? Which IoC is the cheapest for an attacker to change?
+a) File hash
+b) TTP
+c) Toolset
+d) Process behavior
+= a | One recompile changes it.
+@lab
+Write a hunt hypothesis
+Write one hunt hypothesis for ATT&CK technique T1053.005 (Scheduled Task) on Windows. State the data source, the query logic, and what a hit would look like.
+@answer
+Hypothesis: attackers persist with scheduled tasks created from user-writable paths. Data: Windows event 4698 (task created) plus Sysmon process creation for `schtasks.exe`. Query: tasks whose action path is under `AppData`, `Temp` or `Public`, or whose command line has `-enc`. A hit: task named like a system task ("GoogleUpdateTaskX") running a script from AppData, created by a non-admin user soon after a phishing email. Result becomes a permanent detection rule.
+
+## 1.5 Explain the importance of efficiency and process improvement in security operations
+@notes
+Analysts drown in alerts, so the goal is faster, more consistent, less burnout.
+
+- **Standardize**: **playbooks** are step-by-step responses for a known scenario (phishing, ransomware). **Runbooks** are the operational procedures and are often automated. Both cut variance and onboarding time. Coordinate through clear roles, handover notes and ticketing.
+- **Automation and orchestration**: **SOAR** takes alerts and runs workflows (enrich IP, quarantine email, disable account, open ticket). Automate the boring and high-volume steps and keep a human approval on destructive actions. **IaC** (Terraform, Ansible, CloudFormation) builds infrastructure from versioned code so environments are repeatable and auditable.
+- **Data enrichment**: add context to raw alerts (asset owner, user risk, IP reputation, geo). **Rule and alert tuning** removes false-positive sources and adds exceptions without losing detection. **Dashboards** show trends so you can decide where to spend effort.
+- **Integration**: **APIs** (programmatic access), **webhooks** (a system pushes an event when something happens), **plug-ins** (extend a tool). Prefer integrations over copy-paste between consoles.
+
+> Danger: automating a bad process just makes mistakes faster. Test playbooks, log every automated action, keep an off switch.
+@cards
+Q: Playbook versus runbook?
+A: A playbook is the response plan for a scenario; a runbook is the operational procedure, often executed automatically.
+Q: What does SOAR do?
+A: Orchestrates and automates security tasks across tools to respond faster.
+Q: Why tune alert rules?
+A: To cut false positives and alert fatigue while keeping real detections.
+Q: Webhook definition?
+A: An HTTP callback one system sends to another when an event occurs.
+Q: Why use IaC for security?
+A: Repeatable, reviewable, version-controlled builds; fewer manual misconfigurations.
+Q: What should stay manual in automation?
+A: High-impact, hard-to-reverse actions, or require an approval step.
+@check
+? A phishing alert takes an analyst 15 minutes to enrich by hand every time. Best improvement?
+a) Hire more analysts
+b) Build a SOAR playbook to auto-enrich and triage
+c) Disable the rule
+d) Add more alerts
+= b | Automation of repetitive enrichment is the textbook SOAR use case.
+? A detection fires 400 times a day and is 98% benign. Action?
+a) Disable it forever
+b) Tune it with context or exclusions and keep the true-positive logic
+c) Ignore the alerts
+d) Escalate each one
+= b | Tune, don't blind.
+@lab
+Draft a phishing playbook
+List the 6 steps of a phishing-report playbook and mark which ones to automate.
+@answer
+1) Receive report (automate intake). 2) Extract URLs, attachments, headers (automate). 3) Enrich with reputation and sandbox (automate). 4) Decide: malicious / benign (human or rule-based). 5) Contain: search all mailboxes, purge, block sender and URL (automate with approval). 6) Close: notify reporter, log metrics, tune rules (human + template).
+
+## 1.6 Summarize concepts related to the use of AI in security operations
+@notes
+- **Use cases**: compare artifacts (this script versus known samples), analyze log files at volume, draft documents and reports, assist incident investigation, correlate events across sources, and drive automation and orchestration.
+- **Risks**: **hallucinations** (confident wrong answers, so verify before acting), **data exposure** (pasting logs, secrets or customer data into a third-party model), **model poisoning** (tampered training or feedback data corrupts the model), **malicious prompts** (prompt injection hidden in emails, tickets or web pages that an AI agent reads).
+- **Governance**: an AI usage policy (what data may go in, which tools are approved), legal and regulatory compliance (privacy, sector rules), human review of AI output, logging of AI actions.
+- **Rule of thumb**: AI proposes, the analyst decides. Treat model output as an untrusted junior colleague's work.
+@cards
+Q: What is a hallucination?
+A: A fluent but false or invented model output.
+Q: What is prompt injection?
+A: Malicious instructions hidden in content the model reads, causing unintended actions.
+Q: What is model poisoning?
+A: Corrupting training or feedback data to skew model behavior.
+Q: Biggest data-handling risk of public AI tools?
+A: Sensitive data entered into prompts leaves your control.
+Q: What should govern AI use in a SOC?
+A: An approved-use policy, compliance review, and human verification.
+@check
+? An AI summary of an incident cites a CVE that doesn't exist. Which risk?
+a) Model poisoning
+b) Hallucination
+c) Data exposure
+d) Prompt injection
+= b | Fabricated detail presented as fact.
+? An email contains hidden text telling the SOC's AI triage bot to mark it as safe. This is?
+a) Prompt injection
+b) A hash collision
+c) SQL injection
+d) Beaconing
+= a | Adversarial instructions embedded in input.
+@lab
+Make a safe-use rule
+Write three rules for what an analyst may paste into an AI assistant.
+@answer
+Examples: never paste credentials, tokens or customer personal data; only sanitized or synthetic log excerpts; only use the company-approved tool; verify every claim against the source before it enters a report.
+
+## 2.1 Given a scenario, implement the appropriate vulnerability scanning method
+labs: recon-nmap-metasploit
+@notes
+Scanning finds known weaknesses. It is not a pentest, and it lies in both directions, so you validate.
+
+### Before you scan
+- **Asset inventory**: you cannot scan what you do not know exists. Include shadow IT, cloud, containers and IoT.
+- **Planning**: scheduling (off-peak, change windows), operations (notify owners, avoid critical processes), performance (bandwidth, scan throttling, fragile devices like OT or old printers), sensitivity levels (what data may a credentialed scan touch), segmentation (scanner placement so firewalls do not hide hosts), regulatory (PCI DSS requires quarterly external scans by an ASV).
+
+### Scan types
+- **Internal vs external**: internal sees what an insider sees, external what the internet sees.
+- **Agent vs agentless**: agents on hosts report continuously, work for roaming laptops and need install and updates. Agentless scans over the network.
+- **Credentialed vs non-credentialed**: credentialed logs in and sees missing patches, configs and local software, with far fewer false positives. Non-credentialed is the outsider view.
+- **Passive vs active**: passive listens to traffic (safe for OT, slow, misses quiet hosts). Active sends probes (thorough, can disrupt).
+- **Discovery**: mapping scans find hosts and topology; device fingerprinting guesses OS and services.
+- **Baseline scanning**: compare configuration to a standard such as **CIS benchmarks**, **PCI DSS**, or the **ISO 27000** series.
+
+> Exam habit: pick "credentialed" for accuracy, "passive" for fragile systems, "agent" for remote laptops, "external" for the attack surface view.
+@cards
+Q: Why use credentialed scans?
+A: More accurate results with fewer false positives, and it can see missing patches and local configuration.
+Q: Best scan type for a fragile ICS network?
+A: Passive scanning, or very carefully controlled active scans.
+Q: Agent-based scanning best fits what hosts?
+A: Roaming laptops and remote endpoints that are not always on the network.
+Q: What do CIS benchmarks provide?
+A: Hardening baselines to compare configurations against.
+Q: What is a mapping scan?
+A: A discovery scan to find hosts and their layout.
+Q: Why scan externally?
+A: To see the attack surface as an internet attacker sees it.
+Q: First prerequisite for good vulnerability management?
+A: A complete asset inventory.
+@check
+? Scan results are full of false positives for missing patches. Which change improves accuracy most?
+a) Non-credentialed scan
+b) Credentialed scan
+c) External scan
+d) Fewer plugins
+= b | Authenticated scanning checks the actual patch level.
+? A plant's PLC network cannot tolerate probes. Best method?
+a) Aggressive active scan
+b) Passive monitoring
+c) Credentialed full scan
+d) No scanning ever
+= b | Passive observation avoids disrupting devices.
+@lab
+Plan a scan
+You must scan a 200-host office network plus 15 remote laptops, including a legacy label printer that crashes under heavy probing. Pick scan types and settings.
+@answer
+Credentialed internal active scan for servers and desktops during a window, with throttled rates. Agent-based for the laptops. Exclude or lightly/passively check the printer. External scan of the public IPs separately. Notify owners, document the exceptions, and compare the config to CIS baselines.
+
+## 2.2 Given a scenario, analyze output from vulnerability assessment tools
+labs: recon-nmap-metasploit
+@notes
+### Tools and their lane
+- **Network scanning**: **Angry IP Scanner** (simple GUI sweep), **Masscan** (internet-scale, very fast port scanner).
+- **Multipurpose**: **Nmap** (hosts, ports, services, OS, scripts via NSE), **Metasploit** (exploit framework used to validate), **Maltego** (link-analysis OSINT graphs), **Recon-ng** (modular OSINT framework).
+- **Web app scanners**: **Burp Suite** (intercepting proxy), **ZAP** (free proxy and scanner), **Nikto** (quick web server checks).
+- **Vulnerability scanners**: **Nessus**, **OpenVAS** (open source), **Nuclei** (template-based, fast, great for specific CVEs).
+- **Cloud**: **ScoutSuite** and **Prowler** audit cloud accounts for misconfigurations, **Trivy** scans container images and IaC, **Checkov** scans IaC (Terraform etc.) before deployment.
+- **Breach and attack simulation**: **Atomic Red Team** (small tests mapped to ATT&CK), **Caldera** (automated adversary emulation). They test whether your detections work.
+
+### Reading output
+- Nmap states: open, closed (reachable, nothing listening), filtered (firewall dropped it). `-sV` versions, `-sC` default scripts, `-O` OS guess, `-p-` all ports, `-sS` SYN scan.
+- A finding has: title/plugin, CVE, severity (CVSS), host/port, evidence, solution. **Validate**: read the evidence, check the version and whether the vulnerable feature is on, then confirm with a second tool or manual test.
+- Beware: banner says Apache 2.4.49 but a distro back-patched it (false positive), or a scan with no credentials missed a missing patch (false negative).
+@cards
+Q: Which tool scans the entire internet quickly?
+A: Masscan.
+Q: What does Nmap "filtered" mean?
+A: A firewall or filter is blocking probes, so the port state is unknown.
+Q: Prowler and ScoutSuite audit what?
+A: Cloud account configuration and security posture.
+Q: Trivy scans what?
+A: Container images, filesystems and IaC for vulnerabilities and misconfigs.
+Q: Atomic Red Team's job?
+A: Run small ATT&CK-mapped tests to verify detection coverage.
+Q: Burp Suite is best described as?
+A: An intercepting proxy for testing web applications.
+Q: How to deal with a likely false positive?
+A: Validate evidence and versions, then confirm manually or with another tool before dismissing.
+@check
+? Which tool checks Terraform files for misconfigurations before deployment?
+a) Checkov
+b) Nikto
+c) Masscan
+d) Maltego
+= a | Checkov is an IaC static analyzer.
+? Nmap shows port 443 "open" and 8443 "filtered". What do you infer about 8443?
+a) A service is listening and responding
+b) Something is blocking probes, state unknown
+c) Port is closed with RST
+d) UDP only
+= b | Filtered means no definitive answer due to filtering.
+@lab
+Triage a scan finding
+A scanner reports "Apache 2.4.49 path traversal (CVE-2021-41773), critical" on a Debian host. `apache2 -v` shows 2.4.49-1+deb10u1 patched build. Real or false positive?
+@answer
+Likely false positive: the distro maintains security fixes via package revisions without changing the upstream version string. Confirm with the vendor security tracker/changelog (`apt changelog apache2`) and a safe proof-of-concept request. Document and mark as a false positive so it stops resurfacing.
+
+## 2.3 Given a scenario, analyze data to prioritize and mitigate vulnerabilities
+@notes
+You cannot fix everything. Prioritize on real risk.
+
+### Criteria
+- **Exploitability** (is there a public exploit, how easy), **active exploitation** (CISA KEV list, threat intel: highest priority), **asset value** and **impact** (crown jewels versus a test box), **patch availability**, **true/false positives and negatives** (TP real, FP false alarm, FN missed vuln, which is the scary one).
+- **CVSS**: base score 0-10 from Attack Vector (network is worst), Attack Complexity, Privileges Required, User Interaction, Scope, then C/I/A impact. Severity bands: None 0, Low 0.1-3.9, Medium 4-6.9, High 7-8.9, Critical 9-10. Temporal and environmental metrics adjust for the real world. **EPSS** is a probability (0-1) that a CVE will be exploited in the next 30 days. Use CVSS for severity and EPSS for likelihood.
+- **Context**: internet-facing (external) first, then internal, then isolated/air-gapped. A medium vuln on the perimeter can outrank a critical on an isolated lab box.
+
+### Mitigation
+- **Attack surface management**: continuously discover and shrink exposed assets and services.
+- **Secure coding**: input validation, parameterized queries, output encoding, least privilege, secrets out of code.
+- **Patching and configuration management**: test, stage, deploy, verify. **Exceptions**: documented, time-boxed, approved acceptance with an owner. **Compensating controls**: WAF rule, segmentation, virtual patching, extra monitoring when you cannot patch.
+- **Validation**: rescan, retest or verify evidence afterward. A closed ticket is not a fixed vulnerability.
+@cards
+Q: Which CVSS attack vector is most dangerous?
+A: Network (remotely exploitable).
+Q: CVSS Critical range?
+A: 9.0 to 10.0.
+Q: What does EPSS estimate?
+A: The probability a vulnerability will be exploited in the wild within 30 days.
+Q: Which is worse, false positive or false negative?
+A: False negative: a real vulnerability is missed and stays exposed.
+Q: What is virtual patching?
+A: A WAF/IPS rule that blocks exploitation when you can't patch the app.
+Q: What must an exception include?
+A: Business justification, owner, compensating controls and an expiry/review date.
+Q: Why rescan after remediation?
+A: To validate the fix actually worked.
+Q: What is the CISA KEV catalog?
+A: A list of vulnerabilities known to be exploited in the wild: patch first.
+@check
+? Two vulns: CVSS 9.8 on an isolated lab VM, CVSS 7.5 on an internet-facing web server actively exploited per threat intel. Which first?
+a) The 9.8 lab VM
+b) The 7.5 web server
+c) Neither
+d) Alphabetical
+= b | Exposure plus active exploitation outweigh a higher raw score.
+? A vendor patch breaks a legacy app. Best interim?
+a) Ignore it
+b) Compensating controls with a documented, time-limited exception
+c) Delete the app
+d) Turn off logging
+= b | Reduce risk and track acceptance formally.
+@lab
+Rank four findings
+Rank: (A) critical RCE on internal print server, no exploit known. (B) medium SQLi on internet-facing portal with working Metasploit module. (C) high missing patch on isolated lab network. (D) low info leak on public site.
+@answer
+B first (exposed, exploit exists), then A (critical, internal, may be reached after a foothold), then C, then D. Say it as: exposure and exploitation beat raw severity.
+
+## 2.4 Explain concepts related to control types, risks, and vulnerability management
+labs: system-hardening-windows-linux
+@notes
+- **Control types** (what it is): administrative (policy, training), technical (firewall, encryption), physical (locks, cameras). **Control functions** (what it does): preventative (stops), detective (spots), responsive (reacts), corrective (fixes or restores).
+- **Risk**: **inherent** (before controls), **residual** (after controls), **risk appetite** (how much the organization will accept). Strategies: **accept**, **transfer** (insurance, vendor contract), **avoid** (stop the activity), **mitigate** (reduce with controls).
+- **Policies, governance and SLOs**: policy sets the rule (patch criticals within 7 days), governance assigns owners and review, service-level objectives turn them into measurable targets.
+- **Application security**: **SAST** reads source code without running it (early, many false positives). **DAST** attacks the running app (finds runtime and config flaws, later in the cycle). **SAMM** (OWASP Software Assurance Maturity Model) assesses and improves secure development practices.
+- **Third-party risk**: vendors and libraries can carry flaws. **SCA** finds vulnerable open-source components, **SBOM** is the ingredient list of your software so you can quickly answer "are we affected by this CVE".
+@cards
+Q: Inherent vs residual risk?
+A: Inherent is risk before controls; residual is what remains after controls.
+Q: Name the four risk responses.
+A: Accept, transfer, avoid, mitigate.
+Q: SAST vs DAST?
+A: SAST analyzes source/binaries statically; DAST tests the running application from outside.
+Q: What is an SBOM?
+A: A software bill of materials: an inventory of components and dependencies in software.
+Q: What does SCA find?
+A: Known vulnerabilities and license issues in third-party libraries.
+Q: Buying cyber insurance is which risk strategy?
+A: Transfer.
+Q: Four control functions?
+A: Preventative, detective, responsive, corrective.
+@check
+? A company decides to stop offering a risky legacy feature entirely. Strategy?
+a) Accept
+b) Transfer
+c) Avoid
+d) Mitigate
+= c | Eliminating the activity avoids the risk.
+? A new Log4j-like CVE is announced. What helps you find affected software fastest?
+a) SBOM
+b) SAMM
+c) DAST
+d) Honeypot
+= a | The SBOM lists the components you ship.
+@lab
+Pick the control function
+Classify: (1) EDR auto-isolates a host, (2) IDS alert, (3) backup restore, (4) MFA.
+@answer
+(1) responsive, (2) detective, (3) corrective, (4) preventative.
+
+## 3.1 Summarize concepts related to attack methodology frameworks
+labs: incident-response
+@notes
+Frameworks give a shared vocabulary for describing and predicting attacks.
+
+- **Cyber Kill Chain** (Lockheed Martin), seven linear phases: Reconnaissance → Weaponization → Delivery → Exploitation → Installation → Command and Control → Actions on Objectives. Defender idea: break any link and the attack fails. Weak at insiders and lateral movement because it is linear.
+- **Diamond Model**: every event has four vertices: adversary, capability, infrastructure, victim. Pivot between them: find an attacker domain (infrastructure), then other victims hitting it. Also has meta-features such as timestamp, phase, result, direction, methodology.
+- **MITRE ATT&CK**: matrix of tactics (columns, the why) and techniques/sub-techniques (the how, `T1566.001`), with real-world groups, software and detections. Use it for detection coverage gaps, hunt ideas and reporting. Not linear, not every technique is used.
+- **Pick**: kill chain for explaining stage and where to block, diamond for linking intrusions and attribution, ATT&CK for detail and coverage.
+@cards
+Q: Seven kill chain phases?
+A: Recon, weaponization, delivery, exploitation, installation, C2, actions on objectives.
+Q: Diamond Model's four vertices?
+A: Adversary, capability, infrastructure, victim.
+Q: ATT&CK tactic vs technique?
+A: Tactic is the goal (why); technique is how it's achieved.
+Q: Which framework is best to map detection coverage gaps?
+A: MITRE ATT&CK.
+Q: Kill chain weakness?
+A: Linear model; poor fit for insiders and lateral movement.
+Q: What do analysts do with the diamond model?
+A: Pivot between the vertices to connect intrusions.
+@check
+? An attacker sends a malicious attachment. Which kill chain phase?
+a) Reconnaissance
+b) Delivery
+c) Installation
+d) C2
+= b | Delivery is transmitting the weapon.
+? You found attacker infrastructure and now want to find other victims of the same actor. Model?
+a) Kill chain
+b) Diamond Model
+c) STRIDE
+d) CVSS
+= b | Pivoting from the infrastructure vertex.
+@lab
+Map an intrusion
+Phish email with macro doc → PowerShell downloads implant → implant calls 203.0.113.9 hourly → attacker dumps LSASS → exfil to cloud storage. Give kill chain phases and ATT&CK tactics.
+@answer
+Kill chain: delivery (email), exploitation (macro), installation (implant), C2 (hourly beacon), actions on objectives (cred dump, exfil). ATT&CK tactics: Initial Access (T1566), Execution (T1059.001), Command and Control, Credential Access (T1003.001), Exfiltration (T1567).
+
+## 3.2 Summarize the incident response process
+labs: incident-response, digital-forensics
+@notes
+The phases in order:
+1. **Preparation**: plan, team, tools, contacts, logging, backups, training. Nothing else works without it.
+2. **Detection**: alerts, user reports, threat intel.
+3. **Analysis**: confirm it's real, scope, severity, what systems and data, timeline.
+4. **Containment**: stop the spread. Short-term (isolate host, disable account, block IP) then long-term (rebuild segments, temporary fixes). Preserve evidence first when you can, and weigh business impact.
+5. **Eradication**: remove the cause: malware, persistence, bad accounts, patch the hole, reset credentials.
+6. **Recovery**: restore from clean backups, rebuild, monitor closely, return to production in stages.
+7. **Post-incident**: lessons learned meeting, after-action report, update plans and detections.
+
+Traps: pulling the plug on a running host loses memory evidence. Eradicating before scoping tips off the attacker and misses persistence. Recovering before eradication re-infects. Order of volatility for evidence: CPU registers/cache, RAM, network state and processes, disk, remote logs, backups.
+@cards
+Q: IR phase order?
+A: Preparation, detection, analysis, containment, eradication, recovery, post-incident.
+Q: Containment vs eradication?
+A: Containment stops spread; eradication removes the cause.
+Q: Why not just power off a compromised host?
+A: You lose volatile evidence like memory, processes and connections.
+Q: Most volatile evidence?
+A: CPU registers/cache, then RAM.
+Q: Which phase produces lessons learned?
+A: Post-incident activity.
+Q: Which phase is mostly done before any incident?
+A: Preparation.
+Q: What happens if you recover before eradication?
+A: The attacker's persistence reinfects the restored system.
+@check
+? Ransomware spreading across file shares. What is the first priority?
+a) Write the report
+b) Containment: isolate affected hosts and shares
+c) Pay the ransom
+d) Reimage everything
+= b | Stop spread before cleanup.
+? Which step comes immediately after eradication?
+a) Detection
+b) Recovery
+c) Preparation
+d) Analysis
+= b | Restore operations once the threat is removed.
+@lab
+Order the steps
+Shuffle fixed: reset passwords, isolate host, collect memory, scope via logs, restore backup, review at lessons-learned meeting. Put them in IR order with the phase names.
+@answer
+Scope via logs (analysis) → collect memory (analysis/containment prep) → isolate host (containment) → reset passwords (eradication) → restore backup (recovery) → lessons learned (post-incident).
+
+## 3.3 Given a scenario, implement incident response techniques
+labs: incident-response, digital-forensics, log-analysis
+@notes
+### Prepare
+- **IR plan** (policy, roles, severity definitions, escalation) and **communication plan** (who is told what, when, by whom, out-of-band channels in case email is compromised). **Playbooks** per scenario. **Roles**: incident commander, analysts, comms/legal/PR, system owners. **Training**: **tabletop** (talk through a scenario) and **simulation** (hands-on exercise).
+
+### Investigate
+- **Log collection**, **correlation** (join events across sources), **augmentation and enrichment** (add reputation, asset owner, user). **Alerts and notifications** feed **triage**: is it real, how urgent.
+- Build the **timeline** (first malicious event to now) and determine **severity and impact** (data types, systems, users, business function). **Prioritize** by impact and spread.
+
+### Evidence
+- **Chain of custody**: who held the evidence, when, where, with signatures. **Integrity validation**: hash (SHA-256) before and after copying. **Preservation**: write blockers, forensic images, store securely. **Legal hold**: suspend deletion of data that might be needed in litigation.
+
+### Act
+- **Isolate** affected targets (EDR network contain, VLAN, disable port). **Escalate** per severity. **Remediate and verify** (patch, rebuild, rescan, monitor). **Release from isolation** only after verification. **Restore** from known-good backups.
+- **Root cause analysis** asks how it got in and why defenses missed it; **corrective actions** assign owners and deadlines.
+@cards
+Q: Tabletop versus simulation?
+A: Tabletop is a discussion walk-through; simulation is hands-on practice.
+Q: Purpose of chain of custody?
+A: Document who handled evidence to prove it wasn't altered, for legal use.
+Q: How do you prove a disk image is unchanged?
+A: Compare cryptographic hashes of the original and the copy.
+Q: What is a legal hold?
+A: Orders retention of potentially relevant data, overriding normal deletion.
+Q: Log enrichment example?
+A: Adding IP reputation or the asset owner to a raw alert.
+Q: Why use out-of-band comms in IR?
+A: Primary channels like email may be compromised.
+Q: What does RCA produce?
+A: Understanding of the cause and corrective actions to prevent recurrence.
+Q: When is a host released from isolation?
+A: After remediation is verified and monitoring is in place.
+@check
+? You image a disk for investigation. What proves the copy matches the original?
+a) File size
+b) Matching SHA-256 hashes
+c) Same filename
+d) Timestamps
+= b | Cryptographic hashes verify integrity.
+? Legal says a lawsuit is likely. IT's 30-day mailbox purge should?
+a) Continue
+b) Be suspended for relevant data under a legal hold
+c) Be accelerated
+d) Be ignored by IR
+= b | Legal hold overrides routine deletion.
+@lab
+Evidence checklist
+A workstation shows signs of data theft. List what you collect in order, and how you document it.
+@answer
+RAM image first (volatile), then running processes/network connections, then a disk image via write blocker, plus relevant remote logs (proxy, DNS, EDR, authentication). Hash everything with SHA-256, record in chain-of-custody forms (who, when, where, why), store in locked evidence storage and work only on copies.
+
+## 4.1 Explain the importance of vulnerability management reporting and communication
+@notes
+- **Reports**: vulnerability scan reports (by host, severity, trend), **compliance findings** (versus PCI, CIS, HIPAA), **risk scorecards** (business-friendly rating per unit/system).
+- **Action plans**: assign owners, deadlines, **escalation** path for overdue items, **dependencies** (patching the DB first, a reboot window, vendor fix).
+- **Inhibitors to remediation**: contractual agreements (SLAs forbidding downtime), organizational governance (change boards), business process interruption, degraded functionality after patch, **legacy** or **proprietary** systems the vendor won't patch, patch not yet available. Answer with compensating controls and documented exceptions.
+- **Stakeholders**: system owners, IT ops, developers, management, compliance, executives. Tailor message: technical detail for ops, risk and cost for execs.
+- **Metrics and KPIs**: open vulns by severity, **trends**, **top risks**, mean time to remediate, SLA compliance, percentage of assets scanned, repeat findings.
+@cards
+Q: Name remediation inhibitors.
+A: Contracts/SLAs, governance, business interruption, degraded functionality, legacy systems, proprietary systems, no patch.
+Q: What belongs in a vuln action plan?
+A: Owner, deadline, dependencies, escalation path, validation step.
+Q: Who is a risk scorecard for?
+A: Managers and executives needing a simple risk view.
+Q: Why report trends?
+A: To show whether risk is shrinking or growing over time.
+Q: Useful vuln KPI?
+A: Mean time to remediate, SLA compliance, open critical count.
+@check
+? A critical patch needs a reboot of a revenue system during peak hours. This is which inhibitor?
+a) Governance
+b) Business process interruption
+c) Legacy system
+d) Proprietary system
+= b | Downtime hurts operations, so schedule a window or add compensating controls.
+? An executive asks "are we getting better?" Which artifact?
+a) Raw scan export
+b) Trend line / risk scorecard
+c) Packet capture
+d) YARA rule
+= b | Executives need summaries and direction.
+@lab
+Write the exec line
+Rewrite for an executive: "CVE-2025-xxxx RCE in Apache on 14 hosts, CVSS 9.8, EPSS 0.91."
+@answer
+Example: "14 internet-facing web servers have a flaw that attackers are actively exploiting. We will patch them by Friday, and a firewall rule protects them until then. If not fixed, customer data could be exposed."
+
+## 4.2 Explain the importance of security operations and incident response reporting and communication
+@notes
+- **Declaration and escalation**: define who can declare an incident, on what criteria, and who gets notified at each severity.
+- **Executive summary**: one page: what happened, impact, current status, decisions needed. No jargon.
+- **Communication plan**: stakeholders include **legal** (privilege, breach laws), **PR** (public statements), **regulators** (GDPR 72 hours, HIPAA, SEC and others), **law enforcement**, **customers**, employees. One spokesperson, no speculation, no blame. Use secure channels and know your role.
+- **Operational awareness**: choose channels (ticket, chat, phone, out-of-band) and keep sensitive details to the need-to-know group.
+- **Post-incident**: **after-action report** (timeline, actions, what worked), **lessons learned** (meeting soon after, blameless), **RCA**.
+- **Handover**: shift notes: open incidents, pending actions, key contacts, so nothing is dropped.
+- **Internal threat intel report**: tailored to your environment and adversaries.
+- **Metrics**: alert volume, **false-positive rate**, **true-positive rate**, **MTTD** (detect), **MTTR** (respond or remediate), mean time to close, **phishing click rate**.
+@cards
+Q: Who must you consider notifying in a breach?
+A: Legal, PR, regulators, law enforcement, customers, and internal stakeholders per plan.
+Q: What goes in an executive summary?
+A: Plain-language impact, status, and decisions needed.
+Q: What is MTTD?
+A: Mean time to detect.
+Q: Purpose of lessons learned?
+A: Improve plan, detections and process; blameless.
+Q: Why a shift handover document?
+A: To keep continuity: open incidents, actions, contacts.
+Q: Which metric shows detection quality?
+A: True-positive and false-positive rates.
+@check
+? Who should speak to the press during an incident?
+a) Any analyst
+b) Designated spokesperson via PR/legal
+c) The attacker
+d) Helpdesk
+= b | A single approved voice avoids leaks and contradictions.
+? Which metric would drop if phishing training works?
+a) MTTD
+b) Phishing click rate
+c) Alert volume
+d) CPU usage
+= b | Fewer users clicking simulated phish.
+@lab
+Handover note
+Write a 5-line shift handover for an open phishing incident.
+@answer
+Include: incident ID and severity; current status (e.g., 12 mailboxes purged, 2 users pending); pending actions with owners; key contacts and approvals; next checkpoint time.
