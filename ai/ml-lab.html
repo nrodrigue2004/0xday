@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ml playground :: ~/ai :: 0xDay</title>
+<meta name="description" content="Train a logistic regression or a small neural network in your browser and watch the decision boundary, loss, precision and recall.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../ml.css?v=33c119a0">
+<script src="../ml.js?v=33c119a0" defer></script>
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">python train.py --in-browser</p><h1>~/ai/ml-lab <span class="muted">train a model</span></h1>
+<p>Pick a dataset, pick a model, and press train. Everything runs in your browser: the model is a few lines of JavaScript doing gradient descent, the same loop described in <a href="ml-regression.html">regression</a> and <a href="ml-classifiers.html">classifiers</a>. Two classes of points (green = benign, red = malicious). The background shows what the model predicts everywhere.</p>
+<noscript><p class="callout">The playground needs JavaScript.</p></noscript>
+<div class="ml" id="ml">
+<div class="ml__ctl">
+  <label>dataset <select id="ml-data"><option value="blobs">two blobs (easy)</option><option value="xor">xor corners</option><option value="rings">rings</option><option value="moons">two moons</option></select></label>
+  <label>model <select id="ml-model"><option value="lin">logistic regression (a straight line)</option><option value="nn">neural net (8 hidden units)</option></select></label>
+  <label>learning rate <input id="ml-lr" type="range" min="0.01" max="2" step="0.01" value="0.3"><output id="ml-lro"></output></label>
+  <label>noise <input id="ml-noise" type="range" min="0" max="0.5" step="0.05" value="0.1"><output id="ml-noiseo"></output></label>
+  <label>malicious share <input id="ml-pos" type="range" min="0.05" max="0.5" step="0.05" value="0.5"><output id="ml-poso"></output></label>
+</div>
+<div class="ml__row">
+  <canvas id="ml-cv" width="360" height="360" aria-label="decision boundary plot"></canvas>
+  <div class="ml__side">
+    <p><button class="btn" id="ml-train" type="button">[ train ]</button> <button class="btn" id="ml-step" type="button">[ +50 epochs ]</button> <button class="btn" id="ml-new" type="button">[ new data / reset ]</button></p>
+    <pre class="ml__stats" id="ml-stats" aria-live="polite"></pre>
+    <label>threshold <input id="ml-thr" type="range" min="0.05" max="0.95" step="0.05" value="0.5"><output id="ml-thro"></output></label>
+    <table class="ml__cm"><thead><tr><th></th><th>predicted benign</th><th>predicted malicious</th></tr></thead><tbody>
+      <tr><th>actually benign</th><td id="ml-tn"></td><td id="ml-fp"></td></tr>
+      <tr><th>actually malicious</th><td id="ml-fn"></td><td id="ml-tp"></td></tr></tbody></table>
+    <p class="muted small" id="ml-msg"></p>
+  </div>
+</div>
+</div>
+<h2># things to try</h2>
+<ol>
+<li><strong>Straight line, easy data.</strong> Two blobs plus logistic regression reaches near-perfect accuracy in a few dozen epochs. Watch the loss fall.</li>
+<li><strong>The model that cannot bend.</strong> Switch to rings or xor with logistic regression. No amount of training helps, because a straight line cannot separate them. This is <em>underfitting</em>: the model is too simple.</li>
+<li><strong>Add capacity.</strong> Keep the rings and switch to the neural net. Train a few hundred epochs: the boundary curves around the inner ring.</li>
+<li><strong>Break the learning rate.</strong> Set it to the maximum and train the net. Loss may bounce or stall. Too small and it crawls.</li>
+<li><strong>The accuracy trap.</strong> Drop the malicious share to 5 percent. Accuracy stays high while recall (shown in the stats) falls. Move the threshold down and watch recall rise and precision fall.</li>
+<li><strong>Overfit.</strong> Use moons with noise 0.4 and train the net for 1000+ epochs. Compare train accuracy with test accuracy: the gap is overfitting.</li>
+</ol>
+<p class="muted small">Honest limits: two features, a few hundred points, one hidden layer, fixed seed per dataset. Real security models have hundreds of features and messy labels. Train/test: 70/30 split, test points are drawn with a hollow marker. Chapters: <a href="ml-math.html">math refresher</a> &middot; <a href="ml-regression.html">regression</a> &middot; <a href="ml-classifiers.html">classifiers</a> &middot; <a href="ml-evaluation.html">evaluation</a>.</p>
+<p><a href="../ai.html">cd ~/ai</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

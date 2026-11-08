@@ -1,0 +1,52 @@
+tagline: Predicting a category: logistic regression, nearest neighbors, decision trees and forests, naive Bayes, and a small neural network.
+:: simple
+A **classifier** predicts a category instead of a number: spam or not, malicious or benign, which of five attack families. The model usually outputs a **probability** and you pick a **threshold** (say 0.5) to turn it into a decision.
+
+The simplest classifier is **logistic regression**. It does what linear regression does (a weighted sum of the features) and then squeezes the score through the **sigmoid** curve into a value between 0 and 1. In feature space, that is a straight dividing line (a flat plane in more dimensions): one side is class A, the other is class B.
+
+Other families, in plain words:
+- **k-nearest neighbors**: to classify a new point, find the k most similar training points and let them vote.
+- **Decision tree**: a flowchart of yes/no questions learned from data ("failed logins > 10? new country? ..."). Easy to read.
+- **Random forest**: many different trees voting together. Much more accurate and stable than one tree.
+- **Naive Bayes**: counts how often each word shows up in spam versus normal mail and multiplies the evidence. This is the classic spam filter.
+- **Neural network**: layers of weighted sums with bends between them, able to learn curved boundaries.
+
+Try them on the [ML playground](ml-lab.html): a straight-line model cannot separate two rings of points, a small network can.
+> Pick the simplest model that works. A readable tree or a logistic regression you can explain beats a mysterious one that scores 0.5 percent higher.
+:: mid
+### Logistic regression
+`p = sigmoid(w . x + b)` with `sigmoid(z) = 1 / (1 + e^-z)`. It is trained by gradient descent on **cross-entropy loss**, which punishes confident wrong answers heavily. The weights are interpretable: a positive weight on "failed_logins" means more failures raise the odds of the malicious class. It is a fine, fast baseline, and often the right answer.
+
+### Trees and forests
+A tree picks, at each step, the question that best separates the classes (measured by Gini impurity or entropy) and recurses. Left alone it grows until it memorizes the data, so limit depth or leaf size. A **random forest** trains many trees on random subsets of rows and features and averages them, which cuts variance. **Gradient boosting** (XGBoost, LightGBM) builds trees one after another, each fixing the previous errors, and is often the top performer on tabular security data. Neither needs feature scaling.
+
+### k-NN and naive Bayes
+k-NN needs no training but stores everything and is slow at prediction time; it also requires scaled features. Naive Bayes assumes features are independent given the class (naive, but it works for text) and is quick, tiny and handles little data well.
+
+### A small neural network
+One hidden layer: `h = tanh(W1 x + b1)`, then `p = sigmoid(W2 h + b2)`. Training uses **backpropagation** to get the gradient for every weight, then gradient descent. More hidden units means a more flexible boundary and more risk of overfitting. For images, audio and text, specialized networks (convolutional, transformer) learn their own features from raw input; for rows of tabular logs, trees often win.
+
+### Feature engineering for security data
+Models need numbers. Typical features: URL length, count of digits and special characters, **entropy** of a domain name (random-looking domains from malware have high entropy), hour of day, bytes in versus out, ratio of failed to total logins, days since the account was created. Text becomes numbers with bag-of-words, TF-IDF or embeddings. Good features matter more than the choice of algorithm.
+:: complex
+### Choosing a model
+- Small tabular data and a need to explain decisions: logistic regression or a shallow tree.
+- Larger tabular data, accuracy first: gradient-boosted trees.
+- Text, images, raw bytes, sequences: neural networks, or reuse a pretrained model and fine-tune it.
+- No labels at all: see unsupervised below.
+
+### Unsupervised learning
+Without labels you can still find structure. **k-means** groups points around k centers; **isolation forest** isolates points that are easy to split off, so outliers score high; **autoencoders** learn to reconstruct normal data and flag what they reconstruct badly; **PCA** shrinks dimensions. These power anomaly detection. The catch: "unusual" is not the same as "malicious", so expect many false positives and plan the triage workflow before the model.
+
+### Class imbalance
+Attacks are rare: maybe 0.1 percent of events. A model that says "benign" every time is 99.9 percent accurate and useless. Options: class weights, over- or under-sampling (**only on the training split**), better metrics (next chapter), and choosing the threshold on purpose.
+
+### Calibration and thresholds
+A probability of 0.9 should be right about 90 percent of the time; many models are not calibrated, so check with a reliability plot and recalibrate (Platt scaling, isotonic regression) if you rely on the number. The threshold is a business decision: a missed breach and a false alarm cost different amounts.
+
+### Attacks on classifiers
+- **Evasion**: tweak malware or a phishing page slightly so it crosses the boundary (adversarial examples). Attackers do this by padding files, renaming strings or adding benign content.
+- **Poisoning**: slip mislabeled or crafted samples into the training data.
+- **Model theft / extraction** and **membership inference**: probe the model to copy it or learn whether a record was in training.
+- **Drift**: attacker and normal behavior change, and the model silently decays. Monitor input distributions and retrain on a schedule.
+The chapter [attacking AI](attacking-ai.html) covers these in more detail.

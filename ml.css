@@ -1,0 +1,12 @@
+/* ~/ai/ml-lab */
+.ml__ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px 16px;margin:1rem 0;font-size:.9rem}
+.ml__ctl label{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ml__ctl select{background:var(--panel);color:var(--fg);border:1px solid var(--border);font:inherit;padding:2px 4px;max-width:100%}
+.ml__ctl input[type=range],.ml input[type=range]{accent-color:var(--green)}
+.ml__row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+#ml-cv{width:min(100%,360px);height:auto;aspect-ratio:1;border:1px solid var(--border);border-radius:6px;background:var(--panel)}
+.ml__side{flex:1;min-width:min(100%,260px)}
+.ml__stats{font-size:.82rem;white-space:pre-wrap;border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:8px 12px}
+.ml__cm{border-collapse:collapse;font-size:.82rem;margin:.6rem 0}
+.ml__cm th,.ml__cm td{border:1px solid var(--border);padding:4px 8px;text-align:center}
+.ml__cm td{font-weight:700}

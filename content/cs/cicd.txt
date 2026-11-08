@@ -1,0 +1,146 @@
+tagline: Git workflows, continuous integration and delivery, a real GitHub Actions pipeline, deployment strategies, and securing the pipeline itself.
+:: simple
+**CI/CD** is the habit of automatically building and testing every change, then shipping it with a button (or no button at all).
+- **Continuous integration (CI)**: every push triggers a build and the test suite on a clean machine. Broken code is caught in minutes while the change is still fresh.
+- **Continuous delivery**: every passing change is automatically packaged and ready to release at any moment; a human approves the release.
+- **Continuous deployment**: every passing change goes straight to production with no human step.
+
+The pipeline is a series of **stages**, and a failure stops everything after it:
+
+`commit → build → unit tests → security scan → package → deploy to staging → integration tests → deploy to production`
+
+Why bother: small frequent releases are safer than rare giant ones, humans stop doing repetitive manual deploys, and the pipeline is a written, repeatable record of how software gets built.
+
+Everything starts with **git**. The basic team routine: create a **branch**, commit, push, open a **pull request (PR)**, get a **code review**, wait for CI to go green, **merge**. Protected branches stop anyone from pushing straight to `main`. See the [git guide](../learn/git-github.html).
+
+```
+$ git log --oneline
+```
+:: mid
+### Git workflows
+- **GitHub flow**: short-lived feature branches off `main`, merged by PR. Simple, fits continuous delivery.
+- **Trunk-based development**: everyone merges to `main` at least daily, unfinished work hidden behind **feature flags**. Best for CI.
+- **Git flow**: long-lived `develop`, `release` and `hotfix` branches. Heavy; suits versioned products shipped on a schedule.
+Merge strategies: **merge commit** (keeps history), **squash** (one clean commit per PR), **rebase** (linear history). Never rewrite history others already pulled.
+
+### A real pipeline: GitHub Actions
+```
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: pytest --maxfail=1
+
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install bandit && bandit -r src
+
+  deploy:
+    needs: [test, scan]              # only after both pass
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./deploy.sh
+        env:
+          TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+```
+Concepts: a **workflow** is triggered by **events**; it has **jobs** that run on **runners**; jobs have **steps**; `needs:` orders jobs; **secrets** are injected, never written in the file; **caching** dependencies and **matrix** builds (several Python versions) speed things up. Other tools use the same ideas: GitLab CI, Jenkins, CircleCI, Azure DevOps.
+
+### Artifacts and environments
+Build **once**, promote the same artifact (a container image or package) through dev, staging and production, so what you tested is what ships. Configuration comes from environment variables, not baked into the artifact. **Infrastructure as code** (Terraform, CloudFormation) makes environments reproducible.
+
+### Deployment strategies
+- **Rolling**: replace instances a few at a time.
+- **Blue/green**: run the new version beside the old and flip traffic over; instant rollback by flipping back.
+- **Canary**: send 1-5% of traffic to the new version, watch error rate and latency, then widen.
+- **Feature flags**: ship code dark, turn it on per user or percentage; separates deploy from release.
+Always have a **rollback plan** and watch **metrics** after a deploy (error rate, latency, saturation).
+
+### Containers in one paragraph
+A `Dockerfile` describes an image (base OS, dependencies, your code). CI builds the image, scans it, pushes it to a registry, and the platform (Kubernetes, ECS, Cloud Run) runs it. Pin base image versions, use small images, and do not run as root.
+:: complex
+### DevSecOps: security in the pipeline
+Shift security checks **left**, to where fixing is cheap:
+- **Secret scanning** (gitleaks, GitHub push protection): block committed keys.
+- **SAST** (CodeQL, Semgrep): static analysis of source on every PR.
+- **SCA / dependency scanning** (Dependabot, Renovate, `npm audit`, OSV): known-vulnerable libraries, plus an **SBOM** (CycloneDX, SPDX) listing every component.
+- **Container and IaC scanning** (Trivy, Checkov): vulnerable images, open S3 buckets, `0.0.0.0/0` security groups.
+- **DAST** (OWASP ZAP) against a running staging copy.
+- **Policy as code** (OPA) to enforce rules automatically; **signed artifacts** (Sigstore cosign) and **provenance** (SLSA levels) so production only runs what your pipeline built.
+
+### The pipeline is an attack target
+It holds credentials and can deploy to production, so it is a high-value prize.
+- **Pin actions to a commit SHA**, not a floating tag. The 2025 compromise of a popular GitHub Action leaked secrets from thousands of repos.
+- **Least privilege tokens**: set `permissions:` to read-only by default; use short-lived OIDC tokens to the cloud instead of long-lived keys.
+- Treat PRs from forks as untrusted: `pull_request_target` with a checkout of untrusted code is a known path to secret theft.
+- **Script injection**: `run: echo ${{ github.event.pull_request.title }}` lets a PR title run shell commands; pass values through env vars.
+- Protect branches (required reviews, required status checks, signed commits), separate build and deploy credentials, and log who deployed what.
+- **Supply chain**: typosquatted packages, dependency confusion, compromised maintainers (event-stream, xz). Use lockfiles, hash pinning, private registries and review dependency bumps.
+
+### Measuring delivery: DORA metrics
+**Deployment frequency**, **lead time for changes**, **change failure rate** and **time to restore service**. Elite teams deploy many times per day with low failure rates; speed and stability improve together. Optimize the pipeline's feedback time first: if CI takes 40 minutes, people stop running it.
+
+### Database changes and zero downtime
+Use versioned **migrations** (Flyway, Alembic, Rails migrations). Make changes backward compatible in steps (**expand/contract**): add the new column, deploy code that writes both, backfill, switch reads, then drop the old column. Never ship a code change and an incompatible schema change in one step.
+
+### Interview checks
+- Walk me through what happens between `git push` and code running in production.
+- Difference between continuous delivery and continuous deployment?
+- How do you roll back? What if the change included a database migration?
+- How would you keep secrets out of a pipeline? What if a third-party action is compromised?
+:: lab
+host: ci
+user: student
+cwd: /home/student/pipeline
+:: brief
+The team's `ci.yml` is supposed to deploy only after the tests pass. Yet last Friday a broken build went to production. Read the workflow with `cat ci.yml` and find the problem.
+
+The `deploy` job is missing a line that makes it wait for another job. Submit **the name of the job** it must wait for, e.g. `submit build`.
+:: answer
+test
+:: hint
+In GitHub Actions, the `needs:` key lists jobs that must succeed first. Does the `deploy` job have one?
+:: hint
+There are three jobs: `lint`, `test` and `deploy`. The test job is the one that runs `pytest`.
+:: solution
+`deploy` has no `needs:` key, so all three jobs start at the same time and deploy does not care whether tests pass. Adding `needs: [test]` (and arguably `lint` too) makes it wait for **test** and skip when it fails. Also note the deploy job runs on every branch: add `if: github.ref == 'refs/heads/main'` so feature branches do not deploy.
+:: file /home/student/pipeline/ci.yml
+name: ci
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt
+      - run: pytest
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./deploy.sh production
+        env:
+          TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+:: file /home/student/pipeline/README.txt
+Pipeline definition: ci.yml. Try: cat ci.yml   or   grep -n needs ci.yml

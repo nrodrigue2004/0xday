@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>algorithm analysis and proofs :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, algorithm analysis and proofs: Big-O, Omega, Theta, recurrences, master theorem, amortized cost, loop invariants, NP-completeness.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter analysis</p>
+<h1>~/cs/analysis</h1>
+<p>How to prove what an algorithm costs and that it is correct: asymptotic notation, recurrences and the master theorem, amortized analysis, loop invariants, and NP-hardness at a glance.</p>
+<p class="muted small">CS201: data structures and algorithms in depth · <a href="../courses/CS201.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="cs-analysis">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Algorithm analysis answers two questions: <strong>is it correct</strong> and <strong>how does the work grow</strong> as the input grows. You do not time it on your laptop; you count steps as a function of input size *n*, so the answer holds on any machine.</p>
+<p>The notations:</p>
+<ul><li><strong>O(f)</strong>: grows <strong>no faster than</strong> f (an upper bound). "Linear search is O(n)."</li><li><strong>Ω(f)</strong>: grows <strong>at least as fast as</strong> f (a lower bound). "Comparison sorting is Ω(n log n)."</li><li><strong>Θ(f)</strong>: both, a tight bound. "Merge sort is Θ(n log n)."</li></ul>
+<p>Constants and lower-order terms drop out: 3n² + 10n + 7 is Θ(n²).</p>
+<p>Common growth rates from best to worst: 1, log n, √n, n, n log n, n², n³, 2ⁿ, n!. See <a href="../bigo.html">~/bigo</a> for a visual of how fast they explode.</p>
+<p>Count loops:</p>
+<ul><li>One loop over n items: O(n).</li><li>Loop inside a loop over the same n: O(n²).</li><li>A loop that halves (or doubles) its counter: O(log n).</li><li>Recursion that splits the problem in half and does linear work per level: O(n log n).</li></ul>
+<p>Always say which case you mean: <strong>best, average or worst</strong>. Quicksort is O(n log n) on average and O(n²) in the worst case. Also state <strong>space</strong> used, not only time.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Formal definition</h4>
+<p>f(n) is O(g(n)) if there exist constants c &gt; 0 and n₀ such that f(n) ≤ c·g(n) for all n ≥ n₀. To show 3n² + 10n + 7 is O(n²): for n ≥ 1, 10n ≤ 10n² and 7 ≤ 7n², so f(n) ≤ 20n². Pick c = 20 and n₀ = 1. Done.</p>
+<p>Other useful facts: log_a n and log_b n differ only by a constant, so O(log n) needs no base. Polynomials of higher degree dominate. Exponentials beat any polynomial. n! beats 2ⁿ.</p>
+<h4>Counting loops properly</h4>
+<pre class="ex"><code><span class="o">for i in range(n):          # n times</span>
+<span class="o">    for j in range(i):      # 0, 1, ... n-1 times</span>
+<span class="o">        work()              # total n(n-1)/2 = Θ(n²)</span>
+<span class="o"></span>
+<span class="o">i = 1</span>
+<span class="o">while i &lt; n:                # runs log₂ n times</span>
+<span class="o">    i *= 2</span></code></pre>
+<p>Nested loops are not always n²: if the inner loop runs <code>i</code> times the sum is 0+1+...+(n−1). If the inner loop is O(log n) the total is n log n.</p>
+<h4>Recurrences</h4>
+<p>Divide-and-conquer algorithms have running times like <strong>T(n) = a·T(n/b) + f(n)</strong>: a subproblems each of size n/b, plus f(n) work to split and combine.</p>
+<ul><li>Merge sort: T(n) = 2T(n/2) + n → Θ(n log n).</li><li>Binary search: T(n) = T(n/2) + 1 → Θ(log n).</li><li>Naive Fibonacci: T(n) = T(n−1) + T(n−2) → Θ(φⁿ), exponential.</li></ul>
+<p><strong>Master theorem</strong> (compare f(n) with n^(log_b a)):</p>
+<ol><li>If f(n) is polynomially <strong>smaller</strong>: T(n) = Θ(n^(log_b a)). Example: T(n) = 8T(n/2) + n² → Θ(n³).</li><li>If f(n) is <strong>about equal</strong>: T(n) = Θ(n^(log_b a) · log n). Example: merge sort.</li><li>If f(n) is polynomially <strong>larger</strong> (and regular): T(n) = Θ(f(n)). Example: T(n) = T(n/2) + n → Θ(n).</li></ol>
+<p>You can always fall back on a <strong>recursion tree</strong>: draw the levels, add up the work per level, multiply by the number of levels.</p>
+<h4>Amortized analysis</h4>
+<p>Some operations are usually cheap but occasionally expensive. <strong>Amortized cost</strong> averages over a worst-case *sequence*, no probability involved. A dynamic array that doubles when full: pushes cost 1, except the push that copies n items. Total for n pushes ≤ 3n, so each push is <strong>amortized O(1)</strong>. Methods: aggregate (total ÷ n), accounting (charge each cheap op extra "credit" to pay for the rare expensive one) and potential function.</p>
+<h4>Loop invariants and correctness</h4>
+<p>To prove an iterative algorithm correct show three things about a property that holds at the top of every iteration:</p>
+<ol><li><strong>Initialization</strong>: true before the first iteration.</li><li><strong>Maintenance</strong>: if true before an iteration, still true after.</li><li><strong>Termination</strong>: when the loop stops, the invariant gives the answer you wanted.</li></ol>
+<p>For recursion use <strong>induction</strong>: prove the base case, assume the recursive calls on smaller inputs are correct, prove the whole call is.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Proving a recurrence by substitution</h4>
+<p>Guess T(n) ≤ c·n·log n for T(n) = 2T(n/2) + n. Assume it holds for n/2: T(n) ≤ 2·c(n/2)log(n/2) + n = c·n·log n − c·n + n ≤ c·n·log n whenever c ≥ 1. Fix the base case with a suitable n₀. The guess is proven; never "prove" by only checking small inputs.</p>
+<h4>Lower bounds</h4>
+<ul><li><strong>Comparison sorting</strong>: Ω(n log n) from the decision-tree argument (n! leaves need height log₂(n!)).</li><li><strong>Searching an unsorted list</strong>: Ω(n); you may have to look at every item.</li><li><strong>Adversary arguments</strong>: pretend an adversary answers every query so as to force the most work.</li></ul>
+<p>Matching an upper bound and a lower bound proves an algorithm <strong>optimal</strong> for that model.</p>
+<h4>P, NP and NP-complete in practice</h4>
+<ul><li><strong>P</strong>: solvable in polynomial time (sorting, shortest path, MST).</li><li><strong>NP</strong>: a proposed answer can be <strong>checked</strong> in polynomial time (a sudoku solution, a satisfying assignment, a Hamiltonian path).</li><li><strong>NP-complete</strong>: the hardest problems in NP; if any one has a fast algorithm, all do. SAT, 3-coloring, subset sum, traveling salesman (decision form), clique, vertex cover. Knowing a problem is NP-complete tells you to stop looking for an exact fast algorithm and use heuristics, approximations, small-input DP or SAT solvers.</li><li>Proving a new problem NP-hard: <strong>reduce</strong> a known NP-hard problem to it in polynomial time.</li><li><strong>P vs NP</strong> is unsolved. Modern cryptography assumes certain problems (factoring, discrete log) are hard on average, which is not the same as NP-complete.</li></ul>
+<h4>Beyond worst case</h4>
+<ul><li><strong>Randomized algorithms</strong>: expected time (randomized quicksort is O(n log n) expected for every input) vs always-correct Las Vegas vs sometimes-wrong Monte Carlo (Miller-Rabin primality test).</li><li><strong>Smoothed and average-case analysis</strong>: why simplex and quicksort work well in practice.</li><li><strong>Cache and I/O models</strong>: an O(n) pass over an array beats an O(n) pointer chase by 10× or more because of memory locality. Constants matter once complexity ties.</li><li><strong>Space-time trade-offs</strong>: hash tables, memoization and lookup tables trade memory for speed.</li></ul>
+<h4>Complexity attacks</h4>
+<p>ReDoS (regular expressions with exponential backtracking), hash flooding, quicksort with a predictable pivot, zip bombs and XML entity expansion all abuse the *gap between average and worst case*. When you review code that handles untrusted input, ask what the worst-case input costs, not the typical one.</p>
+<h4>Interview checks</h4>
+<ul><li>State the time and space complexity of every solution you give, unprompted, with the case you mean.</li><li>Solve T(n) = 3T(n/3) + n² with the master theorem. (n² dominates: Θ(n²).)</li><li>Why is building a heap O(n) and not O(n log n)? (Most nodes are near the bottom and sift down only a few levels.)</li><li>Amortized vs average: what is the difference? (Amortized is a guarantee over any sequence; average assumes a distribution.)</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="dp.html">&lt; dynamic programming, greedy and backtracking</a><a href="testing.html">software testing &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

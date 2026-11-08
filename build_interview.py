@@ -10,7 +10,7 @@ import build_learn as L
 import build_careers as C
 
 DIR = "content/interview"
-ORDER = ["homelab", "it-support-lab", "malware-labs", "forensics", "software", "work"]
+ORDER = ["homelab", "it-support-lab", "malware-labs", "forensics", "software", "technical", "work"]
 
 
 def build(page, esc):

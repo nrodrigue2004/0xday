@@ -1,0 +1,179 @@
+## 0
+Q: What does the dot product of a weight vector and a feature vector give you in a model?
+* A weighted sum of the evidence: the score
+- The distance between two points
+- The number of features
+- The learning rate
+? w . x multiplies matching positions and adds them up.
+
+Q: A has shape (4, 3) and B has shape (3, 2). What is the shape of A @ B?
+* (4, 2)
+- (3, 3)
+- (4, 3)
+- (3, 2)
+? The inner sizes must match and disappear.
+
+Q: What does the gradient tell you in training?
+* Which direction increases the loss fastest, so you step the opposite way
+- The best learning rate
+- The number of epochs needed
+- Which features are useless
+? new_w = w - learning_rate * gradient.
+
+Q: What happens if the learning rate is far too large?
+* Steps overshoot and the loss can bounce or diverge
+- Training becomes more accurate
+- Nothing, it only changes speed
+- The model gets regularized
+? Too small and training crawls instead.
+
+Q: Why scale features before gradient descent or nearest neighbors?
+* Features on very different scales dominate the result
+- It makes the labels binary
+- It removes the need for a test set
+- It reduces the number of rows
+? A count in the thousands next to a 0/1 flag distorts distance and slows descent.
+
+## 1
+Q: What loss does ordinary linear regression minimize?
+* Mean squared error
+- Accuracy
+- Cross-entropy
+- Precision
+? The average of the squared gaps between prediction and truth.
+
+Q: Why keep a test set that you do not touch while tuning?
+* To get an honest estimate of performance on unseen data
+- To train faster
+- To increase the training set
+- To avoid scaling features
+? Scores on the training data only show how well the model memorized it.
+
+Q: A model has very low training error and high test error. What is this?
+* Overfitting
+- Underfitting
+- Data drift
+- A bad learning rate only
+? The model learned the noise. More data, simpler models or regularization help.
+
+Q: You are predicting next week's log volume from past weeks. How should you split train and test?
+* By time: train on the past, test on the future
+- Randomly shuffle all rows
+- Put the newest data in training
+- Use only the test set
+? Shuffling leaks the future into training.
+
+Q: What does L2 (ridge) regularization do?
+* Penalizes large weights so the model stays simpler
+- Adds more training data
+- Removes the test set
+- Changes the labels
+? Lambda is a hyperparameter you tune on validation data.
+
+## 2
+Q: What does the sigmoid function do in logistic regression?
+* Squeezes the weighted sum into a probability between 0 and 1
+- Scales the features
+- Chooses the learning rate
+- Counts the classes
+? Then a threshold turns the probability into a decision.
+
+Q: What kind of boundary can plain logistic regression draw?
+* A straight line (a flat plane in more dimensions)
+- Any curve
+- Only circles
+- No boundary
+? That is why it cannot separate two concentric rings without extra features.
+
+Q: Why is a random forest usually better than a single deep tree?
+* Averaging many varied trees reduces variance and overfitting
+- It needs no data
+- It trains with one example
+- Its trees are all identical
+? Each tree sees random rows and features.
+
+Q: Which classic classifier counts how often words appear in spam versus normal mail?
+* Naive Bayes
+- k-means
+- Linear regression
+- PCA
+? It multiplies the evidence from each word, assuming independence.
+
+Q: For a feature that helps spot domains made by a generator, which is a good choice?
+* Character entropy of the domain name
+- The server's color
+- The order of the letters in the alphabet
+- The number of nameservers in a country
+? Random-looking names have higher entropy than human-chosen ones.
+
+## 3
+Q: Attacks are 0.1 percent of events. A model that always says benign scores 99.9 percent accuracy. What does it show?
+* Accuracy is misleading on rare classes
+- The model is excellent
+- The test set is too small
+- The threshold is too high
+? It catches zero attacks. Use precision, recall and the confusion matrix.
+
+Q: Which formula is recall?
+* TP / (TP + FN)
+- TP / (TP + FP)
+- (TP + TN) / all
+- FP / (FP + TN)
+? Of all real attacks, the share the model caught.
+
+Q: Which formula is precision?
+* TP / (TP + FP)
+- TP / (TP + FN)
+- TN / (TN + FP)
+- FN / (TP + FN)
+? When it raises an alarm, how often is it right.
+
+Q: You lower the classification threshold. What usually happens?
+* Recall rises and precision falls
+- Both rise
+- Recall falls and precision rises
+- Nothing changes
+? You catch more attacks and raise more false alarms.
+
+Q: Which is a data leakage example?
+* Using a field recorded after the incident was resolved to predict the incident's outcome
+- Splitting by time
+- Holding out a test set
+- Scaling after splitting
+? Ask of every feature: will I know this at prediction time?
+
+## 4
+Q: In the ML playground, what happens when you train logistic regression on the rings dataset?
+* It stays poor, because a straight line cannot separate the rings
+- It reaches 100 percent
+- It crashes
+- It becomes a neural net
+? This is underfitting: the model is too simple for the data.
+
+Q: Why does the playground's neural net separate the rings?
+* The hidden layer's nonlinearity lets the boundary curve
+- It has more training data
+- It ignores the labels
+- It uses a different threshold
+? Stacked linear layers alone would still be linear.
+
+Q: What is poisoning an ML model?
+* Slipping mislabeled or crafted samples into the training data
+- Lowering the learning rate
+- Raising the threshold
+- Adding a hidden layer
+? It is one of the attacks covered in the attacking-AI chapter.
+
+Q: Why does a deployed detection model need monitoring after launch?
+* Inputs drift as software and attackers change, so performance silently decays
+- Models improve on their own over time
+- Labels never change
+- Thresholds update themselves
+? Retrain on a schedule and watch alert-to-confirmed ratios.
+
+Q: Moons dataset, high noise, neural net trained for 1000+ epochs: train accuracy far above test accuracy. What does this show?
+* Overfitting
+- Underfitting
+- A leakage-free model
+- A perfect model
+? The model memorized noise in the training points.

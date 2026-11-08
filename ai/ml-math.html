@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ML math refresher :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, ML math refresher: Vectors, dot products, matrices and gradients in one short chapter, with Python.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ml-math</p>
+<h1>~/ai/ml-math</h1>
+<p>The linear algebra and slope you need for machine learning, as a short refresher with Python: vectors, dot products, matrices and gradients.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ml-math">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>You do not need a math degree to follow machine learning. You need four ideas, and you can run all of them in Python.</p>
+<p><strong>A vector is a list of numbers.</strong> A login attempt could be <code>[hour, failed_count, new_country]</code> = <code>[3, 12, 1]</code>. Each position is a <strong>feature</strong>. Two vectors of the same length can be added or scaled position by position.</p>
+<p><strong>The dot product</strong> multiplies matching positions and adds: <code>[1,2,3] . [4,5,6] = 1*4 + 2*5 + 3*6 = 32</code>. In ML this means "weigh each feature and add up the evidence". A weight vector <code>w</code> says how much each feature matters, and <code>w . x</code> is the score.</p>
+<p><strong>A matrix is a grid of numbers.</strong> Rows can be examples and columns features. Multiplying a matrix by a vector does one dot product per row, so you score *all* your examples in one step. Neural networks are mostly big matrix multiplications.</p>
+<p><strong>A slope tells you which way is downhill.</strong> Training a model means minimizing an error number. If you know the slope of the error at your current settings, you nudge the settings the opposite way. Repeat. That is <strong>gradient descent</strong>, and all of modern ML rests on it.</p>
+<pre class="ex"><code><span class="o">import numpy as np</span>
+<span class="o">w = np.array([0.5, 2.0, -1.0])   # weights</span>
+<span class="o">x = np.array([3, 12, 1])         # one login attempt</span>
+<span class="o">print(w @ x)                     # dot product = the score: 24.5</span></code></pre>
+<p class="callout">Vector = features. Dot product = weighted evidence. Matrix = many dot products at once. Slope = which way to adjust.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Vectors and distance</h4>
+<p>The <strong>length</strong> (norm) of a vector is the square root of the sum of squares. The <strong>distance</strong> between two points is the length of their difference. Nearest-neighbor methods use exactly this. Features on very different scales (a count in the thousands next to a flag of 0/1) distort distance, so we <strong>scale</strong> features first, for example subtract the mean and divide by the standard deviation.</p>
+<p><strong>Cosine similarity</strong> is the dot product of two vectors divided by both lengths. It measures the angle, not the size, and is how text and embeddings are compared: a value near 1 means "pointing the same way". The chat search on this site uses a text-ranking relative of this idea.</p>
+<h4>Matrices</h4>
+<p>Shapes matter. An <code>(m, n)</code> matrix times an <code>(n, k)</code> matrix gives an <code>(m, k)</code> matrix. The inner sizes must match. A dataset <code>X</code> with 1000 examples and 3 features has shape <code>(1000, 3)</code>; weights <code>w</code> of shape <code>(3,)</code> give predictions <code>X @ w</code> of shape <code>(1000,)</code>. Transpose (<code>X.T</code>) swaps rows and columns. The <strong>identity matrix</strong> <code>I</code> leaves vectors unchanged. Most "shape mismatch" errors in ML code are this rule being broken.</p>
+<h4>Derivatives and the gradient</h4>
+<p>The <strong>derivative</strong> of a function at a point is its slope there. For <code>f(x) = x^2</code> the slope is <code>2x</code>: at <code>x = 3</code> it is 6 (going up to the right), so to decrease <code>f</code> you move left. With many inputs, the <strong>gradient</strong> is the vector of slopes, one per input. It points uphill; you step the opposite way:</p>
+<pre class="ex"><code><span class="o">new_w = w - learning_rate * gradient</span></code></pre>
+<p>The <strong>learning rate</strong> is the step size. Too big and you overshoot and diverge; too small and training crawls.</p>
+<h4>The chain rule</h4>
+<p>If the output depends on <code>g</code>, which depends on <code>x</code>, the slopes multiply: <code>d f(g(x)) / dx = f&#x27;(g(x)) * g&#x27;(x)</code>. <strong>Backpropagation</strong> is just this rule applied layer by layer, working backward from the error to every weight.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>What to understand, not just compute</h4>
+<ul><li><strong>Linear means "weighted sum"</strong>. A linear model draws a straight line (a flat plane in more dimensions) through feature space. Stacking linear layers alone gives another linear model; the <strong>nonlinearity</strong> between layers (ReLU, tanh) is what lets networks bend the boundary.</li><li><strong>Loss surfaces</strong>: for linear regression with squared error the surface is a single bowl (convex), so gradient descent reaches the one minimum. For neural networks the surface is bumpy; you find a *good* point, not a guaranteed best, and different random starts give different models.</li><li><strong>Stochastic / mini-batch gradient descent</strong> estimates the gradient from a small batch of examples. It is noisier but much cheaper per step, and the noise often helps. One pass over the data is an <strong>epoch</strong>.</li><li><strong>Dimensions</strong>: with many features, points are far apart and distance gets less meaningful (the "curse of dimensionality"), and the risk of fitting noise rises. This is why feature choice and regularization matter.</li><li><strong>Eigenvectors / PCA</strong>: the directions along which data varies most; PCA keeps the top few to shrink dimensions or visualize. You will meet it in anomaly detection write-ups. Know what it is for before you know how to derive it.</li></ul>
+<h4>Mini-exercises (run them in Python)</h4>
+<ol><li>Compute the dot product of <code>[2, 0, 1]</code> and <code>[1, 5, 3]</code> by hand, then with NumPy. (5)</li><li>What is the shape of <code>A @ B</code> if <code>A</code> is <code>(4, 3)</code> and <code>B</code> is <code>(3, 2)</code>? What if <code>B</code> is <code>(2, 3)</code>? (<code>(4,2)</code>; error)</li><li>For <code>f(x) = (x - 4)^2</code>, start at <code>x = 0</code> with learning rate 0.1 and do three gradient steps by hand. The gradient is <code>2(x - 4)</code>. (0 -&gt; 0.8 -&gt; 1.44 -&gt; 1.952)</li></ol>
+<h4>Where to go next</h4>
+<p>Free, high-quality material: Khan Academy linear algebra, 3Blue1Brown's "Essence of linear algebra" videos, and the NumPy quickstart. Check the <a href="news.html">AI reading list</a> for dated links. This chapter is a refresher; if a term here feels new, spend an evening with those videos before the next chapter.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="how-ai-works.html">&lt; how it works</a><a href="ml-regression.html">regression &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

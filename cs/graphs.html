@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>graphs :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, graphs: BFS, DFS, topological sort, Dijkstra, union-find, spanning trees, attack-path graphs. Lab: fastest route.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter graphs</p>
+<h1>~/cs/graphs</h1>
+<p>Model networks, dependencies and attack paths as graphs, then run BFS, DFS, topological sort, Dijkstra, union-find and minimum spanning trees on them.</p>
+<p class="muted small">CS201: data structures and algorithms in depth · <a href="../courses/CS201.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="cs-graphs">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>graph</strong> is dots and lines: <strong>vertices</strong> (nodes) joined by <strong>edges</strong>. Computer networks, social networks, road maps, build dependencies and Active Directory permissions are all graphs. Edges can be <strong>directed</strong> (one-way, like a hyperlink or "can log in to") or <strong>undirected</strong> (two-way, like a cable), and can carry a <strong>weight</strong> (distance, latency, cost).</p>
+<p>Two ways to store a graph:</p>
+<ul><li><strong>Adjacency list</strong>: for each vertex, a list of its neighbors. Memory O(V + E). The default choice.</li><li><strong>Adjacency matrix</strong>: a V×V grid with 1 where an edge exists. Memory O(V²), but "is there an edge A to B?" is O(1). Good for dense graphs.</li></ul>
+<p>Two basic ways to explore:</p>
+<ul><li><strong>BFS</strong> (breadth-first search) uses a <strong>queue</strong> and visits everything 1 hop away, then 2 hops, and so on. It finds the <strong>shortest path</strong> when edges are unweighted.</li><li><strong>DFS</strong> (depth-first search) uses a <strong>stack</strong> (or recursion) and goes as deep as it can before backing up. It finds connected components, detects cycles and orders tasks.</li></ul>
+<p>Both take O(V + E). Run both on the same graph in the <a href="../cs/viz.html">visualizer</a> and compare the order the nodes light up.</p>
+<p>In security: BloodHound turns Active Directory into a graph and finds the shortest path from a normal user to Domain Admin. Lateral movement, attack trees and network segmentation reviews are graph problems.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>BFS and DFS</h4>
+<pre class="ex"><code><span class="o">from collections import deque</span>
+<span class="o"></span>
+<span class="o">def bfs(g, start):                 # g = {node: [neighbors]}</span>
+<span class="o">    dist = {start: 0}</span>
+<span class="o">    q = deque([start])</span>
+<span class="o">    while q:</span>
+<span class="o">        u = q.popleft()</span>
+<span class="o">        for v in g[u]:</span>
+<span class="o">            if v not in dist:</span>
+<span class="o">                dist[v] = dist[u] + 1</span>
+<span class="o">                q.append(v)</span>
+<span class="o">    return dist                     # fewest hops to every reachable node</span>
+<span class="o"></span>
+<span class="o">def dfs(g, u, seen=None):</span>
+<span class="o">    seen = seen if seen is not None else set()</span>
+<span class="o">    seen.add(u)</span>
+<span class="o">    for v in g[u]:</span>
+<span class="o">        if v not in seen: dfs(g, v, seen)</span>
+<span class="o">    return seen</span></code></pre>
+<p>Mark nodes <strong>seen when you enqueue/push them</strong>, not later, or you will visit the same node many times.</p>
+<h4>Topological sort</h4>
+<p>A <strong>DAG</strong> (directed acyclic graph) can be laid out in an order where every edge points forward. That is the order to compile files, run build steps or take courses with prerequisites. <strong>Kahn's algorithm</strong>: count each node's in-edges, queue the nodes with zero, repeatedly remove one and decrement its neighbors. If you cannot remove all nodes, there is a <strong>cycle</strong> (circular dependency). DFS can do it too: output nodes in reverse finishing order.</p>
+<h4>Dijkstra's shortest path (weights, no negatives)</h4>
+<pre class="ex"><code><span class="o">import heapq</span>
+<span class="o"></span>
+<span class="o">def dijkstra(g, src):              # g = {u: [(v, w), ...]}</span>
+<span class="o">    dist = {src: 0}</span>
+<span class="o">    pq = [(0, src)]</span>
+<span class="o">    while pq:</span>
+<span class="o">        d, u = heapq.heappop(pq)</span>
+<span class="o">        if d &gt; dist.get(u, float(&quot;inf&quot;)): continue     # stale entry</span>
+<span class="o">        for v, w in g[u]:</span>
+<span class="o">            nd = d + w</span>
+<span class="o">            if nd &lt; dist.get(v, float(&quot;inf&quot;)):</span>
+<span class="o">                dist[v] = nd</span>
+<span class="o">                heapq.heappush(pq, (nd, v))</span>
+<span class="o">    return dist</span></code></pre>
+<p>Greedy idea: the closest unfinished node already has its final distance because all weights are non-negative. Cost O((V + E) log V) with a heap. <strong>Bellman-Ford</strong> (relax every edge V−1 times, O(VE)) handles negative weights and detects negative cycles. <strong>A\</strong>* adds a heuristic estimate of remaining distance to guide the search (maps, games).</p>
+<h4>Union-find (disjoint sets)</h4>
+<p>Tracks which items are in the same group. <code>find(x)</code> returns the group's representative, <code>union(a, b)</code> merges groups. With <strong>path compression</strong> and <strong>union by rank</strong> both operations run in nearly O(1) (inverse Ackermann). Use it for connected components, detecting cycles while adding edges, and Kruskal's algorithm.</p>
+<h4>Minimum spanning tree</h4>
+<p>A <strong>spanning tree</strong> connects every vertex with V−1 edges and no cycles. The <strong>minimum</strong> one has the smallest total weight (cheapest cabling plan). <strong>Kruskal</strong>: sort edges, add each edge that does not form a cycle (check with union-find). <strong>Prim</strong>: grow one tree, always adding the cheapest edge leaving it (heap). Both O(E log V).</p>
+<h4>Which one do I use?</h4>
+<div class="tbl"><table><thead><tr><th>Question</th><th>Algorithm</th></tr></thead><tbody><tr><td>Fewest hops, unweighted</td><td>BFS</td></tr><tr><td>Cheapest path, weights ≥ 0</td><td>Dijkstra</td></tr><tr><td>Weights may be negative</td><td>Bellman-Ford</td></tr><tr><td>Is it connected / how many groups</td><td>DFS or union-find</td></tr><tr><td>Order tasks with dependencies</td><td>Topological sort</td></tr><tr><td>Cheapest way to connect everything</td><td>Kruskal / Prim</td></tr></tbody></table></div><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Why Dijkstra needs non-negative weights</h4>
+<p>If a later edge were negative, a node popped from the heap as "finished" could still be improved through a path found later. The proof of correctness assumes that any unvisited path to the node costs at least as much as the best frontier candidate, and negative weights break that. Use Bellman-Ford, or reweight with <strong>Johnson's algorithm</strong> for all-pairs.</p>
+<h4>All-pairs and flow</h4>
+<ul><li><strong>Floyd-Warshall</strong>: three nested loops over (k, i, j) give all-pairs shortest paths in O(V³). Short and handy for small V.</li><li><strong>Max-flow / min-cut</strong> (Ford-Fulkerson, Edmonds-Karp, Dinic): the most data you can push through a network, and the cheapest set of edges whose removal disconnects source from sink. A min-cut is literally the weakest set of links in a network.</li><li><strong>Strongly connected components</strong> (Tarjan, Kosaraju): groups of nodes that can all reach each other in a directed graph. Collapsing them gives a DAG.</li><li><strong>Bipartite matching</strong>: assign workers to tasks. Checking bipartiteness is a BFS 2-coloring.</li></ul>
+<h4>Graphs in security work</h4>
+<ul><li><strong>Attack paths</strong>: nodes are users, groups, hosts; edges are "member of", "admin on", "has session on". BFS gives the shortest route to Domain Admin, and defenders break the shortest paths first.</li><li><strong>Network segmentation</strong>: min-cut shows which firewall rules actually separate two zones.</li><li><strong>Dependency graphs</strong>: a vulnerable library deep in a transitive dependency tree is a reachability question (software supply chain).</li><li><strong>Malware/function call graphs and control-flow graphs</strong>: reverse engineering tools draw them and find loops with DFS back-edges.</li><li><strong>Threat intel graphs</strong>: IPs, domains, hashes and actors linked by observed relationships; connected components cluster related campaigns.</li></ul>
+<h4>Complexity pitfalls</h4>
+<ul><li>Adjacency matrix BFS is O(V²), not O(V + E).</li><li>Recursive DFS on a path-shaped graph with 10⁶ nodes overflows the stack; use an explicit stack.</li><li>The shortest path problem is easy; the <strong>longest</strong> simple path and the <strong>traveling salesman</strong> problem are NP-hard. Heuristics and approximations take over there.</li></ul>
+<h4>Interview checks</h4>
+<ul><li>Number of islands in a grid: DFS/BFS or union-find, O(rows × cols).</li><li>Course schedule: is there a cycle in the prerequisite graph?</li><li>Word ladder: BFS where nodes are words and edges differ by one letter.</li><li>Clone a graph, detect a cycle in a directed vs undirected graph, find the shortest path in a weighted graph.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>net.txt</code> lists links in a small network, one per line: <code>from to latency_ms</code>. Links work both ways. <code>route.py</code> has a Dijkstra skeleton. Finish the relaxation step, then run it to get the lowest total latency from <code>A</code> to <code>G</code>.</p>
+<p>Submit the <strong>lowest total latency in milliseconds</strong>, e.g. <code>submit 42</code>. A plain hop count would give the wrong route, because the path with the fewest hops is not the fastest one.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="trees.html">&lt; trees, heaps and tries</a><a href="dp.html">dynamic programming, greedy and backtracking &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "graphs", "title": "graphs", "user": "student", "host": "dsa", "brief": "<code>net.txt<\/code> lists links in a small network, one per line: <code>from to latency_ms<\/code>. Links work both ways. <code>route.py<\/code> has a Dijkstra skeleton. Finish the relaxation step, then run it to get the lowest total latency from <code>A<\/code> to <code>G<\/code>.\n\nSubmit the <strong>lowest total latency in milliseconds<\/strong>, e.g. <code>submit 42<\/code>. A plain hop count would give the wrong route, because the path with the fewest hops is not the fastest one.", "hints": ["When you pop <code>(d, u)<\/code>, for every neighbor <code>(v, w)<\/code> compute <code>nd = d + w<\/code>. If <code>nd<\/code> beats <code>dist[v]<\/code>, store it and push <code>(nd, v)<\/code>.", "Remember links are undirected: the loader already adds both directions for you."], "answers": ["4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8"], "solution": "RGlqa3N0cmEgZ2l2ZXMgPGNvZGU+QSAtJmd0OyBCIC0mZ3Q7IEQgLSZndDsgRiAtJmd0OyBHPC9jb2RlPiBmb3IgYSB0b3RhbCBvZiAyICsgMyArIDQgKyAyID0gPHN0cm9uZz4xMSBtczwvc3Ryb25nPi4gVGhlIGRpcmVjdC1sb29raW5nIHJvdXRlIDxjb2RlPkEgLSZndDsgQyAtJmd0OyBHPC9jb2RlPiBoYXMgZmV3ZXIgaG9wcyBidXQgY29zdHMgNiArIDkgPSAxNSBtcy4gQkZTIHdvdWxkIHBpY2sgdGhlIDItaG9wIHBhdGggYW5kIHJlcG9ydCB0aGUgd3JvbmcgYW5zd2VyLCB3aGljaCBpcyB3aHkgd2VpZ2h0ZWQgZ3JhcGhzIG5lZWQgRGlqa3N0cmEuCg==", "fs": {"/home/student/graphs/route.py": "import heapq\nfrom collections import defaultdict\n\ng = defaultdict(list)\nfor line in open(\"/home/student/graphs/net.txt\").read().split(\"\\n\"):\n    if not line.strip():\n        continue\n    a, b, w = line.split()\n    g[a].append((b, int(w)))\n    g[b].append((a, int(w)))\n\ndef dijkstra(src):\n    dist = {src: 0}\n    pq = [(0, src)]\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist.get(u, float(\"inf\")):\n            continue\n        for v, w in g[u]:\n            # TODO: relax the edge u -> v\n            pass\n    return dist\n\nprint(\"A to G:\", dijkstra(\"A\").get(\"G\"))\n", "/home/student/graphs/net.txt": "A B 2\nA C 6\nB D 3\nC G 9\nD F 4\nF G 2\nB C 5\nD E 7\nE G 8\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/graphs", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

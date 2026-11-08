@@ -168,6 +168,8 @@
     (D.guides || []).forEach(g => P("learn " + g.name, "learn/" + g.slug + ".html", "learn"));
     P("ai", "ai.html", "ai"); P("ai reading list", "ai/news.html", "ai");
     (D.ai || []).forEach(c => P("ai " + c.name, "ai/" + c.slug + ".html", "ai"));
+    P("cs", "cs.html", "learn"); P("cs visualizer", "cs/viz.html", "learn");
+    (D.cs || []).forEach(c => P("cs " + c.name, "cs/" + c.slug + ".html", "learn"));
     P("cloud", "cloud.html", "learn");
     (D.cloud || []).forEach(c => P("cloud " + c.name, "cloud/" + c.slug + ".html", "learn"));
     P("history", "history.html", "learn");

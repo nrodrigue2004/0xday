@@ -1,0 +1,48 @@
+tagline: Why a system spread across machines is a different kind of hard: partial failure, slow networks, and no shared clock.
+:: simple
+A **distributed system** is several computers that cooperate over a network so they look like one system to the user. You use them all day: a search engine, a bank, a chat app, a login page backed by three identical servers. We build them for three reasons: **scale** (one machine cannot hold or serve everything), **availability** (when one machine dies the service keeps going) and **distance** (put data near users).
+
+The price is that things you took for granted on one machine stop being true:
+- **Parts fail on their own.** One server can crash while the rest keep running. On a single machine a crash is all-or-nothing. Across machines it is *partial failure*.
+- **The network is slow and unreliable.** A message can be delayed, lost, duplicated or arrive out of order.
+- **There is no shared clock.** Two machines never agree exactly what time it is.
+- **You cannot tell "slow" from "dead".** If a server does not answer, you only know you got no answer. It may have crashed, or the reply may be on its way, or your request never arrived.
+
+That last point drives almost every design in this course. Replication, consensus and retries all exist because you can never be sure.
+
+### Words to know
+- **Node**: one machine or process in the system.
+- **Latency**: how long one message takes. **Throughput**: how much work per second.
+- **Replica**: a copy of the same data on another node.
+- **Partition**: the network splits and two groups of nodes cannot talk to each other (even though everyone is running).
+> If your service asks "did the other server get my message?" and the only way to find out is to ask over the same network, you are doing distributed systems.
+:: mid
+### The eight fallacies
+Peter Deutsch and colleagues at Sun listed assumptions that new distributed-systems programmers make and that are all false: the network is reliable; latency is zero; bandwidth is infinite; the network is secure; topology does not change; there is one administrator; transport cost is zero; the network is homogeneous. Each one has caused real outages. The second and fourth matter most for you: latency is always there, and the network is *not* secure, so every link needs authentication and encryption (TLS, mTLS).
+
+### Failure models
+Pick a failure model before designing, because it decides how hard the problem is.
+- **Crash-stop**: a node works correctly and then stops forever.
+- **Crash-recovery**: a node stops, then comes back, possibly with old state on disk.
+- **Omission**: messages are lost.
+- **Byzantine**: a node lies or is compromised and sends wrong data on purpose. Blockchains and aircraft computers pay a lot to tolerate this. Most business systems assume crash-recovery and trust their own nodes.
+
+### Timeouts and retries
+A timeout is a guess. Too short and you declare healthy nodes dead; too long and users wait. A retry after a timeout may run the operation **twice** (the first request may have worked). So operations that can be retried must be **idempotent**: doing them twice has the same effect as once. "Set balance to 50" is idempotent; "add 10 to balance" is not, unless you attach a unique request ID and remember which ones you already handled. Retries without backoff and jitter also turn a small outage into a **retry storm** that keeps the service down.
+
+### Time and ordering
+Physical clocks drift, and NTP only keeps them within milliseconds on a good day. If you order events by timestamp, a node with a fast clock wins every argument. Leslie Lamport's insight (1978): what matters is **happened-before**. A **Lamport clock** is a counter: increment on each local event, attach it to each message, and on receive set your counter to max(yours, theirs) + 1. If event A caused event B then clock(A) < clock(B), though the reverse is not guaranteed. **Vector clocks** keep one counter per node and can tell "A before B" from "A and B were concurrent".
+:: complex
+### Impossibility results you should be able to explain
+- **Two Generals**: two parties communicating over a lossy channel cannot reach certain agreement that both will attack at the same time, no matter how many acknowledgments they send. Every protocol that uses acks is dealing with this at heart.
+- **FLP (1985)**: in a fully asynchronous system where even one node may crash, no deterministic algorithm can guarantee consensus terminates. Real systems get around it with timeouts (partial synchrony): they stay safe always, and make progress when the network behaves well enough.
+- **CAP** (next chapter): during a partition you must pick between consistency and availability.
+
+### Safety versus liveness
+**Safety**: nothing bad ever happens (two leaders never commit different values). **Liveness**: something good eventually happens (the system eventually elects a leader). Good protocols never trade away safety; they accept losing liveness for a while when the network is bad. When someone says "the cluster is down" during a partition, usually the safety property held and liveness paid the price.
+
+### Observability is part of the design
+You cannot attach a debugger to "the system". You need request IDs that follow a request across services (tracing), logs with node IDs and terms or epochs, and metrics for latency percentiles, not averages. Tail latency (p99) is what users feel when one request fans out to 50 backends: the chance that at least one is slow is high.
+
+### Security angle
+Distributed systems widen the attack surface: east-west traffic between nodes needs mutual authentication; a compromised node should not be able to join the cluster or forge votes; secrets and tokens need rotation; and timing, retry and failover behavior can be abused (forcing leader elections is a denial of service). Treat intra-cluster ports as hostile until proven otherwise.

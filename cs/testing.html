@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>software testing :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, software testing: Test pyramid, TDD, mocks, coverage, property tests and fuzzing. Lab: find the boundary bug.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter testing</p>
+<h1>~/cs/testing</h1>
+<p>Unit, integration and end-to-end tests, test-driven development, mocks, coverage, property and fuzz testing, and how to find a bug with a boundary test.</p>
+<p class="muted small">CS240: software engineering · <a href="../courses/CS240.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="cs-testing">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Testing</strong> means running your code against examples where you already know the right answer, automatically, so you find out something broke in seconds instead of in production. A test suite is the safety net that lets you change code without fear.</p>
+<p>The levels (the <strong>test pyramid</strong>):</p>
+<ul><li><strong>Unit tests</strong>: one function or class in isolation. Hundreds of them, each runs in milliseconds.</li><li><strong>Integration tests</strong>: several parts together, such as your code with a real database or an API call. Dozens.</li><li><strong>End-to-end (E2E) tests</strong>: drive the whole app like a user, through a browser or a real HTTP client. A handful, because they are slow and flaky.</li></ul>
+<p>Many cheap tests at the bottom, few expensive ones at the top.</p>
+<p>What a unit test looks like (Python <code>pytest</code>):</p>
+<pre class="ex"><code><span class="o">def add_tax(price, rate):</span>
+<span class="o">    return round(price * (1 + rate), 2)</span>
+<span class="o"></span>
+<span class="o">def test_add_tax():</span>
+<span class="o">    assert add_tax(100, 0.08) == 108.0</span>
+<span class="o"></span>
+<span class="o">def test_zero_price():</span>
+<span class="o">    assert add_tax(0, 0.08) == 0</span></code></pre>
+<p>Every test follows <strong>arrange, act, assert</strong>: set up the input, call the code, check the result.</p>
+<p>Where bugs hide: <strong>boundaries</strong>. If a rule says "free shipping at 50 dollars or more", test 49.99, 50 and 50.01. Off-by-one errors (<code>&lt;</code> vs <code>&lt;=</code>) are the most common bug in the world.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">python3 -c &quot;print(round(100*(1+0.08),2))&quot;</span><button class="run" type="button" data-cmd="python3 -c &quot;print(round(100*(1+0.08),2))&quot;" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Test-driven development (TDD)</h4>
+<p>A loop: <strong>red</strong> (write a failing test for the next small behavior), <strong>green</strong> (write the least code that passes), <strong>refactor</strong> (clean up with the tests as a safety net). It forces testable design and gives you a regression suite for free. It is a habit, not a religion: use it where the rule is clear.</p>
+<h4>What makes a good test</h4>
+<ul><li><strong>Fast, isolated, repeatable, self-checking</strong>: no ordering between tests, no reliance on the clock, network or a shared database state.</li><li>Tests one behavior, with a name that says which (<code>test_expired_token_is_rejected</code>).</li><li>Fails for exactly one reason, and the failure message explains it.</li><li>Tests behavior through the public interface, not private details, so a refactor does not break it.</li><li><strong>Flaky tests</strong> (pass and fail randomly) are worse than none: people stop trusting red builds. Fix or delete them.</li></ul>
+<h4>Test doubles</h4>
+<p>When the real dependency is slow, random or dangerous (network, database, clock, payment API), swap in a stand-in:</p>
+<ul><li><strong>Stub</strong>: returns canned answers.</li><li><strong>Fake</strong>: a working lightweight version (in-memory database).</li><li><strong>Mock</strong>: also records calls so you can assert "sent exactly one email".</li></ul>
+<pre class="ex"><code><span class="o">from unittest.mock import Mock</span>
+<span class="o">def test_alert_sent():</span>
+<span class="o">    mailer = Mock()</span>
+<span class="o">    notify(mailer, &quot;disk full&quot;)</span>
+<span class="o">    mailer.send.assert_called_once_with(&quot;ops@example.com&quot;, &quot;disk full&quot;)</span></code></pre>
+<p>Over-mocking makes tests pass while the real thing is broken. Mock the boundary of your system, not your own internals.</p>
+<h4>Coverage</h4>
+<p><strong>Line/branch coverage</strong> says which code ran during tests. 100% does not mean correct (it ran, but was it asserted?). Low coverage in a security-critical path, such as authentication, is a red flag. Use it to find untested code, not as a score. <strong>Mutation testing</strong> goes further: it changes your code (flips <code>&lt;</code> to <code>&lt;=</code>) and checks that a test fails; surviving mutants reveal weak tests.</p>
+<h4>Tools you will see</h4>
+<p>Python <code>pytest</code>/<code>unittest</code>, Java <code>JUnit</code>/<code>Mockito</code>, JavaScript <code>Jest</code>/<code>Vitest</code>, browser E2E with <code>Playwright</code>/<code>Cypress</code>, API tests with <code>Postman</code>/<code>curl</code>. Run them with one command in CI (<a href="cicd.html">next chapter</a>).</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Property-based testing and fuzzing</h4>
+<p>Instead of hand-picked examples, state a <strong>property</strong> that must hold for all inputs and let a library generate hundreds of cases (Python <code>hypothesis</code>, JS <code>fast-check</code>, Haskell QuickCheck).</p>
+<pre class="ex"><code><span class="o">from hypothesis import given, strategies as st</span>
+<span class="o">@given(st.lists(st.integers()))</span>
+<span class="o">def test_sort_properties(xs):</span>
+<span class="o">    ys = sorted(xs)</span>
+<span class="o">    assert len(ys) == len(xs)</span>
+<span class="o">    assert all(a &lt;= b for a, b in zip(ys, ys[1:]))</span></code></pre>
+<p>Good properties: round trips (<code>decode(encode(x)) == x</code>), idempotence (<code>sort(sort(x)) == sort(x)</code>), invariants, comparison to a slow but obviously correct version. The library <strong>shrinks</strong> a failing input to the smallest example.</p>
+<p><strong>Fuzzing</strong> is the security cousin: feed huge numbers of malformed or random inputs into a parser and watch for crashes, hangs and memory errors. Coverage-guided fuzzers (AFL++, libFuzzer, Jazzer, Go's built-in fuzzing) mutate inputs that reach new code paths. Most memory-safety CVEs in parsers were found this way. Run a fuzzer in CI on every code path that handles untrusted data.</p>
+<h4>Testing hard things</h4>
+<ul><li><strong>Time and randomness</strong>: inject a clock and a seeded random generator; never call <code>time.now()</code> deep inside logic.</li><li><strong>Databases</strong>: run migrations against a throwaway real database in a container (Testcontainers) rather than mocking SQL.</li><li><strong>Concurrency</strong>: tests can pass 999 times and fail once; use deterministic schedulers, thread sanitizers and stress runs.</li><li><strong>Legacy code with no tests</strong>: first write <strong>characterization tests</strong> that record what the code does today, then refactor.</li><li><strong>Contract tests</strong> (Pact) check that two services agree on an API shape without a full integration environment.</li><li><strong>Snapshot tests</strong> store output and diff it; easy to write, easy to approve blindly.</li></ul>
+<h4>Security testing in the pipeline</h4>
+<p>SAST (static analysis such as CodeQL, Semgrep, Bandit), DAST (scan the running app, OWASP ZAP), dependency scanning (Dependabot, <code>pip-audit</code>, <code>npm audit</code>), secret scanning (gitleaks) and container scanning (Trivy). They catch categories of bugs unit tests do not think of. Treat findings like failing tests: triage, fix or document the exception.</p>
+<h4>Regression tests for bugs</h4>
+<p>When a bug is reported: <strong>first write a failing test that reproduces it</strong>, then fix it. The test stays forever and the same bug cannot return unnoticed. Do this for every security fix too.</p>
+<h4>Interview checks</h4>
+<ul><li>Explain the test pyramid and why E2E-heavy suites become slow and flaky.</li><li>What is the difference between a mock and a stub?</li><li>How would you test a function that sends an email or reads the clock?</li><li>Someone says "we have 90% coverage, so we are safe". Respond.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>shipping.py</code> prices a parcel: up to <strong>and including</strong> 1 kg costs 5, up to and including 5 kg costs 10, anything heavier costs 20. <code>tests.py</code> checks the boundaries and prints a line for each failing case. Run <code>python3 tests.py</code>, find the bug in <code>shipping.py</code>, and fix it.</p>
+<p>Submit the <strong>weight (in kg) that failed</strong> before your fix, e.g. <code>submit 3</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="analysis.html">&lt; algorithm analysis and proofs</a><a href="patterns.html">design patterns and SOLID &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "testing", "title": "software testing", "user": "student", "host": "dev", "brief": "<code>shipping.py<\/code> prices a parcel: up to <strong>and including<\/strong> 1 kg costs 5, up to and including 5 kg costs 10, anything heavier costs 20. <code>tests.py<\/code> checks the boundaries and prints a line for each failing case. Run <code>python3 tests.py<\/code>, find the bug in <code>shipping.py<\/code>, and fix it.\n\nSubmit the <strong>weight (in kg) that failed<\/strong> before your fix, e.g. <code>submit 3<\/code>.", "hints": ["Run <code>python3 tests.py<\/code> and read the FAIL line. Which boundary does it name?", "Compare the comparison operators in <code>shipping.py<\/code> with the words \"up to and including\"."], "answers": ["ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"], "solution": "VGhlIHNlY29uZCB0aWVyIHVzZWQgPGNvZGU+d2VpZ2h0ICZsdDsgNTwvY29kZT4gd2hlcmUgdGhlIHJ1bGUgc2F5cyAidXAgdG8gYW5kIGluY2x1ZGluZyA1Iiwgc28gZXhhY3RseSA8c3Ryb25nPjU8L3N0cm9uZz4ga2cgZmVsbCB0aHJvdWdoIHRvIHRoZSAyMCB0aWVyLiBUaGUgZml4IGlzIDxjb2RlPndlaWdodCAmbHQ7PSA1PC9jb2RlPi4gQSBib3VuZGFyeSB0ZXN0IGNhdWdodCB3aGF0IGFuIGV4YW1wbGUgaW4gdGhlIG1pZGRsZSBvZiB0aGUgcmFuZ2UgKDMga2cpIG5ldmVyIHdvdWxkLiBBZnRlciBmaXhpbmcgaXQsIGFkZCB0aGUgZmFpbGluZyBjYXNlIHRvIHRoZSBzdWl0ZSBzbyB0aGUgYnVnIGNhbm5vdCByZXR1cm4uCg==", "fs": {"/home/student/testing/shipping.py": "def shipping_cost(weight):\n    if weight <= 1:\n        return 5\n    if weight < 5:\n        return 10\n    return 20\n", "/home/student/testing/tests.py": "import sys\nsys.path.insert(0, \"/home/student/testing\")\nfrom shipping import shipping_cost\n\nCASES = [(0.5, 5), (1, 5), (1.01, 10), (3, 10), (5, 10), (5.01, 20), (9, 20)]\nbad = 0\nfor w, want in CASES:\n    got = shipping_cost(w)\n    if got != want:\n        bad += 1\n        print(\"FAIL weight\", w, \"expected\", want, \"got\", got)\nprint(len(CASES) - bad, \"passed,\", bad, \"failed\")\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/testing", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

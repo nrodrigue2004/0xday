@@ -1,0 +1,111 @@
+tagline: How hash tables get O(1) lookups, what happens when keys collide, why load factor matters, and how hashing shows up in Bloom filters, caches and denial-of-service attacks.
+:: simple
+A **hash table** (dictionary, map, set) stores key/value pairs and finds a key in about one step, no matter how many items it holds. It is the most used data structure in everyday code: Python `dict` and `set`, Java `HashMap`, JavaScript `Map` and objects.
+
+How it works:
+1. A **hash function** turns the key into a big integer. Same key always gives the same number.
+2. That number modulo the table size picks a **bucket** (an array slot).
+3. Store or look up the item in that bucket.
+
+Two different keys can land in the same bucket. That is a **collision**, and every hash table needs a plan for it. The two plans:
+- **Chaining**: each bucket holds a small list of the items that landed there.
+- **Open addressing**: if the bucket is taken, probe other slots (the next one, then the next, ...) until you find a free one.
+
+Hash tables give **O(1) average** insert, lookup and delete. They do not keep keys in order, so "give me the smallest key" is O(n). Use the [visualizer](../cs/viz.html) to insert keys and watch collisions form.
+
+```
+$ python3 -c "print(hash('abc') % 8, hash('abd') % 8)"
+```
+(Python randomizes string hashes per run, so the numbers change each time. That is on purpose, see the complex tier.)
+:: mid
+### Chaining
+```
+class ChainTable:
+    def __init__(self, n=8):
+        self.b = [[] for _ in range(n)]
+        self.size = 0
+    def _slot(self, k): return self.b[hash(k) % len(self.b)]
+    def put(self, k, v):
+        s = self._slot(k)
+        for i, (kk, _) in enumerate(s):
+            if kk == k: s[i] = (k, v); return
+        s.append((k, v)); self.size += 1
+        if self.size > 0.75 * len(self.b): self._grow()
+    def get(self, k):
+        for kk, v in self._slot(k):
+            if kk == k: return v
+        raise KeyError(k)
+    def _grow(self):
+        old = [kv for s in self.b for kv in s]
+        self.b = [[] for _ in range(2 * len(self.b))]
+        self.size = 0
+        for k, v in old: self.put(k, v)
+```
+
+### Load factor and resizing
+**Load factor** α = items ÷ buckets. With chaining the average chain length is α, so lookups cost O(1 + α). When α passes a threshold (0.75 is common) the table doubles and **rehashes** every key into the new array. One insert might cost O(n), but doubling makes the **amortized** cost per insert O(1).
+
+### Open addressing
+All items live in the array itself. **Linear probing** tries slot h, h+1, h+2, ... It is cache friendly but suffers **clustering**: long runs of filled slots make later probes longer. **Quadratic probing** and **double hashing** spread probes out. Deletes need a **tombstone** marker, otherwise you break the probe chain for keys stored after the deleted slot. Keep α under about 0.5 to 0.7 or probing gets slow.
+
+### What makes a good hash function
+- **Deterministic**: same key, same hash.
+- **Uniform**: spreads keys evenly across buckets.
+- **Fast** for table use.
+- Keys used in a table must be **immutable** (or hash must not change). That is why Python lists cannot be dict keys but tuples can.
+- If you override `__eq__` you must keep `__hash__` consistent: equal objects must have equal hashes.
+
+### Where hash sets beat everything
+Membership checks (`x in seen`), de-duplication, counting words (`Counter`), two-sum (store `target - x`), caching (`functools.lru_cache`), and joining two datasets by key. Replacing a nested loop with a set lookup is the single most common interview speed-up: O(n²) becomes O(n).
+:: complex
+### Worst case and attacks
+If every key lands in one bucket, the table is a linked list and every operation is O(n). An attacker who knows your hash function can craft keys that all collide: **hash flooding**, a denial-of-service attack found against web frameworks in 2011. The fix is a **keyed hash** with a random per-process secret (SipHash in Python, Rust, Ruby), so the attacker cannot predict buckets. Some languages also convert long chains into balanced trees (Java 8 `HashMap`).
+
+### Cryptographic vs non-cryptographic hashes
+Hash tables use fast non-cryptographic hashes (SipHash, MurmurHash, FNV, xxHash). **Cryptographic hashes** (SHA-256, BLAKE2/3) add three guarantees: preimage resistance (cannot find an input for a hash), second-preimage resistance, and collision resistance. They are much slower. Never use MD5 or SHA-1 where collision resistance matters, and never use a plain fast hash to store passwords (use bcrypt, scrypt or Argon2).
+
+### Bloom filters
+A **Bloom filter** answers "have I seen this?" using a bit array and k hash functions. Insert sets k bits; a query checks them. It can say "definitely not present" or "probably present" (false positives, never false negatives), in far less memory than storing the keys. Used for malicious-URL lists, "is this password in a breach?" pre-checks and database lookups that avoid disk reads. False-positive rate is about (1 - e^(-kn/m))^k for m bits and n items.
+
+### Consistent hashing
+When a cache or database is spread over many servers, `hash(key) % servers` reshuffles nearly every key when you add a server. **Consistent hashing** places servers and keys on a ring; a key belongs to the next server clockwise, so adding a server moves only about 1/N of the keys. Used by Cassandra, DynamoDB and CDNs.
+
+### Perfect hashing, tries and alternatives
+For a fixed key set (reserved words, protocol names) **perfect hashing** gives O(1) with zero collisions. When you need ordered keys or prefix search, use a balanced tree or a **trie** instead. Hash tables also sit behind the file-integrity checks (hashing files with `sha256sum`) you already know from forensics: same idea, a fixed-size fingerprint of arbitrary data.
+:: lab
+host: dsa
+user: student
+cwd: /home/student/hashing
+py: yes
+:: brief
+`collide.py` builds a small hash table with a deliberately weak hash function (it just adds up the character codes). `words.txt` holds 12 hostnames. Finish `bucket_of()` so it returns `hash_weak(word) % 8`, then run the script: it prints the **longest chain**, the number of words that share the most crowded bucket.
+
+Submit the **length of the longest chain**, e.g. `submit 3`.
+:: answer
+6
+:: hint
+`return hash_weak(word) % 8`. Then the script groups words by bucket for you.
+:: hint
+Look at the printed buckets: `srv-a1`, `srv-1a` and `x1a-srv` hold the same characters in a different order, so they always share a bucket.
+:: solution
+Summing character codes ignores order, so any permutation of the same characters collides (`srv-a1`, `srv-1a`, `x1a-srv`), and a few unrelated names happen to add up to the same bucket too. Six hostnames share bucket 2, so the longest chain is **6**. A good hash mixes position into the result (for example multiplying by a prime each step), which is exactly what real hash functions do. Weak hashing is how hash-flooding attacks get started.
+:: verify
+python3 collide.py
+:: file /home/student/hashing/collide.py
+words = open("/home/student/hashing/words.txt").read().split()
+
+def hash_weak(s):
+    return sum(ord(c) for c in s)
+
+def bucket_of(word):
+    # TODO: return the bucket number (0..7)
+    return 0
+
+buckets = {}
+for w in words:
+    buckets.setdefault(bucket_of(w), []).append(w)
+for b in sorted(buckets):
+    print(b, buckets[b])
+print("longest chain:", max(len(v) for v in buckets.values()))
+:: file /home/student/hashing/words.txt
+srv-a1 srv-1a srv-a2 srv-2a web-01 db-main log-01 mail-02 vpn-01 app-77 srv-a1x x1a-srv

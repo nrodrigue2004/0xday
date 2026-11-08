@@ -1,0 +1,64 @@
+tagline: How real systems are structured (layers, monolith vs microservices, APIs, queues, caches), and how to build security into every phase of the software life cycle.
+:: simple
+**Software architecture** is the big-picture structure: the major parts, what each is responsible for, and how they talk. Decisions here are the expensive ones to change later.
+
+The most common starting point is **layers**: a presentation layer (UI or API), a business logic layer (the rules), and a data layer (database). Each layer talks only to the one below it, which keeps responsibilities separate and testable.
+
+Two overall shapes:
+- **Monolith**: the whole application is one deployable program. Simple to build, test and run; one deploy; function calls between parts. It is the right default for small teams.
+- **Microservices**: many small independently deployable services, each owning its data and talking over the network (HTTP/REST, gRPC, message queues). Teams can ship independently and scale parts separately, but you pay with distributed-systems problems: network failures, versioned APIs, tracing across services and operational overhead.
+Start with a **well-structured monolith** and split a service out only when there is a clear reason.
+
+Building blocks you will meet: a **load balancer** spreading traffic over servers, a **cache** (Redis) for fast repeated reads, a **database** (relational or NoSQL), a **message queue** (RabbitMQ, SQS, Kafka) for work done later, a **CDN** for static files, and **monitoring** to see all of it.
+:: mid
+### Quality attributes drive design
+Ask which of these matter most: **performance**, **scalability**, **availability**, **security**, **maintainability**, **cost**. They conflict: caching speeds reads but risks stale data; more replicas add availability but make consistency harder.
+
+### APIs and contracts
+Services meet at an interface. Design it for the callers: stable resource names, versioning (`/v1/`), consistent errors and status codes, pagination, idempotency keys for payments, rate limits, and authentication on every call. Document with **OpenAPI** and test the contract. See [REST and Spring Boot](../learn/rest-apis-and-spring-boot.html) and [APIs and JSON](../basics/apis-rest-json.html).
+
+### Scaling
+- **Vertical**: a bigger machine. Easy, hits a ceiling.
+- **Horizontal**: more machines behind a load balancer. Needs **stateless** servers (no session kept in memory; store it in the database or a shared cache) so any server can handle any request.
+- Databases scale with **read replicas**, **caching**, **sharding** (split rows across servers) and **indexes**.
+- **Queues** smooth spikes: the web request enqueues a job and returns; workers process at their own pace.
+
+### Reliability patterns
+**Timeouts** on every network call, **retries with exponential backoff and jitter** (only for idempotent operations), **circuit breakers** (stop calling a failing dependency), **bulkheads** (isolate resources), **graceful degradation**, health checks, and redundancy across zones. Assume everything fails; design for it.
+
+### Consistency in one paragraph
+A single relational database gives you ACID transactions. Across services you usually get **eventual consistency**: updates propagate with a delay. The **CAP theorem** says that during a network partition a distributed store must choose between consistency and availability. Patterns: **sagas** (a sequence of local transactions with compensating undo steps), the **outbox pattern**, and idempotent consumers.
+
+### Secure SDLC
+Security belongs in every phase, not just at the end:
+1. **Requirements**: security and privacy requirements, compliance (PCI, HIPAA, GDPR).
+2. **Design**: **threat modeling** (STRIDE: spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege), secure design principles.
+3. **Implementation**: secure coding standards, code review, SAST, secret management.
+4. **Testing**: unit tests for abuse cases, fuzzing, DAST, dependency scanning, penetration test.
+5. **Deployment**: hardened configs, least-privilege identities, logging and alerting turned on.
+6. **Maintenance**: patch management, vulnerability disclosure policy, incident response, end-of-life plans.
+Frameworks: **OWASP SAMM**, **BSIMM**, **NIST SSDF (SP 800-218)**, Microsoft SDL.
+:: complex
+### Secure design principles
+Know these cold (also Security+ material): **least privilege**, **defense in depth**, **fail securely** (deny by default, do not leak details in errors), **separation of duties**, **complete mediation** (check authorization on every access), **economy of mechanism** (keep it simple), **open design** (security does not depend on secrecy of the design), **psychological acceptability** (secure paths must be usable), and **secure defaults**.
+
+### Threat modeling a feature
+Draw a **data flow diagram**: external entities, processes, data stores, data flows, and **trust boundaries** (where privilege or ownership changes). For each element and each boundary crossing, walk through STRIDE and list threats, then rate (DREAD or a simple likelihood × impact), choose mitigations (validation, authentication, encryption, rate limiting, logging) and write tests for them. Example: login form → API → user database. Spoofing: credential stuffing → rate limiting, MFA. Tampering: modified JWT → verify signature, pin algorithm. Information disclosure: verbose errors → generic message plus server log. Do this in design review, when changes are cheap.
+
+### Common architectural security flaws
+Missing authorization on internal endpoints ("it is only called from the front end"), trusting the client, one shared database credential with full rights, secrets in config files in the repository, flat networks where one compromised service reaches everything, no audit logging, unauthenticated admin panels, sensitive data stored forever. **Zero trust** answers with: authenticate and authorize every request, between services too, using short-lived identity (mutual TLS, workload identity).
+
+### Observability
+Three signals: **logs** (events), **metrics** (numbers over time) and **traces** (one request's path through many services). Add correlation IDs and structured JSON logs. Define **SLIs/SLOs** (service level indicators and objectives, such as 99.9% of requests under 300 ms) and alert on symptoms users feel. Security needs the same data: audit logs feed the SIEM and incident response.
+
+### Documenting architecture
+The **C4 model** gives four zoom levels: system context, containers, components, code. Pair diagrams with ADRs ([agile chapter](agile.html)) so people know both the structure and why. Keep them in the repository.
+
+### Evolving a system
+Refactor toward a design instead of rewriting: the **strangler fig** pattern routes traffic to new components one slice at a time while the old system shrinks. Modularize the monolith (clear module boundaries, no cross-module database reads) so a later split is possible. Rewrites usually take longer than planned and lose hard-won behavior.
+
+### Interview checks
+- Monolith or microservices for a three-person team? Defend your answer.
+- Design a URL shortener or a login system: requirements, data model, API, scaling, failure modes, security.
+- What is idempotency and why do payment APIs require it?
+- Walk through STRIDE for a file-upload feature.

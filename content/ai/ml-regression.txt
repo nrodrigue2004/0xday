@@ -1,0 +1,50 @@
+tagline: Fitting a line to data: linear regression, the loss, gradient descent, overfitting and why you hold out a test set.
+:: simple
+**Machine learning** replaces hand-written rules with a model fitted to examples. The simplest supervised kind is **regression**: predict a number from other numbers.
+
+Example: you have 50 past incidents with `(number of affected hosts, hours to contain)`. Plot them and draw the straight line that passes closest to all the points. Now for a new incident with 30 hosts you can read off an estimate. That line is a **linear regression model**: `hours = w * hosts + b`. The slope `w` and intercept `b` are the **parameters** the machine learned.
+
+How does it find the best line? It needs a number that says how wrong a line is. For each example take the gap between the prediction and the real value, square it, and average them. That is the **mean squared error (MSE)**, the **loss**. Training means changing `w` and `b` to make the loss small.
+
+The three words to keep: **features** (inputs), **labels** (the right answers), **model** (the formula with adjustable numbers). Learning from labeled examples is **supervised learning**.
+> A model never "understands" anything. It finds numbers that make a loss small on the data you gave it. Everything else follows from that sentence.
+:: mid
+### Gradient descent on a line
+Start with any `w` and `b` (for example 0). Compute the loss, then the slope of the loss for each parameter, then take a small step downhill:
+```
+for epoch in range(1000):
+    pred = w * X + b
+    err = pred - y
+    w -= lr * (2 * (err * X).mean())
+    b -= lr * (2 * err.mean())
+```
+The learning rate `lr` sets the step. If the loss goes up or turns into `nan`, it is too large. For plain linear regression there is also a direct formula (the normal equation) that jumps to the answer, and `scikit-learn`'s `LinearRegression` uses linear algebra for that. Gradient descent matters because it works for models that have no formula, including neural networks. Play with this on the [ML playground](ml-lab.html).
+
+### Many features
+With several features the model is a dot product: `y = w . x + b`. The same code works with `X` as a matrix and `w` as a vector (see the math refresher). **Scale your features** (mean 0, spread 1), or gradient descent zigzags because one feature's units dwarf the others.
+
+### Train, validation, test
+If you check the model on the same data it learned from, you only learn how well it memorized. So split the data:
+- **Train** (about 70 to 80 percent): fit the parameters.
+- **Validation**: compare model choices and settings.
+- **Test**: touch once at the end for an honest score.
+Time-ordered data (logs, incidents) must be split **by time** (train on the past, test on the future), not shuffled, or you leak the future into training.
+
+### Overfitting and underfitting
+A line too simple for the data **underfits** (high error everywhere). A model with too many knobs (a degree-15 polynomial, a huge tree) can pass through every training point and **overfit**: low training error, high test error, because it learned the noise. The fix menu: more data, fewer or simpler features, **regularization** (penalize large weights so the model stays simple), early stopping, and cross-validation to measure honestly.
+:: complex
+### Regularization, in one equation
+Ridge (L2) adds `lambda * sum(w^2)` to the loss, which shrinks weights toward zero and is stable when features are correlated. Lasso (L1) adds `lambda * sum(|w|)` and tends to push some weights exactly to zero, acting as feature selection. `lambda` is a **hyperparameter**: you set it, you do not learn it, and you tune it on the validation set.
+
+### Bias, variance, and the honest error
+Expected test error splits into **bias** (the model family is too simple, systematic miss), **variance** (the fit changes wildly with different training samples) and **irreducible noise** (no model removes it). More complexity lowers bias and raises variance, which is the shape behind the overfitting curve. Learning curves (error versus training-set size) tell you whether more data will help: if train and validation error have converged high, you need a better model, not more data.
+
+### Diagnostics that catch real mistakes
+- **Residual plots**: if the errors show a pattern instead of noise, the model is missing structure (a curve, an interaction).
+- **Outliers** pull a squared-error fit hard; consider robust losses or inspect those rows.
+- **Leakage**: a feature that secretly contains the answer (the ticket's "resolved_at" used to predict resolution time) gives a gorgeous test score and a useless model. Ask of each feature: *will I know this at prediction time?*
+- **Extrapolation**: a model fitted on 5 to 50 hosts says nothing reliable about 5,000.
+- **Correlation is not cause**: regression finds association in the data you have.
+
+### Security uses
+Forecasting capacity and log volume, estimating time-to-contain, scoring risk, baselining normal traffic per host so that big deviations stand out. For anomalies, a regression baseline plus a threshold on the residual is a cheap first detector.

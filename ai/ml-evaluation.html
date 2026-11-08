@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>evaluating models :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, evaluating models: Confusion matrix, precision and recall, the base-rate trap. Lab: read a classifier honestly.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ml-evaluation</p>
+<h1>~/ai/ml-evaluation</h1>
+<p>Judging a model honestly: the confusion matrix, precision and recall, thresholds, ROC curves, the base-rate trap and data leakage.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="ml-evaluation">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>You trained a classifier. Is it good? "It's 99 percent accurate" is almost never the right answer to give.</p>
+<p>Count every prediction in one of four boxes (the <strong>confusion matrix</strong>), taking "malicious" as the thing we look for:</p>
+<ul><li><strong>True positive (TP)</strong>: said malicious, was malicious. Caught.</li><li><strong>False positive (FP)</strong>: said malicious, was fine. A false alarm.</li><li><strong>False negative (FN)</strong>: said fine, was malicious. A miss.</li><li><strong>True negative (TN)</strong>: said fine, was fine.</li></ul>
+<p>Two numbers matter most:</p>
+<ul><li><strong>Precision</strong> = TP / (TP + FP): when the model raises an alarm, how often is it right?</li><li><strong>Recall</strong> = TP / (TP + FN): of all the real attacks, what share did it catch?</li></ul>
+<p><strong>Accuracy</strong> = (TP + TN) / everything. When attacks are rare it hides the truth: a model that never alerts is 99.9 percent accurate and catches nothing.</p>
+<p class="callout">Ask two questions of every detector. How many real attacks does it miss? How many alerts does an analyst have to waste time on?</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>F1 and the threshold trade-off</h4>
+<p><strong>F1</strong> = 2 * precision * recall / (precision + recall), a single score that is low if either is low. A model gives scores, and you choose the <strong>threshold</strong>: lower it and you catch more attacks (recall up) but raise more false alarms (precision down). Raise it and the reverse. There is no free setting; pick it from the cost of a miss versus the cost of an alert. In a SOC, alert fatigue is a real cost, because ignored alerts are how breaches slip through.</p>
+<h4>ROC and AUC</h4>
+<p>Sweep the threshold from 0 to 1 and plot <strong>true positive rate</strong> (recall) against <strong>false positive rate</strong> (FP / (FP + TN)). That is the <strong>ROC curve</strong>. The area under it (<strong>AUC</strong>) is the chance that a random malicious example scores higher than a random benign one: 0.5 is a coin flip, 1.0 is perfect. For very rare positives, a <strong>precision-recall curve</strong> is more informative than ROC because ROC's false positive rate looks tiny when negatives are huge.</p>
+<h4>The base-rate trap</h4>
+<p>Suppose 1 in 1,000 events is malicious, and your model has 99 percent recall and a 1 percent false positive rate. Out of 100,000 events: 100 attacks (99 caught), 99,900 benign (999 false alarms). Of 1,098 alerts only 99 are real, so <strong>precision is about 9 percent</strong>. Great-sounding rates can still bury analysts. Always compute precision at the real-world base rate.</p>
+<h4>Splitting right</h4>
+<ul><li>Hold out a <strong>test set</strong> you do not touch while tuning.</li><li><strong>Cross-validation</strong> (k folds) gives a steadier estimate on small data.</li><li>For logs or incidents, split <strong>by time</strong>. For users or hosts, keep all of one entity in the same split.</li><li>Duplicates between train and test (the same malware family, near-identical phishing emails) inflate scores. Group by family or campaign.</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Data leakage checklist</h4>
+<p>Leakage is when information from the answer slips into the features or from the test set into training. Typical causes: a feature computed after the event (a "blocked" flag), scaling or imputing on the whole dataset before splitting, tuning on the test set repeatedly, the same sample in both splits, and labels derived from the same rule the model then re-learns. If a result looks too good, assume leakage first.</p>
+<h4>Offline metrics are not production metrics</h4>
+<ul><li><strong>Drift</strong>: input data shifts (new software, new attacker tools, a company reorg) and the score drops without any code change. Monitor feature distributions and the alert-to-confirmed ratio, and set retraining triggers.</li><li><strong>Label delay and bias</strong>: you only learn the truth for alerts someone investigated, so the labels you collect are biased toward what the old system flagged.</li><li><strong>Feedback loops</strong>: if analysts only review what the model flagged, the model never sees its misses.</li><li><strong>Adversarial pressure</strong>: your test set does not include an attacker who is trying to beat you. Keep a red-team set and re-score on it.</li></ul>
+<h4>Regression metrics</h4>
+<p>For numeric predictions: <strong>MAE</strong> (mean absolute error, in the units of the target, robust to outliers), <strong>RMSE</strong> (punishes big errors), <strong>R squared</strong> (the share of variance explained, can be misleading out of sample). Always compare to a dumb baseline such as predicting the mean, yesterday's value, or "benign".</p>
+<h4>Reporting like a professional</h4>
+<p>State the data window, the split method, the base rate, the metrics at the chosen threshold with confidence intervals if you can (bootstrapping works), and the baseline you beat. Include failure cases you looked at by hand. A model card (what it is for, what data, known limits) is the short document that lets someone else trust or reject your work.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>A teammate trained a phishing-email classifier and says it is "good enough: 85 percent accurate". You are given its predictions on a labeled test set in <code>~/model/predictions.csv</code> (columns: <code>actual</code>, <code>predicted</code>).</p>
+<p>Work out the model's <strong>recall</strong> on the <code>phish</code> class, as a whole-number percent (for example <code>60</code>). That is the share of real phishing emails it actually caught.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="ml-classifiers.html">&lt; classifiers</a><a href="ai-chatbot.html">the chatbot &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "ml-evaluation", "title": "evaluating models", "user": "analyst", "host": "soc-ml", "brief": "A teammate trained a phishing-email classifier and says it is \"good enough: 85 percent accurate\". You are given its predictions on a labeled test set in <code>~/model/predictions.csv<\/code> (columns: <code>actual<\/code>, <code>predicted<\/code>).\n\nWork out the model's <strong>recall<\/strong> on the <code>phish<\/code> class, as a whole-number percent (for example <code>60<\/code>). That is the share of real phishing emails it actually caught.", "hints": ["Recall = TP / (TP + FN). Count the rows where <code>actual<\/code> is <code>phish<\/code>: <code>grep -c &quot;^phish,&quot; ~/model/predictions.csv<\/code>.", "TP is the rows <code>phish,phish<\/code>; FN is <code>phish,ok<\/code>. Use <code>grep -c &quot;^phish,phish&quot; ~/model/predictions.csv<\/code>, then divide."], "answers": ["f369cb89fc627e668987007d121ed1eacdc01db9e28f8bb26f358b7d8c4f08ac"], "solution": "VGhlcmUgYXJlIDggcmVhbCBwaGlzaCBlbWFpbHM7IHRoZSBtb2RlbCBjYXVnaHQgNiAoPGNvZGU+cGhpc2gscGhpc2g8L2NvZGU+KSBhbmQgbWlzc2VkIDIgKDxjb2RlPnBoaXNoLG9rPC9jb2RlPiksIHNvIHJlY2FsbCBpcyA2LzggPSA8c3Ryb25nPjc1IHBlcmNlbnQ8L3N0cm9uZz4uIFByZWNpc2lvbiBpcyA2LzcgPSA4NiBwZXJjZW50ICgxIGJlbmlnbiBlbWFpbCB3YXMgZmxhZ2dlZCksIGFuZCBhY2N1cmFjeSBpcyAxNy8yMCA9IDg1IHBlcmNlbnQsIHdoaWNoIGlzIHRoZSB0ZWFtbWF0ZSdzIGhlYWRsaW5lIG51bWJlci4gT24gYSByYXJlLWNsYXNzIHByb2JsZW0gYSBnb29kLWxvb2tpbmcgYWNjdXJhY3kgbnVtYmVyIGNhbiBoaWRlIGEgcG9vciByZWNhbGwsIHdoaWNoIGlzIHdoeSB5b3UgYWx3YXlzIHJlYWQgdGhlIGNvbmZ1c2lvbiBtYXRyaXggZmlyc3QuCg==", "fs": {"/home/analyst/model/predictions.csv": "actual,predicted\nphish,phish\nphish,phish\nphish,ok\nok,ok\nok,ok\nok,phish\nphish,phish\nok,ok\nok,ok\nphish,phish\nok,ok\nok,ok\nphish,ok\nok,ok\nok,ok\nphish,phish\nok,ok\nok,ok\nphish,phish\nok,ok\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
