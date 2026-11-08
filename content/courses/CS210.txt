@@ -1,0 +1,199 @@
+## 0
+Q: A 12 V supply is connected across a 4 kilohm resistor. What current flows?
+* 3 mA
+- 48 mA
+- 0.33 A
+- 3 A
+? I = V / R = 12 / 4000 = 0.003 A.
+
+Q: A resistor drops 5 V while 2 mA flows through it. What is its resistance?
+* 2.5 kilohms
+- 10 kilohms
+- 250 ohms
+- 0.4 kilohms
+? R = V / I = 5 / 0.002 = 2500 ohms.
+
+Q: A device runs on 12 V and draws 0.5 A. How much power does it use?
+* 6 W
+- 24 W
+- 2 W
+- 0.04 W
+? P = V x I = 12 x 0.5 = 6 W.
+
+Q: Which is the best description of voltage?
+* The electrical push (potential difference) between two points
+- The amount of charge flowing per second
+- How much a material resists current
+- The energy a battery has stored
+? Current is the flow, measured in amperes. Resistance is the opposition, in ohms. Voltage is what drives the current.
+
+Q: In a series circuit the current is the same through every part. What is the same in a parallel circuit?
+* The voltage across each branch
+- The current in each branch
+- The resistance of each branch
+- The power in each branch
+? Branches share the same two nodes, so each has the same voltage. Their currents add up.
+
+Q: Which unit measures resistance?
+* Ohm
+- Volt
+- Watt
+- Farad
+? Volt is for voltage, watt for power and farad for capacitance.
+
+## 1
+Q: Three resistors of 100, 220 and 330 ohms are wired in series. What is the total resistance?
+* 650 ohms
+- 55 ohms
+- 100 ohms
+- 220 ohms
+? Series resistances add: 100 + 220 + 330 = 650.
+
+Q: Two 100 ohm resistors are wired in parallel. What is the total resistance?
+* 50 ohms
+- 200 ohms
+- 100 ohms
+- 25 ohms
+? For two equal resistors in parallel the total is half of one. In general 1/R = 1/R1 + 1/R2.
+
+Q: A 60 ohm and a 30 ohm resistor are in parallel. What is the combined resistance?
+* 20 ohms
+- 90 ohms
+- 45 ohms
+- 10 ohms
+? Product over sum: (60 x 30) / (60 + 30) = 1800 / 90 = 20. It is always lower than the smallest branch.
+
+Q: A 5 V supply drives an LED with a 2 V forward drop at 10 mA. What series resistor is needed?
+* 300 ohms
+- 500 ohms
+- 200 ohms
+- 3 kilohms
+? The resistor drops 5 - 2 = 3 V at 10 mA, so R = 3 / 0.01 = 300 ohms. Pick the next standard value, 330 ohms.
+
+Q: Why must an LED always have a series resistor (or a current-limited source)?
+* Past its forward voltage its resistance is very low, so current would rise until it burns out
+- LEDs need to be dimmed
+- Resistors make LEDs brighter
+- It isn't needed on 5 V
+? An LED isn't like a resistor: a small voltage increase causes a large current increase.
+
+Q: A voltage divider has 9 V in, a 6 kilohm resistor on top and a 3 kilohm resistor on the bottom. What is Vout across the bottom resistor?
+* 3 V
+- 6 V
+- 4.5 V
+- 1 V
+? Vout = Vin x R2 / (R1 + R2) = 9 x 3 / 9 = 3 V.
+
+Q: How do you measure the current in a circuit with a multimeter?
+* In series: break the circuit and put the meter in the path
+- In parallel across the component
+- With the circuit unpowered, across the supply
+- You can't measure current
+? Voltage is measured in parallel. An ammeter has almost no resistance, so putting it across a supply makes a short circuit.
+
+Q: On a solderless breadboard, which holes are connected?
+* The five holes in each short row on one side of the center gap
+- The ten holes in each long column
+- Every hole on the board
+- Alternating rows
+? The long power rails along the edges run lengthwise. The center gap isolates the two halves so chips straddle it.
+
+## 2
+Q: Order these by speed, fastest first.
+* Registers, L1 cache, RAM, SSD
+- RAM, registers, SSD, L1 cache
+- L1 cache, registers, SSD, RAM
+- SSD, RAM, L1 cache, registers
+? Each step down the memory hierarchy is larger and slower. Caches work because programs reuse nearby data.
+
+Q: What is the correct order of the CPU's basic cycle?
+* Fetch, decode, execute
+- Decode, fetch, execute
+- Execute, fetch, decode
+- Fetch, execute, decode
+? The program counter gives the instruction's address, the CPU fetches it, decodes it, then executes it.
+
+Q: What does the program counter hold?
+* The address of the next instruction to fetch
+- The result of the last arithmetic operation
+- The number of running programs
+- The stack size
+? Jumps and calls work by changing it. Overwriting it with an attacker's address is what many exploits aim for.
+
+Q: What is the main difference between RAM and an SSD?
+* RAM is volatile and much faster; the SSD keeps data without power
+- RAM is non-volatile
+- SSDs are faster than RAM
+- They are the same technology
+? Both lose speed to distance: RAM access is around 100 ns and an SSD read around 100,000 ns.
+
+Q: What does DMA (direct memory access) let a device do?
+* Move data to or from RAM without the CPU copying every byte
+- Run code in kernel mode
+- Bypass the page table to hide malware
+- Overclock the CPU
+? The CPU only starts the transfer and gets an interrupt at the end. It is also why a malicious device on Thunderbolt or PCIe can read memory unless an IOMMU limits it.
+
+Q: How much memory can a 32-bit address reach?
+* 4 GiB
+- 32 GiB
+- 2 GiB
+- 64 GiB
+? 2^32 bytes = 4 GiB. 64-bit addresses allow vastly more in theory.
+
+Q: Why do CPU caches speed up programs?
+* Programs tend to reuse recent data and nearby data (locality)
+- Caches are bigger than RAM
+- Caches are non-volatile
+- The OS forces data into them
+? Walking an array in order uses cache lines well; jumping around misses constantly.
+
+Q: Which interface does a typical NVMe SSD use to connect to the system?
+* PCIe
+- SATA
+- USB 2.0
+- IDE
+? NVMe talks over PCIe lanes and is much faster than SATA SSDs, which use an interface designed for hard disks.
+
+## 3
+Q: What happens first when a PC powers on?
+* The firmware runs a power-on self test (POST) and initializes hardware
+- The OS kernel loads
+- The login screen appears
+- The bootloader reads the registry
+? Firmware (UEFI or legacy BIOS) hands off to a bootloader, which loads the OS.
+
+Q: What does UEFI Secure Boot do?
+* Only lets the firmware start bootloaders signed with a trusted key
+- Encrypts the whole disk
+- Blocks all USB devices
+- Scans files for viruses
+? It is aimed at bootkits. It does not protect data at rest.
+
+Q: What is a TPM mainly used for?
+* Securely storing keys and measuring boot state so keys release only on a trusted boot
+- Speeding up encryption only
+- Blocking network attacks
+- Storing user passwords
+? BitLocker can seal the disk key to the TPM so a modified boot chain doesn't release it.
+
+Q: What is a bootkit?
+* Malware that infects the boot process so it runs before the OS and security tools
+- A tool for installing operating systems
+- A type of ransomware
+- A Linux bootloader
+? Because it loads first, it can hide from the OS. Secure Boot and measured boot are the main defenses.
+
+Q: Which disk partition scheme is needed for drives larger than 2 TiB (with 512-byte sectors) and is used by UEFI systems?
+* GPT
+- MBR
+- FAT32
+- ext4
+? MBR uses 32-bit sector addresses (2 TiB limit with 512-byte sectors). GPT uses 64-bit addresses and keeps a backup header.
+
+Q: An attacker with brief physical access reboots a laptop from a USB stick to read the disk. Which two controls most directly stop this?
+* Full-disk encryption and a firmware password with a locked boot order
+- A stronger Wi-Fi password and a screen saver
+- More RAM and a faster CPU
+- A VPN and an antivirus
+? Without the key the disk is unreadable; locking the boot order stops easy booting from external media.

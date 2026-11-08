@@ -512,6 +512,10 @@ HUB += build_hlops.build(page, esc)
 import build_arcade
 HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet, bits", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
+import build_sims
+build_sims.build(page, esc)
+HUB.insert(2, ("ossim", "ossim.html", "scheduler, paging and Banker's simulators", "3 tools"))
+HUB.insert(3, ("dbsim", "dbsim.html", "normal forms, index vs scan, serializability", "3 tools"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
 HUB.insert(0, ("start", "start.html", "ordered roadmap with progress", "start here"))
