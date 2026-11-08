@@ -1,0 +1,286 @@
+{
+  "_help": "Capstones. capstones[] -> {code, name, pre[] (must exist in courses.json), pre_want[] (used only if the course exists), blurb, hours, brief[], phases[{t, items[], links[{t,h}]}], rubric[], extras?}. Each item is a checkbox; the capstone is complete when every item is ticked. Item key = CODE.<flat index>, so never reorder items without accepting that saved ticks shift. Progress lives in localStorage oxday-courses under 'cap'.",
+  "capstones": [
+    {
+      "code": "CAP400",
+      "name": "Blue capstone: investigate a breach",
+      "pre": ["BLU300"],
+      "pre_want": ["BLU310"],
+      "blurb": "Work a full simulated intrusion from the raw evidence to a written incident report.",
+      "hours": 12,
+      "case": "cap400-case-file.html",
+      "brief": [
+        "You are the on-call analyst at a fictional company, Brightwater Logistics. At 12:09 UTC the SOC isolated a file server after a ransomware precursor fired. Your job is to find out how the attacker got in, what they touched, what left the network, and what to change so it does not happen again.",
+        "The evidence is a case file of email, proxy, endpoint, authentication, DNS and firewall logs. Everything in it is invented and uses reserved example domains and documentation IP ranges. Work it like a real ticket: build a timeline first, form hypotheses, and only then write conclusions.",
+        "Do the investigation before opening the answer key at the bottom of the case file. The report is the deliverable, not the answers."
+      ],
+      "phases": [
+        {
+          "t": "1. Triage and scope",
+          "items": [
+            "Read the whole case file once without taking notes, then list every host, account and external address that appears",
+            "Write a one-paragraph problem statement: what was detected, when, and what you are trying to prove",
+            "Pick a timestamp convention (UTC) and record it at the top of your timeline"
+          ],
+          "links": [
+            {"t": "~/learn: incident response", "h": "learn/incident-response.html"},
+            {"t": "~/learn: log analysis", "h": "learn/log-analysis.html"}
+          ]
+        },
+        {
+          "t": "2. Build the timeline",
+          "items": [
+            "Merge every log source into one timeline sorted by time, one line per event, with the source named",
+            "Mark the first malicious event (initial access) and the last one you can see",
+            "Identify patient zero: the first host and account that were compromised",
+            "Calculate dwell time from initial access to containment"
+          ],
+          "links": [
+            {"t": "~/drills: parse logs with pipes", "h": "drills/parse-logs-with-pipes.html"},
+            {"t": "~/drills: regex for logs", "h": "drills/regex-for-logs.html"},
+            {"t": "~/learn: phishing analysis", "h": "learn/phishing-analysis.html"}
+          ]
+        },
+        {
+          "t": "3. Analyze the attack",
+          "items": [
+            "Explain the initial access vector and show the evidence for it",
+            "Identify the command-and-control infrastructure (domains and IPs) and the beacon interval",
+            "Show how credentials were stolen and which account was abused afterwards",
+            "Trace lateral movement hop by hop, naming the protocol used for each",
+            "Identify persistence on any host",
+            "Quantify data exfiltration: destination, volume, and which host it came from",
+            "Describe the impact that was attempted and whether it succeeded"
+          ],
+          "links": [
+            {"t": "~/learn: network traffic analysis", "h": "learn/network-traffic-analysis.html"},
+            {"t": "~/learn: memory forensics", "h": "learn/memory-forensics-volatility.html"},
+            {"t": "~/learn: SIEM and Security Onion", "h": "learn/siem-security-onion.html"}
+          ]
+        },
+        {
+          "t": "4. Map and extract indicators",
+          "items": [
+            "Map each stage of the attack to a MITRE ATT&CK technique ID",
+            "Write an indicator list (domains, IPs, file names, hashes, service names) in a table",
+            "Write at least two detection ideas: one log query or rule that would have fired earlier"
+          ],
+          "links": [
+            {"t": "MITRE ATT&CK", "h": "https://attack.mitre.org/"},
+            {"t": "~/drills: Security Onion intrusion hunt", "h": "drills/security-onion-intrusion-hunt.html"}
+          ]
+        },
+        {
+          "t": "5. Write the report",
+          "items": [
+            "Executive summary a non-technical manager can read in two minutes",
+            "Timeline table with times, hosts, events and evidence source",
+            "Root cause and contributing factors",
+            "Impact assessment: systems, accounts and data affected",
+            "Containment, eradication and recovery steps, in order",
+            "Recommendations ranked by effort and payoff",
+            "Lessons learned: what worked, what was missing, what to rehearse",
+            "Compare your findings with the answer key and note anything you missed or got wrong"
+          ],
+          "links": [
+            {"t": "~/report: write-up template", "h": "report.html"},
+            {"t": "~/harden: hardening checklists", "h": "harden.html"}
+          ]
+        }
+      ],
+      "rubric": [
+        "A reader who was not there could follow the attack from your report alone",
+        "Every claim points at a specific log line",
+        "Timeline is in UTC and sorted",
+        "Findings and recommendations are separate sections",
+        "You say what you do not know instead of guessing"
+      ]
+    },
+    {
+      "code": "CAP410",
+      "name": "Red capstone: attack the homelab",
+      "pre": ["SYS300"],
+      "pre_want": ["PEN300", "WEB300"],
+      "blurb": "Run a scoped penetration test against your own lab, then write the findings the way a client would receive them.",
+      "hours": 16,
+      "brief": [
+        "Test your own homelab as if you were a hired tester. The point is the method and the paperwork: scope, rules of engagement, notes, evidence, a ranked findings report, and a retest after fixes.",
+        "Only attack systems you own and have written down as in scope. Do it on an isolated lab network or a snapshot you can roll back, never on shared school, work or home networks other people rely on. Take a snapshot of every VM first.",
+        "Hardening is part of the job. Every finding gets a fix, and you retest to prove the fix worked."
+      ],
+      "phases": [
+        {
+          "t": "1. Scope and rules of engagement",
+          "items": [
+            "Write the scope: exact hosts, IP ranges and what is off limits (router, anything holding real data, other people's devices)",
+            "Write the rules of engagement: test window, allowed techniques, no denial of service, stop conditions",
+            "Snapshot every in-scope VM and confirm you can roll back",
+            "Draw the network diagram you are about to test and keep it with the report"
+          ],
+          "links": [
+            {"t": "~/homelab: network map", "h": "homelab.html"},
+            {"t": "~/learn: Proxmox virtualization", "h": "learn/virtualization-proxmox.html"}
+          ]
+        },
+        {
+          "t": "2. Recon and enumeration",
+          "items": [
+            "Discover live hosts and open ports; save the raw scan output",
+            "Fingerprint services and versions, then list candidate weaknesses per service",
+            "Enumerate users, shares and web content where applicable",
+            "Write a one-page attack plan ranking targets by likely payoff"
+          ],
+          "links": [
+            {"t": "~/learn: recon with Nmap and Metasploit", "h": "learn/recon-nmap-metasploit.html"},
+            {"t": "~/learn: Kali Linux", "h": "learn/kali-linux.html"}
+          ]
+        },
+        {
+          "t": "3. Gain access and escalate",
+          "items": [
+            "Get an initial foothold on at least one host and record every step",
+            "Attack a web application in the lab (for example DVWA or WebGoat) and document at least two vulnerability classes",
+            "Crack or reuse at least one credential using a method you can explain",
+            "Escalate privileges on a host, or explain precisely why you could not",
+            "Attempt movement to a second host, or to Active Directory if the lab has one"
+          ],
+          "links": [
+            {"t": "~/learn: DVWA and WebGoat", "h": "learn/vulnerable-lab-targets-dvwa-webgoat.html"},
+            {"t": "~/learn: password cracking", "h": "learn/password-cracking-john.html"},
+            {"t": "~/learn: Active Directory", "h": "learn/active-directory.html"},
+            {"t": "~/learn: binary exploitation", "h": "learn/binary-exploitation.html"}
+          ]
+        },
+        {
+          "t": "4. Defender's view",
+          "items": [
+            "Find your own activity in the lab's logs or IDS and note what was and was not detected",
+            "Write one detection rule or alert for something that slipped through",
+            "Clean up: remove tools, accounts and persistence you added, or roll back the snapshots"
+          ],
+          "links": [
+            {"t": "~/learn: IDS with Snort", "h": "learn/ids-snort.html"},
+            {"t": "~/learn: firewalls with pfSense", "h": "learn/firewalls-pfsense.html"}
+          ]
+        },
+        {
+          "t": "5. Report and retest",
+          "items": [
+            "Executive summary with an overall risk rating and the three things to fix first",
+            "Findings table: title, affected host, severity, evidence, impact, fix; one row per finding",
+            "Attack narrative that strings the findings into the path you actually took",
+            "Apply the fixes to at least three findings",
+            "Retest each fixed finding and record pass or fail with evidence",
+            "Add a lessons section: what you would test next time"
+          ],
+          "links": [
+            {"t": "~/report: write-up template", "h": "report.html"},
+            {"t": "~/harden: hardening checklists", "h": "harden.html"}
+          ]
+        }
+      ],
+      "rubric": [
+        "Scope and rules of engagement were written before any scan was run",
+        "Each finding has reproducible steps and evidence",
+        "Severity ratings are justified, not guessed",
+        "Fixes are specific (setting, patch, rule), not 'improve security'",
+        "Retest results are recorded"
+      ],
+      "extras": {
+        "title": "Findings table skeleton",
+        "rows": [
+          ["ID", "Title", "Host", "Severity", "Evidence", "Fix", "Retest"],
+          ["F-01", "Default credentials on admin panel", "lab-web-01", "High", "screenshot + request log", "Change password, restrict to management VLAN", "pass / fail"],
+          ["F-02", "Outdated service with known CVE", "lab-srv-02", "Medium", "scan output", "Patch or retire the service", "pass / fail"]
+        ],
+        "note": "Example rows are placeholders to show the shape. Replace them with your own findings."
+      }
+    },
+    {
+      "code": "CAP420",
+      "name": "Build and publish a security tool",
+      "pre": ["SEC100"],
+      "pre_want": ["CS240"],
+      "blurb": "Ship a small, useful security tool to a public repo with tests, docs and a release.",
+      "hours": 20,
+      "brief": [
+        "Build one small tool that solves a real problem you have run into, finish it, and publish it. Finished and small beats ambitious and half done. A recruiter reading your repo should understand what it does in thirty seconds.",
+        "Write it in a language you can defend in an interview (Python is a fine default). Do not commit secrets, real logs, or anything from a real employer or customer."
+      ],
+      "phases": [
+        {
+          "t": "1. Pick and scope",
+          "items": [
+            "Choose an idea from the list below or your own, and write a one-sentence purpose",
+            "Write three user stories: who runs it, with what input, and what they get",
+            "Define done: the smallest version that is still useful, and what is explicitly out of scope",
+            "Create the repo with a license, a .gitignore and a README stub"
+          ],
+          "links": [
+            {"t": "~/learn: Git and GitHub", "h": "learn/git-github.html"},
+            {"t": "~/learn: Python", "h": "learn/python.html"}
+          ]
+        },
+        {
+          "t": "2. Build",
+          "items": [
+            "Implement the core feature end to end before adding options",
+            "Validate all input and fail with clear error messages",
+            "Keep secrets and paths out of code; use arguments or environment variables",
+            "Commit in small steps with messages that say why"
+          ],
+          "links": [
+            {"t": "~/learn: bash scripting", "h": "learn/bash-scripting.html"},
+            {"t": "~/learn: cryptography (applied)", "h": "learn/cryptography-applied.html"}
+          ]
+        },
+        {
+          "t": "3. Test and secure",
+          "items": [
+            "Write automated tests for the core logic and at least three bad-input cases",
+            "Run a linter or static analyzer and fix what it finds",
+            "Scan dependencies for known vulnerabilities and pin versions",
+            "Write a short threat model: what could an attacker do with your tool, and what do you do about it"
+          ],
+          "links": [
+            {"t": "OWASP cheat sheet series", "h": "https://cheatsheetseries.owasp.org/"}
+          ]
+        },
+        {
+          "t": "4. Document and publish",
+          "items": [
+            "README with purpose, install, usage examples with sample output, and limitations",
+            "A demo: a short GIF or pasted terminal session",
+            "Set up CI that runs the tests on every push",
+            "Tag a release with a changelog",
+            "Add the project to ~/projects and a bullet to your resume"
+          ],
+          "links": [
+            {"t": "~/bullets: resume bullets", "h": "bullets.html"},
+            {"t": "~/careers: career paths", "h": "careers.html"}
+          ]
+        }
+      ],
+      "rubric": [
+        "It runs from a clean checkout following only the README",
+        "Tests pass in CI",
+        "No secrets or personal data in the history",
+        "You can explain every design choice out loud",
+        "Limitations are stated honestly"
+      ],
+      "extras": {
+        "title": "Idea starters",
+        "list": [
+          "Log parser that flags brute-force logins and prints a summary",
+          "Port and banner scanner with JSON output",
+          "File integrity checker that hashes a folder and reports changes",
+          "Password audit tool that checks a list against rules and a breach-hash file",
+          "Phishing header analyzer: SPF, DKIM, DMARC and mismatched domains",
+          "Sigma-style rule runner over JSON logs",
+          "IOC extractor that pulls IPs, domains and hashes out of text and de-duplicates them",
+          "Subnet and CIDR calculator with a study mode"
+        ]
+      }
+    }
+  ]
+}

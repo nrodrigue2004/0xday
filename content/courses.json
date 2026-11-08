@@ -1,86 +1,710 @@
 {
-  "_help": "Course layer. tracks -> courses {code, name, pre[], blurb, modules[{t, m (minutes), links[{t, h}], note?}]}. Question banks live in content/courses/<code>.txt (see build_courses.py). Hrefs must exist or the build fails (http links are not checked). Module index is the quiz tag, so never reorder modules without renumbering the bank.",
+  "_help": "Course layer. tracks -> courses {code, name, pre[], blurb, modules[{t, m (minutes), links[{t, h}], note?}]}. Question banks live in content/courses/<code>.txt (see build_courses.py). Hrefs must exist or the build fails (http links are not checked). Module index is the quiz tag, so never reorder modules without renumbering the bank. tiers -> {key, name, need[] (must exist), want[] (counted only once that course exists in this file), pick {n, from[]} (any n of these capstone codes)}.",
   "tiers": [
-    {"key": "foundations", "name": "Foundations", "need": ["IT100", "IT110", "IT120", "SEC100"]},
-    {"key": "practitioner", "name": "Practitioner", "need": ["NET200", "NET300", "SYS300", "BLU200"]},
-    {"key": "specialist", "name": "Specialist", "need": ["CLD300", "BLU300", "MAL300"]}
+    {
+      "key": "foundations",
+      "name": "Foundations",
+      "need": [
+        "IT100",
+        "IT110",
+        "IT120",
+        "SEC100"
+      ]
+    },
+    {
+      "key": "practitioner",
+      "name": "Practitioner",
+      "need": [
+        "NET200",
+        "NET300",
+        "SYS300",
+        "BLU200"
+      ],
+      "want": [
+        "CS201",
+        "CS240",
+        "WEB300"
+      ]
+    },
+    {
+      "key": "specialist",
+      "name": "Specialist",
+      "need": [
+        "CLD300",
+        "BLU300",
+        "MAL300"
+      ],
+      "want": [
+        "PEN300",
+        "BLU310",
+        "CRY300",
+        "EXP400"
+      ],
+      "pick": {
+        "n": 1,
+        "from": [
+          "CAP400",
+          "CAP410",
+          "CAP420"
+        ]
+      }
+    }
   ],
   "tracks": [
-    {"key": "A", "name": "Foundations", "courses": [
-      {"code": "IT100", "name": "How computers work", "pre": [], "blurb": "Number systems, hardware, what an OS does, and just enough basic electronics to read a circuit.", "modules": [
-        {"t": "Number systems", "m": 45, "links": [{"t": "~/basics: binary, hex and number systems", "h": "basics/number-systems.html"}]},
-        {"t": "Hardware and operating systems", "m": 90, "links": [{"t": "~/learn: hardware diagnostics and repair", "h": "learn/hardware-diagnostics-and-repair.html"}, {"t": "~/basics: Linux and Windows basics", "h": "basics/linux-windows-basics.html"}]},
-        {"t": "Basic EE", "m": 60, "note": "Voltage is push, current is flow, resistance is opposition. Ohm's law: V = I x R. Power: P = V x I. Series resistors add; parallel resistors share current. A resistor in series with an LED sets its current. Practice on a breadboard or a free simulator.", "links": [{"t": "Khan Academy: electrical engineering", "h": "https://www.khanacademy.org/science/electrical-engineering"}, {"t": "All About Circuits free textbook", "h": "https://www.allaboutcircuits.com/textbook/"}]},
-        {"t": "How we got here", "m": 20, "links": [{"t": "~/history: transistors and PCs", "h": "history/h2-transistors-pcs.html"}]}
-      ]},
-      {"code": "IT110", "name": "Networking basics", "pre": ["IT100"], "blurb": "OSI and TCP/IP, ports, addressing, subnets, DHCP and NAT.", "modules": [
-        {"t": "OSI and TCP/IP", "m": 45, "links": [{"t": "~/basics: OSI and TCP/IP", "h": "basics/osi-and-tcpip.html"}]},
-        {"t": "Ports and protocols", "m": 40, "links": [{"t": "~/basics: ports and protocols", "h": "basics/ports-and-protocols.html"}]},
-        {"t": "IP, subnets, DHCP, NAT", "m": 90, "links": [{"t": "~/learn: TCP/IP, DHCP, NAT, subnets", "h": "learn/networking-tcp-ip-dhcp-nat-subnets.html"}]},
-        {"t": "Practice", "m": 60, "links": [{"t": "~/arcade: subnet and port games", "h": "arcade.html"}, {"t": "~/learn: computer networks", "h": "learn/computer-networks.html"}]}
-      ]},
-      {"code": "IT120", "name": "Linux and Windows admin", "pre": ["IT100"], "blurb": "The command line on both sides, scripting, and the Active Directory basics every help desk touches.", "modules": [
-        {"t": "Linux command line", "m": 90, "links": [{"t": "~/learn: Linux command line", "h": "learn/linux-command-line.html"}, {"t": "~/drills: Linux permissions", "h": "drills/linux-permissions.html"}]},
-        {"t": "Bash scripting", "m": 90, "links": [{"t": "~/learn: bash scripting", "h": "learn/bash-scripting.html"}]},
-        {"t": "Windows and PowerShell", "m": 90, "links": [{"t": "~/learn: Windows admin and PowerShell", "h": "learn/windows-admin-powershell.html"}, {"t": "~/drills: Windows permissions", "h": "drills/windows-permissions.html"}]},
-        {"t": "Active Directory and Group Policy", "m": 120, "links": [{"t": "~/learn: Active Directory", "h": "learn/active-directory.html"}, {"t": "~/learn: Group Policy", "h": "learn/group-policy.html"}]}
-      ]},
-      {"code": "SEC100", "name": "Security+", "pre": ["IT110"], "blurb": "The five SY0-701 domains. This quiz is a quick check; the full study tools live in ~/secplus.", "modules": [
-        {"t": "General security concepts", "m": 120, "links": [{"t": "~/secplus 1.1", "h": "secplus/1.1.html"}]},
-        {"t": "Threats, vulnerabilities, mitigations", "m": 120, "links": [{"t": "~/secplus 2.1", "h": "secplus/2.1.html"}]},
-        {"t": "Security architecture", "m": 120, "links": [{"t": "~/secplus 3.1", "h": "secplus/3.1.html"}]},
-        {"t": "Security operations", "m": 120, "links": [{"t": "~/secplus 4.1", "h": "secplus/4.1.html"}]},
-        {"t": "Governance, risk, compliance", "m": 90, "links": [{"t": "~/secplus 5.1", "h": "secplus/5.1.html"}, {"t": "~/secplus: weak-spot drill", "h": "secplus/weak.html"}]}
-      ]}
-    ]},
-    {"key": "C", "name": "Networks and systems", "courses": [
-      {"code": "NET200", "name": "Network+", "pre": ["IT110"], "blurb": "Network+ N10-009 domains, from concepts to troubleshooting.", "modules": [
-        {"t": "Networking concepts", "m": 120, "links": [{"t": "~/comptia Network+ 1.1", "h": "comptia/netplus/1.1.html"}]},
-        {"t": "Network implementation", "m": 120, "links": [{"t": "~/comptia Network+ 2.1", "h": "comptia/netplus/2.1.html"}]},
-        {"t": "Network operations", "m": 90, "links": [{"t": "~/comptia Network+ 3.1", "h": "comptia/netplus/3.1.html"}]},
-        {"t": "Network security", "m": 90, "links": [{"t": "~/comptia Network+ 4.1", "h": "comptia/netplus/4.1.html"}]},
-        {"t": "Troubleshooting", "m": 90, "links": [{"t": "~/comptia Network+ 5.1", "h": "comptia/netplus/5.1.html"}, {"t": "~/comptia Network+ drill", "h": "comptia/netplus/drill.html"}]}
-      ]},
-      {"code": "NET300", "name": "Network security", "pre": ["NET200"], "blurb": "Firewalls, IDS, VPNs and reading traffic.", "modules": [
-        {"t": "Firewalls", "m": 90, "links": [{"t": "~/learn: firewalls and pfSense", "h": "learn/firewalls-pfsense.html"}]},
-        {"t": "IDS and Snort", "m": 90, "links": [{"t": "~/learn: IDS and Snort", "h": "learn/ids-snort.html"}]},
-        {"t": "VPNs", "m": 60, "links": [{"t": "~/learn: VPN and Tailscale", "h": "learn/vpn-tailscale.html"}]},
-        {"t": "Traffic analysis", "m": 120, "links": [{"t": "~/learn: network traffic analysis", "h": "learn/network-traffic-analysis.html"}, {"t": "~/drills: read a packet capture", "h": "drills/read-a-packet-capture.html"}]}
-      ]},
-      {"code": "SYS300", "name": "Virtualization and homelab ops", "pre": ["IT120"], "blurb": "Proxmox, a segmented lab, hardening and keeping servers alive.", "modules": [
-        {"t": "Virtualization", "m": 90, "links": [{"t": "~/learn: virtualization and Proxmox", "h": "learn/virtualization-proxmox.html"}]},
-        {"t": "The homelab", "m": 60, "links": [{"t": "~/homelab", "h": "homelab.html"}]},
-        {"t": "Hardening", "m": 90, "links": [{"t": "~/learn: system hardening", "h": "learn/system-hardening-windows-linux.html"}, {"t": "~/harden", "h": "harden.html"}]},
-        {"t": "Linux server admin", "m": 90, "links": [{"t": "~/learn: Linux server admin (Ubuntu)", "h": "learn/linux-server-admin-ubuntu.html"}]}
-      ]},
-      {"code": "CLD300", "name": "Cloud and cloud security", "pre": ["NET200", "SEC100"], "blurb": "AWS and Azure side by side: identity, networking, storage and what breaks.", "modules": [
-        {"t": "Cloud basics", "m": 60, "links": [{"t": "~/cloud: cloud basics", "h": "cloud/cloud-basics.html"}]},
-        {"t": "Identity and access", "m": 60, "links": [{"t": "~/cloud: IAM", "h": "cloud/cloud-iam.html"}]},
-        {"t": "Networking, storage, compute", "m": 90, "links": [{"t": "~/cloud: networking", "h": "cloud/cloud-networking.html"}, {"t": "~/cloud: storage and compute", "h": "cloud/cloud-storage-compute.html"}]},
-        {"t": "Cloud security", "m": 90, "links": [{"t": "~/cloud: cloud security", "h": "cloud/cloud-security.html"}, {"t": "~/cloud: free-tier labs", "h": "cloud/cloud-free-labs.html"}]}
-      ]}
-    ]},
-    {"key": "D", "name": "Defensive security", "courses": [
-      {"code": "BLU200", "name": "Logs and SIEM", "pre": ["SEC100", "IT120"], "blurb": "Reading logs, shaping them with pipes and regex, and working a SIEM.", "modules": [
-        {"t": "Log analysis", "m": 90, "links": [{"t": "~/learn: log analysis", "h": "learn/log-analysis.html"}]},
-        {"t": "Parsing with pipes and regex", "m": 90, "links": [{"t": "~/drills: parse logs with pipes", "h": "drills/parse-logs-with-pipes.html"}, {"t": "~/drills: regex for logs", "h": "drills/regex-for-logs.html"}]},
-        {"t": "SIEM and Security Onion", "m": 120, "links": [{"t": "~/learn: SIEM and Security Onion", "h": "learn/siem-security-onion.html"}]},
-        {"t": "Hunt", "m": 90, "links": [{"t": "~/drills: Security Onion intrusion hunt", "h": "drills/security-onion-intrusion-hunt.html"}]}
-      ]},
-      {"code": "BLU300", "name": "Incident response and forensics", "pre": ["BLU200"], "blurb": "The IR lifecycle, disk and memory forensics, and phishing triage.", "modules": [
-        {"t": "Incident response", "m": 90, "links": [{"t": "~/learn: incident response", "h": "learn/incident-response.html"}]},
-        {"t": "Disk forensics", "m": 120, "links": [{"t": "~/learn: digital forensics", "h": "learn/digital-forensics.html"}, {"t": "~/learn: Autopsy and FTK Imager", "h": "learn/disk-forensics-autopsy-ftk-imager.html"}]},
-        {"t": "Memory forensics", "m": 90, "links": [{"t": "~/learn: memory forensics (Volatility)", "h": "learn/memory-forensics-volatility.html"}]},
-        {"t": "Phishing analysis", "m": 60, "links": [{"t": "~/learn: phishing analysis", "h": "learn/phishing-analysis.html"}]}
-      ]}
-    ]},
-    {"key": "E", "name": "Technical security", "courses": [
-      {"code": "MAL300", "name": "Reverse engineering and malware", "pre": ["IT100"], "blurb": "Assembly, the PE format, disassemblers, and safe malware handling.", "modules": [
-        {"t": "C and x86 assembly", "m": 150, "links": [{"t": "~/learn: C and x86 assembly", "h": "learn/c-x86-assembly.html"}]},
-        {"t": "The PE format", "m": 60, "links": [{"t": "~/learn: PE format and PE-bear", "h": "learn/pe-format-pe-bear.html"}]},
-        {"t": "Reverse engineering", "m": 150, "links": [{"t": "~/learn: reverse engineering", "h": "learn/reverse-engineering.html"}, {"t": "~/learn: Ghidra and IDA Pro", "h": "learn/ghidra-and-ida-pro.html"}]},
-        {"t": "Malware analysis", "m": 120, "links": [{"t": "~/learn: malware analysis", "h": "learn/malware-analysis.html"}]}
-      ]}
-    ]}
+    {
+      "key": "A",
+      "name": "Foundations",
+      "courses": [
+        {
+          "code": "IT100",
+          "name": "How computers work",
+          "pre": [],
+          "blurb": "Number systems, hardware, what an OS does, and just enough basic electronics to read a circuit.",
+          "modules": [
+            {
+              "t": "Number systems",
+              "m": 45,
+              "links": [
+                {
+                  "t": "~/basics: binary, hex and number systems",
+                  "h": "basics/number-systems.html"
+                }
+              ]
+            },
+            {
+              "t": "Hardware and operating systems",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: hardware diagnostics and repair",
+                  "h": "learn/hardware-diagnostics-and-repair.html"
+                },
+                {
+                  "t": "~/basics: Linux and Windows basics",
+                  "h": "basics/linux-windows-basics.html"
+                }
+              ]
+            },
+            {
+              "t": "Basic EE",
+              "m": 60,
+              "note": "Voltage is push, current is flow, resistance is opposition. Ohm's law: V = I x R. Power: P = V x I. Series resistors add; parallel resistors share current. A resistor in series with an LED sets its current. Practice on a breadboard or a free simulator.",
+              "links": [
+                {
+                  "t": "Khan Academy: electrical engineering",
+                  "h": "https://www.khanacademy.org/science/electrical-engineering"
+                },
+                {
+                  "t": "All About Circuits free textbook",
+                  "h": "https://www.allaboutcircuits.com/textbook/"
+                }
+              ]
+            },
+            {
+              "t": "How we got here",
+              "m": 20,
+              "links": [
+                {
+                  "t": "~/history: transistors and PCs",
+                  "h": "history/h2-transistors-pcs.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "IT110",
+          "name": "Networking basics",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "OSI and TCP/IP, ports, addressing, subnets, DHCP and NAT.",
+          "modules": [
+            {
+              "t": "OSI and TCP/IP",
+              "m": 45,
+              "links": [
+                {
+                  "t": "~/basics: OSI and TCP/IP",
+                  "h": "basics/osi-and-tcpip.html"
+                }
+              ]
+            },
+            {
+              "t": "Ports and protocols",
+              "m": 40,
+              "links": [
+                {
+                  "t": "~/basics: ports and protocols",
+                  "h": "basics/ports-and-protocols.html"
+                }
+              ]
+            },
+            {
+              "t": "IP, subnets, DHCP, NAT",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: TCP/IP, DHCP, NAT, subnets",
+                  "h": "learn/networking-tcp-ip-dhcp-nat-subnets.html"
+                }
+              ]
+            },
+            {
+              "t": "Practice",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/arcade: subnet and port games",
+                  "h": "arcade.html"
+                },
+                {
+                  "t": "~/learn: computer networks",
+                  "h": "learn/computer-networks.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "IT120",
+          "name": "Linux and Windows admin",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "The command line on both sides, scripting, and the Active Directory basics every help desk touches.",
+          "modules": [
+            {
+              "t": "Linux command line",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: Linux command line",
+                  "h": "learn/linux-command-line.html"
+                },
+                {
+                  "t": "~/drills: Linux permissions",
+                  "h": "drills/linux-permissions.html"
+                }
+              ]
+            },
+            {
+              "t": "Bash scripting",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: bash scripting",
+                  "h": "learn/bash-scripting.html"
+                }
+              ]
+            },
+            {
+              "t": "Windows and PowerShell",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: Windows admin and PowerShell",
+                  "h": "learn/windows-admin-powershell.html"
+                },
+                {
+                  "t": "~/drills: Windows permissions",
+                  "h": "drills/windows-permissions.html"
+                }
+              ]
+            },
+            {
+              "t": "Active Directory and Group Policy",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: Active Directory",
+                  "h": "learn/active-directory.html"
+                },
+                {
+                  "t": "~/learn: Group Policy",
+                  "h": "learn/group-policy.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SEC100",
+          "name": "Security+",
+          "pre": [
+            "IT110"
+          ],
+          "blurb": "The five SY0-701 domains. This quiz is a quick check; the full study tools live in ~/secplus.",
+          "modules": [
+            {
+              "t": "General security concepts",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 1.1",
+                  "h": "secplus/1.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Threats, vulnerabilities, mitigations",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 2.1",
+                  "h": "secplus/2.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Security architecture",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 3.1",
+                  "h": "secplus/3.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Security operations",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 4.1",
+                  "h": "secplus/4.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Governance, risk, compliance",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/secplus 5.1",
+                  "h": "secplus/5.1.html"
+                },
+                {
+                  "t": "~/secplus: weak-spot drill",
+                  "h": "secplus/weak.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "C",
+      "name": "Networks and systems",
+      "courses": [
+        {
+          "code": "NET200",
+          "name": "Network+",
+          "pre": [
+            "IT110"
+          ],
+          "blurb": "Network+ N10-009 domains, from concepts to troubleshooting.",
+          "modules": [
+            {
+              "t": "Networking concepts",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 1.1",
+                  "h": "comptia/netplus/1.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Network implementation",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 2.1",
+                  "h": "comptia/netplus/2.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Network operations",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 3.1",
+                  "h": "comptia/netplus/3.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Network security",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 4.1",
+                  "h": "comptia/netplus/4.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Troubleshooting",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 5.1",
+                  "h": "comptia/netplus/5.1.html"
+                },
+                {
+                  "t": "~/comptia Network+ drill",
+                  "h": "comptia/netplus/drill.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "NET300",
+          "name": "Network security",
+          "pre": [
+            "NET200"
+          ],
+          "blurb": "Firewalls, IDS, VPNs and reading traffic.",
+          "modules": [
+            {
+              "t": "Firewalls",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: firewalls and pfSense",
+                  "h": "learn/firewalls-pfsense.html"
+                }
+              ]
+            },
+            {
+              "t": "IDS and Snort",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: IDS and Snort",
+                  "h": "learn/ids-snort.html"
+                }
+              ]
+            },
+            {
+              "t": "VPNs",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/learn: VPN and Tailscale",
+                  "h": "learn/vpn-tailscale.html"
+                }
+              ]
+            },
+            {
+              "t": "Traffic analysis",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: network traffic analysis",
+                  "h": "learn/network-traffic-analysis.html"
+                },
+                {
+                  "t": "~/drills: read a packet capture",
+                  "h": "drills/read-a-packet-capture.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SYS300",
+          "name": "Virtualization and homelab ops",
+          "pre": [
+            "IT120"
+          ],
+          "blurb": "Proxmox, a segmented lab, hardening and keeping servers alive.",
+          "modules": [
+            {
+              "t": "Virtualization",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: virtualization and Proxmox",
+                  "h": "learn/virtualization-proxmox.html"
+                }
+              ]
+            },
+            {
+              "t": "The homelab",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/homelab",
+                  "h": "homelab.html"
+                }
+              ]
+            },
+            {
+              "t": "Hardening",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: system hardening",
+                  "h": "learn/system-hardening-windows-linux.html"
+                },
+                {
+                  "t": "~/harden",
+                  "h": "harden.html"
+                }
+              ]
+            },
+            {
+              "t": "Linux server admin",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: Linux server admin (Ubuntu)",
+                  "h": "learn/linux-server-admin-ubuntu.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CLD300",
+          "name": "Cloud and cloud security",
+          "pre": [
+            "NET200",
+            "SEC100"
+          ],
+          "blurb": "AWS and Azure side by side: identity, networking, storage and what breaks.",
+          "modules": [
+            {
+              "t": "Cloud basics",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/cloud: cloud basics",
+                  "h": "cloud/cloud-basics.html"
+                }
+              ]
+            },
+            {
+              "t": "Identity and access",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/cloud: IAM",
+                  "h": "cloud/cloud-iam.html"
+                }
+              ]
+            },
+            {
+              "t": "Networking, storage, compute",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cloud: networking",
+                  "h": "cloud/cloud-networking.html"
+                },
+                {
+                  "t": "~/cloud: storage and compute",
+                  "h": "cloud/cloud-storage-compute.html"
+                }
+              ]
+            },
+            {
+              "t": "Cloud security",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cloud: cloud security",
+                  "h": "cloud/cloud-security.html"
+                },
+                {
+                  "t": "~/cloud: free-tier labs",
+                  "h": "cloud/cloud-free-labs.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "D",
+      "name": "Defensive security",
+      "courses": [
+        {
+          "code": "BLU200",
+          "name": "Logs and SIEM",
+          "pre": [
+            "SEC100",
+            "IT120"
+          ],
+          "blurb": "Reading logs, shaping them with pipes and regex, and working a SIEM.",
+          "modules": [
+            {
+              "t": "Log analysis",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: log analysis",
+                  "h": "learn/log-analysis.html"
+                }
+              ]
+            },
+            {
+              "t": "Parsing with pipes and regex",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/drills: parse logs with pipes",
+                  "h": "drills/parse-logs-with-pipes.html"
+                },
+                {
+                  "t": "~/drills: regex for logs",
+                  "h": "drills/regex-for-logs.html"
+                }
+              ]
+            },
+            {
+              "t": "SIEM and Security Onion",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: SIEM and Security Onion",
+                  "h": "learn/siem-security-onion.html"
+                }
+              ]
+            },
+            {
+              "t": "Hunt",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/drills: Security Onion intrusion hunt",
+                  "h": "drills/security-onion-intrusion-hunt.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "BLU300",
+          "name": "Incident response and forensics",
+          "pre": [
+            "BLU200"
+          ],
+          "blurb": "The IR lifecycle, disk and memory forensics, and phishing triage.",
+          "modules": [
+            {
+              "t": "Incident response",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: incident response",
+                  "h": "learn/incident-response.html"
+                }
+              ]
+            },
+            {
+              "t": "Disk forensics",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: digital forensics",
+                  "h": "learn/digital-forensics.html"
+                },
+                {
+                  "t": "~/learn: Autopsy and FTK Imager",
+                  "h": "learn/disk-forensics-autopsy-ftk-imager.html"
+                }
+              ]
+            },
+            {
+              "t": "Memory forensics",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: memory forensics (Volatility)",
+                  "h": "learn/memory-forensics-volatility.html"
+                }
+              ]
+            },
+            {
+              "t": "Phishing analysis",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/learn: phishing analysis",
+                  "h": "learn/phishing-analysis.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "E",
+      "name": "Technical security",
+      "courses": [
+        {
+          "code": "MAL300",
+          "name": "Reverse engineering and malware",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "Assembly, the PE format, disassemblers, and safe malware handling.",
+          "modules": [
+            {
+              "t": "C and x86 assembly",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/learn: C and x86 assembly",
+                  "h": "learn/c-x86-assembly.html"
+                }
+              ]
+            },
+            {
+              "t": "The PE format",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/learn: PE format and PE-bear",
+                  "h": "learn/pe-format-pe-bear.html"
+                }
+              ]
+            },
+            {
+              "t": "Reverse engineering",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/learn: reverse engineering",
+                  "h": "learn/reverse-engineering.html"
+                },
+                {
+                  "t": "~/learn: Ghidra and IDA Pro",
+                  "h": "learn/ghidra-and-ida-pro.html"
+                }
+              ]
+            },
+            {
+              "t": "Malware analysis",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: malware analysis",
+                  "h": "learn/malware-analysis.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ]
 }

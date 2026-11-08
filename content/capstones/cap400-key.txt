@@ -1,0 +1,23 @@
+## Answer key
+Q: How did the attacker get in?
+A: A phishing email with a macro-enabled document (Invoice_88213.docm) from a lookalike domain (brightwater-invoices.example.net) failed SPF, DKIM and DMARC yet was delivered. Dana opened it and Word spawned cmd.exe then hidden, encoded PowerShell at 09:13:52. T1566.001 and T1059.001.
+Q: Who is patient zero?
+A: WS-FIN-07 and BW\dana.pierce. A second recipient (ravi.shah, WS-OPS-02) received the same email. No evidence he ran it, but his machine was never inspected, so call it unconfirmed and recommend checking it.
+Q: What is the command and control?
+A: Payload fetched from cdn-update.example.net (resolves to 203.0.113.45), then HTTPS beacons from rundll32.exe to 203.0.113.45:443 about every 60 seconds. The domain was registered 4 days earlier and first seen at 09:14:06. T1105, T1071.001, T1218.011 for the rundll32 DLL load.
+Q: How were credentials stolen?
+A: At 09:41:18 rundll32.exe opened lsass.exe with access mask 0x1010 and wrote d.dmp 22 seconds later. That is credential dumping. The svc-backup account was then used. T1003.001.
+Q: How did the attacker move laterally?
+A: At 09:55 a Kerberos TGT for svc-backup was requested from the workstation, then at 10:02 svc-backup logged on to FS-01 over the network (type 3, NTLM) from 10.20.5.17. This account normally only logs on from 10.20.1.30 at night, so both the source and the time are anomalies. T1078 and T1021.002 (SMB/admin shares).
+Q: What did they do on FS-01?
+A: Discovery commands (net group "Domain Admins", whoami /groups) at 10:05, then installed a service WinUpdSvc running C:\Windows\Temp\wu.exe as SYSTEM at 10:19. That is persistence and privilege escalation. T1087, T1543.003.
+Q: What data left and how much?
+A: Six HTTPS flows from FS-01 to 198.51.100.77 (files-share.example.org) between 10:48 and 12:00 totalling about 4.2 GB (812+655+702+640+703+698 MB), against a baseline under 50 MB per day. Treat as confirmed bulk exfiltration of file-share data. T1567 and T1048. Also a small POST of 4 KB to the C2 domain at 10:03 from the workstation, likely staging or check-in data.
+Q: What was the attempted impact?
+A: vssadmin delete shadows /all /quiet at 12:05 launched by wu.exe: removal of recovery points ahead of encryption. Ransomware not confirmed. T1490.
+Q: What was the dwell time and where were the detection gaps?
+A: 09:13 initial execution to 12:09 containment is about 2 hours 55 minutes (roughly 3 hours). Gaps: the email gateway delivered a message that failed all three authentication checks; an executable Office macro was allowed; the first-seen C2 domain and the lsass access did not alert; svc-backup logons from an unusual host did not alert; 4.2 GB egress did not alert for over an hour; WS-FIN-07 stayed connected for 22 minutes after FS-01 was isolated.
+Q: What should happen next?
+A: Contain and eradicate: reset svc-backup and dana.pierce credentials, and treat other credentials on WS-FIN-07 and FS-01 as exposed (reset krbtgt twice if Domain Admin exposure cannot be ruled out), remove WinUpdSvc and wu.exe, rebuild FS-01 from known-good media, block 203.0.113.45, 198.51.100.77, cdn-update.example.net and files-share.example.org, search mail and DNS logs for other recipients and other hosts that queried the domains, and inspect WS-OPS-02. Notify legal and privacy about the exfiltrated shares according to policy.
+Q: What should change long term?
+A: Block or sign macros from the internet, reject mail failing DMARC, put the backup account on a restricted logon policy (allowed source host only), alert on first-seen domains and on lsass access, enable credential protections such as LSA protection, add egress volume alerts per server, and rehearse the response. Do not claim any single control would have been enough.
