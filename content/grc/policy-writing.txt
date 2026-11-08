@@ -1,0 +1,123 @@
+tagline: Policies turn security goals into rules people can follow and auditors can check. Learn the policy, standard, procedure and guideline hierarchy, how to write a clear requirement, and the policies every company needs.
+sheet: grc
+:: simple
+A **policy** is a short statement from leadership of what the organization requires. Without one, security is a pile of good intentions. With a bad one, it is a document nobody reads. A good policy is clear, enforceable and brief.
+
+### Four layers of documents
+| Layer | What it is | Example | Changes |
+|---|---|---|---|
+| **Policy** | High-level rule and why; approved by leadership | "All laptops must be encrypted." | rarely |
+| **Standard** | Specific mandatory requirement | "Use AES-256 full-disk encryption with centrally escrowed keys." | sometimes |
+| **Procedure** | Step-by-step how | "How to enable BitLocker and escrow the key." | often |
+| **Guideline** | Advice, not required | "Prefer a passphrase of 4+ words." | often |
+
+Policy says **what and why**, standard says **how much**, procedure says **how exactly**, guideline says **what we recommend**.
+
+### Words that matter
+- **Must / shall / required**: mandatory
+- **Should**: expected unless you have a good reason (an exception)
+- **May**: optional
+Vague phrases ("appropriate measures", "as soon as practical") cannot be checked. Prefer: "within 30 days", "all production systems", "at least 14 characters".
+
+### Policies most companies need
+Information security (the umbrella), acceptable use, access control, password/authentication, data classification and handling, incident response, backup and recovery, remote work, change management, vendor management, BYOD, and retention.
+
+```
+$ cat ~/policy/draft.txt
+```
+:: mid
+### Anatomy of a policy
+1. **Title, owner, version, date, next review**
+2. **Purpose**: why it exists, in one or two sentences
+3. **Scope**: who and what it covers (all employees, contractors, all company systems)
+4. **Policy statements**: the numbered requirements
+5. **Roles and responsibilities**: who does what
+6. **Exceptions**: how to request one, who approves, how long it lasts
+7. **Enforcement**: consequences of violating it
+8. **Related documents** and **definitions**
+9. **Revision history**
+
+### Writing a requirement people can follow
+Bad: "Passwords must be strong." Better: "User passwords must be at least 14 characters and must not appear in a breached-password list. MFA is required for all remote access." Test each line: can an auditor check this yes or no? Can an employee tell whether they are following it?
+
+### Writing style
+Plain language at about a ninth-grade reading level; short sentences; active voice; one requirement per statement so it can be numbered and tested; no unexplained jargon. A two-page policy people follow beats a twenty-page policy they skip.
+
+### Getting adoption
+- Involve the people who will have to comply in the draft
+- Get **executive sign-off**, since it is what makes the policy binding
+- Train and attest (employees acknowledge they read it)
+- Make the safe way the easy way (a password manager removes the excuse)
+- Measure compliance and report it
+
+### Common policies in more detail
+**Acceptable use**: what company systems may be used for, personal use limits, monitoring notice. **Data classification**: levels such as Public, Internal, Confidential, Restricted, each with handling rules for storage, sharing, encryption and disposal (see [privacy law](privacy-law.html)). **Incident response**: how to report, who leads, severity levels, communication. **Change management**: request, review, test, approve, schedule, roll back.
+:: complex
+### Policy lifecycle
+Draft, review (legal, HR, IT, business), approve, publish, train, enforce, **review at least annually**, retire. Keep version history; auditors ask for last year's version to see what applied when.
+
+### Exceptions and risk
+Exceptions are normal, but they must be recorded in the risk register: who, what, compensating controls, expiry date. A pile of permanent exceptions means the policy is wrong or unenforced.
+
+### Policy and technology
+Automate enforcement where you can: MDM enforces disk encryption, conditional access enforces MFA, DLP enforces handling rules, config baselines enforce standards. **Policy as code** tools can test cloud configuration against the written rule every day, which is stronger evidence than a PDF.
+
+### Controls over the policy set
+- Map each policy statement to a framework control (NIST, ISO 27001 A.5.1) and to evidence
+- Keep a policy register: document, owner, approver, version, review date
+- Avoid duplication and contradiction by having one owner for the whole set
+
+### Sanctions and fairness
+Policies must be applied consistently. Selective enforcement undermines trust and exposes the company legally. Work with HR and legal on the language for discipline and on employee monitoring notices, which are regulated differently by region.
+
+### Skills this builds
+Policy writing is a real job skill: GRC analyst roles ask for it. Keep samples you wrote for your own lab or club (never a client's). A one-page acceptable use policy and an incident response plan make strong portfolio items alongside a [risk worksheet](risk-worksheet.html) result.
+:: ref
+### hierarchy
+Policy | leadership statement of required behavior and why
+Standard | mandatory, measurable specification
+Procedure | step-by-step instructions
+Guideline | recommended practice, not mandatory
+Baseline | minimum configuration for a type of system
+### policy sections
+Purpose, Scope | why and who/what it covers
+Statements | numbered, testable requirements
+Roles | owners and responsibilities
+Exceptions | request, approval, expiry
+Enforcement | consequences of non-compliance
+### common policies
+AUP | acceptable use policy
+IRP | incident response plan
+BCP / DRP | business continuity / disaster recovery
+BYOD | bring your own device
+Data classification | levels and handling rules
+### terms
+Attestation | employee acknowledges policy
+Exception | approved deviation with compensating control
+Policy as code | automated checks of the written rule
+Compensating control | alternative safeguard when the main one is not possible
+:: lab
+host: policy-lab
+user: analyst
+cwd: /home/analyst/policy
+:: brief
+`~/policy/draft.txt` is a draft password policy for a **fictional** company. Most statements can be checked yes or no. One is too vague for an auditor to test.
+
+Give the **statement number** that is unenforceable as written, e.g. `submit 2`.
+:: answer
+3
+:: hint
+Look for words with no measurable limit, such as "strong", "reasonable" or "appropriate".
+:: hint
+Compare each line: which one could an auditor not mark pass or fail?
+:: solution
+Statement 3, "Passwords should be reasonably strong and changed regularly", has no number for length, no definition of strong and no interval. Rewrite it: "Passwords must be at least 14 characters and must not be on the company's breached-password list. Passwords are changed only when compromise is suspected." Statements 1, 2, 4 and 5 each name a measurable requirement or an owner and a time.
+:: verify
+cat ~/policy/draft.txt
+:: file /home/analyst/policy/draft.txt
+Fictional company: Birch Logistics, Password and Authentication Policy (draft v0.2)
+1. MFA is required for all remote access and for all administrator accounts.
+2. Service accounts must have a named owner and a documented purpose.
+3. Passwords should be reasonably strong and changed regularly.
+4. Shared accounts are prohibited except where the IT manager approves an exception in writing.
+5. Failed sign-ins lock the account for 15 minutes after 10 attempts.

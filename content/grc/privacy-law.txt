@@ -1,0 +1,120 @@
+tagline: Privacy law decides what you may collect, how long you may keep it, who must be told when it leaks, and what it costs when you get it wrong. Learn GDPR, CCPA/CPRA, HIPAA and FERPA, plus data classification and breach clocks.
+sheet: grc
+:: simple
+**Privacy** is about people's rights over data about them. **Security** protects data from the wrong people. You need both: you can have perfect security and still break privacy law by collecting data you had no reason to hold.
+
+### Key terms
+- **PII**: personally identifiable information (name, ID number, address, email, IP address in some laws)
+- **Sensitive data**: health, biometrics, financial accounts, race, religion, precise location, children's data. It gets stricter rules
+- **Data subject**: the person the data is about
+- **Controller**: decides why and how data is processed. **Processor**: handles it on the controller's behalf (your cloud provider, your payroll vendor)
+- **Data minimization**: collect only what you need, keep it only as long as you need
+
+### The laws you will hear about
+| Law | Covers | Notable points |
+|---|---|---|
+| **GDPR** (EU, 2018) | Personal data of people in the EU, wherever the company is | Lawful basis needed, data subject rights, 72 hour breach notice, fines up to the greater of 20 million euros or 4% of global revenue |
+| **CCPA / CPRA** (California) | Residents' personal information held by larger businesses | Right to know, delete, correct, opt out of sale or sharing |
+| **HIPAA** (US) | Health information held by providers, plans and their vendors | Privacy, Security and Breach Notification Rules |
+| **FERPA** (US) | Student education records at schools that receive federal funds | Parents or eligible students control access |
+| **GLBA** (US) | Customer financial information at financial institutions | Safeguards Rule |
+| **COPPA** (US) | Online collection from children under 13 | Parental consent |
+
+> This is education, not legal advice. Laws change and have exceptions. A company asks its lawyer; a security person knows when to ask.
+
+```
+$ cat ~/privacy/incidents.txt
+```
+:: mid
+### GDPR in practice
+**Lawful bases** for processing: consent, contract, legal obligation, vital interests, public task, legitimate interests. **Data subject rights**: be informed, access, rectify, erase ("right to be forgotten"), restrict, port, object, and not be subject to purely automated decisions. Requests must generally be answered within one month.
+Other duties: **privacy by design and by default**, a record of processing, a **DPIA** (data protection impact assessment) for high-risk processing, a **DPO** (data protection officer) in some cases, a contract with each processor, and safeguards for **transfers** outside the EU (adequacy decisions, standard contractual clauses).
+**Breach notice:** tell the supervisory authority **within 72 hours** of becoming aware, unless the breach is unlikely to risk people's rights. Tell the individuals without undue delay if the risk is high.
+
+### US landscape
+There is no single federal privacy law. Instead there are sector laws (HIPAA, GLBA, FERPA, COPPA), the FTC's authority over unfair or deceptive practices, and a growing set of **state laws** (California, Virginia, Colorado, Texas and many others). Every US state has its own **breach notification** law; deadlines and triggers differ (often 30 to 60 days, some "without unreasonable delay").
+
+### HIPAA breach rules
+Covered entities must notify affected individuals **within 60 days** of discovery. Breaches affecting 500 or more people also go to the HHS and the media promptly; smaller ones are reported to HHS annually. Properly encrypted data is generally a "safe harbor": loss of an encrypted laptop is not a reportable breach.
+
+### Data classification
+Label data so handling follows the label. A typical scheme: **Public**, **Internal**, **Confidential**, **Restricted**. Each level states where it may be stored, whether it must be encrypted, who may see it, how it is shared, and how it is destroyed. Match classification to [policy](policy-writing.html).
+
+### Privacy and security controls
+Encryption at rest and in transit, access control and logging, **pseudonymization** and **anonymization** (true anonymization is hard), retention schedules with deletion, vendor assessments, and training. Retention matters: data you deleted cannot be breached.
+:: complex
+### Cross-border data
+Moving personal data across borders is regulated. The EU-US Data Privacy Framework, standard contractual clauses and binding corporate rules are the usual mechanisms. Some countries require data to stay inside them (**data localization**). Cloud architecture must account for this: region choice is a legal decision.
+
+### Incident response and legal clocks
+Build the clocks into your incident response plan: who decides if personal data was involved, who calls legal, who contacts regulators, where the contact list is. Time starts at *awareness*, so document when and how you became aware. Contracts with customers may add shorter deadlines (24 or 48 hours is common) than the law.
+
+### Privacy engineering
+- **Privacy by design**: data flow maps, default settings protect the user, collect least
+- **DPIA / PIA** as a gate in development for new features
+- **Consent management**: record what the user agreed to, honor withdrawal, respect browser signals like Global Privacy Control where required
+- **Subject access request (DSAR)** process: verify identity, find data across systems, return it within the deadline
+- **Deletion** across backups, analytics and partners
+- Tools: data discovery and classification scanners, DLP
+
+### Penalties and enforcement
+Regulators fine for unlawful processing, inadequate security and late notification. Examples are large: GDPR fines in the hundreds of millions of euros for big tech companies; HIPAA settlements in the millions; class-action suits after breaches. Executives can be personally accountable in some regimes.
+
+### AI and privacy
+Training data can contain personal data; models may memorize it; automated decisions have special GDPR rights. Check [~/ai](../ai.html) for the security side and ask legal before sending personal data to an outside AI service.
+
+### As a security person
+Know what personal data your systems hold and where it flows; keep the data inventory current; classify; encrypt; restrict; log access; delete on schedule; know the clocks and whom to call.
+:: ref
+### laws
+GDPR | EU: 72 h breach notice to regulator; fines to 20M euros or 4% revenue
+CCPA / CPRA | California: know, delete, correct, opt out of sale or sharing
+HIPAA | US health data: individual notice within 60 days
+FERPA | US student records
+GLBA | US financial customer data
+COPPA | US children under 13, parental consent
+### gdpr rights
+Access | get a copy of your data
+Rectification | correct inaccurate data
+Erasure | delete (with exceptions)
+Portability | take your data to another provider
+Objection | stop certain processing
+Restriction | pause processing
+### roles
+Controller | decides why and how data is processed
+Processor | processes on the controller's behalf
+DPO | data protection officer
+DPIA | data protection impact assessment
+DSAR | data subject access request
+### terms
+PII | personally identifiable information
+PHI | protected health information (HIPAA)
+Pseudonymization | replace identifiers; can be reversed with extra data
+Anonymization | irreversibly remove identity
+Data minimization | collect and keep only what is needed
+Safe harbor | encrypted data loss is generally not a reportable breach
+:: lab
+host: privacy-lab
+user: analyst
+cwd: /home/analyst/privacy
+:: brief
+`~/privacy/incidents.txt` lists five incidents at a **fictional** company that serves customers in the EU and the US. Only some need a regulator notified within a short deadline.
+
+Give the **incident number** that triggers the GDPR **72-hour** notice to a regulator, e.g. `submit 1`.
+:: answer
+3
+:: hint
+You need EU personal data, a real loss of confidentiality, and no encryption safe harbor.
+:: hint
+One laptop was encrypted, so it does not count. Another incident involved only data about US patients.
+:: solution
+Incident 3, an unencrypted USB drive with names, emails and order history of EU customers lost in transit, is a personal data breach affecting people in the EU, so the 72-hour clock to the supervisory authority starts when the company becomes aware. Incident 1 involves an encrypted laptop (no risk to people, document it but no notice). Incident 2 is US patient data, so HIPAA's 60-day individual notice applies instead. Incident 4 is public marketing copy (no personal data). Incident 5 is a failed phishing attempt with no access to data.
+:: verify
+cat ~/privacy/incidents.txt
+:: file /home/analyst/privacy/incidents.txt
+Fictional company incidents (Mon, 09:00 = company became aware)
+1  Laptop stolen from car. Full-disk encryption on, key escrowed. Held EU customer exports.
+2  Misdirected email exposed 120 US patients' lab results to the wrong clinic.
+3  Unencrypted USB drive lost in transit: names, emails and order history of 8,400 EU customers.
+4  Draft marketing copy posted early on a public page. No personal data.
+5  Phishing email blocked by the gateway. No one clicked. No data accessed.
