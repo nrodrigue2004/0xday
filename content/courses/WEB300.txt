@@ -283,3 +283,40 @@ Q: What is a good detection signal for API abuse?
 - One request to the home page
 - A cached image request
 ? Feed gateway logs into the SIEM and alert on patterns.
+
+## 6
+Q: What does a bug bounty program's scope tell you?
+* Which systems and actions you are allowed to test, and which are off limits
+- Which bugs the company already knows about
+- How much each bug pays
+- Which tools you must use
+? Testing outside scope can be illegal and gets you banned, even if you can reach the system.
+
+Q: A program lists *.example.com in scope and payments.example.com as out of scope. Can you test payments.example.com?
+* No, the named exclusion beats the wildcard
+- Yes, the wildcard covers it
+- Only with a proxy
+- Only outside business hours
+? Read exclusions carefully; they override wildcards.
+
+Q: You find an IDOR that lets your test account A read test account B's record. What should you do next?
+* Stop, record the proof, and write the report
+- Download every other user's record to show the impact
+- Post it publicly so the company fixes it faster
+- Ask for payment before sharing details
+? Stop at proof. Do not access, keep or share other people's data, and never demand payment under threat of disclosure.
+
+Q: Which of these usually belongs in a good bug report?
+* Numbered steps to reproduce, the exact request, and the impact
+- A pasted scanner log with no explanation
+- A threat to publish if not paid
+- Only a screenshot of the homepage
+? Triagers read many reports; make the bug easy to confirm.
+
+Q: What is a duplicate report?
+* A report of a bug someone else already reported first
+- A report sent twice by mistake
+- A report with two bugs
+- A report from a staff member
+? Only the first valid report is normally paid.
+

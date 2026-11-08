@@ -1,0 +1,123 @@
+tagline: What a VPN is and is not, remote-access versus site-to-site, IPsec, WireGuard, OpenVPN and SSL VPNs, split versus full tunnel, how VPNs get attacked, and where this sits in Network+ and Security+.
+:: simple
+### What a VPN is
+A **VPN (virtual private network)** is an encrypted tunnel between two points across a network you do not trust, usually the internet. Traffic goes in one end as ordinary packets, gets wrapped and encrypted, travels across the internet as unreadable data, and is unwrapped at the other end. To the computers at each end it looks as if they are on the same private network.
+
+Two ordinary uses:
+- **Remote access**: you are at home or in a café and need the company file server. Your laptop runs a VPN client, builds a tunnel to the company's VPN gateway and gets an internal address. This is **client-to-site**.
+- **Site-to-site**: two offices (or an office and a cloud network) are joined permanently by two gateways. Nobody runs a client, the gateways just carry traffic for everyone behind them.
+
+### What a VPN does not do
+- It does not make you anonymous. The VPN operator, or the company you connect to, can see your traffic. A **commercial VPN service** only moves your trust from your café Wi-Fi to the VPN company.
+- It does not remove malware or stop phishing. A compromised laptop on a VPN is a compromised laptop with a tunnel into the network.
+- It is not the same as a **proxy** (which relays one app's requests, often unencrypted) or **Tor** (which relays through several volunteer nodes for anonymity).
+> A VPN protects traffic on the path between two endpoints. It says nothing about how trustworthy either endpoint is.
+
+### Words to know
+- **Tunnel**: the encrypted path. **Tunneling** means wrapping one packet inside another.
+- **Gateway / concentrator / head-end**: the device that terminates many tunnels. Usually the firewall.
+- **Split tunnel**: only traffic for the company network goes through the VPN; everything else goes straight to the internet. **Full tunnel**: all traffic goes through the VPN, so the company can inspect it, at the cost of a detour.
+- **Pre-shared key (PSK)** and **certificates**: two ways the endpoints prove who they are.
+:: mid
+### The main protocols
+| Protocol | Layer and port | Notes |
+|---|---|---|
+| **IPsec** | network layer; IKE on UDP 500 (4500 behind NAT), ESP is IP protocol 50 | The standard for site-to-site. Vendor-neutral, complex to configure. |
+| **WireGuard** | UDP, default 51820 | Tiny codebase, fast, simple: each peer has a key pair and a list of allowed IPs. Tailscale uses it. |
+| **OpenVPN** | TLS, UDP 1194 by default (TCP 443 possible) | Flexible and widely supported. Heavier than WireGuard. |
+| **SSL/TLS VPN** | TCP 443 | Runs over HTTPS so it passes almost any firewall. Browser-based (clientless) or a small client. |
+| **L2TP/IPsec** | UDP 1701 plus IPsec | Older; L2TP alone has no encryption, IPsec adds it. |
+| **PPTP** | TCP 1723 | Obsolete and broken. Do not use. |
+| **GRE** | IP protocol 47 | Tunnels packets but does **not** encrypt. Often paired with IPsec. |
+
+### IPsec in a paragraph
+IPsec has two phases. First **IKE** authenticates both sides and negotiates keys, creating a security association. Then **ESP** (encapsulating security payload) carries the data encrypted and authenticated. **AH** (authentication header) only authenticates and is rarely used. **Transport mode** protects the payload of a packet between two hosts; **tunnel mode** wraps the whole original packet inside a new one, which is what site-to-site VPNs use.
+
+### Split versus full tunnel
+- **Full tunnel**: every packet goes through the VPN. The company firewall, proxy and logging see it all. It is simple to reason about but slow for web browsing and video calls.
+- **Split tunnel**: only the company subnets (for example 10.0.0.0/8) go through the tunnel. Fast, but the laptop is on the internet and the corporate network at the same moment, so a compromised laptop can bridge the two.
+In **WireGuard** this is one line: `AllowedIPs = 10.0.0.0/24` is split, `AllowedIPs = 0.0.0.0/0` is full.
+
+### Worked example: reading a client config
+```
+[Interface]
+Address = 10.8.0.2/32
+PrivateKey = (hidden)
+DNS = 10.8.0.1
+
+[Peer]
+PublicKey = (server key)
+Endpoint = vpn.example.com:51820
+AllowedIPs = 10.0.0.0/16
+PersistentKeepalive = 25
+```
+Reading it: the laptop's tunnel address is 10.8.0.2; it connects to vpn.example.com on UDP 51820; and only traffic for 10.0.0.0/16 is sent into the tunnel, so this is a **split tunnel**. The DNS server is inside the tunnel, which matters if internal names must resolve.
+
+### Where VPNs fit in the exams
+- **Network+**: VPN types (client-to-site, site-to-site), full versus split tunnel, IPsec and its modes, GRE, concentrators, clientless VPN. Also SASE and ZTNA as the cloud-delivered "next-generation VPN".
+- **Security+**: VPN as a secure-communication control, IPsec (AH, ESP, tunnel versus transport), always-on VPN, split tunnel risk, and TLS versus IPsec VPN.
+:: complex
+### How VPNs get attacked
+- **Credential attacks**: the VPN portal is on the internet by design, so it gets password spraying and credential stuffing. Defenses are MFA, lockouts or rate limits, and alerting on many failures from one source.
+- **Vulnerabilities in the gateway**: VPN appliances have repeatedly had critical flaws, some exploited before patches existed. Patch quickly, minimize exposure, and monitor for unexpected admin logins and new accounts.
+- **Stolen sessions and keys**: a stolen certificate, private key or session token works as a login. Use device certificates, short lifetimes and revocation.
+- **Split tunnel bridging**: malware on the laptop reaches the corporate network through the tunnel. Posture checks (is the device patched, is EDR running) help.
+- **Weak crypto and downgrade**: old IKE versions, weak Diffie-Hellman groups and PSKs that are short or shared across sites. Use IKEv2, strong groups and certificates.
+- **Lateral movement**: once connected, a user often gets a flat view of the internal network. Limit VPN users to the subnets and ports they need, and log everything.
+
+### Design choices
+- **Always-on VPN** reconnects automatically, so laptops are not left unprotected on public Wi-Fi.
+- **Full-mesh versus hub-and-spoke**: spoke sites reach each other through the hub (easy to inspect) or directly (faster, harder to manage).
+- **VPN versus zero trust**: a VPN puts you on the network and trusts you from then on. Zero trust network access (ZTNA) authorizes each app request on its own, based on user, device and context. Many organizations are moving to it, but VPNs remain everywhere.
+- **MTU**: tunneling adds headers; a packet that fit before may now be too large and get dropped. The classic symptom is "ping works but file transfer hangs". Lower the tunnel MTU or enable MSS clamping.
+
+### What to check when a VPN will not connect
+1. Is the gateway reachable on the right port (UDP 500/4500, 51820, 1194, TCP 443)? A hotel or café firewall may block UDP.
+2. Do the endpoints agree on settings: the same protocol version, encryption, keys or certificates?
+3. Do the clocks agree? Certificates fail if the time is wrong.
+4. Does NAT interfere? IPsec behind NAT needs NAT traversal (UDP 4500).
+5. Once connected, can you resolve names and reach the subnets? Check routes (`ip route`, `route print`) and DNS.
+
+### Detection ideas for a SOC
+- Many failed logins to the VPN portal from one source across many usernames (spraying), or many sources against one user.
+- A successful login right after a burst of failures.
+- Impossible travel: the same user from two distant countries within minutes.
+- A VPN login from a new device or at a strange hour, followed by large internal data transfers.
+- New VPN accounts or changes to VPN configuration outside change windows.
+
+Try the lab below, or the hands-on [Tailscale guide](../learn/vpn-tailscale.html) to build a real WireGuard-based mesh in your homelab.
+:: lab
+style: shell
+host: vpn-gw
+user: analyst
+cwd: /home/analyst
+:: brief
+The VPN portal at the edge of the network is being attacked. The authentication log is in `~/vpn/auth.log`, one event per line: `time result user source-ip`.
+
+Find the **source IP** that is password-spraying the portal (many different usernames failing from one address). Answer with the IP. Do not confuse it with the address where one user just mistyped a password twice.
+:: answer
+203.0.113.50
+:: hint
+Start with the failures only: `grep FAIL ~/vpn/auth.log`. The IP is the 4th field.
+:: hint
+Count failures per source address: `grep FAIL ~/vpn/auth.log | awk '{print $4}' | sort | uniq -c | sort -rn`. Then check whether the top address tried many different users or one.
+:: solution
+`203.0.113.50` failed against eight different usernames once each, which is the signature of **password spraying**: one guess per account to stay under the lockout threshold. `198.51.100.7` failed twice for `alice` and then succeeded, which is an ordinary typo. Responses: block or rate-limit the source, check whether any account from that list was a later success, require MFA, and alert on distinct-usernames-per-source in the SIEM.
+:: verify
+grep FAIL ~/vpn/auth.log | awk '{print $4}' | sort | uniq -c | sort -rn
+:: file /home/analyst/vpn/auth.log
+2026-11-02T08:01:11 OK carol 192.0.2.10
+2026-11-02T08:15:42 FAIL alice 198.51.100.7
+2026-11-02T08:15:58 FAIL alice 198.51.100.7
+2026-11-02T08:16:20 OK alice 198.51.100.7
+2026-11-02T09:01:02 FAIL admin 203.0.113.50
+2026-11-02T09:01:09 FAIL bob 203.0.113.50
+2026-11-02T09:01:15 FAIL carol 203.0.113.50
+2026-11-02T09:01:21 FAIL dave 203.0.113.50
+2026-11-02T09:01:28 FAIL erin 203.0.113.50
+2026-11-02T09:01:35 FAIL frank 203.0.113.50
+2026-11-02T09:01:41 FAIL grace 203.0.113.50
+2026-11-02T09:01:48 FAIL heidi 203.0.113.50
+2026-11-02T09:30:00 OK dave 192.0.2.44
+2026-11-02T10:12:09 OK bob 192.0.2.31
+2026-11-02T11:45:50 OK erin 192.0.2.52

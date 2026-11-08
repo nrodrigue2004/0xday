@@ -1269,6 +1269,10 @@
               "m": 60,
               "links": [
                 {
+                  "t": "~/basics: VPNs and tunnels (lab: spot password spraying)",
+                  "h": "basics/vpns-and-tunnels.html"
+                },
+                {
                   "t": "~/learn: VPN and Tailscale",
                   "h": "learn/vpn-tailscale.html"
                 }
@@ -2102,6 +2106,24 @@
                 {
                   "t": "~/web: API security",
                   "h": "web/api-security.html"
+                }
+              ]
+            },
+            {
+              "t": "Bug bounty",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/web: bug bounty (lab: decide what is in scope)",
+                  "h": "web/bug-bounty.html"
+                },
+                {
+                  "t": "PortSwigger Web Security Academy",
+                  "h": "https://portswigger.net/web-security"
+                },
+                {
+                  "t": "Hacker101",
+                  "h": "https://www.hacker101.com/"
                 }
               ]
             }
