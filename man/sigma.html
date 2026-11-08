@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man sigma :: 0xDay</title>
+<meta name="description" content="sigma cheatsheet: Sigma rule fields, modifiers and conditions, plus ATT&amp;CK tactic names">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man sigma</p>
+<div class="manhead"><span>SIGMA(7)</span><span>0xDay Field Manual</span><span>SIGMA(7)</span></div>
+<h1>sigma <span class="muted">- Sigma rule fields, modifiers and conditions, plus ATT&amp;CK tactic names</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-att-ck-vocabulary">ATT&amp;CK vocabulary</a> <a href="#g-detection-terms">Detection terms</a> <a href="#g-rule-fields">rule fields</a> <a href="#g-modifiers">modifiers</a> <a href="#g-pysigma">pySigma</a> <a href="#g-tactics">tactics</a> <a href="#g-hunting-patterns">hunting patterns</a> <a href="#g-hypothesis-template">hypothesis template</a></p><h2 id="g-att-ck-vocabulary">ATT&amp;CK vocabulary</h2><dl class="man"><dt><code>tactic</code></dt><dd>the attacker&#x27;s goal at that step, such as Persistence</dd><dt><code>technique (T1059)</code></dt><dd>a way to reach a tactic, with a numeric ID</dd><dt><code>sub-technique (T1059.001)</code></dt><dd>a specific variant, here PowerShell</dd><dt><code>procedure</code></dt><dd>how one named actor or tool performs the technique</dd><dt><code>data source</code></dt><dd>the log type that shows the behavior, such as Process Creation</dd></dl><h2 id="g-detection-terms">Detection terms</h2><dl class="man"><dt><code>true positive</code></dt><dd>alert fired on real malicious activity</dd><dt><code>false positive</code></dt><dd>alert fired on benign activity</dd><dt><code>false negative</code></dt><dd>malicious activity that produced no alert</dd><dt><code>detection-as-code</code></dt><dd>rules stored, tested and deployed like software</dd><dt><code>pyramid of pain</code></dt><dd>hashes &lt; IPs &lt; domains &lt; artifacts &lt; tools &lt; TTPs, in how hard they are for an attacker to change</dd></dl><h2 id="g-rule-fields">rule fields</h2><dl class="man"><dt><code>title / id / status</code></dt><dd>name, UUID, experimental|test|stable</dd><dt><code>logsource</code></dt><dd>category (process_creation), product (windows), service</dd><dt><code>detection</code></dt><dd>named selections plus a condition</dd><dt><code>condition</code></dt><dd>selection and not filter / 1 of selection_* / all of them</dd><dt><code>tags</code></dt><dd>attack.&lt;tactic&gt; and attack.tNNNN[.NNN] mapping</dd><dt><code>level</code></dt><dd>informational, low, medium, high, critical</dd></dl><h2 id="g-modifiers">modifiers</h2><dl class="man"><dt><code>contains / startswith / endswith</code></dt><dd>substring tests (case-insensitive)</dd><dt><code>all</code></dt><dd>every value in the list must match</dd><dt><code>re</code></dt><dd>regular expression match</dd><dt><code>cidr</code></dt><dd>IP is in the range</dd><dt><code>base64offset</code></dt><dd>match a string in its base64 forms</dd></dl><h2 id="g-pysigma">pySigma</h2><dl class="man"><dt><code>sigma convert -t splunk -p sysmon rule.yml</code></dt><dd>convert a rule to a Splunk query</dd><dt><code>sigma check rules/</code></dt><dd>validate rule syntax</dd><dt><code>sigma list targets</code></dt><dd>show supported SIEM backends</dd></dl><h2 id="g-tactics">tactics</h2><dl class="man"><dt><code>attack.initial-access | attack.execution</code></dt><dd>attack.persistence</dd><dt><code>attack.privilege-escalation | attack.defense-evasion</code></dt><dd>attack.credential-access</dd><dt><code>attack.discovery | attack.lateral-movement</code></dt><dd>attack.collection</dd><dt><code>attack.command-and-control | attack.exfiltration</code></dt><dd>attack.impact</dd></dl><h2 id="g-hunting-patterns">hunting patterns</h2><dl class="man"><dt><code>stacking</code></dt><dd>count values of a field and examine the rare end</dd><dt><code>beaconing</code></dt><dd>regular connection intervals to one destination</dd><dt><code>parent-child</code></dt><dd>which process started which: Office -&gt; cmd is suspicious</dd><dt><code>first seen</code></dt><dd>a user, host or binary doing something for the first time</dd><dt><code>long tail</code></dt><dd>very low-frequency values in a large dataset</dd></dl><h2 id="g-hypothesis-template">hypothesis template</h2><dl class="man"><dt><code>Hypothesis</code></dt><dd>If &lt;attacker action&gt; happened, we would see &lt;artifact&gt; in &lt;log&gt;</dd><dt><code>Data</code></dt><dd>which sources and what time range</dd><dt><code>Result</code></dt><dd>malicious / benign (why) / inconclusive (what is missing)</dd><dt><code>Output</code></dt><dd>new rule, new logging, or no action</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

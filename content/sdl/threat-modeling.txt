@@ -1,0 +1,89 @@
+tagline: Threat modeling is asking "what can go wrong?" before the code exists. A one-hour whiteboard session finds bugs that no scanner can, because they are design flaws.
+sheet: appsec
+:: simple
+**Threat modeling** is a structured way to find security problems in a design. It answers four questions (from the Threat Modeling Manifesto):
+
+1. **What are we working on?** Draw the system.
+2. **What can go wrong?** List threats.
+3. **What are we going to do about it?** Mitigate, accept, transfer or avoid.
+4. **Did we do a good job?** Review and test.
+
+Start with a **data flow diagram (DFD)**: external entities (users, other systems), processes (your services), data stores (databases, buckets) and the data flows between them. Then draw **trust boundaries**: lines where the level of trust changes, such as the internet to your load balancer, your app to your database, or your network to a third-party API. Most threats live where data crosses a trust boundary.
+:: mid
+### STRIDE
+For each element and each boundary crossing ask the six STRIDE questions:
+
+- **S**poofing: can someone pretend to be another user or system? (property violated: authentication)
+- **T**ampering: can data be changed in transit or at rest? (integrity)
+- **R**epudiation: can someone deny an action because there is no log? (non-repudiation)
+- **I**nformation disclosure: can data leak? (confidentiality)
+- **D**enial of service: can the service be made unavailable? (availability)
+- **E**levation of privilege: can someone gain rights they should not have? (authorization)
+
+### A worked example
+A web app sends orders to a payment API. Across the browser-to-app boundary: spoofing (stolen session), tampering (price changed in the request), information disclosure (verbose errors). Across the app-to-payment boundary: tampering (webhook not signed), repudiation (no log of who refunded). Each gets a mitigation: server-side price lookup, signed webhooks, audit logging.
+
+### Ranking
+Rate each threat by likelihood and impact (low, medium, high), or use **DREAD**-style scoring or CVSS-like severity. Fix high-impact, easy-to-exploit items first. Record decisions and owners in tickets.
+
+### Related methods
+**PASTA** (risk-centric, seven stages), **LINDDUN** (privacy threats), **attack trees** (a goal at the root, ways to achieve it as branches) and **MITRE ATT&CK** for mapping to real adversary behavior.
+:: complex
+### Make it routine
+- Model **early** (design review) and again when the architecture changes: a new integration, a new data type, a new trust boundary.
+- Keep the diagram and threat list in the repo next to the code (a Markdown file or a tool such as OWASP Threat Dragon or pytm).
+- Involve the people who build it. The developer who knows that "this queue is shared across tenants" finds more than an outside reviewer.
+
+### Good outputs
+A short list of concrete, testable statements: "an unauthenticated caller cannot read another tenant's invoices"; each linked to a mitigation and a test or monitor. Vague items ("encrypt everything") do not survive.
+
+### Abuse and misuse cases
+Write user stories from the attacker's side: "As an attacker, I replay a password-reset link after use." Each one becomes an acceptance test.
+
+### Common mistakes
+Modeling only the happy path, drawing the diagram so detailed that nobody reads it, ignoring third-party components and the CI/CD pipeline (a trust boundary with enormous power), and never revisiting the model after launch.
+:: ref
+### STRIDE
+Spoofing | pretending to be someone else -> authentication
+Tampering | modifying data -> integrity
+Repudiation | denying an action -> logging and non-repudiation
+Information disclosure | leaking data -> confidentiality
+Denial of service | exhausting a resource -> availability
+Elevation of privilege | gaining rights -> authorization
+### DFD elements
+external entity | user or system outside your control
+process | code that handles data
+data store | database, file, bucket, queue
+data flow | data moving between elements
+trust boundary | where trust level changes; check every crossing
+:: lab
+host: reviewer
+user: reviewer
+cwd: /home/reviewer
+:: brief
+**Scenario (fictional, simulated):** **Fabrikam Tools** is designing an internal invoicing app. The data flows are listed in `~/tm/flows.txt` and the trust boundaries drawn so far are in `~/tm/boundaries.txt`. Read `~/tm/README.txt`.
+
+One data flow crosses a trust boundary that has **not** been drawn, so nobody has modeled its threats. Submit the **flow ID** of that flow, for example `submit F1`.
+:: answer
+F5
+:: hint
+For each flow, find where it starts and ends. `cat ~/tm/flows.txt` shows a zone for both ends.
+:: hint
+Compare the zone pairs to the boundaries listed in `boundaries.txt`. One pair is missing.
+:: solution
+Boundaries drawn: internet to web (F1), web to app (F2), app to database (F3, F4). Flow **F5** sends invoice PDFs from the app to a third-party email service, a trust boundary (`app` to `vendor`) that is not in the boundary list. Threats there: spoofing of the vendor endpoint, tampering, information disclosure (invoices contain customer data), and denial of service. Mitigations: TLS with verification, scoped API keys, minimizing the data sent, and monitoring.
+:: verify
+cat ~/tm/flows.txt
+cat ~/tm/boundaries.txt
+:: file /home/reviewer/tm/README.txt
+Fictional invoicing app threat model (simulated).
+:: file /home/reviewer/tm/flows.txt
+F1  browser(internet) -> web
+F2  web -> app
+F3  app -> db
+F4  db -> app
+F5  app -> email-vendor(vendor)
+:: file /home/reviewer/tm/boundaries.txt
+B1  internet | web
+B2  web | app
+B3  app | db

@@ -1,0 +1,25 @@
+/* ~/ossim and ~/dbsim */
+.sm__p{border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:4px 16px 14px;margin:1.2rem 0}
+.sm__ta,.sm__in{background:var(--panel-2);color:var(--strong);border:1px solid var(--border-2);border-radius:4px;font-family:var(--mono);font-size:.88rem;padding:6px 8px;max-width:100%}
+.sm__ta{width:100%;box-sizing:border-box;resize:vertical}
+.sm__in{min-width:12rem}
+.sm__row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.sm__row input[type=number],.sm__row select{background:var(--panel-2);color:var(--strong);border:1px solid var(--border-2);border-radius:4px;font-family:var(--mono);padding:3px 6px;width:auto}
+.sm__row input[type=number]{width:5rem}
+.sm__two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px}
+.sm__two label{display:block}
+.sm__gantt{display:flex;margin-top:12px;border:1px solid var(--border-2);border-radius:3px;overflow:hidden;min-height:30px}
+.sm__seg{display:flex;align-items:center;justify-content:center;color:#07090a;font-size:.8rem;font-weight:700;border-right:1px solid var(--bg);min-width:1px;overflow:hidden}
+.sm__ticks{display:flex;font-size:.72rem;color:var(--muted)}
+.sm__ticks span{overflow:hidden;min-width:1px}
+.sm__tw{overflow-x:auto;margin:.6rem 0}
+.sm__t{border-collapse:collapse;font-size:.85rem}
+.sm__t th,.sm__t td{border:1px solid var(--border);padding:3px 9px;text-align:center}
+.sm__t th{color:var(--strong);background:var(--panel-2)}
+.sm__avg td{color:var(--strong);font-weight:700}
+.sm__pg td{min-width:1.6rem;padding:3px 6px}
+.ok{color:var(--green)}.bad{color:var(--red)}
+.sm__trace{font-size:.85rem;color:var(--muted)}
+.sm__bar{display:grid;grid-template-columns:9rem 1fr 11rem;gap:10px;align-items:center;font-size:.85rem;margin:6px 0}
+.sm__bar i{display:block;height:12px;background:var(--green);box-shadow:0 0 8px var(--green-glow);border-radius:2px}
+@media(max-width:600px){.sm__bar{grid-template-columns:1fr}}

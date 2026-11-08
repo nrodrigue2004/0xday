@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YARA rules :: ~/detect :: 0xDay</title>
+<meta name="description" content="Detection engineering and hunting, YARA rules: Match files and memory by strings, hex and conditions. Lab: write the condition that fits.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../sandbox.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">detect --chapter yara-rules</p>
+<h1>~/detect/yara-rules</h1>
+<p>YARA matches files and process memory by text strings, hex patterns and conditions. It is the standard way to describe malware families.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="detect-yara-rules">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>YARA rule</strong> has a name, optional metadata, a set of <strong>strings</strong> and a <strong>condition</strong>. The rule matches a file when the condition is true.</p>
+<pre class="ex ex--code"><code>rule Demo_Dropper : trojan
+{
+    meta:
+        author = &quot;analyst&quot;
+        description = &quot;Fictional dropper strings&quot;
+    strings:
+        $a = &quot;cmd /c start&quot; ascii wide
+        $b = { 4D 5A 90 00 }
+        $c = /https?:\/\/[a-z0-9.]+\/payload/ nocase
+    condition:
+        uint16(0) == 0x5A4D and 2 of them
+}</code></pre>
+<ul><li><code>$a</code> is a text string, <code>$b</code> a hex pattern (with <code>??</code> wildcards), <code>$c</code> a regular expression.</li><li><code>ascii wide</code> matches both 1-byte and UTF-16 forms; Windows malware often stores strings as wide.</li><li><code>uint16(0) == 0x5A4D</code> means the file starts with "MZ", so it is a Windows executable.</li><li><code>2 of them</code> means at least two of the strings must appear.</li></ul>
+<p>Run it with <code>yara rule.yar file_or_folder</code>. It prints the names of the rules that matched.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Condition building blocks</h4>
+<ul><li><code>filesize &lt; 2MB</code>: bound the file size so you do not scan huge files.</li><li><code>$a and $b</code>, <code>any of ($s*)</code>, <code>all of ($x*)</code>, <code>3 of ($s*)</code>: combine strings.</li><li><code>#a &gt; 5</code>: the string occurs more than five times. <code>$a at 0</code>, <code>$a in (0..1024)</code>: position tests.</li><li><code>uint32(0) == 0x464c457f</code>: ELF header.</li></ul>
+<h4>Good strings, bad strings</h4>
+<p>Pick strings that are <strong>unique to the family</strong>: custom mutex names, unusual error text, PDB paths, config keys, rare instruction sequences. Avoid common API names (<code>CreateFile</code>) and library text, which also match clean software. A single short string is fragile, so combine several.</p>
+<h4>The PE module</h4>
+<pre class="ex ex--code"><code>import &quot;pe&quot;
+rule Suspicious_Packer_Section
+{
+    condition:
+        pe.is_pe and pe.number_of_sections &lt;= 3 and
+        for any s in pe.sections : (s.name == &quot;.upx0&quot;)
+}</code></pre>
+<p>Imports let you test headers, imports (<code>pe.imphash()</code>), sections and resources without byte math.</p>
+<h4>Test before you ship</h4>
+<p>Scan a <strong>goodware corpus</strong> (a clean OS install, common installers) and confirm zero hits. Then scan your malware samples and confirm hits. A rule that never fires on clean files and always fires on the family is a good rule.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Performance</h4>
+<p>YARA is fast when the rule gives the scanner an anchor. Prefer strings of 4+ bytes with distinct leading bytes. Avoid regexes starting with <code>.*</code> or short wildcard hex runs, which force slow scanning. Put cheap checks first in the condition (<code>filesize</code>, <code>uint16(0)</code>), since evaluation short-circuits.</p>
+<h4>Packers and families</h4>
+<p>Packed samples hide strings. Either write the rule against the <strong>unpacked</strong> sample (and scan memory dumps), or against the packer stub and header features. Memory scanning (<code>yara -p PID</code>, or Volatility's <code>yarascan</code>) finds strings that exist only after unpacking.</p>
+<h4>Rule management</h4>
+<p>Use a naming scheme (<code>MAL_Family_Variant</code>, <code>HKTL_ToolName</code>), include <code>reference</code>, <code>hash</code> and <code>date</code> meta, and keep rules in git with a goodware regression test in CI. Public rule sets (Neo23x0 signature-base, YARA-Rules) are good reading, and need the same tuning you would give any borrowed rule.</p>
+<h4>Where it runs</h4>
+<p>Endpoint scanners, sandboxes, email gateways, VirusTotal retrohunt, and incident response triage across a fleet. A rule that is too broad becomes an outage when it runs on every endpoint, so stage rollouts.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><strong>Scenario (fictional, simulated):</strong> you are triaging a fictional loader, <strong>Duskmoth</strong>. The sample's strings are in <code>~/yara/duskmoth-strings.txt</code>, and <code>~/yara/goodware-strings.txt</code> lists strings found in clean software. Read <code>~/yara/README.txt</code>.</p>
+<p>A good YARA string appears in the malware but <strong>not</strong> in goodware. Exactly one string in the sample list qualifies. Submit that <strong>string</strong> exactly as shown, for example <code>submit some_text</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it. Everything is simulated.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/yara.html">cheatsheet</a></span></h2><h3>syntax</h3><dl class="man"><dt><code>rule Name : tag { ... }</code></dt><dd>define a rule with optional tags</dd><dt><code>meta: key = &quot;value&quot;</code></dt><dd>author, description, reference, date, hash</dd><dt><code>strings: $a = &quot;text&quot; ascii wide nocase</code></dt><dd>text string with modifiers</dd><dt><code>strings: $b = { 4D 5A ?? 00 }</code></dt><dd>hex bytes, ?? is a wildcard</dd><dt><code>strings: $c = /regex/</code></dt><dd>regular expression</dd><dt><code>condition: any of them</code></dt><dd>at least one string matches</dd><dt><code>condition: 2 of ($s*)</code></dt><dd>at least two strings with that prefix</dd></dl><h3>conditions</h3><dl class="man"><dt><code>filesize &lt; 1MB</code></dt><dd>file size test</dd><dt><code>uint16(0) == 0x5A4D</code></dt><dd>file begins with MZ (Windows executable)</dd><dt><code>$a at 0</code></dt><dd>string at an exact offset</dd><dt><code>#a &gt; 3</code></dt><dd>string occurs more than 3 times</dd></dl><h3>cli</h3><dl class="man"><dt><code>yara rules.yar target</code></dt><dd>scan a file or folder</dd><dt><code>yara -r rules.yar dir/</code></dt><dd>scan recursively</dd><dt><code>yara -s rules.yar file</code></dt><dd>also print the matching strings</dd><dt><code>yara -p PID</code></dt><dd>scan a running process</dd></dl></section><nav class="pager"><a href="sigma-rules.html">&lt; Sigma rules</a><a href="threat-hunting.html">threat hunting &gt;</a></nav><p><a href="../detect.html">cd ~/detect</a> · <a href="../courses/BLU310.html">course BLU310</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "detect-yara-rules", "title": "YARA rules", "user": "analyst", "host": "analyst", "brief": "<strong>Scenario (fictional, simulated):<\/strong> you are triaging a fictional loader, <strong>Duskmoth<\/strong>. The sample's strings are in <code>~/yara/duskmoth-strings.txt<\/code>, and <code>~/yara/goodware-strings.txt<\/code> lists strings found in clean software. Read <code>~/yara/README.txt<\/code>.\n\nA good YARA string appears in the malware but <strong>not<\/strong> in goodware. Exactly one string in the sample list qualifies. Submit that <strong>string<\/strong> exactly as shown, for example <code>submit some_text<\/code>.", "hints": ["Read both lists with <code>cat<\/code>. Which sample string is missing from the goodware list?", "Check a candidate with <code>grep -c -F STRING ~/yara/goodware-strings.txt<\/code>. A count of 0 means goodware never uses it."], "answers": ["efe344a641620cebc452b898085c2073303326e59adfe8ee48e5dde4b54812fb"], "solution": "TW9zdCBzYW1wbGUgc3RyaW5ncyBhcmUgZ2VuZXJpYzogPGNvZGU+Q3JlYXRlRmlsZUE8L2NvZGU+LCA8Y29kZT5rZXJuZWwzMi5kbGw8L2NvZGU+LCA8Y29kZT5jbWQgL2M8L2NvZGU+LCA8Y29kZT5odHRwOi8vPC9jb2RlPiBhbGwgYXBwZWFyIGluIGNsZWFuIHNvZnR3YXJlLCBzbyBhIHJ1bGUgYnVpbHQgZnJvbSB0aGVtIHdvdWxkIGZhbHNlLXBvc2l0aXZlIGV2ZXJ5d2hlcmUuIE9ubHkgPGNvZGU+ZG1fbXV0ZXhfN2M5MTwvY29kZT4sIGEgaGFyZC1jb2RlZCBtdXRleCBuYW1lLCBpcyBhYnNlbnQgZnJvbSBnb29kd2FyZS4gQSBnb29kIHJ1bGUgd291bGQgdXNlIGl0IHdpdGggYSBQRS1oZWFkZXIgY2hlY2sgYW5kIG9uZSBtb3JlIG1hbHdhcmUtc3BlY2lmaWMgc3RyaW5nLCBmb3IgZXhhbXBsZSA8Y29kZT51aW50MTYoMCkgPT0gMHg1QTREIGFuZCAkbXV0ZXggYW5kIDEgb2YgKCRvdGhlciopPC9jb2RlPi4K", "fs": {"/home/analyst/yara/README.txt": "Fictional Duskmoth loader triage (simulated).\n  duskmoth-strings.txt   strings pulled from the sample\n  goodware-strings.txt   strings seen in a clean software corpus\n", "/home/analyst/yara/duskmoth-strings.txt": "CreateFileA\nkernel32.dll\ncmd /c\nhttp://\ndm_mutex_7c91\nVirtualAlloc\n", "/home/analyst/yara/goodware-strings.txt": "CreateFileA\nkernel32.dll\ncmd /c\nhttp://\nVirtualAlloc\nuser32.dll\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

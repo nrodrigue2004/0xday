@@ -346,6 +346,8 @@ import build_code
 CODE = build_code.build(page, SHEETS)
 import build_cloud
 CLOUD = build_cloud.build(page, SHEETS)
+import build_adv
+ADV = build_adv.build(page, SHEETS)
 import build_history
 HISTORY, CASES = build_history.build(page, SHEETS)
 
@@ -495,6 +497,10 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("dist", "dist.html", "distributed systems: replication, consensus, queues + cluster sim", f'{len(DIST)} chapters'),
        ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
+       ("detect", "detect.html", "Sigma, YARA, ATT&CK, threat hunting (BLU310)", f'{len(ADV["detect"])} chapters'),
+       ("crypto", "crypto.html", "modes, RSA/ECC, TLS and PKI, crypto attacks (CRY300)", f'{len(ADV["crypto"])} chapters'),
+       ("sdl", "sdl.html", "threat modeling, SAST/DAST, dependency scanning (SDL300)", f'{len(ADV["sdl"])} chapters'),
+       ("mobile", "mobile.html", "Android and iOS security, mobile crypto", f'{len(ADV["mobile"])} chapters'),
        ("history", "history.html", "Ada Lovelace to quantum computers, hacking timeline", f'{len(HISTORY)} chapters'),
        ("cases", "cases.html", "real exploits and malware: code, patches, labs", f'{len(CASES)} cases'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
@@ -516,6 +522,10 @@ HUB += build_hlops.build(page, esc)
 import build_arcade
 HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet, bits", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
+import build_sims
+build_sims.build(page, esc)
+HUB.insert(2, ("ossim", "ossim.html", "scheduler, paging and Banker's simulators", "3 tools"))
+HUB.insert(3, ("dbsim", "dbsim.html", "normal forms, index vs scan, serializability", "3 tools"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
 HUB.insert(0, ("start", "start.html", "ordered roadmap with progress", "start here"))
@@ -573,6 +583,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "code": [{"slug": c[0], "name": c[1]} for c in CODE],
         "cloud": [{"slug": c[0], "name": c[1]} for c in CLOUD],
+        "adv": {k: [{"slug": c[0], "name": c[1]} for c in v] for k, v in ADV.items()},
         "history": [{"slug": c[0], "name": c[1]} for c in HISTORY],
         "cases": [{"slug": c[0], "name": c[1]} for c in CASES],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}

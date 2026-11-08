@@ -1,0 +1,285 @@
+## 0
+Q: What is the difference between a candidate key and the primary key?
+* A candidate key is any minimal set of columns that uniquely identifies a row; the primary key is the one you pick
+- They are the same thing
+- A candidate key may contain duplicates
+- The primary key is always two or more columns
+? A table can have several candidate keys. One becomes the primary key and the others stay as UNIQUE constraints.
+
+Q: What does a foreign key enforce?
+* Every value in the column must match a row in the referenced table (or be NULL)
+- Every value in the column is unique
+- The column is indexed and encrypted
+- Rows are stored in sorted order
+? That is referential integrity. It stops orphan rows such as an order for a customer that doesn't exist.
+
+Q: In SQL, what does `WHERE price = NULL` return?
+* No rows, because comparing anything to NULL is unknown, not true
+- All rows where price is empty
+- An error
+- All rows
+? Use `IS NULL`. SQL uses three-valued logic: true, false and unknown, and WHERE keeps only true.
+
+Q: What is the difference between WHERE and HAVING?
+* WHERE filters rows before grouping; HAVING filters groups after aggregation
+- WHERE is for numbers, HAVING for text
+- HAVING runs before GROUP BY
+- They are interchangeable
+? `HAVING COUNT(*) > 5` can't be written in WHERE because the count doesn't exist until the groups are formed.
+
+Q: Which join returns every row from the left table, even those with no match on the right?
+* LEFT JOIN
+- INNER JOIN
+- CROSS JOIN
+- RIGHT JOIN
+? Unmatched left rows get NULLs for the right columns. `WHERE right.id IS NULL` after a left join finds rows with no match.
+
+Q: Which relational algebra operator picks columns?
+* Projection
+- Selection
+- Join
+- Union
+? Selection (sigma) picks rows, projection (pi) picks columns, and join combines tables.
+
+## 1
+Q: A table stores each order line with the customer's email repeated on every row. Changing the email needs many updates, and missing one leaves conflicting data. What is this?
+* An update anomaly
+- A deadlock
+- A phantom read
+- A cartesian product
+? Redundancy is what normalization removes. Moving the email into a customers table means it is stored once.
+
+Q: What does first normal form (1NF) require?
+* Every column holds a single atomic value and there are no repeating groups
+- No partial dependencies
+- No transitive dependencies
+- Every table has an index
+? A column holding "red,green,blue" breaks 1NF. 2NF and 3NF come after.
+
+Q: Table Orders(order_id, product_id, qty, product_name) has key (order_id, product_id). product_name depends only on product_id. Which normal form does this violate?
+* Second normal form (partial dependency)
+- First normal form
+- Third normal form only
+- None
+? 2NF forbids non-key columns that depend on part of a composite key. Move product_name to a products table.
+
+Q: In Employees(emp_id, dept_id, dept_name), dept_name depends on dept_id, which depends on emp_id. What is that called, and what does it break?
+* A transitive dependency, which breaks 3NF
+- A partial dependency, which breaks 2NF
+- A multivalued dependency, which breaks 1NF
+- A join dependency, which breaks BCNF only
+? A non-key column determining another non-key column violates 3NF. The fix is a separate departments table.
+
+Q: How do you model a many-to-many relationship such as students and courses?
+* A junction table holding a foreign key to each side
+- A comma-separated list column
+- Duplicate the rows in both tables
+- A self join
+? The junction table (enrollments) has one row per pairing and a composite primary key of the two foreign keys.
+
+Q: Why would a team deliberately denormalize a table?
+* To avoid expensive joins on read-heavy workloads, accepting redundancy
+- Because normalization is not allowed in production
+- To save disk space
+- To make updates easier
+? Denormalization trades write complexity and consistency risk for read speed, and it should be a measured choice.
+
+Q: Under the functional dependency A -> B, what is true?
+* Any two rows with the same A value have the same B value
+- Two rows with the same B value have the same A value
+- A and B are both keys
+- B is computed from A at query time
+? A determines B. Normalization is reasoning about which columns determine which.
+
+## 2
+Q: What data structure do most relational databases use for ordinary indexes?
+* B-tree (or B+tree)
+- Linked list
+- Stack
+- Bloom filter only
+? B-trees are shallow and wide, so a lookup in millions of rows takes a handful of page reads, and they keep keys in sorted order for range queries.
+
+Q: An index exists on (last_name, first_name). Which query can use it effectively?
+* WHERE last_name = 'Smith'
+- WHERE first_name = 'Ann'
+- WHERE first_name LIKE '%nn'
+- WHERE UPPER(last_name) = 'SMITH'
+? A composite index is usable from its leftmost column. Wrapping the column in a function defeats a plain index.
+
+Q: Why can `WHERE name LIKE '%son'` not use a normal B-tree index?
+* The tree is sorted by the start of the string, so a leading wildcard gives no starting point
+- LIKE is not allowed with indexes
+- B-trees only store numbers
+- The index would be too large
+? `LIKE 'son%'` works because it's a range on the sorted prefix.
+
+Q: What is the cost of adding many indexes to a table?
+* Slower inserts, updates and deletes, and more disk space
+- Slower reads
+- Lost data
+- Nothing
+? Every write has to update each index too. Index what your queries filter, join and sort on.
+
+Q: What is a covering index?
+* An index that contains every column the query needs, so the table itself is not read
+- An index on every column
+- An index on the primary key
+- An encrypted index
+? Query plans show it as an index-only scan.
+
+Q: Which kind of index only supports equality lookups, not ranges or sorting?
+* Hash index
+- B-tree index
+- Composite index
+- Clustered index
+? Hashing destroys ordering. That's why B-trees are the default.
+
+Q: For a column with only two distinct values (such as a boolean), why is a plain index usually of little help?
+* Low selectivity: each value matches about half the table, so scanning is as cheap
+- Booleans can't be indexed
+- It makes the table read-only
+- The index takes too long to build
+? Indexes pay off when they narrow the search to a small fraction of rows.
+
+## 3
+Q: What does EXPLAIN (or EXPLAIN QUERY PLAN in SQLite) show you?
+* How the database intends to execute the query, such as scans, index use and join order
+- The query results
+- Who ran the query
+- The size of the table in bytes
+? Read the plan before and after adding an index to see whether it's used. `EXPLAIN ANALYZE` in PostgreSQL also runs the query and reports real timings.
+
+Q: A plan shows "Seq Scan" on a 10-million-row table for a query filtering on one value. What is the usual fix?
+* Add an index on the filtered column (if the query is selective)
+- Add more columns
+- Delete old rows only
+- Use SELECT *
+? A sequential scan reads the whole table. If the filter matches few rows, an index lets the database skip most of them.
+
+Q: Which join algorithm builds an in-memory table from one input and probes it with the other?
+* Hash join
+- Nested loop join
+- Merge join
+- Cross join
+? Hash joins are good for large unsorted equality joins. Nested loops suit small inputs with an index on the inner side; merge joins suit already-sorted inputs.
+
+Q: Why do planners need table statistics (ANALYZE)?
+* To estimate how many rows each step returns and pick the cheapest plan
+- To encrypt the data
+- To create backups
+- To check permissions
+? Stale statistics give bad estimates and sometimes terrible plans.
+
+Q: Which change is MOST likely to make a query faster?
+* Filtering on an indexed column instead of wrapping it in a function
+- Selecting more columns
+- Adding ORDER BY to every query
+- Using SELECT DISTINCT everywhere
+? `WHERE created_at >= '2026-01-01'` can use the index; `WHERE DATE(created_at) = ...` generally cannot.
+
+Q: A query joins orders to customers. What should generally be indexed?
+* The join columns, especially the foreign key
+- Only the primary key of orders
+- Every text column
+- Nothing, joins are always fast
+? Foreign key columns are not always indexed automatically; joins and deletes on the parent table often need them.
+
+## 4
+Q: What does the A in ACID mean?
+* Atomicity: a transaction either fully happens or not at all
+- Availability: the database is always up
+- Authentication: users are verified
+- Archiving: old rows are saved
+? If a transfer debits one account and fails before crediting the other, rollback undoes the debit.
+
+Q: What does durability guarantee?
+* Once a commit returns, the change survives a crash
+- The data is encrypted
+- The data is replicated to three servers
+- Queries run quickly
+? Databases achieve it with a write-ahead log flushed to disk before the commit is acknowledged.
+
+Q: Transaction A reads a row that transaction B changed but has not committed. B then rolls back. What anomaly is this?
+* Dirty read
+- Phantom read
+- Lost update
+- Deadlock
+? READ COMMITTED and stricter isolation levels prevent it.
+
+Q: You read the same row twice in one transaction and get different values because another transaction committed in between. What is this?
+* Non-repeatable read
+- Dirty read
+- Atomicity failure
+- Write skew
+? REPEATABLE READ prevents it. A phantom is similar but involves new rows appearing in a range query.
+
+Q: Which isolation level is the strictest in the SQL standard?
+* SERIALIZABLE
+- READ UNCOMMITTED
+- READ COMMITTED
+- REPEATABLE READ
+? Serializable behaves as if the transactions ran one at a time, at the cost of more locking or retries.
+
+Q: What is write-ahead logging?
+* Recording a change in a log on disk before applying it to the data pages
+- Writing data to two disks at once
+- Compressing writes
+- Caching queries
+? After a crash the log is replayed to redo committed work and undo uncommitted work.
+
+Q: Two transactions each hold a row lock the other wants. What does the database do?
+* Detects the deadlock and aborts one transaction so the other can finish
+- Waits forever
+- Runs both anyway
+- Corrupts a table
+? Applications should be ready to retry an aborted transaction.
+
+Q: What does MVCC (multi-version concurrency control) allow?
+* Readers to see a consistent snapshot without blocking writers
+- Writers to skip logging
+- Tables without primary keys
+- Faster backups only
+? PostgreSQL, Oracle and MySQL's InnoDB use versions of rows so reads rarely block writes.
+
+## 5
+Q: What is the primary defense against SQL injection?
+* Parameterized queries (prepared statements)
+- Escaping quotes by hand
+- Hiding error messages
+- A longer password
+? Parameters keep data separate from SQL code, so user input is never parsed as a command.
+
+Q: The web app's database account is used for everything and has DROP TABLE and file-write rights. What principle is violated?
+* Least privilege
+- Separation of concerns
+- Normalization
+- Data minimization
+? Give the app account only the statements it needs. Then SQL injection can do less damage.
+
+Q: How should passwords be stored in a database?
+* As salted hashes from a slow algorithm such as bcrypt, scrypt or Argon2
+- Encrypted with a key kept in the same table
+- In plain text, with the table protected
+- As unsalted SHA-1
+? The goal is that a stolen table doesn't give up the passwords. Slow, salted hashes make cracking expensive.
+
+Q: What does encryption at rest protect against?
+* Someone stealing the disk, backup or snapshot
+- SQL injection
+- A compromised application account
+- Network sniffing
+? Anyone who can query the live database sees plaintext, so it does not stop injection or stolen credentials.
+
+Q: Which is a good reason to keep backups offline or immutable?
+* Ransomware that has the database credentials can otherwise encrypt or delete the backups too
+- They take less space
+- Offline backups are faster to restore
+- Databases cannot be backed up online
+? Also test restores. A backup you have never restored is a guess.
+
+Q: A NoSQL document store like MongoDB is used. Is injection still possible?
+* Yes, for example with operator injection such as `{"$ne": null}` in a login query
+- No, there is no query language
+- Only through SQL
+- Only with admin access
+? The syntax differs but the lesson is the same: never build queries from raw user input.
