@@ -259,6 +259,8 @@ import build_ai
 AI = build_ai.build(page)
 import build_careers
 CAREERS = build_careers.build(page, esc)
+import build_basics
+BASICS = build_basics.build(page)
 
 # ---------- now ----------
 def nl(xs): return "".join(f"<li>{esc(x)}</li>" for x in xs)
@@ -470,6 +472,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("books", "books.html", "bookshelf", n(BOOKS, "book")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
+       ("basics", "basics.html", "OSI, ports, OSINT, crypto, OS basics", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
        ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
@@ -478,7 +481,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
 HUB = [x for x in HUB if x[3] != "coming soon"]
 HUB.insert(0, ("dojo", "dojo.html", "daily coding drills, 9 languages", f"{DOJO} katas"))
 import build_arcade
-HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack", f"{build_arcade.build(page, esc)} games"))
+HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
@@ -512,6 +515,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "guides": [{"slug": k, "name": v[0]["name"]} for k, v in GUIDES.items()],
         "ai": [{"slug": c[0], "name": c[1]} for c in AI],
         "careers": CAREERS["paths"],
+        "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags,", len(GUIDES), "guides,", len(SP["objectives"]), "objectives,", NCARDS, "cards")

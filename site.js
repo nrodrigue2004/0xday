@@ -90,7 +90,7 @@
   <b>hire</b>          the recruiter summary   <b>resume</b>  printable resume
   <b>man</b> &lt;page&gt;    cmd, powershell, linux, macos, nmap, wireshark, volatility, ad
   <b>ctf</b>           TryHackMe scoreboard   <b>lab</b>     everything else
-  <b>arcade</b>        games: <b>iptables</b>, <b>crack</b>
+  <b>arcade</b>        games: <b>iptables</b>, <b>crack</b>, <b>ports</b>, <b>subnet</b>
   <b>bigo</b>          Big-O visualizer + drill
   <b>contact</b>       where to find me
   <b>cd</b> &lt;page&gt;     blog, projects, skills, certs, now, about, home
@@ -144,7 +144,7 @@
     roadmap: () => CMDS.certs(),
     homelab: (a, log) => go(ROOT + "homelab.html", log),
     arcade: (a, log) => go(ROOT + "arcade.html", log), games: (a, log) => CMDS.arcade(a, log), play: (a, log) => CMDS.arcade(a, log),
-    iptables: (a, log) => go(ROOT + "arcade/iptables.html", log), hashcat: (a, log) => go(ROOT + "arcade/crack.html", log), crack: (a, log) => CMDS.hashcat(a, log),
+    ports: (a, log) => go(ROOT + "arcade/ports.html", log), subnet: (a, log) => go(ROOT + "arcade/subnet.html", log), iptables: (a, log) => go(ROOT + "arcade/iptables.html", log), hashcat: (a, log) => go(ROOT + "arcade/crack.html", log), crack: (a, log) => CMDS.hashcat(a, log),
     bigo: (a, log) => go(ROOT + "bigo.html", log),
     "big-o": (a, log) => CMDS.bigo(a, log),
     map: (a, log) => CMDS.homelab(a, log),

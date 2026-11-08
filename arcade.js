@@ -1,4 +1,4 @@
-/* ~/arcade: iptables (packet triage) and crack (acronym hash cracking).
+/* ~/arcade: iptables, crack, ports (flashcards), subnet (timed sprint).
    No dependencies. High scores live in localStorage under oxday-hi-<game>. */
 (() => {
   "use strict";
@@ -333,5 +333,188 @@ Status.....: ${solved ? `<span class="ok">Cracked</span>  ${h.slice(0, 12)}...:<
       e.preventDefault(); e.stopImmediatePropagation();
     });
     newGame();
+  }
+
+  /* =================================================================== */
+  /*                       ports (flashcard drill)                       */
+  /* =================================================================== */
+  if (DATA.game === "ports") {
+    const CARDS = DATA.cards; // {p, pr, s, n}
+    const ROUND = 20;
+    const el = { q: $("#prt-q"), opts: $("#prt-opts"), msg: $("#prt-msg"), n: $("#prt-n"), score: $("#prt-score"), streak: $("#prt-streak"), over: $("#prt-over"), mode: $("#prt-mode") };
+    const wt = (() => { try { return JSON.parse(ls.get("oxday-ports-weights") || "{}"); } catch (e) { return {}; } })();
+    const key = c => c.p + "/" + c.pr;
+    let st = null, mode = ls.get("oxday-ports-mode") || "mix";
+    el.mode.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
+
+    // missed cards get a heavier weight and come back sooner
+    function draw(used) {
+      const pool = CARDS.filter(c => !used.has(key(c)));
+      const w = pool.map(c => 1 + (wt[key(c)] || 0) * 2);
+      let r = Math.random() * w.reduce((a, b) => a + b, 0);
+      for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
+      return pool[0];
+    }
+    function opts(card, dir) {
+      const val = c => dir === "p2s" ? c.s : c.p + "/" + c.pr;
+      const out = [card], seen = new Set([val(card)]);
+      const pool = CARDS.slice().sort(() => Math.random() - .5);
+      for (const c of pool) { if (out.length >= 4) break; if (!seen.has(val(c))) { seen.add(val(c)); out.push(c); } }
+      return out.sort(() => Math.random() - .5).map(c => ({ t: val(c), ok: c === card }));
+    }
+    function next() {
+      if (st.n >= ROUND) return end();
+      const card = draw(st.used); st.used.add(key(card));
+      const dir = mode === "p2s" || mode === "s2p" ? mode : pick(["p2s", "s2p"]);
+      st.card = card; st.dir = dir; st.locked = false; st.o = opts(card, dir);
+      el.q.innerHTML = dir === "p2s" ? `<span class="muted">what runs on</span> <b>${card.p}/${card.pr}</b><span class="muted">?</span>` : `<span class="muted">which port is</span> <b>${esc(card.s)}</b><span class="muted">?</span>`;
+      el.opts.innerHTML = st.o.map((o, i) => `<button class="btn ar-big prt-o" type="button" data-i="${i}"><kbd>${i + 1}</kbd> ${esc(o.t)}</button>`).join("");
+      el.msg.innerHTML = "";
+      paint();
+    }
+    function paint() { el.n.textContent = `${Math.min(st.n + 1, ROUND)}/${ROUND}`; el.score.textContent = st.score; el.streak.textContent = st.streak; }
+    function answer(i) {
+      if (!st || st.locked || !st.o[i]) return;
+      st.locked = true; st.n++;
+      const c = st.card, k = key(c), good = st.o[i].ok;
+      el.opts.querySelectorAll(".prt-o").forEach((b, j) => { if (st.o[j].ok) b.classList.add("good"); else if (j === i) b.classList.add("bad"); b.disabled = true; });
+      if (good) { st.streak++; st.best = Math.max(st.best, st.streak); st.score += 10 + Math.min(st.streak - 1, 5) * 2; st.right++; wt[k] = Math.max(0, (wt[k] || 0) - 1); }
+      else { st.streak = 0; st.miss.push(c); wt[k] = Math.min(5, (wt[k] || 0) + 2); }
+      ls.set("oxday-ports-weights", JSON.stringify(wt));
+      el.msg.innerHTML = `${good ? '<span class="ok">correct.</span>' : '<span class="err">no.</span>'} <b>${c.p}/${c.pr}</b> = ${esc(c.s)}. ${esc(c.n)}<br><span class="muted">Enter or tap for the next card.</span>`;
+      paint();
+    }
+    function end() {
+      const hi = setHi("ports", st.score);
+      const miss = st.miss.length ? st.miss.map(c => `  ${String(c.p + "/" + c.pr).padEnd(9)} ${c.s}`).join("\n") : "  none. clean run.";
+      el.over.hidden = false;
+      el.over.innerHTML = `<pre>round over: ${st.right}/${ROUND} right · best streak ${st.best} · ${st.score} pts${hi ? " · NEW HIGH SCORE" : ""}\n\nmissed (these show up more often next round):\n${esc(miss)}</pre><button class="btn ar-big" type="button" id="prt-again">[ Enter ] new round</button>`;
+      $("#prt-again").focus(); paintHi();
+    }
+    function start() { st = { n: 0, score: 0, streak: 0, best: 0, right: 0, miss: [], used: new Set(), locked: true }; el.over.hidden = true; next(); }
+    el.opts.addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) { answer(+b.dataset.i); b.blur(); } });
+    el.msg.addEventListener("click", () => { if (st && st.locked) next(); });
+    el.over.addEventListener("click", e => { if (e.target.closest("#prt-again")) start(); });
+    el.mode.addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if (!b) return; mode = b.dataset.mode; ls.set("oxday-ports-mode", mode); el.mode.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); b.blur(); start(); });
+    document.addEventListener("keydown", e => {
+      if (typing() || e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = e.key;
+      if (k === "Enter") { if (!el.over.hidden) start(); else if (st && st.locked) next(); else return; }
+      else if (/^[1-4]$/.test(k)) answer(+k - 1);
+      else return;
+      e.preventDefault(); e.stopImmediatePropagation();
+    });
+    start();
+  }
+
+  /* =================================================================== */
+  /*                         subnet (timed sprint)                       */
+  /* =================================================================== */
+  if (DATA.game === "subnet") {
+    const TIME = 60, PENALTY = 3;
+    const n2ip = n => [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+    const ip2n = ip => ip.split(".").reduce((a, o) => a * 256 + +o, 0) >>> 0;
+    const mask = b => b === 0 ? 0 : (~0 << (32 - b)) >>> 0;
+    const bin = n => [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].map(o => o.toString(2).padStart(8, "0")).join(".");
+    const hosts = b => b >= 31 ? (b === 31 ? 2 : 1) : Math.pow(2, 32 - b) - 2;
+    const el = { q: $("#sn-q"), opts: $("#sn-opts"), msg: $("#sn-msg"), t: $("#sn-t"), score: $("#sn-score"), lvl: $("#sn-lvl"), streak: $("#sn-streak"), over: $("#sn-over"), bar: $("#sn-bar") };
+    let st = null, timer = null;
+    const randIp = () => { const p = pick([[10], [172, 16 + rnd(16)], [192, 168]]); while (p.length < 4) p.push(rnd(256)); if (p[3] === 0) p[3] = 1 + rnd(254); return p.join("."); };
+    // prefixes by level; levels rise every 4 correct answers
+    const PFX = [[8, 16, 24], [24, 25, 26, 27, 28], [20, 21, 22, 23, 25, 26, 27, 28, 29], [17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30]];
+    const dist = (right, pool, fmt) => {
+      const out = new Set([right]);
+      let guard = 0;
+      while (out.size < 4 && guard++ < 80) out.add(fmt(pool()));
+      return [...out].sort(() => Math.random() - .5);
+    };
+    const TYPES = {
+      mask(b) {
+        const ans = n2ip(mask(b));
+        const o = dist(ans, () => mask(pick([8, 12, 16, 20, 22, 24, 25, 26, 27, 28, 29, 30])), n2ip);
+        return { q: `subnet mask for <b>/${b}</b>?`, a: ans, o, why: `/${b} = ${b} one-bits: ${bin(mask(b))}` };
+      },
+      prefix(b) {
+        const m = n2ip(mask(b));
+        const o = dist("/" + b, () => pick([8, 16, 20, 22, 23, 24, 25, 26, 27, 28, 29, 30]), x => "/" + x);
+        return { q: `<b>${m}</b> is which prefix?`, a: "/" + b, o, why: `${bin(mask(b))} has ${b} one-bits` };
+      },
+      hosts(b) {
+        const h = hosts(b);
+        const o = dist(String(h), () => Math.pow(2, 2 + rnd(10)) - (rnd(3) ? 2 : 0), String);
+        return { q: `usable hosts in a <b>/${b}</b>?`, a: String(h), o, why: `2^${32 - b} = ${Math.pow(2, 32 - b)}, minus network and broadcast = ${h}` };
+      },
+      network(b) {
+        const ip = randIp(), net = (ip2n(ip) & mask(b)) >>> 0, bs = Math.pow(2, 32 - b);
+        const o = dist(n2ip(net), () => ((net + (rnd(5) - 2) * Math.min(bs, 256)) >>> 0), n2ip);
+        return { q: `network address of <b>${ip}/${b}</b>?`, a: n2ip(net), o, why: `${ip} AND ${n2ip(mask(b))} = ${n2ip(net)} (block size ${bs > 256 ? bs / 256 + " in the octet that matters" : bs})` };
+      },
+      broadcast(b) {
+        const ip = randIp(), net = (ip2n(ip) & mask(b)) >>> 0, bc = (net | ~mask(b)) >>> 0, bs = Math.pow(2, 32 - b);
+        const o = dist(n2ip(bc), () => ((bc + (rnd(5) - 2) * Math.min(bs, 256)) >>> 0), n2ip);
+        return { q: `broadcast address of <b>${ip}/${b}</b>?`, a: n2ip(bc), o, why: `network ${n2ip(net)} + ${bs} addresses, minus 1 = ${n2ip(bc)}` };
+      },
+      same(b) {
+        const ip = randIp(), net = (ip2n(ip) & mask(b)) >>> 0, bs = Math.pow(2, 32 - b);
+        const inside = rnd(2) === 0;
+        const other = inside ? ((net + rnd(bs)) >>> 0) : ((net + bs + rnd(bs)) >>> 0);
+        const oip = n2ip(other), same = (other & mask(b)) >>> 0 === net;
+        return { q: `are <b>${ip}</b> and <b>${oip}</b> on the same <b>/${b}</b>?`, a: same ? "yes" : "no", o: ["yes", "no"], why: `${ip} is in ${n2ip(net)}/${b}; ${oip} is in ${n2ip((other & mask(b)) >>> 0)}/${b}` };
+      }
+    };
+    const BY_LVL = [["mask", "prefix"], ["mask", "prefix", "hosts", "network"], ["hosts", "network", "broadcast", "same"], ["network", "broadcast", "same", "hosts"]];
+    function ask() {
+      const L = Math.min(3, Math.floor(st.right / 4));
+      const b = pick(PFX[L]);
+      let type = pick(BY_LVL[L]);
+      let q = TYPES[type](b);
+      if (type === "network" && b >= 29 && L < 2) q = TYPES.mask(b);
+      st.q = q; st.lvl = L; st.locked = false;
+      el.q.innerHTML = q.q;
+      el.opts.className = "sn-opts" + (q.o.length === 2 ? " two" : "");
+      el.opts.innerHTML = q.o.map((o, i) => `<button class="btn ar-big sn-o" type="button" data-i="${i}"><kbd>${i + 1}</kbd> ${esc(o)}</button>`).join("");
+      el.msg.innerHTML = "";
+      paint();
+    }
+    function paint() {
+      el.t.textContent = Math.max(0, Math.ceil(st.left)) + "s";
+      el.score.textContent = st.score; el.lvl.textContent = st.lvl + 1; el.streak.textContent = st.streak;
+      el.bar.style.width = Math.max(0, st.left / TIME * 100) + "%";
+      el.bar.classList.toggle("low", st.left < 10);
+    }
+    function answer(i) {
+      if (!st || !st.run || st.locked || !st.q.o[i]) return;
+      const q = st.q, good = q.o[i] === q.a;
+      st.locked = true;
+      el.opts.querySelectorAll(".sn-o").forEach((b, j) => { if (q.o[j] === q.a) b.classList.add("good"); else if (j === i) b.classList.add("bad"); });
+      if (good) { st.right++; st.streak++; st.best = Math.max(st.best, st.streak); st.score += 10 + Math.min(st.streak - 1, 5) * 2; el.msg.innerHTML = '<span class="ok">+</span>'; }
+      else { st.streak = 0; st.wrong++; st.left -= PENALTY; st.log.push(q); el.msg.innerHTML = `<span class="err">-${PENALTY}s</span> ${q.a} <span class="muted">· ${esc(q.why)}</span>`; }
+      paint();
+      setTimeout(() => { if (st && st.run) { if (st.left <= 0) end(); else ask(); } }, good ? 180 : 1100);
+    }
+    function tick() { if (!st.run) return; const now = performance.now(); st.left -= (now - st.last) / 1000; st.last = now; paint(); if (st.left <= 0) end(); }
+    function end() {
+      st.run = false; clearInterval(timer);
+      const hi = setHi("subnet", st.score);
+      const miss = st.log.slice(0, 5).map(q => `  ${q.q.replace(/<[^>]+>/g, "")}\n    ${q.a}  (${q.why})`).join("\n");
+      el.over.hidden = false;
+      el.over.innerHTML = `<pre>time. ${st.score} pts${hi ? " · NEW HIGH SCORE" : ""} · ${st.right} right, ${st.wrong} wrong · best streak ${st.best} · reached level ${st.lvl + 1}${miss ? "\n\nmissed:\n" + esc(miss) : ""}</pre><button class="btn ar-big" type="button" id="sn-again">[ Enter ] go again</button>`;
+      $("#sn-again").focus(); paintHi();
+    }
+    function start() {
+      clearInterval(timer);
+      st = { run: true, left: TIME, last: performance.now(), score: 0, right: 0, wrong: 0, streak: 0, best: 0, lvl: 0, log: [], locked: false };
+      el.over.hidden = true; ask(); timer = setInterval(tick, 200);
+    }
+    el.opts.addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) { answer(+b.dataset.i); b.blur(); } });
+    el.over.addEventListener("click", e => { if (e.target.closest("#sn-again")) start(); });
+    document.addEventListener("keydown", e => {
+      if (typing() || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === "Enter" && !el.over.hidden) start();
+      else if (/^[1-4]$/.test(e.key)) answer(+e.key - 1);
+      else return;
+      e.preventDefault(); e.stopImmediatePropagation();
+    });
+    start();
   }
 })();

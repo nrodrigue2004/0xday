@@ -1,0 +1,78 @@
+tagline: Enough Linux and Windows to move around, read logs, check permissions, and know where things live. The commands are on this page and on the cheatsheets.
+:: simple
+Nearly every security and IT task happens on one of two operating systems, so be comfortable on both.
+
+### Linux in 60 seconds
+Everything is a file, and the file system is one tree starting at `/`.
+- `/etc` config, `/var/log` logs, `/home` user files, `/root` root's home, `/tmp` temporary, `/usr/bin` programs, `/dev` devices, `/proc` live process info.
+- Paths: `~` is your home, `.` is here, `..` is up one.
+```
+$ pwd
+$ ls -la
+$ cd /var/log
+$ cat auth.log
+$ grep "Failed" auth.log
+$ whoami
+$ man ls
+```
+Rule of thumb: `man <command>` and `<command> --help` always work.
+
+### Windows in 60 seconds
+Drives and folders: `C:\Windows` (the OS), `C:\Users` (profiles), `C:\Program Files` (apps), `C:\ProgramData` (shared app data). Two shells: `cmd` and **PowerShell** (objects, not text; the one to learn).
+```
+$ dir
+$ cd C:\Users
+$ whoami /all
+$ ipconfig /all
+$ Get-Process
+```
+:: mid
+### Linux essentials
+**Permissions** `-rwxr-xr--`: type, then owner / group / others, each r(4) w(2) x(1). `chmod 640 file` means owner rw, group r, others none. `chown user:group file` changes owners. Extra bits: **setuid** (runs as the file's owner, a classic privilege escalation target), **sticky bit** on `/tmp`.
+```
+$ ls -l /etc/passwd /etc/shadow
+$ chmod 600 secret.txt
+$ find / -perm -4000 -type f 2>/dev/null
+$ sudo -l
+```
+**Users**: `/etc/passwd` lists accounts, `/etc/shadow` holds password hashes (root only), `/etc/sudoers` controls sudo. **Processes and services**: `ps aux`, `top`, `kill <pid>`, `systemctl status|start|stop|enable <svc>`, `journalctl -u <svc>`. **Packages**: `apt update && apt upgrade` (Debian/Ubuntu), `dnf` (Fedora/RHEL). **Networking**: `ip a`, `ip route`, `ss -tulnp`, `ping`, `curl`. **Text tools**: `grep`, `sed`, `awk`, `sort | uniq -c`, `head`, `tail -f`, `wc -l`, pipes `|` and redirects `>` `>>`. **Logs**: `/var/log/auth.log` (or `secure`), `syslog`, `journalctl`. **Persistence spots**: cron (`crontab -l`), systemd units, `~/.ssh/authorized_keys`, shell profiles.
+
+### Windows essentials
+**Permissions** use **NTFS ACLs**: `icacls file`, plus **share** permissions on top (the stricter wins). **Users and groups**: `net user`, `net localgroup administrators`, **UAC** prompts before admin actions. **Services**: `services.msc`, `Get-Service`, `sc query`. **Processes**: Task Manager, `Get-Process`, `tasklist`, `taskkill /PID`. **Registry**: `regedit`; hives HKLM (machine) and HKCU (user); autoruns live in `Run` keys. **Task Scheduler** and startup folders are persistence spots. **Networking**: `ipconfig /all`, `netstat -ano`, `nslookup`, `ping`, `tracert`. **Updates**: Windows Update, WSUS. **Tools**: Event Viewer, Resource Monitor, Sysinternals (Process Explorer, Autoruns).
+
+### Where the logs are
+- Linux: `/var/log/*`, `journalctl`.
+- Windows: Event Viewer, **Security** log. Key event IDs: **4624** logon success, **4625** logon failure, **4672** admin logon, **4720** account created, **4688** process created, **1102** audit log cleared.
+:: complex
+### Hardening checklist, both platforms
+- Patch the OS and apps; remove unused software and services; close unused ports.
+- Least privilege: no daily use of root or Administrator; limit sudoers and local admins; unique admin passwords (Windows **LAPS**).
+- Strong auth: SSH keys with password login off (`PasswordAuthentication no`), MFA, account lockout.
+- Encrypt disks (LUKS, BitLocker); firewall on (`ufw`, `iptables`/`nftables`, Windows Defender Firewall).
+- Central logging, time sync, and file integrity monitoring (AIDE, Tripwire; Windows audit policy).
+- Baselines: CIS Benchmarks and DISA STIGs define the settings to check.
+
+### Linux deeper
+- **Boot to login**: firmware, bootloader (GRUB), kernel, `init`/`systemd`, services, login. `dmesg` shows kernel messages.
+- **Standard streams**: stdin 0, stdout 1, stderr 2. `cmd 2>/dev/null` drops errors, `cmd > out 2>&1` merges.
+- **Mounts and disks**: `lsblk`, `df -h`, `du -sh *`, `mount`, `/etc/fstab`.
+- **Privilege escalation hunting** (defensive review): SUID binaries, sudo rules, writable cron scripts, world-writable files, credentials in history and configs.
+- **Quick incident triage**: `last`, `w`, `ps auxf`, `ss -tulnp`, `crontab -l`, `ls -lat /tmp`, `grep -i "accepted\|failed" /var/log/auth.log`.
+
+### Windows deeper
+- **Active Directory** adds domains, groups and Group Policy; Kerberos (88) and LDAP (389) do the work. See the AD and Group Policy guides.
+- **PowerShell triage**: `Get-LocalUser`, `Get-NetTCPConnection`, `Get-ScheduledTask`, `Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625}`, `Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Run`.
+- **Execution policy** is a safety rail, not a security boundary. Constrained language mode, script block logging and AMSI are the real controls.
+- **Pass-the-hash** and credential dumping target LSASS memory; **Credential Guard** and removing local admin reuse blunt them.
+
+### Same job, two syntaxes
+| Task | Linux | Windows |
+|---|---|---|
+| list files | `ls -la` | `dir` / `Get-ChildItem` |
+| show IP | `ip a` | `ipconfig /all` |
+| open ports | `ss -tulnp` | `netstat -ano` |
+| processes | `ps aux` | `Get-Process` |
+| find text | `grep -r word .` | `Select-String -Path * -Pattern word` |
+| who am I | `id` | `whoami /all` |
+| services | `systemctl status x` | `Get-Service x` |
+| edit/permissions | `chmod`, `chown` | `icacls` |
