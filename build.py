@@ -522,6 +522,7 @@ HUB.insert(0, ("start", "start.html", "ordered roadmap with progress", "start he
 _nc = sum(len(t["courses"]) for t in json.load(open("content/courses.json"))["tracks"])
 HUB.insert(1, ("courses", "courses.html", "courses with module quizzes and placement exams", f"{_nc} courses"))
 HUB.insert(2, ("transcript", "transcript.html", "course progress rollup + backup", "browser-only"))
+HUB.insert(3, ("capstones", "capstones.html", "breach investigation, lab attack, publish a tool", "3 capstones"))
 HUB += [("jobs", "jobs.html", "application tracker, follow-ups", "browser-only"), ("bullets", "bullets.html", "resume bullets + posting matcher", "from resume.json")]
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
@@ -541,6 +542,8 @@ page("desktop.html", "i3 :: 0xDay", '<div id="i3" class="i3" aria-label="tiling 
 
 import build_courses
 COURSES = build_courses.build(page, esc)  # before ~/start: a start step links to courses.html
+import build_capstones
+CAPSTONES = build_capstones.build(page, esc)  # after build_courses: reads its tier meta
 import build_start
 START = build_start.build(page, esc)  # last: its "if" hooks look for pages the other builders wrote
 
