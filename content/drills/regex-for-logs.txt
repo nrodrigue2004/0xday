@@ -1,0 +1,215 @@
+tagline: Regular expressions from zero to useful, applied to web logs. Count the path traversal attempts, including the encoded ones.
+:: simple
+A **regular expression** (regex) is a pattern that describes text. Instead of searching for one exact word, you describe a shape: "three digits, a dash, four digits". `grep -E` takes a regex and prints the lines that match.
+
+```
+$ grep -E "404" ~/logs/access.log
+$ grep -cE "POST" ~/logs/access.log
+```
+
+Most characters match themselves. The special ones are:
+
+- `.` any single character
+- `*` the previous thing, zero or more times
+- `+` one or more, `?` zero or one
+- `[abc]` one of a, b or c; `[0-9]` a digit; `[^0-9]` anything but a digit
+- `^` start of line, `$` end of line
+- `a|b` a or b
+- `( )` group things together
+- `\` makes a special character plain: `\.` is a real dot
+
+> The classic beginner bug: an unescaped dot. `10.0.0.5` also matches `10a0b0c5`. Write `10\.0\.0\.5`.
+
+### grep flags you will use daily
+
+`-E` extended regex (use it always), `-i` ignore case, `-v` invert (lines that do *not* match), `-c` count lines, `-o` print only the matching part, `-n` line numbers.
+:: mid
+### Building a pattern in steps
+
+Match an IPv4 address loosely:
+
+```
+[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+```
+
+Shorter with a repeat count: `([0-9]{1,3}\.){3}[0-9]{1,3}`. This also matches `999.1.1.1`, which is not a real address. For log triage "close enough" is fine; for validation it is not.
+
+### Shorthand classes
+
+In GNU grep and most tools: `\d` digit (not in plain `grep -E`, use `[0-9]`), `\s` whitespace, `\w` word character, `\b` word boundary. The POSIX forms `[[:digit:]]`, `[[:space:]]`, `[[:alpha:]]` work everywhere.
+
+### Greedy versus lazy
+
+`.*` takes as much as it can. On `a "b" and "c"`, the pattern `".*"` matches the whole `"b" and "c"`. The fix without lazy quantifiers is to exclude the delimiter: `"[^"]*"` matches `"b"` then `"c"` separately.
+
+### Pulling out just the part you want
+
+```
+$ grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" ~/logs/access.log | sort | uniq -c | sort -rn
+$ sed -E 's/^([0-9.]+) .*"(GET|POST) ([^ ]+).*/\1 \3/' ~/logs/access.log
+```
+
+`-o` prints only the match. In `sed`, parentheses **capture** a piece and `\1` pastes it back.
+
+### Think like an attacker
+
+The pattern you write only catches what you imagined. Attackers write the same thing many ways: `../`, `..%2f`, `%2e%2e/`, `%2E%2E%2F`, `....//`. Always ask what the same attack looks like **encoded**, and match case-insensitively with `-i`.
+:: complex
+### Anchors and boundaries
+
+`^GET` only at line start. `\.php$` only at line end. `\bcat\b` matches the word `cat` but not `concat`. Anchoring makes patterns both faster and more precise.
+
+### Alternation and grouping
+
+`(\.\.|%2e%2e)(/|%2f)` reads as: either two dots or the encoded form, followed by either a slash or its encoded form. Parentheses limit where the `|` applies. Without them, `\.\.|%2e%2e/|%2f` means three different things.
+
+### Backreferences
+
+`\1` repeats what group 1 matched. `([a-z])\1` finds doubled letters. Handy to spot `aaaa` in DGA-looking domains or repeated tokens.
+
+### Lookahead, and why grep -E does not have it
+
+Perl-style regex (`grep -P`, Python `re`, JavaScript) supports lookahead: `foo(?!bar)` is "foo not followed by bar". POSIX `grep -E` does not. If you need it, use `grep -P` or `python3`.
+
+### Performance and danger
+
+Some patterns can take **exponential** time on crafted input (ReDoS): nested repeats such as `(a+)+$` against `aaaaaaaaaaaaaaaaaaaa!`. If you write regex for a server that handles untrusted input, prefer simple linear patterns, set timeouts, or use an engine that guarantees linear time.
+
+### Regex in the detection world
+
+Regex powers SIEM searches (`rex` in Splunk, `regexp` in Elastic), Sigma rules (`|re`), Suricata (`pcre:`) and YARA. The same habits apply: escape the dots, anchor where you can, think about encodings and case, and test against a **sample of normal traffic** too, because a rule that catches the attack and also 4,000 normal lines is not usable.
+
+### How to test a pattern
+
+1. Count what it catches: `grep -cE 'pattern' file`.
+2. Look at the hits: `grep -E 'pattern' file | head`.
+3. Look at the misses you expected to hit and the hits you did not expect (`-v` and reading).
+4. Only then trust the number.
+:: lab
+style: shell
+host: web01
+user: analyst
+cwd: /home/analyst
+:: brief
+The web server log is at `~/logs/access.log`. Someone from `192.0.2.200` has been trying **path traversal** (climbing out of the web folder with `../`) to read system files. They did not always write it plainly: some requests encode the slash or the dots.
+
+Count how many **log lines** contain a path traversal attempt: a double dot or its encoded form (`%2e%2e`, any case), followed by a slash or its encoded form (`%2f`).
+
+Beware: some **harmless** requests also contain two dots (a file named `report..pdf`, for example). Submit the **number of lines**.
+:: answer
+7
+:: hint
+First try `grep -c "\.\./" ~/logs/access.log`. The count is too low, so look at the traversal lines you missed with `grep "192.0.2.200" ~/logs/access.log`.
+:: hint
+Build the pattern in two halves: the dots part `(\.\.|%2e%2e)` and the slash part `(/|%2f)`. Add `-i` so `%2E` counts too.
+:: hint
+`grep -ciE "(\.\.|%2e%2e)(/|%2f)" ~/logs/access.log`
+:: solution
+The pattern `(\.\.|%2e%2e)(/|%2f)` with `-i` catches all seven: plain `../../etc/passwd`, `..%2f..%2f` (encoded slashes), `%2e%2e/` (encoded dots), `%2E%2e%2f` (mixed case), and `....//` (which still contains `../` once the server strips the inner one). The plain `\.\./` pattern finds only part of them. The five decoys are legitimate and do not match, because a `..` that is not followed by a slash, like `report..pdf` or `..+in+bash`, is not a traversal. All seven came from `192.0.2.200`, so you can confirm with `grep -c 192.0.2.200`.
+
+The lesson: count, look at the hits, look at what you missed, then trust the number.
+:: verify
+grep -ciE "(\.\.|%2e%2e)(/|%2f)" ~/logs/access.log
+:: file /home/analyst/logs/access.log
+10.0.0.12 - - [07/Nov/2026:08:00:14 +0000] "GET /products?id=14 HTTP/1.1" 200 6341 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.4 - - [07/Nov/2026:08:00:28 +0000] "GET /about HTTP/1.1" 404 2872 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.2 - - [07/Nov/2026:08:00:45 +0000] "GET /docs/guide.pdf HTTP/1.1" 200 6353 "-" "Python-requests/2.31"
+192.0.2.200 - - [07/Nov/2026:08:00:53 +0000] "GET /view?page=../../../../windows/win.ini HTTP/1.1" 403 2859 "-" "curl/8.4.0"
+10.0.0.30 - - [07/Nov/2026:08:00:55 +0000] "GET /api/items/9 HTTP/1.1" 304 4918 "-" "Python-requests/2.31"
+10.0.0.18 - - [07/Nov/2026:08:01:09 +0000] "GET / HTTP/1.1" 200 4272 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.27 - - [07/Nov/2026:08:01:14 +0000] "GET /about HTTP/1.1" 200 2677 "-" "curl/8.4.0"
+10.0.0.5 - - [07/Nov/2026:08:01:31 +0000] "GET /api/items HTTP/1.1" 200 8049 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.15 - - [07/Nov/2026:08:01:43 +0000] "GET / HTTP/1.1" 200 7180 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.39 - - [07/Nov/2026:08:01:48 +0000] "GET /api/items HTTP/1.1" 304 8954 "-" "curl/8.4.0"
+10.0.0.19 - - [07/Nov/2026:08:02:01 +0000] "GET /docs/guide.pdf HTTP/1.1" 200 2262 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.18 - - [07/Nov/2026:08:02:09 +0000] "GET / HTTP/1.1" 404 7099 "-" "curl/8.4.0"
+10.0.0.27 - - [07/Nov/2026:08:02:14 +0000] "GET /login HTTP/1.1" 200 1753 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.8 - - [07/Nov/2026:08:02:29 +0000] "GET /static/site.css HTTP/1.1" 200 2507 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.9 - - [07/Nov/2026:08:02:39 +0000] "GET /index.html HTTP/1.1" 200 5512 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.33 - - [07/Nov/2026:08:02:45 +0000] "GET /static/site.css HTTP/1.1" 200 3213 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+192.0.2.200 - - [07/Nov/2026:08:02:52 +0000] "GET /img?f=....//....//etc/passwd HTTP/1.1" 200 956 "-" "curl/8.4.0"
+10.0.0.34 - - [07/Nov/2026:08:03:05 +0000] "GET /docs/guide.pdf HTTP/1.1" 200 7800 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.27 - - [07/Nov/2026:08:03:13 +0000] "GET /index.html HTTP/1.1" 404 4343 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.22 - - [07/Nov/2026:08:03:26 +0000] "GET /docs/guide.pdf HTTP/1.1" 200 2758 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.20 - - [07/Nov/2026:08:03:45 +0000] "GET /login HTTP/1.1" 404 1814 "-" "Python-requests/2.31"
+10.0.0.36 - - [07/Nov/2026:08:04:05 +0000] "GET /docs/a.b/guide.pdf HTTP/1.1" 200 1183 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.22 - - [07/Nov/2026:08:04:15 +0000] "GET /api/items/77 HTTP/1.1" 404 8814 "-" "curl/8.4.0"
+10.0.0.6 - - [07/Nov/2026:08:04:22 +0000] "GET /api/items/25 HTTP/1.1" 404 6020 "-" "curl/8.4.0"
+192.0.2.200 - - [07/Nov/2026:08:04:33 +0000] "GET /download?file=%2e%2e/%2e%2e/secret.txt HTTP/1.1" 400 7085 "-" "curl/8.4.0"
+10.0.0.6 - - [07/Nov/2026:08:04:50 +0000] "GET /index.html HTTP/1.1" 200 524 "-" "Python-requests/2.31"
+10.0.0.30 - - [07/Nov/2026:08:05:03 +0000] "GET /contact HTTP/1.1" 304 1352 "-" "Python-requests/2.31"
+10.0.0.5 - - [07/Nov/2026:08:05:11 +0000] "GET /products?id=4 HTTP/1.1" 304 4715 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.27 - - [07/Nov/2026:08:05:19 +0000] "GET /docs/guide.pdf HTTP/1.1" 304 6736 "-" "Python-requests/2.31"
+10.0.0.22 - - [07/Nov/2026:08:05:22 +0000] "GET /static/site.css HTTP/1.1" 304 813 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.13 - - [07/Nov/2026:08:05:42 +0000] "GET /api/items HTTP/1.1" 304 3737 "-" "curl/8.4.0"
+192.0.2.200 - - [07/Nov/2026:08:06:02 +0000] "GET /download?file=..%2f..%2fetc%2fshadow HTTP/1.1" 200 4495 "-" "curl/8.4.0"
+10.0.0.17 - - [07/Nov/2026:08:06:18 +0000] "GET /download?file=report..pdf HTTP/1.1" 200 8370 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.21 - - [07/Nov/2026:08:06:35 +0000] "GET /static/site.css HTTP/1.1" 404 304 "-" "Python-requests/2.31"
+10.0.0.22 - - [07/Nov/2026:08:06:48 +0000] "GET /about HTTP/1.1" 200 2582 "-" "curl/8.4.0"
+10.0.0.37 - - [07/Nov/2026:08:07:05 +0000] "GET /index.html HTTP/1.1" 200 5157 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.26 - - [07/Nov/2026:08:07:11 +0000] "GET /docs/guide.pdf HTTP/1.1" 304 7298 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.23 - - [07/Nov/2026:08:07:20 +0000] "GET /products?id=87 HTTP/1.1" 200 1543 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.22 - - [07/Nov/2026:08:07:25 +0000] "GET / HTTP/1.1" 404 8507 "-" "curl/8.4.0"
+10.0.0.19 - - [07/Nov/2026:08:07:38 +0000] "GET /products?id=31 HTTP/1.1" 304 7850 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.29 - - [07/Nov/2026:08:07:44 +0000] "GET /static/site.css HTTP/1.1" 304 6501 "-" "curl/8.4.0"
+192.0.2.200 - - [07/Nov/2026:08:07:48 +0000] "GET /download?file=%2E%2e%2fconfig HTTP/1.1" 404 3287 "-" "curl/8.4.0"
+10.0.0.24 - - [07/Nov/2026:08:07:51 +0000] "GET /products?id=5 HTTP/1.1" 200 8411 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.4 - - [07/Nov/2026:08:08:06 +0000] "GET /docs/guide.pdf HTTP/1.1" 304 4135 "-" "Python-requests/2.31"
+10.0.0.36 - - [07/Nov/2026:08:08:16 +0000] "GET / HTTP/1.1" 200 3317 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.25 - - [07/Nov/2026:08:08:22 +0000] "GET /api/items HTTP/1.1" 200 2411 "-" "curl/8.4.0"
+10.0.0.29 - - [07/Nov/2026:08:08:32 +0000] "GET /docs/guide.pdf HTTP/1.1" 404 3273 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.27 - - [07/Nov/2026:08:08:40 +0000] "GET /static/site.css HTTP/1.1" 404 7863 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.39 - - [07/Nov/2026:08:08:54 +0000] "GET / HTTP/1.1" 200 3285 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.5 - - [07/Nov/2026:08:09:10 +0000] "GET /about HTTP/1.1" 304 5737 "-" "Python-requests/2.31"
+10.0.0.19 - - [07/Nov/2026:08:09:20 +0000] "GET /about HTTP/1.1" 200 5082 "-" "curl/8.4.0"
+192.0.2.200 - - [07/Nov/2026:08:09:23 +0000] "GET /static/%2e%2e/%2e%2e/etc/hosts HTTP/1.1" 400 1308 "-" "curl/8.4.0"
+10.0.0.13 - - [07/Nov/2026:08:09:40 +0000] "GET /search?q=how+to+use+..+in+bash HTTP/1.1" 200 1808 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+192.0.2.200 - - [07/Nov/2026:08:09:52 +0000] "GET /download?file=../../etc/passwd HTTP/1.1" 403 4621 "-" "curl/8.4.0"
+10.0.0.5 - - [07/Nov/2026:08:10:11 +0000] "GET /static/app.js HTTP/1.1" 200 8311 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.27 - - [07/Nov/2026:08:10:15 +0000] "GET /login HTTP/1.1" 200 4012 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.36 - - [07/Nov/2026:08:10:22 +0000] "GET /static/app.js HTTP/1.1" 200 3370 "-" "Python-requests/2.31"
+10.0.0.7 - - [07/Nov/2026:08:10:29 +0000] "GET /api/items/55 HTTP/1.1" 200 8437 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.24 - - [07/Nov/2026:08:10:30 +0000] "GET / HTTP/1.1" 404 6237 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.33 - - [07/Nov/2026:08:10:46 +0000] "GET /download?file=notes.final..draft.txt HTTP/1.1" 200 2854 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.3 - - [07/Nov/2026:08:10:53 +0000] "GET /api/items HTTP/1.1" 200 8936 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.9 - - [07/Nov/2026:08:11:00 +0000] "GET /docs/guide.pdf HTTP/1.1" 200 7803 "-" "Python-requests/2.31"
+10.0.0.2 - - [07/Nov/2026:08:11:20 +0000] "GET /static/app.js HTTP/1.1" 200 4544 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.3 - - [07/Nov/2026:08:11:26 +0000] "GET /docs/guide.pdf HTTP/1.1" 304 8985 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.15 - - [07/Nov/2026:08:11:41 +0000] "GET /api/items/53 HTTP/1.1" 200 6136 "-" "curl/8.4.0"
+10.0.0.17 - - [07/Nov/2026:08:11:53 +0000] "GET /index.html HTTP/1.1" 304 6134 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.10 - - [07/Nov/2026:08:12:12 +0000] "GET /docs/guide.pdf HTTP/1.1" 200 630 "-" "Python-requests/2.31"
+10.0.0.15 - - [07/Nov/2026:08:12:30 +0000] "GET /contact HTTP/1.1" 200 8769 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.34 - - [07/Nov/2026:08:12:36 +0000] "GET /static/app.js HTTP/1.1" 200 4132 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.29 - - [07/Nov/2026:08:12:52 +0000] "GET /contact HTTP/1.1" 404 3325 "-" "Python-requests/2.31"
+10.0.0.15 - - [07/Nov/2026:08:13:06 +0000] "GET /contact HTTP/1.1" 200 6393 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.32 - - [07/Nov/2026:08:13:24 +0000] "GET /products?id=63 HTTP/1.1" 200 7716 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.23 - - [07/Nov/2026:08:13:34 +0000] "GET /products?id=5 HTTP/1.1" 404 2483 "-" "Python-requests/2.31"
+10.0.0.26 - - [07/Nov/2026:08:13:36 +0000] "GET /products?id=21 HTTP/1.1" 200 261 "-" "Python-requests/2.31"
+10.0.0.39 - - [07/Nov/2026:08:13:43 +0000] "GET /contact HTTP/1.1" 200 8162 "-" "Python-requests/2.31"
+10.0.0.37 - - [07/Nov/2026:08:13:44 +0000] "GET /products?id=94 HTTP/1.1" 304 6269 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.33 - - [07/Nov/2026:08:13:56 +0000] "GET /about HTTP/1.1" 200 6580 "-" "Python-requests/2.31"
+10.0.0.30 - - [07/Nov/2026:08:14:05 +0000] "GET /docs/guide.pdf HTTP/1.1" 404 1913 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.18 - - [07/Nov/2026:08:14:12 +0000] "GET /static/app.js HTTP/1.1" 304 5659 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.21 - - [07/Nov/2026:08:14:17 +0000] "GET /index.html HTTP/1.1" 200 4539 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.20 - - [07/Nov/2026:08:14:22 +0000] "GET /index.html HTTP/1.1" 200 8352 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.15 - - [07/Nov/2026:08:14:39 +0000] "GET /api/items HTTP/1.1" 200 6232 "-" "curl/8.4.0"
+10.0.0.14 - - [07/Nov/2026:08:14:41 +0000] "GET / HTTP/1.1" 200 4499 "-" "curl/8.4.0"
+10.0.0.5 - - [07/Nov/2026:08:14:49 +0000] "GET /static/site.css HTTP/1.1" 200 7470 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.34 - - [07/Nov/2026:08:15:03 +0000] "GET /api/items HTTP/1.1" 404 548 "-" "curl/8.4.0"
+10.0.0.25 - - [07/Nov/2026:08:15:16 +0000] "GET /contact HTTP/1.1" 200 7469 "-" "curl/8.4.0"
+10.0.0.31 - - [07/Nov/2026:08:15:31 +0000] "GET /contact HTTP/1.1" 404 4008 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.31 - - [07/Nov/2026:08:15:43 +0000] "GET / HTTP/1.1" 200 8229 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.12 - - [07/Nov/2026:08:15:54 +0000] "GET /about HTTP/1.1" 200 5579 "-" "curl/8.4.0"
+10.0.0.15 - - [07/Nov/2026:08:16:00 +0000] "GET /login HTTP/1.1" 200 3507 "-" "Python-requests/2.31"
+10.0.0.2 - - [07/Nov/2026:08:16:05 +0000] "GET /about HTTP/1.1" 404 3821 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.12 - - [07/Nov/2026:08:16:18 +0000] "GET /api/items/15 HTTP/1.1" 404 2203 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.15 - - [07/Nov/2026:08:16:21 +0000] "GET /index.html HTTP/1.1" 200 4173 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.38 - - [07/Nov/2026:08:16:28 +0000] "GET /products?id=77 HTTP/1.1" 200 7275 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+10.0.0.35 - - [07/Nov/2026:08:16:38 +0000] "GET /docs/guide.pdf HTTP/1.1" 200 5412 "-" "Python-requests/2.31"
+10.0.0.24 - - [07/Nov/2026:08:16:57 +0000] "GET /contact HTTP/1.1" 304 8366 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.27 - - [07/Nov/2026:08:17:03 +0000] "GET / HTTP/1.1" 404 821 "-" "Python-requests/2.31"
+10.0.0.7 - - [07/Nov/2026:08:17:12 +0000] "GET /contact HTTP/1.1" 200 8893 "-" "Python-requests/2.31"
+10.0.0.12 - - [07/Nov/2026:08:17:22 +0000] "GET /blog/dot-dot-slash-explained HTTP/1.1" 200 5784 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.33 - - [07/Nov/2026:08:17:32 +0000] "GET /static/app.js HTTP/1.1" 200 1075 "-" "Python-requests/2.31"
+10.0.0.20 - - [07/Nov/2026:08:17:48 +0000] "GET /index.html HTTP/1.1" 404 5521 "-" "Mozilla/5.0 (X11; Linux x86_64)"
+10.0.0.11 - - [07/Nov/2026:08:18:01 +0000] "GET /about HTTP/1.1" 200 2036 "-" "curl/8.4.0"

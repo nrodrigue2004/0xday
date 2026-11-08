@@ -1,0 +1,162 @@
+tagline: Read ls -l like a sentence, understand chmod and SUID, and find the file a hijacked web account can use to become root.
+:: simple
+Every file on Linux has an **owner**, a **group**, and a set of **permissions**. `ls -l` shows all three:
+
+```
+-rwxr-x--- 1 alice devs 2048 Nov 7 09:14 deploy.sh
+```
+
+Read it left to right:
+
+- The first character is the **type**: `-` file, `d` directory, `l` link.
+- Then three triplets: **owner**, **group**, **everyone else**. Each triplet is `r` read, `w` write, `x` execute (or `-` for none).
+- `alice` is the owner, `devs` is the group.
+
+So `-rwxr-x---` means: alice can read, write and run it. Members of `devs` can read and run it. Everybody else gets nothing.
+
+Linux checks in order: are you the owner? Then the owner triplet applies and nothing else. Otherwise, are you in the group? Then the group triplet. Otherwise "other". It never adds them together.
+
+### On directories
+
+`r` lists names, `w` creates and deletes files inside, `x` lets you enter (`cd`) and reach files by name. Deleting a file needs `w` on the **directory**, not on the file.
+
+### chmod in one minute
+
+```
+$ chmod u+x script.sh
+$ chmod go-w notes.txt
+$ chmod 640 notes.txt
+```
+
+Letters: `u` owner, `g` group, `o` others, `a` all; `+` add, `-` remove. Numbers: read=4, write=2, execute=1, added per triplet. So `640` is `rw-` `r--` `---`, and `755` is `rwx` `r-x` `r-x`.
+:: mid
+### The numbers you will see over and over
+
+- `600` private file (keys, secrets): owner reads and writes.
+- `644` normal file: everyone reads, owner writes.
+- `755` programs and directories: everyone reads and runs, owner writes.
+- `700` private directory (`~/.ssh` must be this or SSH complains).
+- `777` everyone can do everything. In an audit this is almost always a finding.
+
+### Who am I, and what groups am I in?
+
+```
+$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+Your group list decides which group triplets apply. A file with group `deploy` and mode `rwxrwx---` is writable only by `deploy` members, not by you if you are not in it.
+
+### The three special bits
+
+- **SUID** (`s` in the owner triplet, `-rwsr-xr-x`): the program runs as its *owner*, not as you. That is how `passwd` can edit `/etc/shadow`. A SUID program owned by root that lets the user run commands is an instant root.
+- **SGID** (`s` in the group triplet): runs as the group. On a directory, new files inherit the directory's group, which is useful for shared folders.
+- **Sticky bit** (`t` at the end, `drwxrwxrwt`): in a shared directory like `/tmp`, you can only delete your own files.
+
+Find SUID files during an audit:
+
+```
+find / -perm -4000 -type f 2>/dev/null
+```
+
+### Ownership and defaults
+
+`chown alice:devs file` changes owner and group. `umask 022` is what removes write for group and others from new files (new files start at 666, directories at 777, then the umask is taken away).
+
+### The audit question
+
+When a low-privileged account is compromised (a web server's `www-data`, say), you ask: **what can that account write that something more powerful later runs?** The usual answers are root cron scripts, systemd units, and anything on root's PATH.
+:: complex
+### Beyond owner, group, other
+
+- **ACLs** add per-user and per-group rules on top: `setfacl -m u:bob:rw file`, `getfacl file`. A `+` at the end of the mode in `ls -l` (`-rw-r--r--+`) means an ACL exists, so the nine characters are not the whole story.
+- **Capabilities** split root into pieces. `getcap -r / 2>/dev/null` lists binaries given e.g. `cap_net_raw` or the dangerous `cap_setuid`.
+- **Immutable flag**: `chattr +i file` blocks changes even by root until removed (`lsattr` shows it). Malware and admins both use it.
+- **SELinux and AppArmor** can deny an action even when classic permissions allow it.
+
+### Privilege escalation, defender's view
+
+Attackers follow a checklist. Each item is a permissions mistake you can audit:
+
+1. **Writable file executed by a more privileged user.** A world-writable `/opt/backup.sh` called from root's crontab hands root to anyone who can edit it.
+2. **SUID/SGID binaries** that can read or write files or spawn shells (`find`, `vim`, `bash` copies).
+3. **Writable service files**: `/etc/systemd/system/*.service`, `/etc/cron.d/*`, `/etc/profile.d/*`.
+4. **`sudo` rules too broad**: `NOPASSWD: ALL`, or allowing editors and interpreters.
+5. **Writable directories in root's `PATH`**, so a fake `ls` runs instead of the real one.
+6. **Readable secrets**: `/etc/shadow` readable by group `shadow` members, a `.env` with mode 644, SSH keys with 644.
+
+### Fixing, not just finding
+
+Least privilege: scripts run by root should be owned by root, mode 755 or 750, in a directory only root can write. Services run as their own accounts. `sudo -l` should print short, specific lines. Check recursively with `find / -xdev -perm -0002 -type f 2>/dev/null` (world-writable files) and `find / -nouser -o -nogroup` (orphans).
+
+### Reading a crontab
+
+```
+# m  h  dom mon dow  user  command
+*/5  *  *   *   *    root  /opt/scripts/backup.sh
+```
+
+In `/etc/crontab` and `/etc/cron.d/*` there is a **user** column. Whoever is named runs the command. That column plus the file's permissions is the whole analysis: a job as root running a script that someone else can edit is a path to root.
+:: lab
+style: shell
+host: web01
+user: analyst
+cwd: /home/analyst
+:: brief
+An attacker got a shell on **web01** as the web server account `www-data` (see `~/audit/id.txt`). Your job: figure out which one file lets them **become root** without any exploit, only by editing it.
+
+Use `~/audit/listing.txt` (the permissions of everything interesting) and `~/audit/crontab.txt` (what runs, and as whom). A file qualifies only if **both** are true: `www-data` can write to it, **and** root's cron executes it.
+
+Submit the **full path** of the file.
+:: answer
+/opt/scripts/backup.sh
+:: hint
+Start with who `www-data` is: `cat ~/audit/id.txt`. Which groups does it belong to?
+:: hint
+`grep root ~/audit/crontab.txt` gives the scripts run as root. Then look each one up in `listing.txt`.
+:: hint
+Writable by `www-data` means: the last triplet has `w` (world-writable), or the owner is www-data, or the group is one www-data is in and the group triplet has `w`.
+:: solution
+`id.txt` shows `www-data` is only in its own group. Root's cron runs three scripts: `backup.sh`, `report.sh` and `sync.sh`. `report.sh` is `-rwxr-xr-x root root`, so www-data can only run it. `sync.sh` is `-rwxrwx--- root deploy`: the group can write, but www-data is not in `deploy`, and the "other" triplet is `---`. `backup.sh` is `-rwxrwxrwx`, writable by everyone, so www-data can replace its contents and root will run them within five minutes. The decoys: `rotate.sh` is group-writable by www-data, but cron runs it **as www-data**, so it gains nothing, and `config.php` is world-writable but only read, never executed by root.
+
+Fix: `chown root:root /opt/scripts/backup.sh && chmod 750 /opt/scripts/backup.sh`, make `/opt/scripts` root-owned, and check how it ended up 777 (a deployment script, usually).
+:: verify
+grep root ~/audit/crontab.txt
+:: file /home/analyst/audit/listing.txt
+/opt/scripts:
+-rwxrwxrwx 1 root     root    412 Oct 30 11:02 backup.sh
+-rwxr-xr-x 1 root     root    655 Sep 12 08:30 report.sh
+-rwxrwx--- 1 root     deploy  380 Oct 18 16:44 sync.sh
+-rwxrwxr-x 1 root     www-data 290 Oct 21 09:10 rotate.sh
+drwxr-xr-x 2 root     root   4096 Oct 30 11:02 .
+
+/var/www/html:
+-rw-rw-rw- 1 www-data www-data 1544 Nov  2 14:20 config.php
+-rw-r--r-- 1 www-data www-data 8210 Nov  2 14:20 index.php
+drwxr-xr-x 3 www-data www-data 4096 Nov  2 14:20 .
+
+/etc:
+-rw-r----- 1 root     shadow  1024 Oct  3 07:55 shadow
+-rw-r--r-- 1 root     root    2210 Oct  3 07:55 passwd
+-rw-r--r-- 1 root     root     812 Oct 30 11:05 crontab
+-r--r----- 1 root     root     330 Sep  1 10:00 sudoers
+
+/home/alice/.ssh:
+-rw------- 1 alice    alice   2602 Aug 14 13:12 id_ed25519
+-rw-r--r-- 1 alice    alice    568 Aug 14 13:12 id_ed25519.pub
+drwx------ 2 alice    alice   4096 Aug 14 13:12 .
+
+/usr/local/bin:
+-rwsr-xr-x 1 root     root   30848 Sep 20 10:21 backup-helper
+-rwxr-xr-x 1 root     root   10122 Sep 20 10:21 deploy-notify
+:: file /home/analyst/audit/crontab.txt
+# /etc/crontab: system-wide jobs
+# m   h dom mon dow user      command
+*/5   *  *   *   *  root      /opt/scripts/backup.sh
+0     2  *   *   *  root      /opt/scripts/report.sh
+30    1  *   *   0  root      /opt/scripts/sync.sh
+15    *  *   *   *  www-data  /opt/scripts/rotate.sh
+0     4  *   *   *  alice     /home/alice/bin/cleanup.sh
+:: file /home/analyst/audit/id.txt
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+(the attacker's shell, from the web app's upload bug)

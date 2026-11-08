@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Windows permissions :: ~/drills :: 0xDay</title>
+<meta name="description" content="Hands-on drill, Windows permissions: NTFS, shares, inheritance, nested groups. Lab ticket: why can the intern see Payroll.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script src="../sandbox.js?v=fbd5d8bf" defer></script>
+<script src="../learn.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">drill windows-permissions</p>
+<h1>~/drills/windows-permissions</h1>
+<p>NTFS and share permissions, inheritance, deny rules and group nesting. Find why an intern can open the Payroll folder.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="windows-permissions">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Windows controls files with an <strong>ACL</strong> (access control list): a list of entries, each saying "this user or group is allowed (or denied) this kind of access". Each entry is an <strong>ACE</strong>.</p>
+<p>Common access levels, from least to most: <strong>Read</strong> (view), <strong>Read &amp; execute</strong> (view and run), <strong>Modify</strong> (change and delete), <strong>Full control</strong> (also change the permissions and take ownership).</p>
+<p>You right-click a folder, open Security, and see the ACL. In a terminal, <code>icacls</code> shows the same thing:</p>
+<pre class="ex"><code><span class="o">C:\Finance\Payroll  LAB\Payroll-Team:(OI)(CI)(M)</span>
+<span class="o">                    LAB\Finance-Mgrs:(OI)(CI)(F)</span>
+<span class="o">                    BUILTIN\Administrators:(OI)(CI)(F)</span></code></pre>
+<p>Read an entry as <code>who : (flags) (rights)</code>. <code>M</code> is Modify, <code>F</code> is Full, <code>RX</code> is Read &amp; execute, <code>R</code> is Read. <code>(OI)(CI)</code> means "applies to files (object inherit) and subfolders (container inherit)", so the rule flows down.</p>
+<h4>The golden habit</h4>
+<p>Give access to <strong>groups</strong>, not people. Put people in the groups. When someone changes jobs you change group membership, and you never have to hunt through folder ACLs.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Shares have their own permissions</h4>
+<p>When a folder is shared over the network, <strong>two</strong> sets apply: the <strong>share</strong> permissions and the <strong>NTFS</strong> permissions. For a network user, the result is whichever is <strong>more restrictive</strong>. Share says Full but NTFS says Read, the user gets Read. A common design is share = <code>Everyone: Full</code> and let NTFS do all the real work, but then NTFS must be right.</p>
+<h4>Inheritance</h4>
+<p>New files and folders <strong>inherit</strong> entries from their parent. In <code>icacls</code> output an entry that came from above is marked <code>(I)</code>:</p>
+<pre class="ex"><code><span class="o">LAB\All-Staff:(I)(OI)(CI)(RX)</span></code></pre>
+<p>That <code>(I)</code> means: this entry is not defined on this folder, it flows from a parent. To stop it you must *disable inheritance* on the folder (convert or remove inherited entries). If nobody does, everything granted at the top shows up everywhere below, including places where you never meant it.</p>
+<h4>Allow, deny, and what wins</h4>
+<p>Permissions are added up across all groups you belong to (direct or nested), then <strong>Deny beats Allow</strong>. Because of that, deny rules are used sparingly: one deny on a broad group can lock out people in surprising ways, and they are hard to audit.</p>
+<h4>Effective access</h4>
+<p>To answer "why can she open this?", walk the chain:</p>
+<p>1. Which groups is she in, including <strong>nested</strong> groups? (A group inside a group still passes its rights down to members.) 2. Which ACEs on the folder name any of those groups? Check inherited ones too. 3. Any deny? Then compare with the share permission.</p>
+<pre class="ex"><code><span class="o">whoami /groups                 # your own token&#x27;s groups</span>
+<span class="o">net user j.park /domain        # a domain user&#x27;s direct groups</span>
+<span class="o">icacls D:\Finance\Payroll      # the folder&#x27;s ACL</span></code></pre><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Reading icacls flags</h4>
+<ul><li><code>(OI)</code> object inherit: files. <code>(CI)</code> container inherit: subfolders. <code>(IO)</code> inherit only: applies to children, not this folder. <code>(NP)</code> no propagate: only one level down.</li><li><code>(I)</code> inherited from the parent.</li><li>Rights: <code>F</code> full, <code>M</code> modify, <code>RX</code> read and execute, <code>R</code> read, <code>W</code> write, <code>D</code> delete. Detailed rights appear as a list such as <code>(RD,WD,AD)</code>.</li></ul>
+<p>Useful commands:</p>
+<pre class="ex"><code><span class="o">icacls D:\Finance\Payroll /inheritance:d      # disable inheritance, keep copies of inherited entries</span>
+<span class="o">icacls D:\Finance\Payroll /remove &quot;LAB\All-Staff&quot;</span>
+<span class="o">icacls D:\Finance\Payroll /grant &quot;LAB\Payroll-Team:(OI)(CI)M&quot;</span>
+<span class="o">icacls D:\Finance /save acl.txt /t            # back up ACLs before you change them</span>
+<span class="o">Get-Acl D:\Finance\Payroll | Format-List      # PowerShell view</span></code></pre>
+<h4>Ownership</h4>
+<p>The <strong>owner</strong> of an object can always change its permissions, even with no ACE. Administrators can take ownership (<code>takeown</code>). This is why a deleted-then-recreated group or a departed employee as owner can cause odd lockouts.</p>
+<h4>Group strategy: AGDLP</h4>
+<p>Microsoft's classic pattern: <strong>A</strong>ccounts go in <strong>G</strong>lobal groups (by role), global groups go in <strong>D</strong>omain <strong>L</strong>ocal groups (named for the resource and the access, e.g. <code>FS-Payroll-Modify</code>), and the domain local group is the one that appears in the ACL (<strong>P</strong>ermission). Nesting is intentional here; the danger is accidental nesting such as an "All-Staff" group inside something sensitive, or a sensitive folder granting "All-Staff" because a parent did.</p>
+<h4>Common findings in an audit</h4>
+<ul><li>An entry for <code>Everyone</code>, <code>Authenticated Users</code> or <code>Domain Users</code> on a sensitive folder.</li><li>Inherited broad access from a top-level share that was set "to make it easy".</li><li>Users with direct ACEs instead of groups.</li><li><code>Full control</code> where <code>Modify</code> would do.</li><li>Orphaned SIDs (<code>S-1-5-21-...</code>) from deleted accounts.</li><li>No auditing enabled on the sensitive folders, so nobody could say who opened what.</li></ul>
+<p>Turn on object access auditing (Event 4663) for the crown-jewel folders and send it to the SIEM.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// ticket queue</span></h2><p>HR reports that <strong>j.park</strong>, a summer intern, opened <code>D:\Finance\Payroll</code> and saw salary files. Payroll should only be visible to the Payroll team and Finance managers.</p>
+<p>Find <strong>which group</strong> is giving j.park (through any chain of nesting) access to the Payroll folder. Use the ACL dumps and the group listing.</p>
+<p>Resolve the ticket with that <strong>group name</strong> (without the <code>LAB\</code> prefix).</p><p class="muted">This one is a ticket in the queue. Open the attachments, investigate in the console under the ticket, then resolve it with your answer. Hints cost 15 points, wrong answers 5.</p></section><nav class="pager"><a href="linux-permissions.html">&lt; Linux permissions</a><a href="regex-for-logs.html">regex for logs &gt;</a></nav><p><a href="../drills.html">cd ~/drills</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "windows-permissions", "title": "Windows permissions", "user": "admin", "host": "fs01", "brief": "HR reports that <strong>j.park<\/strong>, a summer intern, opened <code>D:\\Finance\\Payroll<\/code> and saw salary files. Payroll should only be visible to the Payroll team and Finance managers.\n\nFind <strong>which group<\/strong> is giving j.park (through any chain of nesting) access to the Payroll folder. Use the ACL dumps and the group listing.\n\nResolve the ticket with that <strong>group name<\/strong> (without the <code>LAB\\<\/code> prefix).", "hints": ["Start with <code>payroll-acl.txt<\/code>. Which entries have <code>(I)<\/code> in them? Those flow down from <code>D:\\Finance<\/code>.", "Find j.park's groups in <code>groups.txt<\/code>, then check whether any of those groups sits inside another group named in the Payroll ACL.", "<code>Interns<\/code> is a member of a bigger group. That bigger group is named in <code>finance-acl.txt<\/code> and inherited into Payroll."], "answers": ["19239632d08a2de274cfca435325e1dbb163f8ec77a45ba3ff456b2affb556c0"], "solution": "PGNvZGU+cGF5cm9sbC1hY2wudHh0PC9jb2RlPiBoYXMgdHdvIGRlbGliZXJhdGUgZW50cmllcyAoPGNvZGU+UGF5cm9sbC1UZWFtPC9jb2RlPiBhbmQgPGNvZGU+RmluYW5jZS1NZ3JzPC9jb2RlPiksIGJ1dCBhbHNvIDxjb2RlPkxBQlxBbGwtU3RhZmY6KEkpKE9JKShDSSkoUlgpPC9jb2RlPiwgd2hlcmUgPGNvZGU+KEkpPC9jb2RlPiBzaG93cyBpdCBpcyA8c3Ryb25nPmluaGVyaXRlZDwvc3Ryb25nPiBmcm9tIDxjb2RlPkQ6XEZpbmFuY2U8L2NvZGU+LiBJbiA8Y29kZT5maW5hbmNlLWFjbC50eHQ8L2NvZGU+IHRoZSBwYXJlbnQgZ3JhbnRzIEFsbC1TdGFmZiByZWFkIGFjY2Vzcywgc2V0IHdoZW4gRmluYW5jZSBmaXJzdCBzaGFyZWQgYSAiY29tcGFueSBjYWxlbmRhciIgZm9sZGVyLiA8Y29kZT5ncm91cHMudHh0PC9jb2RlPiBzaG93cyA8Y29kZT5JbnRlcm5zPC9jb2RlPiBpcyBhIG1lbWJlciBvZiA8Y29kZT5BbGwtU3RhZmY8L2NvZGU+LCBhbmQgai5wYXJrIGlzIGluIDxjb2RlPkludGVybnM8L2NvZGU+LiBUaGUgc2hhcmUgcGVybWlzc2lvbiAoPGNvZGU+RXZlcnlvbmU6IEZ1bGw8L2NvZGU+KSBkb2VzIG5vdCByZXN0cmljdCBhbnl0aGluZywgc28gTlRGUyBhbG9uZSBkZWNpZGVzLCBhbmQgTlRGUyBzYXlzIFJlYWQuCgpGaXg6IGRpc2FibGUgaW5oZXJpdGFuY2Ugb24gPGNvZGU+RDpcRmluYW5jZVxQYXlyb2xsPC9jb2RlPiAoPGNvZGU+aWNhY2xzIEQ6XEZpbmFuY2VcUGF5cm9sbCAvaW5oZXJpdGFuY2U6ZDwvY29kZT4pLCB0aGVuIHJlbW92ZSBBbGwtU3RhZmYgdGhlcmU7IG1vdmUgdGhlIGNhbGVuZGFyIHRvIGl0cyBvd24gc2hhcmU7IGdpdmUgUGF5cm9sbCBvbmx5IHRoZSB0d28gaW50ZW5kZWQgZ3JvdXBzOyBhbmQgdHVybiBvbiBhdWRpdGluZyBmb3IgdGhlIGZvbGRlci4K", "fs": {"/home/admin/acl/payroll-acl.txt": "D:\\Finance\\Payroll LAB\\Payroll-Team:(OI)(CI)(M)\n                  LAB\\Finance-Mgrs:(OI)(CI)(F)\n                  LAB\\All-Staff:(I)(OI)(CI)(RX)\n                  BUILTIN\\Administrators:(I)(OI)(CI)(F)\n                  NT AUTHORITY\\SYSTEM:(I)(OI)(CI)(F)\n\nSuccessfully processed 1 files; Failed processing 0 files\n", "/home/admin/acl/finance-acl.txt": "D:\\Finance LAB\\Finance-Staff:(OI)(CI)(M)\n          LAB\\All-Staff:(OI)(CI)(RX)\n          BUILTIN\\Administrators:(OI)(CI)(F)\n          NT AUTHORITY\\SYSTEM:(OI)(CI)(F)\n\nSuccessfully processed 1 files; Failed processing 0 files\n", "/home/admin/acl/groups.txt": "user j.park: memberOf Interns, Domain Users\nuser m.lee: memberOf Finance-Staff, Payroll-Team, All-Staff\nuser d.ortiz: memberOf Finance-Mgrs, All-Staff\n\ngroup Interns:        members j.park, s.cho; memberOf All-Staff\ngroup Finance-Staff:  members m.lee, a.khan, p.wells; memberOf All-Staff\ngroup Payroll-Team:   members m.lee, a.khan\ngroup Finance-Mgrs:   members d.ortiz\ngroup All-Staff:      members (nested: Interns, Finance-Staff, HR, IT, Sales)\ngroup Domain Users:   every account\n", "/home/admin/acl/share.txt": "Share name:   Finance\nPath:         D:\\Finance\nPermission:   Everyone: Full Control\nNote:         share set to Everyone/Full on purpose, NTFS is expected to do the restricting.\n"}, "cmds": [], "cmdnames": [], "style": "ticket", "ticket": {"id": "#SEC-1102", "subject": "Intern can open the Payroll folder", "priority": "P2", "from": "HR director", "sla": "1d", "system": "file services", "attach": "payroll-acl.txt, finance-acl.txt, groups.txt, share.txt"}}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

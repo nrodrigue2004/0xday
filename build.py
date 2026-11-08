@@ -23,7 +23,7 @@ FLAGS = {"source": "0xDAY{v13w_s0urc3_4lw4ys}", "console": "0xDAY{c0ns0l3_c0wb0y
 for p in POSTS:
     p["body"] = open(f"content/posts/{p['slug']}.html").read()
 esc = html.escape
-V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "resume.js")).encode()).hexdigest()[:8]  # cache-buster
+V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "resume.js", "glossary.js")).encode()).hexdigest()[:8]  # cache-buster
 
 def short(d):
     import datetime
@@ -481,6 +481,11 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
 HUB = [x for x in HUB if x[3] != "coming soon"]
 HUB.insert(0, ("dojo", "dojo.html", "daily coding drills, 9 languages", f"{DOJO} katas"))
+import build_drills, build_glossary
+DRILLS = build_drills.build(page)
+GLOSS = build_glossary.build(page)
+HUB.insert(1, ("drills", "drills.html", "packets, permissions, regex, log labs", f"{len(DRILLS)} drills"))
+HUB.insert(2, ("glossary", "glossary.html", "terms linked to guides", f"{len(GLOSS)} terms"))
 import build_arcade
 HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
@@ -515,6 +520,9 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "ctf": CTF, "ctfstats": CTFSTATS, "thm": CERTS.get("thm_username"), "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS,
         "guides": [{"slug": k, "name": v[0]["name"]} for k, v in GUIDES.items()],
         "ai": [{"slug": c[0], "name": c[1]} for c in AI],
+        "drills": [{"slug": c[0], "name": c[1]} for c in DRILLS],
+        "glossary": [{"t": t["t"], "d": t["d"]} for t in GLOSS],
+
         "careers": CAREERS["paths"],
         "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
