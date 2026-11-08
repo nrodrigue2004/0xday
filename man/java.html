@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man java :: 0xDay</title>
+<meta name="description" content="java cheatsheet: Java commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man java</p>
+<div class="manhead"><span>JAVA(7)</span><span>0xDay Field Manual</span><span>JAVA(7)</span></div>
+<h1>java <span class="muted">- Java commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-build-and-run">build and run</a> <a href="#g-types">types</a> <a href="#g-strings">strings</a> <a href="#g-collections">collections</a> <a href="#g-exceptions">exceptions</a> <a href="#g-terms">terms</a></p><h2 id="g-build-and-run">build and run</h2><dl class="man"><dt><code>javac Main.java</code></dt><dd>compile to bytecode</dd><dt><code>java Main</code></dt><dd>run a class</dd><dt><code>java -jar app.jar</code></dt><dd>run a packaged application</dd><dt><code>java -version</code></dt><dd>which JDK is active</dd><dt><code>jar tf app.jar</code></dt><dd>list the contents of a jar</dd><dt><code>mvn package</code></dt><dd>build with Maven</dd><dt><code>mvn test</code></dt><dd>run the tests</dd><dt><code>gradle build</code></dt><dd>build with Gradle</dd></dl><h2 id="g-types">types</h2><dl class="man"><dt><code>int, long, double, boolean, char</code></dt><dd>primitives</dd><dt><code>String</code></dt><dd>immutable text object</dd><dt><code>List&lt;String&gt;</code></dt><dd>generic list of strings</dd><dt><code>Map&lt;String,Integer&gt;</code></dt><dd>key to value map</dd><dt><code>int[] a = new int[5]</code></dt><dd>fixed-size array</dd></dl><h2 id="g-strings">strings</h2><dl class="man"><dt><code>s.length()</code></dt><dd>number of characters</dd><dt><code>s.equals(t)</code></dt><dd>compare contents, not references</dd><dt><code>s.substring(1, 4)</code></dt><dd>slice</dd><dt><code>s.split(&quot;,&quot;)</code></dt><dd>split into an array</dd><dt><code>String.join(&quot;,&quot;, list)</code></dt><dd>join with a separator</dd><dt><code>String.format(&quot;%s=%d&quot;, k, v)</code></dt><dd>formatted text</dd></dl><h2 id="g-collections">collections</h2><dl class="man"><dt><code>list.add(x)</code></dt><dd>append</dd><dt><code>list.get(i)</code></dt><dd>read by index</dd><dt><code>map.put(k, v)</code></dt><dd>store</dd><dt><code>map.getOrDefault(k, 0)</code></dt><dd>read with a default</dd><dt><code>map.merge(k, 1, Integer::sum)</code></dt><dd>count occurrences</dd><dt><code>list.stream().filter(...).toList()</code></dt><dd>stream pipeline</dd></dl><h2 id="g-exceptions">exceptions</h2><dl class="man"><dt><code>try { ... } catch (IOException e) { ... }</code></dt><dd>handle errors</dd><dt><code>try (var r = new FileReader(f)) { ... }</code></dt><dd>auto-close resources</dd><dt><code>throw new IllegalArgumentException(&quot;msg&quot;)</code></dt><dd>signal a bad argument</dd><dt><code>finally { ... }</code></dt><dd>runs whether or not it failed</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>JVM</code></dt><dd>virtual machine running bytecode</dd><dt><code>JDK / JRE</code></dt><dd>development kit / runtime only</dd><dt><code>Bytecode</code></dt><dd>compiled, platform-neutral code</dd><dt><code>Garbage collector</code></dt><dd>reclaims unused objects</dd><dt><code>Serialization</code></dt><dd>turning objects into bytes, risky with untrusted data</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

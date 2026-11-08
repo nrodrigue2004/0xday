@@ -9,6 +9,11 @@ A **Group Policy Object** (GPO) is a bundle of settings (password rules, firewal
 ```
 $ cat ~/gpo/links.txt
 ```
+
+### The idea in one picture
+A **Group Policy Object (GPO)** is a bundle of settings. You link it to a domain, a site or an OU, and every computer or user inside that container receives the settings automatically at startup, logon and every 90 minutes or so. Settings are split into **Computer Configuration** (applies to the machine) and **User Configuration** (follows the person).
+
+Typical things GPOs do: map network drives, set the password policy, install software, push printers, block USB storage, set the desktop wallpaper, turn on the firewall, and configure Windows Update.
 :: mid
 ### LSDOU: who wins
 When GPOs conflict, they're applied in order **L**ocal, **S**ite, **D**omain, **O**U (parent OU first, then child OU). Each later one overwrites earlier ones, so **the closest OU wins**. Two exceptions:
@@ -27,6 +32,18 @@ $ grep -i "lockout\|password" ~/gpo/settings.txt
 ```
 $ gpresult /r
 ```
+
+### Tools you will use
+- **Group Policy Management Console (GPMC)**: create, link, back up and review GPOs.
+- **gpupdate /force** on a client to refresh now; **gpresult /r** or `gpresult /h report.html` to see what applied and why.
+- **Group Policy Modeling** and **Results** inside GPMC to predict or confirm effects.
+- Event Viewer → Applications and Services → Microsoft → Windows → GroupPolicy for errors.
+
+### Filtering and targeting
+Security filtering decides which users or computers a GPO applies to (default: Authenticated Users). **WMI filters** restrict by hardware or OS. **Loopback processing** applies user settings based on the computer, useful for kiosks and labs. **Enforced** stops lower levels from overriding and **Block Inheritance** stops higher ones, use both sparingly because they make troubleshooting painful.
+
+### Preferences vs policies
+**Policies** are enforced and grayed out for the user; **Preferences** set a value once and let the user change it (drive maps, shortcuts, registry values). Preferences used to store passwords in XML in SYSVOL, encrypted with a key Microsoft published, which is why that feature was removed and why old `cpassword` entries are a finding.
 :: complex
 ### Security baselines through GPO
 Most Windows hardening is GPO: account lockout and password length, disabling LLMNR and NetBIOS, SMB signing, restricting who can log on locally, Windows Firewall rules, LAPS, AppLocker/WDAC, PowerShell logging (script block logging, event 4104). Microsoft's Security Compliance Toolkit ships ready-made baseline GPOs.
@@ -39,6 +56,48 @@ GPOs are also an attack path: anyone who can edit a GPO linked to an OU can run 
 ```
 $ grep -ri "cpassword" ~/gpo/sysvol
 ```
+
+### Change management for GPOs
+Never edit the Default Domain Policy beyond password and Kerberos settings. Create new, well-named GPOs (`SEC - Workstation Baseline`, `USR - Drive Maps`). Test on a pilot OU first, back up before changes (`Backup-GPO`), and document each GPO's purpose. Keep the number of GPOs applied to a machine small, since every one adds logon time.
+
+### Troubleshooting order
+1. Is the computer in the OU you think? (`Get-ADComputer`)
+2. Is the GPO linked and enabled there? Is the link order right?
+3. Security filtering and WMI filters: does the object pass?
+4. Replication: is SYSVOL the same on all DCs?
+5. Client side: DNS resolves the domain, time is in sync (Kerberos), `gpresult` shows it as applied or denied.
+:: ref
+### client commands
+gpupdate /force | refresh all policy now
+gpupdate /target:computer | refresh only the computer side
+gpresult /r | summary of applied GPOs
+gpresult /h report.html | detailed HTML report
+rsop.msc | resultant set of policy viewer
+whoami /groups | groups that affect security filtering
+### management console
+gpmc.msc | open Group Policy Management
+gpedit.msc | local policy editor on one machine
+Default Domain Policy | domain-wide password and Kerberos settings
+Default Domain Controllers Policy | settings for DCs
+### powershell
+Get-GPO -All | list every GPO
+Get-GPOReport -Name "SEC - Baseline" -ReportType Html -Path r.html | export a report
+Backup-GPO -Name "SEC - Baseline" -Path C:\gpo-backup | back up a GPO
+New-GPLink -Name "SEC - Baseline" -Target "OU=Workstations,DC=corp,DC=local" | link a GPO to an OU
+Get-GPInheritance -Target "OU=Workstations,DC=corp,DC=local" | what applies to an OU
+### processing order (LSDOU)
+Local | machine's own policy, applied first
+Site | AD site
+Domain | domain-wide
+OU | nested OUs, closest to the object wins
+### terms
+Link | connects a GPO to a container
+Enforced | cannot be overridden below
+Block inheritance | stop parent GPOs applying here
+Security filtering | limit a GPO to chosen users, groups or computers
+WMI filter | apply only when a WMI query is true
+SYSVOL | share on DCs where GPO files live
+Loopback | apply user settings by computer location
 :: lab
 style: ticket
 host: dc01

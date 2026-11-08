@@ -12,6 +12,12 @@ $ sqlite3 bank.db "SELECT * FROM accounts;"
 The four basic operations are **CRUD**: Create (`INSERT`), Read (`SELECT`), Update (`UPDATE`), Delete (`DELETE`).
 
 > Other databases (PostgreSQL, MySQL, SQL Server) use the same SQL with small differences. MongoDB and Redis are **NoSQL**: documents or key-value pairs instead of tables.
+
+### Picking the right kind of database
+**Relational** (PostgreSQL, MySQL, SQLite, SQL Server) stores structured data with relationships and strong consistency. **Document** (MongoDB) stores JSON-like objects, flexible. **Key-value** (Redis) is a fast cache. **Graph** (Neo4j) is for relationships. **Time-series** and **search** (Elasticsearch, which is the engine behind Security Onion) are for logs and metrics. Most apps start well with a relational database.
+
+### Design in four steps
+Identify the things (tables), give each a primary key, connect them with foreign keys, and avoid duplicating data. A table of orders should store `customer_id`, not the customer's name and address on every row.
 :: mid
 ### Relationships and JOINs
 One customer has many transactions: a **one-to-many** relationship. A `JOIN` combines tables on the key that links them, and `GROUP BY` + `SUM` / `COUNT` turns many rows into one per group:
@@ -25,6 +31,15 @@ Store each fact **once**. If the owner's name is copied into every transaction r
 
 ### Transactions and ACID
 A **transaction** groups changes so they all happen or none do (moving money: subtract here, add there). **ACID** = Atomic, Consistent, Isolated, Durable.
+
+### Normal forms in plain words
+1NF: one value per cell, no repeating groups. 2NF: every column depends on the whole key. 3NF: columns depend on the key and nothing else. If changing one fact means editing many rows, you need to split a table. Denormalize on purpose only for read performance, and document why.
+
+### Backups and recovery
+Take regular full backups plus transaction log or point-in-time recovery, store copies off the host, encrypt them, and test restores. Know the two numbers: **RPO** (how much data you can afford to lose) and **RTO** (how long you can be down).
+
+### Common tasks
+Export with `pg_dump` or `mysqldump`, import with `psql < file.sql`, check running queries with `pg_stat_activity` or `SHOW PROCESSLIST`, and find slow ones with the slow query log and `EXPLAIN`.
 :: complex
 ### Integrity as a security control
 The **I** in the CIA triad. Databases protect it with constraints (`NOT NULL`, `UNIQUE`, `CHECK (balance >= 0)`, foreign keys), transactions, and **audit trails**. A classic check: does a stored total match the sum of the records it's supposed to summarize? If not, someone changed one without the other.
@@ -41,6 +56,54 @@ An **index** is a sorted lookup structure (usually a B-tree) on a column, turnin
 - **Least privilege**: the web app's DB user can't `DROP TABLE` or read the HR schema
 - **Encryption** at rest (TDE) and in transit (TLS), **tokenization** or masking for card numbers
 - **Backups** tested by actually restoring them, and database activity monitoring
+
+### Securing a database server
+Do not expose it to the internet; bind to localhost or a private network and firewall it. Remove default accounts and sample databases. Separate accounts for the application (limited rights), migrations (schema changes) and admins. Enable TLS, encrypt at rest, turn on audit logging, patch regularly, and never store passwords in plain text (hash with Argon2id or bcrypt). Mask or encrypt sensitive columns, and restrict who can run ad hoc queries on production.
+
+### Transactions and isolation
+ACID: Atomic (all or nothing), Consistent (rules hold), Isolated (concurrent work does not interfere), Durable (committed means saved). Isolation levels trade speed for safety; the anomalies to know are dirty reads, non-repeatable reads and phantom reads. Race conditions in application code (check balance, then withdraw) need a transaction with locking or a constraint.
+:: ref
+### design
+Primary key | uniquely identifies a row
+Foreign key | column that references another table's key
+Index | structure that speeds lookups at a cost to writes
+Constraint | rule the database enforces (NOT NULL, UNIQUE, CHECK)
+Normalization | removing duplicated data across tables
+View | saved query that behaves like a table
+### acid
+Atomicity | all steps happen or none do
+Consistency | data stays valid under the rules
+Isolation | simultaneous transactions do not corrupt each other
+Durability | committed data survives a crash
+### postgres
+psql -U user -d db | connect
+\dt | list tables
+\d table | describe a table
+\du | list roles
+pg_dump db > db.sql | back up a database
+psql db < db.sql | restore from a dump
+### mysql
+mysql -u user -p | connect
+SHOW DATABASES; | list databases
+SHOW TABLES; | list tables
+DESCRIBE t; | table structure
+SHOW PROCESSLIST; | running queries
+mysqldump db > db.sql | back up
+### sqlite
+sqlite3 file.db | open a database
+.tables | list tables
+.schema | show all definitions
+.dump | export everything as SQL
+### admin and security
+CREATE USER app WITH PASSWORD '...' | create an account
+GRANT SELECT, INSERT ON t TO app | give only what is needed
+REVOKE ALL ON t FROM app | take rights away
+EXPLAIN ANALYZE query | show the query plan and real timing
+### terms
+RPO / RTO | acceptable data loss / acceptable downtime
+Replication | copying data to another server
+Sharding | splitting data across servers
+Injection | untrusted input changes the query's meaning
 :: lab
 host: db01
 user: auditor

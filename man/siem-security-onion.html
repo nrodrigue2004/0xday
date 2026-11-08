@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man siem-security-onion :: 0xDay</title>
+<meta name="description" content="siem-security-onion cheatsheet: SIEM / Security Onion commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man siem-security-onion</p>
+<div class="manhead"><span>SIEM-SECURITY-ONION(7)</span><span>0xDay Field Manual</span><span>SIEM-SECURITY-ONION(7)</span></div>
+<h1>siem-security-onion <span class="muted">- SIEM / Security Onion commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-roles-and-logs">roles and logs</a> <a href="#g-zeek-fields-worth-knowing">zeek fields worth knowing</a> <a href="#g-hunting-queries-patterns">hunting queries (patterns)</a> <a href="#g-triage-verdicts">triage verdicts</a> <a href="#g-command-line">command line</a></p><h2 id="g-roles-and-logs">roles and logs</h2><dl class="man"><dt><code>Suricata</code></dt><dd>signature-based IDS/IPS, writes alerts</dd><dt><code>Zeek</code></dt><dd>passive network analyzer, writes conn, dns, http, ssl, files, notice logs</dd><dt><code>Stenographer</code></dt><dd>full packet capture you can pull by IP, port and time</dd><dt><code>Elastic</code></dt><dd>stores and searches all events</dd><dt><code>Alerts page</code></dt><dd>the triage queue of IDS and other detections</dd><dt><code>Hunt page</code></dt><dd>query and group events to look for what no rule caught</dd><dt><code>PCAP</code></dt><dd>pivot from an event to the raw packets</dd></dl><h2 id="g-zeek-fields-worth-knowing">zeek fields worth knowing</h2><dl class="man"><dt><code>id.orig_h / id.resp_h</code></dt><dd>source and destination IP</dd><dt><code>id.resp_p</code></dt><dd>destination port</dd><dt><code>conn_state</code></dt><dd>S0 no reply, SF normal finish, REJ rejected, RSTO reset by originator</dd><dt><code>orig_bytes / resp_bytes</code></dt><dd>bytes sent by each side, large outbound can mean exfiltration</dd><dt><code>query / qtype_name</code></dt><dd>DNS question, long or random names suggest tunnelling or DGA</dd><dt><code>uid</code></dt><dd>connection ID that ties together entries across logs</dd></dl><h2 id="g-hunting-queries-patterns">hunting queries (patterns)</h2><dl class="man"><dt><code>event.dataset:conn AND destination.port:22</code></dt><dd>all SSH connections</dd><dt><code>event.dataset:dns AND dns.query.name:*.top</code></dt><dd>DNS lookups ending in a suspicious TLD</dd><dt><code>rule.category:&quot;Attempted Administrator Privilege Gain&quot;</code></dt><dd>alerts of that class</dd><dt><code>source.ip:10.0.30.20</code></dt><dd>everything one host did</dd><dt><code>groupby source.ip destination.port</code></dt><dd>stack to see who talks to what</dd></dl><h2 id="g-triage-verdicts">triage verdicts</h2><dl class="man"><dt><code>True positive</code></dt><dd>real malicious activity, escalate and contain</dd><dt><code>Benign true positive</code></dt><dd>rule worked, behavior is authorized (scanner, pentest)</dd><dt><code>False positive</code></dt><dd>rule fired but behavior is not what it describes, tune it</dd><dt><code>Undetermined</code></dt><dd>not enough data, collect more and note what is missing</dd></dl><h2 id="g-command-line">command line</h2><dl class="man"><dt><code>so-status</code></dt><dd>health of all Security Onion services</dd><dt><code>so-allow</code></dt><dd>open the firewall for a new analyst or sensor</dd><dt><code>sudo so-rule-update</code></dt><dd>refresh the Suricata ruleset</dd><dt><code>so-test</code></dt><dd>replay sample traffic to check alerting</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

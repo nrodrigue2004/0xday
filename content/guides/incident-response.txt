@@ -16,6 +16,12 @@ $ cat ~/triage/ps.txt
 ```
 
 > Contain before you clean. If you delete the malware first, you lose the evidence and the attacker learns you've noticed.
+
+### The lifecycle
+NIST describes four phases, SANS six; they say the same thing: **Prepare** (tools, contacts, logging, playbooks), **Detect and analyze** (is it real, how bad), **Contain** (stop the spread, short term then long term), **Eradicate and recover** (remove the cause, restore from known-good), and **Lessons learned** (what do we change). Most of the real skill is calm, ordered work under pressure.
+
+### First five minutes
+Do not power off a compromised machine (you lose memory evidence), do not delete anything, write down what you see and the time, tell the right person, and isolate the machine from the network if it is spreading (unplug the cable or disable the switch port, rather than shutting down).
 :: mid
 ### Live triage: processes, connections, users
 Look for processes running from odd places (`/tmp`, `/dev/shm`, hidden directories), as the wrong user, or with no parent you'd expect:
@@ -37,6 +43,15 @@ $ cat ~/triage/last.txt
 ```
 
 > On a live system you'd run `ps auxf`, `ss -tulpan` and `last -a` yourself. Save the output to files with timestamps, because the state changes while you look.
+
+### Evidence handling
+Keep a log: who, what, when, where. Collect the most volatile data first (**order of volatility**: CPU and memory, network connections, running processes, disk, logs, backups). Work on copies, hash the originals (`sha256sum`), and use write blockers for disks. A **chain of custody** record shows who held the evidence and when, which matters if it ever reaches court.
+
+### Severity and communication
+Rate by impact (data involved, systems affected, business function) and spread. Decide who needs to know: IT, management, legal, HR, and possibly customers or regulators. Use a separate channel in case email is compromised, and keep updates short and factual with times.
+
+### Containment options
+Network isolation, disable the account, block the IOC (IP, domain, hash) at firewall and DNS, revoke tokens and sessions, and snapshot the VM before changing it. Pick the least destructive action that actually stops the damage, and note every action so you can undo it later.
 :: complex
 ### Persistence: how attackers come back
 Getting in is hard; staying in is the goal. Every IR has to find and remove persistence, or the attacker returns after you "clean up". Common places on Linux:
@@ -55,6 +70,55 @@ $ cat ~/triage/etc/crontab
 
 ### Scoping
 One compromised host is rarely the whole story. Take every **IOC** (indicator of compromise) you find, such as IPs, domains, file hashes and usernames, and search for them across the environment, in the SIEM, EDR and other hosts' logs.
+
+### Playbooks worth having
+Phishing (retrieve the message, find all recipients, check who clicked, reset and revoke), ransomware (isolate, identify the strain, check backups, do not pay without legal advice), compromised account (reset, revoke sessions, review mailbox rules and OAuth grants, check logins), malware on a host (isolate, image, analyze, reimage), and data leak (scope what left, preserve logs, notify as required).
+
+### Root cause and the report
+After recovery, write a blameless timeline: initial access, execution, persistence, lateral movement, impact, detection time, containment time. List what worked, what failed and the specific changes (a rule, a patch, a policy) with owners and dates. Measure **mean time to detect** and **to respond** so improvement is visible.
+
+### Indicators and frameworks
+Map findings to MITRE ATT&CK techniques, record IOCs (hashes, IPs, domains, file paths, registry keys), and share them with your SIEM and blocklists. The IR plan should be tested in a tabletop exercise before it is needed.
+:: ref
+### linux live triage
+date; uptime; who | time, uptime and logged-in users
+ps auxf | process tree
+ss -tulpn | listening ports and their processes
+ss -tn state established | current outbound connections
+lsof -i | open network files per process
+last -a | login history
+cat /etc/passwd | accounts, look for new UID 0 entries
+crontab -l; ls /etc/cron.* | scheduled persistence
+find / -mtime -2 -type f 2>/dev/null | files changed in the last two days
+ls -la /tmp /var/tmp /dev/shm | common drop locations
+cat ~/.ssh/authorized_keys | unexpected keys
+### windows live triage
+tasklist /v | running processes with owners
+netstat -ano | connections with PIDs
+schtasks /query /fo LIST /v | scheduled tasks
+net user / net localgroup administrators | accounts and admins
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run | autostart entries
+Get-WinEvent -FilterHashtable @{LogName='Security';Id=4624,4625} | logons
+wmic process list brief | process list with paths
+### evidence
+sha256sum file | hash before and after copying
+dd if=/dev/sdb of=disk.img bs=4M | raw disk image (use a write blocker)
+dc3dd if=/dev/sdb of=disk.img hash=sha256 | imaging with built-in hashing
+tar -czf evidence.tgz folder | package collected files
+### phases
+Preparation | tooling, logging, contacts, playbooks
+Detection and analysis | confirm and scope
+Containment | short-term isolation, long-term fixes
+Eradication | remove malware, close the hole
+Recovery | restore from known-good, monitor
+Lessons learned | blameless review and changes
+### terms
+IOC | indicator of compromise: hash, IP, domain, path
+TTP | tactic, technique and procedure
+Chain of custody | record of who handled evidence
+Order of volatility | collect memory before disk
+Containment | stop the spread without destroying evidence
+MTTD / MTTR | mean time to detect / respond
 :: lab
 host: web01
 user: responder

@@ -1,4 +1,5 @@
 tagline: Active Directory is the phone book and the keyring of a Windows network. Learn domains, OUs, users, groups and how permissions really flow, then find the account that's secretly a Domain Admin.
+sheet: ad-powershell
 :: simple
 In a company, hundreds of Windows machines and users need to trust the same logins. **Active Directory Domain Services** (AD DS) is the central database that makes that work. A server running it is a **Domain Controller** (DC). When you log into a work PC, the DC checks your password and tells the PC who you are.
 
@@ -14,6 +15,16 @@ $ cat ~/ad/users.csv
 ```
 
 > Grant access to **groups**, not to individual users. When someone changes jobs, you move them between groups instead of hunting down every permission.
+
+### The cast of characters
+- **Domain**: a company's directory, such as `corp.example.com`. Everything inside trusts the same authority.
+- **Domain controller (DC)**: the server that holds the directory and answers logins. Usually two or more.
+- **Object**: a user, computer, group or printer. Each has attributes (name, password hash, group membership).
+- **OU** (organizational unit): a folder you use to organize objects and to attach policy.
+- **Forest and trust**: a forest is one or more domains that share a schema; trusts let users from one domain use resources in another.
+- **SID**: the unique ID Windows actually uses to identify an account. Names are just labels.
+
+When someone logs into a work PC with their company account, the PC asks a domain controller to verify the password, and the DC replies with proof of who they are and which groups they are in.
 :: mid
 ### Groups inside groups
 Groups can contain other groups (**nesting**). The recommended Microsoft pattern is **AGDLP**: put **A**ccounts into **G**lobal groups (by role, like "Finance Staff"), put global groups into **D**omain **L**ocal groups (by resource, like "Finance Share RW"), and assign **P**ermissions to the domain local group.
@@ -27,6 +38,19 @@ $ grep "Domain Admins" ~/ad/groups.txt
 
 ### Authentication
 Domain logins use **Kerberos**: the DC gives you a ticket-granting ticket (TGT) at logon, and you trade it for service tickets to reach file shares, SQL servers and so on. Older **NTLM** still shows up as a fallback and is weaker.
+
+### Everyday administration tasks
+Resetting a password, unlocking an account, adding a user to a group, moving a laptop to the right OU, and disabling an account for a leaver are 90% of help-desk AD work. In **Active Directory Users and Computers** you do these with a right-click; in PowerShell they are one-liners (see the reference). Always **disable and move** a leaver rather than deleting, so you can recover the account and its SID.
+
+### Key protocols
+- **DNS**: AD depends on it. If a PC cannot find the DC through DNS, logins fail. Most AD outages are DNS problems.
+- **LDAP** (389/636): how clients query the directory.
+- **Kerberos** (88): ticket-based authentication; a user gets a ticket-granting ticket (TGT) at login, then service tickets as needed.
+- **NTLM**: the older challenge-response fallback, still around and still abused.
+- **SMB** (445): file shares and the SYSVOL folder that distributes Group Policy.
+
+### Account states you will see
+Locked out (too many bad passwords, clears itself or an admin unlocks it), disabled (admin switched it off), expired (password or account date), and "must change password at next logon". Event IDs: 4624 logon, 4625 failed logon, 4740 lockout, 4720 account created, 4728/4732 added to a privileged group.
 :: complex
 ### Why attackers love AD
 Owning AD means owning every machine that trusts it. Common paths, all of which are misconfigurations a defender can find first:
@@ -44,6 +68,59 @@ Owning AD means owning every machine that trusts it. Common paths, all of which 
 ```
 $ grep -E "4728|4732|4756" ~/ad/security.evtx.txt
 ```
+
+### Attack paths worth being able to describe
+- **Password spraying**: one common password tried against many accounts, staying under the lockout threshold.
+- **Kerberoasting**: any user can request a service ticket for an account with an SPN, then crack it offline. Defense: long random passwords on service accounts, or managed service accounts.
+- **Pass-the-hash**: NTLM hashes can be used as passwords without cracking them. Defense: no local admin reuse (LAPS), restricted admin logons, credential guard.
+- **DCSync**: an account with replication rights asks a DC for everyone's hashes. Defense: tightly limit and alert on replication rights.
+- **Golden ticket**: stolen `krbtgt` hash lets an attacker forge tickets. Defense: reset `krbtgt` twice after a compromise.
+- **Delegation and ACL abuse**: a user with write access over a group or an account can take it over. Tools like BloodHound map these paths.
+
+### Tiering
+Keep three tiers: domain controllers and identity (tier 0), servers (tier 1), workstations (tier 2). Admins for a higher tier never log into a lower one, because their credentials would be left in memory on a machine that is easier to compromise.
+:: ref
+### users and groups
+Get-ADUser -Identity jdoe -Properties * | show every attribute of a user
+Get-ADUser -Filter 'Enabled -eq $false' | find disabled accounts
+Search-ADAccount -LockedOut | list locked-out accounts
+Unlock-ADAccount -Identity jdoe | unlock one account
+Set-ADAccountPassword jdoe -Reset | reset a password
+Disable-ADAccount -Identity jdoe | disable instead of deleting
+New-ADUser -Name "Jo Doe" -SamAccountName jdoe | create a user
+Add-ADGroupMember "HelpDesk" -Members jdoe | add to a group
+Get-ADGroupMember "Domain Admins" | who is in the most powerful group
+### computers and OUs
+Get-ADComputer -Filter * | all computer objects
+Move-ADObject -Identity $dn -TargetPath $ou | move an object to another OU
+Get-ADOrganizationalUnit -Filter * | list OUs
+### domain info
+Get-ADDomain | domain name, SIDs and FSMO holders
+Get-ADDomainController -Filter * | list DCs
+Get-ADForest | forest-level info
+nltest /dsgetdc:corp.example.com | which DC answers for the domain
+### command prompt tools
+dsa.msc | open Users and Computers
+whoami /groups | groups in your current token
+klist | show your Kerberos tickets
+klist purge | drop them and force new ones
+gpupdate /force | refresh Group Policy
+net user jdoe /domain | quick account info
+nslookup -type=SRV _ldap._tcp.dc._msdcs.corp.example.com | find domain controllers through DNS
+### terms
+SID | unique security identifier for an account or group
+SPN | service principal name, links a service to an account for Kerberos
+TGT | ticket-granting ticket, your Kerberos proof of login
+SYSVOL | DC share that distributes policy and scripts
+FSMO | five special DC roles such as PDC emulator
+krbtgt | the account whose key signs all Kerberos tickets
+### security events
+4624 | successful logon
+4625 | failed logon
+4740 | account locked out
+4768 / 4769 | Kerberos TGT and service ticket requests
+4728 / 4732 / 4756 | member added to a security group
+4720 | user account created
 :: lab
 style: ticket
 host: dc01

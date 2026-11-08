@@ -10,6 +10,14 @@ The standard is **NIST SP 800-88**, which defines three levels:
 ```
 $ cat ~/attachments/sanitization-matrix.txt
 ```
+
+### Why it matters
+Old laptops, phones, copiers and USB sticks carry business secrets and personal data. Bad disposal is a breach: stolen or resold drives with readable data have caused real fines and lawsuits. A written process, applied every time, proves you did the right thing.
+
+### The three NIST 800-88 levels
+- **Clear**: overwrite with standard tools. Defeats ordinary recovery. Good when the device stays inside your organization.
+- **Purge**: stronger methods that resist lab recovery, such as cryptographic erase, ATA Secure Erase or Sanitize, or degaussing for magnetic media.
+- **Destroy**: physical destruction, shredding, disintegration or incineration. Used when media is too sensitive or broken.
 :: mid
 ### Media type changes everything
 - **HDDs** (magnetic platters): overwriting works; degaussing works (and destroys the drive)
@@ -22,6 +30,17 @@ $ grep -i "nvme\|ssd" ~/attachments/sanitization-matrix.txt
 
 ### Proof
 Every wipe needs a record: asset tag, serial, method, tool, operator, date and verification result. Vendors that destroy drives give a **certificate of destruction**. Without the record, you can't prove it happened.
+
+### Matching method to media
+- **HDD**: a single overwrite pass is enough with modern drives; degauss is an alternative; shred for the highest sensitivity.
+- **SSD / NVMe / flash**: overwriting is unreliable because of wear-leveling and spare blocks. Use the drive's **Secure Erase / Sanitize** or **cryptographic erase** (destroy the encryption key of a self-encrypting drive or fully encrypted disk), and destroy if that is not available.
+- **Phones and tablets**: encrypt, then factory reset, remove accounts first (Activation Lock, FRP) and the SIM and SD card.
+- **Printers and copiers**: have internal storage, wipe through the manufacturer menu.
+- **Optical and tape**: shred or disintegrate.
+- **Cloud**: delete data and keys, check retention and backups, request provider attestation.
+
+### Paperwork
+A sanitization record shows: asset tag, serial number, media type, method and tool, date, operator, verification result and the destination (reuse, resale, recycle). A **certificate of destruction** from a vendor lists the serials destroyed. Check **legal holds** first: never destroy anything subject to litigation or an investigation.
 :: complex
 ### Verifying a wipe
 Sanitization isn't done until it's **verified**: sample the drive (or read it fully) and confirm no original data remains. Tools like Blancco produce signed reports. A secure-erase command that returns "success" on a drive with a buggy firmware is a known failure mode, so verification matters.
@@ -36,6 +55,47 @@ Sanitization isn't done until it's **verified**: sample the drive (or read it fu
 ```
 $ cat ~/attachments/legal-holds.txt
 ```
+
+### Verification
+Sample-check wiped drives by trying to read them with a recovery tool and confirming that no data of value appears. For cryptographic erase, confirm that the drive was truly encrypted from the start; encrypting after data is already on it does not protect old blocks.
+
+### Planning for sanitization from day one
+Full-disk encryption on every laptop makes disposal easy: destroy the key and the data is unreadable. Keep an asset inventory so nothing leaves unrecorded, store removed drives in a locked container, and make destruction vendors sign a contract that covers chain of custody and liability. Treat remote wipe (MDM) as a loss-response tool, not a disposal procedure.
+:: ref
+### linux tools
+shred -vzn 1 /dev/sdX | overwrite a disk once, then zeros
+dd if=/dev/zero of=/dev/sdX bs=1M status=progress | zero a disk
+hdparm -I /dev/sdX | check if Secure Erase is supported and not frozen
+hdparm --user-master u --security-set-pass p /dev/sdX | set a temporary password before secure erase
+hdparm --security-erase p /dev/sdX | ATA Secure Erase
+nvme format /dev/nvme0n1 -s 1 | NVMe format with user-data erase
+blkdiscard /dev/sdX | TRIM the entire SSD
+cryptsetup luksErase /dev/sdX | destroy LUKS keyslots, making data unreadable
+### windows tools
+cipher /w:C:\ | overwrite free space on a volume
+diskpart → clean all | zero a whole disk
+Reset this PC → Remove everything | consumer reset, clear-level only
+Manage-bde -off C: | decrypt BitLocker if required (not a wipe)
+### verification
+sha256sum /dev/sdX | hash proves a zero or pattern fill if you know the expected value
+xxd /dev/sdX | head | look at the start of the disk
+photorec | try recovery on a wiped disk as a spot check
+### nist 800-88 summary
+Clear | logical overwrite, resists simple recovery
+Purge | resists laboratory recovery (secure erase, crypto erase, degauss)
+Destroy | media can no longer be used (shred, disintegrate)
+### documentation fields
+Asset tag and serial | which device
+Media type | HDD, SSD, flash, tape
+Method and tool | what you did exactly
+Operator and date | who and when
+Verification | how you confirmed it
+Disposition | reused, sold, recycled
+### terms
+Degauss | magnetic erase for HDD and tape
+Crypto erase | delete the key so encrypted data is unreadable
+Legal hold | data that must not be destroyed
+Certificate of destruction | vendor proof listing serials destroyed
 :: lab
 style: ticket
 host: itam

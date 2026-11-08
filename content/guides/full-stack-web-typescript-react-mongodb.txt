@@ -13,6 +13,11 @@ $ curl -s https://api.shop.local/products/7
 ```
 
 > Never trust the frontend. Anyone can skip your React app and send requests straight to the API with curl.
+
+### The stack, end to end
+**React** builds the user interface in the browser out of components. The browser calls an **API** (usually JSON over HTTPS) served by **Node.js** with a framework like Express. The API reads and writes **MongoDB**, a database of JSON-like documents. TypeScript can cover all three layers. This is the "MERN" stack.
+
+A request's journey: user clicks → React handler → `fetch("/api/orders")` → Express route → middleware (auth, validation) → database query → JSON response → React state updates → screen redraws. When something breaks, find which hop failed using the Network tab in the browser (status code, payload) and the server logs.
 :: mid
 ### REST and JSON
 A REST API maps resources to URLs: `GET /api/orders` lists, `GET /api/orders/12` reads one, `POST /api/orders` creates. Data travels as **JSON**.
@@ -27,6 +32,23 @@ $ cut -d. -f2 ~/api/token.txt | base64 -d
 
 ### React's safety net
 React escapes values you render, which blocks most XSS by default. It's bypassed by `dangerouslySetInnerHTML`, by putting user input into `href` (`javascript:` URLs), and by server-side templates that don't escape.
+
+### React essentials
+Components are functions that return markup (JSX). **Props** pass data in, **state** (`useState`) holds data that changes, `useEffect` runs side effects like fetching, and lists need a stable `key`. React escapes values in JSX by default; `dangerouslySetInnerHTML` turns that protection off.
+
+### Express essentials
+```
+app.use(express.json());
+app.get("/api/orders/:id", requireAuth, async (req, res) => {
+  const order = await Orders.findOne({ _id: req.params.id, userId: req.user.id });
+  if (!order) return res.sendStatus(404);
+  res.json(order);
+});
+```
+Notice the query includes `userId`, so one user cannot read another's order by guessing an ID (that omission is the classic **IDOR / broken access control** bug). Use middleware for authentication, validation (zod, joi), rate limiting and error handling, and send proper status codes (200, 201, 400, 401, 403, 404, 500).
+
+### MongoDB essentials
+Collections of documents; `find`, `insertOne`, `updateOne`, `deleteOne`, `aggregate`. Mongoose adds schemas and validation. Index fields you query on. NoSQL injection exists too: passing `req.body.username` straight into a query lets an attacker send `{ "$ne": null }`, so validate that inputs are strings.
 :: complex
 ### The OWASP Top 10, as it shows up in this stack
 - **Broken access control**: the API checks you're logged in but not that order 12 is *yours* (IDOR). Every endpoint must check ownership and role on the server
@@ -41,6 +63,59 @@ $ cat ~/api/login-attempts.log
 
 ### Defense in depth
 Server-side validation, parameterized queries, HttpOnly + Secure + SameSite cookies, a Content Security Policy, rate limiting on login, and logging of every authorization failure.
+
+### Authentication choices
+Session cookies (server remembers you; cookie flags `HttpOnly`, `Secure`, `SameSite`) or JWTs (self-contained signed tokens; hard to revoke, so keep them short-lived and use refresh tokens). Hash passwords with Argon2id or bcrypt, add rate limiting and MFA, and never roll your own crypto. Authorization is separate: check *every* request against what that user may do, on the server.
+
+### Deploying and operating
+Environment variables for secrets (never committed), HTTPS everywhere, CORS limited to your real front-end origin, security headers (`helmet`), logging that never prints passwords or tokens, dependency updates (`npm audit`), a reverse proxy like nginx, containers (Docker), and backups for the database. Add automated tests and a CI pipeline that fails on lint, type or test errors.
+
+### Debugging checklist
+Is it a front-end bug (console errors, wrong state), a network bug (wrong URL, CORS, status code), a server bug (stack trace in logs), or a data bug (document shape differs from what the code expects)? Reproduce it with `curl`, then trace inward one hop at a time.
+:: ref
+### http and api testing
+curl -i URL | response with headers
+curl -X POST -H "Content-Type: application/json" -d '{"a":1}' URL | send JSON
+curl -H "Authorization: Bearer TOKEN" URL | call with a token
+GET / POST / PUT / PATCH / DELETE | read / create / replace / update / remove
+200 / 201 / 204 | OK / created / no content
+400 / 401 / 403 / 404 | bad input / not logged in / not allowed / not found
+429 / 500 | rate limited / server error
+### react
+useState(initial) | state variable and setter
+useEffect(fn, [deps]) | run code when dependencies change
+props | inputs passed to a component
+key prop | stable ID for list items
+useContext | share data without passing props down
+dangerouslySetInnerHTML | bypasses escaping, avoid
+### express
+app.use(fn) | add middleware
+app.get("/path", handler) | handle a GET route
+req.params / req.query / req.body | URL segments, query string, JSON body
+res.status(404).json({ error }) | respond with a status
+next(err) | pass an error to the error handler
+### mongodb and mongoose
+db.users.find({ role: "admin" }) | query documents
+db.users.insertOne({...}) | add a document
+db.users.updateOne({_id}, {$set: {...}}) | change fields
+db.users.createIndex({ email: 1 }, { unique: true }) | index and enforce uniqueness
+$eq, $ne, $gt, $in | query operators
+$where and $regex | powerful, abuse-prone, avoid with user input
+### security checklist
+Parameterize and validate input | stops injection
+Check ownership on every record | stops IDOR
+HttpOnly Secure SameSite cookies | protects sessions
+helmet() | sets security headers
+CORS allow-list | only trusted origins
+npm audit / dependabot | dependency vulnerabilities
+Secrets in env or vault | never in git
+### terms
+SPA | single-page application
+JWT | signed token carrying claims
+CSRF | forged request using the victim's cookie
+XSS | attacker script runs in your page
+IDOR | accessing others' data by changing an ID
+CORS | browser rule about cross-origin requests
 :: lab
 host: api01
 user: dev

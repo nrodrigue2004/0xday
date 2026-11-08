@@ -612,3 +612,11 @@ pre.ex--code code{color:#b6f5c9}
 .gloss .gl[hidden]{display:none}
 .gloss dt{margin:0}.gloss dd{margin:.2rem 0 0}.gloss .tag{font-size:.75rem}
 .gl__see{display:block;color:var(--muted,#7f8c85);font-size:.85em;margin-top:.15rem}
+
+.lvl--ref{border-left-color:var(--border)}.lvl--ref h3{color:var(--strong);margin:1.2rem 0 .2rem;font-size:.95rem}
+
+/* tables in learn/basics guides */
+.tbl{overflow-x:auto;margin:1em 0}
+.tbl table{border-collapse:collapse;width:100%;font-size:.88em}
+.tbl th,.tbl td{border:1px solid var(--border-2);padding:.35em .6em;text-align:left;vertical-align:top}
+.tbl th{color:var(--green);background:var(--panel)}

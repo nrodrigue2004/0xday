@@ -11,6 +11,16 @@ Two ideas cover most of it:
 ```
 $ cat ~/pfsense/rules-LAN.txt
 ```
+
+### A mental picture
+Think of pfSense as a building's security desk with a clipboard of rules. Every packet is a visitor. The guard checks the list from the top; the first line that describes the visitor decides whether they get in. No line matches means no entry.
+
+### The zones in my lab
+- **WAN** the side facing the internet or my ISP router. Untrusted.
+- **LAN** my normal devices. Trusted, but still filtered.
+- **SERVERS / LAB / IOT** separate networks (usually VLANs). Isolating them means a hacked smart plug or a malware test VM cannot talk to everything else.
+
+The web interface lives at the LAN address of the firewall (for example `https://10.0.0.1`), and there is a special **anti-lockout rule** that keeps you from blocking your own access to it.
 :: mid
 ### Interfaces and direction
 pfSense filters traffic as it **enters** an interface. A rule on the LAN tab controls traffic *from* LAN hosts going anywhere. Out of the box: WAN blocks everything inbound, LAN allows everything outbound. You add rules on each internal interface (LAN, SERVERS, LAB, IOT VLANs) to control what each can reach.
@@ -24,6 +34,17 @@ $ cat ~/pfsense/aliases.txt
 
 ### Stateful filtering
 pfSense tracks connections, so a pass rule for the request automatically allows the reply. You only write rules for the side that **starts** the connection.
+
+### Common rule recipes
+- **Block LAB from reaching LAN**: on the LAB tab, put a block rule at the top with source `LAB net` and destination `LAN net`, then a pass rule below it for internet access. Order is the whole trick.
+- **Allow only DNS to the firewall**: pass UDP/TCP 53 from `LAB net` to the LAB address, block the rest of that address.
+- **Let one admin PC reach a management page**: pass from the alias `ADMIN_PCS` to `NAS_ADMIN` on the alias port, above a general block.
+
+### Pass, block or reject?
+**Block** drops silently, which slows a scanner down. **Reject** replies with an error, which is friendlier on an internal network because things fail fast instead of hanging. On WAN, block. On internal interfaces, reject is often nicer when you are troubleshooting.
+
+### DHCP, DNS and VLANs
+pfSense usually runs the **DHCP server** (leases, static mappings so servers keep one address) and the **DNS resolver** (Unbound) for each interface. A **VLAN** is a tagged slice of a physical network; you create it under Interfaces → Assignments → VLANs, assign it, give it an address, enable DHCP, then write its rules. Nothing is allowed on a new interface until you add a pass rule.
 :: complex
 ### Rule order is security
 Because the first match wins, a broad pass rule near the top makes every block rule below it meaningless. Order rules from specific to general: anti-lockout, specific blocks (e.g. LAB → LAN), specific passes, then a general rule or nothing (default deny).
@@ -40,6 +61,57 @@ $ grep "10.0.30.20" ~/pfsense/filter.log
 
 ### Packages
 pfSense adds features through packages: **Suricata/Snort** (IDS/IPS on the interface), **pfBlockerNG** (IP and DNS blocklists), **WireGuard/OpenVPN** (remote access).
+
+### Floating rules, states and the order of evaluation
+Rules are evaluated in this order: **floating** rules first (they can match any interface or direction), then the **interface group** tabs, then the specific interface tab. The first match wins in each case, except floating rules without "quick" which let later rules override. Keep floating rules to a minimum, they are the hardest to reason about.
+
+Every allowed connection creates an entry in the **state table**. Changing a rule does not always kill an existing state, so after tightening a rule, clear states (Diagnostics → States) before testing, or you will think the old rule still works.
+
+### Troubleshooting checklist
+1. Is the rule on the **right interface**? Traffic is matched where it enters.
+2. Is there an earlier rule that already matched? Check the rule counters and the firewall log.
+3. Are the source, destination and port aliases what you think they are?
+4. Is the destination actually listening, and does it have its own host firewall?
+5. Does the reply have a route back? Asymmetric routing breaks stateful filtering.
+
+### Hardening the firewall itself
+Disable the web UI on WAN, use HTTPS only, change the default admin password, restrict the UI to an admin alias, turn on two-factor if you have it, keep pfSense updated, and back up `config.xml` (Diagnostics → Backup) before big changes. Treat the config like a secret, it contains VPN keys and password hashes.
+:: ref
+### rule fields
+Interface | the network the packet arrives on; rules apply to ingress traffic
+Action | pass, block (silent drop) or reject (drop and tell the sender)
+Protocol | TCP, UDP, TCP/UDP, ICMP or any
+Source / Destination | an address, network, alias, or "this firewall"
+Port | single port, range or alias; applies to TCP and UDP only
+Log | writes matches to the firewall log
+Description | always fill it in, future you will not remember why
+### objects
+Alias | a named set of hosts, networks, ports or URLs reused in rules
+Schedule | time window during which a rule applies
+Gateway | next hop for a route or policy-routed rule
+State table | list of live connections that allow reply traffic automatically
+### nat
+Port forward | WAN address and port mapped to an internal host and port
+Outbound NAT | rewrites internal source addresses to the WAN address
+1:1 NAT | maps one public address to one internal address
+NAT reflection | lets inside hosts use the public name of an inside server
+### where to click
+Firewall → Rules | per-interface rules, floating and groups
+Firewall → Aliases | hosts, ports and URL tables
+Status → System Logs → Firewall | the log of blocks and passes
+Diagnostics → States | view or clear connection states
+Diagnostics → Packet Capture | tcpdump from the web UI
+Diagnostics → Backup & Restore | download config.xml
+Services → DHCP Server | pools and static mappings
+Interfaces → Assignments | add VLANs and new interfaces
+### shell menu (console or ssh)
+1) Assign Interfaces | pick which NIC is WAN and LAN
+2) Set interface IP | change the management address
+8) Shell | drop to a FreeBSD shell
+11) Restart webConfigurator | recover a hung web UI
+pfctl -sr | show the loaded filter rules
+pfctl -ss | show the state table
+tcpdump -ni em0 port 53 | capture DNS on an interface
 :: lab
 style: ticket
 host: pfsense

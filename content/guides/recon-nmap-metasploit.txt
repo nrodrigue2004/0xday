@@ -1,4 +1,5 @@
 tagline: You can't attack or defend what you haven't mapped. Learn host discovery, port and version scanning with Nmap, how Metasploit turns a finding into access, then find the one vulnerable box on a lab network.
+sheet: nmap
 :: simple
 **Reconnaissance** is mapping a target before touching it hard: which hosts are alive, which ports are open, and what software is listening. **Nmap** is the standard tool for this.
 
@@ -17,6 +18,17 @@ $ nmap 10.10.10.5
 ```
 
 > An **open** port has a program listening. **Closed** means the host answered but nothing's there. **Filtered** means a firewall ate the probe.
+
+### Scope first, always
+Only scan systems you own or have written permission to test. In a homelab that means your own VMs and a lab network (Metasploitable, DVWA, TryHackMe or Hack The Box machines). A scan against someone else's network can be a crime, and even on your own it can crash fragile devices. Write down the scope before you type a command.
+
+### The recon pipeline
+1. **Discover** which hosts are alive (`nmap -sn`).
+2. **Enumerate** ports and services on each (`-sV`).
+3. **Dig deeper** into interesting services (web directories, SMB shares, banners).
+4. **Match** versions to known vulnerabilities.
+5. **Validate** safely and record evidence.
+6. **Report** what you found and how to fix it.
 :: mid
 ### Finding versions
 Knowing port 21 is open is a start; knowing it's **vsftpd 2.3.4** is a finding. `-sV` probes each open port to identify the service and version, and `-sC` runs the default safe scripts (banners, titles, anonymous login checks):
@@ -35,6 +47,23 @@ $ nmap -sV -sC 10.10.10.5
 ```
 $ nmap -p- --min-rate 1000 10.10.10.7
 ```
+
+### Reading nmap output
+`PORT STATE SERVICE VERSION`: the state is open, closed, filtered (a firewall dropped it) or open|filtered (cannot tell, common with UDP). The version column tells you what to research. Add `-oA scan` to save normal, grepable and XML output together, which you can feed to other tools or diff against a later scan.
+
+### Handy options
+- `-Pn` skip host discovery when ICMP is blocked, `-n` skip DNS lookups for speed
+- `-iL hosts.txt` read targets from a file, `--exclude 10.0.0.1` skip a host
+- `--open` show only open ports, `-v` show results as they arrive
+- `-sC` default scripts, `--script vuln` known-vulnerability checks (read what a script does before running it)
+- `-O` guess the OS, `-A` is `-sV -sC -O` plus traceroute
+
+### Enumerating common services
+- **Web** (80/443): browse it, check `robots.txt`, run `gobuster dir -u URL -w wordlist` for hidden paths, `nikto -h URL` for known issues.
+- **SMB** (445): `smbclient -L //host -N` lists shares, `enum4linux` collects users and shares.
+- **FTP** (21): try anonymous login. **SSH** (22): note the version and whether passwords are allowed.
+- **DNS** (53): `dig axfr @server domain` tests for zone transfer.
+- **SNMP** (161/UDP): `snmpwalk -v2c -c public host` if the community string is default.
 :: complex
 ### From version to exploit
 Once you have a product and version, look it up: CVE databases, vendor advisories, and **searchsploit** (an offline copy of Exploit-DB):
@@ -52,6 +81,67 @@ $ msfconsole -q -x "search vsftpd"
 
 ### Defender's view
 Every scan you just ran is visible: a SYN scan is a burst of SYNs to many ports from one IP, and IDS rules (Snort's scan detection, Zeek's `Scan::Port_Scan`) catch it. Reduce what recon finds by closing unused ports, keeping software current, and hiding version banners.
+
+### Metasploit workflow
+```
+msfconsole
+search vsftpd
+use exploit/unix/ftp/vsftpd_234_backdoor
+show options
+set RHOSTS 10.10.10.5
+check
+run
+```
+Modules are exploits, auxiliary scanners, payloads and post-exploitation. `show options` lists required settings (RHOSTS is the target, LHOST your address). Use `check` when a module supports it. `db_nmap` stores scan results in the Metasploit database so `hosts` and `services` list them. A **meterpreter** session gives you commands like `sysinfo`, `getuid` and `shell`.
+
+### Evidence and reporting
+Take notes as you go: command, time, output, screenshot. A finding needs a title, affected host, evidence, impact in plain words, severity (CVSS helps) and a fix. A tester who cannot explain the fix has done half the job.
+
+### Detecting this from the defender's side
+A SYN scan appears as many connections from one source to many ports with no completed handshakes. Look for it in firewall logs, Zeek `conn_state` of S0 and REJ, and IDS scan rules. Rate-limit, segment, and alert on internal hosts that scan, because that usually means a compromised machine.
+:: ref
+### discovery
+nmap -sn 10.10.10.0/24 | list live hosts, no port scan
+nmap -Pn host | skip ping, treat host as up
+nmap -iL targets.txt | scan hosts from a file
+### ports and services
+nmap -sS host | SYN scan, the default as root
+nmap -sT host | full connect scan, no root needed
+nmap -p- host | all 65535 TCP ports
+nmap --top-ports 100 host | most common ports only
+nmap -sU --top-ports 20 host | common UDP ports
+nmap -sV -sC host | versions plus default scripts
+nmap -A host | version, scripts, OS and traceroute
+### speed and output
+nmap -T4 host | faster timing template
+nmap --min-rate 1000 host | send at least 1000 packets a second
+nmap -oA scan host | save in all formats
+nmap --open host | show only open ports
+### enumeration helpers
+gobuster dir -u http://host -w wordlist | brute-force web paths
+nikto -h http://host | web server issue scan
+smbclient -L //host -N | list SMB shares anonymously
+enum4linux -a host | collect SMB and user info
+dig axfr @ns domain | attempt a zone transfer
+searchsploit name version | search the local Exploit-DB copy
+whatweb http://host | identify web technologies
+### metasploit console
+search term | find modules
+use path | load a module
+show options | list required settings
+set RHOSTS ip | set the target
+check | test without exploiting, if supported
+run / exploit | launch the module
+sessions -l | list active sessions
+db_nmap -sV ip | run nmap and store results
+hosts / services | view stored results
+### terms
+Open | something is listening
+Closed | host replied, nothing listening
+Filtered | a firewall swallowed the probe
+CVE | public identifier for a vulnerability
+CVSS | 0 to 10 severity score
+Payload | code delivered after exploitation
 :: lab
 host: kali
 user: kali

@@ -1,0 +1,68 @@
+tagline: Two models for the same thing: how data gets from an app on one machine to an app on another. Know the layers, what each one carries, and which attacks and tools belong to which.
+:: simple
+The **OSI model** splits networking into 7 layers. Each layer only talks to the layer above and below it, and each adds its own header on the way down (**encapsulation**) and strips it on the way up.
+
+| # | Layer | Data unit | What it does | Examples |
+|---|---|---|---|---|
+| 7 | Application | data | what the user's program speaks | HTTP, DNS, SMTP, SSH |
+| 6 | Presentation | data | encoding, compression, encryption | TLS, JPEG, ASCII |
+| 5 | Session | data | start, hold and end a conversation | NetBIOS, RPC, sockets |
+| 4 | Transport | segment / datagram | end-to-end delivery, ports | TCP, UDP |
+| 3 | Network | packet | addressing and routing between networks | IP, ICMP, routers |
+| 2 | Data link | frame | delivery on one local network, MAC addresses | Ethernet, Wi-Fi, switches, ARP |
+| 1 | Physical | bits | signals on a wire or radio | cables, hubs, radio |
+
+Bottom-up mnemonic: **P**lease **D**o **N**ot **T**hrow **S**ausage **P**izza **A**way. Top-down: **A**ll **P**eople **S**eem **T**o **N**eed **D**ata **P**rocessing.
+
+> The real internet runs on **TCP/IP**, which has 4 layers: **application** (OSI 5-7), **transport** (4), **internet** (3), **link** (1-2). OSI is the vocabulary; TCP/IP is the reality. When someone says "layer 7 firewall" they mean the OSI numbering.
+:: mid
+### Who uses which layer
+- **L1**: cables, fiber, radio. Problems: unplugged, bad cable, interference. Attacks: wiretap, jamming.
+- **L2**: MAC addresses (48 bit, `3c:52:82:4e:19:a7`), switches, VLANs, ARP. Attacks: ARP spoofing, MAC flooding, VLAN hopping, rogue access points.
+- **L3**: IP addresses and routing. Routers decide where a packet goes next. Attacks: IP spoofing, ICMP floods, route hijacking.
+- **L4**: ports and connection state. TCP is reliable and ordered; UDP is fast and unchecked. Attacks: SYN flood, port scans, session hijack.
+- **L5-6**: sessions and encryption. Attacks: session hijacking, SSL stripping, downgrade attacks.
+- **L7**: the protocol the user's app speaks. Attacks: SQL injection, XSS, DNS poisoning, phishing, malicious uploads.
+
+### Encapsulation, concretely
+A browser sends an HTTP request. TCP wraps it in a **segment** (adds source and destination ports, sequence numbers). IP wraps that in a **packet** (adds source and destination IP). Ethernet wraps that in a **frame** (adds source and destination MAC, plus a checksum). The wire carries bits. The receiver reverses it. Key detail: **MAC addresses change at every hop, IP addresses stay the same end to end** (ignoring NAT).
+
+### Devices by layer
+- **Hub** L1, repeats everything to every port.
+- **Switch** L2, learns MACs and forwards frames only to the right port. A multilayer switch also routes.
+- **Router** L3, forwards between networks using a routing table.
+- **Firewall** L3/L4 (stateful) or L7 (application, next-gen, WAF).
+- **Load balancer** L4 or L7.
+
+### Tools that live at a layer
+- L1: cable tester, link lights.
+- L2: `arp -a`, `ip neigh`, switch CAM table.
+- L3: `ping`, `traceroute` / `tracert`, `ip route`, `route print`.
+- L4: `ss -tuln`, `netstat -ano`, `nmap`, `nc`.
+- L7: `curl`, `dig`, `Wireshark` display filters, browser dev tools.
+```
+$ ip a
+$ ip route
+$ ss -tuln
+$ dig example.com
+```
+:: complex
+### The TCP three-way handshake and teardown
+SYN (client picks initial sequence number), SYN-ACK (server acknowledges and picks its own), ACK. Data is numbered per byte, ACKs confirm receipt, loss triggers retransmit. Teardown is FIN, ACK, FIN, ACK (or a hard **RST**). A closed port answers a SYN with RST; a filtered port (firewall drop) answers nothing, which is how scanners tell them apart.
+
+### Why the models matter for defense
+- **Defense in depth** maps to layers: port security and 802.1X (L2), ACLs and segmentation (L3), stateful firewall (L4), WAF and input validation (L7), TLS (L5-6).
+- **Troubleshooting** is bottom-up: link light, IP config, gateway ping, outside ping, DNS, then the app. Each step rules a layer in or out.
+- **Detection** cares where evidence lives: ARP anomalies in L2 captures, port scans in L4 flow data, injection in L7 web logs.
+
+### Other L2/L3 facts worth knowing
+- **MTU** is 1500 bytes on Ethernet; bigger packets get fragmented or dropped (watch for broken VPNs).
+- **TTL** counts down each hop; traceroute abuses it to map the path.
+- **ICMP** is how routers say "unreachable" or "time exceeded" (L3, carried in IP).
+- **VLANs** (802.1Q) split one switch into separate L2 networks; a router is needed to cross them.
+- **IPv6** has no ARP (it uses Neighbor Discovery) and no broadcast.
+
+### Exam traps
+- ARP is usually filed at L2 (some say 2.5). Routers are L3, switches L2, but "Layer 3 switch" exists.
+- TLS spans L5-6 in OSI but is just "between TCP and HTTP" in TCP/IP.
+- Port numbers are **L4**, IP addresses **L3**, MAC addresses **L2**. Three addresses, three layers.

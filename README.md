@@ -40,6 +40,10 @@ Chapters are `content/ai/<slug>.txt` in the same format as the learn guides (tie
 
 Drills are `content/drills/<slug>.txt` in the learn-guide format (tiers plus one lab, all data fictional); order and blurbs are in `CHAPTERS` in `build_drills.py`. The glossary is `content/glossary.json` (`t`, `d`, `c`, `l`); each link is `g:`/`s:`/`m:`/`d:`/`a:` plus a slug and the build fails if one is missing.
 
+## ~/basics
+
+Foundations chapters are `content/basics/<slug>.txt` in the same format as the learn guides (tables with `|` rows are supported); order and blurbs are in `CHAPTERS` in `build_basics.py`.
+
 ## Weird UI (all optional)
 
 `fx.js` adds the tmux status bar, settings (`set` in ghost, or the toggles in the bar: crt, snd, fx, vim, boot), the first-visit boot + GRUB screen, glitch page transitions, sound, opt-in vim keys (`:` commands), the Ctrl+P fuzzy finder, the split-pane reader on the posts page and the `[ xxd ]` toggle on posts. `tty.js` is the shell at `tty.html`, `htop.js` the homelab dashboard at `htop.html`, `desktop.js` the i3 desktop at `desktop.html` (pages load inside it with `?embed=1`).

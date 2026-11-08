@@ -13,6 +13,13 @@ $ echo -n "0xdaz" | sha256sum
 ```
 
 > If someone says a password is "encrypted with base64", it isn't protected at all.
+
+### Three things people mix up
+- **Encoding** (base64, hex, URL encoding) changes the form of data so it travels safely. Anyone can reverse it, there is no key. It is not security.
+- **Hashing** (SHA-256) turns data into a fixed-size fingerprint. It is one way. Used for integrity and password storage.
+- **Encryption** (AES, RSA) hides data using a key and can be reversed by someone with the right key.
+
+Also: **signatures** prove who wrote something and that it was not changed; **MACs** (HMAC) prove integrity with a shared secret; **KDFs** turn a password into a key slowly.
 :: mid
 ### Symmetric vs asymmetric
 - **Symmetric** (AES): one shared key encrypts and decrypts. Fast, used for bulk data. Problem: how do both sides get the key?
@@ -29,6 +36,15 @@ $ sha256sum ~/downloads/*.iso
 ```
 
 > A hash on the same website as the download only proves the file wasn't corrupted. A **signature** (GPG, code signing) proves who published it.
+
+### Key sizes and choices that are fine today
+AES-128 or AES-256 (use an authenticated mode: GCM or ChaCha20-Poly1305), RSA 2048 or larger or, better, elliptic curves (Ed25519 for signatures, X25519 for key exchange), SHA-256 or SHA-3 for hashing, Argon2id or bcrypt for passwords. Avoid MD5, SHA-1, DES, 3DES, RC4, ECB mode and RSA with PKCS#1 v1.5 padding for new designs.
+
+### Typical combined design
+Asymmetric crypto is slow, so real protocols use it only to agree on a **session key** (key exchange) or to sign, then encrypt the bulk data with fast symmetric crypto. HTTPS does exactly this. **Forward secrecy** (ephemeral keys per session) means that stealing the server's long-term key later does not decrypt old recordings.
+
+### Where you meet it every day
+TLS on websites, SSH, disk encryption (BitLocker, LUKS, FileVault), VPNs, password managers, signed software updates, git commit signing, email (S/MIME, PGP), Wi-Fi (WPA2/WPA3), and certificates in your browser.
 :: complex
 ### Certificates and PKI
 A **certificate** binds a public key to a name (like `www.example.com`), signed by a **Certificate Authority**. Your browser trusts a set of root CAs; a site's cert is valid if it chains up to one of them, hasn't expired, matches the hostname, and hasn't been revoked (CRL / OCSP).
@@ -44,6 +60,53 @@ $ echo -n "uryyb jbeyq" | tr 'a-z' 'n-za-m'
 ```
 
 That's ROT13, a Caesar shift by 13. It shows up in CTFs and malware strings because it hides text from a quick glance, nothing more.
+
+### Common failures
+Hard-coded keys in source code, reused nonces or IVs (catastrophic with GCM), unsalted or fast password hashes, rolling your own algorithm, comparing MACs with `==` (timing leaks), weak randomness (`rand()` instead of a cryptographically secure generator such as `/dev/urandom`, `secrets` in Python or `crypto.randomBytes` in Node), skipping certificate validation "just for testing", and storing the key next to the data it protects.
+
+### Key management is the hard part
+Generate keys with a secure source, store them in a vault, HSM or KMS (not in git or env files on disk), rotate them, limit who can use them and log use. Plan for loss (backups of keys, escrow for recovery) and for compromise (revocation, re-encryption procedure).
+
+### Looking ahead
+Quantum computers would break RSA and elliptic curves (Shor's algorithm) but only weaken symmetric crypto, so AES-256 stays fine. NIST has standardized post-quantum algorithms (ML-KEM, ML-DSA), and organizations are starting to inventory where they use public-key crypto ("crypto agility").
+:: ref
+### hashing and encoding
+echo -n "text" | sha256sum | SHA-256 of a string (-n avoids the newline)
+sha256sum file | checksum a file
+sha256sum -c SHA256SUMS | verify against a checksum list
+echo -n "hi" | base64 | encode
+echo "aGk=" | base64 -d | decode
+echo -n "hi" | xxd -p | hex encode
+openssl dgst -sha256 file | hash with OpenSSL
+### symmetric encryption
+openssl enc -aes-256-cbc -pbkdf2 -in a.txt -out a.enc | encrypt with a password
+openssl enc -d -aes-256-cbc -pbkdf2 -in a.enc -out a.txt | decrypt it
+gpg -c file | symmetric encrypt with GPG
+gpg file.gpg | decrypt
+### keys and signatures
+openssl genpkey -algorithm ed25519 -out key.pem | create a private key
+ssh-keygen -t ed25519 | create an SSH key pair
+openssl rand -hex 32 | 32 random bytes as hex
+gpg --verify file.sig file | verify a signature
+gpg --gen-key | create a PGP key pair
+### certificates
+openssl x509 -in cert.pem -noout -text | read a certificate
+openssl s_client -connect host:443 -servername host | inspect a live TLS handshake
+openssl req -new -x509 -days 365 -nodes -out c.pem -keyout k.pem | self-signed cert for a lab
+openssl verify -CAfile ca.pem cert.pem | validate a chain
+### algorithm guide
+AES-GCM / ChaCha20-Poly1305 | symmetric, authenticated encryption
+RSA 2048+ / ECDSA / Ed25519 | signatures and key exchange
+SHA-256 / SHA-3 | hashing
+Argon2id / bcrypt / scrypt | password storage
+HMAC-SHA256 | message authentication
+MD5 / SHA-1 / DES / RC4 | broken, do not use
+### terms
+Nonce / IV | value that must not repeat with the same key
+Forward secrecy | past traffic stays safe if a long-term key leaks
+PKI | system of CAs and certificates that binds names to keys
+Salt | random value mixed into a password hash
+Entropy | unpredictability, the raw material of keys
 :: lab
 host: workstation
 user: student

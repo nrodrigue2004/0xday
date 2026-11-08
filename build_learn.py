@@ -11,6 +11,8 @@ Guide file format (content/guides/<skill-slug>.txt):
     output lines are shown dimmed
     ```
     :: mid / :: complex
+    :: ref               # command/term reference: "### group" heads, then "thing | what it does" rows. Shown on the guide AND
+                         # published as a man page (or appended to an existing cheatsheet when "sheet: <slug>" is set in the header)
     :: lab               # optional key: value lines: host, user, cwd, js (yes), py (yes: real Python via Pyodide)
     :: brief             # the challenge (markdown)
     :: answer            # one accepted answer per line (case/space-insensitive, only hashes ship)
@@ -73,6 +75,15 @@ def md(src):
             i += 1; continue
         if l.startswith("### "):
             o.append(f"<h4>{inline(l[4:])}</h4>"); i += 1; continue
+        if l.startswith("|"):
+            rows = []
+            while i < len(L) and L[i].startswith("|"):
+                cells = [c.strip() for c in L[i].strip().strip("|").split("|")]
+                if not all(re.fullmatch(r":?-+:?", c) for c in cells): rows.append(cells)
+                i += 1
+            head, body = rows[0], rows[1:]
+            o.append('<div class="tbl"><table><thead><tr>' + "".join(f"<th>{inline(c)}</th>" for c in head) + "</tr></thead><tbody>"
+                     + "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in body) + "</tbody></table></div>"); continue
         if l.startswith("- "):
             items = []
             while i < len(L) and L[i].startswith("- "):
@@ -86,7 +97,7 @@ def md(src):
                 buf.append(L[i][2:]); i += 1
             o.append(f'<p class="callout">{inline(" ".join(buf))}</p>'); continue
         buf = []
-        while i < len(L) and L[i].strip() and not L[i].startswith(("```", "- ", "> ", "### ")):
+        while i < len(L) and L[i].strip() and not L[i].startswith(("```", "- ", "> ", "### ", "|")):
             buf.append(L[i]); i += 1
         o.append(f"<p>{inline(' '.join(buf))}</p>")
     return "\n".join(o)
@@ -115,6 +126,13 @@ def parse_guide(text):
             for l in buf:
                 if ":" in l:
                     k, v = l.split(":", 1); lab[k.strip()] = v.strip()
+        elif cur == "ref":
+            groups, grp = [], None
+            for l in buf:
+                if l.startswith("### "): grp = {"title": l[4:].strip(), "rows": []}; groups.append(grp)
+                elif " | " in l and grp is not None:
+                    c, d = l.rsplit(" | ", 1); grp["rows"].append([c.strip(), d.strip()])
+            g["ref"] = groups
         elif cur == "brief": lab["brief"] = body
         elif cur == "answer": lab["answers"] += [norm_answer(x) for x in body.split("\n") if x.strip()]
         elif cur == "hint": lab["hints"].append(body)
@@ -174,6 +192,29 @@ TIERS = [("simple", "1", "simple", "the idea in plain words"), ("mid", "2", "mid
          ("complex", "3", "complex", "what the pros do"), ("lab", "4", "hands-on", "your turn, in the sandbox")]
 
 
+def merge_sheets(SHEETS, guides):
+    """publish each guide's :: ref as a man page, or append it to the cheatsheet named by "sheet:" in the guide header"""
+    for s, (k, grp, g) in guides.items():
+        if not g.get("ref"): continue
+        tgt = g["meta"].get("sheet")
+        if tgt:
+            sh = next(x for x in SHEETS if x["slug"] == tgt)
+            have = {x["title"].lower() for x in sh["groups"]}
+            sh["groups"] += [x for x in g["ref"] if x["title"].lower() not in have]
+        else:
+            SHEETS.append({"slug": s, "name": s, "section": "7", "category": "skills",
+                           "summary": g["meta"].get("sheet_summary", f'{k["name"]} commands and terms'), "groups": g["ref"]})
+
+
+def ref_html(g, s):
+    out = ""
+    for gr in g["ref"]:
+        rows = "".join(f'<dt><code>{esc(c)}</code></dt><dd>{inline(d)}</dd>' for c, d in gr["rows"])
+        out += f'<h3>{esc(gr["title"])}</h3><dl class="man">{rows}</dl>'
+    sheet = g["meta"].get("sheet") or s
+    return (f'<section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/{sheet}.html">cheatsheet</a></span></h2>{out}</section>')
+
+
 def build(page, SKILLS, LV, bar):
     os.makedirs("learn", exist_ok=True)
     guides, index = {}, []
@@ -199,6 +240,9 @@ def build(page, SKILLS, LV, bar):
                    "debug": ("debugger", "This one runs in a step-through debugger. <code>start</code>, then <code>step</code> / <code>back</code> through the code and watch the variables change, or set a <code>break</code> and <code>continue</code>. Every <span class=\"ok\">▶ run</span> above is a debugger command. <code>submit &lt;answer&gt;</code> when you have it.")}[style]
             secs += (f'<section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// {how[0]}</span></h2>'
                      f'{md(g["lab"]["brief"])}<p class="muted">{how[1]}</p></section>')
+        if g.get("ref"):
+            secs += ref_html(g, s)
+            nav += '<a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a>'
         proof = k.get("proof")
         proof_html = f' · <a href="../{proof}">proof</a>' if proof and not proof.startswith("http") else (f' · <a href="{proof}">proof</a>' if proof else "")
         body = f'''<p class="cmd">learn --skill {s}</p>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man databases-and-sql :: 0xDay</title>
+<meta name="description" content="databases-and-sql cheatsheet: Databases &amp; SQL commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man databases-and-sql</p>
+<div class="manhead"><span>DATABASES-AND-SQL(7)</span><span>0xDay Field Manual</span><span>DATABASES-AND-SQL(7)</span></div>
+<h1>databases-and-sql <span class="muted">- Databases &amp; SQL commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-design">design</a> <a href="#g-acid">acid</a> <a href="#g-postgres">postgres</a> <a href="#g-mysql">mysql</a> <a href="#g-sqlite">sqlite</a> <a href="#g-admin-and-security">admin and security</a> <a href="#g-terms">terms</a></p><h2 id="g-design">design</h2><dl class="man"><dt><code>Primary key</code></dt><dd>uniquely identifies a row</dd><dt><code>Foreign key</code></dt><dd>column that references another table&#x27;s key</dd><dt><code>Index</code></dt><dd>structure that speeds lookups at a cost to writes</dd><dt><code>Constraint</code></dt><dd>rule the database enforces (NOT NULL, UNIQUE, CHECK)</dd><dt><code>Normalization</code></dt><dd>removing duplicated data across tables</dd><dt><code>View</code></dt><dd>saved query that behaves like a table</dd></dl><h2 id="g-acid">acid</h2><dl class="man"><dt><code>Atomicity</code></dt><dd>all steps happen or none do</dd><dt><code>Consistency</code></dt><dd>data stays valid under the rules</dd><dt><code>Isolation</code></dt><dd>simultaneous transactions do not corrupt each other</dd><dt><code>Durability</code></dt><dd>committed data survives a crash</dd></dl><h2 id="g-postgres">postgres</h2><dl class="man"><dt><code>psql -U user -d db</code></dt><dd>connect</dd><dt><code>\dt</code></dt><dd>list tables</dd><dt><code>\d table</code></dt><dd>describe a table</dd><dt><code>\du</code></dt><dd>list roles</dd><dt><code>pg_dump db &gt; db.sql</code></dt><dd>back up a database</dd><dt><code>psql db &lt; db.sql</code></dt><dd>restore from a dump</dd></dl><h2 id="g-mysql">mysql</h2><dl class="man"><dt><code>mysql -u user -p</code></dt><dd>connect</dd><dt><code>SHOW DATABASES;</code></dt><dd>list databases</dd><dt><code>SHOW TABLES;</code></dt><dd>list tables</dd><dt><code>DESCRIBE t;</code></dt><dd>table structure</dd><dt><code>SHOW PROCESSLIST;</code></dt><dd>running queries</dd><dt><code>mysqldump db &gt; db.sql</code></dt><dd>back up</dd></dl><h2 id="g-sqlite">sqlite</h2><dl class="man"><dt><code>sqlite3 file.db</code></dt><dd>open a database</dd><dt><code>.tables</code></dt><dd>list tables</dd><dt><code>.schema</code></dt><dd>show all definitions</dd><dt><code>.dump</code></dt><dd>export everything as SQL</dd></dl><h2 id="g-admin-and-security">admin and security</h2><dl class="man"><dt><code>CREATE USER app WITH PASSWORD &#x27;...&#x27;</code></dt><dd>create an account</dd><dt><code>GRANT SELECT, INSERT ON t TO app</code></dt><dd>give only what is needed</dd><dt><code>REVOKE ALL ON t FROM app</code></dt><dd>take rights away</dd><dt><code>EXPLAIN ANALYZE query</code></dt><dd>show the query plan and real timing</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>RPO / RTO</code></dt><dd>acceptable data loss / acceptable downtime</dd><dt><code>Replication</code></dt><dd>copying data to another server</dd><dt><code>Sharding</code></dt><dd>splitting data across servers</dd><dt><code>Injection</code></dt><dd>untrusted input changes the query&#x27;s meaning</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

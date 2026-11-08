@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man networking-tcp-ip-dhcp-nat-subnets :: 0xDay</title>
+<meta name="description" content="networking-tcp-ip-dhcp-nat-subnets cheatsheet: Networking (TCP/IP, DHCP, NAT, subnets) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man networking-tcp-ip-dhcp-nat-subnets</p>
+<div class="manhead"><span>NETWORKING-TCP-IP-DHCP-NAT-SUBNETS(7)</span><span>0xDay Field Manual</span><span>NETWORKING-TCP-IP-DHCP-NAT-SUBNETS(7)</span></div>
+<h1>networking-tcp-ip-dhcp-nat-subnets <span class="muted">- Networking (TCP/IP, DHCP, NAT, subnets) commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-windows">windows</a> <a href="#g-linux">linux</a> <a href="#g-subnet-quick-table">subnet quick table</a> <a href="#g-well-known-ports">well-known ports</a> <a href="#g-terms">terms</a></p><h2 id="g-windows">windows</h2><dl class="man"><dt><code>ipconfig /all</code></dt><dd>full IP configuration, including DHCP and DNS servers</dd><dt><code>ipconfig /release</code></dt><dd>drop the DHCP lease</dd><dt><code>ipconfig /renew</code></dt><dd>ask for a new lease</dd><dt><code>ipconfig /flushdns</code></dt><dd>clear the DNS cache</dd><dt><code>ping -t 8.8.8.8</code></dt><dd>continuous ping</dd><dt><code>tracert 8.8.8.8</code></dt><dd>path to a host</dd><dt><code>nslookup example.com</code></dt><dd>DNS query</dd><dt><code>arp -a</code></dt><dd>IP-to-MAC table</dd><dt><code>netstat -ano</code></dt><dd>connections and listening ports with PIDs</dd><dt><code>route print</code></dt><dd>routing table</dd></dl><h2 id="g-linux">linux</h2><dl class="man"><dt><code>ip a</code></dt><dd>addresses</dd><dt><code>ip r</code></dt><dd>routes, the default gateway is the &quot;default via&quot; line</dd><dt><code>ip neigh</code></dt><dd>ARP table</dd><dt><code>ping -c 4 host</code></dt><dd>four pings</dd><dt><code>traceroute host</code></dt><dd>path to a host</dd><dt><code>dig example.com +short</code></dt><dd>quick DNS answer</dd><dt><code>ss -tulpn</code></dt><dd>listening sockets and owning processes</dd><dt><code>nmcli device show</code></dt><dd>NetworkManager details</dd></dl><h2 id="g-subnet-quick-table">subnet quick table</h2><dl class="man"><dt><code>/24</code></dt><dd>255.255.255.0, 254 usable hosts</dd><dt><code>/25</code></dt><dd>255.255.255.128, 126 usable hosts</dd><dt><code>/26</code></dt><dd>255.255.255.192, 62 usable hosts</dd><dt><code>/27</code></dt><dd>255.255.255.224, 30 usable hosts</dd><dt><code>/28</code></dt><dd>255.255.255.240, 14 usable hosts</dd><dt><code>/29</code></dt><dd>255.255.255.248, 6 usable hosts</dd><dt><code>/30</code></dt><dd>255.255.255.252, 2 usable hosts</dd></dl><h2 id="g-well-known-ports">well-known ports</h2><dl class="man"><dt><code>22</code></dt><dd>SSH</dd><dt><code>53</code></dt><dd>DNS</dd><dt><code>67/68</code></dt><dd>DHCP server and client</dd><dt><code>80 / 443</code></dt><dd>HTTP and HTTPS</dd><dt><code>123</code></dt><dd>NTP</dd><dt><code>445</code></dt><dd>SMB</dd><dt><code>3389</code></dt><dd>RDP</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>DORA</code></dt><dd>discover, offer, request, acknowledge</dd><dt><code>APIPA</code></dt><dd>169.254.x.x self-assigned address after DHCP failure</dd><dt><code>Gateway</code></dt><dd>router interface hosts use to leave their subnet</dd><dt><code>NAT</code></dt><dd>rewriting private addresses to a public one</dd><dt><code>PAT</code></dt><dd>NAT using port numbers so many hosts share one address</dd><dt><code>MTU</code></dt><dd>largest packet a link carries, usually 1500</dd><dt><code>TTL</code></dt><dd>hop limit, decremented by each router</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

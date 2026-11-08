@@ -15,6 +15,12 @@ $ info locals
 ```
 
 > The highlighted line in the source pane is the line about to run, and the panel on the right shows variables right now. Values that just changed turn amber.
+
+### The idea
+Reverse engineering is working out what a program does from the program itself. You use it to understand malware, check a vendor's claims, find vulnerabilities, recover lost source, and solve crackme and CTF challenges. Two approaches that work together: **static** (read the code without running it) and **dynamic** (run it in a debugger and watch).
+
+### A first pass takes minutes
+`file prog` for the type and architecture, `strings prog` for messages and hints (often "Wrong password!" gives away where the check is), `ltrace` or `strace` to see library and system calls, and `objdump -d prog` or Ghidra to read the logic. Start from an interesting string, find where it is used, and read backward to the comparison that decides which message is printed.
 :: mid
 You rarely step through a whole program. You find the interesting spot, put a **breakpoint** there, and let the program run until it hits it.
 
@@ -36,6 +42,19 @@ $ back
 ```
 
 > Reading the decompiled code first tells you where to break. Then the debugger tells you the actual values, which is often faster than doing the math by hand.
+
+### Ghidra workflow
+Create a project, import the binary, run auto-analysis, open the **Symbol Tree** and find `main` (stripped binaries lack names: look at `entry`, then the first argument of `__libc_start_main`). The **Decompiler** window shows C-like code. Rename variables (`L`), retype them (`Ctrl+L`), follow cross-references (`X`), and read the **Defined Strings** window for text to anchor on. Treat decompiler output as a strong hint, not truth.
+
+### Patterns to recognize
+- A loop over bytes with `xor` and a constant is simple encryption or obfuscation.
+- `strcmp` or `memcmp` against a literal is a hard-coded password.
+- A table of 256 values suggests a lookup-based cipher (RC4, AES S-box constants).
+- Calls to `socket`, `connect`, `CreateProcess`, `RegSetValue` reveal capabilities.
+- A large switch on a number is a command dispatcher.
+
+### Dynamic analysis
+Set a breakpoint at the comparison, run, look at registers and memory to see what is compared with what, and change a register or a jump to see another path. Watch system calls with `strace`, files with Process Monitor, and network with Wireshark.
 :: complex
 ### 1. What the compiler leaves behind
 Decompiled code is a reconstruction. Variable names are gone (Ghidra calls them `local_28`, `param_1`), loops become `do/while` with gotos, and constants show up as raw hex. Renaming things as you understand them is most of the job. This crackme's names were added by hand.
@@ -52,6 +71,64 @@ You can solve this statically: XOR each `secret` byte with `0x6b` yourself. Or d
 $ list
 $ break 15
 ```
+
+### Anti-analysis tricks
+Programs may detect debuggers (`IsDebuggerPresent`, `ptrace` self-attach, timing checks), run only in certain environments, encrypt strings until needed, pack the real code, use control flow flattening or opaque predicates, and generate code at runtime. Counters: patch the check, use a debugger hiding plugin, dump memory after unpacking, and emulate small functions (angr, Unicorn, Frida) to avoid running everything.
+
+### Frida and instrumentation
+Frida injects JavaScript into a running process to hook functions, print arguments and return values, and change behavior without editing the binary, on desktop and mobile. It is the quickest way to see what an app sends before it encrypts it.
+
+### Habits that pay off
+Keep notes of every renamed function and address, work from the outside in, write small scripts to replicate algorithms you find, and verify understanding by writing a keygen or a decoder. Reading compiler output for your own C code is the best training for recognizing patterns in other people's.
+:: ref
+### first look
+file prog | type, architecture, stripped or not
+strings -n 6 prog | readable strings
+strings -el prog | UTF-16 strings
+ltrace ./prog | library calls
+strace ./prog | system calls
+readelf -s prog | symbols
+objdump -d -M intel prog | disassembly
+### gdb
+gdb ./prog | start the debugger
+break main | breakpoint at main
+run | start the program
+n / s | next line / step into
+si / ni | instruction step / over
+x/s $rdi | print a string at a register's address
+x/16xb $rsp | 16 bytes at the stack top
+set $rax = 1 | change a register
+### ghidra shortcuts
+G | go to an address
+X | cross-references to the selected item
+L | rename a variable or function
+Ctrl+L | retype a variable
+; | add a comment
+Window → Defined Strings | list of strings in the program
+### radare2
+r2 -A prog | open and analyze
+afl | list functions
+pdf @ main | print disassembly of main
+iz | strings in the data section
+s sym.main | seek to main
+### pattern recognition
+xor in a loop | simple decoding or encryption
+cmp then jne fail | a check you may want to change
+strcmp with a literal | password stored in the binary
+Stack of pushes before a call | arguments in 32-bit code
+256-entry table | RC4, S-box or lookup cipher
+### patching and hooking
+nop sled | overwrite code with no-ops to skip it
+je to jne | flip a branch
+frida -f prog -l hook.js | hook functions at runtime
+angr | symbolic execution to find inputs that reach a goal
+### terms
+Static analysis | study without running
+Dynamic analysis | study while running
+Decompiler | rebuild C-like code from machine code
+Stripped | symbols removed
+Packer | tool that hides the real code until runtime
+Crackme | practice binary with a hidden check
 :: lab
 style: debug
 host: re-lab

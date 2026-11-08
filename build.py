@@ -257,6 +257,10 @@ page("skills.html", "skills :: 0xDay", f"""<p class="cmd">skills --matrix</p><h1
 GUIDES, SP, NCARDS = build_learn.build(page, SKILLS, LV, bar)
 import build_ai
 AI = build_ai.build(page)
+import build_careers
+CAREERS = build_careers.build(page, esc)
+import build_basics
+BASICS = build_basics.build(page)
 
 # ---------- now ----------
 def nl(xs): return "".join(f"<li>{esc(x)}</li>" for x in xs)
@@ -326,6 +330,7 @@ TOOLS = json.load(open("content/tools.json"))["tools"]
 DETS = json.load(open("content/detections.json"))["rules"]
 BOOKS = json.load(open("content/books.json"))["books"]
 SHEETS = json.load(open("content/cheatsheets.json"))
+build_learn.merge_sheets(SHEETS, GUIDES)
 
 def empty(what, file, example):
     # public pages show a short placeholder; the entry format lives in README.md
@@ -449,7 +454,7 @@ for sh in SHEETS:
 {toc}{grp}
 <p><a href="../man.html">cd ..</a></p>''', depth=1, desc=f'{sh["name"]} cheatsheet: {sh["summary"]}')
 def manrow(s): return f'<li><a class="ls-row" href="man/{s["slug"]}.html"><span class="ls-perm">{esc(s["name"])}({s["section"]})</span><span class="ls-title">{esc(s["summary"])}</span></a></li>'
-MANCATS = [("os", "operating systems", "apropos shell"), ("tools", "security tools", "apropos security")]
+MANCATS = [("os", "operating systems", "apropos shell"), ("tools", "security tools", "apropos security"), ("skills", "skill references", "apropos learn")]
 mi = "".join(f'<p class="cmd">{cmd}</p><h2>{label}</h2><ul class="ls manidx">{"".join(manrow(s) for s in SHEETS if s.get("category", "tools") == k)}</ul>' for k, label, cmd in MANCATS)
 page("man.html", "man :: 0xDay", f'<p class="cmd">apropos .</p><h1>~/man</h1><p>Command references for Windows, Linux and macOS, plus the security tools I use most, written as man pages.</p>{mi}')
 
@@ -468,7 +473,9 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("books", "books.html", "bookshelf", n(BOOKS, "book")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
+       ("basics", "basics.html", "OSI, ports, OSINT, crypto, OS basics", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
+       ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
        ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
@@ -480,7 +487,7 @@ GLOSS = build_glossary.build(page)
 HUB.insert(1, ("drills", "drills.html", "packets, permissions, regex, log labs", f"{len(DRILLS)} drills"))
 HUB.insert(2, ("glossary", "glossary.html", "terms linked to guides", f"{len(GLOSS)} terms"))
 import build_arcade
-HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack", f"{build_arcade.build(page, esc)} games"))
+HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
@@ -515,6 +522,9 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "ai": [{"slug": c[0], "name": c[1]} for c in AI],
         "drills": [{"slug": c[0], "name": c[1]} for c in DRILLS],
         "glossary": [{"t": t["t"], "d": t["d"]} for t in GLOSS],
+
+        "careers": CAREERS["paths"],
+        "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags,", len(GUIDES), "guides,", len(SP["objectives"]), "objectives,", NCARDS, "cards")

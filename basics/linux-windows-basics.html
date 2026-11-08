@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linux and Windows basics :: ~/basics :: 0xDay</title>
+<meta name="description" content="Fundamentals, Linux and Windows basics: File systems, permissions, processes, services, logs and the commands for each.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script src="../learn.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">basics --chapter linux-windows-basics</p>
+<h1>~/basics/linux-windows-basics</h1>
+<p>Enough Linux and Windows to move around, read logs, check permissions, and know where things live. The commands are on this page and on the cheatsheets.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="linux-windows-basics">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Nearly every security and IT task happens on one of two operating systems, so be comfortable on both.</p>
+<h4>Linux in 60 seconds</h4>
+<p>Everything is a file, and the file system is one tree starting at <code>/</code>.</p>
+<ul><li><code>/etc</code> config, <code>/var/log</code> logs, <code>/home</code> user files, <code>/root</code> root's home, <code>/tmp</code> temporary, <code>/usr/bin</code> programs, <code>/dev</code> devices, <code>/proc</code> live process info.</li><li>Paths: <code>~</code> is your home, <code>.</code> is here, <code>..</code> is up one.</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">pwd</span><button class="run" type="button" data-cmd="pwd" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ls -la</span><button class="run" type="button" data-cmd="ls -la" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cd /var/log</span><button class="run" type="button" data-cmd="cd /var/log" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cat auth.log</span><button class="run" type="button" data-cmd="cat auth.log" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">grep &quot;Failed&quot; auth.log</span><button class="run" type="button" data-cmd="grep &quot;Failed&quot; auth.log" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">whoami</span><button class="run" type="button" data-cmd="whoami" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">man ls</span><button class="run" type="button" data-cmd="man ls" title="run in the sandbox">▶ run</button></code></pre>
+<p>Rule of thumb: <code>man &lt;command&gt;</code> and <code>&lt;command&gt; --help</code> always work.</p>
+<h4>Windows in 60 seconds</h4>
+<p>Drives and folders: <code>C:\Windows</code> (the OS), <code>C:\Users</code> (profiles), <code>C:\Program Files</code> (apps), <code>C:\ProgramData</code> (shared app data). Two shells: <code>cmd</code> and <strong>PowerShell</strong> (objects, not text; the one to learn).</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">dir</span><button class="run" type="button" data-cmd="dir" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cd C:\Users</span><button class="run" type="button" data-cmd="cd C:\Users" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">whoami /all</span><button class="run" type="button" data-cmd="whoami /all" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ipconfig /all</span><button class="run" type="button" data-cmd="ipconfig /all" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">Get-Process</span><button class="run" type="button" data-cmd="Get-Process" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Linux essentials</h4>
+<p><strong>Permissions</strong> <code>-rwxr-xr--</code>: type, then owner / group / others, each r(4) w(2) x(1). <code>chmod 640 file</code> means owner rw, group r, others none. <code>chown user:group file</code> changes owners. Extra bits: <strong>setuid</strong> (runs as the file's owner, a classic privilege escalation target), <strong>sticky bit</strong> on <code>/tmp</code>.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">ls -l /etc/passwd /etc/shadow</span><button class="run" type="button" data-cmd="ls -l /etc/passwd /etc/shadow" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">chmod 600 secret.txt</span><button class="run" type="button" data-cmd="chmod 600 secret.txt" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">find / -perm -4000 -type f 2&gt;/dev/null</span><button class="run" type="button" data-cmd="find / -perm -4000 -type f 2&gt;/dev/null" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">sudo -l</span><button class="run" type="button" data-cmd="sudo -l" title="run in the sandbox">▶ run</button></code></pre>
+<p><strong>Users</strong>: <code>/etc/passwd</code> lists accounts, <code>/etc/shadow</code> holds password hashes (root only), <code>/etc/sudoers</code> controls sudo. <strong>Processes and services</strong>: <code>ps aux</code>, <code>top</code>, <code>kill &lt;pid&gt;</code>, <code>systemctl status|start|stop|enable &lt;svc&gt;</code>, <code>journalctl -u &lt;svc&gt;</code>. <strong>Packages</strong>: <code>apt update &amp;&amp; apt upgrade</code> (Debian/Ubuntu), <code>dnf</code> (Fedora/RHEL). <strong>Networking</strong>: <code>ip a</code>, <code>ip route</code>, <code>ss -tulnp</code>, <code>ping</code>, <code>curl</code>. <strong>Text tools</strong>: <code>grep</code>, <code>sed</code>, <code>awk</code>, <code>sort | uniq -c</code>, <code>head</code>, <code>tail -f</code>, <code>wc -l</code>, pipes <code>|</code> and redirects <code>&gt;</code> <code>&gt;&gt;</code>. <strong>Logs</strong>: <code>/var/log/auth.log</code> (or <code>secure</code>), <code>syslog</code>, <code>journalctl</code>. <strong>Persistence spots</strong>: cron (<code>crontab -l</code>), systemd units, <code>~/.ssh/authorized_keys</code>, shell profiles.</p>
+<h4>Windows essentials</h4>
+<p><strong>Permissions</strong> use <strong>NTFS ACLs</strong>: <code>icacls file</code>, plus <strong>share</strong> permissions on top (the stricter wins). <strong>Users and groups</strong>: <code>net user</code>, <code>net localgroup administrators</code>, <strong>UAC</strong> prompts before admin actions. <strong>Services</strong>: <code>services.msc</code>, <code>Get-Service</code>, <code>sc query</code>. <strong>Processes</strong>: Task Manager, <code>Get-Process</code>, <code>tasklist</code>, <code>taskkill /PID</code>. <strong>Registry</strong>: <code>regedit</code>; hives HKLM (machine) and HKCU (user); autoruns live in <code>Run</code> keys. <strong>Task Scheduler</strong> and startup folders are persistence spots. <strong>Networking</strong>: <code>ipconfig /all</code>, <code>netstat -ano</code>, <code>nslookup</code>, <code>ping</code>, <code>tracert</code>. <strong>Updates</strong>: Windows Update, WSUS. <strong>Tools</strong>: Event Viewer, Resource Monitor, Sysinternals (Process Explorer, Autoruns).</p>
+<h4>Where the logs are</h4>
+<ul><li>Linux: <code>/var/log/*</code>, <code>journalctl</code>.</li><li>Windows: Event Viewer, <strong>Security</strong> log. Key event IDs: <strong>4624</strong> logon success, <strong>4625</strong> logon failure, <strong>4672</strong> admin logon, <strong>4720</strong> account created, <strong>4688</strong> process created, <strong>1102</strong> audit log cleared.</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Hardening checklist, both platforms</h4>
+<ul><li>Patch the OS and apps; remove unused software and services; close unused ports.</li><li>Least privilege: no daily use of root or Administrator; limit sudoers and local admins; unique admin passwords (Windows <strong>LAPS</strong>).</li><li>Strong auth: SSH keys with password login off (<code>PasswordAuthentication no</code>), MFA, account lockout.</li><li>Encrypt disks (LUKS, BitLocker); firewall on (<code>ufw</code>, <code>iptables</code>/<code>nftables</code>, Windows Defender Firewall).</li><li>Central logging, time sync, and file integrity monitoring (AIDE, Tripwire; Windows audit policy).</li><li>Baselines: CIS Benchmarks and DISA STIGs define the settings to check.</li></ul>
+<h4>Linux deeper</h4>
+<ul><li><strong>Boot to login</strong>: firmware, bootloader (GRUB), kernel, <code>init</code>/<code>systemd</code>, services, login. <code>dmesg</code> shows kernel messages.</li><li><strong>Standard streams</strong>: stdin 0, stdout 1, stderr 2. <code>cmd 2&gt;/dev/null</code> drops errors, <code>cmd &gt; out 2&gt;&amp;1</code> merges.</li><li><strong>Mounts and disks</strong>: <code>lsblk</code>, <code>df -h</code>, <code>du -sh *</code>, <code>mount</code>, <code>/etc/fstab</code>.</li><li><strong>Privilege escalation hunting</strong> (defensive review): SUID binaries, sudo rules, writable cron scripts, world-writable files, credentials in history and configs.</li><li><strong>Quick incident triage</strong>: <code>last</code>, <code>w</code>, <code>ps auxf</code>, <code>ss -tulnp</code>, <code>crontab -l</code>, <code>ls -lat /tmp</code>, <code>grep -i &quot;accepted\|failed&quot; /var/log/auth.log</code>.</li></ul>
+<h4>Windows deeper</h4>
+<ul><li><strong>Active Directory</strong> adds domains, groups and Group Policy; Kerberos (88) and LDAP (389) do the work. See the AD and Group Policy guides.</li><li><strong>PowerShell triage</strong>: <code>Get-LocalUser</code>, <code>Get-NetTCPConnection</code>, <code>Get-ScheduledTask</code>, <code>Get-WinEvent -FilterHashtable @{LogName=&#x27;Security&#x27;;Id=4625}</code>, <code>Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Run</code>.</li><li><strong>Execution policy</strong> is a safety rail, not a security boundary. Constrained language mode, script block logging and AMSI are the real controls.</li><li><strong>Pass-the-hash</strong> and credential dumping target LSASS memory; <strong>Credential Guard</strong> and removing local admin reuse blunt them.</li></ul>
+<h4>Same job, two syntaxes</h4>
+<div class="tbl"><table><thead><tr><th>Task</th><th>Linux</th><th>Windows</th></tr></thead><tbody><tr><td>list files</td><td><code>ls -la</code></td><td><code>dir</code> / <code>Get-ChildItem</code></td></tr><tr><td>show IP</td><td><code>ip a</code></td><td><code>ipconfig /all</code></td></tr><tr><td>open ports</td><td><code>ss -tulnp</code></td><td><code>netstat -ano</code></td></tr><tr><td>processes</td><td><code>ps aux</code></td><td><code>Get-Process</code></td></tr><tr><td>find text</td><td><code>grep -r word .</code></td><td><code>Select-String -Path * -Pattern word</code></td></tr><tr><td>who am I</td><td><code>id</code></td><td><code>whoami /all</code></td></tr><tr><td>services</td><td><code>systemctl status x</code></td><td><code>Get-Service x</code></td></tr><tr><td>edit/permissions</td><td><code>chmod</code>, <code>chown</code></td><td><code>icacls</code></td></tr></tbody></table></div><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="cia-and-crypto.html">&lt; CIA and crypto basics</a><span></span></nav><p><a href="../basics.html">cd ~/basics</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

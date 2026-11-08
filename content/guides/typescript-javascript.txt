@@ -16,6 +16,16 @@ $ node -e 'function double(n) { return n * 2 } console.log(double(21))'
 ```
 
 > **TypeScript** is JavaScript plus type labels (`function double(n: number): number`). The compiler checks the types and then strips them out, so what actually runs is plain JavaScript.
+
+### JavaScript in one page
+JavaScript runs in browsers and on servers (Node.js). `let` and `const` declare variables (use `const` unless it changes), functions can be written as `function f(a) {}` or `const f = a => a * 2`, and objects `{ name: "nate", role: "analyst" }` and arrays `[1, 2, 3]` carry most data. Strings can use template literals (backticks around the text, with `${name}` placeholders). JavaScript is loosely typed and coerces: `"5" + 1` is `"51"` but `"5" - 1` is `4`, and `==` converts types while `===` does not, so always use `===`.
+
+### TypeScript is JavaScript plus types
+```
+interface User { id: number; name: string; admin?: boolean }
+function greet(u: User): string { return `hi ${u.name}`; }
+```
+The compiler (`tsc`) checks the types and then strips them, producing plain JavaScript. Types catch mistakes like passing a string where a number is expected, but they exist only at compile time, so data from the outside world (network, user input) still needs runtime validation.
 :: mid
 Most real JavaScript is moving data around: **arrays** (lists), **objects** (key/value records) and **JSON** (objects as text, the format every web API speaks).
 
@@ -37,6 +47,22 @@ Arrow functions (`p => p.open`) are just short functions. Template strings use b
 $ node -e 'const hosts = ["10.0.0.5", "10.0.0.9"]; hosts.map((h, i) => console.log(`${i}: ${h}`))'
 $ node -e 'console.log(JSON.stringify({ user: "nathan", admin: false }))'
 ```
+
+### Async: promises and async/await
+```
+async function getUser(id) {
+  const res = await fetch(`/api/users/${id}`);
+  if (!res.ok) throw new Error(res.status);
+  return res.json();
+}
+```
+`fetch` returns a promise; `await` pauses the function until it settles. Errors become exceptions you catch with `try/catch`. `Promise.all([...])` runs things in parallel. The event loop is single threaded, so a long loop freezes everything.
+
+### Arrays and objects you use daily
+`map`, `filter`, `reduce`, `find`, `some`, `includes`, spread (`[...a, ...b]`, `{...obj, x: 1}`), destructuring (`const { id, name } = user`), optional chaining (`user?.profile?.email`) and nullish coalescing (`value ?? "default"`).
+
+### The browser and the DOM
+`document.querySelector`, `addEventListener`, `textContent` (safe) versus `innerHTML` (can execute attacker markup), `localStorage`, and the Network tab in developer tools. View Source and DevTools are how you read what any page is really doing.
 :: complex
 ### 1. Strings are just numbers
 Every character has a numeric code. `"A".charCodeAt(0)` is 65, and `String.fromCharCode(65)` is "A". That's the basis of almost every obfuscation trick: shift, XOR or encode the codes so the text doesn't look like a URL anymore.
@@ -60,6 +86,64 @@ $ node -e 'console.log(btoa("hi"), atob("aGk="))'
 - `eval(string)` runs a string as code, so a dropper only needs to *decode* a string and `eval` it. As an analyst you do the opposite: swap `eval` for `console.log` and read what it would have run
 
 > Never run an unknown script to "see what it does". Copy only the decoding logic, and print instead of executing.
+
+### Node and npm
+`npm init`, `npm install pkg`, `npm audit`, `npx tool`. `package.json` lists dependencies and scripts; `package-lock.json` pins exact versions and should be committed. Supply chain attacks hit npm often (typosquatting, malicious updates, install scripts), so review new dependencies, prefer fewer of them, and use `npm ci` in builds.
+
+### Security essentials
+XSS (escape output, never put untrusted data in `innerHTML`, use a Content-Security-Policy), prototype pollution (be careful merging untrusted objects), `eval` and `new Function` on input, regex denial of service, insecure `Math.random` for tokens (use `crypto.getRandomValues`), and trusting client-side checks (always re-validate on the server).
+
+### Reading obfuscated JavaScript
+Malicious scripts hide strings with `String.fromCharCode`, base64 (`atob`), hex escapes and XOR loops, then run the result with `eval`. Replace the final `eval` with `console.log` in a safe environment (Node in a VM) to see the real code, or run a beautifier first. The lab in this guide walks through that idea.
+:: ref
+### running
+node file.js | run a script
+npm init -y | create package.json
+npm install pkg | add a dependency
+npm ci | clean install from the lockfile
+npm audit | check dependencies for known issues
+npx tsc --init | create tsconfig.json
+npx tsc | compile TypeScript
+npx ts-node file.ts | run TypeScript directly
+### language basics
+const x = 1; let y = 2; | block-scoped variables
+=== and !== | strict equality, always use these
+`hi ${name}` | template string
+a ?? b | b only if a is null or undefined
+a?.b?.c | safe property access
+const {id, name} = obj | destructuring
+[...a, ...b] | spread arrays
+### arrays
+arr.map(x => x * 2) | transform each item
+arr.filter(x => x > 0) | keep matching items
+arr.reduce((s, x) => s + x, 0) | fold to one value
+arr.find(f) / arr.some(f) | first match / any match
+arr.includes(x) | membership test
+Object.entries(o) | key and value pairs
+### strings and encoding
+s.split(",") / arr.join(",") | break up and put together
+s.charCodeAt(0) | character code
+String.fromCharCode(72, 105) | codes to text
+btoa(s) / atob(b) | base64 encode / decode in the browser
+Buffer.from(s, "base64").toString() | base64 decode in Node
+JSON.parse(s) / JSON.stringify(o) | JSON in and out
+### async
+fetch(url).then(r => r.json()) | request with promises
+await fetch(url) | request with async/await
+Promise.all([a, b]) | run in parallel
+setTimeout(f, 1000) | run later
+### typescript
+let n: number = 5 | type annotation
+type Role = "admin" | "user" | union of literal types
+interface User { id: number } | object shape
+function f(x: string): number | parameter and return types
+x as string | assert a type, does not check at runtime
+unknown vs any | unknown forces a check, any switches checking off
+### security
+textContent = s | safe, treats the input as text
+innerHTML = s | dangerous with untrusted input
+crypto.getRandomValues | secure random numbers
+Content-Security-Policy header | limits where scripts may load from
 :: lab
 host: ir-box
 user: student

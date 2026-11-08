@@ -10,6 +10,12 @@ $ cat ~/tool-categories.txt
 ```
 
 > Kali is for authorized testing on systems you own or have permission to test. The tools are legal; using them on other people's systems isn't.
+
+### What Kali is, and is not
+Kali is a Debian-based Linux distribution packed with security tools (nmap, Burp Suite, Metasploit, John, Wireshark, aircrack-ng and hundreds more). It is not a magic hacking button: the tools are all free and run on other systems too, Kali just saves you installing them. It is meant to be used by someone with permission to test, and it is a poor daily-driver OS since it favors tools over safety (older versions even ran as root by default).
+
+### Ways to run it
+A VM (VirtualBox, VMware or Proxmox) is the safest and easiest. WSL on Windows works for command-line tools. Live USB leaves no trace on the host. Bare metal is for Wi-Fi hardware work. For a homelab, one Kali VM on the LAB network is the standard.
 :: mid
 ### Keeping it current
 Kali is a rolling release: tools update constantly. Update before every engagement, and install extra tools from its repositories with `apt`:
@@ -30,6 +36,22 @@ $ ls /usr/share/wordlists
 
 ### Organize your work
 Make a folder per target with `nmap/`, `loot/`, `notes.md`, and save every scan with `-oA`. A pentest is only as good as its report, and the report is only as good as your notes.
+
+### The tool families
+- **Information gathering**: nmap, dnsrecon, theHarvester, whois
+- **Vulnerability analysis**: nikto, openvas/gvm, sqlmap
+- **Web**: Burp Suite, ffuf, gobuster, wfuzz
+- **Passwords**: John the Ripper, hashcat, hydra
+- **Exploitation**: Metasploit, searchsploit
+- **Sniffing**: Wireshark, tcpdump, responder, bettercap
+- **Forensics and reversing**: autopsy, binwalk, ghidra, radare2
+- **Reporting**: cherrytree, notes and screenshots
+
+### Everyday workflow
+Create a folder per engagement (`~/engagements/lab-2026-11/{recon,loot,notes,screens}`), save every scan with `-oA`, keep a running notes file with timestamps, and snapshot the VM before you start so a bad exploit does not cost you the setup. `tmux` keeps sessions alive over SSH and splits the screen.
+
+### Wordlists
+They live in `/usr/share/wordlists/` (`rockyou.txt.gz` must be unzipped first) and `/usr/share/seclists/` if you install SecLists. Big lists are not always better, a targeted list built from the target's names and seasons often beats a giant one.
 :: complex
 ### Your attack box is a target too
 A Kali VM full of credentials, client data and open services is attractive. Harden it like any server:
@@ -44,6 +66,45 @@ $ cat ~/audit/ss-tulpn.txt
 
 ### Safe homelab layout
 Put Kali and vulnerable targets on an **isolated** internal network (a pfSense LAN or Proxmox bridge with no route to your home LAN), and give the lab internet only when you need updates. That way a vulnerable VM never sits on the same network as your family's devices.
+
+### Legal and ethical rules
+Written permission, defined scope, defined time window, and a way to stop. Practice on your own lab, deliberately vulnerable machines (Metasploitable, DVWA, Juice Shop), and platforms that invite it (TryHackMe, Hack The Box, picoCTF), and bug bounty programs within their rules. Never test a network you do not own or have a contract for.
+
+### Keeping the attack box safe
+Do not expose its services to the LAN, do not store real credentials or client data on it longer than needed, encrypt the disk if it holds engagement data, and treat anything you download (exploits from the internet) as untrusted: read it before you run it. Pull updates from the official repository only (`apt update && apt full-upgrade`).
+:: ref
+### system
+apt update && apt full-upgrade | update the whole system
+apt install kali-linux-default | the standard toolset
+apt install kali-tools-top10 | just the top ten tools
+apt search tool | find a tool package
+cat /etc/os-release | which Kali release you are on
+ip a | your lab address
+### information gathering
+nmap -sV -sC target | services and default scripts
+whois domain | registration data
+dnsrecon -d domain | DNS enumeration
+theHarvester -d domain -b all | emails and hosts from public sources
+### web
+gobuster dir -u URL -w list | hidden directories
+ffuf -u URL/FUZZ -w list | fast web fuzzer
+nikto -h URL | known web server issues
+sqlmap -u "URL?id=1" --batch | test a parameter for SQL injection
+### passwords
+john --wordlist=rockyou.txt hashes.txt | crack with a wordlist
+john --show hashes.txt | display cracked passwords
+hashcat -m 0 hashes.txt rockyou.txt | GPU cracking, mode 0 is MD5
+hydra -l user -P list ssh://host | online brute force of a login
+### network and sniffing
+tcpdump -i eth0 -w cap.pcap | capture packets to a file
+wireshark cap.pcap | open the capture in the GUI
+responder -I eth0 | capture LLMNR/NBT-NS requests in a lab
+### files and misc
+unzip / gunzip file | unpack archives
+strings file | printable strings in a binary
+binwalk file | find embedded files
+file name | identify file type
+tmux new -s lab | persistent terminal session
 :: lab
 host: kali
 user: kali

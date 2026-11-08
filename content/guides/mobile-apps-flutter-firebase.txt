@@ -12,6 +12,12 @@ $ cat ~/review/lib/main.dart
 ```
 
 > In a Firebase app the client talks straight to the database. The only thing standing between a user and everyone's data is the **security rules**.
+
+### How the pieces fit
+**Flutter** (Dart language) draws the same UI on Android and iOS from one codebase. Everything is a **widget**: layout, buttons, text, the app itself. **Firebase** is Google's backend as a service: **Authentication** (sign-in), **Firestore** (a document database), **Cloud Storage** (files), **Cloud Functions** (server code), **Cloud Messaging** (push notifications) and **Analytics**. The app talks to Firebase directly from the device, which is why security rules matter so much.
+
+### Widgets and state
+`StatelessWidget` draws from its inputs; `StatefulWidget` holds data that changes and calls `setState`. For bigger apps use Provider, Riverpod or Bloc to share state. Hot reload shows code changes instantly during development.
 :: mid
 ### How the pieces connect
 The app signs in with Firebase Auth and gets an ID token. Every Firestore read and write sends that token, and the **rules** decide using `request.auth.uid` (who is asking) and `resource.data` (the document).
@@ -26,6 +32,19 @@ The `google-services.json` / `firebaseOptions` API key is meant to be public: it
 ```
 $ grep -n "apiKey\|sk_live" ~/review/lib/*.dart
 ```
+
+### A typical flow
+1. Sign in with Firebase Auth (email, Google, Apple).
+2. Read the signed-in user's ID (`FirebaseAuth.instance.currentUser!.uid`).
+3. Read and write documents under that user, for example `users/{uid}/notes`.
+4. Listen for live updates with `snapshots()` and rebuild the UI from the stream.
+5. Handle offline, loading and error states (every network call has all three).
+
+### Dart quick tour
+Null safety is built in (`String?` can be null, `String` cannot). `async`/`await` with `Future`, collections (`List`, `Map`, `Set`), string interpolation `'Hello $name'`, and `final` and `const` for values that do not change. `pubspec.yaml` lists dependencies; `flutter pub get` installs them.
+
+### Build and release
+`flutter run` for a device or emulator, `flutter build apk` or `appbundle` for Android, `flutter build ios` for iOS (needs a Mac). Release builds are signed with a key you must keep safe and back up. Store listings, privacy policies and data-safety forms are part of shipping.
 :: complex
 ### The OWASP Mobile Top 10, applied
 - **Insecure data storage**: tokens in plain `SharedPreferences` instead of `flutter_secure_storage` (Keychain / Keystore)
@@ -42,6 +61,64 @@ $ grep -n "apiKey\|sk_live" ~/review/lib/*.dart
 
 ### MDM in the enterprise
 Company phones are managed with **MDM** (Intune, Jamf): enforce a PIN and encryption, push or block apps, separate work and personal data (containerization), and remote-wipe a lost device.
+
+### Firestore security rules
+Without rules, anyone with the app's config can read or write your database. Start from deny-all and add narrow allowances:
+
+```
+match /users/{uid}/notes/{id} {
+  allow read, write: if request.auth != null && request.auth.uid == uid;
+}
+```
+Validate data shape in rules (`request.resource.data.keys().hasOnly([...])`), never trust fields like `role` that the client sets, and test with the Firebase emulator before deploying. The Firebase config values in the app are identifiers, not secrets; **rules and server-side checks** are the security.
+
+### Mobile-specific security
+Store tokens in secure storage (Keychain, Keystore via `flutter_secure_storage`), not shared preferences. Use HTTPS only and consider certificate pinning for sensitive apps. Obfuscate release builds (`--obfuscate --split-debug-info`) knowing it only slows reverse engineering. Do not embed API keys that grant real power; call a Cloud Function that holds them. Restrict permissions to what the app needs, and test on a rooted device or emulator to see what an attacker sees.
+
+### Enterprise angle
+MDM (Intune, Jamf) pushes apps, enforces passcodes and encryption, separates work and personal data and can wipe a lost device. Understand app-store distribution, managed app configuration and BYOD policy.
+:: ref
+### flutter cli
+flutter doctor | check the toolchain
+flutter create app | new project
+flutter run | build and run on a device
+flutter pub get | install dependencies
+flutter test | run tests
+flutter build apk --release | Android release build
+flutter analyze | static analysis
+### widgets
+Scaffold | page structure with app bar and body
+Column / Row | vertical / horizontal layout
+ListView.builder | long scrolling lists
+TextField | text input
+ElevatedButton | button
+StreamBuilder | rebuild from a stream such as Firestore snapshots
+FutureBuilder | rebuild when a future completes
+Navigator.push | go to another screen
+### firebase auth
+signInWithEmailAndPassword | sign in
+createUserWithEmailAndPassword | register
+authStateChanges() | stream that fires on sign in and out
+signOut() | end the session
+currentUser?.uid | the signed-in user's ID
+### firestore
+collection("users").doc(uid).get() | read one document
+collection("notes").add({...}) | create with an auto ID
+doc.set({...}) / doc.update({...}) | replace / modify
+collection("notes").where("done", isEqualTo: false) | filtered query
+collection("notes").snapshots() | live updates stream
+### security rules
+request.auth != null | caller is signed in
+request.auth.uid == uid | caller owns the data
+resource.data | the existing document
+request.resource.data | the proposed new data
+allow read, write: if false | deny everything by default
+### terms
+Widget | UI building block
+Hot reload | instant code update in the running app
+Firestore | document database
+Security rules | server-enforced access control for Firebase
+MDM | mobile device management
 :: lab
 style: ticket
 host: appsec

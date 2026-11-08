@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CIA and crypto basics :: ~/basics :: 0xDay</title>
+<meta name="description" content="Fundamentals, CIA and crypto basics: Confidentiality, integrity, availability, hashing, symmetric, asymmetric, TLS.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script src="../learn.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">basics --chapter cia-and-crypto</p>
+<h1>~/basics/cia-and-crypto</h1>
+<p>The three goals of security and the handful of cryptographic tools that deliver them: hashing, symmetric and asymmetric encryption, signatures and TLS.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="cia-and-crypto">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>The <strong>CIA triad</strong> is the checklist for what security protects:</p>
+<ul><li><strong>Confidentiality</strong>: only authorized people can read it. Tools: encryption, access control, MFA. Breach example: a leaked customer database.</li><li><strong>Integrity</strong>: it hasn't been changed without authorization. Tools: hashing, digital signatures, file permissions, version control. Breach example: tampered financial records.</li><li><strong>Availability</strong>: it works when needed. Tools: backups, redundancy, patching, DDoS protection. Breach example: ransomware locks the files.</li></ul>
+<p>Extras: <strong>non-repudiation</strong> (you can't deny what you did; signatures and logs), and <strong>AAA</strong>: authentication (who are you), authorization (what may you do), accounting (what did you do).</p>
+<p>Encryption in one paragraph: <strong>plaintext</strong> goes through an <strong>algorithm</strong> with a <strong>key</strong> and becomes <strong>ciphertext</strong>. Strong systems stay secure even if everyone knows the algorithm; only the key is secret.</p>
+<div class="tbl"><table><thead><tr><th>Tool</th><th>Keys</th><th>Speed</th><th>Goal</th><th>Examples</th></tr></thead><tbody><tr><td>Hash</td><td>none</td><td>fast</td><td>integrity</td><td>SHA-256, SHA-3</td></tr><tr><td>Symmetric</td><td>one shared key</td><td>fast</td><td>confidentiality</td><td>AES-128/256</td></tr><tr><td>Asymmetric</td><td>public + private pair</td><td>slow</td><td>key exchange, signatures</td><td>RSA, ECC</td></tr></tbody></table></div><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Hashing</h4>
+<p>A hash turns any input into a fixed-size fingerprint. One-way (can't reverse), deterministic, and a tiny change flips the whole output. Used for <strong>file integrity</strong> (<code>sha256sum</code>), storing passwords (with a unique <strong>salt</strong> and a slow function like bcrypt, scrypt or Argon2), and inside signatures. <strong>MD5</strong> and <strong>SHA-1</strong> are broken for security (collisions); use SHA-256 or better. A <strong>collision</strong> means two inputs share a hash.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">echo -n hello | sha256sum</span><button class="run" type="button" data-cmd="echo -n hello | sha256sum" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">sha256sum file.iso</span><button class="run" type="button" data-cmd="sha256sum file.iso" title="run in the sandbox">▶ run</button></code></pre>
+<h4>Symmetric encryption</h4>
+<p>Same key encrypts and decrypts. <strong>AES</strong> is the standard (128, 192, 256 bit). Block modes matter: ECB leaks patterns, so use <strong>GCM</strong> (also checks integrity) or CBC with a random IV. The hard problem is <strong>sharing the key</strong> safely.</p>
+<h4>Asymmetric encryption</h4>
+<p>Two linked keys: what one encrypts only the other decrypts. Anyone can have the <strong>public</strong> key; only the owner holds the <strong>private</strong> key.</p>
+<ul><li>To send a secret: encrypt with the <strong>recipient's public key</strong>.</li><li>To sign: sign with <strong>your private key</strong>, others verify with your public key (proves origin and integrity, gives non-repudiation).</li></ul>
+<p><strong>RSA</strong> (2048+ bit) and <strong>ECC</strong> (smaller keys, same strength) are the main families. <strong>Diffie-Hellman</strong> lets two parties agree on a shared secret over an open line.</p>
+<h4>Putting it together: TLS (HTTPS)</h4>
+<p>1. Client says hello with supported ciphers; server sends its <strong>certificate</strong> (public key plus identity, signed by a <strong>certificate authority</strong>). 2. Client checks the signature chain, the hostname and the dates. 3. Both sides derive a shared <strong>session key</strong> using key exchange (ephemeral Diffie-Hellman gives <strong>forward secrecy</strong>). 4. Everything after that is fast <strong>symmetric</strong> encryption (AES-GCM). So asymmetric crypto is used briefly to agree on keys, then symmetric does the work.</p>
+<h4>PKI vocabulary</h4>
+<p><strong>CA</strong> issues certificates; <strong>CSR</strong> is the request; <strong>CRL</strong> and <strong>OCSP</strong> report revoked certificates; <strong>root of trust</strong> is the CA certificates preinstalled on your device; <strong>self-signed</strong> means no outside CA vouches for it.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Attacks and failures</h4>
+<ul><li><strong>Brute force / dictionary / rainbow table</strong>: guess keys or passwords; salts defeat rainbow tables, long random keys defeat brute force.</li><li><strong>Birthday attack</strong>: finds hash collisions faster than expected, which is why short hashes are weak.</li><li><strong>Downgrade / SSL strip</strong>: force a weaker protocol or plain HTTP. Defense: HSTS, disable old TLS (SSL, TLS 1.0/1.1).</li><li><strong>Man-in-the-middle</strong>: defeated by certificate validation, so never click through certificate warnings.</li><li><strong>Key management failures</strong> are the most common real break: keys in code repos, reused keys, no rotation. Use an HSM or a secrets manager, and rotate.</li><li><strong>Weak randomness</strong> breaks everything; use the OS cryptographic random source.</li><li><strong>Side channels</strong> leak keys through timing or power use.</li><li><strong>Quantum</strong>: a large quantum computer would break RSA and ECC (Shor's algorithm) and weaken symmetric keys (Grover), so AES-256 stays fine. NIST has standardized post-quantum algorithms (ML-KEM, ML-DSA); "harvest now, decrypt later" is why migration planning has started.</li></ul>
+<h4>Data states and where encryption fits</h4>
+<ul><li><strong>At rest</strong>: disks and databases (BitLocker, LUKS, TDE).</li><li><strong>In transit</strong>: TLS, VPN (IPsec, WireGuard), SSH.</li><li><strong>In use</strong>: confidential computing and enclaves; the hard one, because data must be decrypted to be processed.</li></ul>
+<h4>Beyond confidentiality</h4>
+<ul><li><strong>Obfuscation</strong> (hiding), <strong>encoding</strong> (Base64: format only, no secrecy) and <strong>encryption</strong> are three different things. Base64 is not security.</li><li><strong>Steganography</strong> hides data inside other files; <strong>tokenization</strong> and <strong>masking</strong> replace sensitive values.</li><li><strong>Digital signature flow</strong>: hash the document, encrypt the hash with the private key; the verifier hashes the document and compares it with the decrypted signature.</li><li><strong>MAC / HMAC</strong> gives integrity and authenticity with a shared key; <strong>AEAD</strong> modes like AES-GCM combine encryption and authentication.</li></ul>
+<h4>Choosing quickly</h4>
+<p>Password storage: salted slow hash. File integrity: SHA-256. Bulk data: AES-256-GCM. Key exchange or identity: ECC or RSA 2048+ inside TLS 1.2/1.3. Never invent your own algorithm.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="osint.html">&lt; OSINT</a><a href="linux-windows-basics.html">Linux and Windows basics &gt;</a></nav><p><a href="../basics.html">cd ~/basics</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

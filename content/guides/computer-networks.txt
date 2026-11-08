@@ -15,6 +15,11 @@ $ grep -w 53 ~/notes/ports.txt
 ```
 
 > When something "doesn't work", troubleshoot bottom-up: link light, IP address, gateway ping, DNS, then the app.
+
+### Layers as a story
+When you open a web page: the browser asks DNS for the IP (application), opens a TCP connection (transport), wraps data in IP packets with source and destination (network), puts them in frames for the next device using MAC addresses (data link), and sends bits over Wi-Fi or Ethernet (physical). Each layer wraps the one above in its own header, called **encapsulation**, and the receiver peels them off in reverse.
+
+Remember the OSI layers: Physical, Data link, Network, Transport, Session, Presentation, Application ("Please Do Not Throw Sausage Pizza Away"). TCP/IP squeezes them into four: link, internet, transport, application.
 :: mid
 ### Addressing at each layer
 - **MAC** (layer 2): burned into the NIC, only meaningful on the local network
@@ -34,6 +39,15 @@ TCP opens a connection with the **three-way handshake** (SYN, SYN-ACK, ACK), num
 ```
 $ grep -E "Flags \[S\]|Flags \[S\.\]" ~/caps/handshake.txt
 ```
+
+### Devices and what layer they work at
+Hub (1, repeats everything), switch (2, forwards by MAC), router (3, forwards by IP between networks), firewall (3 to 7), load balancer (4 or 7), access point (1 and 2). A **collision domain** is where devices share a wire; a **broadcast domain** is everyone who hears a broadcast, which VLANs and routers split up.
+
+### DNS record types
+A (name to IPv4), AAAA (IPv6), CNAME (alias), MX (mail server), NS (name server), TXT (free text, used for SPF and verification), PTR (reverse lookup), SOA (zone info), SRV (service location). Resolution: the stub resolver asks a recursive resolver, which walks root, TLD, then the authoritative server and caches the answer for the TTL.
+
+### HTTP and TLS in a minute
+HTTP is request and response: method (GET, POST), path, headers, optional body, then status code and body back. TLS wraps it: the client says hello and the server name, the server presents a certificate, they agree on keys, then everything is encrypted. Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
 :: complex
 ### Layer 2 attacks
 Switches and ARP were designed to trust everyone on the LAN:
@@ -50,6 +64,63 @@ $ grep "is-at" ~/caps/lan.txt | awk '{print $NF}' | sort | uniq -c
 
 ### DNS attacks
 Cache poisoning, DNS tunneling (data hidden in long subdomains), and hijacked records. Watch for very long or random-looking query names and a host making thousands of TXT queries.
+
+### Wireless basics
+2.4 GHz reaches farther and is crowded, 5 and 6 GHz are faster at shorter range. WPA2-Personal uses a shared passphrase that can be attacked offline from a captured handshake, so use a long one; WPA3 resists that. WPA-Enterprise (802.1X/RADIUS) gives each user their own credentials. Disable WPS, and put guests and IoT on separate networks.
+
+### Network attacks to be able to explain
+ARP spoofing (man-in-the-middle on a LAN), DHCP starvation and rogue DHCP, DNS spoofing and cache poisoning, VLAN hopping, SYN flood, MAC flooding, and smurf-style amplification. For each, know the layer, what the attacker gains, and the defense (dynamic ARP inspection, DHCP snooping, DNSSEC, port security, rate limiting, 802.1X).
+
+### Tools for the layers
+`ping` and `traceroute` (3), `arp -a` (2/3), `dig` (7 DNS), `curl -v` (7 HTTP/TLS), `nc -vz host port` (4 connectivity test), `ss`/`netstat` (4 sockets), Wireshark/tcpdump (all layers).
+:: ref
+### layers and examples
+7 Application | HTTP, DNS, SMTP, SSH
+6 Presentation | encryption, encoding, TLS formats
+5 Session | session setup and teardown
+4 Transport | TCP, UDP, ports
+3 Network | IP, ICMP, routing
+2 Data link | Ethernet, MAC, switches, VLAN tags
+1 Physical | cables, radio, bits
+### troubleshooting by layer
+ping 127.0.0.1 | is the IP stack alive
+ping gateway | local network works
+ping 8.8.8.8 | internet routing works
+ping example.com | DNS works
+traceroute example.com | where the path stops
+nc -vz host 443 | can I reach that TCP port
+curl -v https://host | full HTTP and TLS conversation
+### dns
+dig example.com A | IPv4 address
+dig example.com MX +short | mail servers
+dig @8.8.8.8 example.com | ask a specific resolver
+dig -x 1.2.3.4 | reverse lookup
+dig example.com TXT | SPF and other text records
+nslookup example.com | simple lookup on any OS
+### tcp flags
+SYN | open a connection
+SYN-ACK | server agrees
+ACK | acknowledge
+FIN | graceful close
+RST | abort or refused
+PSH | deliver data now
+### protocols and ports
+20/21 FTP | file transfer, cleartext
+22 SSH | encrypted remote shell
+23 Telnet | cleartext remote shell, avoid
+25 / 587 SMTP | sending mail
+53 DNS | name resolution
+80 / 443 HTTP / HTTPS | web
+110 / 143 POP3 / IMAP | mail retrieval
+161 SNMP | device management
+389 / 636 LDAP / LDAPS | directory
+3389 RDP | Windows remote desktop
+### attacks and defenses
+ARP spoofing | defend with dynamic ARP inspection
+DHCP spoofing | DHCP snooping
+DNS poisoning | DNSSEC, randomized source ports
+SYN flood | SYN cookies, rate limits
+VLAN hopping | disable DTP, change native VLAN
 :: lab
 host: sensor
 user: analyst

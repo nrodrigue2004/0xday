@@ -14,6 +14,12 @@ $ head -12 ~/case/reported.eml
 ```
 
 > When in doubt, report it. A false alarm costs the SOC two minutes; a click can cost the company weeks.
+
+### Why phishing works
+It uses urgency, authority, curiosity and fear: "Your account will be closed", "invoice attached", "the CEO needs gift cards". It is cheap to send millions of messages and only a few people need to click. Phishing delivers credential theft (fake login pages), malware (attachments, links to downloads) and fraud (business email compromise, where no link is needed at all).
+
+### Types
+**Mass phishing**, **spear phishing** (targeted at one person), **whaling** (executives), **smishing** (SMS), **vishing** (voice), **quishing** (QR codes) and **BEC** (impersonating someone to redirect payments).
 :: mid
 ### Headers that matter
 - `From:` is what the user sees and is trivially forged. `Return-Path:` (envelope sender) and `Reply-To:` often reveal the real sender
@@ -28,6 +34,19 @@ $ grep "^Received:" ~/case/reported.eml
 
 ### Look-alike domains
 Typosquats swap characters (`rn` for `m`, `0` for `o`), add words (`-secure`, `-login`) or change the TLD. Read domains letter by letter.
+
+### Email authentication in plain words
+- **SPF**: the sending IP is allowed to send for this domain.
+- **DKIM**: the message carries a signature the domain's key can verify, so it was not altered.
+- **DMARC**: tells receivers what to do when SPF or DKIM fail *and align* with the visible From domain (none, quarantine, reject).
+A "pass" only means the message really came from the domain in question, and a look-alike domain can pass everything. Check the `Authentication-Results` header and the Reply-To and Return-Path mismatches.
+
+### Reading a message in order
+1. Display name versus real address; who is the actual sender domain?
+2. `Received` headers read bottom to top: where did it really enter the mail system?
+3. Links: hover to see the real URL, expand shorteners, check domain age and registrar (`whois`).
+4. Attachments: hash them, never open them on a normal machine. Macros, ISO, ZIP with password, HTML attachments and OneNote files are common carriers.
+5. Language and context: unexpected request, mismatched tone, urgency, payment change.
 :: complex
 ### Hidden content
 HTML email can show one link and point to another, and bodies are often **base64** or **quoted-printable** encoded so filters and humans don't see the text. Decode the part to see what the user saw, and extract every URL:
@@ -44,6 +63,53 @@ $ grep -oE "https?://[^\" >]+" ~/case/reported.eml | sort -u
 
 ### Response
 Search the mail logs for **everyone** who got the same message (same subject, sender or URL), pull it from all mailboxes, block the sender and domain, and check proxy logs for anyone who clicked. If someone entered credentials, reset them and revoke their sessions, because attackers log in within minutes.
+
+### Investigating the infrastructure
+Look up the domain (`whois`, creation date within days is a red flag), DNS records, TLS certificate (Certificate Transparency at crt.sh), hosting IP and reputation (VirusTotal, urlscan.io for a safe screenshot of the page, abuse reports). Search your proxy and DNS logs for any other user who contacted the domain; that is your impact list.
+
+### Response checklist
+Pull the message from every mailbox (search by sender, subject or message ID), block the sender, domain and URL, reset passwords and revoke sessions for anyone who entered credentials, check for new inbox rules and OAuth app consents (a favorite persistence trick), scan endpoints for anyone who opened the attachment, and report to the provider. Then tell users what happened without blame, because people report faster when they are not afraid.
+
+### Reducing the risk
+MFA (phishing-resistant, like FIDO2 keys, beats codes that can be relayed), DMARC at reject, external-sender banners, link rewriting and sandboxing, an easy "report phish" button and regular simulations with training that teaches instead of punishes.
+:: ref
+### headers
+From | what the user sees, easy to forge
+Return-Path | where bounces go, often reveals the real sender
+Reply-To | where replies go, a mismatch is a warning sign
+Received | each mail hop, read from the bottom up
+Message-ID | unique ID, useful for searching and pulling mail
+Authentication-Results | SPF, DKIM and DMARC verdicts
+X-Originating-IP | sender IP when present
+### authentication
+SPF pass | IP is authorized for the envelope domain
+DKIM pass | signature verified, content intact
+DMARC pass | SPF or DKIM passed and aligned with From
+p=none / quarantine / reject | what to do with failures
+### investigation commands
+whois domain | registrar and creation date
+dig domain any | DNS records
+dig +short TXT domain | SPF and DMARC policies (_dmarc.domain)
+curl -sIL URL | follow redirects, see headers only
+sha256sum attachment | hash for lookup
+file attachment | real type of the file
+### online tools
+VirusTotal | reputation of files, URLs and domains
+urlscan.io | safe screenshot and requests of a page
+crt.sh | certificates issued for a domain
+MXToolbox | header analyzer and email checks
+CyberChef | decode base64, URL encoding and more
+### lookalike tricks
+rn vs m | paypa1.com, rnicrosoft.com
+Homoglyphs | Cyrillic letters that look Latin
+Subdomain trick | paypal.com.evil.example, the real domain is the last part
+Extra words | login-microsoft-support.example
+### terms
+BEC | business email compromise, fraud without malware
+Spear phishing | targeted at a specific person
+Pretexting | invented story to build trust
+Quishing | phishing through QR codes
+Credential harvesting | fake login page collecting passwords
 :: lab
 style: ticket
 host: soc

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man system-hardening-windows-linux :: 0xDay</title>
+<meta name="description" content="system-hardening-windows-linux cheatsheet: System hardening (Windows/Linux) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=fbd5d8bf" defer></script>
+<script src="../site.js?v=fbd5d8bf" defer></script>
+<script src="../fx.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man system-hardening-windows-linux</p>
+<div class="manhead"><span>SYSTEM-HARDENING-WINDOWS-LINUX(7)</span><span>0xDay Field Manual</span><span>SYSTEM-HARDENING-WINDOWS-LINUX(7)</span></div>
+<h1>system-hardening-windows-linux <span class="muted">- System hardening (Windows/Linux) commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-linux-auditing">linux auditing</a> <a href="#g-linux-fixes">linux fixes</a> <a href="#g-sshd-config">sshd_config</a> <a href="#g-windows-auditing-powershell">windows auditing (powershell)</a> <a href="#g-windows-fixes">windows fixes</a> <a href="#g-frameworks">frameworks</a></p><h2 id="g-linux-auditing">linux auditing</h2><dl class="man"><dt><code>lynis audit system</code></dt><dd>full hardening audit with suggestions</dd><dt><code>awk -F: &#x27;($3==0){print $1}&#x27; /etc/passwd</code></dt><dd>accounts with UID 0</dd><dt><code>awk -F: &#x27;($2==&quot;&quot;){print $1}&#x27; /etc/shadow</code></dt><dd>accounts with an empty password</dd><dt><code>find / -perm -4000 -type f 2&gt;/dev/null</code></dt><dd>SUID binaries</dd><dt><code>find / -perm -0002 -type f 2&gt;/dev/null</code></dt><dd>world-writable files</dd><dt><code>ss -tulpn</code></dt><dd>listening services</dd><dt><code>systemctl list-unit-files --state=enabled</code></dt><dd>services starting at boot</dd><dt><code>sudo -l -U user</code></dt><dd>what a user may run as root</dd><dt><code>sshd -T</code></dt><dd>effective SSH daemon settings</dd><dt><code>last -a</code></dt><dd>recent logins</dd></dl><h2 id="g-linux-fixes">linux fixes</h2><dl class="man"><dt><code>passwd -l user</code></dt><dd>lock an account</dd><dt><code>usermod -s /usr/sbin/nologin user</code></dt><dd>no interactive shell</dd><dt><code>chmod o-w file</code></dt><dd>remove world write</dd><dt><code>ufw default deny incoming</code></dt><dd>default-deny firewall</dd><dt><code>ufw allow 22/tcp</code></dt><dd>allow SSH</dd><dt><code>systemctl disable --now service</code></dt><dd>stop and disable a service</dd><dt><code>apt install unattended-upgrades</code></dt><dd>automatic security patches</dd></dl><h2 id="g-sshd-config">sshd_config</h2><dl class="man"><dt><code>PermitRootLogin no</code></dt><dd>block direct root login</dd><dt><code>PasswordAuthentication no</code></dt><dd>keys only</dd><dt><code>AllowUsers alice bob</code></dt><dd>whitelist who may log in</dd><dt><code>MaxAuthTries 3</code></dt><dd>limit guesses per connection</dd><dt><code>X11Forwarding no</code></dt><dd>turn off unneeded feature</dd></dl><h2 id="g-windows-auditing-powershell">windows auditing (powershell)</h2><dl class="man"><dt><code>Get-LocalGroupMember Administrators</code></dt><dd>who is local admin</dd><dt><code>Get-LocalUser</code></dt><dd>local accounts and their state</dd><dt><code>Get-NetFirewallProfile</code></dt><dd>firewall state per profile</dd><dt><code>Get-SmbServerConfiguration</code></dt><dd>SMB settings including SMBv1</dd><dt><code>Get-MpComputerStatus</code></dt><dd>Defender status</dd><dt><code>Get-Service | Where-Object StartType -eq Automatic</code></dt><dd>auto-start services</dd><dt><code>auditpol /get /category:*</code></dt><dd>current audit policy</dd><dt><code>secedit /export /cfg c:\sec.cfg</code></dt><dd>export local security policy</dd></dl><h2 id="g-windows-fixes">windows fixes</h2><dl class="man"><dt><code>Set-NetFirewallProfile -Enabled True</code></dt><dd>turn the firewall on</dd><dt><code>Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol</code></dt><dd>remove SMBv1</dd><dt><code>Set-MpPreference -DisableRealtimeMonitoring $false</code></dt><dd>make sure real-time protection is on</dd><dt><code>net accounts /lockoutthreshold:5</code></dt><dd>set lockout threshold</dd></dl><h2 id="g-frameworks">frameworks</h2><dl class="man"><dt><code>CIS Benchmark</code></dt><dd>consensus hardening guide per OS and product</dd><dt><code>DISA STIG</code></dt><dd>US DoD configuration standards</dd><dt><code>Microsoft security baseline</code></dt><dd>recommended GPO settings</dd><dt><code>GTFOBins / LOLBAS</code></dt><dd>binaries abused for escalation on Linux / Windows</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
