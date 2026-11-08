@@ -1,0 +1,108 @@
+tagline: A cloud network is software-defined: virtual networks, subnets, route tables and stateful firewalls you create with API calls. Reachability needs several things to line up, and most mistakes are one of them lining up by accident.
+sheet: cloud
+:: simple
+Your servers live in a **virtual network**: a **VPC** (virtual private cloud) in AWS, a **VNet** (virtual network) in Azure. You choose a private address range (for example `10.0.0.0/16`) and carve it into **subnets**.
+
+- **Public subnet**: has a route to an **internet gateway**, so resources with a public IP can be reached from the internet.
+- **Private subnet**: no direct route in from the internet. Outbound traffic goes through a **NAT gateway**.
+- **Firewall rules**: **security groups** (AWS) and **network security groups, NSGs** (Azure) allow or deny traffic by port, protocol and source.
+
+> A server is reachable from the internet only if **all** are true: it has a public IP, its subnet routes to the internet gateway, and a firewall rule allows the port from the source. Knock out any one and it is not exposed. Open `0.0.0.0/0` on SSH or RDP and you invite the whole internet to guess passwords.
+
+Safe default: nothing public except what has to be (a load balancer or web front end). Databases and admin ports stay private.
+:: mid
+### Building blocks side by side
+| Idea | AWS | Azure |
+|---|---|---|
+| Virtual network | VPC | VNet |
+| Subnet firewall | Network ACL (stateless) | NSG on the subnet |
+| Instance firewall | Security group (stateful, allow only) | NSG on the NIC (stateful, allow and deny, priority numbers) |
+| Internet in | Internet gateway + public IP | Public IP + NSG allows |
+| Private outbound | NAT gateway | NAT Gateway / default outbound |
+| Private link to a service | VPC endpoint / PrivateLink | Private Endpoint / Service Endpoint |
+| Connect VNets | VPC peering, Transit Gateway | VNet peering, Virtual WAN |
+| On-prem link | Site-to-Site VPN, Direct Connect | VPN Gateway, ExpressRoute |
+| Load balancing | ALB / NLB | Application Gateway / Load Balancer |
+| DNS | Route 53 | Azure DNS |
+
+### Rules of thumb
+- **Stateful** means return traffic is allowed automatically. A stateless NACL needs rules both ways.
+- Security group rules can name another security group as the source ("allow from the web tier"), which is better than IP ranges inside an app.
+- Management access: no public SSH/RDP. Use a **bastion**, a VPN, AWS Systems Manager Session Manager or Azure Bastion.
+- A **WAF** in front of web apps filters HTTP attacks. DDoS protection is a separate service (AWS Shield, Azure DDoS Protection).
+- Check the CIDR: `203.0.113.0/24` is 256 addresses (an office), `0.0.0.0/0` is everyone.
+```
+$ ipcalc 10.0.0.0/16
+```
+:: complex
+### Segmentation patterns
+Three-tier layout: public web tier, private app tier, private data tier, each with its own subnet and security group that only accepts the previous tier. Add a separate management subnet and separate accounts/subscriptions for prod and dev; the account boundary is the strongest isolation in the cloud.
+
+### Egress is a security control too
+Attackers need outbound paths for command and control and exfiltration. Restrict egress with route design, proxy/firewall appliances (AWS Network Firewall, Azure Firewall), and DNS filtering, and log it. A NAT gateway that allows everything outbound is a quiet hole.
+
+### Private access to platform services
+By default, calls to S3 or Storage go over the public endpoint. **VPC endpoints** and **Private Endpoints** keep that traffic on the provider's network and let you block public access to the service entirely. Pair this with bucket policies that only accept requests from your endpoint.
+
+### Visibility
+- AWS: **VPC Flow Logs**, Traffic Mirroring, GuardDuty. Azure: **NSG flow logs**, Network Watcher, Defender for Cloud.
+- Flow logs show allowed and rejected connections (source, destination, port, bytes) but not payloads. They are the first stop for "did anything talk to that host".
+
+### Reachability checklist for incident work
+1. Public IP or load balancer in front? 2. Subnet route table to an internet gateway? 3. Network ACL / NSG at the subnet? 4. Security group / NSG at the instance? 5. Host firewall and the service actually listening? 6. Any WAF or identity in front? A finding is "exposed" only when you can walk the whole path.
+:: ref
+### networking terms
+VPC / VNet | your private virtual network and address range
+subnet | slice of the network; public if its route table has an internet gateway
+security group | AWS stateful allow-only instance firewall
+NSG | Azure network security group: allow/deny rules by priority
+NACL | AWS stateless subnet-level rules
+NAT gateway | lets private resources reach out without being reachable in
+bastion | hardened jump host (or managed Bastion / Session Manager) for admin access
+0.0.0.0/0 | "the entire internet" as a rule source; avoid for SSH, RDP and databases
+VPC endpoint / Private Endpoint | reach a cloud service privately without the public endpoint
+flow logs | per-connection metadata for the virtual network
+:: lab
+host: reviewer
+user: reviewer
+cwd: /home/reviewer
+:: brief
+**Scenario (fictional, simulated):** a small shop called **Fabrikam Goods** asked for a network review. Exports are in `~/net/`: firewall rules, instances and subnet routes. Start with `cat ~/net/README.txt`.
+
+Several security groups allow SSH from `0.0.0.0/0`, but only **one instance** is actually reachable from the internet over SSH, because the whole path lines up. Submit its **instance id**, e.g. `submit i-0aaa`.
+:: answer
+i-0d44
+:: hint
+Start with `grep "0.0.0.0/0" ~/net/security-groups.txt` to find which groups are open to the world on port 22.
+:: hint
+An open group is not enough. Join it with `instances.txt` for the public IP, then check the instance's subnet in `subnets.txt` for a route to the internet gateway (`igw`).
+:: solution
+Open SSH groups: `sg-legacy` and `sg-test`. `sg-legacy` is attached to `i-0c33` (oldtool), which has **no public IP** and sits in a private subnet routed through a NAT gateway, so nothing from the internet can start a connection to it. `sg-test` is attached to `i-0d44` (scratch), which has a public IP and sits in `subnet-pub`, routed to `igw`. All four conditions line up: public IP, route, firewall, and a listening service. That is the exposed one. Fix: restrict the source to the office range or remove public SSH and use Session Manager. Also fix `sg-legacy`: it is safe by accident, one route change from exposed.
+:: verify
+grep "0.0.0.0/0" ~/net/security-groups.txt
+cat ~/net/instances.txt
+cat ~/net/subnets.txt
+:: file /home/reviewer/net/README.txt
+Fabrikam Goods network export (FICTIONAL, simulated).
+  security-groups.txt  group, port, source
+  instances.txt        instance, name, group, subnet, public IP
+  subnets.txt          subnet, default route target
+Exposed over SSH needs: public IP + route to igw + a rule allowing port 22 from the source.
+:: file /home/reviewer/net/security-groups.txt
+group        port   source
+sg-web       443    0.0.0.0/0
+sg-web       22     203.0.113.0/24
+sg-db        5432   sg-web
+sg-legacy    22     0.0.0.0/0
+sg-test      22     0.0.0.0/0
+sg-test      8080   10.0.0.0/16
+:: file /home/reviewer/net/instances.txt
+instance  name      group       subnet       public_ip
+i-0a11    web-1     sg-web      subnet-pub   198.51.100.10
+i-0b22    db-1      sg-db       subnet-priv  -
+i-0c33    oldtool   sg-legacy   subnet-priv  -
+i-0d44    scratch   sg-test     subnet-pub   198.51.100.44
+:: file /home/reviewer/net/subnets.txt
+subnet        default_route
+subnet-pub    igw
+subnet-priv   nat-gateway

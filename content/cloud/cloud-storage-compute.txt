@@ -1,0 +1,101 @@
+tagline: Object storage holds most of the world's cloud data and most of its leaks. Learn buckets and blobs, the compute options from VM to function, and the settings that decide whether strangers can read your files.
+sheet: cloud
+:: simple
+**Storage**
+- **Object storage**: files (objects) in containers called **buckets** (AWS S3) or **containers inside storage accounts** (Azure Blob). Cheap, huge, reached over HTTPS. Websites, backups, logs and data lakes live here.
+- **Block storage**: a virtual disk for a VM (EBS, Azure Managed Disks).
+- **File storage**: a shared network drive (EFS / FSx, Azure Files).
+
+**Compute**
+- **Virtual machine**: a whole server you manage (EC2, Azure VM).
+- **Containers**: packaged apps (ECS/EKS/Fargate, AKS/Container Apps).
+- **Serverless functions**: run code on events, pay per run (Lambda, Azure Functions). No server to patch.
+
+> The classic leak: a storage bucket set to public that holds something private. Cloud storage is private by default; people open it for convenience and forget. Block public access by default, and make exceptions deliberately.
+:: mid
+### Who can read a bucket
+Access comes from several places that combine: IAM policies on identities, a **bucket policy** on the resource, an **ACL** (older, avoid), and the account/bucket-level **Block Public Access** switch, which overrides the rest. A policy with `"Principal": "*"` and `s3:GetObject` makes objects world-readable. In Azure, check the storage account's "allow blob public access", the container access level, and any **SAS token** (a signed URL that grants time-limited access; treat as a password).
+
+### Protecting data
+- **Encryption at rest** (on by default almost everywhere; know who holds the key: provider-managed, or customer-managed in KMS / Key Vault) and **in transit** (TLS).
+- **Versioning** and object lock protect against deletion and ransomware.
+- **Lifecycle rules** move old data to cheaper tiers or delete it, which also limits breach blast radius.
+- **Access logs** record who read what.
+- Classify data first: public website assets can be public, invoices and backups cannot.
+
+### Compute choices, in one line each
+VM: full control, you patch. Container: portable, share a kernel, scan images. Function: smallest attack surface, watch the role it runs as and its event inputs.
+Best practices: no credentials baked into images, use instance roles/managed identities, patch or rebuild from a fresh image, and turn off what is not needed.
+
+### Costs to remember
+Stopped VMs still bill for their disks. Unattached volumes, snapshots, load balancers and public IPs bill until deleted. Data egress bills per GB.
+:: complex
+### Storage attack paths
+- Anonymous listing and reading of public buckets, found by guessing names (company-backups, company-dev). Enumeration tools exist for authorized testing.
+- Over-broad SAS tokens or pre-signed URLs with long expiry, shared in tickets or chat.
+- A compromised role with `s3:*` copying data out; look for unusual `GetObject` volume in logs.
+- **Bucket takeover / dangling DNS**: a CNAME pointing at a deleted bucket or site that someone else can re-create.
+- Ransomware that deletes or re-encrypts objects with its own key; defended by versioning, MFA delete and offline copies.
+
+### Compute attack paths
+- Exposed management ports and weak passwords on VMs.
+- SSRF reaching the instance metadata service for role credentials; enforce IMDSv2 (AWS) and restrict identity endpoints.
+- Vulnerable container images or exposed Kubernetes dashboards and API servers.
+- Over-privileged function roles: the function is small, but its role is the prize.
+- Cryptomining on stolen credentials: the signature is a huge bill and instances in regions you never use.
+
+### Controls that scale
+Account-wide Block Public Access, policy-as-code checks in CI (reject public buckets before deploy), CSPM scanning (Security Hub, Defender for Cloud), GuardDuty / Defender findings, tagging so every resource has an owner, and **data discovery** (Macie, Purview) to find personal data in the wrong place.
+
+### Shared responsibility check
+For S3/Blob the provider guarantees the service is durable and patched. Whether the bucket is public, encrypted with the right key, logged, and versioned is entirely you.
+:: ref
+### storage and compute terms
+bucket / container | object storage namespace (S3 bucket, Azure Blob container)
+object / blob | one stored file plus metadata
+Block Public Access | S3 switch that overrides policies and ACLs that would make data public
+bucket policy | resource-based JSON policy on a bucket; "Principal": "*" means everyone
+SAS token / pre-signed URL | signed link giving time-limited access; treat like a password
+KMS / Key Vault | managed encryption keys and secrets
+EBS / Managed Disk | block storage for VMs
+EC2 / Azure VM | virtual machines
+Lambda / Azure Functions | serverless code on events
+ECS, EKS / AKS | container services, Kubernetes
+IMDSv2 | AWS metadata service requiring a token, blunts SSRF credential theft
+:: lab
+host: reviewer
+user: reviewer
+cwd: /home/reviewer
+:: brief
+**Scenario (fictional, simulated):** **Tailspin Retail** has four storage buckets. Exports are in `~/storage/`: an inventory with what each bucket holds, and the policy on each. Start with `cat ~/storage/README.txt`.
+
+One bucket is **publicly readable and holds customer data**. Another is public on purpose and fine. Submit the **bucket name** of the bad one.
+:: answer
+tailspin-invoices-2024
+:: hint
+Public read looks like `"Principal": "*"` in a bucket policy. Search for it: `grep -l '"Principal": "\*"' ~/storage/policies/*`.
+:: hint
+Two buckets match. Read `inventory.txt` to see which one holds customer data and which is the public website.
+:: solution
+`grep -l` finds public policies on `tailspin-site-assets` and `tailspin-invoices-2024`. The inventory says site-assets is the static website (logo, CSS), so public read is intended. `tailspin-invoices-2024` holds customer invoices with names and addresses, and its policy lets anyone read every object. It also has Block Public Access turned off, which is what allowed the policy to take effect. Fix: turn Block Public Access on at account level, remove the public policy, serve invoices through an authenticated app or short-lived pre-signed URLs, enable access logging, and check the logs for who already read them.
+:: verify
+grep -l '"Principal": "\*"' ~/storage/policies/*
+cat ~/storage/inventory.txt
+:: file /home/reviewer/storage/README.txt
+Tailspin Retail storage export (FICTIONAL, simulated).
+  inventory.txt  bucket, contents, data class, block-public-access setting
+  policies/      bucket policy per file
+:: file /home/reviewer/storage/inventory.txt
+bucket                     contents                         data_class   block_public_access
+tailspin-site-assets       logo.png, site.css               public       off (website)
+tailspin-invoices-2024     customer invoices (names, addr)  restricted   off
+tailspin-logs              app and access logs              internal     on
+tailspin-backups           nightly db dumps, encrypted      restricted   on
+:: file /home/reviewer/storage/policies/tailspin-site-assets.json
+{"Effect": "Allow", "Principal": "*", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::tailspin-site-assets/*"}
+:: file /home/reviewer/storage/policies/tailspin-invoices-2024.json
+{"Effect": "Allow", "Principal": "*", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::tailspin-invoices-2024/*"}
+:: file /home/reviewer/storage/policies/tailspin-logs.json
+{"Effect": "Allow", "Principal": {"AWS": "arn:aws:iam::111122223333:role/log-writer"}, "Action": "s3:PutObject", "Resource": "arn:aws:s3:::tailspin-logs/*"}
+:: file /home/reviewer/storage/policies/tailspin-backups.json
+{"Effect": "Allow", "Principal": {"AWS": "arn:aws:iam::111122223333:role/backup"}, "Action": ["s3:PutObject", "s3:GetObject"], "Resource": "arn:aws:s3:::tailspin-backups/*"}

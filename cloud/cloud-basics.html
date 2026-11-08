@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cloud basics :: ~/cloud :: 0xDay</title>
+<meta name="description" content="Cloud basics, cloud basics: IaaS, PaaS, SaaS, regions, pricing and the shared responsibility model.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7cc3c46f" defer></script>
+<script src="../site.js?v=7cc3c46f" defer></script>
+<script src="../fx.js?v=7cc3c46f" defer></script>
+<script src="../learn.js?v=7cc3c46f" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cloud --chapter cloud-basics</p>
+<h1>~/cloud/cloud-basics</h1>
+<p>The cloud is someone else's computers rented by the second. What matters is who runs which layer, where it lives, how it is billed, and which half of the security job stays with you.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="cloud-basics">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Cloud computing</strong> means renting compute, storage and networking from a provider (AWS, Microsoft Azure, Google Cloud) over the internet, on demand, and paying for what you use. You get a server in a minute instead of a purchase order in a month. The tradeoff: you now depend on the provider, and a wrong click can cost money or leak data.</p>
+<p>The three service models differ in <strong>how much of the stack the provider runs</strong>:</p>
+<ul><li><strong>IaaS</strong> (infrastructure as a service): you rent virtual machines, disks and networks. You patch the OS. Example: EC2, Azure Virtual Machines.</li><li><strong>PaaS</strong> (platform as a service): you hand over code or a database and the provider runs the OS and runtime. Example: Elastic Beanstalk, Azure App Service, RDS.</li><li><strong>SaaS</strong> (software as a service): you just use the finished app. Example: Microsoft 365, Gmail, Salesforce.</li></ul>
+<p class="callout"><strong>Shared responsibility model.</strong> The provider secures the cloud itself (buildings, hardware, hypervisor). You secure what you put in it (your data, accounts, configuration, and your guest OS on IaaS). Nearly every cloud breach is the customer's half: a public bucket, a leaked key, an over-permissive role.</p>
+<p>Deployment models: <strong>public cloud</strong> (shared provider infrastructure), <strong>private cloud</strong> (dedicated to one organization), <strong>hybrid</strong> (on-premises plus cloud) and <strong>multi-cloud</strong> (more than one provider).</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Responsibility shifts as you move up</h4>
+<div class="tbl"><table><thead><tr><th>Layer</th><th>On-prem</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr></thead><tbody><tr><td>Data, identities, access</td><td>you</td><td>you</td><td>you</td><td>you</td></tr><tr><td>Application and config</td><td>you</td><td>you</td><td>you</td><td>you configure, provider runs</td></tr><tr><td>OS and patching</td><td>you</td><td>you</td><td>provider</td><td>provider</td></tr><tr><td>Virtualization, hardware, facilities</td><td>you</td><td>provider</td><td>provider</td><td>provider</td></tr></tbody></table></div>
+<p>Two layers are always yours: <strong>data</strong> and <strong>identity</strong>. That is why IAM and data classification come first in every cloud framework.</p>
+<h4>Geography</h4>
+<ul><li><strong>Region</strong>: a geographic area containing multiple data centers (us-east-1 in AWS, East US in Azure). Pick for latency, price, and data-residency law.</li><li><strong>Availability zone (AZ)</strong>: one or more separate data centers inside a region with independent power and network. Spreading across AZs survives a data-center failure; spreading across regions survives a regional one.</li><li><strong>Edge / CDN</strong>: cached copies near users (CloudFront, Azure Front Door).</li></ul>
+<h4>The cloud properties you are tested on</h4>
+<p>On-demand self-service, broad network access, resource pooling, <strong>rapid elasticity</strong> (scale out and back in), measured service (metered billing). Add: <strong>scalability</strong> (handle growth), <strong>high availability</strong> (stay up through failures), <strong>fault tolerance</strong> (keep working through a component failure).</p>
+<h4>Money</h4>
+<p>Billing is metered: compute seconds, GB stored, GB transferred <strong>out</strong> (ingress is usually free, egress is not). <strong>Free tiers</strong> are time- or quota-limited, and terms change, so read the provider's current page before relying on one. Cost surprises usually come from things left running: idle VMs, unattached disks, elastic IPs, NAT gateways, and forgotten test environments.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Security consequences of the model</h4>
+<ul><li>Misconfiguration beats exploits. Every resource is an API object; a bad setting is exposed to the whole internet within seconds. The default question is "who can reach this and who can call this".</li><li>The <strong>control plane</strong> (APIs, console, CLI) manages resources and is guarded by identity. The <strong>data plane</strong> is the traffic to the running service. Compromise of the control plane (a stolen key) outranks nearly everything else.</li><li><strong>Multi-tenancy</strong>: your VM shares hardware with strangers. Hypervisor escapes are rare, but side-channel and noisy-neighbor issues exist, and some regulations require dedicated hosts.</li><li><strong>Compliance is inherited in part</strong>: providers publish audit reports (SOC 2, ISO 27001) for their half. You still have to prove yours.</li><li><strong>Vendor lock-in</strong> and exit cost: proprietary services are fast to build with and slow to leave. Open formats, containers and infrastructure-as-code reduce it.</li></ul>
+<h4>Infrastructure as code</h4>
+<p>Define resources in files (CloudFormation, ARM/Bicep, Terraform), review them in git, deploy them repeatably. Benefits: reproducible labs, drift detection, peer review of security settings, and one-command teardown, which matters for cost.</p>
+<h4>Pricing and architecture vocabulary</h4>
+<p><strong>On-demand</strong>, <strong>reserved / savings plans</strong> (commit for a discount), <strong>spot / low-priority</strong> (cheap, can be reclaimed). <strong>Tags</strong> label resources by owner, project and environment so costs and incidents can be traced. A <strong>landing zone</strong> is a pre-built, governed multi-account setup. <strong>Well-architected frameworks</strong> (AWS Well-Architected, Azure Well-Architected) list the pillars: operational excellence, security, reliability, performance, cost, and sustainability.</p>
+<h4>Exam-flavored distinctions</h4>
+<ul><li><strong>Elasticity</strong> reacts to demand automatically; <strong>scalability</strong> is the ability to grow.</li><li><strong>CASB</strong> sits between users and cloud apps to enforce policy; <strong>CSPM</strong> scans cloud configuration for risk; <strong>CWPP</strong> protects running workloads.</li><li><strong>Serverless</strong> still has servers, you just do not manage them: the shared line moves up again.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/cloud.html">cheatsheet</a></span></h2><h3>shared vocabulary</h3><dl class="man"><dt><code>IaaS / PaaS / SaaS</code></dt><dd>how much of the stack the provider runs, least to most</dd><dt><code>shared responsibility</code></dt><dd>provider secures the cloud, customer secures what is in it (data, identity, config)</dd><dt><code>region</code></dt><dd>geographic area with several data centers</dd><dt><code>availability zone (AZ)</code></dt><dd>independent data center(s) inside a region, for high availability</dd><dt><code>egress</code></dt><dd>data leaving the cloud, usually billed; ingress is usually free</dd><dt><code>elasticity</code></dt><dd>scale out and back in automatically with demand</dd><dt><code>control plane vs data plane</code></dt><dd>management APIs vs the traffic to the running service</dd><dt><code>IaC</code></dt><dd>infrastructure as code: CloudFormation, Bicep/ARM, Terraform</dd><dt><code>CSPM / CASB / CWPP</code></dt><dd>posture scanning / cloud app policy gateway / workload protection</dd></dl></section><nav class="pager"><span></span><a href="cloud-iam.html">identity and access &gt;</a></nav><p><a href="../cloud.html">cd ~/cloud</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
