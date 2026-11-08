@@ -32,6 +32,10 @@ git add -A && git commit -m "Update site" && git push
 
 The hidden site CTF flags live in `FLAGS` in `build.py` (only their SHA-256 hashes ship to the browser, but the flags themselves are discoverable on purpose).
 
+## ~/comptia
+
+Later/optional certs after Security+. `content/comptia/certs.json` lists them; each built cert has `content/comptia/<slug>.txt` (format in the `build_comptia.py` docstring: per objective `@notes`, `@cards`, `@check`, `@lab`, `@answer`). CySA+ (CS0-004) is built. Network+ and A+ are placeholders until Nate's notes arrive: add `netplus.txt` / `aplus.txt`, set `built: true` and a `domains` map in certs.json.
+
 ## ~/ai
 
 Chapters are `content/ai/<slug>.txt` in the same format as the learn guides (tiers plus optional lab); order and blurbs are in `CHAPTERS` in `build_ai.py`. The reading list is `content/ai/news.json` (hand-curated and dated, the site is static, so update it by hand and bump `updated`).

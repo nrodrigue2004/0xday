@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA CySA+ 2.1 :: 0xDay</title>
+<meta name="description" content="CompTIA CySA+ CS0-004 objective 2.1: Given a scenario, implement the appropriate vulnerability scanning method">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=94855e1f">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=94855e1f" defer></script>
+<script src="../../site.js?v=94855e1f" defer></script>
+<script src="../../fx.js?v=94855e1f" defer></script>
+<script src="../../study.js?v=94855e1f" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.1 --exam CS0-004</p>
+<div class="manhead"><span>CS0-004</span><span>domain 2.0 · Vulnerability Management</span><span>2.1</span></div>
+<h1><span class="ok">2.1</span> Given a scenario, implement the appropriate vulnerability scanning method</h1>
+<div class="obj" data-obj="cysa-2.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><p>Scanning finds known weaknesses. It is not a pentest, and it lies in both directions, so you validate.</p>
+<h4>Before you scan</h4>
+<ul><li><strong>Asset inventory</strong>: you cannot scan what you do not know exists. Include shadow IT, cloud, containers and IoT.</li><li><strong>Planning</strong>: scheduling (off-peak, change windows), operations (notify owners, avoid critical processes), performance (bandwidth, scan throttling, fragile devices like OT or old printers), sensitivity levels (what data may a credentialed scan touch), segmentation (scanner placement so firewalls do not hide hosts), regulatory (PCI DSS requires quarterly external scans by an ASV).</li></ul>
+<h4>Scan types</h4>
+<ul><li><strong>Internal vs external</strong>: internal sees what an insider sees, external what the internet sees.</li><li><strong>Agent vs agentless</strong>: agents on hosts report continuously, work for roaming laptops and need install and updates. Agentless scans over the network.</li><li><strong>Credentialed vs non-credentialed</strong>: credentialed logs in and sees missing patches, configs and local software, with far fewer false positives. Non-credentialed is the outsider view.</li><li><strong>Passive vs active</strong>: passive listens to traffic (safe for OT, slow, misses quiet hosts). Active sends probes (thorough, can disrupt).</li><li><strong>Discovery</strong>: mapping scans find hosts and topology; device fingerprinting guesses OS and services.</li><li><strong>Baseline scanning</strong>: compare configuration to a standard such as <strong>CIS benchmarks</strong>, <strong>PCI DSS</strong>, or the <strong>ISO 27000</strong> series.</li></ul>
+<p class="callout">Exam habit: pick "credentialed" for accuracy, "passive" for fragile systems, "agent" for remote laptops, "external" for the attack surface view.</p></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="cysa-2.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Scan results are full of false positives for missing patches. Which change improves accuracy most?</p><ul class="chk__o"><li><span class="ok">a)</span> Non-credentialed scan</li><li><span class="ok">b)</span> Credentialed scan</li><li><span class="ok">c)</span> External scan</li><li><span class="ok">d)</span> Fewer plugins</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Authenticated scanning checks the actual patch level.</p></details></div><div class="chk"><p><strong>2.</strong> A plant's PLC network cannot tolerate probes. Best method?</p><ul class="chk__o"><li><span class="ok">a)</span> Aggressive active scan</li><li><span class="ok">b)</span> Passive monitoring</li><li><span class="ok">c)</span> Credentialed full scan</li><li><span class="ok">d)</span> No scanning ever</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Passive observation avoids disrupting devices.</p></details></div>
+<h2>short lab: Plan a scan</h2><div class="prose lab"><p>You must scan a 200-host office network plus 15 remote laptops, including a legacy label printer that crashes under heavy probing. Pick scan types and settings.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Credentialed internal active scan for servers and desktops during a window, with throttled rates. Agent-based for the laptops. Exclude or lightly/passively check the printer. External scan of the public IPs separately. Notify owners, document the exceptions, and compare the config to CIS baselines.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/recon-nmap-metasploit.html">recon nmap metasploit</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.1" placeholder="# 2.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.6.html">&lt; 1.6</a><a href="2.2.html">2.2 &gt;</a></nav>
+<p><a href="../cysa.html">cd ~/comptia/cysa</a></p>
+<script type="application/json" id="cards-data">[{"id": "cysa-2.1-0", "q": "Why use credentialed scans?", "a": "More accurate results with fewer false positives, and it can see missing patches and local configuration."}, {"id": "cysa-2.1-1", "q": "Best scan type for a fragile ICS network?", "a": "Passive scanning, or very carefully controlled active scans."}, {"id": "cysa-2.1-2", "q": "Agent-based scanning best fits what hosts?", "a": "Roaming laptops and remote endpoints that are not always on the network."}, {"id": "cysa-2.1-3", "q": "What do CIS benchmarks provide?", "a": "Hardening baselines to compare configurations against."}, {"id": "cysa-2.1-4", "q": "What is a mapping scan?", "a": "A discovery scan to find hosts and their layout."}, {"id": "cysa-2.1-5", "q": "Why scan externally?", "a": "To see the attack surface as an internet attacker sees it."}, {"id": "cysa-2.1-6", "q": "First prerequisite for good vulnerability management?", "a": "A complete asset inventory."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

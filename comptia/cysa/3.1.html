@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA CySA+ 3.1 :: 0xDay</title>
+<meta name="description" content="CompTIA CySA+ CS0-004 objective 3.1: Summarize concepts related to attack methodology frameworks">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=94855e1f">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=94855e1f" defer></script>
+<script src="../../site.js?v=94855e1f" defer></script>
+<script src="../../fx.js?v=94855e1f" defer></script>
+<script src="../../study.js?v=94855e1f" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.1 --exam CS0-004</p>
+<div class="manhead"><span>CS0-004</span><span>domain 3.0 · Incident Response and Management</span><span>3.1</span></div>
+<h1><span class="ok">3.1</span> Summarize concepts related to attack methodology frameworks</h1>
+<div class="obj" data-obj="cysa-3.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><p>Frameworks give a shared vocabulary for describing and predicting attacks.</p>
+<ul><li><strong>Cyber Kill Chain</strong> (Lockheed Martin), seven linear phases: Reconnaissance → Weaponization → Delivery → Exploitation → Installation → Command and Control → Actions on Objectives. Defender idea: break any link and the attack fails. Weak at insiders and lateral movement because it is linear.</li><li><strong>Diamond Model</strong>: every event has four vertices: adversary, capability, infrastructure, victim. Pivot between them: find an attacker domain (infrastructure), then other victims hitting it. Also has meta-features such as timestamp, phase, result, direction, methodology.</li><li><strong>MITRE ATT&amp;CK</strong>: matrix of tactics (columns, the why) and techniques/sub-techniques (the how, <code>T1566.001</code>), with real-world groups, software and detections. Use it for detection coverage gaps, hunt ideas and reporting. Not linear, not every technique is used.</li><li><strong>Pick</strong>: kill chain for explaining stage and where to block, diamond for linking intrusions and attribution, ATT&amp;CK for detail and coverage.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="cysa-3.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> An attacker sends a malicious attachment. Which kill chain phase?</p><ul class="chk__o"><li><span class="ok">a)</span> Reconnaissance</li><li><span class="ok">b)</span> Delivery</li><li><span class="ok">c)</span> Installation</li><li><span class="ok">d)</span> C2</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Delivery is transmitting the weapon.</p></details></div><div class="chk"><p><strong>2.</strong> You found attacker infrastructure and now want to find other victims of the same actor. Model?</p><ul class="chk__o"><li><span class="ok">a)</span> Kill chain</li><li><span class="ok">b)</span> Diamond Model</li><li><span class="ok">c)</span> STRIDE</li><li><span class="ok">d)</span> CVSS</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Pivoting from the infrastructure vertex.</p></details></div>
+<h2>short lab: Map an intrusion</h2><div class="prose lab"><p>Phish email with macro doc → PowerShell downloads implant → implant calls 203.0.113.9 hourly → attacker dumps LSASS → exfil to cloud storage. Give kill chain phases and ATT&amp;CK tactics.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Kill chain: delivery (email), exploitation (macro), installation (implant), C2 (hourly beacon), actions on objectives (cred dump, exfil). ATT&amp;CK tactics: Initial Access (T1566), Execution (T1059.001), Command and Control, Credential Access (T1003.001), Exfiltration (T1567).</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/incident-response.html">incident response</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.1" placeholder="# 3.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.4.html">&lt; 2.4</a><a href="3.2.html">3.2 &gt;</a></nav>
+<p><a href="../cysa.html">cd ~/comptia/cysa</a></p>
+<script type="application/json" id="cards-data">[{"id": "cysa-3.1-0", "q": "Seven kill chain phases?", "a": "Recon, weaponization, delivery, exploitation, installation, C2, actions on objectives."}, {"id": "cysa-3.1-1", "q": "Diamond Model's four vertices?", "a": "Adversary, capability, infrastructure, victim."}, {"id": "cysa-3.1-2", "q": "ATT&CK tactic vs technique?", "a": "Tactic is the goal (why); technique is how it's achieved."}, {"id": "cysa-3.1-3", "q": "Which framework is best to map detection coverage gaps?", "a": "MITRE ATT&CK."}, {"id": "cysa-3.1-4", "q": "Kill chain weakness?", "a": "Linear model; poor fit for insiders and lateral movement."}, {"id": "cysa-3.1-5", "q": "What do analysts do with the diamond model?", "a": "Pivot between the vertices to connect intrusions."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

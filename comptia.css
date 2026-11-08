@@ -1,0 +1,5 @@
+.chk{border-left:2px solid var(--border);padding:.2rem 0 .2rem .8rem;margin:1rem 0}
+.chk__o{list-style:none;padding:0;margin:.3rem 0}
+.chk details{margin:.3rem 0}.chk summary{cursor:pointer;color:var(--muted)}
+.prose.lab{border:1px dashed var(--border);padding:.6rem .9rem;margin:.6rem 0}
+details>summary{cursor:pointer}

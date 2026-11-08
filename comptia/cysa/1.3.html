@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA CySA+ 1.3 :: 0xDay</title>
+<meta name="description" content="CompTIA CySA+ CS0-004 objective 1.3: Given a scenario, use tools to determine malicious activity">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=94855e1f">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=94855e1f" defer></script>
+<script src="../../site.js?v=94855e1f" defer></script>
+<script src="../../fx.js?v=94855e1f" defer></script>
+<script src="../../study.js?v=94855e1f" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.3 --exam CS0-004</p>
+<div class="manhead"><span>CS0-004</span><span>domain 1.0 · Security Operations</span><span>1.3</span></div>
+<h1><span class="ok">1.3</span> Given a scenario, use tools to determine malicious activity</h1>
+<div class="obj" data-obj="cysa-1.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><p>Know what each tool is for and what its output looks like. Exam scenarios hand you a snippet and ask what it means.</p>
+<h4>Decode and parse</h4>
+<ul><li><strong>CyberChef</strong>: browser "recipe" tool for base64, hex, XOR, URL decoding, gunzip, regex extraction. Chain operations on the fly.</li></ul>
+<h4>Packets and network sensors</h4>
+<ul><li><strong>Wireshark</strong>: GUI packet analysis. Display filters: <code>ip.addr == 10.0.0.5</code>, <code>tcp.port == 4444</code>, <code>http.request</code>, <code>dns</code>, <code>tcp.flags.syn == 1 &amp;&amp; tcp.flags.ack == 0</code>. Follow TCP stream shows a whole conversation.</li><li><strong>tcpdump</strong>: CLI capture, BPF filters: <code>tcpdump -i eth0 -w cap.pcap host 10.0.0.5 and port 443</code>. <code>-nn</code> skips name resolution.</li><li><strong>Snort / Suricata</strong>: signature IDS/IPS. Rules look like <code>alert tcp $EXTERNAL_NET any -&gt; $HOME_NET 22 (msg:&quot;SSH brute&quot;; flags:S; threshold:...; sid:1000001;)</code>. Suricata is multi-threaded and also writes EVE JSON.</li><li><strong>Zeek</strong>: not signatures. It turns traffic into structured logs (<code>conn.log</code>, <code>dns.log</code>, <code>http.log</code>, <code>ssl.log</code>, <code>files.log</code>), ideal for hunting.</li></ul>
+<h4>Logs and intelligence</h4>
+<ul><li><strong>SIEM</strong>: collects, normalizes, correlates and alerts (Splunk, Elastic, Sentinel). Know queries by shape: filter, group, count, sort.</li><li><strong>Threat intel platforms</strong>: <strong>OTX</strong> (community pulses of IoCs), <strong>MISP</strong> (open-source sharing platform), <strong>OpenCTI</strong> (knowledge graph for CTI).</li></ul>
+<h4>Endpoint</h4>
+<ul><li><strong>EDR/XDR</strong>: endpoint telemetry with response (isolate host, kill process). XDR also pulls in email, network and cloud. <strong>MDM</strong> manages mobile devices (wipe, policy).</li></ul>
+<h4>Reputation and file analysis</h4>
+<ul><li><strong>WHOIS</strong>, <strong>AbuseIPDB</strong>, <strong>GEO-IP</strong> for domain/IP age, ownership, abuse reports and location. A domain registered three days ago is suspicious.</li><li><strong>strings</strong> finds readable text in binaries (URLs, commands). <strong>VirusTotal</strong> checks hashes/files against many engines (do not upload sensitive files, upload the hash). <strong>YARA</strong> rules match patterns in files or memory: <code>rule X { strings: $a=&quot;cmd.exe /c&quot; condition: $a }</code>.</li><li><strong>Sandboxes</strong> (<strong>Joe Sandbox</strong>, <strong>Cuckoo</strong>) run a sample safely and report behavior (files, registry, network). Beware sandbox-aware malware that sleeps.</li><li><strong>MXToolbox</strong> checks mail records (MX, SPF, DKIM, DMARC) and blacklists.</li><li><strong>UEBA</strong> (for example OpenUBA) baselines user behavior and flags deviations.</li></ul>
+<h4>Patterns, formats, scripts</h4>
+<ul><li><strong>Regex</strong>: <code>\d{3}-\d{2}-\d{4}</code> (SSN-like), <code>(?:\d{1,3}\.){3}\d{1,3}</code> (IPv4), <code>[A-Za-z0-9+/=]{40,}</code> (base64 blob).</li><li><strong>Formats</strong>: JSON (objects, key/value), XML (tags), YAML (indentation, config and rules), EVTX (Windows event log, read with Event Viewer or <code>Get-WinEvent</code>).</li><li><strong>Scripting</strong>: Python for parsing and API calls, PowerShell for Windows admin and hunting (<code>Get-WinEvent</code>, <code>Get-Process</code>), shell for quick <code>grep</code>/<code>awk</code> pipelines.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="cysa-1.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> You need a quick view of every DNS query a host made last week, from sensor data. Best source?</p><ul class="chk__o"><li><span class="ok">a)</span> Zeek dns.log</li><li><span class="ok">b)</span> strings</li><li><span class="ok">c)</span> YARA rule</li><li><span class="ok">d)</span> MXToolbox</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Zeek records protocol metadata like DNS in structured logs.</p></details></div><div class="chk"><p><strong>2.</strong> Which is a signature-based network IDS/IPS?</p><ul class="chk__o"><li><span class="ok">a)</span> Zeek</li><li><span class="ok">b)</span> Suricata</li><li><span class="ok">c)</span> CyberChef</li><li><span class="ok">d)</span> OTX</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Suricata (like Snort) matches rules against traffic.</p></details></div>
+<h2>short lab: Pull the beacon out of a conn.log</h2><div class="prose lab"><p>Given Zeek-style lines of <code>ts, src, dst, dport, bytes</code>: ten rows from 10.0.0.23 to 185.220.1.9:443 at 60-second intervals, 412 bytes each, plus normal browsing to many hosts. Which host is beaconing, how do you prove regularity, and what do you do next?</p></div><details><summary>walkthrough</summary><div class="prose"><p>10.0.0.23. Compute the deltas between timestamps: near-constant 60 s gaps and a constant byte size is machine-driven. Then enrich 185.220.1.9 (WHOIS age, AbuseIPDB, OTX), find the process behind the connection with EDR, check for other internal hosts talking to it, block the IP at the firewall and isolate the host.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/network-traffic-analysis.html">network traffic analysis</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/ids-snort.html">ids snort</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/siem-security-onion.html">siem security onion</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/malware-analysis.html">malware analysis</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.3" placeholder="# 1.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.2.html">&lt; 1.2</a><a href="1.4.html">1.4 &gt;</a></nav>
+<p><a href="../cysa.html">cd ~/comptia/cysa</a></p>
+<script type="application/json" id="cards-data">[{"id": "cysa-1.3-0", "q": "Which tool turns traffic into per-protocol logs for hunting instead of signatures?", "a": "Zeek."}, {"id": "cysa-1.3-1", "q": "Wireshark filter for TCP SYN scan packets?", "a": "tcp.flags.syn == 1 && tcp.flags.ack == 0"}, {"id": "cysa-1.3-2", "q": "tcpdump flag to write a pcap?", "a": "-w file.pcap (and -nn disables name/port resolution)."}, {"id": "cysa-1.3-3", "q": "What is YARA for?", "a": "Pattern-matching rules to classify malware in files or memory."}, {"id": "cysa-1.3-4", "q": "What does MISP do?", "a": "An open platform for sharing and correlating threat-intel IoCs."}, {"id": "cysa-1.3-5", "q": "Why upload a hash rather than a file to VirusTotal?", "a": "Uploaded files become public. A hash lookup leaks nothing."}, {"id": "cysa-1.3-6", "q": "What do EDR and XDR differ in?", "a": "XDR correlates telemetry beyond endpoints: email, network, cloud, identity."}, {"id": "cysa-1.3-7", "q": "What can malware do to defeat sandboxes?", "a": "Detect the VM, wait/sleep, or check for user activity before acting."}, {"id": "cysa-1.3-8", "q": "What file format are Windows event logs?", "a": "EVTX."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
