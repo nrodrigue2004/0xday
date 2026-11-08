@@ -491,6 +491,8 @@ DRILLS = build_drills.build(page)
 GLOSS = build_glossary.build(page)
 HUB.insert(1, ("drills", "drills.html", "packets, permissions, regex, log labs", f"{len(DRILLS)} drills"))
 HUB.insert(2, ("glossary", "glossary.html", "terms linked to guides", f"{len(GLOSS)} terms"))
+import build_hlops
+HUB += build_hlops.build(page, esc)
 import build_arcade
 HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
