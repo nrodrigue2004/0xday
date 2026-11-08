@@ -68,7 +68,7 @@
 <span class="ps">$</span> <span class="c">git log -p --all -S &quot;API_KEY&quot; --oneline</span><button class="run" type="button" data-cmd="git log -p --all -S &quot;API_KEY&quot; --oneline" title="run in the sandbox">▶ run</button></code></pre>
 <p><code>-S &quot;text&quot;</code> (the "pickaxe") finds commits that added or removed that text.</p>
 <h4>If you leak a secret</h4>
-<p>1. <strong>Rotate it immediately</strong>. Assume it's compromised the moment it was pushed 2. Then clean history if needed (<code>git filter-repo</code>, BFG) and force-push, knowing forks and clones may still have it 3. Prevent it: <code>.gitignore</code> for <code>.env</code> files, pre-commit secret scanning (gitleaks), GitHub push protection, and secrets in a vault or CI secrets, never in code</p>
+<ol><li><strong>Rotate it immediately</strong>. Assume it's compromised the moment it was pushed</li><li>Then clean history if needed (<code>git filter-repo</code>, BFG) and force-push, knowing forks and clones may still have it</li><li>Prevent it: <code>.gitignore</code> for <code>.env</code> files, pre-commit secret scanning (gitleaks), GitHub push protection, and secrets in a vault or CI secrets, never in code</li></ol>
 <h4>Supply chain</h4>
 <p>Signed commits, protected branches, required reviews and pinned dependency versions all exist because a malicious commit or package can reach production through Git.</p>
 <h4>Useful investigation commands</h4>

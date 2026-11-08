@@ -51,7 +51,7 @@
 <p>Permissions are added up across all groups you belong to (direct or nested), then <strong>Deny beats Allow</strong>. Because of that, deny rules are used sparingly: one deny on a broad group can lock out people in surprising ways, and they are hard to audit.</p>
 <h4>Effective access</h4>
 <p>To answer "why can she open this?", walk the chain:</p>
-<p>1. Which groups is she in, including <strong>nested</strong> groups? (A group inside a group still passes its rights down to members.) 2. Which ACEs on the folder name any of those groups? Check inherited ones too. 3. Any deny? Then compare with the share permission.</p>
+<ol><li>Which groups is she in, including <strong>nested</strong> groups? (A group inside a group still passes its rights down to members.)</li><li>Which ACEs on the folder name any of those groups? Check inherited ones too.</li><li>Any deny? Then compare with the share permission.</li></ol>
 <pre class="ex"><code><span class="o">whoami /groups                 # your own token&#x27;s groups</span>
 <span class="o">net user j.park /domain        # a domain user&#x27;s direct groups</span>
 <span class="o">icacls D:\Finance\Payroll      # the folder&#x27;s ACL</span></code></pre><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Reading icacls flags</h4>
