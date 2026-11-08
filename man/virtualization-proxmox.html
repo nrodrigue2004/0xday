@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man virtualization-proxmox :: 0xDay</title>
+<meta name="description" content="virtualization-proxmox cheatsheet: Virtualization / Proxmox commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man virtualization-proxmox</p>
+<div class="manhead"><span>VIRTUALIZATION-PROXMOX(7)</span><span>0xDay Field Manual</span><span>VIRTUALIZATION-PROXMOX(7)</span></div>
+<h1>virtualization-proxmox <span class="muted">- Virtualization / Proxmox commands and terms</span></h1>
+<h2 id="g-vm-commands-qm">vm commands (qm)</h2><dl class="man"><dt><code>qm list</code></dt><dd>all VMs and their status</dd><dt><code>qm config 100</code></dt><dd>show the settings of VM 100</dd><dt><code>qm start 100</code></dt><dd>power on</dd><dt><code>qm shutdown 100</code></dt><dd>clean shutdown through the guest agent</dd><dt><code>qm stop 100</code></dt><dd>hard power off</dd><dt><code>qm snapshot 100 pre-update</code></dt><dd>take a snapshot</dd><dt><code>qm rollback 100 pre-update</code></dt><dd>go back to it</dd><dt><code>qm clone 9000 120 --name web1</code></dt><dd>clone a template into a new VM</dd><dt><code>qm template 9000</code></dt><dd>turn a VM into a template</dd><dt><code>qm set 100 --memory 4096</code></dt><dd>change a setting</dd><dt><code>qm unlock 100</code></dt><dd>clear a stale lock after a failed backup</dd></dl><h2 id="g-container-commands-pct">container commands (pct)</h2><dl class="man"><dt><code>pct list</code></dt><dd>all containers</dd><dt><code>pct enter 200</code></dt><dd>get a shell inside container 200</dd><dt><code>pct config 200</code></dt><dd>container settings</dd><dt><code>pct start 200</code></dt><dd>start it</dd></dl><h2 id="g-host-and-storage">host and storage</h2><dl class="man"><dt><code>pvesm status</code></dt><dd>storage pools and free space</dd><dt><code>pvecm status</code></dt><dd>cluster and quorum state</dd><dt><code>pveversion -v</code></dt><dd>installed versions</dd><dt><code>vzdump 100 --storage backup --mode snapshot</code></dt><dd>backup a guest now</dd><dt><code>qmrestore backup.vma.zst 130</code></dt><dd>restore a backup to a new ID</dd><dt><code>journalctl -u pveproxy</code></dt><dd>web UI logs</dd><dt><code>ip a</code></dt><dd>bridges and addresses</dd><dt><code>cat /etc/network/interfaces</code></dt><dd>bridge and VLAN config</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>vmbr0</code></dt><dd>the default Linux bridge, acts as a virtual switch</dd><dt><code>local-lvm</code></dt><dd>thin-provisioned storage for guest disks</dd><dt><code>local</code></dt><dd>directory storage for ISOs, templates and backups</dd><dt><code>VirtIO</code></dt><dd>paravirtualized disk and network drivers, fastest option</dd><dt><code>QEMU guest agent</code></dt><dd>in-guest helper for IP reporting and clean shutdowns</dd><dt><code>Snapshot</code></dt><dd>point-in-time state kept on the same storage, not a backup</dd><dt><code>Quorum</code></dt><dd>majority of cluster nodes needed to make changes</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

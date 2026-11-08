@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man help-desk-ticketing-osticket :: 0xDay</title>
+<meta name="description" content="help-desk-ticketing-osticket cheatsheet: Help desk / ticketing (osTicket) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man help-desk-ticketing-osticket</p>
+<div class="manhead"><span>HELP-DESK-TICKETING-OSTICKET(7)</span><span>0xDay Field Manual</span><span>HELP-DESK-TICKETING-OSTICKET(7)</span></div>
+<h1>help-desk-ticketing-osticket <span class="muted">- Help desk / ticketing (osTicket) commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-ticket-statuses">ticket statuses</a> <a href="#g-priority">priority</a> <a href="#g-windows-quick-fixes">windows quick fixes</a> <a href="#g-user-accounts">user accounts</a> <a href="#g-questions-to-ask">questions to ask</a> <a href="#g-terms">terms</a></p><h2 id="g-ticket-statuses">ticket statuses</h2><dl class="man"><dt><code>Open</code></dt><dd>new, nobody working it yet</dd><dt><code>In progress</code></dt><dd>an agent is on it</dd><dt><code>Waiting on user</code></dt><dd>blocked until the user replies</dd><dt><code>Resolved</code></dt><dd>fix applied, awaiting confirmation</dd><dt><code>Closed</code></dt><dd>confirmed and documented</dd></dl><h2 id="g-priority">priority</h2><dl class="man"><dt><code>P1 critical</code></dt><dd>business stopped or security incident, respond in minutes</dd><dt><code>P2 high</code></dt><dd>many users or a key person blocked</dd><dt><code>P3 normal</code></dt><dd>one user, workaround exists</dd><dt><code>P4 low</code></dt><dd>request or cosmetic</dd></dl><h2 id="g-windows-quick-fixes">windows quick fixes</h2><dl class="man"><dt><code>ipconfig /all</code></dt><dd>network settings</dd><dt><code>ipconfig /flushdns</code></dt><dd>clear DNS cache</dd><dt><code>sfc /scannow</code></dt><dd>repair system files</dd><dt><code>DISM /Online /Cleanup-Image /RestoreHealth</code></dt><dd>repair the component store</dd><dt><code>gpupdate /force</code></dt><dd>refresh policy</dd><dt><code>net use</code></dt><dd>mapped drives</dd><dt><code>whoami</code></dt><dd>who the session runs as</dd><dt><code>msinfo32</code></dt><dd>system summary</dd><dt><code>eventvwr.msc</code></dt><dd>event viewer</dd></dl><h2 id="g-user-accounts">user accounts</h2><dl class="man"><dt><code>Unlock-ADAccount -Identity user</code></dt><dd>unlock an AD account</dd><dt><code>Set-ADAccountPassword user -Reset</code></dt><dd>reset password</dd><dt><code>net user user /domain</code></dt><dd>account status</dd></dl><h2 id="g-questions-to-ask">questions to ask</h2><dl class="man"><dt><code>What exactly happens, and what do you see?</code></dt><dd>get the real symptom</dd><dt><code>When did it last work?</code></dt><dd>find the change</dd><dt><code>Does it affect others?</code></dt><dd>scope</dd><dt><code>Can you send a screenshot?</code></dt><dd>evidence</dd><dt><code>What changed recently?</code></dt><dd>updates, new software, moves</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>SLA</code></dt><dd>agreed response and resolution times</dd><dt><code>Escalation</code></dt><dd>pass to a higher tier with context</dd><dt><code>KB</code></dt><dd>knowledge base of fixes</dd><dt><code>Root cause</code></dt><dd>the underlying reason, not the symptom</dd><dt><code>Workaround</code></dt><dd>temporary way to keep working</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

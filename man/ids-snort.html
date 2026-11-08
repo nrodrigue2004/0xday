@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man ids-snort :: 0xDay</title>
+<meta name="description" content="ids-snort cheatsheet: IDS / Snort commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man ids-snort</p>
+<div class="manhead"><span>IDS-SNORT(7)</span><span>0xDay Field Manual</span><span>IDS-SNORT(7)</span></div>
+<h1>ids-snort <span class="muted">- IDS / Snort commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-rule-header">rule header</a> <a href="#g-rule-options">rule options</a> <a href="#g-running-it">running it</a> <a href="#g-tuning">tuning</a> <a href="#g-terms">terms</a></p><h2 id="g-rule-header">rule header</h2><dl class="man"><dt><code>alert</code></dt><dd>log an alert and continue</dd><dt><code>drop / reject</code></dt><dd>IPS only: discard (and send reset)</dd><dt><code>pass</code></dt><dd>ignore matching traffic</dd><dt><code>tcp udp icmp ip</code></dt><dd>protocol</dd><dt><code>$HOME_NET / $EXTERNAL_NET</code></dt><dd>variables for inside and outside</dd><dt><code>-&gt;</code></dt><dd>direction, source to destination (&lt;&gt; for both)</dd></dl><h2 id="g-rule-options">rule options</h2><dl class="man"><dt><code>msg:&quot;text&quot;</code></dt><dd>alert message</dd><dt><code>content:&quot;bytes&quot;</code></dt><dd>find these bytes in the payload</dd><dt><code>content:&quot;|0d 0a|&quot;</code></dt><dd>match hex bytes inside pipes</dd><dt><code>nocase</code></dt><dd>case-insensitive content match</dd><dt><code>http_uri / http_header</code></dt><dd>restrict content to a URI or header</dd><dt><code>pcre:&quot;/regex/i&quot;</code></dt><dd>regular-expression match</dd><dt><code>flow:to_server,established</code></dt><dd>only requests in an established session</dd><dt><code>threshold:type both,track by_src,count 5,seconds 60</code></dt><dd>rate-based firing</dd><dt><code>sid:1000001</code></dt><dd>unique rule ID, 1000000+ for local rules</dd><dt><code>rev:2</code></dt><dd>revision number, bump on edits</dd><dt><code>classtype:web-application-attack</code></dt><dd>category</dd></dl><h2 id="g-running-it">running it</h2><dl class="man"><dt><code>snort -T -c /etc/snort/snort.conf</code></dt><dd>test the config</dd><dt><code>snort -A console -q -c snort.conf -i eth0</code></dt><dd>live alerts to the console</dd><dt><code>snort -r file.pcap -c snort.conf -A alert_fast</code></dt><dd>run rules over a capture</dd><dt><code>suricata -T -c /etc/suricata/suricata.yaml</code></dt><dd>test the config</dd><dt><code>suricata -r file.pcap -l ./out</code></dt><dd>process a capture</dd><dt><code>tail -f /var/log/snort/alert</code></dt><dd>watch alerts arrive</dd></dl><h2 id="g-tuning">tuning</h2><dl class="man"><dt><code>suppress gen_id 1, sig_id 2100498, track by_src, ip 10.0.0.5</code></dt><dd>silence one rule for one host</dd><dt><code>event_filter gen_id 1, sig_id 2100498, type limit, track by_src, count 1, seconds 60</code></dt><dd>cap alert rate</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>IDS / IPS</code></dt><dd>detect only / detect and block</dd><dt><code>True positive</code></dt><dd>alert on real malicious traffic</dd><dt><code>False positive</code></dt><dd>alert on harmless traffic</dd><dt><code>False negative</code></dt><dd>missed attack, the worst kind</dd><dt><code>Preprocessor</code></dt><dd>decodes protocols before rules run</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

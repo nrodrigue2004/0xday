@@ -13,6 +13,19 @@ $ start
 $ step
 $ info locals
 ```
+
+### How Java runs
+You write `.java` source, the compiler (`javac`) turns it into **bytecode** (`.class`), and the **JVM** runs that on any operating system. A **JDK** includes the compiler and tools, a **JRE** only runs programs. Every program starts at `public static void main(String[] args)`, and every file's public class has the same name as the file.
+
+```
+public class Hello {
+    public static void main(String[] args) {
+        String name = args.length > 0 ? args[0] : "world";
+        System.out.println("hello, " + name);
+    }
+}
+```
+Compile with `javac Hello.java`, run with `java Hello nate`. Java is **statically typed**: every variable has a declared type, and the compiler checks it before the program ever runs.
 :: mid
 ### Types have limits
 An `int` is 32 bits: from **-2,147,483,648** to **2,147,483,647**. Go past the top and it silently **wraps around** to negative. No exception, no warning. `long` is 64 bits; `BigDecimal` is exact and is what real money code uses.
@@ -28,6 +41,15 @@ Errors are objects you `throw` and `catch`. **Checked** exceptions (`IOException
 
 ### Collections and generics
 `List<String>`, `Map<String, Integer>`, `Set<Long>`: the type in angle brackets is checked at compile time.
+
+### Types and the things that bite
+Primitives (`int`, `long`, `double`, `boolean`, `char`, `byte`) hold values; everything else is an object reference. `==` on objects compares references, so use `.equals()` for strings and objects. `int` overflows silently at about 2.1 billion. `null` references throw `NullPointerException`; `Optional` or explicit checks make the possibility visible.
+
+### Control flow and arrays
+`if/else`, `for`, enhanced `for (String s : list)`, `while`, `switch` (and switch expressions in newer versions). Arrays have a fixed size (`int[] a = new int[5]`) and `a.length`; `ArrayList` grows. `String.format("%s has %d", name, n)` and `StringBuilder` for building strings in loops.
+
+### Build tools and the ecosystem
+**Maven** (`pom.xml`) and **Gradle** manage dependencies and builds: `mvn package`, `gradle build`. Libraries come from Maven Central, which is why dependency scanning matters. Test with **JUnit**. Spring Boot is the common web framework.
 :: complex
 ### Java's famous security bugs
 - **Insecure deserialization**: `ObjectInputStream.readObject()` on untrusted data can run code through "gadget chains" in libraries on the classpath. Use JSON with a schema, or an allowlist filter (`ObjectInputFilter`)
@@ -43,6 +65,62 @@ $ continue
 $ print charge
 $ back
 ```
+
+### Streams and lambdas
+```
+List<String> bad = ips.stream()
+    .filter(ip -> counts.get(ip) > 10)
+    .sorted()
+    .toList();
+```
+Lambdas are short anonymous functions, streams process collections in a pipeline, and `Map.getOrDefault`, `computeIfAbsent` and `merge` shorten counting code.
+
+### Concurrency in short
+Threads share memory, so unsynchronized access creates races. Use `synchronized`, `java.util.concurrent` classes (`ConcurrentHashMap`, `ExecutorService`, `AtomicInteger`), and prefer immutable objects. Deadlock comes from taking locks in different orders.
+
+### Secure Java habits
+Parameterized queries with `PreparedStatement`; never deserialize untrusted data with `ObjectInputStream` (a classic remote code execution path); use `SecureRandom` for tokens; keep dependencies patched (Log4Shell showed a single library can expose everything); validate input at the boundary; read secrets from the environment or a vault.
+:: ref
+### build and run
+javac Main.java | compile to bytecode
+java Main | run a class
+java -jar app.jar | run a packaged application
+java -version | which JDK is active
+jar tf app.jar | list the contents of a jar
+mvn package | build with Maven
+mvn test | run the tests
+gradle build | build with Gradle
+### types
+int, long, double, boolean, char | primitives
+String | immutable text object
+List<String> | generic list of strings
+Map<String,Integer> | key to value map
+int[] a = new int[5] | fixed-size array
+### strings
+s.length() | number of characters
+s.equals(t) | compare contents, not references
+s.substring(1, 4) | slice
+s.split(",") | split into an array
+String.join(",", list) | join with a separator
+String.format("%s=%d", k, v) | formatted text
+### collections
+list.add(x) | append
+list.get(i) | read by index
+map.put(k, v) | store
+map.getOrDefault(k, 0) | read with a default
+map.merge(k, 1, Integer::sum) | count occurrences
+list.stream().filter(...).toList() | stream pipeline
+### exceptions
+try { ... } catch (IOException e) { ... } | handle errors
+try (var r = new FileReader(f)) { ... } | auto-close resources
+throw new IllegalArgumentException("msg") | signal a bad argument
+finally { ... } | runs whether or not it failed
+### terms
+JVM | virtual machine running bytecode
+JDK / JRE | development kit / runtime only
+Bytecode | compiled, platform-neutral code
+Garbage collector | reclaims unused objects
+Serialization | turning objects into bytes, risky with untrusted data
 :: lab
 style: debug
 host: shop

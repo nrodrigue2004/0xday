@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man mobile-apps-flutter-firebase :: 0xDay</title>
+<meta name="description" content="mobile-apps-flutter-firebase cheatsheet: Mobile apps (Flutter/Firebase) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man mobile-apps-flutter-firebase</p>
+<div class="manhead"><span>MOBILE-APPS-FLUTTER-FIREBASE(7)</span><span>0xDay Field Manual</span><span>MOBILE-APPS-FLUTTER-FIREBASE(7)</span></div>
+<h1>mobile-apps-flutter-firebase <span class="muted">- Mobile apps (Flutter/Firebase) commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-flutter-cli">flutter cli</a> <a href="#g-widgets">widgets</a> <a href="#g-firebase-auth">firebase auth</a> <a href="#g-firestore">firestore</a> <a href="#g-security-rules">security rules</a> <a href="#g-terms">terms</a></p><h2 id="g-flutter-cli">flutter cli</h2><dl class="man"><dt><code>flutter doctor</code></dt><dd>check the toolchain</dd><dt><code>flutter create app</code></dt><dd>new project</dd><dt><code>flutter run</code></dt><dd>build and run on a device</dd><dt><code>flutter pub get</code></dt><dd>install dependencies</dd><dt><code>flutter test</code></dt><dd>run tests</dd><dt><code>flutter build apk --release</code></dt><dd>Android release build</dd><dt><code>flutter analyze</code></dt><dd>static analysis</dd></dl><h2 id="g-widgets">widgets</h2><dl class="man"><dt><code>Scaffold</code></dt><dd>page structure with app bar and body</dd><dt><code>Column / Row</code></dt><dd>vertical / horizontal layout</dd><dt><code>ListView.builder</code></dt><dd>long scrolling lists</dd><dt><code>TextField</code></dt><dd>text input</dd><dt><code>ElevatedButton</code></dt><dd>button</dd><dt><code>StreamBuilder</code></dt><dd>rebuild from a stream such as Firestore snapshots</dd><dt><code>FutureBuilder</code></dt><dd>rebuild when a future completes</dd><dt><code>Navigator.push</code></dt><dd>go to another screen</dd></dl><h2 id="g-firebase-auth">firebase auth</h2><dl class="man"><dt><code>signInWithEmailAndPassword</code></dt><dd>sign in</dd><dt><code>createUserWithEmailAndPassword</code></dt><dd>register</dd><dt><code>authStateChanges()</code></dt><dd>stream that fires on sign in and out</dd><dt><code>signOut()</code></dt><dd>end the session</dd><dt><code>currentUser?.uid</code></dt><dd>the signed-in user&#x27;s ID</dd></dl><h2 id="g-firestore">firestore</h2><dl class="man"><dt><code>collection(&quot;users&quot;).doc(uid).get()</code></dt><dd>read one document</dd><dt><code>collection(&quot;notes&quot;).add({...})</code></dt><dd>create with an auto ID</dd><dt><code>doc.set({...}) / doc.update({...})</code></dt><dd>replace / modify</dd><dt><code>collection(&quot;notes&quot;).where(&quot;done&quot;, isEqualTo: false)</code></dt><dd>filtered query</dd><dt><code>collection(&quot;notes&quot;).snapshots()</code></dt><dd>live updates stream</dd></dl><h2 id="g-security-rules">security rules</h2><dl class="man"><dt><code>request.auth != null</code></dt><dd>caller is signed in</dd><dt><code>request.auth.uid == uid</code></dt><dd>caller owns the data</dd><dt><code>resource.data</code></dt><dd>the existing document</dd><dt><code>request.resource.data</code></dt><dd>the proposed new data</dd><dt><code>allow read, write: if false</code></dt><dd>deny everything by default</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Widget</code></dt><dd>UI building block</dd><dt><code>Hot reload</code></dt><dd>instant code update in the running app</dd><dt><code>Firestore</code></dt><dd>document database</dd><dt><code>Security rules</code></dt><dd>server-enforced access control for Firebase</dd><dt><code>MDM</code></dt><dd>mobile device management</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

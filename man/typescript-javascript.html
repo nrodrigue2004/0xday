@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man typescript-javascript :: 0xDay</title>
+<meta name="description" content="typescript-javascript cheatsheet: TypeScript / JavaScript commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man typescript-javascript</p>
+<div class="manhead"><span>TYPESCRIPT-JAVASCRIPT(7)</span><span>0xDay Field Manual</span><span>TYPESCRIPT-JAVASCRIPT(7)</span></div>
+<h1>typescript-javascript <span class="muted">- TypeScript / JavaScript commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-running">running</a> <a href="#g-language-basics">language basics</a> <a href="#g-arrays">arrays</a> <a href="#g-strings-and-encoding">strings and encoding</a> <a href="#g-async">async</a> <a href="#g-typescript">typescript</a> <a href="#g-security">security</a></p><h2 id="g-running">running</h2><dl class="man"><dt><code>node file.js</code></dt><dd>run a script</dd><dt><code>npm init -y</code></dt><dd>create package.json</dd><dt><code>npm install pkg</code></dt><dd>add a dependency</dd><dt><code>npm ci</code></dt><dd>clean install from the lockfile</dd><dt><code>npm audit</code></dt><dd>check dependencies for known issues</dd><dt><code>npx tsc --init</code></dt><dd>create tsconfig.json</dd><dt><code>npx tsc</code></dt><dd>compile TypeScript</dd><dt><code>npx ts-node file.ts</code></dt><dd>run TypeScript directly</dd></dl><h2 id="g-language-basics">language basics</h2><dl class="man"><dt><code>const x = 1; let y = 2;</code></dt><dd>block-scoped variables</dd><dt><code>=== and !==</code></dt><dd>strict equality, always use these</dd><dt><code>`hi ${name}`</code></dt><dd>template string</dd><dt><code>a ?? b</code></dt><dd>b only if a is null or undefined</dd><dt><code>a?.b?.c</code></dt><dd>safe property access</dd><dt><code>const {id, name} = obj</code></dt><dd>destructuring</dd><dt><code>[...a, ...b]</code></dt><dd>spread arrays</dd></dl><h2 id="g-arrays">arrays</h2><dl class="man"><dt><code>arr.map(x =&gt; x * 2)</code></dt><dd>transform each item</dd><dt><code>arr.filter(x =&gt; x &gt; 0)</code></dt><dd>keep matching items</dd><dt><code>arr.reduce((s, x) =&gt; s + x, 0)</code></dt><dd>fold to one value</dd><dt><code>arr.find(f) / arr.some(f)</code></dt><dd>first match / any match</dd><dt><code>arr.includes(x)</code></dt><dd>membership test</dd><dt><code>Object.entries(o)</code></dt><dd>key and value pairs</dd></dl><h2 id="g-strings-and-encoding">strings and encoding</h2><dl class="man"><dt><code>s.split(&quot;,&quot;) / arr.join(&quot;,&quot;)</code></dt><dd>break up and put together</dd><dt><code>s.charCodeAt(0)</code></dt><dd>character code</dd><dt><code>String.fromCharCode(72, 105)</code></dt><dd>codes to text</dd><dt><code>btoa(s) / atob(b)</code></dt><dd>base64 encode / decode in the browser</dd><dt><code>Buffer.from(s, &quot;base64&quot;).toString()</code></dt><dd>base64 decode in Node</dd><dt><code>JSON.parse(s) / JSON.stringify(o)</code></dt><dd>JSON in and out</dd></dl><h2 id="g-async">async</h2><dl class="man"><dt><code>fetch(url).then(r =&gt; r.json())</code></dt><dd>request with promises</dd><dt><code>await fetch(url)</code></dt><dd>request with async/await</dd><dt><code>Promise.all([a, b])</code></dt><dd>run in parallel</dd><dt><code>setTimeout(f, 1000)</code></dt><dd>run later</dd></dl><h2 id="g-typescript">typescript</h2><dl class="man"><dt><code>let n: number = 5</code></dt><dd>type annotation</dd><dt><code>type Role = &quot;admin&quot; | &quot;user&quot;</code></dt><dd>union of literal types</dd><dt><code>interface User { id: number }</code></dt><dd>object shape</dd><dt><code>function f(x: string): number</code></dt><dd>parameter and return types</dd><dt><code>x as string</code></dt><dd>assert a type, does not check at runtime</dd><dt><code>unknown vs any</code></dt><dd>unknown forces a check, any switches checking off</dd></dl><h2 id="g-security">security</h2><dl class="man"><dt><code>textContent = s</code></dt><dd>safe, treats the input as text</dd><dt><code>innerHTML = s</code></dt><dd>dangerous with untrusted input</dd><dt><code>crypto.getRandomValues</code></dt><dd>secure random numbers</dd><dt><code>Content-Security-Policy header</code></dt><dd>limits where scripts may load from</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

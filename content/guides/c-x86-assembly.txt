@@ -16,6 +16,12 @@ $ start
 $ step
 $ info registers
 ```
+
+### Why learn assembly
+Every program ends up as machine instructions. Reading them lets you understand malware, crashes, exploits and compiler behavior when no source exists. You do not need to write much of it; you need to read it calmly.
+
+### Registers in x86-64
+General-purpose registers hold values: `rax` (return value), `rdi, rsi, rdx, rcx, r8, r9` (the first six arguments on Linux), `rbx`, `rbp` (frame base), `rsp` (stack top) and `r10`-`r15`. `rip` is the next instruction. `eax` is the lower 32 bits of `rax`, `ax` the lower 16, `al` the lower 8. Flags (`ZF`, `SF`, `CF`, `OF`) record the result of the last comparison or arithmetic.
 :: mid
 ### Flags and jumps
 `cmp a, b` subtracts b from a, throws away the result, and sets **flags**: **ZF** (zero flag, set when they're equal), SF (sign), CF (carry). A conditional jump reads them: `je`/`jz` jump if equal, `jne` if not, `jg`/`jl` signed greater/less, `ja`/`jb` unsigned. That's how every `if` in C looks after compiling.
@@ -29,6 +35,21 @@ $ print edi
 
 ### Calling convention (System V, Linux x86-64)
 Arguments go in `rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`; the return value comes back in `rax`. (Windows x64 uses `rcx`, `rdx`, `r8`, `r9`.) So in `check_key(int key)`, the key is in `edi`, and `eax = 1` at the end means "return 1".
+
+### The instructions that do most of the work
+- Data: `mov dst, src` copies; `lea dst, [expr]` computes an address without loading; `push`/`pop` use the stack.
+- Math: `add`, `sub`, `imul`, `inc`, `dec`, `xor eax, eax` (the idiom for zero).
+- Logic: `and`, `or`, `xor`, `not`, `shl`, `shr`.
+- Compare: `cmp a, b` (subtract, set flags only), `test a, b` (AND, set flags only).
+- Branch: `jmp`, `je/jz`, `jne/jnz`, `jg`, `jl`, `ja`, `jb`, then `call` and `ret`.
+
+Memory operands use brackets: `mov eax, [rbp-4]` loads the 4 bytes at that address. In Intel syntax the destination comes first; AT&T syntax (used by `gcc -S` and `objdump` by default) reverses it and adds `%` and `$`.
+
+### From C to assembly
+```
+if (x > 5) y = 1; else y = 2;
+```
+becomes roughly `cmp [x], 5` / `jle else` / `mov [y], 1` / `jmp done` / `else: mov [y], 2` / `done:`. Loops are a label, a body, a `cmp` and a conditional jump back. A function call places arguments in registers, executes `call`, and reads the result from `rax`.
 :: complex
 ### Stack frames
 `push rbp; mov rbp, rsp` (the **prologue**) starts a frame; local variables live below `rbp`, and the **return address** that `call` pushed sits just above it. Overwriting that return address is a buffer overflow. `pop rbp; ret` (the **epilogue**) undoes it and jumps back.
@@ -49,6 +70,62 @@ $ print ZF
 
 ### Endianness
 x86 is **little-endian**: the value `0x0fc5` is stored in memory as bytes `c5 0f 00 00`. You'll see this every time you read a hex dump or build an exploit payload.
+
+### Stack frames in detail
+On entry a function typically runs `push rbp; mov rbp, rsp; sub rsp, N` (making room for locals), and exits with `leave; ret` (which restores `rsp` and `rbp` and pops the return address into `rip`). Locals sit at negative offsets from `rbp`, saved `rbp` and the return address sit above them. A buffer overflow that writes past a local reaches the saved `rbp` and then the return address, which is why that single field decides who controls the program.
+
+### Useful tools
+`gcc -S -masm=intel file.c` shows what the compiler generated, `objdump -d -M intel binary` disassembles, `gdb` (with `pwndbg` or `gef`) steps through, `radare2` and Ghidra decompile, and Compiler Explorer (godbolt.org) lets you type C and watch the assembly. Compare `-O0` and `-O2` output to see how optimizers rewrite code.
+
+### Reading strategy
+Skim for `call` targets (what library functions are used), strings referenced by `lea`, and comparisons that guard branches. Name what you learn. Look for the pattern `cmp` then `jne fail`: that is almost always the check you are interested in.
+:: ref
+### registers
+rax | return value and accumulator
+rdi rsi rdx rcx r8 r9 | first six integer arguments (Linux System V)
+rsp | stack pointer, top of the stack
+rbp | frame pointer, base of the current frame
+rip | instruction pointer
+eax / ax / al | 32, 16 and 8-bit parts of rax
+### data movement
+mov rax, rbx | copy rbx into rax
+mov eax, [rbp-4] | load 4 bytes from memory
+lea rax, [rbx+rcx*4] | compute an address, no memory read
+push rax | decrement rsp and store
+pop rax | load and increment rsp
+### arithmetic and logic
+add rax, 5 | add
+sub rsp, 16 | subtract, used to reserve stack space
+imul rax, rbx | signed multiply
+xor eax, eax | set to zero
+and / or / xor / not | bitwise operations
+shl rax, 2 | shift left, multiply by 4
+### compare and jump
+cmp a, b | compute a - b, set flags only
+test a, a | AND, set flags only, checks for zero
+jmp label | unconditional jump
+je / jz | jump if equal / zero
+jne / jnz | jump if not equal / not zero
+jg / jl | signed greater / less
+ja / jb | unsigned above / below
+### calls
+call func | push return address and jump
+ret | pop return address into rip
+leave | mov rsp, rbp then pop rbp
+syscall | enter the kernel, number in rax
+### tools
+gcc -S -masm=intel x.c | compile to Intel-syntax assembly
+objdump -d -M intel prog | disassemble a binary
+gdb ./prog | debugger
+nasm -f elf64 x.asm && ld -o x x.o | assemble and link
+readelf -h prog | ELF header details
+### gdb commands
+break main | stop at a function
+run | start the program
+si / ni | step one instruction / step over calls
+info registers | show registers
+x/8xw $rsp | examine 8 words on the stack
+disassemble | show the current function
 :: lab
 style: debug
 host: re-lab

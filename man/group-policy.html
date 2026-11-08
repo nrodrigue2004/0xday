@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man group-policy :: 0xDay</title>
+<meta name="description" content="group-policy cheatsheet: Group Policy commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man group-policy</p>
+<div class="manhead"><span>GROUP-POLICY(7)</span><span>0xDay Field Manual</span><span>GROUP-POLICY(7)</span></div>
+<h1>group-policy <span class="muted">- Group Policy commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-client-commands">client commands</a> <a href="#g-management-console">management console</a> <a href="#g-powershell">powershell</a> <a href="#g-processing-order-lsdou">processing order (LSDOU)</a> <a href="#g-terms">terms</a></p><h2 id="g-client-commands">client commands</h2><dl class="man"><dt><code>gpupdate /force</code></dt><dd>refresh all policy now</dd><dt><code>gpupdate /target:computer</code></dt><dd>refresh only the computer side</dd><dt><code>gpresult /r</code></dt><dd>summary of applied GPOs</dd><dt><code>gpresult /h report.html</code></dt><dd>detailed HTML report</dd><dt><code>rsop.msc</code></dt><dd>resultant set of policy viewer</dd><dt><code>whoami /groups</code></dt><dd>groups that affect security filtering</dd></dl><h2 id="g-management-console">management console</h2><dl class="man"><dt><code>gpmc.msc</code></dt><dd>open Group Policy Management</dd><dt><code>gpedit.msc</code></dt><dd>local policy editor on one machine</dd><dt><code>Default Domain Policy</code></dt><dd>domain-wide password and Kerberos settings</dd><dt><code>Default Domain Controllers Policy</code></dt><dd>settings for DCs</dd></dl><h2 id="g-powershell">powershell</h2><dl class="man"><dt><code>Get-GPO -All</code></dt><dd>list every GPO</dd><dt><code>Get-GPOReport -Name &quot;SEC - Baseline&quot; -ReportType Html -Path r.html</code></dt><dd>export a report</dd><dt><code>Backup-GPO -Name &quot;SEC - Baseline&quot; -Path C:\gpo-backup</code></dt><dd>back up a GPO</dd><dt><code>New-GPLink -Name &quot;SEC - Baseline&quot; -Target &quot;OU=Workstations,DC=corp,DC=local&quot;</code></dt><dd>link a GPO to an OU</dd><dt><code>Get-GPInheritance -Target &quot;OU=Workstations,DC=corp,DC=local&quot;</code></dt><dd>what applies to an OU</dd></dl><h2 id="g-processing-order-lsdou">processing order (LSDOU)</h2><dl class="man"><dt><code>Local</code></dt><dd>machine&#x27;s own policy, applied first</dd><dt><code>Site</code></dt><dd>AD site</dd><dt><code>Domain</code></dt><dd>domain-wide</dd><dt><code>OU</code></dt><dd>nested OUs, closest to the object wins</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Link</code></dt><dd>connects a GPO to a container</dd><dt><code>Enforced</code></dt><dd>cannot be overridden below</dd><dt><code>Block inheritance</code></dt><dd>stop parent GPOs applying here</dd><dt><code>Security filtering</code></dt><dd>limit a GPO to chosen users, groups or computers</dd><dt><code>WMI filter</code></dt><dd>apply only when a WMI query is true</dd><dt><code>SYSVOL</code></dt><dd>share on DCs where GPO files live</dd><dt><code>Loopback</code></dt><dd>apply user settings by computer location</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

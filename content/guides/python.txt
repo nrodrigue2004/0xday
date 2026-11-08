@@ -30,6 +30,26 @@ Useful string methods: `line.split()` (split on spaces), `.strip()`, `.startswit
 ```
 $ python3 -c 'from collections import Counter; print(Counter("mississippi").most_common(2))'
 ```
+
+### Core data types and when to pick them
+`list` is an ordered, changeable sequence; `tuple` is fixed; `dict` maps keys to values (fast lookup); `set` holds unique items (fast membership test and set math). Strings are immutable. Comprehensions build collections in one line: `[x.upper() for x in names if x]`, `{k: v for k, v in pairs}`, `{ip for ip in ips}`.
+
+### Functions, errors and files
+```
+def parse(line):
+    parts = line.split()
+    return {"ip": parts[0], "status": int(parts[8])}
+
+try:
+    with open("access.log") as f:
+        rows = [parse(l) for l in f]
+except FileNotFoundError:
+    print("no log")
+```
+`with` closes the file for you. `try/except` should catch the specific error you expect, never a bare `except:`. `f"{name}: {count}"` formats strings. Slicing: `s[1:4]`, `s[-1]`, `s[::-1]`.
+
+### Modules you will use all the time
+`os` and `pathlib` (paths), `sys` (arguments), `re` (regex), `json`, `csv`, `datetime`, `collections.Counter` (count things), `argparse` (command line options), `subprocess` (run other programs), `hashlib`, `socket`, and third-party `requests`, `scapy`, `pandas`.
 :: complex
 ### Regular expressions and the standard library
 `re` finds patterns (IPs, emails, hashes), `ipaddress` understands networks, `hashlib` hashes, `base64` and `json` decode the formats you see everywhere, `datetime` parses timestamps:
@@ -46,6 +66,69 @@ $ python3 -c 'import hashlib; print(hashlib.sha256(b"0xday").hexdigest())'
 - for real work: `requests` (HTTP), `scapy` (packets), `pandas` (big tables), `pwntools` (CTFs)
 
 Edit scripts in the sandbox with `nano file.py`, save with Ctrl+S, exit with Ctrl+X.
+
+### Idioms that make scripts short
+```
+from collections import Counter
+import re
+ips = re.findall(r"\d+\.\d+\.\d+\.\d+", open("auth.log").read())
+for ip, n in Counter(ips).most_common(5):
+    print(ip, n)
+```
+Generators (`yield`) process big files without loading them. `defaultdict(list)` groups items. `sorted(d.items(), key=lambda kv: kv[1], reverse=True)` sorts a dict by value. `enumerate` and `zip` replace manual index loops.
+
+### Security tooling in Python
+A TCP port check with `socket`, a hash of every file in a folder with `hashlib`, an HTTP header audit with `requests`, parsing PCAPs with `scapy`, decoding base64 with `base64`. Use `subprocess.run([...], capture_output=True, text=True)` with a list of arguments, never `shell=True` with user input, which invites command injection.
+
+### Project hygiene
+Use a virtual environment (`python3 -m venv .venv`), pin dependencies in `requirements.txt`, format with `black`, lint with `ruff`, test with `pytest`, and add type hints so mistakes show up before runtime. Never commit tokens or passwords; read them from environment variables.
+:: ref
+### running python
+python3 script.py | run a script
+python3 -m venv .venv | create a virtual environment
+source .venv/bin/activate | activate it
+pip install requests | install a package
+pip freeze > requirements.txt | save dependencies
+python3 -m http.server 8000 | quick web server for the current folder
+python3 -i script.py | run then stay in an interactive prompt
+### basics
+len(x) | length of a sequence
+range(5) | numbers 0 to 4
+sorted(x, key=f, reverse=True) | sort without changing the original
+sum(x), min(x), max(x) | aggregate
+enumerate(x) | index and value pairs
+zip(a, b) | walk two lists together
+" ".join(words) | build a string from a list
+s.split(",") | break a string apart
+s.strip() | remove surrounding whitespace
+### collections
+d.get("k", 0) | read a key with a default
+d.items() | key and value pairs
+Counter(items).most_common(3) | top three
+set(a) & set(b) | items in both
+lst.append(x) | add to the end
+lst[::-1] | reversed copy
+### files and text
+open("f").read() | whole file as text
+for line in open("f"): | read line by line
+with open("f", "w") as f: | write safely, closes automatically
+json.loads(s) / json.dumps(o) | parse and produce JSON
+csv.DictReader(f) | read CSV rows as dicts
+re.findall(r"\d+", s) | all numbers in text
+re.search(r"(\w+)@(\w+)", s) | first match with groups
+### useful modules
+hashlib.sha256(b"x").hexdigest() | hash bytes
+base64.b64decode(s) | decode base64
+socket.create_connection((h, 80), 2) | try a TCP connection
+subprocess.run(["ls", "-l"], capture_output=True, text=True) | run a command safely
+argparse.ArgumentParser() | parse command-line options
+datetime.fromisoformat(s) | parse a timestamp
+### errors
+Traceback, read from the bottom | last line is the error, above it the call chain
+IndexError | list index out of range
+KeyError | missing dictionary key
+ValueError | right type, wrong value
+TypeError | wrong type for the operation
 :: lab
 host: soc
 user: analyst

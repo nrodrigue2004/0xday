@@ -9,6 +9,12 @@ $ cat ~/deploy/device-manager.txt
 ```
 
 > Error **Code 28** means "the drivers for this device are not installed". Code 10 means the device can't start, Code 43 means Windows stopped it after it reported a problem.
+
+### Why imaging exists
+Installing Windows by hand on 200 laptops is slow and each ends up different. A **golden image** is one prepared machine with the OS, drivers, apps and settings captured, then applied to many. Better today is **modern deployment**: Windows Autopilot or Intune configure a fresh, factory-installed device when the user signs in, so no image is needed at all.
+
+### The tools
+**WIM/ESD files** hold Windows images. **DISM** mounts and edits them. **Sysprep** generalizes an installed system so each clone gets a unique SID and identity. **MDT** and **SCCM/Intune** automate task sequences. **Windows ADK/WinPE** is the tiny boot environment that applies the image.
 :: mid
 ### Hardware IDs decide which driver
 Windows doesn't match drivers by name. Every device reports a **Hardware ID** like `PCI\VEN_8086&DEV_A0F0`, where **VEN** is the vendor (8086 = Intel, 10EC = Realtek, 14E4 = Broadcom) and **DEV** is the specific device. A driver's `.inf` file lists the IDs it supports.
@@ -20,6 +26,17 @@ $ grep -il "DEV_A0F0" ~/deploy/drivers/*.inf
 
 ### Injecting drivers
 In MDT / SCCM / WDS you import driver packs per model so the right ones get injected during deployment. On one machine: `pnputil /add-driver <file>.inf /install`. Offline images: `DISM /Image:C:\mount /Add-Driver /Driver:<folder> /Recurse`.
+
+### Typical imaging flow
+1. Build a reference machine in a VM (not on hardware, so no hardware-specific drivers sneak in).
+2. Install updates and standard apps, configure policy, and remove temporary files.
+3. Run `sysprep /generalize /oobe /shutdown`.
+4. Capture the disk to a WIM (`dism /Capture-Image`).
+5. Boot target machines from WinPE or the network (PXE), apply the image, then inject or install the right drivers.
+6. Join the domain, run Windows Update, test a sample machine, and record the version in your image log.
+
+### Driver management
+Organize drivers by make and model. Use the manufacturer's driver pack or enterprise tool (Dell Command, HP Image Assistant, Lenovo System Update). Unknown device in Device Manager? Open Properties → Details → Hardware Ids, search the VEN and DEV values, and install the matching driver. Missing storage or network drivers need injecting into WinPE or the image up front, because you cannot download them if the NIC does not work.
 :: complex
 ### Images, sysprep and logs
 - Build a **reference image**, generalize it with `sysprep /generalize /oobe /shutdown` (removes the machine SID and hardware specifics), capture it with DISM
@@ -32,6 +49,47 @@ $ grep -i "fail\|error" ~/deploy/setupapi.dev.log
 
 ### Security in deployment
 Only use drivers from the OEM or Windows Update (malicious or vulnerable drivers are a real attack path, "BYOVD"), enable Secure Boot and BitLocker as part of the task sequence, and never bake passwords into a plain-text unattend file.
+
+### Troubleshooting installs and deployments
+The key logs are `C:\Windows\Panther\setupact.log` and `setuperr.log`, `C:\Windows\INF\setupapi.dev.log` for driver installs, `C:\Windows\Logs\DISM\dism.log`, and `X:\Windows\Panther` inside WinPE. Common failures: missing storage driver ("no drives found"), TPM or Secure Boot requirements, a sysprep that fails because of a Store app, bad answer file syntax, and wrong partition style (GPT versus MBR with UEFI versus legacy).
+
+### Security in deployment
+Enable Secure Boot and TPM, use BitLocker with keys escrowed to AD or Entra ID, remove the built-in admin or randomize it with LAPS, keep the image patched (stale images are a quiet risk), restrict who can edit task sequences and the deployment share, and never bake credentials into an image or unattend file.
+:: ref
+### dism
+dism /Get-WimInfo /WimFile:install.wim | list images in a WIM
+dism /Mount-Image /ImageFile:install.wim /Index:1 /MountDir:C:\mnt | mount to edit
+dism /Image:C:\mnt /Add-Driver /Driver:C:\drivers /Recurse | inject drivers
+dism /Unmount-Image /MountDir:C:\mnt /Commit | save changes
+dism /Capture-Image /ImageFile:out.wim /CaptureDir:C:\ /Name:Golden | capture a volume
+dism /Apply-Image /ImageFile:out.wim /Index:1 /ApplyDir:W:\ | apply an image
+dism /Online /Cleanup-Image /RestoreHealth | repair the running system
+### sysprep
+sysprep /generalize /oobe /shutdown | prepare an image for capture
+C:\Windows\System32\Sysprep\Panther | sysprep logs
+### drivers
+pnputil /enum-drivers | drivers in the store
+pnputil /add-driver x.inf /install | install a driver package
+driverquery /v | loaded drivers
+devmgmt.msc | Device Manager
+Get-PnpDevice -Status Error | devices with problems
+### disk preparation (diskpart)
+diskpart → list disk | show disks
+select disk 0 | choose one
+clean | wipe the partition table
+convert gpt | use GPT for UEFI
+create partition efi size=260 | EFI system partition
+format fs=ntfs quick | format a volume
+### logs
+C:\Windows\Panther\setuperr.log | setup errors
+C:\Windows\INF\setupapi.dev.log | driver installation log
+C:\Windows\Logs\DISM\dism.log | DISM operations
+### terms
+WIM | file-based Windows image
+WinPE | minimal boot environment for deployment
+Sysprep | removes machine-specific data before capture
+Autopilot | cloud-based device provisioning
+Hardware ID | VEN and DEV string used to match drivers
 :: lab
 style: ticket
 host: deploy

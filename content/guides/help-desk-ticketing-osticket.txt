@@ -12,6 +12,12 @@ $ cat ~/attachments/user-report.txt
 ```
 
 > Restate the problem in your own words before touching anything. "Printer broken" and "can't print from Excel since this morning" are different tickets.
+
+### What a ticket system does
+It turns random requests (email, phone, chat) into numbered records with an owner, a status and a history. That gives you accountability, a place to see patterns and a way to measure. **osTicket** is free and open source: tickets arrive by email or web form, get assigned to a **department** and **agent**, and follow **SLA** timers (how fast you must respond and resolve).
+
+### Ticket anatomy
+Requester, subject, description, category or help topic, priority, status (open, in progress, waiting on user, resolved, closed), assignee, internal notes (private) and replies (visible to the user). A great ticket tells a stranger what is wrong, what was tried, and what the result was.
 :: mid
 ### Triage: impact × urgency = priority
 Not every ticket is equal. **Impact** is how many people or how much of the business is affected; **urgency** is how fast it hurts. Together they set the priority, and the priority sets the **SLA** (service level agreement): how fast you must respond and resolve.
@@ -29,6 +35,19 @@ $ cat ~/kb/KB0042-outlook-disconnected.txt
 ```
 
 > Escalate when it's beyond your access or skill, or when the SLA is about to breach. Escalating with good notes is a skill, not a failure.
+
+### Communication that works
+- Confirm what you understood: "You cannot open Outlook since this morning, correct?"
+- Ask for facts, not guesses: exact error text, a screenshot, when it started, what changed.
+- Set expectations ("I will update you by 3 pm") and keep them.
+- Use plain words. Never make a user feel stupid.
+- Close the loop: confirm it works for them before closing.
+
+### The troubleshooting method
+Identify the problem, research, form a theory, test it, make a plan, implement, verify full function, and document. (CompTIA's list, and it matches real work.) Change one thing at a time, and write down what you changed so you can undo it.
+
+### Common first-line fixes
+Password reset and account unlock, restart plus check for updates, clear the browser cache or profile, reconnect Wi-Fi or `ipconfig /release /renew`, re-add a printer, repair Office, check the disk is not full, check VPN and MFA device issues, and test from another device or user to decide whether the problem is the user, the device or the service.
 :: complex
 ### 1. Security lives in the help desk
 The help desk is a top target for social engineering. Attackers call pretending to be an executive who "lost their phone" to get MFA reset or a password changed. Real procedures:
@@ -45,6 +64,53 @@ $ grep -h "subject:" ~/queue/*.txt | sort | uniq -c | sort -rn
 
 ### 3. Close it properly
 A good resolution note has the root cause, the fix, and how to prevent it. If the fix will happen again, write it up as a KB article. Then confirm with the user before closing.
+
+### Escalation
+Escalate when you lack access, the issue affects many users, a security concern appears, or the SLA is about to be breached. A good escalation note includes impact, steps already taken, logs and screenshots, exact times and what you need from the next tier. Do not just paste "doesn't work".
+
+### Knowledge base and metrics
+Every repeated fix becomes a KB article: symptoms, cause, steps, who to call. Track first-response time, resolution time, reopen rate, tickets per category and customer satisfaction. A spike in one category usually points to a change, an outage or an attack.
+
+### Identity verification
+Before resetting a password or changing MFA, verify the person through a method the attacker cannot copy (manager approval, known phone number, in-person ID). Social engineering of help desks is a real and common attack path.
+:: ref
+### ticket statuses
+Open | new, nobody working it yet
+In progress | an agent is on it
+Waiting on user | blocked until the user replies
+Resolved | fix applied, awaiting confirmation
+Closed | confirmed and documented
+### priority
+P1 critical | business stopped or security incident, respond in minutes
+P2 high | many users or a key person blocked
+P3 normal | one user, workaround exists
+P4 low | request or cosmetic
+### windows quick fixes
+ipconfig /all | network settings
+ipconfig /flushdns | clear DNS cache
+sfc /scannow | repair system files
+DISM /Online /Cleanup-Image /RestoreHealth | repair the component store
+gpupdate /force | refresh policy
+net use | mapped drives
+whoami | who the session runs as
+msinfo32 | system summary
+eventvwr.msc | event viewer
+### user accounts
+Unlock-ADAccount -Identity user | unlock an AD account
+Set-ADAccountPassword user -Reset | reset password
+net user user /domain | account status
+### questions to ask
+What exactly happens, and what do you see? | get the real symptom
+When did it last work? | find the change
+Does it affect others? | scope
+Can you send a screenshot? | evidence
+What changed recently? | updates, new software, moves
+### terms
+SLA | agreed response and resolution times
+Escalation | pass to a higher tier with context
+KB | knowledge base of fixes
+Root cause | the underlying reason, not the symptom
+Workaround | temporary way to keep working
 :: lab
 style: ticket
 host: helpdesk

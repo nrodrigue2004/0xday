@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man log-analysis :: 0xDay</title>
+<meta name="description" content="log-analysis cheatsheet: Log analysis commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man log-analysis</p>
+<div class="manhead"><span>LOG-ANALYSIS(7)</span><span>0xDay Field Manual</span><span>LOG-ANALYSIS(7)</span></div>
+<h1>log-analysis <span class="muted">- Log analysis commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-searching">searching</a> <a href="#g-counting-and-sorting">counting and sorting</a> <a href="#g-time-and-fields">time and fields</a> <a href="#g-windows">windows</a> <a href="#g-common-event-ids">common event ids</a> <a href="#g-http-status-codes">http status codes</a></p><h2 id="g-searching">searching</h2><dl class="man"><dt><code>grep &quot;Failed password&quot; auth.log</code></dt><dd>failed SSH logins</dd><dt><code>grep -c &quot;Failed password&quot; auth.log</code></dt><dd>how many</dd><dt><code>grep -E &quot;Accepted|Failed&quot; auth.log</code></dt><dd>successes and failures</dd><dt><code>grep -v &quot;^#&quot; file</code></dt><dd>ignore comment lines</dd><dt><code>zgrep &quot;word&quot; file.log.gz</code></dt><dd>search rotated compressed logs</dd><dt><code>journalctl -u ssh --since &quot;2 hours ago&quot;</code></dt><dd>systemd journal for one service</dd></dl><h2 id="g-counting-and-sorting">counting and sorting</h2><dl class="man"><dt><code>awk &#x27;{print $1}&#x27; access.log | sort | uniq -c | sort -rn | head</code></dt><dd>top ten client IPs</dd><dt><code>awk &#x27;$9==404&#x27; access.log</code></dt><dd>requests with status 404</dd><dt><code>awk &#x27;{print $9}&#x27; access.log | sort | uniq -c</code></dt><dd>status code counts</dd><dt><code>cut -d&#x27; &#x27; -f1 access.log | sort -u | wc -l</code></dt><dd>number of distinct IPs</dd><dt><code>grep &quot;Failed&quot; auth.log | awk &#x27;{print $(NF-3)}&#x27; | sort | uniq -c | sort -rn</code></dt><dd>failed attempts per IP</dd></dl><h2 id="g-time-and-fields">time and fields</h2><dl class="man"><dt><code>awk &#x27;{print $1,$2,$3}&#x27; syslog</code></dt><dd>timestamps only</dd><dt><code>sed -n &#x27;100,120p&#x27; file</code></dt><dd>print lines 100 to 120</dd><dt><code>date -d &#x27;@1700000000&#x27;</code></dt><dd>convert epoch to date</dd><dt><code>jq &#x27;.[] | select(.level==&quot;error&quot;)&#x27; log.json</code></dt><dd>filter JSON logs</dd></dl><h2 id="g-windows">windows</h2><dl class="man"><dt><code>Get-WinEvent -LogName Security -MaxEvents 50</code></dt><dd>latest security events</dd><dt><code>Get-WinEvent -FilterHashtable @{LogName=&#x27;Security&#x27;;Id=4625}</code></dt><dd>failed logons</dd><dt><code>wevtutil qe Security /c:5 /rd:true /f:text</code></dt><dd>recent events without PowerShell</dd></dl><h2 id="g-common-event-ids">common event ids</h2><dl class="man"><dt><code>4624 / 4625</code></dt><dd>logon success / failure</dd><dt><code>4648</code></dt><dd>logon using explicit credentials</dd><dt><code>4672</code></dt><dd>admin-level logon</dd><dt><code>4688</code></dt><dd>process creation</dd><dt><code>4720</code></dt><dd>account created</dd><dt><code>4732</code></dt><dd>added to local group</dd><dt><code>7045</code></dt><dd>new service installed</dd><dt><code>1102</code></dt><dd>security log cleared</dd></dl><h2 id="g-http-status-codes">http status codes</h2><dl class="man"><dt><code>200</code></dt><dd>OK</dd><dt><code>301 / 302</code></dt><dd>redirect</dd><dt><code>401 / 403</code></dt><dd>not authenticated / forbidden</dd><dt><code>404</code></dt><dd>not found, many in a row means scanning</dd><dt><code>500 / 502</code></dt><dd>server error / bad gateway</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

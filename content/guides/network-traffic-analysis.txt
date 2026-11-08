@@ -1,4 +1,5 @@
 tagline: Every attack crosses the network. Learn to read packet captures like a story: who talked to whom, what they said, and what looks wrong, then catch data leaving through DNS.
+sheet: wireshark
 :: simple
 Computers talk in **packets**: small chunks of data with a source address, a destination address, a protocol and a payload. A **packet capture** (pcap) records every packet that crossed a network interface, and tools like **Wireshark**, **tshark** and **tcpdump** let you read it.
 
@@ -10,6 +11,14 @@ $ head -5 ~/captures/dns.txt
 ```
 
 > Start every capture with three questions: which hosts are talking, which protocols, and what's unusual for this network.
+
+### What a packet capture is
+A **PCAP** is a recording of network traffic. Each packet has headers (who is talking to whom, which protocol) and a payload (the content, unreadable if encrypted). You can capture on your own machine with Wireshark or `tcpdump`, or at a mirror port (SPAN) or TAP on a switch. Only capture traffic you are allowed to see.
+
+### The first three questions
+1. **Who is talking?** Statistics → Conversations, ordered by bytes.
+2. **Using what?** Statistics → Protocol Hierarchy.
+3. **When did it start going wrong?** Look at the timeline, then filter around that time.
 :: mid
 ### Conversations and protocols
 The fastest overview is **who talks to whom**. Pull the source and destination columns and count them, the text version of Wireshark's *Statistics > Conversations*:
@@ -33,6 +42,15 @@ $ grep -i "pass" ~/captures/http.txt
 ```
 
 > In Wireshark these are display filters: `tcp.flags.syn==1 && tcp.flags.ack==0`, `http.request.method=="POST"`, `dns.qry.name contains "corp"`.
+
+### Display filters (Wireshark) vs capture filters (tcpdump/BPF)
+Capture filters decide what is recorded at all and use BPF syntax: `host 10.0.0.5 and port 443`. Display filters hide packets from an already-captured file and use Wireshark's syntax: `ip.addr == 10.0.0.5 && tcp.port == 443`. Mixing the two syntaxes is the most common beginner error.
+
+### Handy display filters
+`dns`, `http.request`, `tcp.flags.syn == 1 && tcp.flags.ack == 0` (SYNs, i.e. scan or new connections), `tcp.analysis.retransmission`, `tls.handshake.type == 1` (Client Hello with SNI), `frame contains "password"`, `!(arp or icmp)`. Right-click a packet → Follow → TCP Stream to read a conversation as text.
+
+### Reading TCP
+The handshake is SYN, SYN-ACK, ACK. A reset (RST) means refused or aborted. Many SYNs with no replies is a scan or a down host. Retransmissions mean loss or congestion. A window of zero means the receiver is overwhelmed.
 :: complex
 ### DNS: the protocol everyone allows
 Almost every network lets DNS out, so attackers use it as a **covert channel**. Data gets chunked, encoded (base64 or hex) and stuffed into subdomains: `<chunk>.attacker-domain.com`. The attacker's name server logs every query and reassembles the data. Signs of it:
@@ -48,6 +66,49 @@ $ awk '{print $NF}' ~/captures/dns.txt | rev | cut -d. -f1-2 | rev | sort | uniq
 
 ### Beyond the capture
 Full pcaps are huge, so SOCs also keep **flow data** (NetFlow/Zeek conn logs: who, when, how many bytes) for weeks and full packets for days. Long-lived connections with regular timing are **beaconing** (malware checking in with its C2 server). Encrypted traffic still leaks metadata: SNI hostnames, certificate details and JA3/JA4 fingerprints.
+
+### Beaconing and exfiltration
+Malware often calls home at steady intervals. In Wireshark, filter to one internal host and an external IP, then look at the time column: connections every 60 seconds plus a little jitter are suspicious. Zeek's `conn` log and tools like RITA calculate this for you. Large outbound transfers to a host the machine never contacted before, or DNS queries with long random subdomains, are the other common signs.
+
+### TLS and what you can still see
+You cannot read encrypted payloads, but you still see IPs, ports, timing, sizes, the SNI hostname, the certificate details and JA3/JA4 fingerprints of the client. If you own the endpoint, set `SSLKEYLOGFILE` in the browser and give Wireshark the key log file to decrypt your own traffic.
+
+### Export and share
+File → Export Objects → HTTP pulls files out of a capture (hash them, do not run them). Save only the filtered packets for a report, and scrub or share carefully, because captures contain credentials and private data.
+:: ref
+### tcpdump
+tcpdump -i eth0 -nn | live capture without name resolution
+tcpdump -i eth0 -w out.pcap | write packets to a file
+tcpdump -r out.pcap | read a capture back
+tcpdump -nn host 10.0.0.5 and port 53 | capture filter by host and port
+tcpdump -A -s0 port 80 | print HTTP payload as ASCII
+tcpdump -c 100 | stop after 100 packets
+### tshark
+tshark -r f.pcap -Y "dns" | apply a display filter
+tshark -r f.pcap -T fields -e ip.src -e dns.qry.name | print chosen fields
+tshark -r f.pcap -q -z conv,tcp | TCP conversation table
+tshark -r f.pcap -q -z io,phs | protocol hierarchy
+### display filters
+ip.addr == 10.0.0.5 | traffic to or from a host
+tcp.port == 443 | either side uses port 443
+http.request.method == "POST" | HTTP posts
+dns.qry.name contains "evil" | suspicious DNS names
+tcp.flags.reset == 1 | resets
+tls.handshake.extensions_server_name | the SNI hostname
+frame contains "pass" | text search in raw bytes
+### zeek logs
+conn.log | one line per connection
+dns.log | queries and answers
+http.log | requests, hosts, user agents
+ssl.log | TLS versions, SNI, certificates
+files.log | files seen with hashes
+zeek-cut id.orig_h id.resp_h < conn.log | pick columns
+### patterns
+Many SYN, few replies | port scan
+Equal intervals to one host | beaconing
+Long random DNS labels | DNS tunnelling or DGA
+Huge outbound upload | possible exfiltration
+Cleartext credentials | HTTP, FTP, Telnet in use
 :: lab
 host: soc
 user: analyst

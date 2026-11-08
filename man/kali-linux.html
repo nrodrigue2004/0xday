@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man kali-linux :: 0xDay</title>
+<meta name="description" content="kali-linux cheatsheet: Kali Linux commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man kali-linux</p>
+<div class="manhead"><span>KALI-LINUX(7)</span><span>0xDay Field Manual</span><span>KALI-LINUX(7)</span></div>
+<h1>kali-linux <span class="muted">- Kali Linux commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-system">system</a> <a href="#g-information-gathering">information gathering</a> <a href="#g-web">web</a> <a href="#g-passwords">passwords</a> <a href="#g-network-and-sniffing">network and sniffing</a> <a href="#g-files-and-misc">files and misc</a></p><h2 id="g-system">system</h2><dl class="man"><dt><code>apt update &amp;&amp; apt full-upgrade</code></dt><dd>update the whole system</dd><dt><code>apt install kali-linux-default</code></dt><dd>the standard toolset</dd><dt><code>apt install kali-tools-top10</code></dt><dd>just the top ten tools</dd><dt><code>apt search tool</code></dt><dd>find a tool package</dd><dt><code>cat /etc/os-release</code></dt><dd>which Kali release you are on</dd><dt><code>ip a</code></dt><dd>your lab address</dd></dl><h2 id="g-information-gathering">information gathering</h2><dl class="man"><dt><code>nmap -sV -sC target</code></dt><dd>services and default scripts</dd><dt><code>whois domain</code></dt><dd>registration data</dd><dt><code>dnsrecon -d domain</code></dt><dd>DNS enumeration</dd><dt><code>theHarvester -d domain -b all</code></dt><dd>emails and hosts from public sources</dd></dl><h2 id="g-web">web</h2><dl class="man"><dt><code>gobuster dir -u URL -w list</code></dt><dd>hidden directories</dd><dt><code>ffuf -u URL/FUZZ -w list</code></dt><dd>fast web fuzzer</dd><dt><code>nikto -h URL</code></dt><dd>known web server issues</dd><dt><code>sqlmap -u &quot;URL?id=1&quot; --batch</code></dt><dd>test a parameter for SQL injection</dd></dl><h2 id="g-passwords">passwords</h2><dl class="man"><dt><code>john --wordlist=rockyou.txt hashes.txt</code></dt><dd>crack with a wordlist</dd><dt><code>john --show hashes.txt</code></dt><dd>display cracked passwords</dd><dt><code>hashcat -m 0 hashes.txt rockyou.txt</code></dt><dd>GPU cracking, mode 0 is MD5</dd><dt><code>hydra -l user -P list ssh://host</code></dt><dd>online brute force of a login</dd></dl><h2 id="g-network-and-sniffing">network and sniffing</h2><dl class="man"><dt><code>tcpdump -i eth0 -w cap.pcap</code></dt><dd>capture packets to a file</dd><dt><code>wireshark cap.pcap</code></dt><dd>open the capture in the GUI</dd><dt><code>responder -I eth0</code></dt><dd>capture LLMNR/NBT-NS requests in a lab</dd></dl><h2 id="g-files-and-misc">files and misc</h2><dl class="man"><dt><code>unzip / gunzip file</code></dt><dd>unpack archives</dd><dt><code>strings file</code></dt><dd>printable strings in a binary</dd><dt><code>binwalk file</code></dt><dd>find embedded files</dd><dt><code>file name</code></dt><dd>identify file type</dd><dt><code>tmux new -s lab</code></dt><dd>persistent terminal session</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

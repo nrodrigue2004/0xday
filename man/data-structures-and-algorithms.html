@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man data-structures-and-algorithms :: 0xDay</title>
+<meta name="description" content="data-structures-and-algorithms cheatsheet: Data structures &amp; algorithms commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man data-structures-and-algorithms</p>
+<div class="manhead"><span>DATA-STRUCTURES-AND-ALGORITHMS(7)</span><span>0xDay Field Manual</span><span>DATA-STRUCTURES-AND-ALGORITHMS(7)</span></div>
+<h1>data-structures-and-algorithms <span class="muted">- Data structures &amp; algorithms commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-structures">structures</a> <a href="#g-big-o">big-o</a> <a href="#g-algorithms">algorithms</a> <a href="#g-python-equivalents">python equivalents</a> <a href="#g-security-connections">security connections</a></p><h2 id="g-structures">structures</h2><dl class="man"><dt><code>Array / list</code></dt><dd>indexed, O(1) access, O(n) search</dd><dt><code>Hash map / set</code></dt><dd>O(1) average lookup, no order</dd><dt><code>Stack</code></dt><dd>push and pop at the same end (LIFO)</dd><dt><code>Queue</code></dt><dd>add at back, remove at front (FIFO)</dd><dt><code>Deque</code></dt><dd>add and remove at both ends</dd><dt><code>Linked list</code></dt><dd>nodes with pointers, cheap inserts</dd><dt><code>Binary search tree</code></dt><dd>sorted, O(log n) when balanced</dd><dt><code>Heap / priority queue</code></dt><dd>fast min or max</dd><dt><code>Graph</code></dt><dd>nodes and edges</dd><dt><code>Trie</code></dt><dd>prefix tree for words and IPs</dd></dl><h2 id="g-big-o">big-o</h2><dl class="man"><dt><code>O(1)</code></dt><dd>constant, hash lookup</dd><dt><code>O(log n)</code></dt><dd>halving, binary search</dd><dt><code>O(n)</code></dt><dd>single pass</dd><dt><code>O(n log n)</code></dt><dd>efficient sorting</dd><dt><code>O(n^2)</code></dt><dd>nested loops</dd><dt><code>O(2^n)</code></dt><dd>trying every subset, only for tiny inputs</dd></dl><h2 id="g-algorithms">algorithms</h2><dl class="man"><dt><code>Binary search</code></dt><dd>find in sorted data by halving</dd><dt><code>Merge sort</code></dt><dd>O(n log n), stable</dd><dt><code>Quick sort</code></dt><dd>O(n log n) average, O(n^2) worst</dd><dt><code>BFS</code></dt><dd>level by level, shortest path unweighted</dd><dt><code>DFS</code></dt><dd>go deep first, backtracking</dd><dt><code>Dijkstra</code></dt><dd>shortest path with weights</dd><dt><code>Two pointers</code></dt><dd>scan from both ends or a window</dd><dt><code>Memoization</code></dt><dd>cache results of repeated calls</dd></dl><h2 id="g-python-equivalents">python equivalents</h2><dl class="man"><dt><code>list.append / pop</code></dt><dd>stack operations</dd><dt><code>collections.deque</code></dt><dd>queue with O(1) both ends</dd><dt><code>heapq.heappush / heappop</code></dt><dd>priority queue</dd><dt><code>set / dict</code></dt><dd>hash set and hash map</dd><dt><code>bisect.bisect_left</code></dt><dd>binary search in a sorted list</dd><dt><code>sorted(x, key=...)</code></dt><dd>sort with a custom key</dd></dl><h2 id="g-security-connections">security connections</h2><dl class="man"><dt><code>Hash collision DoS</code></dt><dd>worst-case O(n) lookups from crafted keys</dd><dt><code>ReDoS</code></dt><dd>regex that backtracks exponentially</dd><dt><code>Bloom filter</code></dt><dd>memory-light &quot;probably in the blocklist&quot; check</dd><dt><code>Graph search</code></dt><dd>attack path and permission analysis</dd><dt><code>Rate limiting</code></dt><dd>sliding windows and token buckets</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

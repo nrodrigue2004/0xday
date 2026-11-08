@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man reverse-engineering :: 0xDay</title>
+<meta name="description" content="reverse-engineering cheatsheet: Reverse engineering commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man reverse-engineering</p>
+<div class="manhead"><span>REVERSE-ENGINEERING(7)</span><span>0xDay Field Manual</span><span>REVERSE-ENGINEERING(7)</span></div>
+<h1>reverse-engineering <span class="muted">- Reverse engineering commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-first-look">first look</a> <a href="#g-gdb">gdb</a> <a href="#g-ghidra-shortcuts">ghidra shortcuts</a> <a href="#g-radare2">radare2</a> <a href="#g-pattern-recognition">pattern recognition</a> <a href="#g-patching-and-hooking">patching and hooking</a> <a href="#g-terms">terms</a></p><h2 id="g-first-look">first look</h2><dl class="man"><dt><code>file prog</code></dt><dd>type, architecture, stripped or not</dd><dt><code>strings -n 6 prog</code></dt><dd>readable strings</dd><dt><code>strings -el prog</code></dt><dd>UTF-16 strings</dd><dt><code>ltrace ./prog</code></dt><dd>library calls</dd><dt><code>strace ./prog</code></dt><dd>system calls</dd><dt><code>readelf -s prog</code></dt><dd>symbols</dd><dt><code>objdump -d -M intel prog</code></dt><dd>disassembly</dd></dl><h2 id="g-gdb">gdb</h2><dl class="man"><dt><code>gdb ./prog</code></dt><dd>start the debugger</dd><dt><code>break main</code></dt><dd>breakpoint at main</dd><dt><code>run</code></dt><dd>start the program</dd><dt><code>n / s</code></dt><dd>next line / step into</dd><dt><code>si / ni</code></dt><dd>instruction step / over</dd><dt><code>x/s $rdi</code></dt><dd>print a string at a register&#x27;s address</dd><dt><code>x/16xb $rsp</code></dt><dd>16 bytes at the stack top</dd><dt><code>set $rax = 1</code></dt><dd>change a register</dd></dl><h2 id="g-ghidra-shortcuts">ghidra shortcuts</h2><dl class="man"><dt><code>G</code></dt><dd>go to an address</dd><dt><code>X</code></dt><dd>cross-references to the selected item</dd><dt><code>L</code></dt><dd>rename a variable or function</dd><dt><code>Ctrl+L</code></dt><dd>retype a variable</dd><dt><code>;</code></dt><dd>add a comment</dd><dt><code>Window → Defined Strings</code></dt><dd>list of strings in the program</dd></dl><h2 id="g-radare2">radare2</h2><dl class="man"><dt><code>r2 -A prog</code></dt><dd>open and analyze</dd><dt><code>afl</code></dt><dd>list functions</dd><dt><code>pdf @ main</code></dt><dd>print disassembly of main</dd><dt><code>iz</code></dt><dd>strings in the data section</dd><dt><code>s sym.main</code></dt><dd>seek to main</dd></dl><h2 id="g-pattern-recognition">pattern recognition</h2><dl class="man"><dt><code>xor in a loop</code></dt><dd>simple decoding or encryption</dd><dt><code>cmp then jne fail</code></dt><dd>a check you may want to change</dd><dt><code>strcmp with a literal</code></dt><dd>password stored in the binary</dd><dt><code>Stack of pushes before a call</code></dt><dd>arguments in 32-bit code</dd><dt><code>256-entry table</code></dt><dd>RC4, S-box or lookup cipher</dd></dl><h2 id="g-patching-and-hooking">patching and hooking</h2><dl class="man"><dt><code>nop sled</code></dt><dd>overwrite code with no-ops to skip it</dd><dt><code>je to jne</code></dt><dd>flip a branch</dd><dt><code>frida -f prog -l hook.js</code></dt><dd>hook functions at runtime</dd><dt><code>angr</code></dt><dd>symbolic execution to find inputs that reach a goal</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Static analysis</code></dt><dd>study without running</dd><dt><code>Dynamic analysis</code></dt><dd>study while running</dd><dt><code>Decompiler</code></dt><dd>rebuild C-like code from machine code</dd><dt><code>Stripped</code></dt><dd>symbols removed</dd><dt><code>Packer</code></dt><dd>tool that hides the real code until runtime</dd><dt><code>Crackme</code></dt><dd>practice binary with a hidden check</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

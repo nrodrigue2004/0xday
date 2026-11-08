@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man bash-scripting :: 0xDay</title>
+<meta name="description" content="bash-scripting cheatsheet: Bash scripting commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man bash-scripting</p>
+<div class="manhead"><span>BASH-SCRIPTING(7)</span><span>0xDay Field Manual</span><span>BASH-SCRIPTING(7)</span></div>
+<h1>bash-scripting <span class="muted">- Bash scripting commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-script-basics">script basics</a> <a href="#g-variables">variables</a> <a href="#g-special-variables">special variables</a> <a href="#g-tests">tests</a> <a href="#g-control-flow">control flow</a> <a href="#g-redirection">redirection</a> <a href="#g-useful-patterns">useful patterns</a></p><h2 id="g-script-basics">script basics</h2><dl class="man"><dt><code>#!/usr/bin/env bash</code></dt><dd>shebang line, picks the interpreter</dd><dt><code>set -euo pipefail</code></dt><dd>stop on errors, unset variables and failed pipes</dd><dt><code>chmod +x s.sh</code></dt><dd>make executable</dd><dt><code>bash -x s.sh</code></dt><dd>run with command tracing</dd><dt><code>shellcheck s.sh</code></dt><dd>static checker for common bugs</dd></dl><h2 id="g-variables">variables</h2><dl class="man"><dt><code>x=5</code></dt><dd>assign, no spaces around =</dd><dt><code>&quot;$x&quot; or &quot;${x}&quot;</code></dt><dd>expand, always in quotes</dd><dt><code>${x:-default}</code></dt><dd>use default if empty or unset</dd><dt><code>${x%.log}</code></dt><dd>remove a suffix</dd><dt><code>${x#prefix}</code></dt><dd>remove a prefix</dd><dt><code>${#x}</code></dt><dd>length of the value</dd><dt><code>$(cmd)</code></dt><dd>capture a command&#x27;s output</dd></dl><h2 id="g-special-variables">special variables</h2><dl class="man"><dt><code>$0</code></dt><dd>script name</dd><dt><code>$1 $2 ...</code></dt><dd>positional arguments</dd><dt><code>$@</code></dt><dd>all arguments, each quoted</dd><dt><code>$#</code></dt><dd>number of arguments</dd><dt><code>$?</code></dt><dd>exit code of the last command</dd><dt><code>$$</code></dt><dd>current process ID</dd></dl><h2 id="g-tests">tests</h2><dl class="man"><dt><code>[[ -f f ]]</code></dt><dd>f is a regular file</dd><dt><code>[[ -d d ]]</code></dt><dd>d is a directory</dd><dt><code>[[ -z &quot;$x&quot; ]]</code></dt><dd>string is empty</dd><dt><code>[[ &quot;$a&quot; == &quot;$b&quot; ]]</code></dt><dd>strings equal</dd><dt><code>[[ $n -gt 5 ]]</code></dt><dd>number comparison</dd><dt><code>[[ $x =~ ^[0-9]+$ ]]</code></dt><dd>regex match</dd></dl><h2 id="g-control-flow">control flow</h2><dl class="man"><dt><code>if cond; then ... fi</code></dt><dd>conditional</dd><dt><code>for i in a b c; do ... done</code></dt><dd>loop over a list</dd><dt><code>while read -r l; do ... done &lt; f</code></dt><dd>loop over lines of a file</dd><dt><code>case &quot;$x&quot; in a) ...;; esac</code></dt><dd>multi-way branch</dd><dt><code>cmd1 &amp;&amp; cmd2</code></dt><dd>run cmd2 only if cmd1 succeeded</dd><dt><code>cmd1 || cmd2</code></dt><dd>run cmd2 only if cmd1 failed</dd></dl><h2 id="g-redirection">redirection</h2><dl class="man"><dt><code>cmd &gt; f</code></dt><dd>overwrite file</dd><dt><code>cmd &gt;&gt; f</code></dt><dd>append</dd><dt><code>cmd 2&gt;&amp;1</code></dt><dd>send stderr to stdout</dd><dt><code>cmd 2&gt;/dev/null</code></dt><dd>discard errors</dd><dt><code>cmd1 | cmd2</code></dt><dd>pipe output into the next command</dd><dt><code>cmd &lt;&lt;&lt; &quot;text&quot;</code></dt><dd>feed a string as input</dd></dl><h2 id="g-useful-patterns">useful patterns</h2><dl class="man"><dt><code>trap &#x27;rm -f &quot;$tmp&quot;&#x27; EXIT</code></dt><dd>cleanup on exit</dd><dt><code>tmp=$(mktemp)</code></dt><dd>safe temp file</dd><dt><code>find . -name &#x27;*.log&#x27; -print0 | xargs -0 gzip</code></dt><dd>handle odd filenames safely</dd><dt><code>command -v jq &gt;/dev/null || exit 1</code></dt><dd>require a tool</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

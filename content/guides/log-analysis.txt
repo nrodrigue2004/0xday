@@ -17,6 +17,12 @@ Count instead of reading, with `-c`:
 ```
 $ grep -c "Failed password" ~/logs/auth.log
 ```
+
+### Where logs come from
+Linux: `/var/log/auth.log` (or `secure`), `syslog`, `kern.log`, web servers under `/var/log/nginx` or `apache2`, and `journalctl` for systemd. Windows: Event Viewer (`Security`, `System`, `Application`, PowerShell). Network devices and firewalls send syslog. Cloud services have their own audit logs.
+
+### What a good log line has
+A timestamp, a source (host or service), an actor (user or IP), an action and a result. If you can answer who, did what, to what, when and from where, the line is useful. Logs are only evidence if they are protected: forward them to another system quickly, because the first thing many attackers do is clear them.
 :: mid
 A wall of 35 failed logins doesn't tell you much. The useful question is **who** is failing. Pull one field out of every line, then group and count it. This is the pipeline you'll use more than any other:
 
@@ -37,6 +43,15 @@ $ awk '{print $9}' ~/logs/access.log | sort | uniq -c | sort -rn
 ```
 
 > A pile of 401/403/404s from one IP usually means someone is guessing URLs.
+
+### Time and format
+Normalize time zones (UTC is best) before you correlate, and check clock sync. Know the common formats: syslog (`Nov  7 10:22:01 host sshd[123]: ...`), Apache/nginx combined (`IP - user [time] "GET /path HTTP/1.1" 200 512 "referer" "agent"`), JSON lines, and Windows XML events. For JSON use `jq`: `jq -r '.src_ip' events.json | sort | uniq -c | sort -rn`.
+
+### Windows event IDs worth memorizing
+4624 successful logon (type 2 console, 3 network, 10 remote desktop), 4625 failed logon, 4634 logoff, 4648 logon with explicit credentials, 4672 special privileges assigned, 4688 process created, 4697 and 7045 service installed, 4720 user created, 4732 member added to a local group, 1102 and 104 log cleared.
+
+### Linux log patterns
+`Failed password for invalid user` is a brute force or spray, `Accepted publickey` or `Accepted password` is a success, `sudo: ... COMMAND=` shows privilege use, `session opened for user root` after an unusual login is worth a look, and `useradd` or `usermod` lines are account changes.
 :: complex
 Real investigations **pivot**: one log gives you an indicator (an IP, a username, a time), and you carry it into the next log to build a timeline.
 
@@ -62,6 +77,50 @@ $ awk '$9 >= 400 {print $1, $9, $7}' ~/logs/access.log | sort | uniq -c | sort -
 - **Impossible travel**, **off-hours logins**, and **gaps** in the log (attackers delete lines) are all things you find by sorting on time
 
 > On a real box these logs live in `/var/log/auth.log` (Debian/Ubuntu) or `/var/log/secure` (RHEL), and Windows records failed logons as Event ID 4625 and successes as 4624. A SIEM like Security Onion runs exactly these queries, just over millions of lines.
+
+### Building a timeline from several sources
+Pick the pivot (a suspicious IP or account), pull every line mentioning it from every log, normalize the time, and sort. The story usually reads: scan, brute force, success, first command, privilege escalation, persistence, data access. Gaps are interesting too: a log that goes quiet for an hour may have been cleared or the service stopped.
+
+### Detection thinking
+Count by source IP and by user, then look at the outliers. Compare to a baseline (normal hours, normal countries). Rare events beat frequent ones: one login from a new country is worth more than a thousand failed pings. Turn what you did by hand into a saved search or alert so you do not do it again manually.
+:: ref
+### searching
+grep "Failed password" auth.log | failed SSH logins
+grep -c "Failed password" auth.log | how many
+grep -E "Accepted|Failed" auth.log | successes and failures
+grep -v "^#" file | ignore comment lines
+zgrep "word" file.log.gz | search rotated compressed logs
+journalctl -u ssh --since "2 hours ago" | systemd journal for one service
+### counting and sorting
+awk '{print $1}' access.log | sort | uniq -c | sort -rn | head | top ten client IPs
+awk '$9==404' access.log | requests with status 404
+awk '{print $9}' access.log | sort | uniq -c | status code counts
+cut -d' ' -f1 access.log | sort -u | wc -l | number of distinct IPs
+grep "Failed" auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn | failed attempts per IP
+### time and fields
+awk '{print $1,$2,$3}' syslog | timestamps only
+sed -n '100,120p' file | print lines 100 to 120
+date -d '@1700000000' | convert epoch to date
+jq '.[] | select(.level=="error")' log.json | filter JSON logs
+### windows
+Get-WinEvent -LogName Security -MaxEvents 50 | latest security events
+Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625} | failed logons
+wevtutil qe Security /c:5 /rd:true /f:text | recent events without PowerShell
+### common event ids
+4624 / 4625 | logon success / failure
+4648 | logon using explicit credentials
+4672 | admin-level logon
+4688 | process creation
+4720 | account created
+4732 | added to local group
+7045 | new service installed
+1102 | security log cleared
+### http status codes
+200 | OK
+301 / 302 | redirect
+401 / 403 | not authenticated / forbidden
+404 | not found, many in a row means scanning
+500 / 502 | server error / bad gateway
 :: lab
 host: web01
 user: analyst

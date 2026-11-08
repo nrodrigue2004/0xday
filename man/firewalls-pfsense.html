@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man firewalls-pfsense :: 0xDay</title>
+<meta name="description" content="firewalls-pfsense cheatsheet: Firewalls / pfSense commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man firewalls-pfsense</p>
+<div class="manhead"><span>FIREWALLS-PFSENSE(7)</span><span>0xDay Field Manual</span><span>FIREWALLS-PFSENSE(7)</span></div>
+<h1>firewalls-pfsense <span class="muted">- Firewalls / pfSense commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-rule-fields">rule fields</a> <a href="#g-objects">objects</a> <a href="#g-nat">nat</a> <a href="#g-where-to-click">where to click</a> <a href="#g-shell-menu-console-or-ssh">shell menu (console or ssh)</a></p><h2 id="g-rule-fields">rule fields</h2><dl class="man"><dt><code>Interface</code></dt><dd>the network the packet arrives on; rules apply to ingress traffic</dd><dt><code>Action</code></dt><dd>pass, block (silent drop) or reject (drop and tell the sender)</dd><dt><code>Protocol</code></dt><dd>TCP, UDP, TCP/UDP, ICMP or any</dd><dt><code>Source / Destination</code></dt><dd>an address, network, alias, or &quot;this firewall&quot;</dd><dt><code>Port</code></dt><dd>single port, range or alias; applies to TCP and UDP only</dd><dt><code>Log</code></dt><dd>writes matches to the firewall log</dd><dt><code>Description</code></dt><dd>always fill it in, future you will not remember why</dd></dl><h2 id="g-objects">objects</h2><dl class="man"><dt><code>Alias</code></dt><dd>a named set of hosts, networks, ports or URLs reused in rules</dd><dt><code>Schedule</code></dt><dd>time window during which a rule applies</dd><dt><code>Gateway</code></dt><dd>next hop for a route or policy-routed rule</dd><dt><code>State table</code></dt><dd>list of live connections that allow reply traffic automatically</dd></dl><h2 id="g-nat">nat</h2><dl class="man"><dt><code>Port forward</code></dt><dd>WAN address and port mapped to an internal host and port</dd><dt><code>Outbound NAT</code></dt><dd>rewrites internal source addresses to the WAN address</dd><dt><code>1:1 NAT</code></dt><dd>maps one public address to one internal address</dd><dt><code>NAT reflection</code></dt><dd>lets inside hosts use the public name of an inside server</dd></dl><h2 id="g-where-to-click">where to click</h2><dl class="man"><dt><code>Firewall → Rules</code></dt><dd>per-interface rules, floating and groups</dd><dt><code>Firewall → Aliases</code></dt><dd>hosts, ports and URL tables</dd><dt><code>Status → System Logs → Firewall</code></dt><dd>the log of blocks and passes</dd><dt><code>Diagnostics → States</code></dt><dd>view or clear connection states</dd><dt><code>Diagnostics → Packet Capture</code></dt><dd>tcpdump from the web UI</dd><dt><code>Diagnostics → Backup &amp; Restore</code></dt><dd>download config.xml</dd><dt><code>Services → DHCP Server</code></dt><dd>pools and static mappings</dd><dt><code>Interfaces → Assignments</code></dt><dd>add VLANs and new interfaces</dd></dl><h2 id="g-shell-menu-console-or-ssh">shell menu (console or ssh)</h2><dl class="man"><dt><code>1) Assign Interfaces</code></dt><dd>pick which NIC is WAN and LAN</dd><dt><code>2) Set interface IP</code></dt><dd>change the management address</dd><dt><code>8) Shell</code></dt><dd>drop to a FreeBSD shell</dd><dt><code>11) Restart webConfigurator</code></dt><dd>recover a hung web UI</dd><dt><code>pfctl -sr</code></dt><dd>show the loaded filter rules</dd><dt><code>pfctl -ss</code></dt><dd>show the state table</dd><dt><code>tcpdump -ni em0 port 53</code></dt><dd>capture DNS on an interface</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

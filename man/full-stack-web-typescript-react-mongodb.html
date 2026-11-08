@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man full-stack-web-typescript-react-mongodb :: 0xDay</title>
+<meta name="description" content="full-stack-web-typescript-react-mongodb cheatsheet: Full-stack web (TypeScript/React/MongoDB) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man full-stack-web-typescript-react-mongodb</p>
+<div class="manhead"><span>FULL-STACK-WEB-TYPESCRIPT-REACT-MONGODB(7)</span><span>0xDay Field Manual</span><span>FULL-STACK-WEB-TYPESCRIPT-REACT-MONGODB(7)</span></div>
+<h1>full-stack-web-typescript-react-mongodb <span class="muted">- Full-stack web (TypeScript/React/MongoDB) commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-http-and-api-testing">http and api testing</a> <a href="#g-react">react</a> <a href="#g-express">express</a> <a href="#g-mongodb-and-mongoose">mongodb and mongoose</a> <a href="#g-security-checklist">security checklist</a> <a href="#g-terms">terms</a></p><h2 id="g-http-and-api-testing">http and api testing</h2><dl class="man"><dt><code>curl -i URL</code></dt><dd>response with headers</dd><dt><code>curl -X POST -H &quot;Content-Type: application/json&quot; -d &#x27;{&quot;a&quot;:1}&#x27; URL</code></dt><dd>send JSON</dd><dt><code>curl -H &quot;Authorization: Bearer TOKEN&quot; URL</code></dt><dd>call with a token</dd><dt><code>GET / POST / PUT / PATCH / DELETE</code></dt><dd>read / create / replace / update / remove</dd><dt><code>200 / 201 / 204</code></dt><dd>OK / created / no content</dd><dt><code>400 / 401 / 403 / 404</code></dt><dd>bad input / not logged in / not allowed / not found</dd><dt><code>429 / 500</code></dt><dd>rate limited / server error</dd></dl><h2 id="g-react">react</h2><dl class="man"><dt><code>useState(initial)</code></dt><dd>state variable and setter</dd><dt><code>useEffect(fn, [deps])</code></dt><dd>run code when dependencies change</dd><dt><code>props</code></dt><dd>inputs passed to a component</dd><dt><code>key prop</code></dt><dd>stable ID for list items</dd><dt><code>useContext</code></dt><dd>share data without passing props down</dd><dt><code>dangerouslySetInnerHTML</code></dt><dd>bypasses escaping, avoid</dd></dl><h2 id="g-express">express</h2><dl class="man"><dt><code>app.use(fn)</code></dt><dd>add middleware</dd><dt><code>app.get(&quot;/path&quot;, handler)</code></dt><dd>handle a GET route</dd><dt><code>req.params / req.query / req.body</code></dt><dd>URL segments, query string, JSON body</dd><dt><code>res.status(404).json({ error })</code></dt><dd>respond with a status</dd><dt><code>next(err)</code></dt><dd>pass an error to the error handler</dd></dl><h2 id="g-mongodb-and-mongoose">mongodb and mongoose</h2><dl class="man"><dt><code>db.users.find({ role: &quot;admin&quot; })</code></dt><dd>query documents</dd><dt><code>db.users.insertOne({...})</code></dt><dd>add a document</dd><dt><code>db.users.updateOne({_id}, {$set: {...}})</code></dt><dd>change fields</dd><dt><code>db.users.createIndex({ email: 1 }, { unique: true })</code></dt><dd>index and enforce uniqueness</dd><dt><code>$eq, $ne, $gt, $in</code></dt><dd>query operators</dd><dt><code>$where and $regex</code></dt><dd>powerful, abuse-prone, avoid with user input</dd></dl><h2 id="g-security-checklist">security checklist</h2><dl class="man"><dt><code>Parameterize and validate input</code></dt><dd>stops injection</dd><dt><code>Check ownership on every record</code></dt><dd>stops IDOR</dd><dt><code>HttpOnly Secure SameSite cookies</code></dt><dd>protects sessions</dd><dt><code>helmet()</code></dt><dd>sets security headers</dd><dt><code>CORS allow-list</code></dt><dd>only trusted origins</dd><dt><code>npm audit / dependabot</code></dt><dd>dependency vulnerabilities</dd><dt><code>Secrets in env or vault</code></dt><dd>never in git</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>SPA</code></dt><dd>single-page application</dd><dt><code>JWT</code></dt><dd>signed token carrying claims</dd><dt><code>CSRF</code></dt><dd>forged request using the victim&#x27;s cookie</dd><dt><code>XSS</code></dt><dd>attacker script runs in your page</dd><dt><code>IDOR</code></dt><dd>accessing others&#x27; data by changing an ID</dd><dt><code>CORS</code></dt><dd>browser rule about cross-origin requests</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

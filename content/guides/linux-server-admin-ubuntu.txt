@@ -1,4 +1,5 @@
 tagline: Running a Linux server means keeping services up, patched and logged. Learn systemd, journals, packages, users and the firewall on Ubuntu, then figure out why a web server won't start.
+sheet: linux
 :: simple
 A **server** is just a computer whose job is to run **services** (web, database, SSH) for other machines. On Ubuntu, services are managed by **systemd** with the `systemctl` command:
 
@@ -12,6 +13,20 @@ $ systemctl list-units --type=service --state=running
 - Software is installed with `apt`: `sudo apt update && sudo apt upgrade` patches everything
 
 > Most admin commands need root. Use `sudo` for one command at a time instead of logging in as root.
+
+### Why a server is different
+A server runs without a screen, usually over SSH, and has to keep running for months. You manage it with text commands and config files. Your tools are the package manager (`apt`), the service manager (`systemctl`), the logs (`journalctl`), and a text editor (`nano` is the friendliest, `vim` is everywhere).
+
+### A first-hour routine on a new Ubuntu server
+```
+sudo apt update && sudo apt upgrade -y
+sudo adduser nate
+sudo usermod -aG sudo nate
+sudo ufw allow OpenSSH
+sudo ufw enable
+sudo timedatectl set-timezone America/New_York
+```
+Then copy your SSH key over with `ssh-copy-id`, confirm you can log in as the new user, and only then disable root login and password logins.
 :: mid
 ### When a service fails, read the journal
 systemd captures every service's output in the **journal**. `journalctl -u <service>` shows one service's log, `-e` jumps to the end, `-f` follows live, `--since "1 hour ago"` filters by time:
@@ -34,6 +49,24 @@ Ubuntu's `ufw` is a friendly front end for the kernel firewall. Default deny inc
 ```
 $ ufw status verbose
 ```
+
+### Packages
+`apt search name`, `apt install name`, `apt remove name`, `apt purge name` (also deletes config), `apt autoremove`, and `apt list --installed`. `dpkg -l` and `dpkg -L package` list what a package installed. Third-party software comes from extra repositories (PPAs): add them rarely and only from sources you trust.
+
+### Services and systemd
+```
+systemctl status nginx
+sudo systemctl restart nginx
+sudo systemctl enable --now nginx
+journalctl -u nginx --since "1 hour ago"
+```
+A unit file in `/etc/systemd/system/` defines a service. After editing one, run `sudo systemctl daemon-reload`. `systemctl list-units --failed` is a good first command whenever something feels wrong.
+
+### Disks, memory and load
+`df -h` free space per filesystem, `du -sh /var/log/*` what is using it, `free -h` memory, `uptime` load averages, `lsblk` disks and partitions. A full disk (often logs or backups) causes bizarre failures, so check `df -h` early.
+
+### Scheduling and backups
+Use cron (`crontab -e`) or systemd timers for backups and cleanups. A backup that has never been restored is a hope, not a backup, so test a restore. `rsync -a --delete /data/ backup:/data/` mirrors a folder, `tar` packs one.
 :: complex
 ### Ports, processes and conflicts
 Only one program can listen on a given IP and port. "Address already in use" means something else got there first. `ss -tlpn` shows every listening port and which process owns it:
@@ -51,6 +84,59 @@ $ ss -tlpn
 
 ### Users and groups
 `adduser`, `usermod -aG sudo name`, `passwd -l name` (lock). `/etc/passwd` lists accounts, `/etc/group` groups, and `id name` shows a user's groups.
+
+### Web server pattern (nginx)
+Site config lives in `/etc/nginx/sites-available/` and is enabled by a symlink into `sites-enabled/`. Always run `sudo nginx -t` before `reload`. Get a free TLS certificate with `certbot --nginx`; it also renews on a timer. Logs are in `/var/log/nginx/access.log` and `error.log`. A 502 means the backend behind the proxy is down, a 403 usually means permissions, a 404 a wrong path.
+
+### Permissions for services
+Services should run as their own unprivileged user (`www-data`, `postgres`). Give that user only the files it needs: `chown -R www-data:www-data /var/www/site`, directories `755`, files `644`, secrets `600` and owned by the service account. Never run an app as root because it is easier.
+
+### Logs worth knowing
+`/var/log/auth.log` logins and sudo, `/var/log/syslog` general, `/var/log/ufw.log` firewall drops, `/var/log/apt/history.log` what was installed when, and `journalctl -p err -b` all errors since boot. Rotate with logrotate (`/etc/logrotate.d/`) so logs never fill the disk.
+:: ref
+### packages
+apt update | refresh package lists
+apt upgrade | install available updates
+apt install pkg | install a package
+apt purge pkg | remove a package and its config
+apt list --upgradable | what has updates waiting
+dpkg -l pkg | is it installed and which version
+### services
+systemctl status svc | state and last log lines
+systemctl restart svc | restart it
+systemctl enable --now svc | start now and at every boot
+systemctl list-units --failed | everything that has failed
+journalctl -u svc -f | follow one service's log
+journalctl -p err -b | errors since boot
+### system health
+df -h | disk space
+du -sh /var/* | what is using the space
+free -h | memory use
+uptime | load average
+top | live processes
+lsblk | disks and partitions
+### users and access
+adduser name | create a user interactively
+usermod -aG sudo name | give sudo
+passwd -l name | lock an account
+ssh-copy-id user@host | install your public key
+visudo | safely edit sudoers
+last | login history
+### firewall (ufw)
+ufw status verbose | rules and default policy
+ufw allow 443/tcp | open a port
+ufw deny from 203.0.113.9 | block one address
+ufw delete 3 | remove a rule by number
+ufw enable | turn the firewall on
+### web (nginx)
+nginx -t | test the config
+systemctl reload nginx | apply config without dropping connections
+certbot --nginx -d example.com | get and install a certificate
+tail -f /var/log/nginx/error.log | watch errors live
+### scheduling
+crontab -e | edit your cron jobs
+crontab -l | list them
+systemctl list-timers | systemd timers and next run
 :: lab
 host: web02
 user: admin
