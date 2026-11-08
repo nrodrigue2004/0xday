@@ -1,0 +1,82 @@
+slug: sysadmin
+title: Systems Administrator
+family: it
+tagline: You run the servers, accounts, backups and updates that everyone else assumes will just work. This is the natural step after help desk and the strongest base for cloud and security.
+titles: Systems Administrator, Windows Administrator, Linux Administrator, Infrastructure Technician, Junior Sysadmin
+:: about
+A sysadmin keeps the environment healthy: user accounts, servers, patching, backups, monitoring, file shares and security configuration. You spend time on both **planned work** (patch windows, migrations, new builds) and **interruptions** (a service down at 2 pm). Good sysadmins automate repeated tasks and document everything.
+
+Most roles are Windows-heavy (Active Directory, Group Policy, Microsoft 365) or Linux-heavy (web, database and cloud servers). Learn one deeply and the other well enough to get around.
+:: ladder
+- Junior sysadmin / Tier 2 | patching, account administration, monitoring, small projects
+- Systems administrator | owns services and servers, writes automation
+- Senior sysadmin / infrastructure engineer | design, migrations, high availability, mentoring
+- Specializations | cloud engineer, DevOps/SRE, security engineer, IT manager
+:: day
+- Apply and test patches, then verify services came back
+- Manage AD users, groups, Group Policy, DNS and DHCP
+- Check backups and test restores (a backup you haven't restored is a guess)
+- Review monitoring alerts, disk space and service health
+- Write scripts for repeated jobs and document the environment
+:: certs
+- CompTIA Network+ and Security+ | the common baseline for infrastructure roles
+- Microsoft AZ-800 / AZ-801 (Windows Server hybrid) | validates server administration skills
+- Linux Foundation Certified System Administrator (LFCS) | hands-on Linux exam
+- Red Hat RHCSA | respected performance-based Linux exam
+- Microsoft AZ-900 and AZ-104 | cloud fundamentals, then Azure administration
+- CompTIA Linux+ | broader and cheaper than RHCSA
+:: courses
+- Microsoft Learn: Windows Server and Active Directory paths | free and current | https://learn.microsoft.com/training
+- Linux Foundation intro to Linux (LFS101) | free | https://training.linuxfoundation.org
+- TryHackMe Windows and Linux fundamentals rooms | guided practice | https://tryhackme.com
+- Learn PowerShell in a Month of Lunches | the standard book for PowerShell automation
+- The Practical Linux Handbook / "The Linux Command Line" by William Shotts | free online book | https://linuxcommand.org/tlcl.php
+:: skills
+- Linux server administration | users, services, packages, permissions, logs | linux-server-admin-ubuntu | normal
+- Linux command line | the daily toolbox | linux-command-line | easy
+- Active Directory | the identity backbone of Windows environments | active-directory | normal
+- Group Policy | central configuration at scale | group-policy | normal
+- Bash scripting | automate backups, checks and reports | bash-scripting | normal
+- Networking (TCP/IP, DHCP, NAT, subnets) | servers live on networks | networking-tcp-ip-dhcp-nat-subnets | normal
+- Virtualization | Proxmox/Hyper-V/VMware host management | virtualization-proxmox | normal
+- Operating systems internals | processes, memory, services, boot | operating-systems | normal
+- Hardening Windows and Linux | secure baselines and CIS benchmarks | system-hardening-windows-linux | hard
+- Firewalls | segmentation and rule design | firewalls-pfsense | hard
+- VPN | secure remote access | vpn-tailscale | normal
+:: projects
+- [easy] Linux web server | Install Ubuntu Server in a VM, put Nginx on it, set up a non-root user, SSH keys only, and a firewall that allows only 22 and 80/443.
+- [easy] Scheduled backups | Write a Bash script plus cron job that backs up a directory nightly, rotates old copies and logs success or failure.
+- [normal] Windows domain | Build a domain controller, join clients, create an OU structure, group-based file shares with NTFS and share permissions, and a handful of Group Policies. Diagram it.
+- [normal] Monitoring | Install Zabbix, Prometheus + Grafana or Netdata, monitor three VMs, and set an alert for low disk space that actually fires.
+- [hard] Patch and restore drill | Document a patch process on a test VM with snapshot, patch, verify and rollback. Then destroy a VM on purpose and rebuild it from backup with a measured recovery time.
+- [hard] Infrastructure as code | Rebuild your lab VM with Ansible or Terraform so a fresh machine can be configured from a single command.
+:: resume
+- Lead with environment size (number of servers, users, sites) and uptime or ticket numbers if you have them.
+- List technologies by group: Windows Server, Linux distros, AD, hypervisors, monitoring, scripting.
+- Show automation: "reduced onboarding time from 30 to 5 minutes with a PowerShell script."
+- A documented homelab with a diagram is legitimate experience for junior roles.
+:: basic
+- [e] Why systems administration? => Talk about enjoying how things work under the surface and keeping systems reliable. Back it with your lab: what you built, what broke, and what you learned from fixing it.
+- [e] How do you keep your skills current? => Name your lab, the specific things you tried recently (a new service, a script), a certification in progress, and where you read news (vendor blogs, release notes, a few communities).
+- [e] How do you handle being on call? => Be matter-of-fact: you accept it as part of the job, keep runbooks and notes ready, triage by impact, and escalate when needed rather than guessing alone at 3 am.
+:: technical
+- [e] What is Active Directory and what does a domain controller do? => A directory service that stores users, computers and groups and authenticates them, typically with Kerberos. The domain controller holds the directory database, answers logon requests and replicates changes to other DCs.
+- [e] What is the difference between NTFS permissions and share permissions? => Share permissions apply when accessing over the network; NTFS permissions apply locally and over the network. When both apply, the most restrictive result wins. Common practice: share Full Control for authenticated users and manage access with NTFS.
+- [e] How do Linux file permissions work? => Three sets (owner, group, others) of read, write and execute, shown like `rwxr-x---` or octal `750`. `chmod` changes permissions, `chown` changes ownership. Directories need execute to be entered.
+- [e] What does `sudo` do and why use it instead of logging in as root? => It runs a single command with elevated privileges, logs who did it, and enforces a policy. Using it instead of a root login means less exposure and a clear audit trail.
+- [e] What is DNS and what are common record types? => Name resolution. A maps a name to IPv4, AAAA to IPv6, CNAME aliases one name to another, MX names mail servers, PTR is reverse lookup, TXT holds text such as SPF, NS names authoritative servers.
+- [n] A server is running slow. How do you investigate? => Check CPU, memory, disk I/O and network (Task Manager/Resource Monitor, or `top`, `free`, `iostat`, `ss`). Look at what changed, review logs and recent patches, find the heavy process, and decide whether to fix, scale or restart. Record baselines so "slow" has a reference.
+- [n] How would you check why a Linux service won't start? => `systemctl status service`, then `journalctl -u service -xe` for the log, check config syntax (for example `nginx -t`), ports already in use (`ss -tulpn`), permissions and disk space.
+- [n] Explain the difference between full, differential and incremental backups. => Full copies everything. Differential copies everything changed since the last full. Incremental copies changes since the last backup of any type. Incrementals are small but need the whole chain to restore; differentials need only the full plus the latest differential.
+- [n] What is the 3-2-1 backup rule? => Three copies of the data, on two different media, one offsite (or offline). Add regular test restores, and immutability for ransomware resilience.
+- [n] How do you patch servers safely? => Test in a non-production or pilot group, schedule a maintenance window, snapshot or back up first, apply, reboot if needed, verify services and monitoring, keep a rollback plan, and communicate before and after.
+- [n] What is the difference between a subnet mask /24 and /16, and how many hosts fit in a /24? => /24 is a 255.255.255.0 mask with 256 addresses and 254 usable hosts; /16 is 255.255.0.0 with 65,534 usable hosts. Usable hosts are 2^(host bits) minus 2.
+- [n] What is Kerberos at a high level? => Ticket-based authentication. You authenticate once to the KDC (on the DC) and receive a ticket-granting ticket, then request service tickets for resources without sending your password again. Depends on synchronized clocks.
+- [n] Why is least privilege important for admin accounts? => Admin credentials are the keys to everything. Use separate admin accounts, don't browse the web or read mail as admin, limit who is in Domain Admins, and log administrative actions.
+- [h] A user can't log in to a domain-joined PC with "trust relationship failed." Why and what's the fix? => The machine's secure channel password with the domain no longer matches (restored snapshot, long-offline machine). Rejoin the domain, or reset the secure channel with `Test-ComputerSecureChannel -Repair` using domain credentials.
+- [h] Describe how you'd harden a new Linux server. => Update packages, create non-root users and disable root SSH login, use key-based SSH, change defaults, enable a firewall with deny-by-default, remove unneeded services, set up auditing and log shipping, enable automatic security updates, and apply a CIS benchmark baseline.
+- [h] How does DNS resolution work for a name your server has never looked up? => Check local cache and hosts file, ask the configured recursive resolver, which walks root, TLD, then authoritative servers, caches the answer for the TTL, and returns it. Know that a wrong TTL causes stale records after changes.
+- [h] How would you recover a server whose disk failed? => Confirm the failure, fail over if there is a replica, replace the disk, rebuild RAID or reinstall, restore from the latest verified backup, validate data and services, and write a post-incident note. State your RTO and RPO assumptions.
+:: scenario
+- [n] File share access is suddenly denied for one department. => Check whether a group membership or GPO changed, the share and NTFS permissions on the folder, replication if DFS is used, and whether the user's token refreshed (log off and on). Compare with a working user.
+- [h] You have to migrate a legacy service to a new server with minimal downtime. => Inventory dependencies, build and test the new server, copy data with a final delta sync, lower DNS TTL beforehand, schedule the cutover, keep the old server for rollback, and verify with the application owner after switching.

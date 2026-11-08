@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-08",
+    "type": "feat",
+    "msg": "add ~/careers: eight career paths across IT, cyber and software/data with certs, courses, skills, projects and 170+ interview questions with model answers, plus shared interview basics"
+  },
+  {
     "date": "2026-11-07",
     "type": "feat",
     "msg": "add ~/ai: AI and AI in security in seven chapters (history, how it works, defense, offense, attacking AI, future, using it well), simple/mid/complex, two labs and a dated reading list"
