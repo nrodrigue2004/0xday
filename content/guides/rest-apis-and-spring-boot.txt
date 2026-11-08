@@ -1,0 +1,165 @@
+tagline: A REST API is how apps talk over HTTP, and Spring Boot is how a Java backend serves one. Learn methods, status codes, JSON and the Spring layers, then find the endpoint that forgot an ownership check.
+:: simple
+An **API** (application programming interface) is a menu of requests a program accepts. A **REST API** uses plain HTTP: a **URL** names a thing, a **method** says what to do with it, and the reply is usually **JSON**.
+
+```
+GET    /api/posts        list posts
+GET    /api/posts/7      one post
+POST   /api/posts        create a post (data in the body)
+PUT    /api/posts/7      replace/update it
+DELETE /api/posts/7      remove it
+```
+
+The reply starts with a **status code**: `200 OK`, `201 Created`, `204 No Content`, `400 Bad Request` (your fault, bad input), `401 Unauthorized` (not logged in), `403 Forbidden` (logged in but not allowed), `404 Not Found`, `500 Server Error` (their fault).
+
+**Spring Boot** is a Java framework that starts a web server with very little setup. A class marked `@RestController` maps URLs to Java methods, and Spring turns objects into JSON for you.
+
+```
+$ cat ~/api/PostController.java
+$ cat ~/api/requests.http
+```
+
+### Words to know
+- **Endpoint**: a URL plus method (`DELETE /api/posts/7`)
+- **Request / response**: what the client sends and what comes back, both with headers and an optional body
+- **Stateless**: the server keeps no session between calls; each request carries its own credentials (a token)
+:: mid
+### The Spring layers
+- **Controller**: handles HTTP (`@GetMapping`, `@PostMapping`, `@PathVariable`, `@RequestBody`)
+- **Service**: business rules (`@Service`), where checks like "only the owner may delete" belong
+- **Repository**: talks to the database (`MongoRepository<Post, String>` or `JpaRepository`)
+- **Model / entity / DTO**: the data shapes; use a DTO (a shape made for the API) rather than exposing the entity directly
+Spring wires them together by **dependency injection**: a controller declares the service it needs in its constructor and Spring supplies it.
+
+### A small controller
+```
+@RestController @RequestMapping("/api/posts")
+class PostController {
+  private final PostService posts;
+  PostController(PostService posts) { this.posts = posts; }
+  @GetMapping("/{id}") Post one(@PathVariable String id) { return posts.get(id); }
+  @PostMapping Post create(@Valid @RequestBody NewPost body, Principal me) { return posts.create(body, me.getName()); }
+}
+```
+`@Valid` checks constraints on the body (`@NotBlank`, `@Size`) and returns `400` when they fail.
+
+### Calling an API
+`curl -i -X POST http://localhost:8080/api/posts -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"text":"hello"}'`. The `-i` shows the status line and headers. Postman or the VS Code REST Client do the same with a GUI.
+
+### Errors and status codes in Spring
+Throw a `ResponseStatusException(HttpStatus.NOT_FOUND)` or write an `@ControllerAdvice` that turns exceptions into consistent JSON errors. Never return a stack trace to the client.
+
+### Authentication vs authorization
+**Authentication**: who are you? (a login that returns a JWT or session). **Authorization**: what may you do? Spring Security checks the token on every request, and rules like `@PreAuthorize("hasRole('ADMIN')")` guard methods.
+:: complex
+### Broken access control (the top API bug)
+Authentication isn't enough. For `DELETE /api/posts/{id}` the server must check that the post **belongs to the caller** (or the caller is an admin). If it only checks "is logged in", anyone can delete anyone's post by guessing ids. This is an **IDOR** (insecure direct object reference), and OWASP ranks broken access control #1. Put the ownership check in the service, return `403` (or `404` to hide existence), and write a test for "user B cannot delete user A's post".
+
+### Other API flaws to design out
+- **Mass assignment**: binding a request straight onto an entity lets a client set `role=admin`; use DTOs with only the allowed fields
+- **Excessive data exposure**: returning password hashes or internal ids; return only what the screen needs
+- **No rate limiting**: allows brute-forcing logins or scraping
+- **Verbose errors, CORS set to `*`, secrets in the repo**, and unauthenticated actuator endpoints (`/actuator/env`)
+
+### Design habits
+Nouns in URLs, verbs as methods. Be idempotent where you can (`PUT` and `DELETE` repeated give the same result). Version the API (`/api/v1/`). Paginate lists (`?page=0&size=20`). Document it with OpenAPI/Swagger (`springdoc-openapi`) and test with `MockMvc` or `@SpringBootTest`.
+
+### Config, profiles and running
+`application.properties` (or `.yml`) holds the port and database URL; put secrets in environment variables, not the repo. Profiles (`dev`, `prod`) swap settings. Build with `./mvnw package` or `./gradlew build`, run with `java -jar target/app.jar`. A React or React Native client then calls the API with `fetch`.
+
+### Seen from the defender's side
+Access logs show the method, path, status and caller. Many `403/404` across sequential ids is someone enumerating. A `200` on a `DELETE` for ids that don't belong to the caller is an IDOR being exploited.
+:: ref
+### http methods
+GET | read, no body, safe to repeat
+POST | create, or an action
+PUT | replace a whole resource
+PATCH | change part of a resource
+DELETE | remove a resource
+### status codes
+200 / 201 / 204 | OK / created / ok with no body
+301 / 302 | redirect
+400 | bad request or failed validation
+401 | missing or invalid credentials
+403 | authenticated but not allowed
+404 | not found
+409 | conflict (duplicate)
+429 | too many requests
+500 / 503 | server error / unavailable
+### spring annotations
+@SpringBootApplication | main class; starts the app
+@RestController | class returns JSON
+@RequestMapping("/api/x") | base path
+@GetMapping @PostMapping @PutMapping @DeleteMapping | map methods to handlers
+@PathVariable @RequestParam @RequestBody | read from path, query string, body
+@Valid @NotBlank @Size | validate input
+@Service @Repository @Component | beans Spring manages
+@PreAuthorize | method-level access rule
+### curl and tools
+curl -i URL | show status line and headers
+curl -X POST -H "Content-Type: application/json" -d '{..}' URL | send JSON
+curl -H "Authorization: Bearer T" URL | authenticated request
+jq . | pretty-print JSON
+./mvnw spring-boot:run | run the app from source
+### terms
+REST | style of API over HTTP using resources and methods
+JSON | text format for objects and lists
+JWT | signed token carrying identity claims
+DTO | data shape used only for the API
+IDOR | using someone else's id to reach their data
+CORS | browser rule for cross-site API calls
+:: lab
+host: api01
+user: dev
+cwd: /home/dev/api
+:: brief
+The posts API defines four handlers in `PostController.java`. The ones that change an existing post should check that the caller owns it (or is an admin). One of them doesn't, so any logged-in user can modify any post by guessing its id. The review is for fictional training code.
+
+Submit the **vulnerable endpoint**, written as method and path, e.g. `submit GET /api/posts`.
+:: answer
+DELETE /api/posts/{id}
+:: hint
+Read `PostController.java` and compare the four handlers. Which handler that changes an existing post never calls `isOwnerOrAdmin`?
+:: hint
+`grep -n "isOwnerOrAdmin" PostController.java` lists the checks. Match them against the mappings.
+:: solution
+`PUT /api/posts/{id}` and `PATCH /api/posts/{id}` both call `isOwnerOrAdmin(...)` and throw `403` otherwise, and `POST` only creates under the caller's name. **`DELETE /api/posts/{id}`** goes straight to `posts.delete(id)` with only a login requirement, an IDOR. `requests.http` confirms it: user `bob` deleted post 7, which belongs to `ava`, and got `204`. Fix: load the post, check `isOwnerOrAdmin`, return `403` if not, and add a test.
+:: verify
+grep -n isOwnerOrAdmin PostController.java
+:: file /home/dev/api/PostController.java
+@RestController @RequestMapping("/api/posts")
+class PostController {
+  private final PostService posts;
+
+  @PostMapping
+  Post create(@Valid @RequestBody NewPost body, Principal me) {
+    return posts.create(body, me.getName());
+  }
+
+  @PutMapping("/{id}")
+  Post replace(@PathVariable String id, @Valid @RequestBody NewPost body, Principal me) {
+    Post p = posts.get(id);
+    if (!isOwnerOrAdmin(p, me)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    return posts.replace(id, body);
+  }
+
+  @PatchMapping("/{id}")
+  Post edit(@PathVariable String id, @RequestBody PostPatch body, Principal me) {
+    Post p = posts.get(id);
+    if (!isOwnerOrAdmin(p, me)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    return posts.edit(id, body);
+  }
+
+  @DeleteMapping("/{id}")
+  ResponseEntity<Void> delete(@PathVariable String id, Principal me) {
+    posts.delete(id);
+    return ResponseEntity.noContent().build();
+  }
+}
+:: file /home/dev/api/requests.http
+### ava creates post 7
+POST /api/posts            (user: ava)  -> 201 {"id":"7","author":"ava"}
+### bob tries to edit it
+PATCH /api/posts/7         (user: bob)  -> 403
+### bob tries to delete it
+DELETE /api/posts/7        (user: bob)  -> 204

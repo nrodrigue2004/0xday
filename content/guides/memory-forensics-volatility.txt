@@ -1,0 +1,151 @@
+tagline: A memory image is a frozen copy of RAM: running processes, network connections and secrets that never touch the disk. Learn what Volatility 3 reads out of it, then find the process that doesn't belong.
+sheet: volatility
+:: simple
+**Memory forensics** means analyzing a copy of a computer's RAM. Disk forensics shows what was stored; memory shows what was **running**: every process, open network connection, loaded DLL and sometimes passwords or decrypted malware that only exist in memory.
+
+**Volatility** is the standard open-source framework for it. You point it at an image file (`mem.raw`) and run a **plugin** that walks one kernel structure and prints a table.
+
+```
+$ vol -f mem.raw windows.info
+$ vol -f mem.raw windows.pslist
+```
+
+### Why capture RAM first
+RAM is lost at power-off, so in an incident it comes before the disk image (order of volatility). Typical tools: WinPmem, DumpIt, FTK Imager's "Capture Memory", or a hypervisor snapshot (`.vmem` file). Hash the image and write the time down.
+
+### The first three plugins
+- `windows.info`: confirms the OS build, so the right symbols load
+- `windows.pslist` / `windows.pstree`: what was running, and who started it
+- `windows.netscan`: which connections and listeners existed
+:: mid
+### Process list vs pstree
+`pslist` reads the kernel's list of processes. `pstree` draws the same data as parent and child. Learn the normal Windows shape, because malware breaks it:
+- `System` (PID 4) starts `smss.exe`; `wininit.exe` starts `services.exe`, `lsass.exe`
+- `services.exe` starts every `svchost.exe` (with `-k <group>` in the command line)
+- `explorer.exe` starts what the user launches
+- there is exactly one `lsass.exe`, and it has no children
+
+A `svchost.exe` whose parent is `explorer.exe` or `winword.exe`, or a name like `svch0st.exe`, is a classic tell.
+
+### Hidden processes: psscan
+Rootkits unlink a process from the list. `windows.psscan` scans raw memory for process structures instead of following the list. A process that appears in `psscan` but not `pslist` is hiding (or has already exited).
+
+### Network, command lines and DLLs
+- `windows.netscan`: protocol, local and foreign address, state, owning PID
+- `windows.cmdline`: the exact command line each process started with
+- `windows.dlllist --pid 4172`: modules loaded by one process
+- `windows.handles --pid 4172`: files, registry keys and mutexes it holds open
+
+### Injection and code hunting
+`windows.malfind` lists memory regions that are **executable and not backed by a file on disk**, which is how injected shellcode usually looks. Dump the region, hash it, then analyze it like any sample (see the malware analysis guide).
+
+```
+$ vol -f mem.raw windows.malfind --pid 4172 --dump
+```
+
+### Persistence and credentials
+`windows.registry.hivelist` and `windows.registry.printkey --key "Software\Microsoft\Windows\CurrentVersion\Run"` show autoruns. `windows.hashdump` and `windows.lsadump` pull credentials, which only belongs in an authorized investigation.
+:: complex
+### Method: from a suspicion to a timeline
+1. `windows.info`, hash the image, note the capture time
+2. `pstree`: look for the wrong parent, wrong path, wrong user
+3. `cmdline` and `dlllist` for each suspect; compare the on-disk path with where it really runs from
+4. `netscan`: tie the PID to a remote address, then look that IP up in proxy or firewall logs
+5. `malfind` for injection, `psscan` for hiding
+6. dump the process or region (`windows.pslist --pid N --dump`), hash it, submit for analysis
+7. write the timeline using process create times, then pair it with disk and network evidence
+
+### Symbols and versions
+Volatility 3 needs symbol tables for the exact kernel build, and downloads them for Windows. If a plugin returns nothing, confirm `windows.info` works first. Volatility 2 used profiles (`--profile=Win7SP1x64`) and different plugin names (`pslist`, `netscan`, `malfind`); old tutorials use those.
+
+### Linux and macOS images
+Volatility 3 has `linux.pslist`, `linux.bash`, `linux.lsof` and matching macOS plugins, but needs a symbol file built for that exact kernel. Collect it in the same step as the image (`dwarf2json` against the kernel's debug info).
+
+### What memory cannot tell you
+A clean pslist does not mean a clean machine: the image is one moment in time, kernel rootkits can lie to plugins that trust kernel data, and a process that already exited leaves only fragments. Say what the image shows, and what it can't.
+
+### Writing it up
+Report the image name and SHA-256, plugin and version, the finding with PID, parent, path, command line and connection, and the evidence you dumped. Keep conclusions separate from guesses.
+:: ref
+### vol3 basics
+vol -f mem.raw windows.info | OS build, architecture, kernel base, capture time
+vol -f mem.raw -h | list every available plugin
+vol -f mem.raw -r csv windows.pslist | export a table as CSV
+vol -f mem.raw -o out/ windows.pslist --pid 4172 --dump | dump a process's executable into out/
+### vol3 plugins
+windows.pslist | processes from the kernel's list, with PPID and create time
+windows.pstree | same data drawn as a parent/child tree
+windows.psscan | pool scan, finds hidden and exited processes
+windows.cmdline | command line each process started with
+windows.netscan | TCP/UDP connections and listeners with owning PID
+windows.dlllist | DLLs loaded by a process
+windows.handles | open files, keys, mutexes per process
+windows.malfind | executable memory with no file behind it (injection)
+windows.filescan | file objects found in memory
+windows.registry.printkey | read a registry key from the image
+windows.svcscan | Windows services, including unusual binary paths
+### reading the output
+PPID mismatch | svchost not started by services.exe, or Office spawning cmd
+Path mismatch | system name running from \Users, \Temp or \ProgramData
+Two lsass.exe | one is fake; the real one is started by wininit.exe
+psscan only | hidden or terminated process
+RWX region | injected code candidate from malfind
+:: lab
+style: ticket
+host: soc
+user: analyst
+system: IR queue
+id: #IR-0417
+subject: Workstation WS-114 behaving oddly, memory captured
+priority: P2
+from: helpdesk (B. Okafor)
+sla: 2h
+attach: pstree.txt, netscan.txt, cmdline.txt
+:: brief
+WS-114 slowed down and the user reported a fan running constantly. Help desk captured RAM before shutting it down, and the Volatility output is attached (all fictional lab data).
+
+Find the process that doesn't belong: look for the one that breaks the normal Windows parent/child rules, then check what it was connected to.
+
+Resolve the ticket with the **PID** of the malicious process, e.g. `4172`.
+:: answer
+4172
+:: hint
+Read `pstree.txt` from the top. Which `svchost.exe` has a parent that is not `services.exe`?
+:: hint
+Compare the PPID of each `svchost.exe` with the PID of `services.exe` (it is near the top of the tree).
+:: hint
+`cat netscan.txt` and `cat cmdline.txt` back up the answer; the odd process talks to an external address on port 8443.
+:: solution
+`services.exe` is PID 672, and every legitimate `svchost.exe` has PPID 672. PID **4172** is also named `svchost.exe` but its PPID is 3980, which is `explorer.exe`, and its command line has no `-k` group. `netscan` shows it holding an ESTABLISHED connection to 198.51.100.23:8443. Next steps: dump the process and run `malfind`, block that IP, find how it started (parent explorer.exe, so check the user's downloads and Run keys), and scope the other hosts that contacted 198.51.100.23.
+:: verify
+cat pstree.txt
+:: file /home/analyst/pstree.txt
+PID    PPID   ImageFileName   CreateTime
+4      0      System          2026-11-07 07:58:11
+ 316   4      smss.exe        2026-11-07 07:58:11
+ 412   396    csrss.exe       2026-11-07 07:58:19
+ 488   396    wininit.exe     2026-11-07 07:58:20
+  672  488    services.exe    2026-11-07 07:58:21
+   780 672    svchost.exe     2026-11-07 07:58:23
+   856 672    svchost.exe     2026-11-07 07:58:23
+   944 672    svchost.exe     2026-11-07 07:58:24
+   1204 672   svchost.exe     2026-11-07 07:58:26
+  684  488    lsass.exe       2026-11-07 07:58:21
+3980   3944   explorer.exe    2026-11-07 08:12:40
+ 5120  3980   chrome.exe      2026-11-07 08:15:02
+ 4172  3980   svchost.exe     2026-11-07 09:41:17
+ 5400  3980   notepad.exe     2026-11-07 10:02:33
+:: file /home/analyst/netscan.txt
+Proto  LocalAddr          ForeignAddr          State        PID   Owner
+TCPv4  10.0.20.114:49812  142.250.80.46:443    ESTABLISHED  5120  chrome.exe
+TCPv4  10.0.20.114:50231  198.51.100.23:8443   ESTABLISHED  4172  svchost.exe
+TCPv4  10.0.20.114:139    0.0.0.0:0            LISTENING    4     System
+TCPv4  0.0.0.0:135        0.0.0.0:0            LISTENING    780   svchost.exe
+:: file /home/analyst/cmdline.txt
+PID   Args
+780   C:\Windows\system32\svchost.exe -k DcomLaunch -p
+856   C:\Windows\system32\svchost.exe -k RPCSS -p
+944   C:\Windows\system32\svchost.exe -k netsvcs -p
+1204  C:\Windows\system32\svchost.exe -k LocalService -p
+4172  C:\Users\Public\svchost.exe
+5120  "C:\Program Files\Google\Chrome\Application\chrome.exe"

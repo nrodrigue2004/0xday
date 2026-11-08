@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man rest-apis-and-spring-boot :: 0xDay</title>
+<meta name="description" content="rest-apis-and-spring-boot cheatsheet: REST APIs &amp; Spring Boot commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man rest-apis-and-spring-boot</p>
+<div class="manhead"><span>REST-APIS-AND-SPRING-BOOT(7)</span><span>0xDay Field Manual</span><span>REST-APIS-AND-SPRING-BOOT(7)</span></div>
+<h1>rest-apis-and-spring-boot <span class="muted">- REST APIs &amp; Spring Boot commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-http-methods">http methods</a> <a href="#g-status-codes">status codes</a> <a href="#g-spring-annotations">spring annotations</a> <a href="#g-curl-and-tools">curl and tools</a> <a href="#g-terms">terms</a></p><h2 id="g-http-methods">http methods</h2><dl class="man"><dt><code>GET</code></dt><dd>read, no body, safe to repeat</dd><dt><code>POST</code></dt><dd>create, or an action</dd><dt><code>PUT</code></dt><dd>replace a whole resource</dd><dt><code>PATCH</code></dt><dd>change part of a resource</dd><dt><code>DELETE</code></dt><dd>remove a resource</dd></dl><h2 id="g-status-codes">status codes</h2><dl class="man"><dt><code>200 / 201 / 204</code></dt><dd>OK / created / ok with no body</dd><dt><code>301 / 302</code></dt><dd>redirect</dd><dt><code>400</code></dt><dd>bad request or failed validation</dd><dt><code>401</code></dt><dd>missing or invalid credentials</dd><dt><code>403</code></dt><dd>authenticated but not allowed</dd><dt><code>404</code></dt><dd>not found</dd><dt><code>409</code></dt><dd>conflict (duplicate)</dd><dt><code>429</code></dt><dd>too many requests</dd><dt><code>500 / 503</code></dt><dd>server error / unavailable</dd></dl><h2 id="g-spring-annotations">spring annotations</h2><dl class="man"><dt><code>@SpringBootApplication</code></dt><dd>main class; starts the app</dd><dt><code>@RestController</code></dt><dd>class returns JSON</dd><dt><code>@RequestMapping(&quot;/api/x&quot;)</code></dt><dd>base path</dd><dt><code>@GetMapping @PostMapping @PutMapping @DeleteMapping</code></dt><dd>map methods to handlers</dd><dt><code>@PathVariable @RequestParam @RequestBody</code></dt><dd>read from path, query string, body</dd><dt><code>@Valid @NotBlank @Size</code></dt><dd>validate input</dd><dt><code>@Service @Repository @Component</code></dt><dd>beans Spring manages</dd><dt><code>@PreAuthorize</code></dt><dd>method-level access rule</dd></dl><h2 id="g-curl-and-tools">curl and tools</h2><dl class="man"><dt><code>curl -i URL</code></dt><dd>show status line and headers</dd><dt><code>curl -X POST -H &quot;Content-Type: application/json&quot; -d &#x27;{..}&#x27; URL</code></dt><dd>send JSON</dd><dt><code>curl -H &quot;Authorization: Bearer T&quot; URL</code></dt><dd>authenticated request</dd><dt><code>jq .</code></dt><dd>pretty-print JSON</dd><dt><code>./mvnw spring-boot:run</code></dt><dd>run the app from source</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>REST</code></dt><dd>style of API over HTTP using resources and methods</dd><dt><code>JSON</code></dt><dd>text format for objects and lists</dd><dt><code>JWT</code></dt><dd>signed token carrying identity claims</dd><dt><code>DTO</code></dt><dd>data shape used only for the API</dd><dt><code>IDOR</code></dt><dd>using someone else&#x27;s id to reach their data</dd><dt><code>CORS</code></dt><dd>browser rule for cross-site API calls</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

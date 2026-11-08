@@ -43,6 +43,16 @@
      "name": "System hardening (Windows/Linux)",
      "level": 2,
      "proof": "ctf.html"
+    },
+    {
+     "name": "Memory forensics (Volatility)",
+     "level": 2,
+     "proof": "posts/hitek-forensics.html"
+    },
+    {
+     "name": "Disk forensics (Autopsy / FTK Imager)",
+     "level": 3,
+     "proof": "posts/hitek-forensics.html"
     }
    ]
   },
@@ -78,6 +88,21 @@
      "name": "Cryptography (applied)",
      "level": 2,
      "proof": "ctf.html"
+    },
+    {
+     "name": "PE format (PE-bear)",
+     "level": 3,
+     "proof": "posts/anti-vm-patching.html"
+    },
+    {
+     "name": "Ghidra & IDA Pro",
+     "level": 3,
+     "proof": "posts/anti-vm-patching.html"
+    },
+    {
+     "name": "Vulnerable lab targets (DVWA / WebGoat)",
+     "level": 2,
+     "proof": "posts/proxmox-homelab.html"
     }
    ]
   },
@@ -208,6 +233,21 @@
      "name": "Git / GitHub",
      "level": 3,
      "proof": "https://github.com/nrodrigue2004"
+    },
+    {
+     "name": "MongoDB & NoSQL",
+     "level": 2,
+     "proof": "projects.html"
+    },
+    {
+     "name": "REST APIs & Spring Boot",
+     "level": 2,
+     "proof": "projects.html"
+    },
+    {
+     "name": "Mobile apps (React Native / Expo)",
+     "level": 2,
+     "proof": "projects.html"
     }
    ]
   },

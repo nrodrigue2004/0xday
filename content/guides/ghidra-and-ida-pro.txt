@@ -1,0 +1,124 @@
+tagline: Ghidra and IDA Pro turn a binary back into something you can read. Learn the workflow that works in either tool: strings, imports, cross-references, renaming, then find the function that does the interesting thing.
+sheet_summary: Ghidra and IDA Pro keys, views and a first-hour workflow
+:: simple
+A **disassembler** turns machine code back into assembly instructions. A **decompiler** goes one step further and shows C-like code. **Ghidra** (free, from the NSA) and **IDA Pro** (commercial, long the industry standard) both do the analysis on a program you never run, which is called **static analysis**.
+
+You don't read the whole program. You use the tool to answer one question, like "where does it contact the network?", by following clues.
+
+```
+$ cat ~/ghidra/strings.txt
+$ cat ~/ghidra/xrefs.txt
+```
+
+### The five views you'll use
+- **Listing / disassembly**: the instructions, with addresses
+- **Decompiler**: C-like pseudocode for the selected function
+- **Functions window**: every function the tool found (named, or `FUN_00401a30` when unnamed)
+- **Strings**: text found in the file
+- **Imports / symbol tree**: the Windows API calls the program uses
+
+### Clues first, code second
+Start from something that stands out (a string, an API call) and ask the tool **who uses it**. That's a **cross-reference** (xref): press `X` in IDA, or right-click > References in Ghidra.
+:: mid
+### A first-hour workflow
+1. Triage outside the tool: hashes, file type, [PE headers](pe-format-pe-bear.html), strings. Is it packed? Unpack first
+2. Create the project and import the file; accept the analyzer defaults
+3. Open **Strings** and **Imports**, note anything useful (URLs, file paths, registry keys, `CreateRemoteThread`)
+4. For each, jump to where it's used with xrefs and read that function in the decompiler
+5. **Rename** variables and functions as you learn what they do (`N` in IDA, `L` in Ghidra). Your notes live in the database
+6. Add comments (`;` in IDA, `;` or `Ctrl+;` in Ghidra) and keep going outward through callers and callees
+
+### Reading decompiler output
+Decompiler code is a guess. Types are generic (`undefined4`, `__int64`), variable names are `local_28` or `v7`, and structures show up as pointer math. Set types (`Y` in both) to make it readable: when you change `param_1` into a `SOCKET`, calls suddenly make sense.
+
+### Ghidra vs IDA in practice
+Ghidra is free, scriptable in Java and Python, supports collaboration through a server, and has a strong decompiler for many CPUs. IDA is faster and more polished, with a superb debugger and the Hex-Rays decompiler for the architectures you license. Skills transfer: both show the same concepts under different shortcuts.
+
+### Patching and debugging
+Static analysis can't run code. For dynamic work use **x64dbg** (Windows), the **IDA debugger**, or Ghidra's debugger. In the lab VM, set breakpoints on the functions you found statically, step through, and watch values change. A classic use: patch a conditional jump (`jz` to `jmp`) to bypass a check, as in anti-VM bypassing (see the anti-vm-patching post).
+:: complex
+### Recognizing common shapes
+- **Loops over bytes with `^`** (xor): string or config decryption
+- **A big `switch` on a received value**: command dispatcher in a backdoor
+- **`GetProcAddress` with hashed names**: API hashing, hides imports
+- **Stack strings** (`mov byte ptr [ebp-x], 'h'` in a row): text built a letter at a time to dodge `strings`
+- **Calls to `cpuid`, `sidt`, `sldt`, `str`**: virtual-machine detection
+- **`CreateProcess` + `WriteProcessMemory` + `ResumeThread`**: process hollowing
+
+### Structures, types and calling conventions
+Right-size the types: on x64 Windows the first four arguments go in `rcx, rdx, r8, r9`; on x86 `stdcall` pushes arguments on the stack and the callee cleans up. If the decompiler shows the wrong number of arguments, fix the function signature (`F` in Ghidra, `Y` on the function in IDA).
+
+### Scripting
+Ghidra scripts (Python/Java) and IDAPython can rename hundreds of functions, decrypt every string in the binary, or export results. A common script: find every call to the decryption routine, emulate it on each encrypted blob, and write the plaintext as a comment.
+
+### Keeping your analysis honest
+Write each conclusion with its evidence: the address, the instruction or xref that supports it, and whether you confirmed it dynamically. Re-check names you assigned when you were guessing. Finish with indicators (hashes, domains, mutexes, file paths) that detection teams can use.
+:: ref
+### navigation (IDA / Ghidra)
+G | go to an address or symbol
+X (IDA) / Ctrl+Shift+F (Ghidra) | cross-references to the selected item
+Shift+F12 (IDA) / Window > Defined Strings (Ghidra) | open the strings list
+Esc (IDA) / Alt+Left (Ghidra) | go back
+Space (IDA) | switch between graph and text view
+F5 (IDA) / Window > Decompile (Ghidra) | show the decompiler
+### editing
+N (IDA) / L (Ghidra) | rename the selected variable or function
+Y | change a type or signature
+; (IDA) / ; (Ghidra) | add a comment
+D / C | convert bytes to data / to code (IDA)
+Ctrl+Z | undo
+### analysis targets
+Imports | which APIs the program calls
+Strings | URLs, paths, error messages, commands
+Exports | functions a DLL offers
+Entry point | where execution starts
+Xrefs to string | which function prints, sends or compares it
+Xrefs to API | where the dangerous call is made
+### terms
+Static analysis | studying a binary without running it
+Dynamic analysis | studying it while it runs
+Disassembler | machine code to assembly
+Decompiler | assembly to C-like pseudocode
+Cross-reference (xref) | place where an item is used
+FUN_xxxxxxxx | Ghidra's default name for an unnamed function
+Hex-Rays | IDA's decompiler plugin
+:: lab
+host: re-lab
+user: student
+cwd: /home/student/ghidra
+:: brief
+You've loaded `dropper.exe` (a fictional lab sample) into Ghidra. It has a few dozen functions and none of them are named. Your notes are in `strings.txt` (strings with the address they live at) and `xrefs.txt` (which function references each string). `functions.txt` lists every function with its size.
+
+The report needs the function that **sends the beacon to the C2**. It's the one that references the beacon URL path (`/gate.php`).
+
+Submit the **address of the function**, e.g. `submit 00401000`.
+:: answer
+00401a30
+:: hint
+`grep gate strings.txt` shows the string and where it lives. Then look for that string's address in `xrefs.txt`.
+:: hint
+Careful, there are two similar strings. The beacon path starts with `/gate`, the other one is a log message.
+:: solution
+`strings.txt` lists `/gate.php?id=` at `004030c8`. In `xrefs.txt` the only reference to `004030c8` comes from `FUN_00401a30` (called from `FUN_00401500`, the main loop). That function also references `Mozilla/4.0 (compatible)` and calls `InternetOpenA`, `HttpSendRequestA`. Rename it `send_beacon` in Ghidra, then check its callers and what data it sends.
+:: verify
+grep gate strings.txt
+:: file /home/student/ghidra/strings.txt
+004030a0  "kernel32.dll"
+004030b4  "Mozilla/4.0 (compatible)"
+004030c8  "/gate.php?id="
+004030e0  "gate init failed"
+00403100  "%APPDATA%\svc.dat"
+:: file /home/student/ghidra/xrefs.txt
+004030a0  <-  FUN_00401200
+004030b4  <-  FUN_00401a30
+004030c8  <-  FUN_00401a30
+004030e0  <-  FUN_00401500
+00403100  <-  FUN_00401700
+FUN_00401a30  <-  FUN_00401500
+FUN_00401700  <-  FUN_00401500
+:: file /home/student/ghidra/functions.txt
+00401000  FUN_00401000   size 0x40
+00401200  FUN_00401200   size 0x120
+00401500  FUN_00401500   size 0x210   (entry)
+00401700  FUN_00401700   size 0x90
+00401a30  FUN_00401a30   size 0x1c4
