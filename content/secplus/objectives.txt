@@ -23,6 +23,26 @@ Q: A "Authorized personnel only" sign is which control type?
 A: Directive (it may also deter).
 Q: Firewall rules and encryption are which control category?
 A: Technical.
+Q: Name the four control categories.
+A: Technical, managerial (administrative), operational, and physical.
+Q: A splash screen warning that unauthorized use is prohibited is which type and category?
+A: Deterrent, technical.
+Q: Reviewing login reports every week is which type and category?
+A: Detective, managerial.
+Q: Why are directive controls considered weak?
+A: They only tell people what to do. They depend on people deciding correctly and complying, so nothing enforces them.
+Q: What is the difference between a corrective and a compensating control?
+A: Corrective acts after an event to reverse or limit damage. Compensating is a substitute used when the ideal control isn't available (for example, a firewall rule while waiting for a patch).
+Q: Separation of duties is usually which control type?
+A: Compensating (managerial category): no single person has complete control.
+Q: A backup generator during a power outage is which type and category?
+A: Compensating, physical.
+Q: A motion detector is which type and category?
+A: Detective, physical.
+Q: Which control type discourages an attacker but doesn't actually block access?
+A: Deterrent.
+Q: Calling law enforcement after a break-in is which type and category?
+A: Corrective, operational.
 
 ## 1.2 Summarize fundamental security concepts
 labs: cryptography-applied, active-directory
@@ -46,6 +66,36 @@ Q: What does accounting mean in AAA?
 A: Recording what users did: logs of logins, resources used, data transferred.
 Q: What is a gap analysis?
 A: A comparison of the current security posture against a target baseline or framework to find what's missing.
+Q: Which key signs a digital signature, and which key verifies it?
+A: The sender's private key signs. The sender's public key verifies.
+Q: A hash proves integrity. What extra proof does a digital signature add?
+A: Proof of origin (who created it), which together give non-repudiation.
+Q: In AAA, what does accounting record?
+A: Who did what, and when: logins, logouts, resources used, data volume.
+Q: What is adaptive identity?
+A: Authentication that adjusts to context (location, IP, device, relationship to the company) and asks for stronger proof when something looks unusual.
+Q: Which zero trust component only enforces and never decides?
+A: The policy enforcement point (PEP), which sits in the data plane.
+Q: What two parts make up the policy decision point?
+A: The policy engine (decides) and the policy administrator (issues tokens/credentials and tells the PEP).
+Q: What is threat scope reduction?
+A: Limiting the number of entry points into the network so there is less to attack.
+Q: What does a gap analysis need before it starts?
+A: A baseline to compare current state against, such as NIST SP 800-171 or ISO/IEC 27001.
+Q: What is the purpose of an access control vestibule?
+A: To stop tailgating by letting only one door open at a time so identity can be checked before entry.
+Q: Which sensor suits a large open area: infrared or microwave?
+A: Microwave. Infrared suits smaller areas.
+Q: What is two-person integrity?
+A: Two or more people (such as guards) are required so one person can't bypass policy alone.
+Q: What is the difference between a honeyfile and a honeytoken?
+A: A honeyfile is a decoy file that alerts when opened. A honeytoken is traceable fake data (credentials, emails, records) that reveals where it was copied or used.
+Q: What is a honeynet?
+A: A network of honeypots built to look like a real environment to keep attackers busy and observed.
+Q: Which part of a router is the control plane: the routing table or packet forwarding?
+A: The routing table (configuration). Forwarding packets is the data plane.
+Q: How does a certificate authenticate a device?
+A: The CA signs a certificate issued to the device. Anyone trusting the CA can verify the signature and confirm the device is genuine.
 
 ## 1.3 Explain the importance of change management processes and the impact to security
 labs: git-github
@@ -63,6 +113,22 @@ Q: What should happen to network diagrams and documentation after a change?
 A: They must be updated so documentation matches reality.
 Q: Why does version control matter for change management?
 A: It tracks what changed, when and by whom, and makes rollback possible.
+Q: What must exist before approving a change, in case it fails?
+A: A tested backout plan (steps to undo the change).
+Q: What does impact analysis look at?
+A: What the change could break or expose, what depends on the system, risk added, and expected benefit.
+Q: What is a sandbox used for in change management?
+A: Testing the change safely before it touches production.
+Q: Why do dependencies matter in change management?
+A: Changing one system can break others that rely on it, so they must be mapped before the change.
+Q: Why must diagrams and policies be updated after a change?
+A: So documentation matches reality, which helps incident response, audits and later changes.
+Q: What does version control give you?
+A: A history of every revision, who made it, and the ability to roll back to a known good version.
+Q: What is the difference between an allow list and a deny list?
+A: Allow list permits only what is listed (default deny). Deny list blocks only what is listed (default allow).
+Q: Why is a legacy application a change-management concern?
+A: It may break when the OS or libraries change, or it may not be patchable, which calls for compensating controls.
 
 ## 1.4 Explain the importance of using appropriate cryptographic solutions
 labs: cryptography-applied, password-cracking-john
@@ -88,6 +154,40 @@ Q: Which key do you use to verify someone's digital signature?
 A: Their public key.
 Q: What does a digital signature give you?
 A: Integrity, authentication and non-repudiation.
+Q: What is the main advantage of symmetric over asymmetric encryption?
+A: Speed. It's much faster and suited to bulk data.
+Q: What is the main weakness of symmetric encryption?
+A: Both sides need the same secret key, so sharing it safely is hard.
+Q: How does TLS combine symmetric and asymmetric crypto?
+A: Asymmetric crypto exchanges a symmetric session key, then symmetric encryption protects the data.
+Q: What does perfect forward secrecy protect against?
+A: Stealing a server's long-term private key later and decrypting previously recorded sessions. Ephemeral keys per session make that impossible.
+Q: TPM or HSM: which is a chip on a single device's motherboard?
+A: TPM. An HSM is a dedicated, tamper-resistant device or service for protecting keys for many systems.
+Q: What is steganography?
+A: Hiding a message inside another file or medium so its existence isn't obvious.
+Q: What does a salt do?
+A: A random value added before hashing so identical passwords get different hashes and rainbow tables fail.
+Q: What does key stretching do?
+A: Repeats hashing many times to make each password guess slower.
+Q: Why are MD5 and SHA-1 no longer trusted for security?
+A: Practical collision attacks exist (different inputs with the same hash).
+Q: What file format holds both a certificate and its private key, protected by a password?
+A: PFX/PKCS#12 (P12).
+Q: What is OCSP stapling?
+A: The server attaches a recent, CA-signed revocation status to the TLS handshake so clients don't have to query the CA.
+Q: Which key do you use to verify a digital signature?
+A: The signer's public key.
+Q: What is a wildcard certificate and what is its risk?
+A: One certificate covering all subdomains (*.example.com). If its private key is stolen, every subdomain is exposed.
+Q: What is a CSR?
+A: Certificate signing request: your public key and identity details sent to a CA to obtain a certificate.
+Q: What is key escrow?
+A: A trusted third party holds a copy of a key so it can be recovered when the owner can't provide it.
+Q: What makes a blockchain tamper-evident?
+A: Each block contains the hash of the previous block, so changing an old block changes every later hash.
+Q: Which algorithm gives similar strength to RSA with much shorter keys?
+A: ECC (elliptic curve cryptography).
 
 ## 2.1 Compare and contrast common threat actors and motivations
 - Actors: nation-state (APT, huge resources), unskilled attacker (script kiddie), hacktivist, insider threat, organized crime, shadow IT.
@@ -103,6 +203,26 @@ Q: What motivates a hacktivist?
 A: Philosophical or political beliefs.
 Q: Why are insider threats dangerous?
 A: They already have legitimate access and knowledge of the systems.
+Q: Which threat actor is typically responsible for an APT?
+A: A nation state: long-term, well-funded, sophisticated intrusion.
+Q: Which attribute of a threat actor is the most likely clue in an exam scenario?
+A: Motivation (why they attack), followed by internal/external, resources and sophistication.
+Q: An employee passed over for promotion deletes a shared drive. Which actor and motivation?
+A: Insider threat, revenge.
+Q: A department buys its own cloud service on a credit card, bypassing IT. Which actor?
+A: Shadow IT: not malicious but creates unmanaged risk.
+Q: A group defaces a company website to protest its policies. Which actor?
+A: Hacktivist (philosophical/political motivation).
+Q: Which actor is mainly motivated by money and may run customer support for ransomware victims?
+A: Organized crime.
+Q: What is a script kiddie?
+A: An unskilled attacker who runs others' tools without understanding them.
+Q: What is the difference between a white hat and gray hat hacker?
+A: White hat is authorized and ethical. Gray hat acts without authorization but not maliciously and may disclose findings publicly.
+Q: Name two defenses against insider threats.
+A: Least privilege and separation of duties (also monitoring, vetting at hire, prompt offboarding).
+Q: What was Stuxnet?
+A: A worm attributed to nation states that sabotaged nuclear centrifuges, a classic example of a sophisticated nation-state attack.
 
 ## 2.2 Explain common threat vectors and attack surfaces
 labs: phishing-analysis, recon-nmap-metasploit
@@ -122,6 +242,26 @@ Q: Why are default credentials a threat vector?
 A: They're published online, so attackers try them first on any new device.
 Q: What is smishing?
 A: Phishing via SMS text messages.
+Q: What is the difference between phishing, spear phishing and whaling?
+A: Phishing is broad. Spear phishing targets specific people. Whaling targets senior executives.
+Q: What is vishing? Smishing?
+A: Vishing is phishing by voice call. Smishing is phishing by SMS text.
+Q: How does pharming differ from phishing?
+A: Pharming redirects users to a fake site by corrupting DNS or hosts data, even when they type the correct address.
+Q: Why is an MSP a supply chain risk?
+A: It has remote access to many customers, so compromising one MSP can reach all of them.
+Q: Name three message-based threat vectors.
+A: Email, SMS, and instant messaging/collaboration chat.
+Q: What is the difference between tailgating and shoulder surfing?
+A: Tailgating is following someone through a secured door. Shoulder surfing is watching someone's screen or keypad.
+Q: What is baiting?
+A: Leaving something tempting, such as an infected USB drive, for a victim to pick up and use.
+Q: Why are unsupported (end-of-life) systems a threat vector?
+A: They no longer get patches, so known vulnerabilities stay open forever.
+Q: What is an attack surface?
+A: All the places an attacker could try to get in. Reduced by removing unused services, ports, accounts and software.
+Q: Which social engineering principle is used when a message says "Act within 1 hour or your account is closed"?
+A: Urgency (also fear and authority).
 
 ## 2.3 Explain various types of vulnerabilities
 labs: binary-exploitation, databases-and-sql, typescript-javascript
@@ -141,6 +281,34 @@ Q: What is a zero-day?
 A: A vulnerability the vendor doesn't know about or hasn't patched yet.
 Q: What is sideloading?
 A: Installing mobile apps from outside the official app store.
+Q: What is the best defense against SQL injection?
+A: Parameterized queries (prepared statements), with input validation and least-privilege database accounts.
+Q: Which type of XSS affects every visitor to a page?
+A: Stored (persistent) XSS, because the script is saved on the server.
+Q: What is TOCTOU?
+A: Time-of-check to time-of-use: a race condition where the state changes between checking something and using it.
+Q: Name two OS-level protections that make buffer overflows harder to exploit.
+A: ASLR (randomized memory layout) and DEP/NX (data pages can't execute). Stack canaries also help.
+Q: What is a VM escape?
+A: Code in a guest VM breaking out to the hypervisor or other VMs.
+Q: What is VM sprawl?
+A: Unmanaged, forgotten VMs that aren't patched or monitored.
+Q: What is a zero-day vulnerability?
+A: A flaw unknown to the vendor (no patch yet) that attackers may already exploit.
+Q: What is jailbreaking/rooting?
+A: Removing OS restrictions on a phone, which also removes built-in security protections.
+Q: Which mitigation checks a software update is genuine?
+A: Verify its digital signature or hash from a trusted source.
+Q: In the shared responsibility model, who secures a customer's data in the cloud?
+A: The customer. The provider secures the underlying cloud infrastructure.
+Q: Name three misconfiguration vulnerabilities.
+A: Default credentials, open/unneeded ports or services, and overly permissive file or bucket access.
+Q: What makes firmware vulnerabilities hard to deal with?
+A: Firmware is rarely patched and often not covered by normal OS patching or scanning tools.
+Q: Which vulnerability lets a script run in another user's browser in the context of a trusted site?
+A: Cross-site scripting (XSS).
+Q: Which vulnerability is memory injection?
+A: Placing malicious code into a running process's memory so it runs under that process's identity.
 
 ## 2.4 Given a scenario, analyze indicators of malicious activity
 labs: log-analysis, malware-analysis, network-traffic-analysis, password-cracking-john
@@ -165,6 +333,48 @@ Q: What is a reflected/amplified DDoS?
 A: Spoofing the victim's IP in small requests to servers (DNS, NTP) that send much larger replies to the victim.
 Q: Missing logs or gaps in logging are an indicator of what?
 A: An attacker covering their tracks.
+Q: What is the difference between a virus and a worm?
+A: A virus needs a host file and user action to spread. A worm self-replicates across networks without user action.
+Q: What makes a rootkit dangerous?
+A: It hides deep in the OS or firmware, hiding itself and other malware while giving persistent privileged access.
+Q: What is fileless malware and how is it caught?
+A: Malware that runs in memory using built-in tools like PowerShell. Caught by behavior-based detection (EDR) rather than file signatures.
+Q: What is password spraying?
+A: Trying a few common passwords against many accounts to avoid lockouts.
+Q: What defeats a rainbow table attack?
+A: Salting the passwords before hashing.
+Q: What is credential stuffing?
+A: Reusing username/password pairs from breaches against other sites.
+Q: What is an evil twin?
+A: A rogue access point that copies a legitimate network's SSID to trick users into connecting.
+Q: What does a deauthentication attack do?
+A: Sends forged management frames to disconnect Wi-Fi clients. 802.11w (protected management frames) mitigates it.
+Q: What is a replay attack and one defense?
+A: Resending captured valid data to gain access. Defense: nonces, timestamps, one-time session tokens.
+Q: What is an on-path attack?
+A: An attacker positioned between two parties who can read or alter traffic (formerly man-in-the-middle).
+Q: What is DNS cache poisoning?
+A: Inserting false DNS records into a resolver's cache so users go to the attacker's address. DNSSEC helps prevent it.
+Q: What is impossible travel?
+A: Logins from locations too far apart for the time between them. A common indicator of compromise.
+Q: Why alert on missing logs?
+A: Attackers delete logs to hide activity, so gaps can indicate compromise.
+Q: What is the difference between CSRF and XSS?
+A: XSS runs attacker script in a victim's browser on a trusted site. CSRF makes a logged-in browser send an unintended request.
+Q: What is SSRF?
+A: Server-side request forgery: tricking the server into making requests to internal systems or cloud metadata.
+Q: What is a birthday attack?
+A: A collision attack that exploits birthday-paradox math, needing far fewer tries than brute force.
+Q: What is amplification in a DDoS?
+A: A small request triggers a much larger response sent to the victim (for example DNS or NTP).
+Q: What is RFID cloning?
+A: Copying the data from an access card or fob to make a working duplicate.
+Q: What is cryptojacking?
+A: Using a victim's computing power to mine cryptocurrency, shown by high CPU use and slowness.
+Q: What is directory traversal?
+A: Using ../ sequences to read files outside the intended folder.
+Q: How does an attacker use an account lockout to get a password reset?
+A: Locks the account deliberately, then calls the help desk impersonating the user to get a reset.
 
 ## 2.5 Explain the purpose of mitigation techniques used to secure the enterprise
 labs: system-hardening-windows-linux, firewalls-pfsense, group-policy
@@ -181,6 +391,26 @@ Q: Why does network segmentation reduce risk?
 A: It limits lateral movement and blast radius when one segment is compromised.
 Q: Name three quick hardening steps for a new server.
 A: Change default passwords, disable unused ports/services, remove unneeded software (also patch and enable a host firewall).
+Q: What does segmentation limit?
+A: Lateral movement and the spread of an infection or intruder between network zones.
+Q: Application allow list or deny list: which is stronger?
+A: Allow list. Only approved programs run, so unknown malware is blocked.
+Q: A legacy system can't be patched. Name two mitigations.
+A: Isolate it (VLAN/segmentation) and restrict access with ACLs (compensating controls).
+Q: What is hardening?
+A: Reducing the attack surface by removing or disabling everything not needed and locking down the rest.
+Q: Name three hardening steps for a new server.
+A: Change default credentials, disable unused ports/services, patch, apply a secure baseline, enable a host firewall.
+Q: Why disable unused physical switch ports?
+A: Prevents someone plugging in an unauthorized device.
+Q: What does a host-based firewall do?
+A: Filters traffic to and from a single host, allowing only needed ports and apps.
+Q: What is configuration enforcement?
+A: Automatically checking and correcting systems so they stay on their secure baseline.
+Q: What is least privilege?
+A: Giving users and systems only the access they need, only for as long as they need it.
+Q: Why decommission unused systems and accounts?
+A: They are unmanaged attack surface that rarely gets patched or monitored.
 
 ## 3.1 Compare and contrast security implications of different architecture models
 labs: virtualization-proxmox, networking-tcp-ip-dhcp-nat-subnets
@@ -200,6 +430,26 @@ Q: Why are ICS/SCADA systems hard to secure?
 A: They run critical physical processes, are often legacy, can't be patched or rebooted easily, and need availability above all.
 Q: Containers vs VMs?
 A: Containers share the host OS kernel (light, fast); VMs each run a full OS on a hypervisor (stronger isolation).
+Q: In IaaS, who is responsible for patching the guest operating system?
+A: The customer. The provider handles hardware, hypervisor and facility.
+Q: In SaaS, what does the customer still always secure?
+A: Their data, user access and configuration.
+Q: What is an air gap?
+A: A system physically isolated with no network connection to other networks.
+Q: What is infrastructure as code (IaC)?
+A: Defining infrastructure in versioned code so deployments are repeatable and reviewable.
+Q: How do containers differ from VMs in isolation?
+A: Containers share the host OS kernel and are less isolated; each VM has its own kernel and is more isolated.
+Q: What is the main security concern with ICS/SCADA and IoT devices?
+A: They are hard or impossible to patch and often have weak defaults, so isolate them from other networks.
+Q: Can you transfer accountability for your data to a cloud provider?
+A: No. You can transfer some risk, but you stay accountable for your data.
+Q: What is serverless computing?
+A: Running code without managing servers. The provider handles scaling and patching, while you secure the code, permissions and data.
+Q: What is a microservices architecture?
+A: An app built from small independent services that communicate via APIs.
+Q: What does "inability to patch" call for?
+A: Compensating controls such as isolation and access restrictions.
 
 ## 3.2 Given a scenario, apply security principles to secure enterprise infrastructure
 labs: firewalls-pfsense, ids-snort, vpn-tailscale, networking-tcp-ip-dhcp-nat-subnets
@@ -221,6 +471,38 @@ Q: What is SASE?
 A: Secure access service edge: cloud-delivered networking and security (SD-WAN plus firewall, CASB, zero-trust access) close to users.
 Q: Layer 4 vs layer 7 firewall?
 A: Layer 4 filters by IP/port/protocol; layer 7 (NGFW) understands applications and content.
+Q: What does fail-closed mean?
+A: When the device fails it blocks traffic, favoring security over availability.
+Q: What does fail-open mean?
+A: When the device fails it allows traffic, favoring availability over security.
+Q: What is the difference between an inline and a tap/monitor deployment?
+A: Inline traffic passes through the device so it can block; tap/monitor sees a copy and can only alert.
+Q: Difference between IDS and IPS?
+A: IDS detects and alerts (passive). IPS detects and blocks (inline).
+Q: Forward proxy vs reverse proxy?
+A: Forward proxy sits in front of clients for outbound web access. Reverse proxy sits in front of servers.
+Q: What are the three roles in 802.1X?
+A: Supplicant (client), authenticator (switch/AP), authentication server (RADIUS).
+Q: Which EAP method uses certificates on both sides?
+A: EAP-TLS.
+Q: What does a stateful firewall track?
+A: Connection state, so return traffic of an allowed session is automatically permitted.
+Q: What is an implicit deny?
+A: The final rule that blocks anything not explicitly allowed.
+Q: What does a WAF protect?
+A: Web applications at layer 7 against attacks like SQL injection and XSS.
+Q: AH or ESP: which provides encryption?
+A: ESP (AH provides integrity and authentication only).
+Q: IPsec tunnel mode vs transport mode?
+A: Tunnel mode encapsulates the whole original packet (gateway to gateway). Transport mode protects only the payload (host to host).
+Q: Split tunnel vs full tunnel VPN?
+A: Split tunnel sends only corporate traffic through the VPN. Full tunnel sends all traffic.
+Q: What does DHCP snooping prevent?
+A: Rogue DHCP servers handing out bad addresses.
+Q: What does dynamic ARP inspection prevent?
+A: ARP spoofing/poisoning.
+Q: Signature-based vs anomaly-based detection?
+A: Signature matches known patterns (misses new attacks). Anomaly flags deviations from normal (catches new ones, more false positives).
 
 ## 3.3 Compare and contrast concepts and strategies to protect data
 labs: cryptography-applied, secure-data-sanitization
@@ -238,6 +520,28 @@ Q: How do you protect data in transit?
 A: Encrypt the connection (TLS, IPsec/VPN).
 Q: What is geofencing/geographic restriction?
 A: Limiting access to data or systems based on the user's location.
+Q: Name the three states of data.
+A: At rest, in transit (in motion), and in use.
+Q: Which state of data is hardest to protect and why?
+A: In use, because it must be decrypted to be processed.
+Q: Who decides how data is classified?
+A: The data owner.
+Q: What does a data custodian do?
+A: Implements the technical protection of data on behalf of the owner.
+Q: Data controller vs data processor?
+A: Controller decides why and how personal data is processed. Processor processes it on the controller's behalf.
+Q: What is data masking?
+A: Hiding part of a value (for example showing only the last 4 digits) while preserving its format.
+Q: What is tokenization?
+A: Replacing sensitive data with a meaningless token; the real data is kept in a secure vault.
+Q: Name three regulated data types.
+A: Health data (HIPAA), payment card data (PCI DSS), personal data of EU residents (GDPR).
+Q: What does DLP do?
+A: Detects and blocks sensitive data leaving the organization (email, USB, cloud uploads).
+Q: What is a trade secret?
+A: Information with business value that is protected by keeping it secret.
+Q: What controls protect data at rest?
+A: Encryption (disk, file, database), access controls and secure storage.
 
 ## 3.4 Explain the importance of resilience and recovery in security architecture
 labs: virtualization-proxmox
@@ -256,6 +560,34 @@ Q: Snapshot vs backup?
 A: A snapshot captures a VM/volume state at a point in time on the same storage; a backup is a separate copy that survives losing the original.
 Q: Load balancing vs clustering?
 A: Load balancing spreads requests across independent servers; clustering makes several servers act as one system with failover.
+Q: Hot, warm and cold site: order by recovery speed.
+A: Hot is fastest, then warm, then cold.
+Q: What does RPO define?
+A: The maximum acceptable data loss, measured in time (it drives backup frequency).
+Q: What does RTO define?
+A: The maximum acceptable time to restore a service.
+Q: Which backup type is fastest to restore?
+A: Full backup.
+Q: What do you need to restore from incremental backups?
+A: The last full backup plus every incremental since.
+Q: What do you need to restore from a differential backup?
+A: The last full backup plus the latest differential.
+Q: What is the 3-2-1 backup rule?
+A: 3 copies of data, on 2 different media types, with 1 copy offsite.
+Q: Why are snapshots not a full backup substitute?
+A: They usually sit on the same storage, so a storage failure or ransomware takes them too.
+Q: What is a tabletop exercise?
+A: A discussion-based walkthrough of an incident scenario to test plans without touching systems.
+Q: What is a failover test?
+A: Actually switching to the backup system or site to confirm it works.
+Q: UPS vs generator?
+A: A UPS gives short battery bridging and clean power; a generator provides longer-term power but takes time to start.
+Q: What is platform diversity?
+A: Using different operating systems, vendors or technologies so one flaw doesn't take down everything.
+Q: Why are immutable or offline backups important?
+A: Ransomware can't encrypt or delete them.
+Q: What does MTBF measure?
+A: Average time a repairable system operates between failures.
 
 ## 4.1 Given a scenario, apply common security techniques to computing resources
 labs: system-hardening-windows-linux, group-policy, windows-admin-powershell
@@ -275,6 +607,34 @@ Q: What is code signing?
 A: Signing software with a certificate so users can verify who published it and that it wasn't modified.
 Q: What does a wireless site survey produce?
 A: A heat map of signal coverage, used to place access points and find rogue APs.
+Q: What are the three steps of using a secure baseline?
+A: Establish, deploy, maintain.
+Q: What is configuration drift?
+A: Systems gradually moving away from their secure baseline settings.
+Q: WPA3 uses which exchange to resist offline password guessing?
+A: SAE (simultaneous authentication of equals).
+Q: What makes WPA2/WPA3-Enterprise more secure than Personal?
+A: Each user authenticates individually through 802.1X and a RADIUS server instead of sharing one password.
+Q: Which EAP method is strongest and why?
+A: EAP-TLS, because it requires certificates on both client and server.
+Q: What is a wireless heat map used for?
+A: Showing signal strength and dead zones to plan access point placement.
+Q: BYOD vs COPE?
+A: BYOD: the employee owns the device. COPE: the company owns it, but personal use is allowed.
+Q: What does MDM enforce?
+A: Policy on mobile devices: PIN, encryption, remote wipe, app control, updates.
+Q: What do the Secure, HttpOnly and SameSite cookie flags do?
+A: Secure: HTTPS only. HttpOnly: not readable by scripts. SameSite: limits sending in cross-site requests.
+Q: SAST vs DAST?
+A: SAST analyzes source code without running it. DAST tests the running application.
+Q: What is code signing for?
+A: Proving who published code and that it hasn't been altered.
+Q: What is sandboxing?
+A: Running code in an isolated environment so any damage is contained.
+Q: Why is hardening ICS devices different?
+A: They are hard to patch and prioritize safety and availability, so isolation and strict access control are used.
+Q: Where should input validation happen?
+A: On the server side (client-side checks can be bypassed).
 
 ## 4.2 Explain the security implications of proper hardware, software, and data asset management
 labs: secure-data-sanitization, hardware-diagnostics-and-repair
@@ -290,6 +650,22 @@ Q: Does degaussing work on SSDs?
 A: No, it only affects magnetic media. SSDs need crypto erase / secure erase or physical destruction.
 Q: What is data retention?
 A: Keeping data for a required length of time (legal, regulatory) and disposing of it afterwards.
+Q: Name the four stages of the asset life cycle in 4.2.
+A: Acquisition/procurement, assignment/accounting, monitoring/tracking, and disposal/decommissioning.
+Q: Why does every asset need an owner and a classification?
+A: So someone is accountable and so protection matches the asset's value.
+Q: What is enumeration?
+A: Discovering the devices and services present on a network, which also reveals unknown or shadow IT.
+Q: Which disposal method works on magnetic disks but not SSDs?
+A: Degaussing.
+Q: What is cryptographic erase?
+A: Destroying the encryption key so encrypted data becomes unreadable.
+Q: Which standard guides media sanitization?
+A: NIST SP 800-88.
+Q: What is a legal hold?
+A: A requirement to preserve relevant data because of actual or likely litigation, so it must not be disposed.
+Q: Why buy equipment from trusted sources?
+A: To avoid counterfeit or tampered hardware and software (supply chain risk).
 
 ## 4.3 Explain various activities associated with vulnerability management
 labs: recon-nmap-metasploit, linux-server-admin-ubuntu
@@ -309,6 +685,30 @@ Q: What should you do after patching a vulnerability?
 A: Validate it: rescan to confirm the fix.
 Q: What is an ISAC?
 A: Information Sharing and Analysis Center: an industry group that shares threat intel among members.
+Q: Vulnerability scan vs penetration test?
+A: A scan finds weaknesses; a penetration test actually exploits them to prove impact.
+Q: What is a false negative in a vulnerability scan?
+A: A real vulnerability the scanner failed to report.
+Q: What does CVSS provide?
+A: A 0-10 severity score for vulnerabilities (Critical 9.0-10.0).
+Q: CVE vs CVSS?
+A: CVE is the ID of a specific vulnerability. CVSS rates its severity.
+Q: What do rules of engagement define?
+A: The scope, timing and limits of a penetration test.
+Q: Known vs unknown environment test?
+A: Known (white box) gives the tester full information. Unknown (black box) starts with none.
+Q: Passive vs active reconnaissance?
+A: Passive gathers public info without touching the target. Active probes the target directly.
+Q: What are STIX and TAXII?
+A: STIX is a standard format for threat intelligence; TAXII is the transport to exchange it.
+Q: What is a bug bounty?
+A: A program that rewards researchers for responsibly reporting vulnerabilities.
+Q: When is a vulnerability exception or exemption used?
+A: When remediation isn't possible or practical; it is documented, approved and reviewed (risk acceptance).
+Q: What must happen after remediation?
+A: Validate: rescan/verify the fix and confirm the system still works.
+Q: What does insurance do for a vulnerability?
+A: Transfers some financial risk; it doesn't fix the flaw.
 
 ## 4.4 Explain security alerting and monitoring concepts and tools
 labs: siem-security-onion, log-analysis, ids-snort
@@ -326,6 +726,20 @@ Q: What is DLP?
 A: Data loss prevention: detects and blocks sensitive data leaving where it shouldn't.
 Q: What is an SNMP trap?
 A: An alert a network device sends to the management station when something happens.
+Q: SIEM vs SOAR?
+A: SIEM collects and correlates events. SOAR automates the response with playbooks.
+Q: What is alert fatigue?
+A: Analysts ignoring alerts because there are too many false positives.
+Q: Why does long log retention matter?
+A: Attackers can stay undetected for months, and logs support investigations and legal requirements.
+Q: What does NetFlow show?
+A: Metadata about network conversations (who talked to whom, how much), not packet contents.
+Q: Which SNMP version adds authentication and encryption?
+A: SNMPv3.
+Q: Name a common automated reaction to an alert.
+A: Quarantine the affected system (or disable the account / block the IP).
+Q: What is log aggregation?
+A: Collecting logs from many systems into one central place.
 
 ## 4.5 Given a scenario, modify enterprise capabilities to enhance security
 labs: firewalls-pfsense, ids-snort, phishing-analysis
@@ -347,6 +761,32 @@ Q: What does EDR add beyond antivirus?
 A: Continuous endpoint telemetry, behavior detection, investigation and automated response.
 Q: What is SELinux?
 A: Mandatory access control for Linux: policy decides what processes can access, even for root.
+Q: In what order are firewall rules processed?
+A: Top to bottom; the first match wins, ending with an implicit deny.
+Q: What does egress filtering do?
+A: Controls outbound traffic, stopping malware callbacks and data leaving the network.
+Q: Agent-based vs centralized proxy web filtering?
+A: Agent-based runs on the endpoint and works anywhere. Centralized proxy filters all traffic passing through one gateway.
+Q: What do SPF, DKIM and DMARC do?
+A: SPF lists allowed sending servers. DKIM signs messages. DMARC sets policy for failures and sends reports.
+Q: What replaces Telnet?
+A: SSH.
+Q: Which port does LDAPS use?
+A: 636/tcp.
+Q: Which ports do IMAPS and POP3S use?
+A: IMAPS 993, POP3S 995.
+Q: SFTP vs FTPS?
+A: SFTP runs over SSH (port 22). FTPS is FTP over TLS (989/990).
+Q: Antivirus vs EDR?
+A: Antivirus mostly matches signatures. EDR monitors behavior continuously and supports investigation and response.
+Q: What is Group Policy used for?
+A: Centrally enforcing security settings across Windows domain computers and users.
+Q: What does TLS inspection allow?
+A: A filter to see inside HTTPS traffic, but it needs certificates and has privacy implications.
+Q: What does DNS filtering do?
+A: Refuses to resolve known-bad domains.
+Q: What is posture assessment in NAC?
+A: Checking a device's health (patched, antivirus running) before allowing network access.
 
 ## 4.6 Given a scenario, implement and maintain identity and access management
 labs: active-directory, group-policy, windows-admin-powershell
@@ -369,6 +809,40 @@ Q: Which MFA factor is a fingerprint?
 A: Something you are (inherence).
 Q: Why should de-provisioning be fast?
 A: Leftover accounts of departed users are easy targets for attackers and insiders.
+Q: What is the difference between OAuth and OpenID Connect?
+A: OAuth is for authorization (delegated access). OpenID Connect adds authentication (identity) on top of it.
+Q: What is SAML used for?
+A: XML-based federation and single sign-on between an identity provider and service providers.
+Q: Which access control model uses labels and clearance levels?
+A: Mandatory access control (MAC).
+Q: Which model lets the resource owner decide access?
+A: Discretionary access control (DAC).
+Q: Which access control model assigns permissions by job function?
+A: Role-based access control (RBAC).
+Q: Which model uses attributes such as department, location and time?
+A: Attribute-based access control (ABAC).
+Q: What are the authentication factor categories?
+A: Something you know, have, are; somewhere you are; something you do.
+Q: Are a password and a PIN multifactor?
+A: No. Both are something you know, so it's a single factor.
+Q: HOTP vs TOTP?
+A: HOTP is counter-based. TOTP is time-based (codes expire, typically after 30 seconds).
+Q: What does FAR measure? FRR?
+A: FAR: how often an impostor is accepted. FRR: how often a legitimate user is rejected.
+Q: What is crossover error rate (CER)?
+A: The point where FAR equals FRR; lower means a more accurate biometric system.
+Q: Why does Kerberos need synchronized clocks?
+A: Tickets include timestamps and are rejected if the time difference is too large.
+Q: What is just-in-time (JIT) permission?
+A: Granting elevated access only when needed and for a limited time.
+Q: What is privileged access management (PAM)?
+A: Vaulting, controlling, recording and rotating admin credentials.
+Q: What does TACACS+ do better than RADIUS?
+A: It encrypts the whole payload and separates authentication, authorization and accounting.
+Q: What does current NIST password guidance favor?
+A: Length (passphrases), checking against breached/common lists, no forced periodic changes without evidence of compromise.
+Q: What is permission creep?
+A: Accumulating access over time as roles change, because old permissions are never removed.
 
 ## 4.7 Explain the importance of automation and orchestration related to secure operations
 labs: bash-scripting, python, windows-admin-powershell
@@ -383,6 +857,18 @@ Q: Name a risk of automation.
 A: It can become a single point of failure, or add complexity and technical debt.
 Q: What is SOAR?
 A: Security orchestration, automation and response: playbooks that automate incident handling across tools.
+Q: Automation vs orchestration?
+A: Automation performs a single task. Orchestration coordinates many automated tasks into one workflow.
+Q: Name three benefits of automation.
+A: Efficiency/time saved, consistent baselines, faster reaction time (also scaling securely and acting as a workforce multiplier).
+Q: What is a risk of automation?
+A: Single point of failure, complexity, technical debt, and mistakes applied at scale.
+Q: What is infrastructure as code?
+A: Declaring infrastructure in code so tools build it repeatably and consistently.
+Q: What is a playbook in SOAR?
+A: A defined, often automated, sequence of steps for responding to a particular type of incident.
+Q: Why protect automation credentials carefully?
+A: Automation accounts and API keys are powerful, so theft would grant broad access.
 
 ## 4.8 Explain appropriate incident response activities
 labs: incident-response, digital-forensics, malware-analysis
@@ -402,6 +888,30 @@ Q: What is threat hunting?
 A: Proactively searching for attackers already in the environment, before alerts fire.
 Q: What happens in lessons learned?
 A: A post-incident review of what happened and what to improve, feeding back into preparation.
+Q: List the incident response phases in order.
+A: Preparation, detection and analysis, containment, eradication, recovery, lessons learned.
+Q: Which comes first: containment or eradication?
+A: Containment.
+Q: What is a tabletop exercise?
+A: A discussion-based walkthrough of an incident scenario, with no systems touched.
+Q: What does a write blocker do?
+A: Prevents any writes to the original media while acquiring a forensic image.
+Q: What is the order of volatility?
+A: Collect most volatile data first: CPU/cache, RAM and network state, temp files/swap, disk, remote logs, configuration, archival media.
+Q: Why capture memory before disk?
+A: Memory is more volatile and is lost on shutdown, and it can hold keys, processes and network connections.
+Q: What is e-discovery?
+A: Collecting, preparing, reviewing and producing electronic documents for legal proceedings.
+Q: What is a jump kit (go bag)?
+A: A prepared set of tools (laptop, forensic software, write blockers, media, documentation) for responding to incidents.
+Q: What does root cause analysis aim to find?
+A: How the incident happened, so the underlying weakness can be fixed.
+Q: How do hashes support forensics?
+A: Comparing hashes of the original and the copy proves the evidence wasn't altered.
+Q: What happens in the lessons learned phase?
+A: A post-incident review of the timeline, what worked and what didn't, with changes to plans, monitoring and training.
+Q: Why use out-of-band communication during an incident?
+A: Normal channels such as email may be compromised.
 
 ## 4.9 Given a scenario, use data sources to support an investigation
 labs: log-analysis, network-traffic-analysis, siem-security-onion
@@ -415,6 +925,26 @@ Q: What is metadata in an investigation?
 A: Data about data: email headers, file timestamps, authors, sizes, which can reveal a lot without the content.
 Q: What Linux file usually has SSH login attempts?
 A: /var/log/auth.log (Debian/Ubuntu) or /var/log/secure (RHEL).
+Q: Which log tells you who had a particular IP address at a given time?
+A: DHCP log.
+Q: Which log shows domains a host looked up?
+A: DNS log.
+Q: What is metadata?
+A: Data about data, such as email headers, file properties and timestamps.
+Q: Packet capture vs NetFlow?
+A: Packet capture holds the content; NetFlow holds only summary information about conversations.
+Q: Why must device clocks be synchronized?
+A: So events from different logs can be correlated accurately (NTP).
+Q: Which source shows process creation and file changes on a host?
+A: Endpoint logs (OS security logs, EDR).
+Q: Which log would show blocked inbound connection attempts?
+A: Firewall log.
+Q: Why send logs to a central, protected store?
+A: So attackers who compromise a host can't alter or delete the evidence.
+Q: What does an IPS log show?
+A: Signature matches and attacks that were detected or blocked.
+Q: What does a vulnerability scan output provide in an investigation?
+A: The weaknesses present at the time of the scan, which hints at how a system could have been compromised.
 
 ## 5.1 Summarize elements of effective security governance
 - Guidelines, policies (AUP, information security, business continuity, disaster recovery, incident response, SDLC, change management).
@@ -432,6 +962,26 @@ Q: What does a data custodian do?
 A: Implements and maintains the controls on the data day to day (backups, permissions), as directed by the owner.
 Q: What is a playbook?
 A: A documented, repeatable set of steps for a specific situation (e.g. responding to phishing).
+Q: Order policy, standard and procedure from highest-level to most detailed.
+A: Policy, then standard, then procedure.
+Q: Is a guideline mandatory?
+A: No. It is recommended advice.
+Q: Who is accountable for a dataset and decides its classification?
+A: The data owner.
+Q: What does a data steward do?
+A: Manages data quality, labels and metadata.
+Q: What does an acceptable use policy cover?
+A: What users may and may not do with company systems and data.
+Q: What is the difference between a data controller and a data processor?
+A: Controller decides why and how personal data is processed. Processor handles it on the controller's behalf.
+Q: What does a DPO do?
+A: Advises on and monitors privacy law compliance.
+Q: Name four external considerations that shape governance.
+A: Regulatory, legal, industry standards, and local/national/global requirements.
+Q: Why review policies regularly?
+A: Threats, technology, laws and the business change, and incidents or audits reveal gaps.
+Q: What is an onboarding/offboarding procedure for?
+A: Consistently provisioning access when people join and removing it when they leave.
 
 ## 5.2 Explain elements of the risk management process
 - Risk identification, assessment (ad hoc, recurring, one-time, continuous), analysis: qualitative vs quantitative.
@@ -451,6 +1001,30 @@ Q: What's a risk register?
 A: A list of identified risks with their owner, likelihood, impact, and response.
 Q: MTBF vs MTTR?
 A: Mean time between failures (reliability) vs mean time to repair (how fast you fix it).
+Q: What is the formula for SLE?
+A: SLE = asset value x exposure factor.
+Q: What is the formula for ALE?
+A: ALE = SLE x ARO.
+Q: A $200,000 asset loses 25% in one event. What is the SLE?
+A: $50,000.
+Q: The SLE is $50,000 and the event happens twice a year. What is the ALE?
+A: $100,000.
+Q: Name the four risk responses.
+A: Avoid, mitigate, transfer, accept.
+Q: Buying cyber insurance is which risk response?
+A: Transfer.
+Q: What is residual risk?
+A: Risk remaining after controls are applied.
+Q: What is risk appetite vs risk tolerance?
+A: Appetite is the amount of risk an organization is willing to pursue. Tolerance is the acceptable variation around it.
+Q: Qualitative vs quantitative risk analysis?
+A: Qualitative uses descriptive ratings (high/medium/low). Quantitative uses numbers and money.
+Q: What is a risk register?
+A: A list of identified risks with owners, ratings, controls and status.
+Q: What does a BIA produce?
+A: Critical functions, dependencies and recovery metrics such as RTO and RPO.
+Q: When is a control cost-effective?
+A: When the control costs less than the loss it prevents (compare to ALE).
 
 ## 5.3 Explain the processes associated with third-party risk assessment and management
 - Vendor assessment: penetration testing, right-to-audit clause, evidence of internal audits, independent assessments, supply chain analysis.
@@ -466,6 +1040,20 @@ Q: What is a right-to-audit clause?
 A: Contract language letting you audit the vendor's security.
 Q: What does an NDA do?
 A: Legally binds a party to keep shared information confidential.
+Q: SLA vs SOW?
+A: An SLA defines service levels (uptime, response times). A SOW defines a project's scope and deliverables.
+Q: What is an NDA for?
+A: Legally protecting confidential information from disclosure.
+Q: What is due diligence in vendor selection?
+A: Investigating a vendor's security, finances and reputation before signing.
+Q: What is a BPA?
+A: Business partners agreement: defines how partners operate together, including shared responsibilities and exit terms.
+Q: What is a fourth party?
+A: A vendor's own supplier or subcontractor.
+Q: What belongs in vendor offboarding?
+A: Revoking access and confirming return or destruction of data.
+Q: What is a SOC 2 report?
+A: An independent auditor's report on a service provider's controls (security, availability, confidentiality, and more).
 
 ## 5.4 Summarize elements of effective security compliance
 - Compliance reporting (internal, external). Consequences of non-compliance: fines, sanctions, reputational damage, loss of license, contractual impacts.
@@ -479,6 +1067,24 @@ Q: Name two consequences of non-compliance.
 A: Fines and reputational damage (also sanctions, loss of license, contract impacts).
 Q: What is a data subject?
 A: The person the personal data is about.
+Q: Which law protects US health information?
+A: HIPAA.
+Q: Which standard governs card payment data?
+A: PCI DSS (an industry standard, not a law).
+Q: Which regulation protects EU residents' personal data?
+A: GDPR.
+Q: Name consequences of non-compliance.
+A: Fines, sanctions, loss of license, reputational damage, lost contracts.
+Q: What is attestation?
+A: A formal confirmation that requirements are met.
+Q: What is a privacy impact assessment?
+A: An evaluation of the privacy risks of a project or system handling personal data.
+Q: What is the GDPR breach notification window?
+A: 72 hours to notify the regulator after becoming aware.
+Q: What is data minimization?
+A: Collecting and keeping only the personal data you actually need.
+Q: What is SOX concerned with?
+A: Integrity of financial reporting for US public companies.
 
 ## 5.5 Explain types and purposes of audits and assessments
 labs: recon-nmap-metasploit
@@ -492,6 +1098,20 @@ Q: What's the purpose of rules of engagement in a pen test?
 A: Defining scope, timing, allowed techniques and contacts, so testing is authorized and safe.
 Q: What is attestation?
 A: A formal statement (often by an auditor) that controls or reports are accurate.
+Q: Internal vs external audit?
+A: Internal is done by your own staff for readiness and improvement. External is independent and gives credible assurance to others.
+Q: Known, partially known and unknown environment tests?
+A: White box (full information), gray box (some), black box (none).
+Q: Red, blue, purple and white teams?
+A: Red attacks, blue defends, purple combines both to improve defenses, white oversees and referees.
+Q: What are rules of engagement?
+A: The agreed scope, timing, methods and limits for a penetration test.
+Q: Audit vs penetration test?
+A: An audit compares controls to a standard. A penetration test tries to break in.
+Q: What is an attestation in an audit context?
+A: A formal statement or report that controls meet requirements.
+Q: Why might a regulator examine you?
+A: To check compliance with laws and industry regulations.
 
 ## 5.6 Given a scenario, implement security awareness practices
 labs: phishing-analysis
@@ -507,3 +1127,20 @@ Q: Why warn users about unknown USB cables and drives?
 A: They can carry malware or act as malicious keyboards (e.g. a USB Rubber Ducky or O.MG cable).
 Q: What is operational security (OPSEC) for employees?
 A: Not leaking sensitive details through social media, conversation or carelessness.
+Q: What is the purpose of phishing simulations?
+A: To measure and train users to recognize phishing, not to punish them.
+Q: Name two phishing metrics to track.
+A: Click rate and report rate.
+Q: Why make reporting easy and blame-free?
+A: Early reports give the security team warning and encourage more reporting.
+Q: What is role-based training?
+A: Training tailored to job risks, such as admins, executives, developers or HR.
+Q: Name three things to teach about situational awareness.
+A: Watch for shoulder surfers, unattended devices and tailgaters; be careful on public Wi-Fi.
+Q: How often should awareness training happen?
+A: At onboarding and on a recurring schedule, with reminders in between.
+Q: Which control category does an awareness program belong to?
+A: Operational.
+Q: How do you measure training effectiveness?
+A: Completion rates, quiz scores, simulation results and incident trends.
+
