@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSI and TCP/IP :: ~/basics :: 0xDay</title>
+<meta name="description" content="Fundamentals, OSI and TCP/IP: The seven layers, the four-layer model, encapsulation, and what attacks live where.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=5df33e79">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=5df33e79" defer></script>
+<script src="../site.js?v=5df33e79" defer></script>
+<script src="../fx.js?v=5df33e79" defer></script>
+<script src="../learn.js?v=5df33e79" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">basics --chapter osi-and-tcpip</p>
+<h1>~/basics/osi-and-tcpip</h1>
+<p>Two models for the same thing: how data gets from an app on one machine to an app on another. Know the layers, what each one carries, and which attacks and tools belong to which.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="osi-and-tcpip">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>The <strong>OSI model</strong> splits networking into 7 layers. Each layer only talks to the layer above and below it, and each adds its own header on the way down (<strong>encapsulation</strong>) and strips it on the way up.</p>
+<div class="tbl"><table><thead><tr><th>#</th><th>Layer</th><th>Data unit</th><th>What it does</th><th>Examples</th></tr></thead><tbody><tr><td>7</td><td>Application</td><td>data</td><td>what the user's program speaks</td><td>HTTP, DNS, SMTP, SSH</td></tr><tr><td>6</td><td>Presentation</td><td>data</td><td>encoding, compression, encryption</td><td>TLS, JPEG, ASCII</td></tr><tr><td>5</td><td>Session</td><td>data</td><td>start, hold and end a conversation</td><td>NetBIOS, RPC, sockets</td></tr><tr><td>4</td><td>Transport</td><td>segment / datagram</td><td>end-to-end delivery, ports</td><td>TCP, UDP</td></tr><tr><td>3</td><td>Network</td><td>packet</td><td>addressing and routing between networks</td><td>IP, ICMP, routers</td></tr><tr><td>2</td><td>Data link</td><td>frame</td><td>delivery on one local network, MAC addresses</td><td>Ethernet, Wi-Fi, switches, ARP</td></tr><tr><td>1</td><td>Physical</td><td>bits</td><td>signals on a wire or radio</td><td>cables, hubs, radio</td></tr></tbody></table></div>
+<p>Bottom-up mnemonic: <strong>P</strong>lease <strong>D</strong>o <strong>N</strong>ot <strong>T</strong>hrow <strong>S</strong>ausage <strong>P</strong>izza <strong>A</strong>way. Top-down: <strong>A</strong>ll <strong>P</strong>eople <strong>S</strong>eem <strong>T</strong>o <strong>N</strong>eed <strong>D</strong>ata <strong>P</strong>rocessing.</p>
+<p class="callout">The real internet runs on <strong>TCP/IP</strong>, which has 4 layers: <strong>application</strong> (OSI 5-7), <strong>transport</strong> (4), <strong>internet</strong> (3), <strong>link</strong> (1-2). OSI is the vocabulary; TCP/IP is the reality. When someone says "layer 7 firewall" they mean the OSI numbering.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Who uses which layer</h4>
+<ul><li><strong>L1</strong>: cables, fiber, radio. Problems: unplugged, bad cable, interference. Attacks: wiretap, jamming.</li><li><strong>L2</strong>: MAC addresses (48 bit, <code>3c:52:82:4e:19:a7</code>), switches, VLANs, ARP. Attacks: ARP spoofing, MAC flooding, VLAN hopping, rogue access points.</li><li><strong>L3</strong>: IP addresses and routing. Routers decide where a packet goes next. Attacks: IP spoofing, ICMP floods, route hijacking.</li><li><strong>L4</strong>: ports and connection state. TCP is reliable and ordered; UDP is fast and unchecked. Attacks: SYN flood, port scans, session hijack.</li><li><strong>L5-6</strong>: sessions and encryption. Attacks: session hijacking, SSL stripping, downgrade attacks.</li><li><strong>L7</strong>: the protocol the user's app speaks. Attacks: SQL injection, XSS, DNS poisoning, phishing, malicious uploads.</li></ul>
+<h4>Encapsulation, concretely</h4>
+<p>A browser sends an HTTP request. TCP wraps it in a <strong>segment</strong> (adds source and destination ports, sequence numbers). IP wraps that in a <strong>packet</strong> (adds source and destination IP). Ethernet wraps that in a <strong>frame</strong> (adds source and destination MAC, plus a checksum). The wire carries bits. The receiver reverses it. Key detail: <strong>MAC addresses change at every hop, IP addresses stay the same end to end</strong> (ignoring NAT).</p>
+<h4>Devices by layer</h4>
+<ul><li><strong>Hub</strong> L1, repeats everything to every port.</li><li><strong>Switch</strong> L2, learns MACs and forwards frames only to the right port. A multilayer switch also routes.</li><li><strong>Router</strong> L3, forwards between networks using a routing table.</li><li><strong>Firewall</strong> L3/L4 (stateful) or L7 (application, next-gen, WAF).</li><li><strong>Load balancer</strong> L4 or L7.</li></ul>
+<h4>Tools that live at a layer</h4>
+<ul><li>L1: cable tester, link lights.</li><li>L2: <code>arp -a</code>, <code>ip neigh</code>, switch CAM table.</li><li>L3: <code>ping</code>, <code>traceroute</code> / <code>tracert</code>, <code>ip route</code>, <code>route print</code>.</li><li>L4: <code>ss -tuln</code>, <code>netstat -ano</code>, <code>nmap</code>, <code>nc</code>.</li><li>L7: <code>curl</code>, <code>dig</code>, <code>Wireshark</code> display filters, browser dev tools.</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">ip a</span><button class="run" type="button" data-cmd="ip a" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ip route</span><button class="run" type="button" data-cmd="ip route" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">ss -tuln</span><button class="run" type="button" data-cmd="ss -tuln" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">dig example.com</span><button class="run" type="button" data-cmd="dig example.com" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>The TCP three-way handshake and teardown</h4>
+<p>SYN (client picks initial sequence number), SYN-ACK (server acknowledges and picks its own), ACK. Data is numbered per byte, ACKs confirm receipt, loss triggers retransmit. Teardown is FIN, ACK, FIN, ACK (or a hard <strong>RST</strong>). A closed port answers a SYN with RST; a filtered port (firewall drop) answers nothing, which is how scanners tell them apart.</p>
+<h4>Why the models matter for defense</h4>
+<ul><li><strong>Defense in depth</strong> maps to layers: port security and 802.1X (L2), ACLs and segmentation (L3), stateful firewall (L4), WAF and input validation (L7), TLS (L5-6).</li><li><strong>Troubleshooting</strong> is bottom-up: link light, IP config, gateway ping, outside ping, DNS, then the app. Each step rules a layer in or out.</li><li><strong>Detection</strong> cares where evidence lives: ARP anomalies in L2 captures, port scans in L4 flow data, injection in L7 web logs.</li></ul>
+<h4>Other L2/L3 facts worth knowing</h4>
+<ul><li><strong>MTU</strong> is 1500 bytes on Ethernet; bigger packets get fragmented or dropped (watch for broken VPNs).</li><li><strong>TTL</strong> counts down each hop; traceroute abuses it to map the path.</li><li><strong>ICMP</strong> is how routers say "unreachable" or "time exceeded" (L3, carried in IP).</li><li><strong>VLANs</strong> (802.1Q) split one switch into separate L2 networks; a router is needed to cross them.</li><li><strong>IPv6</strong> has no ARP (it uses Neighbor Discovery) and no broadcast.</li></ul>
+<h4>Exam traps</h4>
+<ul><li>ARP is usually filed at L2 (some say 2.5). Routers are L3, switches L2, but "Layer 3 switch" exists.</li><li>TLS spans L5-6 in OSI but is just "between TCP and HTTP" in TCP/IP.</li><li>Port numbers are <strong>L4</strong>, IP addresses <strong>L3</strong>, MAC addresses <strong>L2</strong>. Three addresses, three layers.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><span></span><a href="ports-and-protocols.html">ports and protocols &gt;</a></nav><p><a href="../basics.html">cd ~/basics</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
