@@ -142,7 +142,7 @@ def build(page, esc):
         for i, m in enumerate(c["modules"]):
             links = " ".join(
                 f'<a href="{l["h"] if l["h"].startswith("http") else "../" + l["h"]}"{" rel=\"noopener\" target=\"_blank\"" if l["h"].startswith("http") else ""}>{esc(l["t"])}</a>' for l in m["links"])
-            note = f'<p class="cp__note">{esc(m["note"])}</p>' if m.get("note") else ""
+            note = "".join(f'<p class="cp__note">{esc(x)}</p>' for x in m["note"].split("\n\n")) if m.get("note") else ""
             nm = sum(1 for q in bank if q["m"] == i)
             rows += (f'<li class="cp__mod" data-i="{i}"><label class="cp__chk"><input type="checkbox" aria-label="module done: {esc(m["t"])}"><span class="cp__box" aria-hidden="true"></span></label>'
                      f'<div><strong>{i + 1}. {esc(m["t"])}</strong> <span class="muted small">~{m["m"]} min</span>'

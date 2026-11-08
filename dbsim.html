@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dbsim :: 0xDay</title>
+<meta name="description" content="Database tools: functional dependencies and normal forms, index versus scan, schedule serializability.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="sims.css?v=a0141c11">
+<script src="sims.js?v=a0141c11" defer></script>
+<script src="data.js?v=7e515d21" defer></script>
+<script src="site.js?v=7e515d21" defer></script>
+<script src="fx.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="start.html">./start</a></li><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html" aria-current="page">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">./dbsim</p><h1>~/dbsim <span class="muted">database design and performance tools</span></h1>
+<p>Three tools for <a href="courses/CS230.html">CS230</a>: find keys and normal forms, see why an index helps (and when it does not), and test whether a set of overlapping transactions is serializable.</p>
+<div id="sim-root">
+<section class="sm__p"><h2>Functional dependencies and normal forms</h2><p>One dependency per line, like <code>order_id product_id -> qty</code>. The tool finds every candidate key, the prime attributes and the highest normal form, and lists what violates the next one. Extra attributes with no dependency go in the second box. Closure asks: from these columns, what can I derive?</p><textarea id="fd-in" class="sm__ta" rows="5" spellcheck="false" aria-label="dependencies">order_id product_id -> qty
+product_id -> product_name
+order_id -> customer_id
+customer_id -> customer_email</textarea>
+<p class="sm__row"><label>extra attributes <input id="fd-ex" class="sm__in" value="qty"></label> <label>closure of <input id="fd-cl" class="sm__in" placeholder="order_id"></label>
+<button class="btn btn--sm" type="button" id="fd-run">[ analyze ]</button> <button class="btn btn--sm" type="button" id="fd-exa">[ orders example ]</button> <button class="btn btn--sm" type="button" id="fd-exb">[ 3NF but not BCNF ]</button></p>
+<div id="fd-run-out" aria-live="polite"></div></section><section class="sm__p"><h2>Index versus table scan</h2><p>A simplified cost model counted in page reads. The B-tree walk costs its height, then one table page for every matching row. A scan reads every page. Slide the table size, then raise the rows returned and watch the planner give up on the index.</p><p class="sm__row"><label>table rows 10^<input id="ix-rows" type="range" min="3" max="9" value="6"> <b id="ix-rowsv"></b></label>
+<label>rows returned <input id="ix-k" type="number" min="1" value="1"></label>
+<label>fanout <input id="ix-fan" type="number" min="2" value="100"></label>
+<label>rows per page <input id="ix-pp" type="number" min="1" value="100"></label>
+<button class="btn btn--sm" type="button" id="ix-run">[ run ]</button></p>
+<div id="ix-run-out" aria-live="polite"></div></section><section class="sm__p"><h2>Schedule serializability</h2><p>Write a schedule as <code>r1(x) w2(x) ...</code> (transaction number, item). The tool draws the precedence graph as a list of edges and says whether the schedule is conflict-serializable, with an equivalent serial order if so.</p><textarea id="tx-in" class="sm__ta" rows="2" spellcheck="false" aria-label="schedule">r1(x) r2(x) w1(x) w2(x)</textarea>
+<p class="sm__row"><button class="btn btn--sm" type="button" id="tx-run">[ check ]</button> <button class="btn btn--sm" type="button" id="tx-exa">[ serial-like ]</button> <button class="btn btn--sm" type="button" id="tx-exb">[ lost update ]</button> <button class="btn btn--sm" type="button" id="tx-exc">[ cycle ]</button></p>
+<div id="tx-run-out" aria-live="polite"></div></section></div>
+<noscript><p class="callout">The tools need JavaScript.</p></noscript>
+<p class="muted small">Related: <a href="courses/CS230.html">CS230 databases</a> · <a href="ossim.html">~/ossim</a> · <a href="learn/databases-and-sql.html">databases guide</a> · <a href="learn/sql.html">SQL guide</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
