@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ 2.2 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ 220-1101 (Core 1) objective 2.2: Network Devices">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.2 --exam 220-1101 (Core 1)</p>
+<div class="manhead"><span>220-1101 (Core 1)</span><span>domain 2.0 · Networking</span><span>2.2</span></div>
+<h1><span class="ok">2.2</span> Network Devices</h1>
+<div class="obj" data-obj="aplus-2.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Network Devices</h4>
+<ul><li><strong>Router</strong>: forwards between IP subnets using the destination <strong>IP address</strong> (layer 3); can join LAN, WAN, copper and fiber. A <strong>layer 3 (multilayer) switch</strong> adds routing to a switch. SOHO devices combine router, switch, AP, firewall.</li><li><strong>Switch</strong>: forwards by destination <strong>MAC address</strong> (layer 2), in hardware (<strong>ASIC</strong>) at high speed; can supply <strong>PoE</strong>. <strong>Unmanaged</strong>: plug and play, no VLANs, no SNMP, cheap, home use. <strong>Managed</strong>: <strong>VLANs</strong>, QoS (prioritize voice), <strong>STP</strong> to prevent loops, <strong>port mirroring</strong>, SNMP monitoring.</li><li><strong>Access point (AP)</strong>: bridges wireless to wired by MAC (not a router, no NAT).</li><li><strong>Patch panel</strong>: permanent cable runs from desks are punched down at the back; short patch cables on the front connect to switch ports, so moves and changes only touch the front.</li><li><strong>Firewall</strong>: allows or blocks by IP and port (layer 4); <strong>next-generation</strong> firewalls understand applications (layer 7). May terminate <strong>VPN</strong> tunnels, act as a <strong>proxy</strong>, and route (layer 3).</li><li><strong>PoE</strong>: power on the Ethernet cable for APs, cameras, phones. <strong>Endspan</strong> = PoE switch; <strong>midspan</strong> = injector with a non-PoE switch. Standards: <strong>802.3af</strong> 15.4 W (350 mA), <strong>802.3at (PoE+)</strong> 25.5 W (600 mA), <strong>802.3bt (PoE++)</strong> type 3 51 W, type 4 71.3 W (960 mA).</li><li><strong>Hub</strong>: multiport repeater; copies every frame to all ports, <strong>half duplex</strong>, gets slower with load; only 10/100 Mb/s, obsolete.</li><li><strong>Cable modem</strong>: <strong>DOCSIS</strong> over coax (broadband, many frequencies: TV, phone, data), up to about 1 Gb/s. <strong>DSL modem</strong> (ADSL: <strong>asymmetric</strong>, faster down than up) over phone lines; about <strong>10,000 ft</strong> from the central office (CO) limit; closer = faster.</li><li><strong>ONT</strong> (optical network terminal): converts ISP <strong>fiber</strong> to Ethernet/phone/coax at the premises. The <strong>demarc</strong> is the demarcation point where the ISP's responsibility ends and yours begins.</li><li><strong>NIC</strong>: network interface card (wired, fiber, wireless; onboard or expansion).</li></ul>
+<h4>Software Defined Networking</h4>
+<ul><li><strong>SDN</strong> turns routers, switches and firewalls into software with three planes: <strong>infrastructure/data plane</strong> (forwarding, trunking, encryption, NAT), <strong>control plane</strong> (routing protocols, forwarding and NAT tables), <strong>management/application plane</strong> (SSH, GUI, SNMP, <strong>API</strong>). Modular and cloud friendly.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus-2.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A camera is 80 m from a non-PoE switch, with no power outlet nearby. Easiest fix?</p><ul class="chk__o"><li><span class="ok">a)</span> Hub</li><li><span class="ok">b)</span> PoE midspan injector</li><li><span class="ok">c)</span> Layer 3 switch</li><li><span class="ok">d)</span> NIC</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Injector adds power onto the cable.</p></details></div><div class="chk"><p><strong>2.</strong> Which device can create VLANs and mirror ports?</p><ul class="chk__o"><li><span class="ok">a)</span> Hub</li><li><span class="ok">b)</span> Unmanaged switch</li><li><span class="ok">c)</span> Managed switch</li><li><span class="ok">d)</span> Patch panel</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Managed switches offer these features.</p></details></div><div class="chk"><p><strong>3.</strong> In SDN, SSH and API access belong to which plane?</p><ul class="chk__o"><li><span class="ok">a)</span> Data</li><li><span class="ok">b)</span> Control</li><li><span class="ok">c)</span> Management</li><li><span class="ok">d)</span> Physical</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Management plane.</p></details></div>
+<h2>short lab: Pick the device</h2><div class="prose lab"><p>Choose a device for: (1) connect 24 desks with VLANs, (2) join two IP subnets, (3) bring fiber internet into a home, (4) block a port.</p></div><details><summary>walkthrough</summary><div class="prose"><p>(1) Managed switch. (2) Router or layer 3 switch. (3) ONT. (4) Firewall (or ACL).</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/computer-networks.html">computer networks</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/networking-tcp-ip-dhcp-nat-subnets.html">networking tcp ip dhcp nat subnets</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.2" placeholder="# 2.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.1.html">&lt; 2.1</a><a href="2.3.html">2.3 &gt;</a></nav>
+<p><a href="../aplus.html">cd ~/comptia/aplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus-2.2-0", "q": "Router vs switch decision basis?", "a": "Router: destination IP (layer 3). Switch: destination MAC (layer 2)."}, {"id": "aplus-2.2-1", "q": "Layer 3 switch?", "a": "A switch with routing capability."}, {"id": "aplus-2.2-2", "q": "Unmanaged vs managed switch?", "a": "Unmanaged: no configuration, no VLANs or SNMP. Managed: VLANs, QoS, STP, mirroring, SNMP."}, {"id": "aplus-2.2-3", "q": "What does STP do?", "a": "Prevents switching loops."}, {"id": "aplus-2.2-4", "q": "What does port mirroring do?", "a": "Copies a port's traffic to another port for analysis."}, {"id": "aplus-2.2-5", "q": "What is an AP?", "a": "Bridges wireless clients to the wired LAN by MAC."}, {"id": "aplus-2.2-6", "q": "Why use a patch panel?", "a": "Permanent wiring behind, flexible short patch cables in front; easy moves and changes."}, {"id": "aplus-2.2-7", "q": "Layer 4 vs layer 7 firewall?", "a": "Layer 4: IP and ports. Layer 7: application aware (next-gen)."}, {"id": "aplus-2.2-8", "q": "Endspan vs midspan PoE?", "a": "Endspan: PoE switch. Midspan: injector."}, {"id": "aplus-2.2-9", "q": "PoE wattages?", "a": "af 15.4 W, at 25.5 W, bt 51 W (type 3) or 71.3 W (type 4)."}, {"id": "aplus-2.2-10", "q": "Why is a hub inefficient?", "a": "Repeats every frame to every port, half duplex, collisions."}, {"id": "aplus-2.2-11", "q": "DOCSIS?", "a": "Standard for data over cable TV networks."}, {"id": "aplus-2.2-12", "q": "Why is ADSL asymmetric?", "a": "Download speed is higher than upload."}, {"id": "aplus-2.2-13", "q": "DSL distance limit?", "a": "About 10,000 feet from the central office."}, {"id": "aplus-2.2-14", "q": "What is an ONT?", "a": "Device converting ISP fiber to local Ethernet/phone/coax."}, {"id": "aplus-2.2-15", "q": "Demarc?", "a": "Point where ISP responsibility ends and the customer's begins."}, {"id": "aplus-2.2-16", "q": "SDN three planes?", "a": "Data (infrastructure), control, management (application)."}, {"id": "aplus-2.2-17", "q": "Which plane holds routing and NAT tables?", "a": "Control plane."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

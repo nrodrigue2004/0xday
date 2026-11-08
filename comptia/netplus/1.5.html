@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 1.5 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 1.5: Transmission Media">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.5 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 1.0 · Networking Concepts</span><span>1.5</span></div>
+<h1><span class="ok">1.5</span> Transmission Media</h1>
+<div class="obj" data-obj="netplus-1.5">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Wireless Networking</h4>
+<ul><li><strong>IEEE 802.11</strong> is the Wi-Fi standard. The <strong>Wi-Fi Alliance</strong> certifies interoperability (the Wi-Fi logo). Generation names: 802.11n = Wi-Fi 4, 802.11ac = Wi-Fi 5, <strong>802.11ax = Wi-Fi 6</strong> (6E adds the 6 GHz band), 802.11be = Wi-Fi 7. Older a/b/g are rarely used. Bands: 2.4, 5 and 6 GHz. Theoretical link rates rise each generation (antenna and radio counts change the numbers).</li><li><strong>Cellular</strong>: <strong>4G LTE</strong> (long term evolution, merged GSM and CDMA worlds) about 150 Mbps, LTE-A about 300 Mbps. <strong>5G</strong> (from 2020) target up to 10 Gbps, real-world 100 to 900 Mbps, which makes cellular a realistic wired substitute and enables big IoT deployments.</li><li><strong>Satellite</strong>: for sites with no terrestrial option. Roughly 100 Mbps down and 5 Mbps up. Needs line of sight, so storms cause <strong>rain fade</strong>. Classic latency is about 250 ms each way, newer low-orbit service (Starlink) advertises about 40 ms and falling.</li></ul>
+<h4>Ethernet Standards</h4>
+<ul><li>Ethernet is defined by <strong>IEEE 802.3</strong>. Name decoding: <strong>1000BASE-T</strong> = speed (1000 Mbps), BASE = baseband (one frequency, versus broadband), suffix = media. <strong>T</strong> twisted pair copper, <strong>F</strong>/<strong>SX</strong> fiber (SX is short-wavelength light). <strong>10GBASE-T</strong> = 10 Gbps over copper. The name hints at the standard but you must read the standard for the exact details.</li></ul>
+<h4>Optical Fiber</h4>
+<ul><li>Light over fiber: hard to tap without notice, signal survives far longer than copper (km versus 100 m), immune to radio interference. Parts: light source (LED or laser), <strong>core</strong> (reflective), <strong>cladding</strong> (low reflectivity), buffer coating.</li><li><strong>Multimode</strong>: wide core, several light modes, cheap LED light source, shorter runs (up to about 2 km). <strong>Single-mode</strong>: tiny core, one mode, laser, very long runs (up to about 100 km without regeneration).</li></ul>
+<h4>Copper Cabling</h4>
+<ul><li><strong>Twisted pair</strong>: pairs carry opposite-polarity copies of the signal (TX+/TX-, RX+/RX-); twisting means interference hits both wires and is cancelled at the receiver. Each pair has a different twist rate. A cable has no "speed": the <strong>Ethernet standard</strong> and signal define the speed, and the <strong>category</strong> (Cat 5, 6, 7...) sets the minimum quality (1000BASE-T needs Cat 5 or better).</li><li><strong>Coax</strong>: center conductor, insulator, shield, jacket, all on one axis. <strong>RG-6</strong> is the cable-TV/cable-modem coax. <strong>Twinax</strong>: two conductors, used for short 10 Gb SFP+ links (about 5 m), cheap and low latency.</li><li><strong>Plenum</strong>: the air space above a drop ceiling. If it is shared air (no ductwork walls), cables there must be <strong>plenum-rated</strong> (FEP or low-smoke PVC jacket) so a fire does not pump toxic smoke through the building. Stiffer than normal cable.</li></ul>
+<h4>Network Transceivers</h4>
+<ul><li>A <strong>transceiver</strong> (transmitter + receiver) is a swappable module so one switch port can be copper or fiber, at the speed you need. Must match the switch type (Ethernet versus Fibre Channel).</li><li><strong>SFP</strong>: small form-factor pluggable, 1 Gbps. <strong>SFP+</strong>: same size, up to 10 Gbps (spec says to about 16). <strong>QSFP</strong>: four SFP channels in a slightly larger module, 4 Gbps. <strong>QSFP+</strong>: four SFP+ channels, 40 Gbps (can be split into four 10G links).</li></ul>
+<h4>Fiber Connectors</h4>
+<ul><li><strong>SC</strong> (subscriber/square/standard): push-pull, snaps in. <strong>LC</strong> (local/Lucent/little): smaller, latch clip you press to release, very common now. <strong>ST</strong> (straight tip): round <strong>bayonet</strong>, push and twist. <strong>MPO</strong> (multi-fiber push on, branded MTP): 12 fibers in one push-pull connector, for density. Fibers usually come in pairs, one transmit, one receive.</li></ul>
+<h4>Copper Connectors</h4>
+<ul><li><strong>RJ11</strong>: 6 positions, 2 conductors used (6P2C), analog phone and DSL. <strong>RJ45</strong>: 8 positions, 8 conductors, Ethernet. <strong>F-connector</strong>: threaded, coax for cable TV and cable modems (DOCSIS). <strong>BNC</strong>: bayonet-style coax connector (push, twist), named after Neill and Concelman.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-1.5"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A run must go 40 km between two buildings. Which medium?</p><ul class="chk__o"><li><span class="ok">a)</span> Cat 6</li><li><span class="ok">b)</span> Multimode fiber</li><li><span class="ok">c)</span> Single-mode fiber</li><li><span class="ok">d)</span> Twinax</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Only single-mode fiber with a laser reaches that far.</p></details></div><div class="chk"><p><strong>2.</strong> A rack needs a 40 Gbps port from a single module. Which transceiver?</p><ul class="chk__o"><li><span class="ok">a)</span> SFP</li><li><span class="ok">b)</span> SFP+</li><li><span class="ok">c)</span> QSFP+</li><li><span class="ok">d)</span> RJ45</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Four SFP+ channels give 40 Gbps.</p></details></div><div class="chk"><p><strong>3.</strong> Cabling goes above a drop ceiling with open shared air. Which jacket?</p><ul class="chk__o"><li><span class="ok">a)</span> PVC</li><li><span class="ok">b)</span> Plenum-rated FEP or low-smoke PVC</li><li><span class="ok">c)</span> Any shielded cable</li><li><span class="ok">d)</span> Coax</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Required for fire safety in air-handling spaces.</p></details></div>
+<h2>short lab: Pick the cable</h2><div class="prose lab"><p>For each need choose media and connector: (a) office desk 1 Gbps, (b) rack-to-rack 10 Gbps, 3 m, (c) between buildings 12 km, (d) cable internet into a modem.</p></div><details><summary>walkthrough</summary><div class="prose"><p>(a) Cat 5e/6 with RJ45, 1000BASE-T. (b) Twinax SFP+ DAC (or SFP+ fiber). (c) Single-mode fiber, LC pair. (d) Coax RG-6 with an F-connector.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/hardware-diagnostics-and-repair.html">hardware diagnostics and repair</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.5" placeholder="# 1.5 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.4.html">&lt; 1.4</a><a href="1.6.html">1.6 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-1.5-0", "q": "Wi-Fi 6 is which 802.11 standard?", "a": "802.11ax (Wi-Fi 4 = n, Wi-Fi 5 = ac, Wi-Fi 7 = be)."}, {"id": "netplus-1.5-1", "q": "Wi-Fi bands?", "a": "2.4 GHz, 5 GHz and 6 GHz."}, {"id": "netplus-1.5-2", "q": "Typical speeds for 4G LTE vs 5G?", "a": "LTE about 150 Mbps (LTE-A about 300); 5G real-world 100 to 900 Mbps, up to 10 Gbps in theory."}, {"id": "netplus-1.5-3", "q": "What is rain fade?", "a": "Satellite signal loss during heavy rain or storms."}, {"id": "netplus-1.5-4", "q": "Decode 1000BASE-T.", "a": "1000 Mbps, baseband signaling, twisted-pair copper."}, {"id": "netplus-1.5-5", "q": "What does IEEE 802.3 define?", "a": "Ethernet."}, {"id": "netplus-1.5-6", "q": "Multimode vs single-mode fiber?", "a": "Multimode: big core, LED, short distance (to about 2 km). Single-mode: small core, laser, very long distance (to about 100 km)."}, {"id": "netplus-1.5-7", "q": "Why is fiber hard to tap and good for secure runs?", "a": "It carries light, not RF, so it leaks no signal and tapping is noticeable."}, {"id": "netplus-1.5-8", "q": "What is the minimum cable category for 1000BASE-T?", "a": "Cat 5 (anything better also works)."}, {"id": "netplus-1.5-9", "q": "Why do twisted pairs carry opposite signals?", "a": "So interference affects both wires equally and can be cancelled at the receiver."}, {"id": "netplus-1.5-10", "q": "What is twinax used for?", "a": "Short, cheap, low-latency 10 Gbps SFP+ links (about 5 m)."}, {"id": "netplus-1.5-11", "q": "What is the plenum and what cable goes there?", "a": "The air space above ceilings; plenum-rated (FEP or low-smoke PVC) cable to limit toxic smoke."}, {"id": "netplus-1.5-12", "q": "SFP vs SFP+ vs QSFP vs QSFP+ speeds?", "a": "1G, 10G, 4G (4x1G), 40G (4x10G)."}, {"id": "netplus-1.5-13", "q": "Which fiber connector uses a twist-lock bayonet?", "a": "ST."}, {"id": "netplus-1.5-14", "q": "Which fiber connector has a push-down latch clip and is small?", "a": "LC."}, {"id": "netplus-1.5-15", "q": "How many fibers in an MPO connector?", "a": "12."}, {"id": "netplus-1.5-16", "q": "RJ11 vs RJ45?", "a": "RJ11: 6 position, 2 wires, phone/DSL. RJ45: 8 position, 8 wires, Ethernet."}, {"id": "netplus-1.5-17", "q": "Which connector is used on cable modem coax?", "a": "F-connector."}, {"id": "netplus-1.5-18", "q": "BNC stands for what style of locking?", "a": "Bayonet (push and twist)."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 4.1 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 4.1: Network Security Concepts">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 4.1 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 4.0 · Network Security</span><span>4.1</span></div>
+<h1><span class="ok">4.1</span> Network Security Concepts</h1>
+<div class="obj" data-obj="netplus-4.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Security Concepts</h4>
+<ul><li><strong>Data in transit</strong> (in motion) crosses a network; switches and routers only forward it, so protection comes from firewalls, IPS and <strong>encryption (TLS, IPsec)</strong>. <strong>Data at rest</strong> sits on storage; protect with <strong>full disk, database, or file/folder encryption</strong> plus <strong>ACLs</strong> set by the OS.</li><li><strong>PKI</strong> = policies and processes managing keys and certificates. A <strong>certificate authority (CA)</strong> signs certificates so anyone trusting the CA trusts them. Internal CAs sign for internal users and devices (public CA for the internet). A <strong>web of trust</strong> is the decentralized alternative: if A trusts B and B trusts C, A trusts C.</li><li><strong>IAM</strong> = identity and access management: authentication, authorization and auditing of who touches data. <strong>Least privilege</strong>: only the rights the job needs. <strong>Role-based access control (RBAC)</strong>: permissions attach to roles, users get roles (in Windows, via groups).</li><li><strong>Geofencing / geographic restriction</strong>: allow or deny based on location, found by IP (inaccurate), GPS, or the Wi-Fi network/access point.</li><li><strong>Physical</strong>: <strong>CCTV</strong> (motion detect, plate or face recognition, central recording), locks (key, deadbolt, PIN, RFID badge, biometrics); combine for multiple factors.</li></ul>
+<h4>Authentication</h4>
+<ul><li><strong>AAA</strong>: identification (public, such as a username), <strong>authentication</strong> (prove it with private info), <strong>authorization</strong> (what you may access), <strong>accounting</strong> (log logins, logouts, failures). A VPN or switch sends credentials to an <strong>AAA server</strong>, which says approved or denied.</li><li><strong>SSO</strong>: log in once, use many resources, usually for about a day. Depends on the auth method.</li><li><strong>RADIUS</strong>: widely supported AAA protocol (VPN, 802.1X Wi-Fi, switches, firewalls). <strong>LDAP</strong>: read/write a directory (X.500 attributes: OU, org, location, domain). Containers and leaf objects form a tree; used by Active Directory, OpenDirectory, eDirectory. <strong>SAML</strong>: open XML standard for web SSO. Client hits a resource, is redirected to the identity provider, authenticates, gets a signed token and presents it to the resource. <strong>TACACS+</strong>: Cisco-origin AAA protocol, now open; separates AAA functions.</li><li><strong>MFA</strong> factors: something you <strong>know</strong>, <strong>have</strong>, <strong>are</strong>, somewhere you <strong>are</strong>. <strong>TOTP</strong>: time-based one-time password from a shared secret plus the clock (about 30 seconds), needs time sync.</li></ul>
+<h4>Security Technologies</h4>
+<ul><li><strong>Honeypot</strong>: a decoy system to watch attackers. <strong>Honeynet</strong>: a whole decoy network (servers, workstations, routers, NAS).</li><li><strong>Risk</strong> = exposure to harm. <strong>Vulnerability</strong> = a weakness. <strong>Exploit</strong> = using a vulnerability. <strong>Threat</strong> = what could exploit it (agent, action, or accidents like fire or flood).</li><li><strong>CIA triad</strong>: <strong>confidentiality</strong> (encryption, access limits), <strong>integrity</strong> (unchanged data; hashes, digital signatures), <strong>availability</strong> (systems usable when needed).</li></ul>
+<h4>Regulatory Compliance</h4>
+<ul><li>Laws and standards bring fines or worse. <strong>Data localization</strong>: data on a country's citizens must stay inside it. <strong>GDPR</strong> (EU): protects personal data of EU residents (name, address, photo, email, bank, browsing); gives people control, including deletion. <strong>PCI DSS</strong> (an industry standard, not a law): six goals, secure network, protect cardholder data, vulnerability program, strong access control, monitor and test, security policy. Failing audits can end your right to process cards.</li></ul>
+<h4>Segmentation Enforcement</h4>
+<ul><li>Segment physically or with VLANs for <strong>performance</strong> and <strong>security</strong> (limit who talks to whom; PCI requires it for card data).</li><li><strong>IoT</strong> (sensors, cameras, doorbells) is often weakly secured: put it on its own network. <strong>IIoT</strong> and <strong>SCADA/ICS</strong> (large industrial control, real-time) and <strong>OT</strong> (grid, traffic, plants) need uptime and isolation. <strong>Guest network</strong>: internet only, no internal access, passphrase or login. <strong>BYOD</strong>: personal devices get a segmented work area (company data can be wiped on exit).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-4.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A user logs in once and then reaches mail, files and intranet without re-entering a password. What is this?</p><ul class="chk__o"><li><span class="ok">a)</span> RBAC</li><li><span class="ok">b)</span> SSO</li><li><span class="ok">c)</span> Geofencing</li><li><span class="ok">d)</span> PKI</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Single sign-on.</p></details></div><div class="chk"><p><strong>2.</strong> Which protocol is the standard for authenticating Wi-Fi users with 802.1X against a central server?</p><ul class="chk__o"><li><span class="ok">a)</span> RADIUS</li><li><span class="ok">b)</span> NTP</li><li><span class="ok">c)</span> SNMP</li><li><span class="ok">d)</span> DoH</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> RADIUS backs 802.1X.</p></details></div><div class="chk"><p><strong>3.</strong> Cameras and thermostats keep being compromised and the attacker reaches file servers. Best fix?</p><ul class="chk__o"><li><span class="ok">a)</span> Segment IoT onto its own VLAN</li><li><span class="ok">b)</span> Disable DNS</li><li><span class="ok">c)</span> Add DHCP options</li><li><span class="ok">d)</span> Use a hub</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Isolation limits lateral movement.</p></details></div>
+<h2>short lab: Name the factor</h2><div class="prose lab"><p>Classify each login element: password, authenticator app code, fingerprint, being inside HQ GPS fence, hardware key.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Password = know. App code (TOTP) = have. Fingerprint = are. GPS fence = somewhere you are. Hardware key = have.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/computer-networks.html">computer networks</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/active-directory.html">active directory</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 4.1" placeholder="# 4.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="3.5.html">&lt; 3.5</a><a href="4.2.html">4.2 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-4.1-0", "q": "Data in transit vs at rest?", "a": "In transit crosses a network (protect with TLS/IPsec); at rest sits on storage (full disk, database or file encryption, ACLs)."}, {"id": "netplus-4.1-1", "q": "What is PKI?", "a": "The policies and infrastructure that issue, manage and revoke keys and certificates."}, {"id": "netplus-4.1-2", "q": "What does a CA do?", "a": "Digitally signs certificates so others can trust them."}, {"id": "netplus-4.1-3", "q": "What is a web of trust?", "a": "Decentralized trust: if A trusts B and B trusts C, A trusts C."}, {"id": "netplus-4.1-4", "q": "Least privilege?", "a": "Give users only the access their job needs."}, {"id": "netplus-4.1-5", "q": "RBAC?", "a": "Role-based access control: permissions attach to roles and users are assigned roles (Windows groups)."}, {"id": "netplus-4.1-6", "q": "Geofencing?", "a": "Allow or deny access based on physical location (GPS, IP, Wi-Fi)."}, {"id": "netplus-4.1-7", "q": "Three As of AAA?", "a": "Authentication, Authorization, Accounting."}, {"id": "netplus-4.1-8", "q": "SSO?", "a": "Authenticate once and access many resources for a period of time."}, {"id": "netplus-4.1-9", "q": "RADIUS use?", "a": "A common AAA protocol for VPN, 802.1X wireless and device logins."}, {"id": "netplus-4.1-10", "q": "LDAP?", "a": "Protocol for reading and writing a centralized directory (X.500 attributes), as in Active Directory."}, {"id": "netplus-4.1-11", "q": "SAML?", "a": "Open standard for SSO: identity provider authenticates the user and issues a signed token the resource accepts."}, {"id": "netplus-4.1-12", "q": "TACACS+?", "a": "Cisco-origin AAA protocol, separates authentication, authorization and accounting."}, {"id": "netplus-4.1-13", "q": "MFA factor types?", "a": "Know, have, are, and somewhere you are."}, {"id": "netplus-4.1-14", "q": "TOTP?", "a": "Time-based one-time password from a shared secret and synchronized clock, changing about every 30 seconds."}, {"id": "netplus-4.1-15", "q": "Honeypot vs honeynet?", "a": "Honeypot is one decoy system; honeynet is a decoy network of several devices."}, {"id": "netplus-4.1-16", "q": "Risk, vulnerability, exploit, threat?", "a": "Exposure to harm; weakness; use of the weakness; what could exploit it."}, {"id": "netplus-4.1-17", "q": "CIA triad?", "a": "Confidentiality, Integrity, Availability."}, {"id": "netplus-4.1-18", "q": "GDPR vs PCI DSS?", "a": "GDPR is EU law protecting personal data; PCI DSS is an industry standard protecting card data."}, {"id": "netplus-4.1-19", "q": "Why segment IoT, ICS and OT?", "a": "They are weakly secured or critical; isolation limits attacks and keeps them available."}, {"id": "netplus-4.1-20", "q": "Guest network goal?", "a": "Internet access with no access to internal services."}, {"id": "netplus-4.1-21", "q": "BYOD segmentation?", "a": "Separates company data from personal data so it can be managed or wiped."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

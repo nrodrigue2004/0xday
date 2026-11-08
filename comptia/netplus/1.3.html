@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 1.3 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 1.3: The Cloud">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.3 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 1.0 · Networking Concepts</span><span>1.3</span></div>
+<h1><span class="ok">1.3</span> The Cloud</h1>
+<div class="obj" data-obj="netplus-1.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Designing the Cloud</h4>
+<ul><li>Cloud traits: <strong>elasticity</strong> (scale up and down with demand), access from anywhere, <strong>multitenancy</strong> (many customers share one infrastructure, which is what makes it cheap).</li><li><strong>NFV (network function virtualization)</strong>: routers, switches and firewalls become virtual appliances on the hypervisor. Same functions, deployed with a click instead of a truck and a rack.</li><li><strong>VPC (virtual private cloud)</strong>: a private, isolated chunk of cloud holding your web servers, databases, load balancers and virtual network gear. Big orgs use one VPC per app or business unit.</li><li><strong>Transit gateway</strong>: a cloud router that links many VPCs. A VPN into the transit gateway gives remote users access to all of them.</li><li><strong>Internet gateway</strong>: makes a VPC reachable from the public internet. <strong>NAT gateway</strong>: lets private instances reach out to the internet without being reachable from it. <strong>VPC endpoint</strong>: a private connection from a VPC to another service or provider so traffic never crosses the open internet (useful to reach a private subnet).</li><li><strong>Security lists</strong> (applied to whole subnets/VCNs, coarse) vs <strong>security groups / network security groups</strong> (attached to individual virtual NICs, fine-grained, but more to administer). Rules are protocol + port + source/destination (single IP or CIDR block, IPv4 or IPv6), inbound and outbound, like a stateful firewall in front of the instance. Need more? Add a virtual firewall.</li></ul>
+<h4>Cloud Models</h4>
+<ul><li><strong>Deployment</strong>: <strong>public</strong> (anyone, run by a provider), <strong>private</strong> (your own virtualized data center), <strong>hybrid</strong> (both).</li><li><strong>Service models</strong> (who manages what): <strong>SaaS</strong> the finished app, you just log in and bring data (Gmail, Office 365). <strong>PaaS</strong> the provider gives the platform and tools, you build and maintain the app (Salesforce platform). <strong>IaaS</strong> (HaaS) you get raw compute, storage and network, and you install, patch and secure the software and data. Responsibility moves toward the provider as you go IaaS to PaaS to SaaS, but <strong>you always own your data, accounts and devices</strong>. On-prem is all yours, including the building.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-1.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A company runs private VMs in a cloud and needs them to download patches without being reachable from the internet. Best component?</p><ul class="chk__o"><li><span class="ok">a)</span> Internet gateway</li><li><span class="ok">b)</span> NAT gateway</li><li><span class="ok">c)</span> Transit gateway</li><li><span class="ok">d)</span> Load balancer</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> NAT gateways allow outbound-only access.</p></details></div><div class="chk"><p><strong>2.</strong> You need to deploy your own custom app and let the provider handle the OS and runtime. Which model?</p><ul class="chk__o"><li><span class="ok">a)</span> SaaS</li><li><span class="ok">b)</span> IaaS</li><li><span class="ok">c)</span> PaaS</li><li><span class="ok">d)</span> On-prem</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> PaaS provides the platform. You supply the application.</p></details></div>
+<h2>short lab: Sketch a small cloud network</h2><div class="prose lab"><p>Design on paper: two app tiers in separate subnets, only the web tier public, remote admins via VPN, tier-to-tier traffic only on the DB port. Name the cloud components you use.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Web subnet behind an internet gateway, app/DB subnets private. NAT gateway for outbound patches. VPN to a transit gateway (or the VPC) for admins. Security group on the DB allows only the app tier on its DB port (for example TCP 3306); web security group allows TCP 443 from anywhere.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/virtualization-proxmox.html">virtualization proxmox</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.3" placeholder="# 1.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.2.html">&lt; 1.2</a><a href="1.4.html">1.4 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-1.3-0", "q": "What is NFV?", "a": "Network function virtualization: running routers, switches and firewalls as virtual appliances."}, {"id": "netplus-1.3-1", "q": "What is a VPC?", "a": "A virtual private cloud: an isolated private network space inside a cloud provider."}, {"id": "netplus-1.3-2", "q": "What does a transit gateway do?", "a": "Acts as a cloud router connecting multiple VPCs (and VPN or on-prem links) together."}, {"id": "netplus-1.3-3", "q": "Internet gateway vs NAT gateway?", "a": "Internet gateway makes VPC resources reachable from the internet. NAT gateway lets private resources go out but not be reached from outside."}, {"id": "netplus-1.3-4", "q": "What is a VPC endpoint for?", "a": "A private connection from a VPC to a service or another provider without using the public internet."}, {"id": "netplus-1.3-5", "q": "Security list vs security group granularity?", "a": "Lists apply to a whole subnet or VCN; groups attach to individual virtual NICs for finer control."}, {"id": "netplus-1.3-6", "q": "IaaS, PaaS, SaaS in one line each?", "a": "IaaS: you run everything above the hardware. PaaS: you run the app, provider runs the platform. SaaS: provider runs everything, you use the app."}, {"id": "netplus-1.3-7", "q": "Who is always responsible for the data in any cloud model?", "a": "The customer."}, {"id": "netplus-1.3-8", "q": "What is multitenancy?", "a": "Multiple customers sharing the same cloud infrastructure, isolated logically."}, {"id": "netplus-1.3-9", "q": "Public vs private vs hybrid cloud?", "a": "Public: shared provider cloud. Private: dedicated to you. Hybrid: a mix of both."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 5.3 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 5.3: Troubleshooting Network Services">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 5.3 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 5.0 · Network Troubleshooting</span><span>5.3</span></div>
+<h1><span class="ok">5.3</span> Troubleshooting Network Services</h1>
+<div class="obj" data-obj="netplus-5.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Switching Issues</h4>
+<ul><li>Ethernet frames have no TTL, so a <strong>switching loop</strong> circulates forever and broadcast/multicast storms kill the network. <strong>Spanning Tree Protocol (STP)</strong> prevents them.</li><li>STP switches exchange <strong>BPDUs</strong> (MAC multicast, hello <strong>every 2 seconds</strong>). Missing <strong>three</strong> hellos = link down and the topology is recomputed. A <strong>root bridge</strong> is elected: <strong>lowest bridge ID</strong> wins (settable from 0 to 61,440 in steps; ties broken by lowest MAC). Others pick a <strong>root port</strong> toward the root; <strong>designated ports</strong> forward; <strong>blocked/discarding</strong> ports break loops. Port states: <strong>blocking/discarding, listening, learning, forwarding</strong>, <strong>disabled</strong> (admin). Failures unblock ports automatically.</li><li><strong>VLAN issues</strong>: device has an IP but can't reach neighbors? Check the <strong>access port's VLAN ID</strong> on the switch.</li><li><strong>ACLs</strong>: if routing and VLANs look right but packets disappear, check ACLs on the path. Like firewall rules: first match, specific entries first, <strong>implicit deny</strong>, so an empty ACL on an interface blocks everything. Be careful editing ACLs on the interface you are managing through (you can lock yourself out).</li></ul>
+<h4>Routing and IP Issues</h4>
+<ul><li>Check the <strong>routing table on every router</strong> along the path and the <strong>return path</strong>. No route = packet dropped, often with <strong>ICMP destination/host unreachable</strong>. Compare with a network map.</li><li><strong>Gateway of last resort</strong> = default route, <strong>0.0.0.0/0</strong>, usually static (<code>ip route 0.0.0.0 0.0.0.0 10.10.50.2</code>). Routing table sources: directly connected, static, learned (RIP, OSPF, etc.).</li><li><strong>Address pool exhaustion</strong>: clients get <strong>APIPA 169.254.x.x</strong> (local only, nonroutable). Check the DHCP server or <strong>IPAM</strong>, enlarge the pool, <strong>shorten the lease</strong> on transient networks.</li><li><strong>Incorrect IP, mask or gateway</strong>: verify with the admin, packet capture, or other devices. Test in order: <strong>ping self, ping gateway, ping beyond the gateway</strong> (and traceroute).</li><li><strong>Duplicate IPs</strong>: static device inside a DHCP pool, overlapping scopes on two servers, or a rogue DHCP server. Modern OSes warn on conflict. Ping the address before assigning; if it answers, find it: ping, then <strong>ARP table</strong> for the MAC, then <strong>switch MAC table</strong> for the port. Capture DHCP offers to catch duplicate servers.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-5.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Network comes to a halt after someone adds a second cable between two switches. Missing feature?</p><ul class="chk__o"><li><span class="ok">a)</span> STP</li><li><span class="ok">b)</span> DHCP relay</li><li><span class="ok">c)</span> NTS</li><li><span class="ok">d)</span> PoE</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> A loop without STP floods the network.</p></details></div><div class="chk"><p><strong>2.</strong> A PC gets 169.254.12.7. Likely cause?</p><ul class="chk__o"><li><span class="ok">a)</span> DNS cache</li><li><span class="ok">b)</span> DHCP unavailable or pool exhausted</li><li><span class="ok">c)</span> Wrong VLAN trunk</li><li><span class="ok">d)</span> NTP drift</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> APIPA means no DHCP lease.</p></details></div><div class="chk"><p><strong>3.</strong> Router 1 sends traffic to 10.3.10.0/24 but pings get "destination unreachable." What do you check?</p><ul class="chk__o"><li><span class="ok">a)</span> Routing tables, in both directions</li><li><span class="ok">b)</span> The hosts file</li><li><span class="ok">c)</span> Port security</li><li><span class="ok">d)</span> Cable category</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Missing route on the path or return.</p></details></div>
+<h2>short lab: Chase the conflict</h2><div class="prose lab"><p>Windows reports an IP conflict for 192.168.1.50. Write the commands to find the other device.</p></div><details><summary>walkthrough</summary><div class="prose"><p><code>ping 192.168.1.50</code>, then <code>arp -a</code> to read its MAC, then on the switch <code>show mac address-table address &lt;mac&gt;</code> to find the port. Remove or fix that device, then renew leases.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/computer-networks.html">computer networks</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/networking-tcp-ip-dhcp-nat-subnets.html">networking tcp ip dhcp nat subnets</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 5.3" placeholder="# 5.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="5.2.html">&lt; 5.2</a><a href="5.4.html">5.4 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-5.3-0", "q": "Why can't a switch network stop loops by itself?", "a": "Ethernet frames have no TTL, so they circulate indefinitely."}, {"id": "netplus-5.3-1", "q": "What does STP use to talk?", "a": "BPDUs, sent every 2 seconds."}, {"id": "netplus-5.3-2", "q": "When does STP consider a link down?", "a": "After three missed hellos (BPDUs)."}, {"id": "netplus-5.3-3", "q": "How is the root bridge chosen?", "a": "Lowest bridge ID; ties go to the lowest MAC address."}, {"id": "netplus-5.3-4", "q": "Root port vs designated port vs blocked port?", "a": "Root: best path to root. Designated: forwarding port for a segment. Blocked: prevents a loop."}, {"id": "netplus-5.3-5", "q": "STP port states?", "a": "Blocking/discarding, listening, learning, forwarding, plus disabled."}, {"id": "netplus-5.3-6", "q": "Device has valid IP but can't talk to local hosts. What to check?", "a": "The switch port's VLAN assignment."}, {"id": "netplus-5.3-7", "q": "ACL gotcha?", "a": "Implicit deny at the end; an empty ACL on an interface blocks all traffic."}, {"id": "netplus-5.3-8", "q": "What happens when no route matches?", "a": "The packet is dropped, often with ICMP destination unreachable."}, {"id": "netplus-5.3-9", "q": "Gateway of last resort?", "a": "Default route 0.0.0.0/0 used when nothing else matches."}, {"id": "netplus-5.3-10", "q": "What does a 169.254.x.x address mean?", "a": "APIPA: DHCP failed (such as pool exhaustion) and the host self-assigned a nonroutable address."}, {"id": "netplus-5.3-11", "q": "How to reduce pool exhaustion on guest networks?", "a": "Shorten lease times and enlarge the pool; monitor with IPAM."}, {"id": "netplus-5.3-12", "q": "Ping test order for IP problems?", "a": "Self, default gateway, remote address (then traceroute)."}, {"id": "netplus-5.3-13", "q": "Causes of duplicate IPs?", "a": "Static IPs inside the DHCP scope, overlapping scopes, rogue DHCP server."}, {"id": "netplus-5.3-14", "q": "How to find who has a duplicate IP?", "a": "Ping it, read the ARP table for the MAC, then look it up in the switch MAC table."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
