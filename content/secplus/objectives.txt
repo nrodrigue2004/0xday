@@ -43,6 +43,10 @@ Q: Which control type discourages an attacker but doesn't actually block access?
 A: Deterrent.
 Q: Calling law enforcement after a break-in is which type and category?
 A: Corrective, operational.
+Q: Why is a directive control considered relatively weak?
+A: It only tells people to act securely; the user must decide and comply, and nothing enforces it.
+Q: Example of a compensating control while waiting for a vendor patch?
+A: A firewall rule that blocks the vulnerable traffic until the patch ships.
 
 ## 1.2 Summarize fundamental security concepts
 labs: cryptography-applied, active-directory
@@ -96,6 +100,22 @@ Q: Which part of a router is the control plane: the routing table or packet forw
 A: The routing table (configuration). Forwarding packets is the data plane.
 Q: How does a certificate authenticate a device?
 A: The CA signs a certificate issued to the device. Anyone trusting the CA can verify the signature and confirm the device is genuine.
+Q: In a digital signature, what is encrypted with the sender's private key?
+A: The hash of the message.
+Q: Why does a VPN concentrator forward logins to an AAA server?
+A: It holds no user data itself; the central AAA server checks the credentials and answers approved or denied.
+Q: How do you authenticate a company laptop that cannot type a password?
+A: With a device certificate signed by your certificate authority.
+Q: What does a gap analysis need before it starts?
+A: A baseline to compare against, such as NIST SP 800-171 Rev 2 or ISO/IEC 27001.
+Q: In a gap analysis grid, which items do you fix first?
+A: Red ones, the biggest gaps, then yellow, then green.
+Q: What does the policy engine do in zero trust?
+A: It compares the request with policy and decides grant, deny or revoke.
+Q: What does the policy administrator do in zero trust?
+A: It passes the decision to the enforcement point and creates any access tokens or credentials.
+Q: What is two-person integrity?
+A: Two or more guards on duty so no single guard can bypass the security policy.
 
 ## 1.3 Explain the importance of change management processes and the impact to security
 labs: git-github
@@ -223,6 +243,12 @@ Q: Name two defenses against insider threats.
 A: Least privilege and separation of duties (also monitoring, vetting at hire, prompt offboarding).
 Q: What was Stuxnet?
 A: A worm attributed to nation states that sabotaged nuclear centrifuges, a classic example of a sophisticated nation-state attack.
+Q: Which threat actor has a corporate-like structure including customer support for ransomware victims?
+A: Organized crime.
+Q: Which threat actor uses its own budget or credit cards to buy cloud services outside IT's control?
+A: Shadow IT.
+Q: Which malware is linked to a joint US and Israeli effort against nuclear centrifuges?
+A: Stuxnet.
 
 ## 2.2 Explain common threat vectors and attack surfaces
 labs: phishing-analysis, recon-nmap-metasploit
@@ -912,6 +938,10 @@ Q: What happens in the lessons learned phase?
 A: A post-incident review of the timeline, what worked and what didn't, with changes to plans, monitoring and training.
 Q: Why use out-of-band communication during an incident?
 A: Normal channels such as email may be compromised.
+Q: Which RFC covers order of volatility for evidence collection?
+A: RFC 3227.
+Q: Which NIST publication defines the incident response lifecycle?
+A: NIST SP 800-61 Rev 2: preparation, detection and analysis, containment/eradication/recovery, post-incident activity.
 
 ## 4.9 Given a scenario, use data sources to support an investigation
 labs: log-analysis, network-traffic-analysis, siem-security-onion
@@ -945,6 +975,16 @@ Q: What does an IPS log show?
 A: Signature matches and attacks that were detected or blocked.
 Q: What does a vulnerability scan output provide in an investigation?
 A: The weaknesses present at the time of the scan, which hints at how a system could have been compromised.
+Q: Which log would show a TCP SYN flood on a switch port?
+A: A network device log; the switch can record the attack and auto-block the traffic for a set time.
+Q: Where do Linux and macOS keep most application and system logs?
+A: In /var/log.
+Q: What is a dashboard best used for?
+A: An at-a-glance, real-time view; it avoids long-term data because that takes too long to compile.
+Q: What metadata can a photo from a phone reveal?
+A: The device used and the GPS coordinates where it was taken.
+Q: What does a Wireshark detail pane show?
+A: A layered breakdown of one frame: Ethernet, IP, TCP and the application data such as HTTP.
 
 ## 5.1 Summarize elements of effective security governance
 - Guidelines, policies (AUP, information security, business continuity, disaster recovery, incident response, SDLC, change management).
@@ -982,6 +1022,18 @@ Q: Why review policies regularly?
 A: Threats, technology, laws and the business change, and incidents or audits reveal gaps.
 Q: What is an onboarding/offboarding procedure for?
 A: Consistently provisioning access when people join and removing it when they leave.
+Q: Which software lifecycle is linear: requirements, development, testing, deployment, maintenance?
+A: Waterfall.
+Q: Which software lifecycle repeats design, develop, test, deploy and review constantly?
+A: Agile.
+Q: Why disable rather than delete a departed user's account?
+A: Deleting could lose decryption keys or data needed later.
+Q: What does a SOAR platform do with playbooks?
+A: Automates the steps and links diverse security tools so staff can focus on harder work.
+Q: Who is the data owner, with an example?
+A: A senior person ultimately responsible for a dataset, such as the VP of sales for customer data.
+Q: Centralized vs decentralized governance?
+A: Centralized: one group decides for the whole organization. Decentralized: decisions are made by those doing the work.
 
 ## 5.2 Explain elements of the risk management process
 - Risk identification, assessment (ad hoc, recurring, one-time, continuous), analysis: qualitative vs quantitative.
@@ -1025,6 +1077,18 @@ Q: What does a BIA produce?
 A: Critical functions, dependencies and recovery metrics such as RTO and RPO.
 Q: When is a control cost-effective?
 A: When the control costs less than the loss it prevents (compare to ALE).
+Q: A laptop worth $1,000 is stolen, and 7 are stolen a year. What is the ALE?
+A: SLE $1,000 (EF 1.0) times ARO 7 = $7,000.
+Q: What is the difference between risk appetite and risk tolerance?
+A: Appetite is how much risk you are willing to take; tolerance is the slightly wider band you will actually put up with.
+Q: Is a policy exemption or an exception the right term for extending a patch deadline because the patch breaks an app?
+A: Exception.
+Q: What goes in a risk register line?
+A: The risk (key risk indicator), an owner and a threshold.
+Q: What does MTBF measure and roughly how is it computed?
+A: Time between failures; total uptime divided by number of breakdowns.
+Q: Which comes first in impact analysis, property or life?
+A: Life.
 
 ## 5.3 Explain the processes associated with third-party risk assessment and management
 - Vendor assessment: penetration testing, right-to-audit clause, evidence of internal audits, independent assessments, supply chain analysis.
@@ -1054,6 +1118,20 @@ Q: What belongs in vendor offboarding?
 A: Revoking access and confirming return or destruction of data.
 Q: What is a SOC 2 report?
 A: An independent auditor's report on a service provider's controls (security, availability, confidentiality, and more).
+Q: What does the right-to-audit clause do?
+A: Lets you audit a vendor regularly; it can also set how audits run.
+Q: Name four items in a pen test's rules of engagement.
+A: Test type, dates and hours, IP ranges in scope, and emergency contacts (also data handling and out-of-scope devices).
+Q: Which supply chain attack shipped signed malware to about 18,000 of roughly 300,000 customers?
+A: SolarWinds (announced December 2020).
+Q: Unilateral vs bilateral vs multilateral NDA?
+A: One party bound, both parties bound, or more than two parties bound.
+Q: What does an MSA do for later work?
+A: Sets general terms so each new project only needs a work order or SOW with scope, location and deliverables.
+Q: Is an MOA an enforceable contract?
+A: Generally no; it has more detail than an MOU and may hold some binding terms, but it is not a contract.
+Q: Name three conflict-of-interest examples with a vendor.
+A: Also works with your biggest competitor, employs an executive's relative, or offers gifts for signing.
 
 ## 5.4 Summarize elements of effective security compliance
 - Compliance reporting (internal, external). Consequences of non-compliance: fines, sanctions, reputational damage, loss of license, contractual impacts.
@@ -1085,6 +1163,16 @@ Q: What is data minimization?
 A: Collecting and keeping only the personal data you actually need.
 Q: What is SOX concerned with?
 A: Integrity of financial reporting for US public companies.
+Q: Why did Uber end up paying $148 million?
+A: It hid a 2016 breach for over a year (and paid the hackers under an NDA) instead of disclosing it.
+Q: Which US law drives the privacy notices from banks?
+A: GLBA, the Gramm-Leach-Bliley Act of 1999.
+Q: Due care vs due diligence, as Messer uses them?
+A: Due care is what you do internally; due diligence is what you do with third parties.
+Q: Who signs the attestation and acknowledgment of compliance?
+A: The responsible executive.
+Q: What is in a data inventory?
+A: What data you hold, its owner, how often it is updated and its format.
 
 ## 5.5 Explain types and purposes of audits and assessments
 labs: recon-nmap-metasploit
@@ -1112,6 +1200,14 @@ Q: What is an attestation in an audit context?
 A: A formal statement or report that controls meet requirements.
 Q: Why might a regulator examine you?
 A: To check compliance with laws and industry regulations.
+Q: What is an attestation relative to an audit?
+A: An opinion on the truth of the audit results; you audit, then attest.
+Q: Which group usually starts and stops internal audits?
+A: The audit committee.
+Q: Another name for an unknown-environment pen test?
+A: Blind test.
+Q: Give two examples each of passive and active reconnaissance.
+A: Passive: social media, dumpster diving. Active: port scan, OS fingerprinting.
 
 ## 5.6 Given a scenario, implement security awareness practices
 labs: phishing-analysis
@@ -1143,4 +1239,12 @@ Q: Which control category does an awareness program belong to?
 A: Operational.
 Q: How do you measure training effectiveness?
 A: Completion rates, quiz scores, simulation results and incident trends.
+Q: Why are phishing simulation clicks tracked?
+A: To see who needs more training and to measure whether training lowers the click rate over time.
+Q: Risky vs unexpected vs unintentional behavior, one example each?
+A: Modifying the hosts file; a login from another country; typing the wrong domain.
+Q: Name three metrics a security awareness team reports.
+A: Phishing click rate, password manager adoption and MFA use.
+Q: When should security training happen for new users?
+A: Before they connect to the network for the first time, specialized by role.
 
