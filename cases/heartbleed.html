@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heartbleed (2014) :: ~/cases :: 0xDay</title>
+<meta name="description" content="Case study, Heartbleed (2014): A missing bounds check in OpenSSL leaked server memory. Real code, line by line. Lab: count the leak.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=af415407" defer></script>
+<script src="../site.js?v=af415407" defer></script>
+<script src="../fx.js?v=af415407" defer></script>
+<script src="../sandbox.js?v=af415407" defer></script>
+<script src="../learn.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cases --chapter heartbleed</p>
+<h1>~/cases/heartbleed</h1>
+<p>A two-byte length field the server believed. Heartbleed let anyone read chunks of a server's memory, passwords and private keys included. This is the real vulnerable code and the real fix, line by line.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="heartbleed">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><h4>The story</h4>
+<p>TLS is the encryption behind HTTPS. A TLS <strong>heartbeat</strong> is a tiny "are you still there?" message: the client sends some bytes and says how many, and the server echoes the same bytes back. The server code believed the number the client claimed.</p>
+<p>If a client sent <strong>3 bytes</strong> but claimed <strong>64,000</strong>, the server copied 64,000 bytes starting at those 3 bytes. Whatever was next in the server's memory went into the reply: other users' sessions, usernames, passwords, and sometimes the server's <strong>private key</strong>. No login was needed and nothing was logged. Each probe leaked up to 64 KB.</p>
+<p>It was disclosed on <strong>7 April 2014</strong> as <strong>CVE-2014-0160</strong> and nicknamed <strong>Heartbleed</strong>. The bug had been in OpenSSL since version 1.0.1 shipped in March 2012. At disclosure, an estimated half a million or more of the web's HTTPS servers were exposed.</p>
+<h4>Timeline</h4>
+<ul><li><strong>Dec 2011:</strong> the heartbeat feature is added to OpenSSL (by an outside contributor, reviewed and merged).</li><li><strong>14 Mar 2012:</strong> OpenSSL 1.0.1 released with it enabled by default.</li><li><strong>Early Mar to Apr 2014:</strong> Neel Mehta at Google and, separately, engineers at Codenomicon find the bug.</li><li><strong>7 Apr 2014:</strong> advisory and fixed release, 1.0.1g. Public site and logo.</li><li><strong>Apr 2014:</strong> certificate revocations and password-reset waves; Canada's tax agency reported about 900 social insurance numbers taken through it.</li><li><strong>Late Apr 2014:</strong> the Linux Foundation starts the Core Infrastructure Initiative to fund critical open source; OpenBSD forks OpenSSL as <strong>LibreSSL</strong>.</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The vulnerable code (abridged)</h4>
+<p>This is from <code>tls1_process_heartbeat()</code> in <code>ssl/t1_lib.c</code>, OpenSSL 1.0.1 to 1.0.1f. Comments are trimmed and mine.</p>
+<pre class="ex ex--code"><code>unsigned char *p = &amp;s-&gt;s3-&gt;rrec.data[0], *pl;
+unsigned short hbtype;
+unsigned int payload;
+unsigned int padding = 16;       /* use minimum padding */
+
+/* Read type and payload length first */
+hbtype = *p++;                   /* 1 byte: request or response */
+n2s(p, payload);                 /* 2 bytes -&gt; &quot;payload&quot; (0..65535), taken from the packet */
+pl = p;                          /* pl points at the payload bytes the client sent */
+
+if (hbtype == TLS1_HB_REQUEST)
+{
+    unsigned char *buffer, *bp;
+
+    buffer = OPENSSL_malloc(1 + 2 + payload + padding);
+    bp = buffer;
+
+    *bp++ = TLS1_HB_RESPONSE;    /* response type */
+    s2n(payload, bp);            /* echo the claimed length */
+    memcpy(bp, pl, payload);     /* copy &quot;payload&quot; bytes from the request */
+    bp += payload;
+    RAND_pseudo_bytes(bp, padding);
+    r = ssl3_write_bytes(s, TLS1_RT_HEARTBEAT, buffer, 3 + payload + padding);
+    ...</code></pre>
+<h4>Line by line</h4>
+<ol><li><code>p</code> walks the received record. <code>hbtype = *p++</code> reads the type byte.</li><li><code>n2s(p, payload)</code> is a macro that reads <strong>two bytes from the packet</strong> into <code>payload</code>. This is a number the <strong>attacker chooses</strong>, from 0 to 65535.</li><li><code>pl = p</code> marks where the client's payload starts. How many bytes of payload the client *really* sent is a different number: the length of the record, <code>s-&gt;s3-&gt;rrec.length</code>. <strong>The code never compares them.</strong></li><li><code>OPENSSL_malloc(1 + 2 + payload + padding)</code> allocates a response buffer sized from the attacker's claim.</li><li><code>memcpy(bp, pl, payload)</code> copies <code>payload</code> bytes starting at <code>pl</code>. If the client really sent only 3 bytes, bytes 4 onward are <strong>not part of the request</strong>, they are whatever sits after it in the server's heap: an over-read.</li><li>The buffer is sent back to the client. The leak is in the response.</li></ol>
+<p class="callout">The bug class is a <strong>buffer over-read</strong>: the missing check is on a length that came from the outside. Compare the Morris worm, an over-<strong>write</strong>.</p>
+<h4>The fix (1.0.1g, paraphrased from the commit)</h4>
+<pre class="ex ex--code"><code>/* Read type and payload length first */
+if (1 + 2 + 16 &gt; s-&gt;s3-&gt;rrec.length)
+    return 0;                    /* record too short: silently discard */
+hbtype = *p++;
+n2s(p, payload);
+if (1 + 2 + payload + 16 &gt; s-&gt;s3-&gt;rrec.length)
+    return 0;                    /* claimed payload longer than what arrived: discard (RFC 6520) */
+pl = p;</code></pre>
+<p>Two checks: the record is at least long enough for the header and minimum padding, and the claimed payload plus header plus padding <strong>fits inside the record that actually arrived</strong>. If not, drop the message. That is all it took, and it is exactly what RFC 6520 section 4 already said to do.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Why it lasted two years</h4>
+<ul><li>The heartbeat extension is rarely used on the web (it came from DTLS/UDP needs), yet it was <strong>on by default</strong>.</li><li>OpenSSL used its <strong>own memory allocator</strong> that reused freed blocks without clearing them, which made leaked memory more likely to contain secrets, and made memory-checking tools and hardened system allocators less able to flag the over-read.</li><li>Test suites rarely include malformed-length cases. A <strong>fuzzer</strong> pointed at the heartbeat handler finds it in minutes, and after Heartbleed, projects began running continuous fuzzing (for example Google's OSS-Fuzz, 2016).</li><li>Code reviewers read the new feature, but not for "does this length match reality?"</li><li>OpenSSL was maintained by a tiny team, with little funding, even though most of the internet depended on it.</li></ul>
+<h4>What an attacker could actually get</h4>
+<p>Memory is random, so you do not choose what you get; you ask many times. Researchers recovered private keys from test servers, session cookies and passwords from live traffic. The leak is most dangerous because it leaves <strong>no trace in normal logs</strong> (the connection looks like a normal handshake).</p>
+<h4>Detection</h4>
+<ul><li><strong>Version check:</strong> which servers run OpenSSL 1.0.1 to 1.0.1f, with heartbeat enabled? Many scanners reported this within a day. For your own systems, <code>nmap --script ssl-heartbleed -p 443 &lt;your-host&gt;</code> tests for it.</li><li><strong>Network:</strong> IDS signatures looked for a heartbeat record whose claimed length is larger than the record, or a heartbeat after the handshake with unusual size. Responses significantly larger than requests are a tell.</li><li><strong>After the fact:</strong> you cannot know what leaked. The response is to assume the worst.</li></ul>
+<h4>Response checklist (what teams actually did)</h4>
+<ol><li>Upgrade to 1.0.1g or newer, or rebuild with <code>-DOPENSSL_NO_HEARTBEATS</code>.</li><li><strong>Revoke and reissue</strong> certificates, because the private key may have leaked.</li><li>Reset passwords and invalidate sessions.</li><li>Notify users where required.</li></ol>
+<h4>Lessons</h4>
+<ul><li><strong>Validate every length that comes from the network.</strong> A length field is just another untrusted input.</li><li><strong>Do not trust your own allocator to be harmless.</strong> Custom allocators can hide bugs.</li><li><strong>Features off by default</strong> would have saved millions of servers.</li><li><strong>Critical open source needs funding and testing</strong>, not just users.</li><li><strong>Memory-safe languages</strong> make this bug class impossible by default (a bounds-checked slice would raise an error). See <a href="../history/h6-future.html">the future chapter</a>.</li><li><strong>Forward secrecy</strong> limits the damage of a stolen private key to future sessions, not past ones.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// debugger</span></h2><p><strong>Scenario (fictional, simulated):</strong> <code>heartbeat.c</code> is a toy echo handler with the same bug as Heartbleed. A client sends a record with the 3-byte payload <code>hat</code> but claims the payload is 500 bytes long. Step through the debugger. Submit <strong>how many bytes of other memory leak</strong> into the reply, e.g. <code>submit 100</code>.</p><p class="muted">Step through the toy program in the debugger pane, then <code>submit &lt;answer&gt;</code>. It is a fictional program with the same bug class, not the real code.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/cases.html">cheatsheet</a></span></h2><h3>at a glance</h3><dl class="man"><dt><code>CVE</code></dt><dd>CVE-2014-0160</dd><dt><code>Date</code></dt><dd>disclosed 7 April 2014; bug present since OpenSSL 1.0.1 (March 2012)</dd><dt><code>Affected</code></dt><dd>OpenSSL 1.0.1 through 1.0.1f (and 1.0.2-beta1)</dd><dt><code>Fixed in</code></dt><dd>1.0.1g</dd><dt><code>Bug class</code></dt><dd>buffer over-read, CWE-126 / CWE-130 (improper handling of length parameter)</dd><dt><code>Root cause</code></dt><dd>claimed payload length not checked against the received record length</dd><dt><code>Impact</code></dt><dd>up to 64 KB of server memory per request, including keys and session data</dd><dt><code>Detect</code></dt><dd>version scan, nmap ssl-heartbleed on your own hosts, IDS on malformed heartbeats</dd><dt><code>Respond</code></dt><dd>patch, revoke and reissue certs, reset credentials</dd></dl></section><section class="lvl" id="sources"><h2><span class="lvl__n">src</span> sources <span class="muted">// read these, not just me</span></h2><p>OpenSSL Security Advisory of 7 April 2014 (CVE-2014-0160); RFC 6520 (TLS Heartbeat Extension); the OpenSSL commit that fixed it in 1.0.1g (ssl/t1_lib.c, ssl/d1_both.c); heartbleed.com (Codenomicon); Durumeric et al., *The Matter of Heartbleed* (IMC 2014); Theo de Raadt's and others' commentary on OpenSSL's allocator; Neel Mehta's and Codenomicon's independent discovery.</p></section><nav class="pager"><a href="morris-worm.html">&lt; Morris worm (1988)</a><a href="wannacry.html">WannaCry and EternalBlue (2017) &gt;</a></nav><p><a href="../cases.html">cd ~/cases</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "heartbleed", "title": "Heartbleed (2014)", "user": "student", "host": "tls-lab", "brief": "<strong>Scenario (fictional, simulated):<\/strong> <code>heartbeat.c<\/code> is a toy echo handler with the same bug as Heartbleed. A client sends a record with the 3-byte payload <code>hat<\/code> but claims the payload is 500 bytes long. Step through the debugger. Submit <strong>how many bytes of other memory leak<\/strong> into the reply, e.g. <code>submit 100<\/code>.", "hints": ["Find the claimed length and the real payload length in the variables.", "Leaked bytes = bytes copied minus bytes actually sent by the client."], "answers": ["dcb5d6e69e4ded78464ae2843f509daf65c9ca09dfdc9b5ad69166341963a877"], "solution": "VGhlIHJlY29yZCBjYXJyaWVzIDMgcGF5bG9hZCBieXRlcyBidXQgdGhlIGhhbmRsZXIgY29waWVkIDxjb2RlPmNsYWltZWQgPSA1MDA8L2NvZGU+LiA1MDAgLSAzID0gPHN0cm9uZz40OTcgYnl0ZXM8L3N0cm9uZz4gY2FtZSBmcm9tIG1lbW9yeSBuZXh0IHRvIHRoZSByZXF1ZXN0OiBoZXJlIHRoZSBuZWlnaGJvdXJpbmcgPGNvZGU+c2Vzc2lvbl9rZXk8L2NvZGU+IGFuZCA8Y29kZT5wYXNzd29yZDwvY29kZT4gc3RyaW5ncy4gVGhlIGZpeCBpcyB0aGUgbWlzc2luZyBjaGVjayBiZWZvcmUgdGhlIGNvcHk6IDxjb2RlPmlmIChjbGFpbWVkICZndDsgcmVjZWl2ZWQpIHJldHVybjs8L2NvZGU+LCB3aGljaCBpcyB0aGUgc2FtZSBzaGFwZSBhcyB0aGUgT3BlblNTTCAxLjAuMWcgcGF0Y2guCg==", "fs": {"/home/student/heartbeat.c": "#include <stdlib.h>\n#include <string.h>\n\n/* FICTIONAL toy handler. Same bug class as OpenSSL Heartbleed, not the real code. */\nchar *echo(const unsigned char *payload, size_t received, size_t claimed) {\n    char *reply = malloc(claimed);\n    memcpy(reply, payload, claimed);   /* <- should be limited by \"received\" */\n    return reply;\n}\n"}, "cmds": [], "cmdnames": [], "style": "debug", "source": "/home/student/heartbeat.c", "trace": [{"line": 5, "vars": {"received": "3", "claimed": "500"}, "out": "heartbeat record arrives"}, {"line": 6, "vars": {"received": "3", "claimed": "500", "reply_size": "500"}, "out": "allocating a 500-byte reply"}, {"line": 7, "vars": {"received": "3", "claimed": "500"}, "out": "copying 500 bytes from request payload \"hat\" ..."}, {"line": 7, "vars": {"received": "3", "claimed": "500"}, "out": "reply starts: \"hat\" then user=alice;password=correcthorse;session_key=7f3a... (497 bytes of neighbouring memory)"}, {"line": 8, "vars": {"received": "3", "claimed": "500"}, "out": "reply sent to client"}]}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

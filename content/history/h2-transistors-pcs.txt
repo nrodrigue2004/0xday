@@ -1,0 +1,81 @@
+tagline: The transistor shrank the computer from a room to a desk. Along the way came Unix, C, the microprocessor and the PC, and the first ideas about computer security.
+sheet: history
+:: simple
+- **1947, the transistor.** Bardeen, Brattain and Shockley at Bell Labs built a solid-state switch. Smaller, cooler and more reliable than a vacuum tube.
+- **1958 to 1959, the integrated circuit.** Jack Kilby and Robert Noyce put many transistors on one chip.
+- **1965, Moore's law.** Gordon Moore observed that the number of transistors per chip was doubling about every year or two. It was an observation, not a law, and it held for decades.
+- **1969, Unix.** Ken Thompson and Dennis Ritchie at Bell Labs. **1972, the C language.** Unix was rewritten in C, which made it portable. Linux, macOS, Android and most servers descend from this line.
+- **1970, the relational model.** Edgar Codd's idea became SQL databases.
+- **1971, the Intel 4004.** A whole processor on one chip.
+- **1975 to 1984, the home computer.** Altair 8800 (1975), Apple I (1976), the IBM PC (1981, running Microsoft's DOS), and the Macintosh (1984) with a graphical interface.
+
+Security started to matter once machines were shared and connected:
+- **1971, Creeper.** A harmless program that moved between machines on ARPANET printing "I'm the creeper, catch me if you can". **Reaper** was written to delete it.
+- **1976 to 1977, public-key crypto.** Diffie and Hellman, then RSA (Rivest, Shamir, Adleman): two people can agree on secrets without ever meeting.
+- **1983 to 1984, "computer virus".** Fred Cohen demonstrated one; Ken Thompson's Turing lecture, *Reflections on Trusting Trust*, showed a compiler could carry a hidden backdoor.
+:: mid
+### Why C and Unix shaped security
+C gives you direct memory access and no bounds checking. That made Unix small and fast, and it is the reason a whole class of bugs exists: **buffer overflows**, use-after-free, and integer overflows. The Morris worm (1988) and Heartbleed (2014) are both C bugs, 26 years apart. See [Morris worm](../cases/morris-worm.html) and [Heartbleed](../cases/heartbleed.html).
+
+### Unix ideas that survived
+- Everything is a file; small tools do one job; pipes connect them (`ps | grep | wc`).
+- Users, groups and permission bits (`rwx`) with a privileged `root`. Still the base of Linux permissions.
+- Text configuration, a shell, and scripts. Your homelab runs on this.
+
+### The first security thinking
+- **1970s Multics**, a time-sharing system built with security in mind, and the **Anderson report** (1972) for the US Air Force, which framed the idea of a **reference monitor**: a small piece that mediates every access.
+- **Rings and privilege levels** in hardware: user mode vs kernel mode.
+- **Orange Book** (1983, TCSEC): the first formal criteria for rating how trustworthy a system is.
+
+### The PC era
+The IBM PC and DOS had no users or permissions at all: whoever sat at the keyboard owned the machine. **Floppy disks** carried the first PC viruses: **Elk Cloner** (1982, an Apple II prank by a teenager), **Brain** (1986, widely called the first PC virus).
+:: complex
+### Trusting trust
+Thompson's 1984 lecture describes a compiler modified to (1) insert a backdoor when it compiles the login program and (2) insert that same modification when it compiles a new compiler. Delete the malicious source and the binary compiler still reproduces it. The point: you cannot fully trust code you did not build from scratch, including the tools. Modern defenses: **reproducible builds**, diverse double-compiling, signed releases, and SBOMs. The 2020 SolarWinds and 2024 XZ Utils incidents are supply-chain cousins of this idea.
+
+### Why Moore's law ended up in security
+Cheap, fast chips made brute force cheap (password cracking, hashing), and made **side channels** possible: speculative execution tricks in the 2018 Spectre and Meltdown bugs came from performance optimisations. Speed and safety trade off.
+
+### Public-key cryptography, briefly
+**Diffie-Hellman** (1976) lets two parties build a shared key over a public channel. **RSA** (1977) is based on the difficulty of factoring a product of two large primes. Both are the subject of the quantum threat in [the future chapter](h6-future.html). British GCHQ had found equivalent ideas earlier (Cocks, Ellis, Williamson, early 1970s), but kept them secret until 1997.
+
+### Operating system lineage (rough)
+- Unix (1969) -> BSD (1977) -> FreeBSD, OpenBSD, macOS/iOS kernels
+- Unix ideas -> Linux (1991) -> Android, most of the cloud
+- CP/M -> DOS (1981) -> Windows (1985); NT kernel (1993) is what Windows uses today
+:: ref
+### dates
+1947 | Transistor invented (Bell Labs)
+1958 | Integrated circuit (Kilby; Noyce in 1959)
+1965 | Moore's observation: transistor counts double on a regular schedule
+1969 | Unix begins at Bell Labs
+1971 | Intel 4004 microprocessor; Creeper experimental program
+1972 | C language; Anderson report on computer security
+1976 | Diffie-Hellman key exchange; Apple I
+1977 | RSA
+1981 | IBM PC
+1982 | Elk Cloner (Apple II virus)
+1984 | Trusting Trust lecture; Macintosh
+:: lab
+host: bell-labs
+user: student
+cwd: /home/student
+:: brief
+**Scenario (fictional, simulated):** you inherit a Unix box from 1979 (a text archive of its `/etc/passwd` and a log). `~/etc/passwd` lists accounts, and the old rule was that an account with an **empty password field** needs no password at all. Find the **username** of the account that has no password and has a shell. Submit the username, e.g. `submit root`.
+:: answer
+guest
+:: hint
+The second field of each line in `passwd` is the password hash. Empty means `::` next to each other. Try `grep '::' ~/etc/passwd`.
+:: hint
+The account also needs a real shell, not `/bin/false`.
+:: solution
+`guest::100:100:visitor:/usr/guest:/bin/sh` has an empty password field and a working shell, so anyone could log in. Early Unix had accounts like this (and shared passwords, and world-readable password files) because machines were few and trusted. Modern fixes: shadow passwords, locked accounts (`!` or `*`), and a policy check such as `awk -F: '$2==""' /etc/shadow`.
+:: verify
+grep '::' ~/etc/passwd
+:: file /home/student/etc/passwd
+root:x9fK2pLmQ:0:0:root:/:/bin/sh
+daemon:*:1:1:daemon:/:/bin/false
+dmr:q3Ld0aZwY:10:10:dennis:/usr/dmr:/bin/sh
+ken:Zp1vR8tUc:11:10:ken:/usr/ken:/bin/sh
+guest::100:100:visitor:/usr/guest:/bin/sh
+nobody:*:99:99:nobody:/:/bin/false

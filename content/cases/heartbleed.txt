@@ -1,0 +1,142 @@
+tagline: A two-byte length field the server believed. Heartbleed let anyone read chunks of a server's memory, passwords and private keys included. This is the real vulnerable code and the real fix, line by line.
+sheet: cases
+sources: OpenSSL Security Advisory of 7 April 2014 (CVE-2014-0160); RFC 6520 (TLS Heartbeat Extension); the OpenSSL commit that fixed it in 1.0.1g (ssl/t1_lib.c, ssl/d1_both.c); heartbleed.com (Codenomicon); Durumeric et al., *The Matter of Heartbleed* (IMC 2014); Theo de Raadt's and others' commentary on OpenSSL's allocator; Neel Mehta's and Codenomicon's independent discovery.
+:: simple
+### The story
+TLS is the encryption behind HTTPS. A TLS **heartbeat** is a tiny "are you still there?" message: the client sends some bytes and says how many, and the server echoes the same bytes back. The server code believed the number the client claimed.
+
+If a client sent **3 bytes** but claimed **64,000**, the server copied 64,000 bytes starting at those 3 bytes. Whatever was next in the server's memory went into the reply: other users' sessions, usernames, passwords, and sometimes the server's **private key**. No login was needed and nothing was logged. Each probe leaked up to 64 KB.
+
+It was disclosed on **7 April 2014** as **CVE-2014-0160** and nicknamed **Heartbleed**. The bug had been in OpenSSL since version 1.0.1 shipped in March 2012. At disclosure, an estimated half a million or more of the web's HTTPS servers were exposed.
+
+### Timeline
+- **Dec 2011:** the heartbeat feature is added to OpenSSL (by an outside contributor, reviewed and merged).
+- **14 Mar 2012:** OpenSSL 1.0.1 released with it enabled by default.
+- **Early Mar to Apr 2014:** Neel Mehta at Google and, separately, engineers at Codenomicon find the bug.
+- **7 Apr 2014:** advisory and fixed release, 1.0.1g. Public site and logo.
+- **Apr 2014:** certificate revocations and password-reset waves; Canada's tax agency reported about 900 social insurance numbers taken through it.
+- **Late Apr 2014:** the Linux Foundation starts the Core Infrastructure Initiative to fund critical open source; OpenBSD forks OpenSSL as **LibreSSL**.
+:: mid
+### The vulnerable code (abridged)
+This is from `tls1_process_heartbeat()` in `ssl/t1_lib.c`, OpenSSL 1.0.1 to 1.0.1f. Comments are trimmed and mine.
+```code
+unsigned char *p = &s->s3->rrec.data[0], *pl;
+unsigned short hbtype;
+unsigned int payload;
+unsigned int padding = 16;       /* use minimum padding */
+
+/* Read type and payload length first */
+hbtype = *p++;                   /* 1 byte: request or response */
+n2s(p, payload);                 /* 2 bytes -> "payload" (0..65535), taken from the packet */
+pl = p;                          /* pl points at the payload bytes the client sent */
+
+if (hbtype == TLS1_HB_REQUEST)
+{
+    unsigned char *buffer, *bp;
+
+    buffer = OPENSSL_malloc(1 + 2 + payload + padding);
+    bp = buffer;
+
+    *bp++ = TLS1_HB_RESPONSE;    /* response type */
+    s2n(payload, bp);            /* echo the claimed length */
+    memcpy(bp, pl, payload);     /* copy "payload" bytes from the request */
+    bp += payload;
+    RAND_pseudo_bytes(bp, padding);
+    r = ssl3_write_bytes(s, TLS1_RT_HEARTBEAT, buffer, 3 + payload + padding);
+    ...
+```
+### Line by line
+1. `p` walks the received record. `hbtype = *p++` reads the type byte.
+2. `n2s(p, payload)` is a macro that reads **two bytes from the packet** into `payload`. This is a number the **attacker chooses**, from 0 to 65535.
+3. `pl = p` marks where the client's payload starts. How many bytes of payload the client *really* sent is a different number: the length of the record, `s->s3->rrec.length`. **The code never compares them.**
+4. `OPENSSL_malloc(1 + 2 + payload + padding)` allocates a response buffer sized from the attacker's claim.
+5. `memcpy(bp, pl, payload)` copies `payload` bytes starting at `pl`. If the client really sent only 3 bytes, bytes 4 onward are **not part of the request**, they are whatever sits after it in the server's heap: an over-read.
+6. The buffer is sent back to the client. The leak is in the response.
+
+> The bug class is a **buffer over-read**: the missing check is on a length that came from the outside. Compare the Morris worm, an over-**write**.
+
+### The fix (1.0.1g, paraphrased from the commit)
+```code
+/* Read type and payload length first */
+if (1 + 2 + 16 > s->s3->rrec.length)
+    return 0;                    /* record too short: silently discard */
+hbtype = *p++;
+n2s(p, payload);
+if (1 + 2 + payload + 16 > s->s3->rrec.length)
+    return 0;                    /* claimed payload longer than what arrived: discard (RFC 6520) */
+pl = p;
+```
+Two checks: the record is at least long enough for the header and minimum padding, and the claimed payload plus header plus padding **fits inside the record that actually arrived**. If not, drop the message. That is all it took, and it is exactly what RFC 6520 section 4 already said to do.
+:: complex
+### Why it lasted two years
+- The heartbeat extension is rarely used on the web (it came from DTLS/UDP needs), yet it was **on by default**.
+- OpenSSL used its **own memory allocator** that reused freed blocks without clearing them, which made leaked memory more likely to contain secrets, and made memory-checking tools and hardened system allocators less able to flag the over-read.
+- Test suites rarely include malformed-length cases. A **fuzzer** pointed at the heartbeat handler finds it in minutes, and after Heartbleed, projects began running continuous fuzzing (for example Google's OSS-Fuzz, 2016).
+- Code reviewers read the new feature, but not for "does this length match reality?"
+- OpenSSL was maintained by a tiny team, with little funding, even though most of the internet depended on it.
+
+### What an attacker could actually get
+Memory is random, so you do not choose what you get; you ask many times. Researchers recovered private keys from test servers, session cookies and passwords from live traffic. The leak is most dangerous because it leaves **no trace in normal logs** (the connection looks like a normal handshake).
+
+### Detection
+- **Version check:** which servers run OpenSSL 1.0.1 to 1.0.1f, with heartbeat enabled? Many scanners reported this within a day. For your own systems, `nmap --script ssl-heartbleed -p 443 <your-host>` tests for it.
+- **Network:** IDS signatures looked for a heartbeat record whose claimed length is larger than the record, or a heartbeat after the handshake with unusual size. Responses significantly larger than requests are a tell.
+- **After the fact:** you cannot know what leaked. The response is to assume the worst.
+
+### Response checklist (what teams actually did)
+1. Upgrade to 1.0.1g or newer, or rebuild with `-DOPENSSL_NO_HEARTBEATS`.
+2. **Revoke and reissue** certificates, because the private key may have leaked.
+3. Reset passwords and invalidate sessions.
+4. Notify users where required.
+
+### Lessons
+- **Validate every length that comes from the network.** A length field is just another untrusted input.
+- **Do not trust your own allocator to be harmless.** Custom allocators can hide bugs.
+- **Features off by default** would have saved millions of servers.
+- **Critical open source needs funding and testing**, not just users.
+- **Memory-safe languages** make this bug class impossible by default (a bounds-checked slice would raise an error). See [the future chapter](../history/h6-future.html).
+- **Forward secrecy** limits the damage of a stolen private key to future sessions, not past ones.
+:: ref
+### at a glance
+CVE | CVE-2014-0160
+Date | disclosed 7 April 2014; bug present since OpenSSL 1.0.1 (March 2012)
+Affected | OpenSSL 1.0.1 through 1.0.1f (and 1.0.2-beta1)
+Fixed in | 1.0.1g
+Bug class | buffer over-read, CWE-126 / CWE-130 (improper handling of length parameter)
+Root cause | claimed payload length not checked against the received record length
+Impact | up to 64 KB of server memory per request, including keys and session data
+Detect | version scan, nmap ssl-heartbleed on your own hosts, IDS on malformed heartbeats
+Respond | patch, revoke and reissue certs, reset credentials
+:: lab
+style: debug
+host: tls-lab
+user: student
+source: /home/student/heartbeat.c
+:: brief
+**Scenario (fictional, simulated):** `heartbeat.c` is a toy echo handler with the same bug as Heartbleed. A client sends a record with the 3-byte payload `hat` but claims the payload is 500 bytes long. Step through the debugger. Submit **how many bytes of other memory leak** into the reply, e.g. `submit 100`.
+:: answer
+497
+:: hint
+Find the claimed length and the real payload length in the variables.
+:: hint
+Leaked bytes = bytes copied minus bytes actually sent by the client.
+:: solution
+The record carries 3 payload bytes but the handler copied `claimed = 500`. 500 - 3 = **497 bytes** came from memory next to the request: here the neighbouring `session_key` and `password` strings. The fix is the missing check before the copy: `if (claimed > received) return;`, which is the same shape as the OpenSSL 1.0.1g patch.
+:: verify
+echo 497
+:: trace
+5 | received=3 claimed=500 | heartbeat record arrives
+6 | received=3 claimed=500 reply_size=500 | allocating a 500-byte reply
+7 | received=3 claimed=500 | copying 500 bytes from request payload "hat" ...
+7 | received=3 claimed=500 | reply starts: "hat" then user=alice;password=correcthorse;session_key=7f3a... (497 bytes of neighbouring memory)
+8 | received=3 claimed=500 | reply sent to client
+:: file /home/student/heartbeat.c
+#include <stdlib.h>
+#include <string.h>
+
+/* FICTIONAL toy handler. Same bug class as OpenSSL Heartbleed, not the real code. */
+char *echo(const unsigned char *payload, size_t received, size_t claimed) {
+    char *reply = malloc(claimed);
+    memcpy(reply, payload, claimed);   /* <- should be limited by "received" */
+    return reply;
+}

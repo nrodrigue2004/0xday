@@ -1,0 +1,90 @@
+tagline: The dot-com boom, search, social, the smartphone and the cloud. Software moved to servers and pockets, and attackers followed the money.
+sheet: history
+:: simple
+- **1995 to 2000, the dot-com boom.** Amazon and eBay (1995), Google (1998). Many companies with no profits were valued like gold, then crashed in 2000 to 2001.
+- **2001, Wikipedia.** **2004, Facebook.** Social media made personal data the product.
+- **2005, Git** (Torvalds) changed how code is shared; **GitHub** (2008) made it social.
+- **2006, AWS launches S3 and EC2.** Renting computing by the hour started the cloud era.
+- **2007, iPhone.** **2008, Android.** The smartphone became the main computer for most people.
+- **2008, Bitcoin** whitepaper. Blockchains and crypto-currencies followed.
+- **2013, Docker.** **2014, Kubernetes.** Containers changed how software ships.
+- **2013, Snowden documents.** Public proof of mass surveillance pushed encryption into everything (HTTPS, Signal, end-to-end messaging).
+
+Attacks grew up too:
+- **2003, SQL Slammer:** a 376-byte worm that infected most of its vulnerable targets within about ten minutes, using an already-patched flaw.
+- **2010, Stuxnet:** a nation-grade cyberweapon. [Case study](../cases/stuxnet.html).
+- **2013, Target** breach through a heating-and-cooling vendor's credentials.
+- **2014, Heartbleed.** [Case study](../cases/heartbleed.html).
+- **2016, Mirai** botnet from home cameras and routers using default passwords.
+- **2017, Equifax, WannaCry, NotPetya.** [WannaCry](../cases/wannacry.html).
+:: mid
+### Three shifts and what they did to security
+1. **From the perimeter to the web app.** Firewalls guarded networks; attackers walked through port 443. The **OWASP Top 10** (first published 2003) catalogs web-app risks: injection, broken access control, XSS.
+2. **From CDs to continuous delivery.** Software updates became weekly or daily. Good: patches ship quickly. Bad: a bad update ships quickly too, and the **supply chain** is a target (SolarWinds, 2020).
+3. **From your servers to someone else's.** The cloud's **shared responsibility model** means misconfiguration, not hardware, is the common failure (public buckets, over-broad IAM). See [~/cloud](../cloud.html).
+
+### What the big breaches had in common
+| Incident | Year | How it started |
+|---|---|---|
+| Target | 2013 | stolen vendor credentials, flat network |
+| Heartbleed | 2014 | memory-safety bug in a library everyone used |
+| Equifax | 2017 | unpatched Apache Struts (CVE-2017-5638), patch available two months earlier |
+| Capital One | 2019 | a misconfigured web application firewall and SSRF to the cloud metadata service |
+| SolarWinds | 2020 | compromised build pipeline, signed malicious update |
+| Log4Shell | 2021 | a logging library feature that fetched remote code |
+
+Patterns: patch lag, credentials, flat networks, and trust in third parties.
+
+### Ransomware becomes a business
+Early ransomware used one key and cash. By the 2010s it used bitcoin, then **double extortion** (steal the data, encrypt it, threaten to leak) and **ransomware-as-a-service**, where affiliates rent the malware. Colonial Pipeline (2021) showed it could stop physical fuel.
+:: complex
+### Worms vs. patch cycles
+Slammer, Code Red, Blaster and WannaCry all exploited flaws **with patches already out**. The window between patch and exploit has shrunk from months to hours, while organisations still take weeks to patch. Hence modern programs: asset inventory, vulnerability management, and prioritising by exploitation in the wild (CISA KEV list) rather than raw severity.
+
+### The cloud made new classes of bug
+- **Metadata services** (169.254.169.254) hand out credentials, so SSRF becomes a cloud takeover (Capital One).
+- **Identity is the perimeter**: a leaked access key is a login with no password prompt.
+- **Infrastructure as code**: a typo in Terraform can open a database to the internet for everyone.
+
+### Bug bounties and disclosure
+Netscape ran the first bug bounty in 1995. HackerOne (2012) and Bugcrowd (2011) made it routine. Disclosure norms moved from full-disclosure mailing lists to coordinated disclosure (90-day policies, e.g. Google Project Zero), then to CVE numbering and the NVD database.
+
+### Mobile security
+App stores, sandboxing and permissions made phones safer than PCs by default. Attackers answered with spyware sold to governments (e.g. NSO Group's Pegasus), which used zero-click exploits in messaging apps.
+:: ref
+### dates
+1995 | Amazon, eBay; Netscape bug bounty
+1998 | Google
+2003 | OWASP Top 10 first edition; SQL Slammer
+2005 | Git
+2006 | AWS S3 and EC2
+2007 | iPhone
+2008 | Android; Bitcoin paper
+2013 | Docker; Snowden; Target breach
+2014 | Kubernetes; Heartbleed; Shellshock
+2016 | Mirai
+2017 | Equifax; WannaCry; NotPetya
+2020 | SolarWinds
+:: lab
+host: audit
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** after a retail breach, the review team lists the servers that were public on the internet. `~/exposure.csv` has `host,service,version,patched`. A worm like Slammer or WannaCry would only reach hosts that are **exposed and unpatched** on a vulnerable service. Submit the **hostname** of the one server that is exposed, running the old `smb` version, and not patched.
+:: answer
+pos-gw
+:: hint
+Filter with grep for the service name and patched flag: `grep smb ~/exposure.csv`.
+:: hint
+Two hosts run smb. One of them is patched.
+:: solution
+`pos-gw,smb,1.0,no` is the match; `file-srv,smb,3.1,yes` is current and patched. WannaCry spread precisely this way: an SMB service reachable from the internet or a flat network, on an old unpatched version. Fixes: patch, turn off SMBv1, block port 445 from the internet, and segment the network.
+:: verify
+grep smb ~/exposure.csv
+:: file /home/analyst/exposure.csv
+host,service,version,patched
+web-01,https,nginx-1.24,yes
+db-02,postgres,15,yes
+pos-gw,smb,1.0,no
+file-srv,smb,3.1,yes
+mail-01,smtp,postfix-3.8,yes

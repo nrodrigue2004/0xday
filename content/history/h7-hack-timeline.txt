@@ -1,0 +1,111 @@
+tagline: A timeline of the worms, breaches and bugs that shaped security, from a joke program in 1971 to the XZ backdoor in 2024. Five of them have full case studies.
+sheet: history
+:: simple
+Hacks are not random. Each famous one exposed a weakness that was already there, and each one changed how defenders work. The short version:
+
+- **1971, Creeper.** A harmless self-moving program on ARPANET. Reaper, the first "antivirus", chased it.
+- **1982, Elk Cloner.** A teenager's boot-sector prank on Apple II floppy disks.
+- **1986, Brain.** Early PC boot-sector virus.
+- **1988, Morris worm.** The first internet worm. [Case study](../cases/morris-worm.html).
+- **1989, AIDS Trojan.** Early ransomware, delivered on floppies by mail.
+- **1999, Melissa.** A Word macro virus that mailed itself to your contacts.
+- **2000, ILOVEYOU.** A script worm sent as a love letter. Spread over email and hit tens of millions of computers.
+- **2003, SQL Slammer.** 376 bytes, spread across the internet in minutes.
+- **2010, Stuxnet.** Malware aimed at Iranian centrifuges. [Case study](../cases/stuxnet.html).
+- **2014, Heartbleed.** [Case study](../cases/heartbleed.html). Also **Shellshock**, a Bash flaw (CVE-2014-6271).
+- **2016, Mirai.** Botnet from cameras with default passwords; knocked out DNS provider Dyn.
+- **2017, WannaCry and NotPetya.** [WannaCry](../cases/wannacry.html). NotPetya spread via a hijacked update to Ukrainian accounting software and caused billions in damage.
+- **2020, SolarWinds.** Attackers poisoned a software build and shipped a signed backdoor to thousands of organisations.
+- **2021, Log4Shell.** [Case study](../cases/log4shell.html). Also **Colonial Pipeline**, a ransomware attack that halted a US fuel pipeline.
+- **2023, MOVEit.** A SQL injection flaw (CVE-2023-34362) in a file-transfer product let a ransomware gang steal data from hundreds of organisations.
+- **2024, XZ Utils.** A backdoor slipped into a compression library by a long-term fake contributor, found by accident. And the **CrowdStrike outage** (July): not an attack, a faulty security-product update that crashed millions of Windows machines.
+:: mid
+### The same causes, over and over
+| Cause | Examples |
+|---|---|
+| Memory-safety bugs in C | Morris (gets), Slammer, Heartbleed |
+| Unpatched known flaws | Slammer, WannaCry, Equifax |
+| Default or weak passwords | Morris (guessing), Mirai |
+| Trusted input that was not | SQL injection (MOVEit), Log4Shell |
+| Over-trust in suppliers and updates | NotPetya, SolarWinds, XZ |
+| Flat networks | Target, WannaCry, NotPetya |
+| Humans | ILOVEYOU, phishing in nearly every breach |
+
+### What changed after each wave
+- 1988 gave us **CERT** and incident coordination.
+- Code Red and Slammer (2001, 2003) gave us **Patch Tuesday** and firewalls on by default.
+- Stuxnet pushed **ICS/OT security** into the mainstream.
+- Heartbleed led to funding for critical open source and to the OpenBSD fork **LibreSSL**.
+- WannaCry made people disable SMBv1 and take backups seriously.
+- SolarWinds drove **SBOMs**, build provenance and executive orders on software supply chain.
+- Log4Shell made "do we use this library?" a question every company had to answer in a weekend.
+
+### Naming a few families
+- **Virus:** needs a host file or user action to spread. **Worm:** spreads by itself over a network. **Trojan:** pretends to be something useful. **Ransomware:** encrypts or steals and demands payment. **Botnet:** many infected devices under one controller. **Rootkit:** hides itself at a low level.
+:: complex
+### How to read an incident report
+1. **What was the initial access?** (phishing, exposed service, stolen credentials, supply chain)
+2. **What was the root cause?** (one bug, or a chain of small failures)
+3. **What failed in detection?** Dwell time (days between entry and discovery) is a measure of detection quality.
+4. **What limited the damage?** (segmentation, backups, least privilege)
+5. **What would have stopped it cheaply?** Often a patch, MFA or an egress rule.
+
+### ATT&CK as a vocabulary
+MITRE ATT&CK describes attacker behavior as tactics (initial access, persistence, lateral movement, exfiltration) and techniques (T-numbers). Map any case study onto it and you see which controls would have broken the chain. The [attack chain page](../attack-chain.html) on this site does this interactively.
+
+### Where to read primary sources
+- Incident reports: Mandiant, CrowdStrike, Microsoft Threat Intelligence, CISA advisories, the Cyber Safety Review Board (its Log4j report, 2022).
+- Classic papers: Spafford (1988) on Morris; Symantec's *W32.Stuxnet Dossier* (2011); MS17-010 bulletin.
+- Books: *The Cuckoo's Egg* (Stoll), *Countdown to Zero Day* (Zetter), *Sandworm* (Greenberg).
+:: ref
+### malware families
+virus | attaches to files or boot sectors; needs a host and often a user action
+worm | copies itself across a network without a user
+trojan | looks legitimate, does something else
+ransomware | encrypts or steals data and demands payment
+botnet | many compromised devices controlled together
+rootkit | hides malware from the OS and tools
+backdoor | hidden access path, planted or built in
+zero-day | a flaw the vendor does not know about yet
+n-day | a known, patched flaw that organisations have not patched
+dwell time | time between compromise and detection
+### timeline
+1971 | Creeper
+1982 | Elk Cloner
+1988 | Morris worm
+1999 | Melissa
+2000 | ILOVEYOU
+2003 | SQL Slammer
+2010 | Stuxnet
+2014 | Heartbleed, Shellshock
+2016 | Mirai
+2017 | WannaCry, NotPetya, Equifax
+2020 | SolarWinds
+2021 | Log4Shell, Colonial Pipeline
+2023 | MOVEit
+2024 | XZ Utils backdoor
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** you keep a notes file of incidents, `~/incidents.csv`, with `year,name,root_cause`. Use it to answer: **which incident name has root cause `supply-chain`** and happened in **2020**? Submit the name, e.g. `submit Mirai`.
+:: answer
+solarwinds
+:: hint
+Filter the file: `grep supply-chain ~/incidents.csv`.
+:: hint
+Two lines match; take the one from 2020.
+:: solution
+`2020,SolarWinds,supply-chain` is the match; `2024,XZ,supply-chain` is the other. Both are supply-chain compromises: instead of attacking you, the attacker attacks something you trust and update from. Controls: signed and reproducible builds, SBOMs, pinning and verifying dependencies, and watching for unexpected behavior of trusted software.
+:: verify
+grep supply-chain ~/incidents.csv
+:: file /home/analyst/incidents.csv
+year,name,root_cause
+1988,Morris,memory-bug
+2014,Heartbleed,memory-bug
+2016,Mirai,default-password
+2017,WannaCry,unpatched
+2020,SolarWinds,supply-chain
+2021,Log4Shell,untrusted-input
+2024,XZ,supply-chain

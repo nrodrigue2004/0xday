@@ -1,0 +1,86 @@
+tagline: From four computers on ARPANET to the web and Linux. Networks made computers useful, and made every bug remotely reachable.
+sheet: history
+:: simple
+- **1969, ARPANET.** The US defense research agency (ARPA) connected computers at UCLA, SRI, UC Santa Barbara and Utah. The first message was meant to be "LOGIN"; the system crashed after "LO".
+- **1971, email.** Ray Tomlinson picked the `@` sign to separate user from host.
+- **1973 to 1974, TCP/IP.** Vint Cerf and Bob Kahn designed the protocols that let different networks join: that is how the **inter-net** got its name.
+- **1983, the switch.** On 1 January ARPANET switched over to TCP/IP. The same year DNS arrived (Paul Mockapetris), so people could type names instead of numbers.
+- **1986 to 1987, The Cuckoo's Egg.** Astronomer Clifford Stoll noticed a 75-cent accounting error and followed it to a spy ring breaking into US computers. His book is still the best story of incident response, written in plain English.
+- **1988, the Morris worm.** The first internet-scale worm, and the reason CERT exists. See [the case study](../cases/morris-worm.html).
+- **1989 to 1991, the web.** Tim Berners-Lee at CERN proposed it, and built the first server, browser and HTML. The **Mosaic** browser (1993) made it popular, and **Netscape** (1994) made it a business.
+- **1991, Linux.** Linus Torvalds posted a hobby kernel. Combined with GNU tools, it became the free Unix that runs most servers and phones.
+- **1995, SSL.** Netscape added encryption to the web. Its descendant, TLS, is the padlock in your browser.
+:: mid
+### How the stack came together
+| Layer | Invention | Year |
+|---|---|---|
+| Link | Ethernet (Metcalfe, Xerox PARC) | 1973 to 1980 |
+| Network | IP | 1974 to 1981 |
+| Transport | TCP, UDP | 1974 to 1981 |
+| Naming | DNS | 1983 |
+| Application | SMTP email, FTP, Telnet, HTTP | 1971 to 1991 |
+| Security | SSL then TLS | 1995 on |
+
+Notice that Telnet, FTP and early HTTP send everything in plain text, because the network was a small friendly club. **Security was added later, and it shows**: SSH (1995, Tatu Ylönen) replaced Telnet after a password-sniffing attack on a Finnish university network.
+
+### The open-source wave
+GNU (1983, Stallman), Linux (1991), Apache (1995), then MySQL, PHP and Python grew into the "LAMP" web stack. Free software meant anyone could read the code, which cuts both ways: bugs are findable by attackers, and fixable by defenders.
+
+### Early security institutions
+- **CERT/CC** (Nov 1988) at Carnegie Mellon, set up by DARPA after the Morris worm, to coordinate responses.
+- **Computer Fraud and Abuse Act** (US, 1986) was the law Morris was convicted under, the first conviction under it.
+- **Bugtraq** mailing list (1993) and the culture of full disclosure.
+- **SATAN** (1995), one of the first network vulnerability scanners. Many people thought releasing it was irresponsible; today scanning your own network is basic hygiene.
+
+### Early malware worth knowing
+- **AIDS Trojan** (1989): mailed on floppies, hid your files and demanded payment by post. Arguably the first ransomware.
+- **Melissa** (1999): a Word macro that emailed itself to 50 contacts.
+:: complex
+### Why the protocols were open and trusting
+The designers needed a network that survived outages and let unlike systems talk. They assumed a small, known set of users. Identity was by IP address, routing was by trust (BGP still is), and email never verified its sender (SPF, DKIM and DMARC were bolted on in the 2000s). The result is a catalogue of attacks that use the design as written: spoofing, sniffing, route hijacks, DNS cache poisoning (Kaminsky, 2008), and open relays.
+
+### The end-to-end principle
+Keep the network simple and push intelligence to the ends. It let the internet grow, and it is why security is mostly the endpoints' problem: firewalls came later, and anything you rely on in the middle is a bonus.
+
+### The browser wars and web security
+Browsers shipped features faster than they were hardened: JavaScript (1995), cookies, Flash, ActiveX. That birthed **XSS**, **CSRF** and drive-by downloads. Browser vendors answered with the same-origin policy, sandboxes, HTTPS-by-default and Content Security Policy.
+
+### Read these primary sources
+- RFC 791 (IP), RFC 793 (TCP), RFC 1034/1035 (DNS). They are short and readable.
+- Spafford, *The Internet Worm Program: An Analysis* (1988) and Eichin and Rochlis, *With Microscope and Tweezers* (1989).
+- Clifford Stoll, *The Cuckoo's Egg* (1989).
+:: ref
+### dates
+1969 | ARPANET first link
+1971 | Email with @ (Tomlinson)
+1974 | TCP/IP described (Cerf, Kahn)
+1983 | ARPANET moves to TCP/IP; DNS introduced
+1986 | US Computer Fraud and Abuse Act; Cuckoo's Egg intrusions found
+1988 | Morris worm; CERT/CC created
+1989 | Web proposed at CERN; AIDS Trojan
+1991 | Linux announced
+1993 | Mosaic browser
+1995 | SSL 2.0; SSH; Apache
+:: lab
+host: cern
+user: student
+cwd: /home/student
+:: brief
+**Scenario (fictional, simulated):** you are handed a packet capture summary from an early-1990s campus network, as plain text. Everything on it is clear text, as it was then. `~/capture.txt` lists connections. One Telnet session carried a login. Submit the **password** that crossed the wire, e.g. `submit hunter2`.
+:: answer
+tigger92
+:: hint
+Telnet is TCP port 23. Look for lines that mention it: `grep -i telnet ~/capture.txt`.
+:: hint
+The password follows the `PASS` or `password:` text in the payload column of that line.
+:: solution
+The capture shows `telnet 23 ... login: rthomas / password: tigger92`. Telnet, FTP and early HTTP carry credentials unencrypted, so anyone on the same segment could read them. This is the exact problem SSH (1995) and TLS fixed. The modern equivalent of this lab is finding `http://` logins or unencrypted protocols in a pcap with Wireshark.
+:: verify
+grep -i telnet ~/capture.txt
+:: file /home/student/capture.txt
+t=00:01 10.1.1.4 -> 10.1.1.9 smtp 25 payload="MAIL FROM:<lab@campus.example>"
+t=00:07 10.1.1.4 -> 10.1.1.9 smtp 25 payload="RCPT TO:<dean@campus.example>"
+t=01:12 10.1.2.20 -> 10.1.1.3 telnet 23 payload="login: rthomas / password: tigger92"
+t=02:40 10.1.2.31 -> 10.1.1.5 ftp 21 payload="USER anonymous"
+t=03:05 10.1.2.31 -> 10.1.1.5 ftp 21 payload="PASS guest@"
+t=04:55 10.1.1.4 -> 10.1.1.6 dns 53 payload="A? library.campus.example"

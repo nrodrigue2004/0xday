@@ -1,0 +1,82 @@
+tagline: Before electronics there were ideas: programs on cards, logic as algebra, a machine defined on paper. This chapter runs from the Jacquard loom to ENIAC, with Ada Lovelace in the middle.
+sheet: history
+:: simple
+A computer is a machine that follows instructions it was given, on data it was given. The idea is older than electricity.
+
+- **1804, Jacquard loom.** Joseph Marie Jacquard's loom read patterns from punched cards. Change the cards, change the cloth. This is a **program stored outside the machine**.
+- **1837, Charles Babbage.** He designed the **Analytical Engine**: a mill (processor), a store (memory), and cards for input. It was never finished, but on paper it was a general-purpose computer.
+- **1843, Ada Lovelace.** She translated an article about the engine and added notes three times longer than the original. **Note G** lays out, step by step, how the engine would compute Bernoulli numbers, using loops and stored values. It is usually called the first published computer program. She also made the larger point: the machine manipulates symbols, so it is not limited to arithmetic. (Historians still argue about how much of the program was hers versus Babbage's. The notes are hers and signed "A.A.L.")
+- **1854, George Boole.** Logic as algebra: true/false values with AND, OR and NOT.
+- **1890, Herman Hollerith.** Punched cards tabulated the US census. His company eventually became IBM.
+- **1936, Alan Turing.** A paper defines the **Turing machine**, an imaginary device that reads and writes symbols on a tape by rules. Anything that can be computed at all can be computed by one. Every computer you use is equivalent to it.
+- **1937, Claude Shannon.** His master's thesis showed Boolean algebra can be built from electrical switches. That is why logic gates exist.
+- **1940s, war.** Turing and others built the **Bombe** to break Enigma. Tommy Flowers built **Colossus** to break the Lorenz cipher. **Konrad Zuse** built the Z3 in Germany. **ENIAC** (1945, University of Pennsylvania) was a room-sized electronic computer, programmed by rewiring and setting switches, mostly by a team of women programmers.
+- **1945, John von Neumann.** The "First Draft of a Report on the EDVAC" describes the **stored-program** design: instructions and data share the same memory. Almost every computer since follows it.
+
+> The first big "hacks" were codebreaking. Enigma and Lorenz fell because of operator mistakes, reused settings and predictable messages, the same kinds of mistakes you will see in the case studies.
+:: mid
+### The three ideas to keep
+1. **Programs are data.** Cards, tape, and later memory. Once a program is data, programs can load, copy and rewrite other programs, which is the root of both compilers and malware.
+2. **Logic is circuits.** AND/OR/NOT built from switches (relays, then tubes, then transistors) is enough to build addition, comparison and memory.
+3. **Universality.** One machine can imitate any other if given the right program. The Turing machine is the proof-by-definition; the stored-program computer is the engineering.
+
+### Lovelace's Note G, in modern terms
+The note presents a table: operations (multiply, add, divide), which variable each reads and writes, and a **repeat** instruction for a group of steps. Variables are called "Variables" and live in numbered columns. That is a program with variables and a loop, nearly 100 years before the first working electronic computer. What is missing is hardware: no one could run it.
+
+### Why Turing matters to security
+- **Halting problem.** No general program can decide whether another program will finish. A direct consequence: no perfect malware detector can exist. Real tools use signatures, heuristics and behavior, and accept errors.
+- **Cryptanalysis as engineering.** Bletchley Park industrialised codebreaking: machines, crib-based guesses, and traffic analysis. The lesson, which still holds, is that attackers exploit **process and human error** more often than the math.
+
+### Machines of the era
+- **Colossus** (1943 to 1945): electronic, programmable by plugs and switches, not a general-purpose machine. About ten were built, and the work stayed secret for decades.
+- **Zuse Z3** (1941): electromechanical, programmable, with binary floating point.
+- **ENIAC** (1945): about 18,000 vacuum tubes. Reprogramming meant recabling. The EDVAC design was the fix.
+:: complex
+### Computability in one paragraph
+A function is **computable** if some Turing machine halts with the right output for every input. Church (lambda calculus) and Turing (machines) showed two very different formalisms define the same set of computable functions. That agreement is the **Church-Turing thesis**: it is a thesis, not a theorem, because "effectively calculable" is informal. Quantum computers do not break it; they may change what is *fast*, not what is *possible*.
+
+### Shannon: information and secrecy
+In 1948 Shannon founded **information theory** (the bit as a unit). His 1949 paper on secrecy systems proved the **one-time pad** is unbreakable if the key is truly random, as long as the message and never reused. Reuse is exactly what broke the Soviet VENONA traffic. Keys are still the weak point.
+
+### Von Neumann vs Harvard
+The **von Neumann architecture** mixes code and data in one memory, which makes buffer overflows and code injection possible at all. The **Harvard architecture** separates them. Modern CPUs mix: caches are split, but memory is unified, and the OS marks pages non-executable (NX/DEP) to restore some separation. Hold that thought for the Morris worm and Heartbleed.
+
+### Recommended reading
+Lovelace's notes are on the web; read Note G once. For the war years, *The Imitation Game* is a film, but Andrew Hodges' biography of Turing and Tommy Flowers' own accounts are better sources.
+:: ref
+### people and dates
+1804 | Jacquard loom reads punched cards
+1837 | Babbage designs the Analytical Engine
+1843 | Lovelace's Note G: a program for Bernoulli numbers
+1854 | Boole publishes The Laws of Thought
+1890 | Hollerith tabulator used on the US census
+1936 | Turing machine (On Computable Numbers)
+1937 | Shannon: Boolean algebra = switching circuits
+1943 | Colossus working at Bletchley Park
+1945 | ENIAC; von Neumann stored-program report
+:: lab
+host: bletchley
+user: student
+cwd: /home/student
+:: brief
+**Scenario (fictional, simulated):** Shannon's insight is that arithmetic is just gates. In `~/adder/` there are two 4-bit numbers, `a.txt` and `b.txt`, plus `gates.txt` describing a **full adder**. Read them, add the numbers the way the circuit would, and submit the sum **as binary** (it needs 5 bits), e.g. `submit 10101`.
+:: answer
+10001
+:: hint
+Convert to decimal first: `1011` is 8+2+1, `0110` is 4+2.
+:: hint
+11 + 6 = 17. Now write 17 in binary: 16 + 1.
+:: solution
+`1011` is 11, `0110` is 6, and 11 + 6 = 17 = 16 + 1 = **10001**. A real adder does it bit by bit: sum = a XOR b XOR carry-in, carry-out = (a AND b) OR (carry-in AND (a XOR b)). Chain four of them and the last carry becomes the fifth bit.
+:: verify
+cat ~/adder/a.txt
+cat ~/adder/b.txt
+:: file /home/student/adder/a.txt
+1011
+:: file /home/student/adder/b.txt
+0110
+:: file /home/student/adder/gates.txt
+full adder (one bit)
+  sum       = a XOR b XOR carry_in
+  carry_out = (a AND b) OR (carry_in AND (a XOR b))
+chain four of them, least significant bit first, to add 4-bit numbers

