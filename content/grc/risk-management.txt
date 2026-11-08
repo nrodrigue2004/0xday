@@ -1,0 +1,131 @@
+tagline: Risk management is how a company decides what to protect and how much to spend. Learn assets, threats and vulnerabilities, qualitative and quantitative scoring, the ALE formula, treatment options and the risk register.
+sheet: grc
+:: simple
+**Risk** is the chance that something bad happens and how much it would hurt. Security cannot remove all risk, so the job is to find the biggest risks and decide what to do about them with a limited budget.
+
+### The building blocks
+- **Asset**: something worth protecting (customer database, laptops, reputation, a website)
+- **Threat**: something that can cause harm (ransomware gang, flood, careless employee)
+- **Vulnerability**: a weakness the threat can use (unpatched server, no backup)
+- **Likelihood**: how probable
+- **Impact**: how bad (money, downtime, legal trouble, safety)
+
+> Risk = Likelihood x Impact. A big impact that almost never happens and a small impact that happens daily can both matter.
+
+### Four ways to respond
+1. **Mitigate**: reduce it with a control (patch, MFA, backup)
+2. **Transfer**: shift the cost (cyber insurance, outsourcing to a provider; responsibility still stays with you)
+3. **Accept**: knowingly live with it because the cost of fixing is higher than the loss
+4. **Avoid**: stop doing the risky thing (retire the service)
+
+What remains after your controls is **residual risk**. What exists before any controls is **inherent risk**.
+
+### Quick scoring (qualitative)
+Rate likelihood 1 to 5 and impact 1 to 5, multiply. 1-5 low, 6-12 medium, 13-25 high. Simple, fast, and good enough to rank a list. Use the [risk worksheet](risk-worksheet.html) to try it.
+
+```
+$ cat ~/risk/asset.txt
+```
+:: mid
+### The risk process
+1. **Identify assets** and their value and owner
+2. **Identify threats and vulnerabilities** (scans, interviews, past incidents, threat intelligence)
+3. **Analyze** likelihood and impact
+4. **Evaluate** against the organization's **risk appetite** (how much risk leadership will take) and **risk tolerance** (the acceptable variation around it)
+5. **Treat** with one of the four responses
+6. **Monitor and review**: risks change when systems, threats or business change
+
+### Quantitative: the formulas to know
+| Term | Meaning | Formula |
+|---|---|---|
+| AV | Asset value | dollars |
+| EF | Exposure factor: percent of the asset lost in one event | 0 to 1 |
+| SLE | Single loss expectancy | AV x EF |
+| ARO | Annualized rate of occurrence | events per year |
+| ALE | Annualized loss expectancy | SLE x ARO |
+
+Example: a server worth $200,000, a flood destroys 25% of it per event (SLE = $50,000), and a flood is expected once every 4 years (ARO 0.25). ALE = $12,500 a year.
+
+**Control justification:** a control is worth buying if the drop in ALE is greater than its yearly cost. If the ALE falls from $12,500 to $2,500 and the control costs $4,000 a year, the net benefit is $6,000.
+
+### Qualitative versus quantitative
+Quantitative gives numbers executives like, but the inputs are often guesses. Qualitative is faster and honest about uncertainty. Many teams use a heat map (likelihood across, impact down) and add dollar figures only for the top risks. **FAIR** is a structured quantitative model.
+
+### The risk register
+A table of every known risk: ID, description, asset, threat, vulnerability, likelihood, impact, score, owner, treatment, status, review date. Each risk has **one owner** who can make decisions about it. The register is a living document reviewed at least quarterly.
+
+### Related terms
+**BIA** (business impact analysis) finds critical processes and how long they can be down: **RTO** (recovery time objective), **RPO** (recovery point objective, how much data loss is acceptable), **MTTR**, **MTBF**. **Third-party risk** covers vendors; **supply chain risk** covers what they depend on.
+:: complex
+### Making risk statements useful
+A good statement is specific: "Because the payments API lacks rate limiting (vulnerability), an attacker could run credential stuffing (threat) and take over customer accounts, causing fraud losses and notification costs (impact)." Vague entries like "hackers" cannot be owned or fixed.
+
+### Dealing with uncertainty
+- Use ranges, not single numbers (low, likely, high) and a Monte Carlo simulation if you can
+- Anchor estimates on data: incident history, industry reports (Verizon DBIR, IBM Cost of a Data Breach), insurance quotes
+- Document assumptions so the estimate can be challenged and improved
+- Beware precision theatre: ALE of $12,483 is not more accurate than "about $12k"
+
+### Risk acceptance done properly
+Acceptance is a business decision: written, with an owner at the right level, a time limit and a review date. "We never got to it" is not acceptance, it is neglect. Exceptions to policy should have the same discipline.
+
+### Risk appetite in practice
+Leadership sets thresholds: for example, no risk scored High stays open more than 30 days without an approved plan; no single event may exceed $1M. Reports to the board use a few key risk indicators, such as time to patch critical vulnerabilities, percent of systems with MFA, and number of overdue risks.
+
+### Common mistakes
+Counting only technical risk and missing process, people and vendor risk. Rating by gut and never revisiting. Treating compliance as risk management (passing an audit does not mean you are safe). Hiding risks to avoid blame, which guarantees the surprise comes later.
+
+### Link to testing
+Pentests, vulnerability scans and threat modeling feed the register. A finding from [PEN300](../courses/PEN300.html) becomes a risk entry with an owner and a treatment. Frameworks supply the control choices: see [frameworks](grc-frameworks.html).
+:: ref
+### formulas
+SLE = AV x EF | loss from one event
+ALE = SLE x ARO | expected loss per year
+Control value = ALE before - ALE after - yearly cost | positive means worth buying
+Risk score = likelihood x impact | qualitative ranking
+Residual risk = inherent risk - controls | what remains
+### responses
+Mitigate | reduce with controls
+Transfer | insurance, contract, outsource
+Accept | knowingly keep, with sign-off
+Avoid | stop the activity
+### metrics
+RTO | how fast a process must be back
+RPO | how much data loss is tolerable
+MTTR | mean time to repair
+MTBF | mean time between failures
+KRI | key risk indicator
+### terms
+Risk appetite | how much risk leadership will take on
+Risk tolerance | acceptable deviation from appetite
+BIA | business impact analysis
+FAIR | factor analysis of information risk
+Risk register | the list of risks with owners and treatments
+:: lab
+host: risk-lab
+user: analyst
+cwd: /home/analyst/risk
+:: brief
+`~/risk/asset.txt` describes one asset at a **fictional** company: its value, how much of it is lost in a single event, and how often the event is expected.
+
+Calculate the **annualized loss expectancy (ALE)** in dollars, as a plain number, e.g. `submit 12500`.
+:: answer
+25000
+25,000
+$25,000
+$25000
+:: hint
+First find SLE = asset value x exposure factor.
+:: hint
+Then ALE = SLE x ARO. An ARO of 0.5 means once every two years.
+:: solution
+The customer database is worth $200,000 and a breach would expose 25% of that value (EF 0.25), so SLE = 200,000 x 0.25 = $50,000. The event is expected every two years (ARO 0.5), so ALE = 50,000 x 0.5 = **$25,000** per year. The proposed control costs $9,000 a year and cuts ARO to 0.1, which drops ALE to $5,000: a saving of $20,000 minus $9,000 = $11,000 net benefit, so buying it is justified.
+:: verify
+cat ~/risk/asset.txt
+:: file /home/analyst/risk/asset.txt
+Fictional company: Harbor Supply Co.
+Asset:                customer database
+Asset value (AV):     $200,000
+Exposure factor (EF): 25% (one breach exposes a quarter of the record value)
+Expected frequency:   one breach every 2 years (ARO = 0.5)
+Proposed control:     database activity monitoring, $9,000 per year, would cut ARO to 0.1

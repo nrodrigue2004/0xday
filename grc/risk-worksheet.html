@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>risk worksheet :: ~/grc :: 0xDay</title>
+<meta name="description" content="ALE calculator and risk register that saves in your browser.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../riskws.css">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../riskws.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">grc --tool risk-worksheet</p><h1>~/grc/risk-worksheet</h1>
+<p>Two tools from <a href="risk-management.html">risk management</a>: the ALE calculator and a risk register. Everything stays in this browser (local storage). Use made-up or generic risks here, not real client data.</p>
+<noscript><p class="callout">The worksheet needs JavaScript.</p></noscript>
+<div id="rw" class="rw">
+<h2># ALE calculator</h2>
+<div class="rw__box"><div class="rw__row">
+<label>asset value ($)<input id="av" type="number" min="0" step="any" value="200000"></label>
+<label>exposure factor (% lost per event)<input id="ef" type="number" min="0" max="100" step="any" value="25"></label>
+<label>ARO (events per year)<input id="aro" type="number" min="0" step="any" value="0.5"></label></div>
+<div class="rw__row"><label>ARO with the control<input id="aro2" type="number" min="0" step="any" value="0.1"></label>
+<label>control cost ($ per year)<input id="cost" type="number" min="0" step="any" value="9000"></label></div>
+<p class="rw__out">SLE = AV x EF = <strong id="rw-sle"></strong> &nbsp; ALE = SLE x ARO = <strong id="rw-ale"></strong></p>
+<p class="rw__out">ALE with the control: <strong id="rw-after"></strong> &nbsp; net benefit: <strong id="rw-net"></strong></p></div>
+<h2># risk register</h2>
+<form id="rw-add" class="rw__box"><div class="rw__row">
+<label>risk (be specific)<input id="r-name" required maxlength="140" placeholder="Credential stuffing on the customer portal"></label>
+<label>owner<input id="r-owner" maxlength="60" placeholder="role, not a person"></label></div>
+<div class="rw__row"><label>likelihood (1-5)<select id="r-l"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></label>
+<label>impact (1-5)<select id="r-i"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></label>
+<label>treatment<select id="r-t"><option>mitigate</option><option>transfer</option><option>accept</option><option>avoid</option></select></label></div>
+<p><button class="btn" type="submit">[ add risk ]</button> <span class="muted small" id="rw-msg" aria-live="polite"></span></p></form>
+<p id="rw-empty" class="muted">No risks yet. Score = likelihood x impact: 1-5 low, 6-12 medium, 13-25 high.</p>
+<div class="rw__wrap"><table class="rw__reg" id="rw-tbl" hidden><thead><tr><th>risk</th><th>owner</th><th>L</th><th>I</th><th>score</th><th>treatment</th><th></th></tr></thead><tbody id="rw-body"></tbody></table></div>
+<p><button class="btn btn--sm" type="button" id="rw-csv">[ export csv ]</button> <button class="btn btn--sm" type="button" id="rw-clear">[ clear all ]</button></p>
+</div>
+<p class="muted small"><a href="../grc.html">cd ~/grc</a> · <a href="../courses/GRC200.html">GRC200</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

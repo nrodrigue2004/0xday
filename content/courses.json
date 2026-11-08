@@ -1399,6 +1399,100 @@
               "note": "Finish by writing one hunt in the template from the chapter and a Sigma rule that would have caught what you found."
             }
           ]
+        },
+        {
+          "code": "GRC200",
+          "name": "Governance, risk and compliance",
+          "pre": [
+            "SEC100"
+          ],
+          "blurb": "Frameworks (NIST CSF, 800-53, ISO 27001), risk math and the register, policy writing, audits, privacy law and professional ethics. Extends Security+ domain 5, with a risk worksheet that saves in your browser.",
+          "modules": [
+            {
+              "t": "Frameworks: NIST, ISO 27001, CIS",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/grc: frameworks",
+                  "h": "grc/grc-frameworks.html"
+                },
+                {
+                  "t": "NIST CSF",
+                  "h": "https://www.nist.gov/cyberframework"
+                }
+              ]
+            },
+            {
+              "t": "Risk management",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/grc: risk management",
+                  "h": "grc/risk-management.html"
+                },
+                {
+                  "t": "~/grc: risk worksheet",
+                  "h": "grc/risk-worksheet.html"
+                },
+                {
+                  "t": "~/secplus: 5.2 risk management",
+                  "h": "secplus/5.2.html"
+                }
+              ]
+            },
+            {
+              "t": "Policy writing",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/grc: policy writing",
+                  "h": "grc/policy-writing.html"
+                }
+              ]
+            },
+            {
+              "t": "Audits and compliance",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/grc: audits and compliance",
+                  "h": "grc/audits-and-compliance.html"
+                },
+                {
+                  "t": "~/secplus: 5.5 audits",
+                  "h": "secplus/5.5.html"
+                }
+              ]
+            },
+            {
+              "t": "Privacy law",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/grc: privacy law",
+                  "h": "grc/privacy-law.html"
+                },
+                {
+                  "t": "~/secplus: 5.4 compliance",
+                  "h": "secplus/5.4.html"
+                }
+              ]
+            },
+            {
+              "t": "Ethics and responsible disclosure",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/grc: ethics and disclosure",
+                  "h": "grc/ethics-and-disclosure.html"
+                },
+                {
+                  "t": "~/cases",
+                  "h": "cases.html"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
