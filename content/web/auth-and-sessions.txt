@@ -1,0 +1,123 @@
+tagline: Logging in and staying logged in are where most real breaches start. Learn how passwords should be stored, how cookies and tokens carry a session, what a JWT is, and the mistakes that let attackers in.
+sheet: web-sec
+:: simple
+**Authentication** answers "who are you?". **Authorization** answers "what may you do?". **Session management** is how the app remembers the answer between requests, because HTTP itself remembers nothing.
+
+### The flow
+1. You send a username and password
+2. The server checks them and creates a **session**: a random ID stored in its memory or database
+3. It sends the ID back in a **cookie**
+4. Your browser sends that cookie with every later request, and the server looks it up
+
+So the session ID is as good as the password for as long as it lives. Anyone who steals it *is* you.
+
+### Cookie flags that matter
+| Flag | What it does |
+|---|---|
+| `Secure` | only sent over HTTPS |
+| `HttpOnly` | JavaScript cannot read it, which limits what XSS can steal |
+| `SameSite=Lax` or `Strict` | not sent on most cross-site requests, which blunts CSRF |
+| `Max-Age` / `Expires` | how long it lives |
+
+### Passwords done right
+- Never store the password. Store a **slow salted hash**: bcrypt, scrypt or Argon2
+- Never use plain MD5, SHA-1 or unsalted SHA-256 for passwords: they are built to be fast, so attackers try billions per second
+- Require length (12+ is a good floor) over weird symbol rules, and check against lists of breached passwords
+- Offer **MFA**. An authenticator app or security key stops almost all credential stuffing
+
+```
+$ cat ~/auth/token.txt
+```
+:: mid
+### Common authentication failures
+- **Credential stuffing**: attackers replay leaked username/password pairs from other sites. Defenses: MFA, rate limits per account and per IP, breached-password checks
+- **Brute force and password spraying**: spraying tries one weak password across many accounts to avoid lockouts. Defense: alert on many accounts failing from one source
+- **User enumeration**: "no such user" versus "wrong password", or a response that takes longer for real users. Use one message and similar timing
+- **Weak reset flow**: guessable tokens, tokens that never expire, a reset link built from the `Host` header. Reset tokens must be random, single-use and short-lived
+- **Default and hard-coded credentials**: admin/admin, keys in source control
+
+### Session weaknesses
+- **Session fixation**: the attacker gives you a session ID before login and the app keeps it after. *Fix:* issue a new ID on login
+- **Predictable IDs**: sequential or timestamp-based. Use a cryptographically random value of 128 bits or more
+- **No expiry or logout that does nothing**: the server must invalidate the session, not just delete the cookie
+- **Session in the URL**: leaks through logs and the Referer header
+
+### JSON Web Tokens (JWT)
+A JWT has three base64url parts separated by dots: `header.payload.signature`. The header and payload are **readable by anyone** (decode them, no key needed). The signature only proves they were not changed.
+
+```
+header   {"alg":"HS256","typ":"JWT"}
+payload  {"sub":"1042","role":"user","exp":1767225600}
+```
+
+Typical mistakes:
+- Putting secrets in the payload (it is not encrypted)
+- Accepting `"alg":"none"` so an unsigned token is trusted
+- Using a weak HMAC secret that can be guessed offline
+- Trusting the `role` claim without checking the signature, or never checking `exp`
+- Confusing algorithms (an RSA public key used as an HMAC secret)
+- No way to revoke a stolen token before it expires, so keep lifetimes short and rotate refresh tokens
+:: complex
+### OAuth 2.0 and OpenID Connect in one paragraph
+OAuth 2.0 lets an app act with limited permission on your behalf without learning your password (authorization). OpenID Connect adds a standard way to prove who you are (authentication). The safe flow for web and mobile apps is **authorization code with PKCE**. Common bugs: an unvalidated `redirect_uri`, a missing `state` parameter (CSRF on the login), tokens in the URL fragment, and treating "the user came from the identity provider" as proof of identity.
+
+### MFA and its limits
+Codes sent by SMS can be intercepted (SIM swap). Push approvals suffer **MFA fatigue** attacks. **FIDO2/WebAuthn** keys and passkeys are bound to the real site, so a phishing page cannot use them. That is why they are the strongest common option.
+
+### Testing checklist
+1. Log in; inspect the cookie flags in dev tools
+2. Log in again from another browser; are session IDs random and new?
+3. Log out, then replay the old cookie in Repeater: does it still work?
+4. Change a user ID or role in a JWT payload: is the signature actually verified?
+5. Request password reset twice: are tokens different, single-use, expiring?
+6. Send 20 wrong passwords: is there a throttle or lockout, and does it leak user existence?
+7. Try the same flow without the cookie at all
+
+### Detection
+Alert on impossible travel, many failed logins across accounts, a successful login right after many failures, new device plus password reset, and the same session ID from two countries.
+:: ref
+### cookies
+Set-Cookie: sid=...; Secure; HttpOnly; SameSite=Lax | the recommended minimum flags
+Max-Age=0 | delete a cookie
+__Host- prefix | cookie must be Secure, path / and no Domain
+### jwt
+echo PAYLOAD | base64 -d | decode a JWT part in the shell (pad with = if needed)
+alg: none | unsigned token; servers must reject it
+HS256 / RS256 | HMAC with shared secret / RSA signature
+exp, iat, sub | expiry, issued-at, subject claims
+jwt.io | decoder (use for lab tokens only, never paste a real production token)
+### hashing
+bcrypt, scrypt, Argon2 | slow password hashes; use one of these
+salt | unique random value so equal passwords hash differently
+pepper | secret value stored outside the database
+### terms
+Credential stuffing | replaying leaked username and password pairs
+Password spraying | one password across many accounts
+Session fixation | attacker chooses the session ID
+PKCE | proof key that protects the OAuth code flow
+FIDO2 / WebAuthn | phishing-resistant hardware or passkey login
+:: lab
+host: auth-lab
+user: student
+cwd: /home/student/auth
+:: brief
+`~/auth/token.txt` holds a JSON Web Token from a **fictional** app, plus a note about how the server checks it. The payload is only base64url encoded, so you can read it.
+
+Decode the **payload** (the middle part) and give the value of the `role` claim, e.g. `submit guest`.
+:: answer
+admin
+:: hint
+Split the token on dots. The second part is the payload. Use `base64 -d`.
+:: hint
+If decoding complains, the part may need `=` padding added at the end.
+:: solution
+The payload decodes to `{"sub":"1042","name":"pat","role":"admin","exp":1767225600}`. Anyone who gets this token can read it, which is expected because JWTs are signed, not encrypted. The real finding in `server-notes.txt` is that the server accepts `alg: none`, so a user could forge a token with any role and no signature at all. The fix is to pin the accepted algorithm on the server, verify the signature on every request, and keep the role lookup server-side or short-lived.
+:: verify
+cut -d. -f2 ~/auth/token.txt | base64 -d
+:: file /home/student/auth/token.txt
+eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMDQyIiwibmFtZSI6InBhdCIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc2NzIyNTYwMH0.
+:: file /home/student/auth/server-notes.txt
+Notes from the fictional app's auth module:
+- tokens are checked with verify(token) using whatever alg the header says
+- "none" was left enabled for local testing
+- role is read straight from the token payload on every request

@@ -1,0 +1,155 @@
+tagline: Injection happens when user input is treated as part of a command, query or page. Learn how SQL injection, command injection and XSS work, how to confirm them safely in a lab, and the fix that stops each one.
+sheet: web-sec
+:: simple
+**Injection** means the app builds an instruction (a SQL query, a shell command, an HTML page) by gluing user input into a string, and the interpreter cannot tell where the programmer's text stops and the attacker's starts.
+
+### SQL injection (SQLi)
+The app wants this query:
+
+```
+SELECT name FROM users WHERE id = '7'
+```
+
+but builds it with string concatenation: `"... WHERE id = '" + id + "'"`. If the input is `7' OR '1'='1`, the query becomes `... WHERE id = '7' OR '1'='1'`, which is true for every row. The user input changed the *structure* of the query.
+
+**The fix is a parameterized query** (also called a prepared statement). The query shape is sent first with a placeholder, the value is sent separately, and the database never treats the value as code.
+
+### Command injection
+An app that runs `ping <host>` using the shell can be fed `127.0.0.1; id`. The `;` ends the first command and starts another. *Fix:* do not call a shell. Use a library function, or pass arguments as a list so no shell parses them.
+
+### Cross-site scripting (XSS)
+The app puts user input into a web page without encoding it, so the browser runs it as script. Three types:
+- **Reflected**: the payload is in the request (a link) and echoed straight back
+- **Stored**: the payload is saved (a comment, a profile name) and runs for every visitor
+- **DOM-based**: client-side JavaScript writes untrusted data into the page itself
+
+What XSS lets an attacker do: act as the victim in the app, read what the page shows, steal tokens that are not protected, show fake login boxes. *Fix:* encode output for the place it lands (HTML body, attribute, JavaScript, URL) and let your template engine auto-escape.
+
+> Practice only on lab apps (DVWA, Juice Shop, WebGoat, PortSwigger labs). Probing a real site with these inputs can be a crime even when "nothing happened".
+
+```
+$ ls ~/app
+$ cat ~/app/app.py
+```
+:: mid
+### Confirming SQL injection safely (in a lab)
+1. Add a single quote `'` to a parameter. A database error or a changed page suggests the input reaches a query
+2. Test logic: `' OR '1'='1` versus `' AND '1'='2` give different pages
+3. Find the column count with `ORDER BY n` or `UNION SELECT NULL,...` until errors stop
+4. Only in your own lab: read data with `UNION SELECT`
+5. **Blind SQLi**: no output, so you ask true/false questions (`AND SUBSTRING(...)='a'`) or use time delays (`SLEEP(5)`)
+
+Tools like sqlmap automate this. In a real test they run only with permission and a throttle, since they send a lot of traffic.
+
+### Defenses that actually work
+- **Parameterized queries / ORM bound parameters** for every value. This is the answer, not filtering quotes
+- **Allow-list** for things that cannot be parameterized (column names, sort direction)
+- **Least privilege** database account: the web app should not be able to `DROP TABLE` or read other schemas
+- **Hide errors** from users, log them server-side
+
+### XSS in more detail
+Where the input lands decides the payload and the fix:
+
+| Context | Example sink | Encoding needed |
+|---|---|---|
+| HTML body | `<p>NAME</p>` | HTML entity encode `<`, `>`, `&` |
+| Attribute | `<input value="NAME">` | encode quotes too, always quote attributes |
+| JavaScript | `var n = 'NAME';` | avoid; use JSON data attributes |
+| URL | `<a href="NAME">` | validate scheme (block `javascript:`) |
+
+Other defenses: **Content-Security-Policy** (limits which scripts can run), `HttpOnly` cookies (JavaScript cannot read the session), `textContent` instead of `innerHTML`, and a sanitizer library (DOMPurify) when HTML must be allowed.
+
+### Other injections to know by name
+- **Template injection (SSTI)**: user input is evaluated by the template engine (`{{7*7}}` renders 49)
+- **NoSQL injection**: operators like `{"$ne": null}` in a JSON login body
+- **LDAP / XPath injection**: same idea, different language
+- **Header injection**: line breaks in a value split an HTTP response
+:: complex
+### Second-order and blind cases
+Second-order SQLi stores the payload safely, then a *different* feature reads it back and concatenates it into a query. A scanner that tests each page alone misses it, so trace where stored values are reused.
+
+For blind command injection, prove it with a harmless time delay (`sleep 5`) or a DNS callback you control. Never run destructive commands to "prove impact"; `id` or a delay is enough evidence.
+
+### Bypassing weak filters (why filtering is not a fix)
+Blacklists fail: case changes (`SeLeCt`), comments inside keywords, alternate encodings (URL, double URL, HTML entities, Unicode), or a different tag or event handler for XSS. Each bypass is trivial because the real bug, mixing code and data, is still there. If you find yourself adding to a blacklist, switch to parameterization or output encoding.
+
+### Reading code for injection
+In a code review, search for: string formatting or `+` near `SELECT`/`INSERT`; `exec`, `system`, `popen`, `Runtime.exec`, `os.system`, `shell=True`; `innerHTML`, `document.write`, `dangerouslySetInnerHTML`, `|safe`; `eval`, `pickle.loads`, `yaml.load`. Follow each one back to see whether user input reaches it. Frameworks make this safe by default, then people opt out.
+
+### Detection
+- WAF or web log: `'`, `--`, `UNION`, `SELECT`, `<script`, `onerror=` in query strings or bodies; a spike of 500 errors from one source
+- Database logs: syntax errors, a query that returns a huge row count
+- Alert on the *response* too: an unusually large response from a normal endpoint
+
+### Fixing it in a report
+Give the vulnerable line, the corrected line (the parameterized version) and the test that proves it: send the same payload and show it is treated as plain text.
+:: ref
+### sqli
+' | first probe: a quote that breaks the string
+' OR '1'='1 | always-true condition (lab only)
+ORDER BY 3-- | find column count
+UNION SELECT NULL,NULL-- | match column count for UNION
+SLEEP(5) | time-based blind test (MySQL)
+sqlmap -u URL --batch | automated testing, with permission only
+### xss
+<script>alert(1)</script> | classic reflected probe (lab only)
+"><img src=x onerror=alert(1)> | break out of an attribute (lab only)
+javascript:alert(1) | URL scheme in a link
+innerHTML vs textContent | innerHTML parses HTML, textContent does not
+### defenses
+Parameterized query | value sent separately from the SQL text
+Output encoding | turn <, > and & into entities for the context
+CSP | header that limits which scripts may run
+HttpOnly | cookie flag; JavaScript cannot read it
+Least privilege DB user | limits what a SQLi can reach
+### terms
+SQLi | SQL injection
+XSS | cross-site scripting
+SSTI | server-side template injection
+Blind | no visible output; infer from behavior or timing
+WAF | web application firewall
+:: lab
+host: code-review
+user: student
+cwd: /home/student/app
+:: brief
+`~/app/app.py` is a small **fictional** Flask app with three routes. Two build their SQL safely. One glues user input into the query string.
+
+Give the **route path** that is vulnerable to SQL injection, e.g. `submit /about`.
+:: answer
+/lookup
+:: hint
+Search the file for places where a query is built with `+`, `%` or an f-string.
+:: hint
+A `?` placeholder with a separate tuple is the safe pattern.
+:: solution
+`/lookup` builds `"SELECT name, email FROM staff WHERE dept = '" + dept + "'"`, so input like `x' OR '1'='1` returns every staff member. `/search` and `/profile` use `?` placeholders with the value passed separately, which the database treats purely as data. The fix for `/lookup` is `cur.execute("SELECT name, email FROM staff WHERE dept = ?", (dept,))`. Note that `/profile` also HTML-escapes the name it prints, which is the XSS defense.
+:: verify
+grep -n "execute" ~/app/app.py
+:: file /home/student/app/app.py
+# Fictional demo app for a code-review exercise
+from flask import Flask, request
+from markupsafe import escape
+import sqlite3
+
+app = Flask(__name__)
+db = sqlite3.connect("staff.db", check_same_thread=False)
+
+@app.route("/search")
+def search():
+    q = request.args.get("q", "")
+    cur = db.execute("SELECT title FROM articles WHERE title LIKE ?", ("%" + q + "%",))
+    return "<br>".join(escape(r[0]) for r in cur)
+
+@app.route("/lookup")
+def lookup():
+    dept = request.args.get("dept", "")
+    cur = db.execute("SELECT name, email FROM staff WHERE dept = '" + dept + "'")
+    return "<br>".join(f"{r[0]} {r[1]}" for r in cur)
+
+@app.route("/profile")
+def profile():
+    uid = request.args.get("id", "0")
+    cur = db.execute("SELECT name FROM staff WHERE id = ?", (uid,))
+    row = cur.fetchone()
+    return "Hello " + escape(row[0]) if row else "not found"

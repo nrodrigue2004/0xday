@@ -10,6 +10,29 @@ import build_learn as L
 
 esc = html.escape
 SECTIONS = [
+    {"dir": "web", "title": "web security", "course": None, "sheet": ("web-sec", "Web security: OWASP Top 10, Burp, HTTP and JWT quick reference"),
+     "intro": "The web half of the job: what the OWASP Top 10 means in practice, how to drive Burp Suite, how login and sessions break, and how APIs fail. Each chapter goes <strong>simple, mid, complex</strong> and ends in a hands-on lab against a made-up app.",
+     "ext": '<a href="https://portswigger.net/web-security" rel="noopener" target="_blank">PortSwigger Web Security Academy</a> is the free practice ground this section points at; it is the best hands-on material there is, so we summarize and link rather than copy it',
+     "chapters": [
+         ("owasp-top-10", "OWASP Top 10", "All ten categories in plain words, what each looks like in a real app and the fix. Lab: sort a scan report by category"),
+         ("burp-workflow", "Burp Suite workflow", "Proxy, scope, Repeater, Intruder, Decoder and the habits that keep testing clean. Lab: find the tampered request in a Burp log"),
+         ("injection-and-xss", "injection and XSS", "SQL, command and template injection plus XSS: how each works, how to confirm it safely and how to fix it. Lab: read the vulnerable code"),
+         ("auth-and-sessions", "authentication and sessions", "Password storage, MFA, cookies, session fixation and JWT mistakes. Lab: decode a weak token"),
+         ("access-control-and-ssrf", "access control, CSRF and SSRF", "IDOR, privilege escalation, CSRF tokens and server-side request forgery. Lab: find the broken authorization in an access log"),
+         ("api-security", "API security", "The OWASP API Top 10, mass assignment, rate limits and GraphQL pitfalls. Lab: triage an API gateway ticket"),
+     ]},
+    {"dir": "pentest", "title": "penetration testing", "course": None, "sheet": ("pentest", "Pentest quick reference: methodology, enumeration, privesc, AD, tunnels"),
+     "intro": "How a professional test runs: scope and rules first, then enumeration, privilege escalation on Linux and Windows, Active Directory attack paths, pivoting and the report. Concepts and defenses come first, and every lab uses a fictional network.",
+     "ext": 'Practice legally on your own lab, <a href="https://tryhackme.com" rel="noopener" target="_blank">TryHackMe</a>, <a href="https://overthewire.org/wargames/" rel="noopener" target="_blank">OverTheWire</a> or <a href="https://www.hackthebox.com" rel="noopener" target="_blank">Hack The Box</a>. Never test anything you do not own or have written permission for',
+     "chapters": [
+         ("pentest-methodology", "methodology and rules of engagement", "The phases, scope, rules of engagement, authorization and the legal line. Lab: spot the out-of-scope action"),
+         ("enumeration", "enumeration", "Ports, services, web content, SMB and DNS: turning a host list into a map. Lab: read scan output and pick the weakest service"),
+         ("linux-privesc", "Linux privilege escalation", "sudo, SUID, cron, capabilities, writable paths and what to check first. Lab: find the misconfiguration on a fictional box"),
+         ("windows-privesc", "Windows privilege escalation", "Services, unquoted paths, token privileges, stored credentials and registry. Lab: read a host audit and name the weak service"),
+         ("ad-attacks", "Active Directory attacks", "Kerberoasting, AS-REP roasting, delegation, BloodHound paths, and the detections that catch each. Lab: review a fictional AD export"),
+         ("pivoting", "pivoting and tunnels", "Port forwards, SSH tunnels, SOCKS proxies and segmentation. Lab: work out which host is the way in"),
+         ("pentest-reporting", "report writing", "Findings, severity, CVSS, evidence and an executive summary people will read. Lab: rate three findings"),
+     ]},
     {"dir": "grc", "title": "governance, risk and compliance", "course": "GRC200", "sheet": ("grc", "GRC quick reference: frameworks, risk formulas, privacy laws"),
      "intro": "The paperwork half of security that decides budgets and audits: frameworks, risk math, policies, compliance, privacy law and professional ethics. Pair it with Security+ domain 5. There is a working <a href=\"grc/risk-worksheet.html\">risk worksheet</a> that saves in your browser.",
      "ext": 'Primary sources are free: <a href="https://www.nist.gov/cyberframework" rel="noopener" target="_blank">NIST CSF</a> and the <a href="https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search" rel="noopener" target="_blank">SP 800-53 catalog</a>. We summarize in our own words and link to the real documents',
@@ -66,7 +89,7 @@ def build(page, SHEETS):
 <p>{L.inline(g["meta"].get("tagline", ""))}</p>
 <nav class="tiers" aria-label="levels">{nav}</nav>
 <div class="learn" data-skill="{slug}">
-<div class="learn__doc">{secs}{pager}<p><a href="../{d}.html">cd ~/{d}</a> · <a href="../courses/{S["course"]}.html">{S["course"]}</a></p></div>
+<div class="learn__doc">{secs}{pager}<p><a href="../{d}.html">cd ~/{d}</a> {f' · <a href="../courses/{S["course"]}.html">{S["course"]}</a>' if S["course"] else ''}</p></div>
 {'<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>' if lab else ""}
 </div>
 {f'<script type="application/json" id="lab-data">{lab}</script>' if lab else ""}'''
@@ -80,7 +103,7 @@ def build(page, SHEETS):
             extra = '<ul class="ls guides"><li class="guiderow"><a class="ls-row" href="grc/risk-worksheet.html"><span class="ls-perm">[tool]</span><span class="ls-title">risk worksheet <span class="muted small">Score risks, compute ALE and keep a register that saves in this browser</span></span><span class="ls-tags">tool</span></a></li></ul>'
         page(f"{d}.html", f"{S['title']} :: 0xDay", f'''<p class="cmd">ls ~/{d}</p><h1>~/{d}</h1>
 <p>{S["intro"]}</p>
-<p class="callout">Course: <a href="courses/{S["course"]}.html">{S["course"]}</a> has the module checklist, quizzes and an exam. Every target here is fictional. {S["ext"]}.</p>
+<p class="callout">{f'Course: <a href="courses/{S["course"]}.html">{S["course"]}</a> has the module checklist, quizzes and an exam. ' if S["course"] else 'Reading chapters with labs; quizzes are not added yet. '}Every target here is fictional. {S["ext"]}.</p>
 <ul class="ls guides">{rows}</ul>{extra}
 <p class="muted small">progress: <span class="bar__on">[####]</span> = all levels read (plus lab solved, if any). Saved in your browser. Reference: <a href="man/{S["sheet"][0]}.html">man {S["sheet"][0]}</a></p>''',
              cur="learn", scripts=("learn.js",), desc=f"{S['title'].capitalize()}: {len(chs)} chapters with simulated hands-on labs.")

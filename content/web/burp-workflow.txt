@@ -1,0 +1,120 @@
+tagline: Burp Suite sits between your browser and a web app so you can see, pause and change every request. Learn the workflow that makes testing organized and repeatable, and how to stay in scope.
+sheet: web-sec
+:: simple
+**Burp Suite** is an intercepting proxy. Your browser sends traffic to Burp, Burp forwards it to the app, and you can look at, hold, edit and replay every request on the way. Free Community edition is enough to learn; Professional adds the scanner and faster tools.
+
+```
+Browser  --->  Burp proxy (127.0.0.1:8080)  --->  Web app
+          <---                              <---
+```
+
+### The tools you use daily
+- **Proxy / HTTP history**: a log of everything the browser did. Most of your time is spent reading it
+- **Intercept**: hold a request, edit it, then forward or drop it
+- **Repeater**: send one request again and again with small changes and compare responses
+- **Intruder**: send many variations of one request (a list of IDs, a wordlist). Community edition is throttled
+- **Decoder**: base64, URL and hex conversions
+- **Comparer**: diff two responses
+
+### Setup in five steps
+1. Start Burp, keep the proxy listener on `127.0.0.1:8080`
+2. Point the browser at that proxy (the built-in Burp browser skips this)
+3. Install Burp's CA certificate so HTTPS can be read
+4. Set the **scope** to the target host only
+5. Turn intercept **off** and browse normally, so history fills up
+
+> Only test apps you own, a lab target, or a program that has given you written permission. Setting scope is not just tidiness. It keeps you from accidentally sending traffic to a third party.
+
+```
+$ cat ~/burp/history.txt
+```
+:: mid
+### A repeatable method
+1. **Map**: browse every feature as a normal user while history records it. Note each parameter, cookie, token and hidden field
+2. **Filter**: show in-scope items only, hide images and CSS, sort by method so POST and PUT stand out
+3. **Pick a request** that changes something (checkout, profile edit, password change, delete)
+4. **Send to Repeater** and ask: what does the server trust here? Try removing it, repeating it, changing it to another user's value, changing the type (`1` to `"1"` to `[1]` to `null`)
+5. **Compare** status, length and body against the baseline response
+6. **Write it down** as you go: request, change, response, impact
+
+### What to look for in history
+- Parameters that look like they carry a decision: `price`, `role`, `isAdmin`, `userId`, `discount`, `status`
+- IDs that are sequential numbers
+- Tokens that look decodable (base64 of readable JSON)
+- Differences between what the page *shows* and what the request *sends*: a greyed-out field the browser will not edit may still be accepted if you send it yourself
+- Verbose errors in responses
+
+### Intruder basics
+Mark a position, load a payload list, choose an attack type: **Sniper** (one position, one list), **Cluster bomb** (every combination across positions). Sort results by status or length. One response that is a different length from the rest is usually the interesting one.
+
+### Rules of the road
+- Scope on, always. Turn on the option to drop out-of-scope requests
+- Throttle. A hammering Intruder run can lock accounts or knock over a small server
+- Use test accounts you create. Never sit on someone else's session
+- Save the project file: it is your evidence
+:: complex
+### Going further
+- **Match and replace** rules to add a header or swap a token on every request
+- **Session handling rules** and macros keep Intruder logged in when sessions expire
+- **Extensions** (BApp Store): Logger++, Autorize (replays requests with a low-privilege cookie to find broken access control), JWT Editor, Param Miner
+- **Collaborator** (Pro) gives you a unique domain that logs any callback, which proves blind SSRF and blind injection without needing to see the response
+- **Scanner** (Pro) is good for coverage. Treat every finding as a lead to verify by hand in Repeater before it goes in a report
+
+### Authorization testing pattern
+For every sensitive action, test it three ways with the same request: as the owner (baseline), as a different low-privilege user, and with no cookie at all. If the second or third returns the owner's data, you have broken access control. Autorize automates exactly this.
+
+### Alternatives
+OWASP **ZAP** is the free open-source equivalent and scripts well in CI. Browser dev tools (Network tab) cover simple cases. `curl` is great for a single reproducible request in a report: right-click a request in Burp, copy as curl command.
+
+### Evidence habits
+Keep the raw request and response text, not just screenshots. Redact secrets in the report but keep the originals in your notes. Record the date, time and your source IP so the client can match logs.
+:: ref
+### burp
+Proxy > HTTP history | every request/response seen
+Proxy > Intercept | hold and edit a request before it leaves
+Repeater (Ctrl+R) | resend one request with edits
+Intruder (Ctrl+I) | automate variations of a request
+Target > Scope | which hosts you are allowed to test
+Decoder | base64, URL, hex, gzip conversions
+Comparer | diff two responses
+Copy as curl command | turn a request into a shell command for the report
+### attack types
+Sniper | one position, payloads one at a time
+Battering ram | same payload in every position
+Pitchfork | one list per position, walked in parallel
+Cluster bomb | every combination of every list
+### terms
+CA certificate | lets Burp read HTTPS by acting as the middle
+Scope | the hosts and paths you may test
+Baseline | the normal response you compare edits against
+Collaborator | callback server that proves blind bugs
+:: lab
+host: burp-lab
+user: student
+cwd: /home/student/burp
+:: brief
+`~/burp/history.txt` is a trimmed proxy history from a **fictional** shop (`shop.lab.example`) test. Someone changed a value in one checkout request before sending it.
+
+Find the request where a parameter was tampered with and give the **name of the parameter**, e.g. `submit token`.
+:: answer
+price
+:: hint
+Look at the POST requests to `/cart/checkout` and compare the same parameter across them.
+:: hint
+Every item has a fixed list price. One checkout sends a price far below the product's real one.
+:: solution
+`POST /cart/checkout` in entry 9 sends `price=0.99` for item 4412, which sells for 249.00 everywhere else in the history (entries 3 and 6). The server accepted it with a 200 and an order number, so it trusts a price sent by the client. The fix is to ignore client-supplied prices entirely: look the price up from the product table on the server and compute the total there. This is also a design flaw (A04), since no code bug is needed for it to work.
+:: verify
+grep checkout ~/burp/history.txt
+:: file /home/student/burp/history.txt
+# Burp HTTP history export (fictional target shop.lab.example, in scope)
+1  GET   /                       200  sess=a1f3
+2  GET   /products/4412          200  sess=a1f3
+3  POST  /cart/add               200  item=4412 qty=1 price=249.00
+4  GET   /cart                   200  sess=a1f3
+5  GET   /products/4419          200  sess=a1f3
+6  POST  /cart/checkout          200  item=4412 qty=1 price=249.00 order=8801
+7  GET   /orders/8801            200  total=249.00
+8  POST  /cart/add               200  item=4412 qty=1 price=249.00
+9  POST  /cart/checkout          200  item=4412 qty=1 price=0.99 order=8802
+10 GET   /orders/8802            200  total=0.99

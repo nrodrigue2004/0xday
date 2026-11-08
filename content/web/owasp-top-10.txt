@@ -1,0 +1,116 @@
+tagline: The OWASP Top 10 is a ranked list of the most common web application risks. Learn what each category means, what it looks like in a real app, and the one fix that matters most for each.
+sheet: web-sec
+:: simple
+The **OWASP Top 10** is an awareness list, updated every few years from real breach and testing data. It is not a checklist that proves an app is safe. It is the shared vocabulary every pentest report, scanner and job interview uses, so learn the names.
+
+This chapter follows the **2021** list, which is what most reports and courses still cite. OWASP publishes refreshes, so check owasp.org/Top10 for the current numbering. The ideas below do not change when the numbers do.
+
+| ID | Category | In one line |
+|---|---|---|
+| A01 | Broken Access Control | A user can do or see something they should not |
+| A02 | Cryptographic Failures | Sensitive data sent or stored without proper encryption |
+| A03 | Injection | Input becomes part of a command or query |
+| A04 | Insecure Design | The flaw is in the plan, not the code |
+| A05 | Security Misconfiguration | Defaults, debug modes, open buckets, missing headers |
+| A06 | Vulnerable and Outdated Components | Old libraries with known CVEs |
+| A07 | Identification and Authentication Failures | Weak login, weak sessions, no MFA |
+| A08 | Software and Data Integrity Failures | Trusting unsigned updates, plugins and pipelines |
+| A09 | Security Logging and Monitoring Failures | The attack happens and nobody notices |
+| A10 | Server-Side Request Forgery | The server fetches a URL an attacker chose |
+
+### The mental model
+Almost every web bug is one of two mistakes: the app **trusts something the user controls** (a parameter, a cookie, a header, a file name) or it **forgets to check who is asking**. Injection is the first mistake. Broken access control is the second. That is why A01 and A03 dominate the list.
+
+```
+$ cat ~/scan/report.txt
+```
+
+### Why A01 is number one
+In the data OWASP collected, more apps had some form of broken access control than any other problem. Changing `/invoice/1001` to `/invoice/1002` and seeing someone else's invoice is the classic example (an IDOR, covered in [access control](access-control-and-ssrf.html)).
+:: mid
+### Each category with an example and a fix
+**A01 Broken Access Control.** Missing checks on the server: IDOR, `/admin` reachable by any logged-in user, path traversal (`?file=../../etc/passwd`), a CORS policy that trusts every origin. *Fix:* deny by default, enforce checks on the server for every request, never rely on hidden buttons.
+
+**A02 Cryptographic Failures.** Passwords in plaintext or MD5, HTTP instead of HTTPS, hard-coded keys, weak TLS. *Fix:* TLS everywhere with HSTS, hash passwords with bcrypt, scrypt or Argon2, keep keys out of source control.
+
+**A03 Injection.** SQL, OS command, LDAP, template and NoSQL injection, and XSS. *Fix:* parameterized queries, safe APIs that never build a command from strings, output encoding. See [injection and XSS](injection-and-xss.html).
+
+**A04 Insecure Design.** A password reset that asks only for a birth date, a coupon that can be applied unlimited times, no rate limit on a login. No patch fixes it. *Fix:* threat model early and write abuse cases next to user stories.
+
+**A05 Security Misconfiguration.** Default credentials, verbose stack traces, directory listing, an admin console on the internet, a public cloud bucket, missing security headers. *Fix:* a hardened baseline, automation that checks it, and the same config in every environment.
+
+**A06 Vulnerable and Outdated Components.** Log4Shell is the famous case (see [~/cases](../cases.html)). *Fix:* an inventory (SBOM), dependency scanning in CI, a patch process with a deadline.
+
+**A07 Identification and Authentication Failures.** Credential stuffing works because there is no rate limit and people reuse passwords; session IDs in URLs; sessions that never expire. *Fix:* MFA, breached-password checks, lockout or throttling, new session ID after login. See [authentication and sessions](auth-and-sessions.html).
+
+**A08 Software and Data Integrity Failures.** Auto-update without signature checks, a CI pipeline anyone can modify, insecure deserialization. *Fix:* verify signatures and hashes, protect the pipeline, never deserialize untrusted data into objects.
+
+**A09 Logging and Monitoring Failures.** Failed logins not logged, logs not reviewed, no alert on 500 failed logins. *Fix:* log auth events and access-control failures with enough context, send them to a SIEM, test that alerts fire.
+
+**A10 SSRF.** A "fetch this URL" feature that can be pointed at `http://169.254.169.254/` (the cloud metadata service) or internal admin pages. *Fix:* allow-list destinations, block internal ranges, do not return raw responses.
+
+### Scanner output versus judgment
+A scanner finds A05 and A06 well, A03 fairly well, and A01 and A04 badly, because those need to understand what the app is supposed to do. A good tester uses the scanner for coverage and their own head for logic.
+:: complex
+### Map findings to the list the right way
+- Tag by **root cause**, not by symptom. A stack trace in an error page is A05, even if it also leaked a SQL query that proves an A03.
+- One bug can belong to several categories. Pick the primary one and mention the other. Reports that argue about numbering waste the reader's time.
+- Pair the category with a **CWE** (e.g. CWE-639 for IDOR, CWE-89 for SQL injection) and, for the fix guidance, the OWASP **Cheat Sheet Series** page.
+- The **ASVS** (Application Security Verification Standard) is the actual checklist: three levels with numbered requirements. Use the Top 10 to talk, the ASVS to test.
+
+### Moving left
+Finding bugs at the end is the most expensive way to fix them. Shift toward:
+- **threat modeling** during design (STRIDE: spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege)
+- **SAST** (static analysis on source), **DAST** (a scanner against the running app), **SCA** (dependency scanning)
+- code review with a security checklist, and security unit tests for abuse cases ("user A requests user B's invoice and gets a 403")
+
+### Detection angle
+For each category, ask what it looks like in a log: a burst of 401s (A07), one session touching hundreds of sequential IDs (A01), a `'` or `UNION` in a query string (A03), a request to an internal IP from an app server (A10). If the answer is "nothing", that is an A09 finding waiting to be written.
+
+### Practice
+Work through the matching topic on [PortSwigger's Web Security Academy](https://portswigger.net/web-security) after each chapter in this section. Keep a one-page note per category: example, root cause, fix, log signature.
+:: ref
+### categories
+A01 Broken Access Control | missing server-side authorization; IDOR, path traversal
+A02 Cryptographic Failures | weak or missing encryption of data in transit or at rest
+A03 Injection | untrusted input interpreted as code or query (includes XSS)
+A04 Insecure Design | missing threat modeling, no abuse cases
+A05 Security Misconfiguration | defaults, debug, open storage, missing headers
+A06 Vulnerable Components | outdated libraries with known CVEs
+A07 Auth Failures | weak login, sessions, no MFA or throttling
+A08 Integrity Failures | unsigned updates, insecure deserialization, weak CI
+A09 Logging Failures | no logs, no alerts, no response
+A10 SSRF | server fetches attacker-chosen URLs
+### related
+ASVS | OWASP's numbered verification checklist, three levels
+CWE | catalog of weakness types (CWE-89 SQLi, CWE-79 XSS, CWE-639 IDOR)
+CVE | ID for one specific vulnerability in one product
+STRIDE | threat modeling mnemonic
+SAST / DAST / SCA | static analysis / running-app scan / dependency scan
+SBOM | software bill of materials, the component inventory
+:: lab
+host: scanbox
+user: student
+cwd: /home/student/scan
+:: brief
+A scanner report for a fictional shop app is in `~/scan/report.txt`. Finding **F-4** is the one the scanner labeled "Informational", but it is the most serious item in the file.
+
+Read F-4 and give its **OWASP Top 10 (2021) ID** in the form `a05`. e.g. `submit a05`.
+:: answer
+a01
+:: hint
+Read the description of F-4 slowly. What is the app failing to check?
+:: hint
+Reading a file outside the intended folder by editing a parameter is a failure of authorization on the server, not injection.
+:: solution
+F-4 shows `GET /download?file=../../etc/passwd` returning the system password file. The input is being used as a path without restricting it to the download folder, so the user can read files they were never meant to access. Path traversal is classed under **A01 Broken Access Control** in the 2021 list. The fix is to map user input to a fixed set of file IDs, or resolve the path and confirm it stays inside the allowed directory. The scanner called it informational because the response was a normal 200.
+:: verify
+cat ~/scan/report.txt
+:: file /home/student/scan/report.txt
+Scan of shop.lab.example (fictional)  2026-11-04
+F-1  Medium  Missing Content-Security-Policy header on all pages
+F-2  Low     Server banner reveals "nginx/1.18.0"
+F-3  High    Library jquery 1.6.4 has known XSS issues (CVE-2011-4969)
+F-4  Info    GET /download?file=../../etc/passwd -> 200, body starts "root:x:0:0:root"
+F-5  Medium  Admin login at /admin has no lockout after 50 failed attempts
+F-6  Low     Cookie "session" is missing the Secure flag

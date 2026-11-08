@@ -1,0 +1,137 @@
+tagline: Access control bugs let one user reach another user's data or an admin's features. Learn IDOR, privilege escalation, CSRF and SSRF, how they show up in logs, and the checks that stop them.
+sheet: web-sec
+:: simple
+Logging in proves who you are. **Access control** decides what you may do. The bug is almost never that the check is hard. It is that the check is **missing** on one route that the developer forgot, or only done in the browser.
+
+### IDOR: insecure direct object reference
+The app uses an ID from the request to fetch a record, and never asks whether *this user* owns it.
+
+```
+GET /invoices/1001   <- your invoice
+GET /invoices/1002   <- someone else's, and the server happily returns it
+```
+
+*Fix:* on the server, look up the record **and** confirm it belongs to the signed-in user (or return 404). Random IDs (UUIDs) make guessing harder but do not replace the check.
+
+### Two directions of escalation
+- **Horizontal**: reach another user at the same level (user A reads user B's messages)
+- **Vertical**: reach a higher level (a normal user opens `/admin` or sends `role=admin`)
+
+### Forced browsing
+Hiding the "Admin" link is not security. If `/admin/users` returns data to any logged-in user, the page is open. Every route needs its own server-side check.
+
+### The default rule
+**Deny by default.** A new endpoint should be forbidden until someone writes the rule that allows it. Forgetting then fails closed, not open.
+
+```
+$ cat ~/logs/access.log | head
+```
+:: mid
+### Where the checks go wrong
+- Checking only in the UI or the JavaScript, not on the API the UI calls
+- Protecting `GET /orders/5` but not `PUT /orders/5` or `DELETE`
+- Trusting a field the client sends (`userId`, `isAdmin`, `role`)
+- Different code paths for the web app and the mobile API, with checks in only one
+- Method override headers and alternate URLs (`/Admin`, `/admin/`, `/admin;x`) slipping past a path-based rule
+- Multi-step processes where step 3 trusts that step 2 happened
+
+### CSRF: cross-site request forgery
+Your browser automatically attaches cookies to requests for a site. If a malicious page makes your browser send `POST /transfer` to your bank, the cookie goes along, and the bank thinks it was you.
+
+Defenses that work:
+- **Anti-CSRF tokens**: a random value in each form that the attacker's page cannot know
+- **SameSite cookies** (`Lax` is the browser default now), which stop most cross-site sends
+- Require a custom header for API calls, and check `Origin`
+- Re-authenticate for sensitive actions
+
+CSRF needs the victim to be logged in and the action to be predictable. It does not let the attacker read responses.
+
+### SSRF: server-side request forgery
+A feature fetches a URL on the user's behalf (link preview, image import, webhook). The attacker supplies a URL that points inward:
+- `http://localhost:8080/admin` or `http://10.0.0.5/` (internal services)
+- `http://169.254.169.254/latest/meta-data/` (the **cloud metadata service**, which can hand out credentials)
+
+Because the request comes from the trusted server, firewalls and "internal only" pages do not stop it. This is the Capital One breach pattern.
+
+*Fixes:* allow-list the destinations you really need, resolve the hostname and check the **IP** after DNS, block link-local and private ranges, do not follow redirects blindly, never return the raw response, and on AWS use IMDSv2 (it needs a token header, which many SSRF bugs cannot send).
+:: complex
+### Finding IDOR at scale
+Build two test accounts. Do an action as A, then replay A's requests with B's cookie (Autorize does this). Look beyond URLs: IDs hide in JSON bodies, headers, GraphQL arguments and cookies. Test every verb. Also check **indirect** references: an export file name that is a sequential number.
+
+### Authorization models, quickly
+- **RBAC**: roles (admin, editor, viewer) carry permissions
+- **ABAC**: rules over attributes (department, time, record owner)
+- **ACL**: a list per object saying who may do what
+- **Ownership checks**: the rule behind most IDOR fixes (`record.owner_id == session.user_id`)
+Centralize the check in one policy layer (middleware, decorator, policy engine) so a new route cannot skip it.
+
+### Blind SSRF and bypasses
+When the response is not shown, you prove SSRF with a callback you control, or by timing. Attackers get around naive blacklists with decimal or hex IPs (`2130706433`), IPv6, a domain that resolves to `127.0.0.1`, **DNS rebinding** (a name that resolves to a public IP at check time, then an internal one at use time), and open redirects on an allowed host. This is why the check belongs *after* resolution, on the real connect address.
+
+### Other related bugs
+- **Open redirect**: `?next=https://evil.example` after login. Allow-list the destination
+- **Path traversal**: `../` in a file parameter; resolve and confirm the final path stays inside the allowed folder
+- **CORS misconfiguration**: reflecting any `Origin` with credentials allowed lets a hostile site read responses
+- **Clickjacking**: framing the page; use `X-Frame-Options` or CSP `frame-ancestors`
+
+### Detection
+- One session requesting many sequential or random IDs it does not own (low 200 rate for foreign IDs, many 403/404)
+- A 200 for a resource whose owner differs from the session user: log owner and caller together
+- Outbound requests from the app tier to metadata IPs or internal ranges
+- Cross-site POSTs with a missing or foreign `Origin` header
+:: ref
+### idor and access
+GET /resource/ID | try IDs you do not own, with two test accounts
+Autorize (Burp) | replays requests with a low-privilege cookie
+403 vs 404 | 404 avoids confirming that a record exists
+deny by default | no rule means no access
+### csrf
+Anti-CSRF token | unguessable value tied to the session, checked on POST
+SameSite=Lax | cookie not sent on cross-site POSTs
+Origin / Referer check | reject requests from foreign sites
+### ssrf
+http://169.254.169.254/ | cloud instance metadata address (block it)
+IMDSv2 | AWS metadata that requires a session token header
+allow-list | only permit named destinations
+DNS rebinding | name that flips to an internal IP after the check
+### terms
+IDOR | direct object reference with no ownership check
+BOLA | the API name for IDOR (OWASP API Top 10 #1)
+CSRF | forged cross-site request using the victim's cookies
+SSRF | server fetches an attacker-chosen URL
+CORS | browser rule for which sites may read responses
+:: lab
+host: web-logs
+user: analyst
+cwd: /home/analyst/logs
+:: brief
+`~/logs/access.log` is an access log from a **fictional** invoice app. The app returns `200` for any invoice number to any signed-in user. Each line shows the signed-in user, the request and the status.
+
+One user requested a long run of invoices that are not theirs. Give that **username**, e.g. `submit jdoe`.
+:: answer
+t.ng
+:: hint
+Look for one user whose requests walk through consecutive invoice numbers.
+:: hint
+`awk '{print $2}' access.log | sort | uniq -c | sort -rn` counts requests per user.
+:: solution
+`t.ng` requested `/invoices/2001` through `/invoices/2012` in order and got `200` for every one, while the other users only requested one or two invoices. Walking sequential IDs and getting data back is the signature of an IDOR being exploited. The fix is an ownership check in the invoice handler, and an alert for a single session reading many distinct IDs.
+:: verify
+awk '{print $2}' ~/logs/access.log | sort | uniq -c | sort -rn
+:: file /home/analyst/logs/access.log
+09:01:02 m.lee GET /invoices/1044 200
+09:01:40 r.sun GET /invoices/1090 200
+09:02:11 t.ng GET /invoices/2001 200
+09:02:12 t.ng GET /invoices/2002 200
+09:02:12 t.ng GET /invoices/2003 200
+09:02:13 t.ng GET /invoices/2004 200
+09:02:13 t.ng GET /invoices/2005 200
+09:02:14 t.ng GET /invoices/2006 200
+09:02:14 t.ng GET /invoices/2007 200
+09:02:15 t.ng GET /invoices/2008 200
+09:02:15 t.ng GET /invoices/2009 200
+09:02:16 t.ng GET /invoices/2010 200
+09:02:16 t.ng GET /invoices/2011 200
+09:02:17 t.ng GET /invoices/2012 200
+09:03:50 m.lee GET /invoices/1045 200
+09:04:20 r.sun GET /invoices/1091 200

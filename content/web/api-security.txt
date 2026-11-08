@@ -1,0 +1,122 @@
+tagline: APIs carry most of an app's real logic and often skip the checks the website has. Learn the OWASP API Top 10, how mass assignment and broken object checks work, and how to review an API safely.
+sheet: web-sec
+:: simple
+An **API** is how an app, a phone and other services talk to the server, usually with JSON over HTTP. The website might hide a feature, but the API behind it often still exposes it. Testing an API means reading its requests directly, not trusting the screens.
+
+### Why APIs are different
+- They expose **objects and actions** directly (`/users/5`, `PATCH /orders/9`), so authorization mistakes are easy to see and exploit
+- They return **raw data**; the client is supposed to hide fields, but the data still travels
+- Mobile apps and old versions keep calling **old endpoints** nobody maintains
+- Nobody is watching a human click, so automated abuse is easy
+
+### The OWASP API Security Top 10 (2023), in one line each
+1. **BOLA**: broken object level authorization (the IDOR)
+2. **Broken authentication**
+3. **Broken object property level authorization**: seeing or setting fields you should not (includes mass assignment)
+4. **Unrestricted resource consumption**: no rate limits or size limits
+5. **Broken function level authorization**: a normal user calls an admin function
+6. **Unrestricted access to sensitive business flows**: bots buying all the tickets
+7. **SSRF**
+8. **Security misconfiguration**
+9. **Improper inventory management**: forgotten old versions and test endpoints
+10. **Unsafe consumption of APIs**: trusting data from third-party APIs
+
+> OWASP may refresh this list. The names are stable ideas worth knowing either way.
+
+```
+$ ls ~/gateway
+```
+:: mid
+### Mass assignment
+The server takes the whole JSON body and writes it to the database object. A profile update that normally sends `{"name":"Pat"}` also accepts `{"name":"Pat","role":"admin"}` if nobody blocked the field. *Fix:* an explicit allow-list of writable fields (a DTO or schema) and never bind request bodies straight to models.
+
+### Excessive data exposure
+`GET /users/5` returns the password hash, internal flags and other users' emails because the developer returns the whole row and lets the front end pick. *Fix:* return only the fields that screen needs.
+
+### Rate limits and resource consumption
+Limit requests per user, per IP and per token, and cap page size, upload size and query depth. For login, password reset and OTP endpoints the limits must be strict, or an attacker can brute force a 6 digit code.
+
+### Reading an API
+- Find the spec: `/openapi.json`, `/swagger.json`, `/v2/api-docs`, a Postman collection, or capture it with Burp from the mobile app
+- Group endpoints by **resource** and **verb**; test each verb on each resource as each role
+- Try version downgrade: `/api/v1/` may lack fixes made in `/api/v3/`
+- Change content type (JSON to form to XML); an XML parser can open XXE issues
+
+### GraphQL notes
+One endpoint, flexible queries. Check that **introspection** is off in production, that every resolver checks authorization (not just the top-level query), that query depth and cost are limited, and that batching cannot get around rate limits (100 login attempts in one request).
+
+### Tokens for APIs
+Short-lived access tokens, scopes limited to the task, refresh tokens that rotate, and keys that can be revoked. Never put API keys in a mobile app binary or in client JavaScript, since both are easy to read.
+:: complex
+### Business logic abuse
+Scanners cannot find these because the requests are all valid. Examples: apply the same coupon repeatedly, race two requests to spend a balance twice (**race condition**), skip a payment step by calling the confirm endpoint directly, change quantity to a negative number to get a credit. Write the intended state machine on paper, then try each out-of-order and repeated step.
+
+### Inventory is a control
+Keep a list of every API, version, owner and data classification. "Shadow" and "zombie" APIs (undocumented or deprecated but still running) are a favorite entry point. API gateways help by forcing everything through one place for auth, rate limits and logging.
+
+### Defensive design checklist
+- Authenticate every request; authorize every request **per object and per function**
+- Validate input against a schema (types, lengths, enums) and reject unknown fields
+- Return generic errors; log the details
+- Version and retire old APIs on a schedule
+- Log caller identity, object IDs and result so abuse is visible
+- Test with automated authorization checks in CI
+
+### Detection
+One token touching hundreds of object IDs; spikes in 401/403; many distinct accounts from one IP on a login endpoint; unexpected admin routes called by non-admin tokens; unusually large responses.
+:: ref
+### finding the spec
+/openapi.json | common OpenAPI document path
+/swagger.json /v2/api-docs | older Swagger paths
+/graphql | single GraphQL endpoint; try introspection in a lab
+Postman collection | exported list of endpoints
+### testing
+curl -H "Authorization: Bearer T" URL | send an authenticated request
+curl -X PATCH -d '{"role":"admin"}' URL | mass assignment probe (lab only)
+change /v3/ to /v1/ | look for old, weaker versions
+401 vs 403 | not authenticated vs not allowed
+### terms
+BOLA | broken object level authorization
+BFLA | broken function level authorization
+Mass assignment | client sets fields it should not
+Shadow API | undocumented endpoint still reachable
+Rate limiting | cap on requests per time window
+:: lab
+style: ticket
+host: soc
+user: analyst
+system: API security queue
+id: #API-0417
+subject: Customer reports seeing another customer's profile in the mobile app
+priority: P2
+from: support desk
+sla: 4h
+attach: gateway-config.txt, gateway.log
+:: brief
+**support:** "Customer a.rossi opened her profile in the mobile app and it showed `m.holt`'s address. She did nothing unusual. This is the fictional Orbit Pay API."
+
+Read `gateway-config.txt` and `gateway.log`. The gateway enforces some checks and the backend is supposed to enforce the rest. Work out **which API Top 10 category** this is and resolve the ticket with its 4 letter short name, e.g. `bola`, `bfla` or `ssrf`.
+:: answer
+bola
+:: hint
+The log shows a valid token for a.rossi fetching a record whose ID belongs to someone else.
+:: hint
+The config says the gateway only checks that a token is valid. Who checks that the record belongs to the caller?
+:: solution
+`a.rossi` is authenticated, so this is not a login bug. Her request `GET /v2/profiles/88014` returns 200 with another person's data because the backend loads the profile by ID without confirming it belongs to the token's user, and the gateway only validates the token. That is **BOLA** (broken object level authorization, the API form of IDOR). The fix is an ownership check in the profile handler, ideally via a shared policy layer. The profile IDs in the mobile app are sequential, so the log also shows one user asking for 88013, 88014 and 88015 in a row.
+:: verify
+grep rossi ~/gateway.log
+:: file /home/analyst/gateway-config.txt
+Orbit Pay API gateway (fictional)
+auth:        validate JWT signature and expiry on all /v2/* routes
+rate limit:  120 requests/min per token
+authorization: none at the gateway; each backend service checks its own
+routes:      /v2/profiles/{id} -> profile-svc
+             /v2/payments/{id} -> payment-svc
+             /v2/admin/*       -> admin-svc (requires role=admin claim)
+:: file /home/analyst/gateway.log
+10:02:11 token=a.rossi GET /v2/profiles/88013 200 owner=a.rossi
+10:02:30 token=a.rossi GET /v2/profiles/88014 200 owner=m.holt
+10:02:31 token=a.rossi GET /v2/profiles/88015 200 owner=j.cruz
+10:03:02 token=m.holt GET /v2/payments/5102 200 owner=m.holt
+10:03:40 token=a.rossi GET /v2/admin/users 403 owner=-
