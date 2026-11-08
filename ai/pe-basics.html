@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>prompts: basics :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, prompts: basics: What a prompt is, the five parts of a good one, and why vague ones fail. Lab: grade three versions.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter pe-basics</p>
+<h1>~/ai/pe-basics</h1>
+<p>What a prompt is, why vague ones fail, and a five-part checklist for instructions a model can actually follow. Lab: grade three versions of one prompt.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="pe-basics">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>prompt</strong> is the text you give a language model. The model reads it, then writes the most likely continuation. It does not read your mind, it does not remember last week, and it has never seen your network. Whatever is not in the prompt (or in the files and tools you attached) does not exist for it.</p>
+<p>That one fact explains most bad answers. A vague prompt is not "simple", it is <strong>underspecified</strong>, and the model fills the gaps with its best guess.</p>
+<h4>Bad vs better</h4>
+<ul><li>Bad: <code>explain this log</code></li><li>Better: <code>You are helping a junior SOC analyst. Below is one Windows Security log excerpt. In five bullets or fewer, say what happened, whether it looks malicious, and the one thing to check next. If the excerpt is not enough to tell, say so.</code></li></ul>
+<p>The second one says who it is for, what to produce, how long, and what to do when unsure.</p>
+<h4>The five parts</h4>
+<ol><li><strong>Task</strong>: one clear verb. Summarize, classify, rewrite, compare.</li><li><strong>Context</strong>: who the reader is, what the data is, what you already know.</li><li><strong>Constraints</strong>: length, tone, what to leave out, what to do when unsure.</li><li><strong>Format</strong>: bullets, a table, JSON with these keys.</li><li><strong>Example</strong>: one sample of a good answer (more on that in the next chapter).</li></ol>
+<p class="callout">You do not need all five every time. A quick question needs one line. A prompt you will reuse a hundred times needs all five.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Instructions beat adjectives</h4>
+<p>"Be concise" and "be thorough" mean different things to different readers. Numbers and nouns are harder to misread: "at most 5 bullets", "one sentence per finding", "quote the exact log line".</p>
+<h4>Put the material in a labeled box</h4>
+<p>Separate your instructions from the data you want processed, with clear delimiters:</p>
+<pre class="ex"><code><span class="o">Task: classify the email below as phishing, spam or legitimate.</span>
+<span class="o"></span>
+<span class="o">&lt;email&gt;</span>
+<span class="o">...pasted text...</span>
+<span class="o">&lt;/email&gt;</span>
+<span class="o"></span>
+<span class="o">Answer with one word.</span></code></pre>
+<p>Delimiters help the model, and they matter again in the security chapter: they are how you tell instructions apart from untrusted content.</p>
+<h4>Say what to do, not only what to avoid</h4>
+<p>"Do not use jargon" is weaker than "explain it to someone who has used a computer but never a terminal". Negative instructions are fine as a backstop, but give the model a target to aim at.</p>
+<h4>Give an exit</h4>
+<p>Models would rather answer than admit they cannot. Add "If the log does not contain the answer, reply NOT ENOUGH DATA" and you cut a lot of confident fiction. Related: ask for <strong>evidence</strong>, such as the line number or quoted text that supports each claim, so you can check it.</p>
+<h4>Match the ask to the model</h4>
+<p>A small fast model needs tighter, more explicit prompts. A large one tolerates looser wording but still follows a precise one better. When a prompt works on a strong model and fails on a cheap one, it is usually missing a constraint the strong model guessed.</p>
+<h4>Common beginner mistakes</h4>
+<ul><li>Stacking five tasks in one prompt. Split them.</li><li>Pasting a huge document and asking "thoughts?"</li><li>Changing three things at once, so you cannot tell which helped. (See iterating, two chapters on.)</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>A prompt is an interface</h4>
+<p>Treat a reusable prompt like a function: inputs (the variable parts), a contract (what output shape you promise downstream), and failure behavior. Write it down, version it in git, and give it a name. Prompts that live only in someone's chat history cannot be tested or reviewed.</p>
+<h4>Ordering and placement</h4>
+<p>Long prompts have a shape that works: role and goal first, then rules, then examples, then the data, then a restatement of the exact output format last. Models weigh the start and the end of a long context most heavily, so do not bury the one rule that matters in the middle of a page of data.</p>
+<h4>Specify the failure modes you have actually seen</h4>
+<p>After a few runs you will know how your prompt breaks: it adds a friendly intro, it invents a CVE number, it merges two items. Add one line per observed failure. A short list of real corrections beats a long list of imagined ones.</p>
+<h4>Decide what the model should *not* decide</h4>
+<p>Anything that has a deterministic answer should be done by code, not asked of the model: counting, date math, exact lookups, checksums. Let the model do the fuzzy part (reading messy text, summarizing, drafting) and let a script do the rest and verify the result.</p>
+<h4>Cost and context</h4>
+<p>Every token you send is read on every call. Trim boilerplate, put stable text first so it can be cached where your provider supports that, and keep examples short. A 4,000-token prompt that could be 600 tokens costs real money at scale and leaves less room for the data.</p>
+<p>Next: <a href="pe-patterns.html">examples, roles and structured output</a>. The cheatsheet is <a href="../man/prompts.html">man prompts</a>.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>A teammate wrote three versions of a prompt that turns a raw alert into a triage note. <code>checklist.txt</code> lists the five parts a reusable prompt should have: <strong>task, context, constraints, format, example</strong>.</p>
+<p>Grade each <code>prompt_v*.txt</code> against the checklist (<code>cat</code> them, and <code>grep -ci</code> for the keywords the checklist names helps). Exactly one version has all five parts.</p>
+<p>Submit the <strong>file name</strong> of that version.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="ai-chatbot.html">&lt; the chatbot</a><a href="pe-patterns.html">prompts: patterns &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "pe-basics", "title": "prompts: basics", "user": "analyst", "host": "promptlab", "brief": "A teammate wrote three versions of a prompt that turns a raw alert into a triage note. <code>checklist.txt<\/code> lists the five parts a reusable prompt should have: <strong>task, context, constraints, format, example<\/strong>.\n\nGrade each <code>prompt_v*.txt<\/code> against the checklist (<code>cat<\/code> them, and <code>grep -ci<\/code> for the keywords the checklist names helps). Exactly one version has all five parts.\n\nSubmit the <strong>file name<\/strong> of that version.", "hints": ["Read <code>checklist.txt<\/code> first. Each part has a marker word the author used.", "Try <code>grep -ci &quot;task:&quot; prompt_v*.txt<\/code> and repeat for <code>context:<\/code>, <code>constraints:<\/code>, <code>format:<\/code> and <code>example:<\/code>.", "Two versions are missing parts. v1 has only the task. v2 has four of five."], "answers": ["547213d755538da6a851597ec8e6098bc05dad7eac71cfc292fe3b6f2beb3442"], "solution": "PGNvZGU+cHJvbXB0X3YzLnR4dDwvY29kZT4gaXMgdGhlIG9ubHkgb25lIHdpdGggYWxsIGZpdmUgbGFiZWxlZCBwYXJ0cy4gdjEgaXMgYSBiYXJlIHRhc2sgKCJzdW1tYXJpemUgdGhpcyBhbGVydCIpLiB2MiBhZGRzIGNvbnRleHQsIGNvbnN0cmFpbnRzIGFuZCBhIGZvcm1hdCBidXQgZ2l2ZXMgbm8gZXhhbXBsZSBvZiBhIGdvb2Qgbm90ZSwgc28gdGhlIG1vZGVsIGhhcyB0byBndWVzcyB0aGUgc3R5bGUuIHYzIGluY2x1ZGVzIGEgc2hvcnQgc2FtcGxlIG5vdGUsIHdoaWNoIGFsc28gcGlucyBkb3duIGxlbmd0aCBhbmQgdG9uZS4gTm90ZSB0aGF0IHRoZSBjaGVja2xpc3QgaXMgYSAqc3RhcnRpbmcqIHBvaW50OiB0aGUgcmVhbCB0ZXN0IGlzIHJ1bm5pbmcgZWFjaCB2ZXJzaW9uIG9uIGEgZmV3IGFsZXJ0cyBhbmQgcmVhZGluZyB0aGUgb3V0cHV0LCB3aGljaCBpcyB3aGF0IHRoZSB0aGlyZCBjaGFwdGVyIGNvdmVycy4K", "fs": {"/home/analyst/prompts/checklist.txt": "A reusable prompt has five parts. Each is marked with its label.\ntask:        one clear verb and the object it works on\ncontext:     who reads the result, what the data is\nconstraints: length, tone, what to do when unsure\nformat:      the exact shape of the output\nexample:     one sample of a good answer\n", "/home/analyst/prompts/prompt_v1.txt": "task: summarize this alert.\n", "/home/analyst/prompts/prompt_v2.txt": "task: write a triage note for the alert below.\ncontext: the reader is a tier-1 SOC analyst with five minutes per alert.\nconstraints: at most 5 lines. If the alert lacks evidence, write NOT ENOUGH DATA.\nformat: line 1 verdict (benign, suspicious, malicious), line 2 evidence, line 3 next step.\n", "/home/analyst/prompts/prompt_v3.txt": "task: write a triage note for the alert below.\ncontext: the reader is a tier-1 SOC analyst with five minutes per alert.\nconstraints: at most 5 lines. If the alert lacks evidence, write NOT ENOUGH DATA.\nformat: line 1 verdict (benign, suspicious, malicious), line 2 evidence, line 3 next step.\nexample: suspicious | 14 failed logins from 203.0.113.9 then one success | check the account's session list and reset the password.\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst/prompts", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

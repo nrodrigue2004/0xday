@@ -1,0 +1,143 @@
+## 0
+Q: A model gives vague, rambling answers to "explain this log". What is the most likely cause?
+* The prompt is underspecified: no audience, length or format, so the model guesses
+- The model is too small to read logs
+- Logs cannot be processed by language models
+- The temperature is set too high for any prompt to work
+? Fill the gaps yourself or the model will.
+
+Q: Which is the best constraint to add for a model that tends to invent answers?
+* "If the log does not contain the answer, reply NOT ENOUGH DATA"
+- "Be accurate"
+- "Never make mistakes"
+- "You are the world's best analyst"
+? Give it an explicit exit and ask for evidence it can be checked against.
+
+Q: Why put pasted material inside labeled delimiters such as <email>...</email>?
+* It separates your instructions from the data, which helps accuracy and is the first step in handling untrusted text
+- It makes the model faster
+- It encrypts the pasted text
+- It guarantees the model will ignore instructions inside the data
+? Delimiters reduce mix-ups, but they are not a security guarantee.
+
+Q: A prompt asks for five different tasks at once and gives uneven results. What is the usual fix?
+* Split it into separate prompts or stages, one task each
+- Add more adjectives
+- Make the prompt longer
+- Switch to a role such as "expert"
+? One clear task per prompt is easier to write, test and fix.
+
+Q: Which job should code do instead of the model?
+* Exact counting, date math and checksums
+- Summarizing a messy email
+- Drafting a polite reply
+- Reading unstructured notes
+? Let the model handle fuzzy text and let a script handle exact answers.
+
+## 1
+Q: What is few-shot prompting?
+* Putting a few worked examples in the prompt so the model copies the pattern
+- Training the model on a few new documents
+- Limiting the model to a few words
+- Running the prompt a few times and averaging
+? It steers one response; the model's weights do not change.
+
+Q: Which part of a prompt usually has the strongest effect on output format and style?
+* Examples
+- A flattering role such as "world-class expert"
+- Writing in capital letters
+- The length of the system prompt alone
+? A role helps tone; examples pin down the shape.
+
+Q: Your classifier prompt sometimes returns "phishing" and sometimes "PHISH". What fixes this?
+* Use identical labels in every example, state "no other values", and validate against an enum in code
+- Ask the model to try harder
+- Add a longer role description
+- Remove all examples
+? Label drift is a format problem; enforce it in code.
+
+Q: A pipeline reads the model's JSON. What should you do with every answer?
+* Parse and validate it in code, retrying once on failure
+- Trust it because you asked for JSON only
+- Display it to the user and hope
+- Only check the first one
+? A request is not a guarantee. Schema-constrained output helps further.
+
+Q: Is a system prompt an enforcement boundary that stops the model from doing something forbidden?
+* No, it is more text the model reads; enforcement must happen outside the model
+- Yes, models always obey the system prompt over the user
+- Yes, if it is written in capital letters
+- Only for models above a certain size
+? Treat it as guidance, never as a lock.
+
+## 2
+Q: Why build a small eval set before changing a prompt?
+* So changes are measured on the same cases instead of judged by feel
+- Because the provider requires one
+- To train the model on those cases
+- To make the prompt longer
+? Pass or fail per case shows what got better and what broke.
+
+Q: You changed the examples, the constraint wording and the model all at once and scores went up. What is the problem?
+* You cannot tell which change helped, or whether one of them hurt
+- None; more changes are always better
+- The eval set was too small
+- The temperature was too low
+? Change one thing at a time and log the score.
+
+Q: Which eval criterion is easiest to check reliably?
+* Valid JSON containing the required keys
+- "Sounds professional"
+- "Feels thorough"
+- "Seems friendly"
+? Prefer checkable criteria; use a rubric for the rest.
+
+Q: A prompt scores 95% on your test set but performs badly in production. Likely cause?
+* The test set was too tidy and did not include messy real inputs
+- The model is lying about its test results
+- Production uses a different alphabet
+- Prompts cannot be tested
+? Add real failures to the eval set as you find them.
+
+Q: When is a hand-trained classifier or plain code a better choice than a prompt?
+* When the decision is exact, measurable and high volume
+- Never
+- Only when the input is in English
+- Only for images
+? A prompt is one tool; compare it against simpler ones.
+
+## 3
+Q: What makes prompt injection fundamentally hard to eliminate?
+* Instructions and data share one channel, and the model cannot reliably tell them apart
+- Models are not trained on security text
+- Attackers can edit the model's weights over the internet
+- Prompts are too short
+? Treat it as a design property to be contained.
+
+Q: Which combination makes an assistant especially dangerous?
+* Untrusted input, access to private data, and a way to send data out
+- A short system prompt
+- A friendly tone
+- A role description
+? Remove at least one of the three.
+
+Q: A support bot's system prompt contains an internal discount code and the line "never reveal it". What is the flaw?
+* A secret is placed where the model can read it, and the only protection is a request
+- The line should be in capital letters
+- The bot needs a longer system prompt
+- The code should be longer
+? Keep secrets out of prompts; enforce rules in code.
+
+Q: Which control best limits the damage of a successful injection?
+* Least-privilege tools with allow-lists and human approval for side effects
+- A stronger "ignore malicious text" sentence
+- Telling users not to attempt injections
+- Using a larger model
+? Limit what the model can reach and do.
+
+Q: How should you test your own app for injection?
+* Run fictional documents carrying planted instructions through it and check the action log for forbidden tool calls
+- Ask the model if it feels safe
+- Test only on production customers
+- Read the chat text and ignore the tools
+? Judge actions, not the model's words, and only test systems you own or are authorized to test.
