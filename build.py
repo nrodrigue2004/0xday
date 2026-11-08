@@ -337,6 +337,10 @@ DETS = json.load(open("content/detections.json"))["rules"]
 BOOKS = json.load(open("content/books.json"))["books"]
 SHEETS = json.load(open("content/cheatsheets.json"))
 build_learn.merge_sheets(SHEETS, GUIDES)
+import build_code
+CODE = build_code.build(page, SHEETS)
+import build_cloud
+CLOUD = build_cloud.build(page, SHEETS)
 
 def empty(what, file, example):
     # public pages show a short placeholder; the entry format lives in README.md
@@ -479,8 +483,10 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("books", "books.html", "bookshelf", n(BOOKS, "book")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
+       ("code", "code.html", "programming path: Python, Bash, PowerShell, SQL, git", f'{len(CODE)} chapters'),
        ("basics", "basics.html", "OSI, ports, OSINT, crypto, OS, web, APIs, databases", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
+       ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
        ("interview", "interview.html", "pitches + questions for each resume project", f'{INTERVIEW["questions"]} questions'),
        ("log", "log.html", "weekly study log + streak", "saved in browser"),
@@ -542,6 +548,8 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "careers": CAREERS["paths"],
         "interview": INTERVIEW["projects"],
         "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
+        "code": [{"slug": c[0], "name": c[1]} for c in CODE],
+        "cloud": [{"slug": c[0], "name": c[1]} for c in CLOUD],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags,", len(GUIDES), "guides,", len(SP["objectives"]), "objectives,", NCARDS, "cards")

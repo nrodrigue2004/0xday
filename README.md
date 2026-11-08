@@ -32,6 +32,10 @@ git add -A && git commit -m "Update site" && git push
 
 The hidden site CTF flags live in `FLAGS` in `build.py` (only their SHA-256 hashes ship to the browser, but the flags themselves are discoverable on purpose).
 
+## ~/code
+
+The programming path. Chapters are `content/code/<slug>.txt` in the same format as the learn guides; order, stage labels and cross-links are in `CHAPTERS` in `build_code.py`. Each chapter's `:: ref` is merged into the cheatsheet named by its `sheet:` header, so commands show up on ~/man too. Lab data is generated, so keep answers and `:: verify` lines in sync when you edit it.
+
 ## ~/comptia
 
 Later/optional certs after Security+. `content/comptia/certs.json` lists them; each built cert has `content/comptia/<slug>.txt` (format in the `build_comptia.py` docstring: per objective `@notes`, `@cards`, `@check`, `@lab`, `@answer`). CySA+ (CS0-004) is built. Network+ and A+ are placeholders until Nate's notes arrive: add `netplus.txt` / `aplus.txt`, set `built: true` and a `domains` map in certs.json.
@@ -43,6 +47,10 @@ Chapters are `content/ai/<slug>.txt` in the same format as the learn guides (tie
 ## ~/drills and ~/glossary
 
 Drills are `content/drills/<slug>.txt` in the learn-guide format (tiers plus one lab, all data fictional); order and blurbs are in `CHAPTERS` in `build_drills.py`. The glossary is `content/glossary.json` (`t`, `d`, `c`, `l`); each link is `g:`/`s:`/`m:`/`d:`/`a:` plus a slug and the build fails if one is missing.
+
+## ~/cloud
+
+Cloud chapters are `content/cloud/<slug>.txt` in the learn-guide format; order and blurbs are in `CHAPTERS` in `build_cloud.py`. A chapter's `:: ref` becomes a man page named by `sheet:` in its header (`cloud`, `aws` or `az`). Labs are simulated (files, or canned `aws`/`az` output with `:: cmd ...$`, anchored so pipes still work); no lab touches a real account.
 
 ## ~/basics
 

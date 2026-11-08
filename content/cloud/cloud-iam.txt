@@ -1,0 +1,106 @@
+tagline: In the cloud, identity is the perimeter. Learn principals, roles and policies in AWS and Azure, then spot the policy that hands over the keys to everything.
+sheet: cloud
+:: simple
+Every action in the cloud is an API call made by an **identity**, and the provider answers one question: is this identity allowed to do this action on this resource? **IAM** (identity and access management) is that system.
+
+The vocabulary:
+- **Principal / identity**: who is asking. A human user, a group, a **role**, or a service/app identity.
+- **Policy**: a document that says allow or deny, which actions, on which resources.
+- **Role**: an identity with permissions but no password. Services and people **assume** it and get short-lived credentials. Roles beat long-lived keys.
+- **Root / global admin**: the account owner. Protect it with MFA, do not use it day to day.
+
+> **Least privilege**: give each identity only the permissions it needs, nothing more. The classic failure is `"Action": "*"` on `"Resource": "*"`, which means everything, everywhere.
+
+Same ideas, different names:
+- AWS: IAM users, groups, roles, policies. Azure: **Microsoft Entra ID** (formerly Azure AD) holds identities; **Azure RBAC** gives them roles on resources.
+:: mid
+### An AWS policy, read line by line
+```
+{"Effect": "Allow",
+ "Action": ["s3:GetObject"],
+ "Resource": "arn:aws:s3:::reports-bucket/*"}
+```
+- **Effect**: Allow or Deny. An explicit Deny always wins. With no Allow, the default is deny.
+- **Action**: service:operation, wildcards allowed (`s3:*`).
+- **Resource**: an **ARN**, the unique name of a thing.
+- **Condition** (optional): only if MFA is present, only from this IP range, only in this region.
+- Types: **identity-based** (attached to a user/group/role) vs **resource-based** (attached to the bucket or key, names the principal). **Trust policy** on a role says who may assume it.
+
+### Azure RBAC in one picture
+A **role assignment** = security principal + role definition + **scope**. Scopes nest: management group, subscription, resource group, resource. Permissions inherit downward, so an Owner at subscription scope owns everything below. Built-in roles to know: **Owner** (everything, including granting access), **Contributor** (everything except granting access), **Reader**, **User Access Administrator**. Entra roles (Global Administrator) are a separate system for the directory itself.
+
+### Everyday hygiene
+- MFA on every human, enforced, and on root/global admin without exception.
+- No long-lived access keys when a role will do; rotate and delete unused keys.
+- Groups for humans, roles for workloads. Review access on a schedule.
+- Never put keys in code, git, tickets or chat. Use a secrets manager (AWS Secrets Manager, Azure Key Vault).
+:: complex
+### How AWS evaluates a request
+1. Start at **implicit deny**.
+2. Any **explicit Deny** in any applicable policy (identity, resource, SCP, permissions boundary, session) ends it: denied.
+3. Otherwise there must be an Allow, and it must not be blocked by a **service control policy** (organization-wide guardrail) or a **permissions boundary** (a cap on what an identity's own policies can grant).
+Cross-account access needs the Allow on both sides.
+
+### Privilege escalation patterns
+Small permissions that become admin: `iam:PassRole` plus the right to create compute, `iam:CreatePolicyVersion`, `iam:AttachUserPolicy`, `sts:AssumeRole` into a stronger role, or write access to a Lambda that runs as an admin role. When you review, ask "can this identity grant itself more?", not just "what can it touch?".
+
+### Workload identity
+Prefer identities that expire: **instance profiles** (EC2), **managed identities** (Azure), **IRSA / workload identity** (Kubernetes), **OIDC federation** from CI systems instead of stored keys. The metadata service hands out temporary credentials, which is why SSRF to `169.254.169.254` is a classic cloud attack (IMDSv2 and token requirements harden this).
+
+### Auditing
+- AWS: IAM Access Analyzer (finds external access), credential report, access advisor (last used), CloudTrail for who did what.
+- Azure: Entra sign-in and audit logs, Privileged Identity Management (**PIM**: just-in-time elevation), Conditional Access (require MFA or compliant device by context), Access Reviews.
+
+### Zero trust, briefly
+Never trust network location alone: verify identity, device and context on every request, and grant the minimum for the shortest time.
+:: ref
+### identity terms: AWS vs Azure
+IAM user / group / role | AWS identities. Roles are assumed and give temporary credentials
+Entra ID (Azure AD) | Azure's directory of users, groups, apps and service principals
+managed identity | Azure identity for a resource, no secret to store (AWS analog: instance profile / role)
+policy (JSON) | AWS permission document: Effect, Action, Resource, Condition
+role assignment | Azure: principal + role + scope
+Owner / Contributor / Reader | Azure built-in roles: all + grant access / all except grant / view only
+SCP | AWS service control policy: organization-wide permission ceiling
+PIM | Azure Privileged Identity Management: just-in-time admin
+Conditional Access | Entra rules: require MFA or healthy device depending on context
+ARN | AWS Amazon Resource Name, the unique ID of a resource
+:: lab
+host: reviewer
+user: reviewer
+cwd: /home/reviewer
+:: brief
+**Scenario (fictional, simulated):** you are reviewing the IAM setup of a small company, **Contoso Mills**. Policies are exported in `~/iam/policies/` and `~/iam/attachments.txt` says who each policy is attached to. Start with `cat ~/iam/README.txt`.
+
+Find the **one policy** that grants every action on every resource with no conditions **and** is attached to a non-human account that anyone could leak the key of. Submit the **policy name**, e.g. `submit ops-admin`.
+:: answer
+ci-deploy
+:: hint
+Search the policy files for the wildcard pair: `grep -l '"Action": "\*"' ~/iam/policies/*`. More than one will match.
+:: hint
+Now read `attachments.txt`. One wildcard policy is on a human admin group with an MFA condition. The other is on a service account.
+:: solution
+Two policies use `"Action": "*"`. `ops-admin` has a `Condition` requiring `aws:MultiFactorAuthPresent` and is attached to the `admins` group of humans, which is broad but defensible. `ci-deploy` also has `Action: *` and `Resource: *` with **no condition**, and is attached to the user `ci-bot`, an automation account whose access key sits in a pipeline. If that key leaks, the whole account is gone. Fix: replace it with a role the pipeline assumes via OIDC, scoped to the few actions a deploy needs (for example `s3:PutObject` on one bucket and `ecs:UpdateService` on one service).
+:: verify
+grep -l '"Action": "\*"' ~/iam/policies/*
+cat ~/iam/attachments.txt
+:: file /home/reviewer/iam/README.txt
+Contoso Mills IAM review (FICTIONAL, simulated). Exports only, nothing here is a real account.
+  policies/       one JSON policy per file
+  attachments.txt  policy -> who it is attached to
+Rule of thumb: Action "*" with Resource "*" and no Condition is full admin.
+:: file /home/reviewer/iam/attachments.txt
+policy            attached_to            type
+dev-team          group:developers       human group
+readonly-audit    group:auditors         human group
+ops-admin         group:admins           human group
+ci-deploy         user:ci-bot            service account (access key in CI)
+:: file /home/reviewer/iam/policies/dev-team.json
+{"Effect": "Allow", "Action": ["s3:*", "ec2:Describe*", "logs:*"], "Resource": "*"}
+:: file /home/reviewer/iam/policies/readonly-audit.json
+{"Effect": "Allow", "Action": ["iam:Get*", "iam:List*", "cloudtrail:LookupEvents"], "Resource": "*"}
+:: file /home/reviewer/iam/policies/ops-admin.json
+{"Effect": "Allow", "Action": "*", "Resource": "*",
+ "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}}}
+:: file /home/reviewer/iam/policies/ci-deploy.json
+{"Effect": "Allow", "Action": "*", "Resource": "*"}

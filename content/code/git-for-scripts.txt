@@ -1,0 +1,199 @@
+tagline: Your scripts are code. Put them in git so you can see who changed what, undo a bad change, and keep secrets out of history. Practice with the cron job that ate the log directory.
+sheet: git-github
+sheet_summary: Git commands and terms
+:: simple
+A script you wrote once and never touched is fine. A script that runs from cron every night, that three people edit, is a liability unless you can answer: **what changed, who changed it, and how do I go back?** That is what git is for.
+
+- A **commit** is a labelled snapshot of the whole folder
+- `git log` is the list of snapshots, newest first
+- `git diff` shows exactly which lines changed
+- `git blame file` shows who last touched each line
+
+```
+$ git log --oneline
+$ git blame rotate-logs.sh
+```
+
+> If a script deletes or sends things, change it on a **branch** and test it before it reaches the machine that runs it. The nightly job is not the test environment.
+
+### What goes in the repo
+- The scripts, a short `README` with how to run them, and sample input
+- **Not** API keys, passwords, tokens, real logs or exports with customer data. Put those names in `.gitignore` before the first commit.
+:: mid
+### The loop for script work
+```
+git switch -c fix-rotation          # branch for the change
+# edit, test with --dry-run
+git add rotate-logs.sh
+git commit -m "Keep 30 days of logs, not 0"
+git switch main && git merge fix-rotation
+```
+
+Commit messages say **why**. "Speed up rotation" tells you nothing at 3 a.m.; "Delete logs older than 30 days only" tells you what the code was meant to do, which is the thing you need when it does not.
+
+### Finding the commit that broke it
+- `git log -p -- rotate-logs.sh` shows every change to one file, with the diff
+- `git log -S"mtime +0" --oneline` finds the commits that added or removed that exact text
+- `git blame -L 12,14 rotate-logs.sh` shows who changed lines 12 to 14, and in which commit
+- `git show <sha>` prints one commit in full
+
+```
+$ git log -S"mtime +0" --oneline
+$ git show 77f3a0e
+```
+
+### Secrets
+Git remembers everything, including the key you deleted in the next commit. Use `.gitignore` for files that hold secrets, read them from environment variables in the script, and if one leaks, **rotate the key**. Rewriting history does not un-leak a key that was ever pushed.
+:: complex
+### Bisect: let git do the search
+When you do not know which commit broke the behavior, `git bisect` binary-searches the history. Mark one good and one bad commit; git checks out the middle, you test, you say good or bad, and it halves the range. Fifty commits take about six steps. That is O(log n) applied to your own history, same as binary search on the [Big-O page](../bigo.html).
+
+```
+git bisect start
+git bisect bad HEAD
+git bisect good 1a05f9b
+# test, then: git bisect good | git bisect bad
+git bisect run ./test.sh        # fully automatic if the test exits 0/1
+git bisect reset
+```
+
+### Guardrails
+- **Pre-commit hook** (`.git/hooks/pre-commit`) runs a secret scanner such as gitleaks before the commit is created, so the key never enters history
+- **Protected branch + review** on the shared repo: a second pair of eyes on anything that deletes or sends
+- **Tags** (`git tag v1.4`) mark what is deployed, so `git diff v1.4 HEAD` is exactly what a release changes
+- **Signed commits** prove who made a change on repositories where that matters
+- **`git revert <sha>`** undoes a commit by adding a new one; safe on shared branches. `reset --hard` rewrites history and loses work, so keep it off anything pushed
+- **Deploy from a tag, not from someone's laptop**: cron should run a checked-out tagged version
+
+The same moves as the [git guide](../learn/git-github.html), pointed at your own automation.
+:: ref
+### scripts in git
+git switch -c name | branch for a risky change
+git log -p -- file | every change to one file
+git log -S"text" --oneline | commits that added or removed text
+git blame -L 12,14 file | who changed lines 12-14
+git show sha | one commit in full
+git diff v1.4 HEAD | what a release changes
+git bisect start | begin a binary search for a bad commit
+git bisect run ./test.sh | automatic bisect with a test script
+git revert sha | undo a commit safely on a shared branch
+git tag v1.4 | mark a deployed version
+git check-ignore -v file | why is this file ignored?
+:: lab
+host: ops
+user: ops
+cwd: /home/ops/scripts
+:: brief
+The nightly log rotation job kept 30 days of logs for a year. Last night `/var/log/app` was **emptied**. The job is `rotate-logs.sh`, and someone changed it recently.
+
+Use the history to find the **commit that introduced the bug**: the one that changed the retention from 30 days to 0.
+
+Submit the **short commit hash**, e.g. `submit 1a05f9b`.
+:: answer
+77f3a0e
+:: hint
+`git log --oneline` lists commits. Four of them touch rotate-logs.sh in the last week; read their messages for which one is about retention.
+:: hint
+`git log -S"mtime +0" --oneline` finds the commit that introduced the text `-mtime +0`.
+:: hint
+Confirm with `git show 77f3a0e`: the diff replaces `-mtime +30` with `-mtime +0`.
+:: solution
+`-mtime +0` means "older than 24 hours", so it deletes almost everything. It came in with `77f3a0e speed up rotation`, a commit whose message says nothing about changing retention. The fix is `git revert 77f3a0e`, and the lesson is a message that says what the change really does, plus a `--dry-run` before cron sees it.
+:: verify
+git log -S"mtime +0" --oneline
+:: cmd ^git status$
+On branch main
+nothing to commit, working tree clean
+:: cmd ^git log --oneline$
+e91c0aa fix typo in usage comment
+4be7d12 add --dry-run flag
+77f3a0e speed up rotation
+c20b9d4 keep audit logs for 90 days
+1a05f9b initial rotate script
+:: cmd ^git log( --oneline)? (-p |--patch )?(--oneline )?-- ?rotate-logs\.sh$
+e91c0aa fix typo in usage comment
+-# usage: rotate-logs.sh <dir>   (removes logs older than 30 dasy)
++# usage: rotate-logs.sh <dir> [--dry-run]
+4be7d12 add --dry-run flag
++DRY=${2:-}
++[ "$DRY" = "--dry-run" ] && ACT="-print" || ACT="-delete"
+77f3a0e speed up rotation
+-find "$1" -name '*.log' -mtime +30 -delete
++find "$1" -name '*.log' -mtime +0 -delete
+c20b9d4 keep audit logs for 90 days
++find "$1/audit" -name '*.log' -mtime +90 -delete
+1a05f9b initial rotate script
++find "$1" -name '*.log' -mtime +30 -delete
+:: cmd ^git log -S.?-?mtime \+0.? --oneline$
+77f3a0e speed up rotation
+:: cmd ^git log -S.?-?mtime \+30.? --oneline$
+77f3a0e speed up rotation
+1a05f9b initial rotate script
+:: cmd ^git show 77f3a0e$
+commit 77f3a0e4c1d2b9a0e6f5a8d7c3b21e0f9a4d6c55
+Author: dev <dev@corp.example>
+Date:   Thu Nov 5 14:20:41 2026 +0000
+
+    speed up rotation
+
+diff --git a/rotate-logs.sh b/rotate-logs.sh
+-find "$1" -name '*.log' -mtime +30 -delete
++find "$1" -name '*.log' -mtime +0 -delete
+:: cmd ^git show 4be7d12$
+commit 4be7d12a90c33b6e8f1d2c4a5b7e9d0f1a2b3c4d
+Author: dev <dev@corp.example>
+Date:   Fri Nov 6 09:12:03 2026 +0000
+
+    add --dry-run flag
+
+diff --git a/rotate-logs.sh b/rotate-logs.sh
++DRY=${2:-}
++[ "$DRY" = "--dry-run" ] && ACT="-print" || ACT="-delete"
+:: cmd ^git show e91c0aa$
+commit e91c0aa7d3f4b5c6a7e8f9a0b1c2d3e4f5a6b7c8
+Author: dev <dev@corp.example>
+Date:   Fri Nov 6 11:40:00 2026 +0000
+
+    fix typo in usage comment
+
+diff --git a/rotate-logs.sh b/rotate-logs.sh
+-# usage: rotate-logs.sh <dir>   (removes logs older than 30 dasy)
++# usage: rotate-logs.sh <dir> [--dry-run]
+:: cmd ^git show c20b9d4$
+commit c20b9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c
+Author: sam <sam@corp.example>
+Date:   Tue Nov 3 10:05:30 2026 +0000
+
+    keep audit logs for 90 days
+
+diff --git a/rotate-logs.sh b/rotate-logs.sh
++find "$1/audit" -name '*.log' -mtime +90 -delete
+:: cmd ^git blame (-L ?\d+,\d+ )?rotate-logs\.sh$
+1a05f9b (ops  2026-10-12) #!/usr/bin/env bash
+e91c0aa (dev  2026-11-06) # usage: rotate-logs.sh <dir> [--dry-run]
+4be7d12 (dev  2026-11-06) DRY=${2:-}
+4be7d12 (dev  2026-11-06) [ "$DRY" = "--dry-run" ] && ACT="-print" || ACT="-delete"
+77f3a0e (dev  2026-11-05) find "$1" -name '*.log' -mtime +0 -delete
+c20b9d4 (sam  2026-11-03) find "$1/audit" -name '*.log' -mtime +90 -delete
+:: cmd ^git diff c20b9d4 HEAD$
+diff --git a/rotate-logs.sh b/rotate-logs.sh
+-find "$1" -name '*.log' -mtime +30 -delete
++find "$1" -name '*.log' -mtime +0 -delete
++DRY=${2:-}
+:: cmd ^cat rotate-logs\.sh$
+#!/usr/bin/env bash
+# usage: rotate-logs.sh <dir> [--dry-run]
+DRY=${2:-}
+[ "$DRY" = "--dry-run" ] && ACT="-print" || ACT="-delete"
+find "$1" -name '*.log' -mtime +0 -delete
+find "$1/audit" -name '*.log' -mtime +90 -delete
+:: file /home/ops/scripts/rotate-logs.sh
+#!/usr/bin/env bash
+# usage: rotate-logs.sh <dir> [--dry-run]
+DRY=${2:-}
+[ "$DRY" = "--dry-run" ] && ACT="-print" || ACT="-delete"
+find "$1" -name '*.log' -mtime +0 -delete
+find "$1/audit" -name '*.log' -mtime +90 -delete
+:: file /home/ops/scripts/README.txt
+Cron entry: 0 2 * * * /home/ops/scripts/rotate-logs.sh /var/log/app
+Retention policy: 30 days general, 90 days audit.
