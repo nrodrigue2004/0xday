@@ -10,7 +10,7 @@ import build_learn as L
 
 esc = html.escape
 SECTIONS = [
-    {"dir": "web", "title": "web security", "course": None, "sheet": ("web-sec", "Web security: OWASP Top 10, Burp, HTTP and JWT quick reference"),
+    {"dir": "web", "title": "web security", "course": "WEB300", "sheet": ("web-sec", "Web security: OWASP Top 10, Burp, HTTP and JWT quick reference"),
      "intro": "The web half of the job: what the OWASP Top 10 means in practice, how to drive Burp Suite, how login and sessions break, and how APIs fail. Each chapter goes <strong>simple, mid, complex</strong> and ends in a hands-on lab against a made-up app.",
      "ext": '<a href="https://portswigger.net/web-security" rel="noopener" target="_blank">PortSwigger Web Security Academy</a> is the free practice ground this section points at; it is the best hands-on material there is, so we summarize and link rather than copy it',
      "chapters": [
@@ -21,7 +21,7 @@ SECTIONS = [
          ("access-control-and-ssrf", "access control, CSRF and SSRF", "IDOR, privilege escalation, CSRF tokens and server-side request forgery. Lab: find the broken authorization in an access log"),
          ("api-security", "API security", "The OWASP API Top 10, mass assignment, rate limits and GraphQL pitfalls. Lab: triage an API gateway ticket"),
      ]},
-    {"dir": "pentest", "title": "penetration testing", "course": None, "sheet": ("pentest", "Pentest quick reference: methodology, enumeration, privesc, AD, tunnels"),
+    {"dir": "pentest", "title": "penetration testing", "course": "PEN300", "sheet": ("pentest", "Pentest quick reference: methodology, enumeration, privesc, AD, tunnels"),
      "intro": "How a professional test runs: scope and rules first, then enumeration, privilege escalation on Linux and Windows, Active Directory attack paths, pivoting and the report. Concepts and defenses come first, and every lab uses a fictional network.",
      "ext": 'Practice legally on your own lab, <a href="https://tryhackme.com" rel="noopener" target="_blank">TryHackMe</a>, <a href="https://overthewire.org/wargames/" rel="noopener" target="_blank">OverTheWire</a> or <a href="https://www.hackthebox.com" rel="noopener" target="_blank">Hack The Box</a>. Never test anything you do not own or have written permission for',
      "chapters": [

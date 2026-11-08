@@ -2017,6 +2017,167 @@
               ]
             }
           ]
+        },
+        {
+          "code": "WEB300",
+          "name": "Web application security",
+          "pre": [
+            "SEC100",
+            "NET200"
+          ],
+          "blurb": "Defensive-minded web testing: the OWASP Top 10, Burp workflow, injection, XSS, authentication, access control, CSRF, SSRF and APIs. Every lab uses a made-up app.",
+          "modules": [
+            {
+              "t": "OWASP Top 10",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/web: OWASP Top 10",
+                  "h": "web/owasp-top-10.html"
+                },
+                {
+                  "t": "OWASP Top 10",
+                  "h": "https://owasp.org/www-project-top-ten/"
+                }
+              ]
+            },
+            {
+              "t": "Burp Suite workflow",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/web: Burp workflow",
+                  "h": "web/burp-workflow.html"
+                },
+                {
+                  "t": "PortSwigger Web Security Academy",
+                  "h": "https://portswigger.net/web-security"
+                }
+              ]
+            },
+            {
+              "t": "Injection and XSS",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/web: injection and XSS",
+                  "h": "web/injection-and-xss.html"
+                }
+              ]
+            },
+            {
+              "t": "Authentication and sessions",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/web: authentication and sessions",
+                  "h": "web/auth-and-sessions.html"
+                }
+              ]
+            },
+            {
+              "t": "Access control, CSRF and SSRF",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/web: access control, CSRF and SSRF",
+                  "h": "web/access-control-and-ssrf.html"
+                }
+              ]
+            },
+            {
+              "t": "API security",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/web: API security",
+                  "h": "web/api-security.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "PEN300",
+          "name": "Penetration testing",
+          "pre": [
+            "SEC100",
+            "NET200",
+            "SYS300"
+          ],
+          "blurb": "How a professional test runs: scope and rules of engagement, enumeration, Linux and Windows privilege escalation, Active Directory attack paths and detections, pivoting and reporting. Fictional networks only.",
+          "modules": [
+            {
+              "t": "Methodology and rules of engagement",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/pentest: methodology",
+                  "h": "pentest/pentest-methodology.html"
+                }
+              ]
+            },
+            {
+              "t": "Enumeration",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/pentest: enumeration",
+                  "h": "pentest/enumeration.html"
+                }
+              ]
+            },
+            {
+              "t": "Linux privilege escalation",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/pentest: Linux privesc",
+                  "h": "pentest/linux-privesc.html"
+                }
+              ]
+            },
+            {
+              "t": "Windows privilege escalation",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/pentest: Windows privesc",
+                  "h": "pentest/windows-privesc.html"
+                }
+              ]
+            },
+            {
+              "t": "Active Directory attacks and detections",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/pentest: AD attacks",
+                  "h": "pentest/ad-attacks.html"
+                }
+              ]
+            },
+            {
+              "t": "Pivoting and tunnels",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/pentest: pivoting",
+                  "h": "pentest/pivoting.html"
+                }
+              ]
+            },
+            {
+              "t": "Report writing",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/pentest: report writing",
+                  "h": "pentest/pentest-reporting.html"
+                }
+              ]
+            }
+          ]
         }
       ]
     }
