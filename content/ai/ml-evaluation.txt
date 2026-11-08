@@ -1,0 +1,87 @@
+tagline: Judging a model honestly: the confusion matrix, precision and recall, thresholds, ROC curves, the base-rate trap and data leakage.
+:: simple
+You trained a classifier. Is it good? "It's 99 percent accurate" is almost never the right answer to give.
+
+Count every prediction in one of four boxes (the **confusion matrix**), taking "malicious" as the thing we look for:
+- **True positive (TP)**: said malicious, was malicious. Caught.
+- **False positive (FP)**: said malicious, was fine. A false alarm.
+- **False negative (FN)**: said fine, was malicious. A miss.
+- **True negative (TN)**: said fine, was fine.
+
+Two numbers matter most:
+- **Precision** = TP / (TP + FP): when the model raises an alarm, how often is it right?
+- **Recall** = TP / (TP + FN): of all the real attacks, what share did it catch?
+
+**Accuracy** = (TP + TN) / everything. When attacks are rare it hides the truth: a model that never alerts is 99.9 percent accurate and catches nothing.
+> Ask two questions of every detector. How many real attacks does it miss? How many alerts does an analyst have to waste time on?
+:: mid
+### F1 and the threshold trade-off
+**F1** = 2 * precision * recall / (precision + recall), a single score that is low if either is low. A model gives scores, and you choose the **threshold**: lower it and you catch more attacks (recall up) but raise more false alarms (precision down). Raise it and the reverse. There is no free setting; pick it from the cost of a miss versus the cost of an alert. In a SOC, alert fatigue is a real cost, because ignored alerts are how breaches slip through.
+
+### ROC and AUC
+Sweep the threshold from 0 to 1 and plot **true positive rate** (recall) against **false positive rate** (FP / (FP + TN)). That is the **ROC curve**. The area under it (**AUC**) is the chance that a random malicious example scores higher than a random benign one: 0.5 is a coin flip, 1.0 is perfect. For very rare positives, a **precision-recall curve** is more informative than ROC because ROC's false positive rate looks tiny when negatives are huge.
+
+### The base-rate trap
+Suppose 1 in 1,000 events is malicious, and your model has 99 percent recall and a 1 percent false positive rate. Out of 100,000 events: 100 attacks (99 caught), 99,900 benign (999 false alarms). Of 1,098 alerts only 99 are real, so **precision is about 9 percent**. Great-sounding rates can still bury analysts. Always compute precision at the real-world base rate.
+
+### Splitting right
+- Hold out a **test set** you do not touch while tuning.
+- **Cross-validation** (k folds) gives a steadier estimate on small data.
+- For logs or incidents, split **by time**. For users or hosts, keep all of one entity in the same split.
+- Duplicates between train and test (the same malware family, near-identical phishing emails) inflate scores. Group by family or campaign.
+:: complex
+### Data leakage checklist
+Leakage is when information from the answer slips into the features or from the test set into training. Typical causes: a feature computed after the event (a "blocked" flag), scaling or imputing on the whole dataset before splitting, tuning on the test set repeatedly, the same sample in both splits, and labels derived from the same rule the model then re-learns. If a result looks too good, assume leakage first.
+
+### Offline metrics are not production metrics
+- **Drift**: input data shifts (new software, new attacker tools, a company reorg) and the score drops without any code change. Monitor feature distributions and the alert-to-confirmed ratio, and set retraining triggers.
+- **Label delay and bias**: you only learn the truth for alerts someone investigated, so the labels you collect are biased toward what the old system flagged.
+- **Feedback loops**: if analysts only review what the model flagged, the model never sees its misses.
+- **Adversarial pressure**: your test set does not include an attacker who is trying to beat you. Keep a red-team set and re-score on it.
+
+### Regression metrics
+For numeric predictions: **MAE** (mean absolute error, in the units of the target, robust to outliers), **RMSE** (punishes big errors), **R squared** (the share of variance explained, can be misleading out of sample). Always compare to a dumb baseline such as predicting the mean, yesterday's value, or "benign".
+
+### Reporting like a professional
+State the data window, the split method, the base rate, the metrics at the chosen threshold with confidence intervals if you can (bootstrapping works), and the baseline you beat. Include failure cases you looked at by hand. A model card (what it is for, what data, known limits) is the short document that lets someone else trust or reject your work.
+:: lab
+style: shell
+host: soc-ml
+user: analyst
+cwd: /home/analyst
+:: brief
+A teammate trained a phishing-email classifier and says it is "good enough: 85 percent accurate". You are given its predictions on a labeled test set in `~/model/predictions.csv` (columns: `actual`, `predicted`).
+
+Work out the model's **recall** on the `phish` class, as a whole-number percent (for example `60`). That is the share of real phishing emails it actually caught.
+:: answer
+75
+:: hint
+Recall = TP / (TP + FN). Count the rows where `actual` is `phish`: `grep -c "^phish," ~/model/predictions.csv`.
+:: hint
+TP is the rows `phish,phish`; FN is `phish,ok`. Use `grep -c "^phish,phish" ~/model/predictions.csv`, then divide.
+:: solution
+There are 8 real phish emails; the model caught 6 (`phish,phish`) and missed 2 (`phish,ok`), so recall is 6/8 = **75 percent**. Precision is 6/7 = 86 percent (1 benign email was flagged), and accuracy is 17/20 = 85 percent, which is the teammate's headline number. On a rare-class problem a good-looking accuracy number can hide a poor recall, which is why you always read the confusion matrix first.
+:: verify
+grep -c "^phish,phish" ~/model/predictions.csv
+:: file /home/analyst/model/predictions.csv
+actual,predicted
+phish,phish
+phish,phish
+phish,ok
+ok,ok
+ok,ok
+ok,phish
+phish,phish
+ok,ok
+ok,ok
+phish,phish
+ok,ok
+ok,ok
+phish,ok
+ok,ok
+ok,ok
+phish,phish
+ok,ok
+ok,ok
+phish,phish
+ok,ok

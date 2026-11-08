@@ -1,0 +1,161 @@
+tagline: Know how the six classic sorts work, what each costs, which are stable, and why nothing that compares can beat n log n. Then count comparisons in real code.
+:: simple
+**Sorting** puts items in order so you can search them fast (binary search), merge them, spot duplicates and group them. You almost always call the built-in `sorted()` or `Arrays.sort()`. You learn the algorithms because interviews ask about them and because the *ideas* (divide and conquer, invariants, trade-offs) show up everywhere.
+
+The three simple sorts, all O(n²) in the worst case:
+- **Selection sort**: find the smallest item, put it first, repeat on the rest. Always about n²/2 comparisons, even on sorted input.
+- **Insertion sort**: grow a sorted prefix. Take the next item and slide it left until it fits, like sorting playing cards in your hand. Fast on nearly-sorted data (O(n)).
+- **Bubble sort**: swap neighbors that are out of order, repeatedly. Easy to teach, rarely worth using.
+
+The three fast sorts, O(n log n):
+- **Merge sort**: split in half, sort each half, merge the two sorted halves. Predictable and stable, needs O(n) extra space.
+- **Quicksort**: pick a **pivot**, put smaller items left and larger right, recurse on both sides. Fastest in practice on arrays, but a bad pivot choice gives O(n²).
+- **Heapsort**: build a max-heap, then repeatedly remove the largest. In place, no bad case, not stable.
+
+Try them in the [algorithm visualizer](../cs/viz.html): the bars show every compare and swap, and the counter shows why O(n²) hurts.
+
+```
+$ python3 -c "print(sorted([5,2,9,1], reverse=True))"
+```
+:: mid
+### Insertion sort and the invariant
+```
+def insertion_sort(a):
+    for i in range(1, len(a)):
+        key = a[i]
+        j = i - 1
+        while j >= 0 and a[j] > key:   # shift bigger items right
+            a[j + 1] = a[j]
+            j -= 1
+        a[j + 1] = key
+```
+**Loop invariant**: before each pass, `a[0:i]` is sorted. Each pass keeps it true while extending it by one. When `i` reaches `n`, the whole array is sorted. Naming the invariant is how you prove a loop correct.
+
+### Merge sort
+```
+def merge_sort(a):
+    if len(a) <= 1: return a
+    mid = len(a) // 2
+    left, right = merge_sort(a[:mid]), merge_sort(a[mid:])
+    out, i, j = [], 0, 0
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:        # <= keeps equal items in order: stable
+            out.append(left[i]); i += 1
+        else:
+            out.append(right[j]); j += 1
+    return out + left[i:] + right[j:]
+```
+There are log₂ n levels of splitting, and each level merges n items in total, so the work is **n log n** in every case. Cost: O(n) extra memory.
+
+### Quicksort
+```
+def quicksort(a, lo=0, hi=None):
+    if hi is None: hi = len(a) - 1
+    if lo >= hi: return
+    pivot = a[(lo + hi) // 2]
+    i, j = lo, hi
+    while i <= j:
+        while a[i] < pivot: i += 1
+        while a[j] > pivot: j -= 1
+        if i <= j:
+            a[i], a[j] = a[j], a[i]; i += 1; j -= 1
+    quicksort(a, lo, j); quicksort(a, i, hi)
+```
+Average O(n log n). The worst case (always picking the smallest or largest as pivot, like "first element" on already-sorted data) is O(n²) and recursion depth n. Fixes: random pivot, median-of-three, and recursing on the smaller side first so the stack stays O(log n). **Introsort** (used by C++ `std::sort`) switches to heapsort when recursion gets too deep.
+
+### Heaps and heapsort
+A **binary heap** is an array where the children of index `i` are at `2i+1` and `2i+2` and every parent is at least as big as its children (max-heap). Building the heap takes O(n); each of the n removals costs O(log n). In place, O(1) extra space, O(n log n) always, but poor cache behavior and not stable.
+
+### Stable vs unstable
+A sort is **stable** if equal keys keep their original order. It matters when you sort by two keys: sort by date, then (stable) by name, and the dates stay ordered within each name. Stable: insertion, merge, bubble, Timsort, counting. Not stable: selection, quicksort, heapsort.
+
+### Comparison table
+| Sort | Best | Average | Worst | Space | Stable |
+|---|---|---|---|---|---|
+| Selection | n² | n² | n² | 1 | no |
+| Insertion | n | n² | n² | 1 | yes |
+| Merge | n log n | n log n | n log n | n | yes |
+| Quick | n log n | n log n | n² | log n | no |
+| Heap | n log n | n log n | n log n | 1 | no |
+| Counting | n + k | n + k | n + k | n + k | yes |
+:: complex
+### Why n log n is the floor
+A comparison sort decides the order using only "is a < b?" questions. There are n! possible orderings, and each yes/no answer at best halves the possibilities, so you need at least log₂(n!) questions. By Stirling's approximation, log₂(n!) is about n log₂ n. **No comparison sort can beat Ω(n log n)** in the worst case.
+
+### Beating it by not comparing
+- **Counting sort**: for integer keys in 0..k, count how many of each, then write them out. O(n + k).
+- **Radix sort**: sort by the last digit, then the next, using a stable counting sort at each digit. O(d·(n + k)) for d digits. It sorts fixed-width IP addresses, timestamps and strings fast.
+- **Bucket sort**: spread items into buckets by value range, sort each bucket. Great when values are uniform.
+These only work when keys have a known, bounded form.
+
+### What real libraries do
+- **Timsort** (Python, Java objects): finds natural runs in the data, extends short runs with insertion sort, then merges with rules that keep it stable. O(n) on already-sorted input, O(n log n) worst case.
+- **Introsort** (C++ `std::sort`): quicksort that falls back to heapsort at depth 2·log n and to insertion sort for tiny ranges.
+- **External sort**: when data does not fit in RAM, sort chunks, write them out, then k-way merge. This is how databases and `sort(1)` handle huge files.
+- Sorting is also a security topic: an attacker who controls input can trigger quicksort's O(n²) case if the pivot is predictable (algorithmic complexity DoS).
+
+### Quickselect
+To find the k-th smallest item you do not need a full sort. Partition like quicksort, then recurse only into the side that contains position k. Average O(n), worst O(n²). The median-of-medians variant guarantees O(n).
+
+### Interview checks
+- Which sorts are stable, and why does it matter?
+- Why is quicksort faster than merge sort in practice despite the same average? (In place, cache friendly, small constants.)
+- Sort a list of 1 million 16-bit integers fast. (Counting sort, k = 65,536.)
+- What is the best sort for a nearly-sorted list? (Insertion sort or Timsort.)
+:: lab
+host: dsa
+user: student
+cwd: /home/student/sorting
+py: yes
+:: brief
+`counter.py` has insertion sort and merge sort that each count their **comparisons** on the same input `data.txt` (200 numbers in reverse order, the worst case for insertion sort). Run it, then finish the `merge_sort` counting where marked. Submit **the number of comparisons merge sort makes**, e.g. `submit 1234`.
+
+Then look at the insertion sort number next to it: that gap is what O(n²) versus O(n log n) means at n = 200.
+:: answer
+812
+:: hint
+Inside the merge loop, every time you test `left[i] <= right[j]` add 1 to the counter. Use `global COUNT`.
+:: hint
+Call `merge_sort` on the list from `data.txt` and print `COUNT`. The tests only happen while both halves still have items left.
+:: solution
+Merge sort counts one comparison each time it tests `left[i] <= right[j]`, which only happens while both halves still have items. On a reverse-ordered list of 200 the answer is **812**, roughly half of n·log₂n ≈ 1,529, because on reversed input every merge runs out of one half early. Insertion sort on the same input needs 19,900 comparisons (n(n-1)/2), about 24 times as many. Same data, and the gap grows with n.
+:: verify
+python3 counter.py
+:: file /home/student/sorting/counter.py
+COUNT = 0
+
+def insertion_sort(a):
+    a = list(a); c = 0
+    for i in range(1, len(a)):
+        key, j = a[i], i - 1
+        while j >= 0:
+            c += 1
+            if a[j] > key:
+                a[j + 1] = a[j]; j -= 1
+            else:
+                break
+        a[j + 1] = key
+    return a, c
+
+def merge_sort(a):
+    global COUNT
+    if len(a) <= 1:
+        return a
+    mid = len(a) // 2
+    left, right = merge_sort(a[:mid]), merge_sort(a[mid:])
+    out, i, j = [], 0, 0
+    while i < len(left) and j < len(right):
+        # TODO: count this comparison
+        if left[i] <= right[j]:
+            out.append(left[i]); i += 1
+        else:
+            out.append(right[j]); j += 1
+    return out + left[i:] + right[j:]
+
+nums = [int(x) for x in open("/home/student/sorting/data.txt").read().split()]
+_, ic = insertion_sort(nums)
+print("insertion sort comparisons:", ic)
+sorted_nums = merge_sort(nums)
+print("merge sort comparisons:", COUNT)
+:: file /home/student/sorting/data.txt
+200 199 198 197 196 195 194 193 192 191 190 189 188 187 186 185 184 183 182 181 180 179 178 177 176 175 174 173 172 171 170 169 168 167 166 165 164 163 162 161 160 159 158 157 156 155 154 153 152 151 150 149 148 147 146 145 144 143 142 141 140 139 138 137 136 135 134 133 132 131 130 129 128 127 126 125 124 123 122 121 120 119 118 117 116 115 114 113 112 111 110 109 108 107 106 105 104 103 102 101 100 99 98 97 96 95 94 93 92 91 90 89 88 87 86 85 84 83 82 81 80 79 78 77 76 75 74 73 72 71 70 69 68 67 66 65 64 63 62 61 60 59 58 57 56 55 54 53 52 51 50 49 48 47 46 45 44 43 42 41 40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1

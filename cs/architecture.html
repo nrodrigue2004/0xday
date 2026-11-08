@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>architecture and the secure SDLC :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, architecture and the secure SDLC: Layers, monolith vs microservices, scaling, reliability, threat modeling with STRIDE.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter architecture</p>
+<h1>~/cs/architecture</h1>
+<p>How real systems are structured (layers, monolith vs microservices, APIs, queues, caches), and how to build security into every phase of the software life cycle.</p>
+<p class="muted small">CS240: software engineering · <a href="../courses/CS240.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="cs-architecture">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Software architecture</strong> is the big-picture structure: the major parts, what each is responsible for, and how they talk. Decisions here are the expensive ones to change later.</p>
+<p>The most common starting point is <strong>layers</strong>: a presentation layer (UI or API), a business logic layer (the rules), and a data layer (database). Each layer talks only to the one below it, which keeps responsibilities separate and testable.</p>
+<p>Two overall shapes:</p>
+<ul><li><strong>Monolith</strong>: the whole application is one deployable program. Simple to build, test and run; one deploy; function calls between parts. It is the right default for small teams.</li><li><strong>Microservices</strong>: many small independently deployable services, each owning its data and talking over the network (HTTP/REST, gRPC, message queues). Teams can ship independently and scale parts separately, but you pay with distributed-systems problems: network failures, versioned APIs, tracing across services and operational overhead.</li></ul>
+<p>Start with a <strong>well-structured monolith</strong> and split a service out only when there is a clear reason.</p>
+<p>Building blocks you will meet: a <strong>load balancer</strong> spreading traffic over servers, a <strong>cache</strong> (Redis) for fast repeated reads, a <strong>database</strong> (relational or NoSQL), a <strong>message queue</strong> (RabbitMQ, SQS, Kafka) for work done later, a <strong>CDN</strong> for static files, and <strong>monitoring</strong> to see all of it.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Quality attributes drive design</h4>
+<p>Ask which of these matter most: <strong>performance</strong>, <strong>scalability</strong>, <strong>availability</strong>, <strong>security</strong>, <strong>maintainability</strong>, <strong>cost</strong>. They conflict: caching speeds reads but risks stale data; more replicas add availability but make consistency harder.</p>
+<h4>APIs and contracts</h4>
+<p>Services meet at an interface. Design it for the callers: stable resource names, versioning (<code>/v1/</code>), consistent errors and status codes, pagination, idempotency keys for payments, rate limits, and authentication on every call. Document with <strong>OpenAPI</strong> and test the contract. See <a href="../learn/rest-apis-and-spring-boot.html">REST and Spring Boot</a> and <a href="../basics/apis-rest-json.html">APIs and JSON</a>.</p>
+<h4>Scaling</h4>
+<ul><li><strong>Vertical</strong>: a bigger machine. Easy, hits a ceiling.</li><li><strong>Horizontal</strong>: more machines behind a load balancer. Needs <strong>stateless</strong> servers (no session kept in memory; store it in the database or a shared cache) so any server can handle any request.</li><li>Databases scale with <strong>read replicas</strong>, <strong>caching</strong>, <strong>sharding</strong> (split rows across servers) and <strong>indexes</strong>.</li><li><strong>Queues</strong> smooth spikes: the web request enqueues a job and returns; workers process at their own pace.</li></ul>
+<h4>Reliability patterns</h4>
+<p><strong>Timeouts</strong> on every network call, <strong>retries with exponential backoff and jitter</strong> (only for idempotent operations), <strong>circuit breakers</strong> (stop calling a failing dependency), <strong>bulkheads</strong> (isolate resources), <strong>graceful degradation</strong>, health checks, and redundancy across zones. Assume everything fails; design for it.</p>
+<h4>Consistency in one paragraph</h4>
+<p>A single relational database gives you ACID transactions. Across services you usually get <strong>eventual consistency</strong>: updates propagate with a delay. The <strong>CAP theorem</strong> says that during a network partition a distributed store must choose between consistency and availability. Patterns: <strong>sagas</strong> (a sequence of local transactions with compensating undo steps), the <strong>outbox pattern</strong>, and idempotent consumers.</p>
+<h4>Secure SDLC</h4>
+<p>Security belongs in every phase, not just at the end:</p>
+<ol><li><strong>Requirements</strong>: security and privacy requirements, compliance (PCI, HIPAA, GDPR).</li><li><strong>Design</strong>: <strong>threat modeling</strong> (STRIDE: spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege), secure design principles.</li><li><strong>Implementation</strong>: secure coding standards, code review, SAST, secret management.</li><li><strong>Testing</strong>: unit tests for abuse cases, fuzzing, DAST, dependency scanning, penetration test.</li><li><strong>Deployment</strong>: hardened configs, least-privilege identities, logging and alerting turned on.</li><li><strong>Maintenance</strong>: patch management, vulnerability disclosure policy, incident response, end-of-life plans.</li></ol>
+<p>Frameworks: <strong>OWASP SAMM</strong>, <strong>BSIMM</strong>, <strong>NIST SSDF (SP 800-218)</strong>, Microsoft SDL.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Secure design principles</h4>
+<p>Know these cold (also Security+ material): <strong>least privilege</strong>, <strong>defense in depth</strong>, <strong>fail securely</strong> (deny by default, do not leak details in errors), <strong>separation of duties</strong>, <strong>complete mediation</strong> (check authorization on every access), <strong>economy of mechanism</strong> (keep it simple), <strong>open design</strong> (security does not depend on secrecy of the design), <strong>psychological acceptability</strong> (secure paths must be usable), and <strong>secure defaults</strong>.</p>
+<h4>Threat modeling a feature</h4>
+<p>Draw a <strong>data flow diagram</strong>: external entities, processes, data stores, data flows, and <strong>trust boundaries</strong> (where privilege or ownership changes). For each element and each boundary crossing, walk through STRIDE and list threats, then rate (DREAD or a simple likelihood × impact), choose mitigations (validation, authentication, encryption, rate limiting, logging) and write tests for them. Example: login form → API → user database. Spoofing: credential stuffing → rate limiting, MFA. Tampering: modified JWT → verify signature, pin algorithm. Information disclosure: verbose errors → generic message plus server log. Do this in design review, when changes are cheap.</p>
+<h4>Common architectural security flaws</h4>
+<p>Missing authorization on internal endpoints ("it is only called from the front end"), trusting the client, one shared database credential with full rights, secrets in config files in the repository, flat networks where one compromised service reaches everything, no audit logging, unauthenticated admin panels, sensitive data stored forever. <strong>Zero trust</strong> answers with: authenticate and authorize every request, between services too, using short-lived identity (mutual TLS, workload identity).</p>
+<h4>Observability</h4>
+<p>Three signals: <strong>logs</strong> (events), <strong>metrics</strong> (numbers over time) and <strong>traces</strong> (one request's path through many services). Add correlation IDs and structured JSON logs. Define <strong>SLIs/SLOs</strong> (service level indicators and objectives, such as 99.9% of requests under 300 ms) and alert on symptoms users feel. Security needs the same data: audit logs feed the SIEM and incident response.</p>
+<h4>Documenting architecture</h4>
+<p>The <strong>C4 model</strong> gives four zoom levels: system context, containers, components, code. Pair diagrams with ADRs (<a href="agile.html">agile chapter</a>) so people know both the structure and why. Keep them in the repository.</p>
+<h4>Evolving a system</h4>
+<p>Refactor toward a design instead of rewriting: the <strong>strangler fig</strong> pattern routes traffic to new components one slice at a time while the old system shrinks. Modularize the monolith (clear module boundaries, no cross-module database reads) so a later split is possible. Rewrites usually take longer than planned and lose hard-won behavior.</p>
+<h4>Interview checks</h4>
+<ul><li>Monolith or microservices for a three-person team? Defend your answer.</li><li>Design a URL shortener or a login system: requirements, data model, API, scaling, failure modes, security.</li><li>What is idempotency and why do payment APIs require it?</li><li>Walk through STRIDE for a file-upload feature.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="agile.html">&lt; requirements, agile and teamwork</a><span></span></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>classifiers :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, classifiers: Logistic regression, trees, forests, naive Bayes and a small neural net.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ml-classifiers</p>
+<h1>~/ai/ml-classifiers</h1>
+<p>Predicting a category: logistic regression, nearest neighbors, decision trees and forests, naive Bayes, and a small neural network.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ml-classifiers">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>classifier</strong> predicts a category instead of a number: spam or not, malicious or benign, which of five attack families. The model usually outputs a <strong>probability</strong> and you pick a <strong>threshold</strong> (say 0.5) to turn it into a decision.</p>
+<p>The simplest classifier is <strong>logistic regression</strong>. It does what linear regression does (a weighted sum of the features) and then squeezes the score through the <strong>sigmoid</strong> curve into a value between 0 and 1. In feature space, that is a straight dividing line (a flat plane in more dimensions): one side is class A, the other is class B.</p>
+<p>Other families, in plain words:</p>
+<ul><li><strong>k-nearest neighbors</strong>: to classify a new point, find the k most similar training points and let them vote.</li><li><strong>Decision tree</strong>: a flowchart of yes/no questions learned from data ("failed logins &gt; 10? new country? ..."). Easy to read.</li><li><strong>Random forest</strong>: many different trees voting together. Much more accurate and stable than one tree.</li><li><strong>Naive Bayes</strong>: counts how often each word shows up in spam versus normal mail and multiplies the evidence. This is the classic spam filter.</li><li><strong>Neural network</strong>: layers of weighted sums with bends between them, able to learn curved boundaries.</li></ul>
+<p>Try them on the <a href="ml-lab.html">ML playground</a>: a straight-line model cannot separate two rings of points, a small network can.</p>
+<p class="callout">Pick the simplest model that works. A readable tree or a logistic regression you can explain beats a mysterious one that scores 0.5 percent higher.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Logistic regression</h4>
+<p><code>p = sigmoid(w . x + b)</code> with <code>sigmoid(z) = 1 / (1 + e^-z)</code>. It is trained by gradient descent on <strong>cross-entropy loss</strong>, which punishes confident wrong answers heavily. The weights are interpretable: a positive weight on "failed_logins" means more failures raise the odds of the malicious class. It is a fine, fast baseline, and often the right answer.</p>
+<h4>Trees and forests</h4>
+<p>A tree picks, at each step, the question that best separates the classes (measured by Gini impurity or entropy) and recurses. Left alone it grows until it memorizes the data, so limit depth or leaf size. A <strong>random forest</strong> trains many trees on random subsets of rows and features and averages them, which cuts variance. <strong>Gradient boosting</strong> (XGBoost, LightGBM) builds trees one after another, each fixing the previous errors, and is often the top performer on tabular security data. Neither needs feature scaling.</p>
+<h4>k-NN and naive Bayes</h4>
+<p>k-NN needs no training but stores everything and is slow at prediction time; it also requires scaled features. Naive Bayes assumes features are independent given the class (naive, but it works for text) and is quick, tiny and handles little data well.</p>
+<h4>A small neural network</h4>
+<p>One hidden layer: <code>h = tanh(W1 x + b1)</code>, then <code>p = sigmoid(W2 h + b2)</code>. Training uses <strong>backpropagation</strong> to get the gradient for every weight, then gradient descent. More hidden units means a more flexible boundary and more risk of overfitting. For images, audio and text, specialized networks (convolutional, transformer) learn their own features from raw input; for rows of tabular logs, trees often win.</p>
+<h4>Feature engineering for security data</h4>
+<p>Models need numbers. Typical features: URL length, count of digits and special characters, <strong>entropy</strong> of a domain name (random-looking domains from malware have high entropy), hour of day, bytes in versus out, ratio of failed to total logins, days since the account was created. Text becomes numbers with bag-of-words, TF-IDF or embeddings. Good features matter more than the choice of algorithm.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Choosing a model</h4>
+<ul><li>Small tabular data and a need to explain decisions: logistic regression or a shallow tree.</li><li>Larger tabular data, accuracy first: gradient-boosted trees.</li><li>Text, images, raw bytes, sequences: neural networks, or reuse a pretrained model and fine-tune it.</li><li>No labels at all: see unsupervised below.</li></ul>
+<h4>Unsupervised learning</h4>
+<p>Without labels you can still find structure. <strong>k-means</strong> groups points around k centers; <strong>isolation forest</strong> isolates points that are easy to split off, so outliers score high; <strong>autoencoders</strong> learn to reconstruct normal data and flag what they reconstruct badly; <strong>PCA</strong> shrinks dimensions. These power anomaly detection. The catch: "unusual" is not the same as "malicious", so expect many false positives and plan the triage workflow before the model.</p>
+<h4>Class imbalance</h4>
+<p>Attacks are rare: maybe 0.1 percent of events. A model that says "benign" every time is 99.9 percent accurate and useless. Options: class weights, over- or under-sampling (<strong>only on the training split</strong>), better metrics (next chapter), and choosing the threshold on purpose.</p>
+<h4>Calibration and thresholds</h4>
+<p>A probability of 0.9 should be right about 90 percent of the time; many models are not calibrated, so check with a reliability plot and recalibrate (Platt scaling, isotonic regression) if you rely on the number. The threshold is a business decision: a missed breach and a false alarm cost different amounts.</p>
+<h4>Attacks on classifiers</h4>
+<ul><li><strong>Evasion</strong>: tweak malware or a phishing page slightly so it crosses the boundary (adversarial examples). Attackers do this by padding files, renaming strings or adding benign content.</li><li><strong>Poisoning</strong>: slip mislabeled or crafted samples into the training data.</li><li><strong>Model theft / extraction</strong> and <strong>membership inference</strong>: probe the model to copy it or learn whether a record was in training.</li><li><strong>Drift</strong>: attacker and normal behavior change, and the model silently decays. Monitor input distributions and retrain on a schedule.</li></ul>
+<p>The chapter <a href="attacking-ai.html">attacking AI</a> covers these in more detail.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="ml-regression.html">&lt; regression</a><a href="ml-evaluation.html">evaluating models &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

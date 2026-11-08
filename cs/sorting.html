@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sorting algorithms :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, sorting algorithms: Six classic sorts, stability, the n log n lower bound, counting and radix sort. Lab: count comparisons.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter sorting</p>
+<h1>~/cs/sorting</h1>
+<p>Know how the six classic sorts work, what each costs, which are stable, and why nothing that compares can beat n log n. Then count comparisons in real code.</p>
+<p class="muted small">CS201: data structures and algorithms in depth · <a href="../courses/CS201.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="cs-sorting">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Sorting</strong> puts items in order so you can search them fast (binary search), merge them, spot duplicates and group them. You almost always call the built-in <code>sorted()</code> or <code>Arrays.sort()</code>. You learn the algorithms because interviews ask about them and because the *ideas* (divide and conquer, invariants, trade-offs) show up everywhere.</p>
+<p>The three simple sorts, all O(n²) in the worst case:</p>
+<ul><li><strong>Selection sort</strong>: find the smallest item, put it first, repeat on the rest. Always about n²/2 comparisons, even on sorted input.</li><li><strong>Insertion sort</strong>: grow a sorted prefix. Take the next item and slide it left until it fits, like sorting playing cards in your hand. Fast on nearly-sorted data (O(n)).</li><li><strong>Bubble sort</strong>: swap neighbors that are out of order, repeatedly. Easy to teach, rarely worth using.</li></ul>
+<p>The three fast sorts, O(n log n):</p>
+<ul><li><strong>Merge sort</strong>: split in half, sort each half, merge the two sorted halves. Predictable and stable, needs O(n) extra space.</li><li><strong>Quicksort</strong>: pick a <strong>pivot</strong>, put smaller items left and larger right, recurse on both sides. Fastest in practice on arrays, but a bad pivot choice gives O(n²).</li><li><strong>Heapsort</strong>: build a max-heap, then repeatedly remove the largest. In place, no bad case, not stable.</li></ul>
+<p>Try them in the <a href="../cs/viz.html">algorithm visualizer</a>: the bars show every compare and swap, and the counter shows why O(n²) hurts.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">python3 -c &quot;print(sorted([5,2,9,1], reverse=True))&quot;</span><button class="run" type="button" data-cmd="python3 -c &quot;print(sorted([5,2,9,1], reverse=True))&quot;" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Insertion sort and the invariant</h4>
+<pre class="ex"><code><span class="o">def insertion_sort(a):</span>
+<span class="o">    for i in range(1, len(a)):</span>
+<span class="o">        key = a[i]</span>
+<span class="o">        j = i - 1</span>
+<span class="o">        while j &gt;= 0 and a[j] &gt; key:   # shift bigger items right</span>
+<span class="o">            a[j + 1] = a[j]</span>
+<span class="o">            j -= 1</span>
+<span class="o">        a[j + 1] = key</span></code></pre>
+<p><strong>Loop invariant</strong>: before each pass, <code>a[0:i]</code> is sorted. Each pass keeps it true while extending it by one. When <code>i</code> reaches <code>n</code>, the whole array is sorted. Naming the invariant is how you prove a loop correct.</p>
+<h4>Merge sort</h4>
+<pre class="ex"><code><span class="o">def merge_sort(a):</span>
+<span class="o">    if len(a) &lt;= 1: return a</span>
+<span class="o">    mid = len(a) // 2</span>
+<span class="o">    left, right = merge_sort(a[:mid]), merge_sort(a[mid:])</span>
+<span class="o">    out, i, j = [], 0, 0</span>
+<span class="o">    while i &lt; len(left) and j &lt; len(right):</span>
+<span class="o">        if left[i] &lt;= right[j]:        # &lt;= keeps equal items in order: stable</span>
+<span class="o">            out.append(left[i]); i += 1</span>
+<span class="o">        else:</span>
+<span class="o">            out.append(right[j]); j += 1</span>
+<span class="o">    return out + left[i:] + right[j:]</span></code></pre>
+<p>There are log₂ n levels of splitting, and each level merges n items in total, so the work is <strong>n log n</strong> in every case. Cost: O(n) extra memory.</p>
+<h4>Quicksort</h4>
+<pre class="ex"><code><span class="o">def quicksort(a, lo=0, hi=None):</span>
+<span class="o">    if hi is None: hi = len(a) - 1</span>
+<span class="o">    if lo &gt;= hi: return</span>
+<span class="o">    pivot = a[(lo + hi) // 2]</span>
+<span class="o">    i, j = lo, hi</span>
+<span class="o">    while i &lt;= j:</span>
+<span class="o">        while a[i] &lt; pivot: i += 1</span>
+<span class="o">        while a[j] &gt; pivot: j -= 1</span>
+<span class="o">        if i &lt;= j:</span>
+<span class="o">            a[i], a[j] = a[j], a[i]; i += 1; j -= 1</span>
+<span class="o">    quicksort(a, lo, j); quicksort(a, i, hi)</span></code></pre>
+<p>Average O(n log n). The worst case (always picking the smallest or largest as pivot, like "first element" on already-sorted data) is O(n²) and recursion depth n. Fixes: random pivot, median-of-three, and recursing on the smaller side first so the stack stays O(log n). <strong>Introsort</strong> (used by C++ <code>std::sort</code>) switches to heapsort when recursion gets too deep.</p>
+<h4>Heaps and heapsort</h4>
+<p>A <strong>binary heap</strong> is an array where the children of index <code>i</code> are at <code>2i+1</code> and <code>2i+2</code> and every parent is at least as big as its children (max-heap). Building the heap takes O(n); each of the n removals costs O(log n). In place, O(1) extra space, O(n log n) always, but poor cache behavior and not stable.</p>
+<h4>Stable vs unstable</h4>
+<p>A sort is <strong>stable</strong> if equal keys keep their original order. It matters when you sort by two keys: sort by date, then (stable) by name, and the dates stay ordered within each name. Stable: insertion, merge, bubble, Timsort, counting. Not stable: selection, quicksort, heapsort.</p>
+<h4>Comparison table</h4>
+<div class="tbl"><table><thead><tr><th>Sort</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable</th></tr></thead><tbody><tr><td>Selection</td><td>n²</td><td>n²</td><td>n²</td><td>1</td><td>no</td></tr><tr><td>Insertion</td><td>n</td><td>n²</td><td>n²</td><td>1</td><td>yes</td></tr><tr><td>Merge</td><td>n log n</td><td>n log n</td><td>n log n</td><td>n</td><td>yes</td></tr><tr><td>Quick</td><td>n log n</td><td>n log n</td><td>n²</td><td>log n</td><td>no</td></tr><tr><td>Heap</td><td>n log n</td><td>n log n</td><td>n log n</td><td>1</td><td>no</td></tr><tr><td>Counting</td><td>n + k</td><td>n + k</td><td>n + k</td><td>n + k</td><td>yes</td></tr></tbody></table></div><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Why n log n is the floor</h4>
+<p>A comparison sort decides the order using only "is a &lt; b?" questions. There are n! possible orderings, and each yes/no answer at best halves the possibilities, so you need at least log₂(n!) questions. By Stirling's approximation, log₂(n!) is about n log₂ n. <strong>No comparison sort can beat Ω(n log n)</strong> in the worst case.</p>
+<h4>Beating it by not comparing</h4>
+<ul><li><strong>Counting sort</strong>: for integer keys in 0..k, count how many of each, then write them out. O(n + k).</li><li><strong>Radix sort</strong>: sort by the last digit, then the next, using a stable counting sort at each digit. O(d·(n + k)) for d digits. It sorts fixed-width IP addresses, timestamps and strings fast.</li><li><strong>Bucket sort</strong>: spread items into buckets by value range, sort each bucket. Great when values are uniform.</li></ul>
+<p>These only work when keys have a known, bounded form.</p>
+<h4>What real libraries do</h4>
+<ul><li><strong>Timsort</strong> (Python, Java objects): finds natural runs in the data, extends short runs with insertion sort, then merges with rules that keep it stable. O(n) on already-sorted input, O(n log n) worst case.</li><li><strong>Introsort</strong> (C++ <code>std::sort</code>): quicksort that falls back to heapsort at depth 2·log n and to insertion sort for tiny ranges.</li><li><strong>External sort</strong>: when data does not fit in RAM, sort chunks, write them out, then k-way merge. This is how databases and <code>sort(1)</code> handle huge files.</li><li>Sorting is also a security topic: an attacker who controls input can trigger quicksort's O(n²) case if the pivot is predictable (algorithmic complexity DoS).</li></ul>
+<h4>Quickselect</h4>
+<p>To find the k-th smallest item you do not need a full sort. Partition like quicksort, then recurse only into the side that contains position k. Average O(n), worst O(n²). The median-of-medians variant guarantees O(n).</p>
+<h4>Interview checks</h4>
+<ul><li>Which sorts are stable, and why does it matter?</li><li>Why is quicksort faster than merge sort in practice despite the same average? (In place, cache friendly, small constants.)</li><li>Sort a list of 1 million 16-bit integers fast. (Counting sort, k = 65,536.)</li><li>What is the best sort for a nearly-sorted list? (Insertion sort or Timsort.)</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>counter.py</code> has insertion sort and merge sort that each count their <strong>comparisons</strong> on the same input <code>data.txt</code> (200 numbers in reverse order, the worst case for insertion sort). Run it, then finish the <code>merge_sort</code> counting where marked. Submit <strong>the number of comparisons merge sort makes</strong>, e.g. <code>submit 1234</code>.</p>
+<p>Then look at the insertion sort number next to it: that gap is what O(n²) versus O(n log n) means at n = 200.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><span></span><a href="hashing.html">hash tables and hashing &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "sorting", "title": "sorting algorithms", "user": "student", "host": "dsa", "brief": "<code>counter.py<\/code> has insertion sort and merge sort that each count their <strong>comparisons<\/strong> on the same input <code>data.txt<\/code> (200 numbers in reverse order, the worst case for insertion sort). Run it, then finish the <code>merge_sort<\/code> counting where marked. Submit <strong>the number of comparisons merge sort makes<\/strong>, e.g. <code>submit 1234<\/code>.\n\nThen look at the insertion sort number next to it: that gap is what O(n\u00b2) versus O(n log n) means at n = 200.", "hints": ["Inside the merge loop, every time you test <code>left[i] &lt;= right[j]<\/code> add 1 to the counter. Use <code>global COUNT<\/code>.", "Call <code>merge_sort<\/code> on the list from <code>data.txt<\/code> and print <code>COUNT<\/code>. The tests only happen while both halves still have items left."], "answers": ["313c938e0103b56b43632b702e3e63447fab1f90a4fe890ca5abb7a6cf8830ee"], "solution": "TWVyZ2Ugc29ydCBjb3VudHMgb25lIGNvbXBhcmlzb24gZWFjaCB0aW1lIGl0IHRlc3RzIDxjb2RlPmxlZnRbaV0gJmx0Oz0gcmlnaHRbal08L2NvZGU+LCB3aGljaCBvbmx5IGhhcHBlbnMgd2hpbGUgYm90aCBoYWx2ZXMgc3RpbGwgaGF2ZSBpdGVtcy4gT24gYSByZXZlcnNlLW9yZGVyZWQgbGlzdCBvZiAyMDAgdGhlIGFuc3dlciBpcyA8c3Ryb25nPjgxMjwvc3Ryb25nPiwgcm91Z2hseSBoYWxmIG9mIG7Ct2xvZ+KCgm4g4omIIDEsNTI5LCBiZWNhdXNlIG9uIHJldmVyc2VkIGlucHV0IGV2ZXJ5IG1lcmdlIHJ1bnMgb3V0IG9mIG9uZSBoYWxmIGVhcmx5LiBJbnNlcnRpb24gc29ydCBvbiB0aGUgc2FtZSBpbnB1dCBuZWVkcyAxOSw5MDAgY29tcGFyaXNvbnMgKG4obi0xKS8yKSwgYWJvdXQgMjQgdGltZXMgYXMgbWFueS4gU2FtZSBkYXRhLCBhbmQgdGhlIGdhcCBncm93cyB3aXRoIG4uCg==", "fs": {"/home/student/sorting/counter.py": "COUNT = 0\n\ndef insertion_sort(a):\n    a = list(a); c = 0\n    for i in range(1, len(a)):\n        key, j = a[i], i - 1\n        while j >= 0:\n            c += 1\n            if a[j] > key:\n                a[j + 1] = a[j]; j -= 1\n            else:\n                break\n        a[j + 1] = key\n    return a, c\n\ndef merge_sort(a):\n    global COUNT\n    if len(a) <= 1:\n        return a\n    mid = len(a) // 2\n    left, right = merge_sort(a[:mid]), merge_sort(a[mid:])\n    out, i, j = [], 0, 0\n    while i < len(left) and j < len(right):\n        # TODO: count this comparison\n        if left[i] <= right[j]:\n            out.append(left[i]); i += 1\n        else:\n            out.append(right[j]); j += 1\n    return out + left[i:] + right[j:]\n\nnums = [int(x) for x in open(\"/home/student/sorting/data.txt\").read().split()]\n_, ic = insertion_sort(nums)\nprint(\"insertion sort comparisons:\", ic)\nsorted_nums = merge_sort(nums)\nprint(\"merge sort comparisons:\", COUNT)\n", "/home/student/sorting/data.txt": "200 199 198 197 196 195 194 193 192 191 190 189 188 187 186 185 184 183 182 181 180 179 178 177 176 175 174 173 172 171 170 169 168 167 166 165 164 163 162 161 160 159 158 157 156 155 154 153 152 151 150 149 148 147 146 145 144 143 142 141 140 139 138 137 136 135 134 133 132 131 130 129 128 127 126 125 124 123 122 121 120 119 118 117 116 115 114 113 112 111 110 109 108 107 106 105 104 103 102 101 100 99 98 97 96 95 94 93 92 91 90 89 88 87 86 85 84 83 82 81 80 79 78 77 76 75 74 73 72 71 70 69 68 67 66 65 64 63 62 61 60 59 58 57 56 55 54 53 52 51 50 49 48 47 46 45 44 43 42 41 40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/sorting", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

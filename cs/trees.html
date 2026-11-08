@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>trees, heaps and tries :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, trees, heaps and tries: BST, AVL and red-black balance, heaps, tries, B-trees and traversals. Lab: measure a degenerate tree.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter trees</p>
+<h1>~/cs/trees</h1>
+<p>Binary search trees, why balance matters, heaps and priority queues, tries, and the four traversals, with the cost of every operation.</p>
+<p class="muted small">CS201: data structures and algorithms in depth · <a href="../courses/CS201.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="cs-trees">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>tree</strong> is data arranged as a root with child nodes below it, no loops. Folders on a disk, the HTML page you are reading and a company org chart are all trees. A <strong>binary tree</strong> gives each node at most two children, called left and right.</p>
+<p>A <strong>binary search tree (BST)</strong> adds one rule: everything in a node's left subtree is smaller, everything in the right subtree is larger. To find a value, start at the root and go left or right, throwing away half the tree each step. If the tree is <strong>balanced</strong> this takes O(log n): a million items need about 20 steps.</p>
+<p>Four ways to walk a tree (traverse it):</p>
+<ul><li><strong>In-order</strong> (left, node, right): visits a BST in sorted order.</li><li><strong>Pre-order</strong> (node, left, right): copy a tree or print a folder structure.</li><li><strong>Post-order</strong> (left, right, node): delete a tree, or compute sizes from the bottom up.</li><li><strong>Level-order</strong> (row by row, using a queue): the BFS of trees.</li></ul>
+<p>A <strong>heap</strong> is a different tree: the parent is always smaller (min-heap) or larger (max-heap) than its children, so the smallest item is always at the top. It powers <strong>priority queues</strong>: "give me the most urgent job next".</p>
+<p>Insert numbers into the BST and heap tabs of the <a href="../cs/viz.html">visualizer</a> and watch the shape change.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>BST operations</h4>
+<pre class="ex"><code><span class="o">class Node:</span>
+<span class="o">    def __init__(self, k): self.k, self.l, self.r = k, None, None</span>
+<span class="o"></span>
+<span class="o">def insert(root, k):</span>
+<span class="o">    if root is None: return Node(k)</span>
+<span class="o">    if k &lt; root.k: root.l = insert(root.l, k)</span>
+<span class="o">    elif k &gt; root.k: root.r = insert(root.r, k)</span>
+<span class="o">    return root</span>
+<span class="o"></span>
+<span class="o">def search(root, k):</span>
+<span class="o">    while root and root.k != k:</span>
+<span class="o">        root = root.l if k &lt; root.k else root.r</span>
+<span class="o">    return root</span>
+<span class="o"></span>
+<span class="o">def inorder(root):</span>
+<span class="o">    if root:</span>
+<span class="o">        yield from inorder(root.l); yield root.k; yield from inorder(root.r)</span></code></pre>
+<p>Cost is O(<strong>height</strong>). Random inserts give height about 2·log₂ n. Sorted inserts (1, 2, 3, ...) give a straight line of height n, so everything degrades to O(n): the tree needs to rebalance itself.</p>
+<p><strong>Deleting</strong> a node: a leaf is just removed; a node with one child is replaced by that child; a node with two children is replaced by its in-order successor (smallest key in the right subtree), which then is deleted from where it was.</p>
+<h4>Self-balancing trees</h4>
+<ul><li><strong>AVL tree</strong>: after each insert/delete, every node's two subtree heights differ by at most 1. Violations are fixed with <strong>rotations</strong> (single or double, left or right). Strictly balanced, so lookups are fastest.</li><li><strong>Red-black tree</strong>: a looser color-based balance, fewer rotations on updates. Used in Java <code>TreeMap</code>, C++ <code>std::map</code> and the Linux scheduler.</li><li><strong>B-tree / B+ tree</strong>: nodes hold many keys and have many children, so the tree is very shallow. Built for disk: each node is one disk page. This is what database indexes and file systems use.</li></ul>
+<p>All guarantee O(log n) search, insert and delete.</p>
+<h4>Heaps</h4>
+<p>Stored in a plain array: node <code>i</code> has children <code>2i+1</code> and <code>2i+2</code> and parent <code>(i-1)//2</code>.</p>
+<ul><li><strong>push</strong>: append at the end, <strong>sift up</strong> while smaller than the parent. O(log n).</li><li><strong>pop min</strong>: swap the root with the last item, remove it, <strong>sift down</strong>. O(log n).</li><li><strong>peek</strong> the min: O(1). <strong>heapify</strong> an existing array: O(n).</li></ul>
+<pre class="ex"><code><span class="o">import heapq</span>
+<span class="o">h = []</span>
+<span class="o">for x in [5, 1, 8, 3]: heapq.heappush(h, x)</span>
+<span class="o">heapq.heappop(h)      # 1</span>
+<span class="o">heapq.nsmallest(2, [5,1,8,3])   # [1, 3]</span></code></pre>
+<p>Use heaps for the top-k items, merging k sorted lists, scheduling, and Dijkstra's shortest path.</p>
+<h4>Tries</h4>
+<p>A <strong>trie</strong> (prefix tree) has one edge per character; a path from the root spells a word. Lookup and insert cost O(length of the word), independent of how many words are stored. Perfect for autocomplete, dictionary checks, IP routing tables (longest-prefix match) and matching many malware or IDS signature strings (Aho-Corasick builds on a trie).</p>
+<h4>Quick complexity table</h4>
+<div class="tbl"><table><thead><tr><th>Structure</th><th>Search</th><th>Insert</th><th>Delete</th><th>Notes</th></tr></thead><tbody><tr><td>Unbalanced BST</td><td>O(h)</td><td>O(h)</td><td>O(h)</td><td>h from log n to n</td></tr><tr><td>AVL / red-black</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>ordered, range queries</td></tr><tr><td>Binary heap</td><td>O(n)</td><td>O(log n)</td><td>O(log n)</td><td>min/max in O(1)</td></tr><tr><td>Trie</td><td>O(L)</td><td>O(L)</td><td>O(L)</td><td>L = key length</td></tr></tbody></table></div><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Proving the height bound</h4>
+<p>A perfect binary tree of height h has 2^(h+1) − 1 nodes, so n nodes need height at least log₂(n+1) − 1. An AVL tree of height h has at least F(h+3) − 1 nodes (Fibonacci), which grows like φ^h with φ ≈ 1.618, so h ≤ 1.44·log₂ n. That is the proof that AVL operations are O(log n) even in the worst case.</p>
+<h4>Rotations</h4>
+<p>A right rotation at node <code>y</code> with left child <code>x</code> makes <code>x</code> the parent, moves <code>x</code>'s old right child to become <code>y</code>'s left child, and keeps the BST order intact. Four imbalance cases: left-left (one right rotation), right-right (one left rotation), left-right (left then right) and right-left (right then left). Each rotation is O(1), and an insert needs at most two, so insert stays O(log n).</p>
+<h4>Other useful tree structures</h4>
+<ul><li><strong>Segment tree / Fenwick tree</strong>: range sums or minimums with updates in O(log n).</li><li><strong>Skip list</strong>: a probabilistic layered linked list with O(log n) expected operations. Redis uses it for sorted sets.</li><li><strong>Merkle tree</strong>: each parent is the hash of its children. Proves a file chunk belongs to a set with O(log n) hashes. Git, Bitcoin, certificate transparency and BitTorrent use it.</li><li><strong>Treap, splay tree, LSM tree</strong>: randomization, self-adjusting, and write-optimized storage (RocksDB, Cassandra).</li></ul>
+<h4>Traversal without recursion</h4>
+<p>Deep trees overflow the call stack, so interviews ask for iterative versions: in-order uses an explicit stack (go left pushing nodes, pop, visit, go right); level-order uses a queue. <strong>Morris traversal</strong> does in-order in O(1) space by temporarily threading pointers.</p>
+<h4>Interview checks</h4>
+<ul><li>Validate a BST: pass min/max bounds down; do not only compare a node with its children.</li><li>Lowest common ancestor of two nodes in a BST: walk down until the two values split.</li><li>Why do databases use B+ trees instead of binary trees? (Fewer disk reads: high fan-out means 3-4 levels for millions of rows.)</li><li>Top-k frequent items: count with a hash map, then keep a size-k heap.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>bst.py</code> inserts the numbers in <code>keys.txt</code> into a plain, unbalanced BST. Finish <code>height()</code> (the number of nodes on the longest root-to-leaf path), then run it. The keys arrive in sorted order, so the tree is far taller than a balanced one would be.</p>
+<p>Submit the <strong>height</strong> the script prints, e.g. <code>submit 7</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="hashing.html">&lt; hash tables and hashing</a><a href="graphs.html">graphs &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "trees", "title": "trees, heaps and tries", "user": "student", "host": "dsa", "brief": "<code>bst.py<\/code> inserts the numbers in <code>keys.txt<\/code> into a plain, unbalanced BST. Finish <code>height()<\/code> (the number of nodes on the longest root-to-leaf path), then run it. The keys arrive in sorted order, so the tree is far taller than a balanced one would be.\n\nSubmit the <strong>height<\/strong> the script prints, e.g. <code>submit 7<\/code>.", "hints": ["Base case: an empty tree has height 0. Otherwise <code>1 + max(height(left), height(right))<\/code>.", "The script prints the balanced minimum next to yours (<code>ceil(log2(n+1))<\/code>). Compare them."], "answers": ["6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918"], "solution": "PGNvZGU+ZGVmIGhlaWdodChuKTogcmV0dXJuIDAgaWYgbiBpcyBOb25lIGVsc2UgMSArIG1heChoZWlnaHQobi5sKSwgaGVpZ2h0KG4ucikpPC9jb2RlPi4gVGhlIDEyIGtleXMgYXJyaXZlIGluIG9yZGVyLCBzbyBldmVyeSBpbnNlcnQgZ29lcyByaWdodCBhbmQgdGhlIHRyZWUgaXMgYSBzdHJhaWdodCBsaW5lIG9mIGhlaWdodCA8c3Ryb25nPjEyPC9zdHJvbmc+LCB3aGlsZSBhIGJhbGFuY2VkIHRyZWUgaG9sZGluZyAxMiBrZXlzIG5lZWRzIG9ubHkgNCBsZXZlbHMuIFRoYXQgZ2FwIGlzIHdoeSBBVkwgYW5kIHJlZC1ibGFjayB0cmVlcyBleGlzdDogc2FtZSBkYXRhLCAzIHRpbWVzIGFzIG1hbnkgc3RlcHMgcGVyIGxvb2t1cCAoYW5kIGEgbWlsbGlvbiBzb3J0ZWQga2V5cyB3b3VsZCBiZSA1MCwwMDAgdGltZXMgd29yc2UpLgo=", "fs": {"/home/student/trees/bst.py": "import math\nkeys = [int(x) for x in open(\"/home/student/trees/keys.txt\").read().split()]\n\nclass Node:\n    def __init__(self, k): self.k, self.l, self.r = k, None, None\n\ndef insert(root, k):\n    if root is None: return Node(k)\n    if k < root.k: root.l = insert(root.l, k)\n    else: root.r = insert(root.r, k)\n    return root\n\ndef height(n):\n    # TODO: number of nodes on the longest path from n down to a leaf\n    return 0\n\nroot = None\nfor k in keys: root = insert(root, k)\nprint(\"height:\", height(root))\nprint(\"balanced minimum:\", math.ceil(math.log2(len(keys) + 1)))\n", "/home/student/trees/keys.txt": "1 2 3 4 5 6 7 8 9 10 11 12\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/trees", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>git workflows, CI/CD and DevSecOps :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, git workflows, CI/CD and DevSecOps: Branching, GitHub Actions pipelines, deployment strategies, securing the pipeline. Lab: fix the deploy gate.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter cicd</p>
+<h1>~/cs/cicd</h1>
+<p>Git workflows, continuous integration and delivery, a real GitHub Actions pipeline, deployment strategies, and securing the pipeline itself.</p>
+<p class="muted small">CS240: software engineering · <a href="../courses/CS240.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="cs-cicd">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>CI/CD</strong> is the habit of automatically building and testing every change, then shipping it with a button (or no button at all).</p>
+<ul><li><strong>Continuous integration (CI)</strong>: every push triggers a build and the test suite on a clean machine. Broken code is caught in minutes while the change is still fresh.</li><li><strong>Continuous delivery</strong>: every passing change is automatically packaged and ready to release at any moment; a human approves the release.</li><li><strong>Continuous deployment</strong>: every passing change goes straight to production with no human step.</li></ul>
+<p>The pipeline is a series of <strong>stages</strong>, and a failure stops everything after it:</p>
+<p><code>commit → build → unit tests → security scan → package → deploy to staging → integration tests → deploy to production</code></p>
+<p>Why bother: small frequent releases are safer than rare giant ones, humans stop doing repetitive manual deploys, and the pipeline is a written, repeatable record of how software gets built.</p>
+<p>Everything starts with <strong>git</strong>. The basic team routine: create a <strong>branch</strong>, commit, push, open a <strong>pull request (PR)</strong>, get a <strong>code review</strong>, wait for CI to go green, <strong>merge</strong>. Protected branches stop anyone from pushing straight to <code>main</code>. See the <a href="../learn/git-github.html">git guide</a>.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">git log --oneline</span><button class="run" type="button" data-cmd="git log --oneline" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Git workflows</h4>
+<ul><li><strong>GitHub flow</strong>: short-lived feature branches off <code>main</code>, merged by PR. Simple, fits continuous delivery.</li><li><strong>Trunk-based development</strong>: everyone merges to <code>main</code> at least daily, unfinished work hidden behind <strong>feature flags</strong>. Best for CI.</li><li><strong>Git flow</strong>: long-lived <code>develop</code>, <code>release</code> and <code>hotfix</code> branches. Heavy; suits versioned products shipped on a schedule.</li></ul>
+<p>Merge strategies: <strong>merge commit</strong> (keeps history), <strong>squash</strong> (one clean commit per PR), <strong>rebase</strong> (linear history). Never rewrite history others already pulled.</p>
+<h4>A real pipeline: GitHub Actions</h4>
+<pre class="ex"><code><span class="o">name: ci</span>
+<span class="o">on:</span>
+<span class="o">  pull_request:</span>
+<span class="o">  push:</span>
+<span class="o">    branches: [main]</span>
+<span class="o"></span>
+<span class="o">jobs:</span>
+<span class="o">  test:</span>
+<span class="o">    runs-on: ubuntu-latest</span>
+<span class="o">    steps:</span>
+<span class="o">      - uses: actions/checkout@v4</span>
+<span class="o">      - uses: actions/setup-python@v5</span>
+<span class="o">        with: { python-version: &quot;3.12&quot; }</span>
+<span class="o">      - run: pip install -r requirements.txt</span>
+<span class="o">      - run: pytest --maxfail=1</span>
+<span class="o"></span>
+<span class="o">  scan:</span>
+<span class="o">    runs-on: ubuntu-latest</span>
+<span class="o">    steps:</span>
+<span class="o">      - uses: actions/checkout@v4</span>
+<span class="o">      - run: pip install bandit &amp;&amp; bandit -r src</span>
+<span class="o"></span>
+<span class="o">  deploy:</span>
+<span class="o">    needs: [test, scan]              # only after both pass</span>
+<span class="o">    if: github.ref == &#x27;refs/heads/main&#x27;</span>
+<span class="o">    runs-on: ubuntu-latest</span>
+<span class="o">    steps:</span>
+<span class="o">      - uses: actions/checkout@v4</span>
+<span class="o">      - run: ./deploy.sh</span>
+<span class="o">        env:</span>
+<span class="o">          TOKEN: ${{ secrets.DEPLOY_TOKEN }}</span></code></pre>
+<p>Concepts: a <strong>workflow</strong> is triggered by <strong>events</strong>; it has <strong>jobs</strong> that run on <strong>runners</strong>; jobs have <strong>steps</strong>; <code>needs:</code> orders jobs; <strong>secrets</strong> are injected, never written in the file; <strong>caching</strong> dependencies and <strong>matrix</strong> builds (several Python versions) speed things up. Other tools use the same ideas: GitLab CI, Jenkins, CircleCI, Azure DevOps.</p>
+<h4>Artifacts and environments</h4>
+<p>Build <strong>once</strong>, promote the same artifact (a container image or package) through dev, staging and production, so what you tested is what ships. Configuration comes from environment variables, not baked into the artifact. <strong>Infrastructure as code</strong> (Terraform, CloudFormation) makes environments reproducible.</p>
+<h4>Deployment strategies</h4>
+<ul><li><strong>Rolling</strong>: replace instances a few at a time.</li><li><strong>Blue/green</strong>: run the new version beside the old and flip traffic over; instant rollback by flipping back.</li><li><strong>Canary</strong>: send 1-5% of traffic to the new version, watch error rate and latency, then widen.</li><li><strong>Feature flags</strong>: ship code dark, turn it on per user or percentage; separates deploy from release.</li></ul>
+<p>Always have a <strong>rollback plan</strong> and watch <strong>metrics</strong> after a deploy (error rate, latency, saturation).</p>
+<h4>Containers in one paragraph</h4>
+<p>A <code>Dockerfile</code> describes an image (base OS, dependencies, your code). CI builds the image, scans it, pushes it to a registry, and the platform (Kubernetes, ECS, Cloud Run) runs it. Pin base image versions, use small images, and do not run as root.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>DevSecOps: security in the pipeline</h4>
+<p>Shift security checks <strong>left</strong>, to where fixing is cheap:</p>
+<ul><li><strong>Secret scanning</strong> (gitleaks, GitHub push protection): block committed keys.</li><li><strong>SAST</strong> (CodeQL, Semgrep): static analysis of source on every PR.</li><li><strong>SCA / dependency scanning</strong> (Dependabot, Renovate, <code>npm audit</code>, OSV): known-vulnerable libraries, plus an <strong>SBOM</strong> (CycloneDX, SPDX) listing every component.</li><li><strong>Container and IaC scanning</strong> (Trivy, Checkov): vulnerable images, open S3 buckets, <code>0.0.0.0/0</code> security groups.</li><li><strong>DAST</strong> (OWASP ZAP) against a running staging copy.</li><li><strong>Policy as code</strong> (OPA) to enforce rules automatically; <strong>signed artifacts</strong> (Sigstore cosign) and <strong>provenance</strong> (SLSA levels) so production only runs what your pipeline built.</li></ul>
+<h4>The pipeline is an attack target</h4>
+<p>It holds credentials and can deploy to production, so it is a high-value prize.</p>
+<ul><li><strong>Pin actions to a commit SHA</strong>, not a floating tag. The 2025 compromise of a popular GitHub Action leaked secrets from thousands of repos.</li><li><strong>Least privilege tokens</strong>: set <code>permissions:</code> to read-only by default; use short-lived OIDC tokens to the cloud instead of long-lived keys.</li><li>Treat PRs from forks as untrusted: <code>pull_request_target</code> with a checkout of untrusted code is a known path to secret theft.</li><li><strong>Script injection</strong>: <code>run: echo ${{ github.event.pull_request.title }}</code> lets a PR title run shell commands; pass values through env vars.</li><li>Protect branches (required reviews, required status checks, signed commits), separate build and deploy credentials, and log who deployed what.</li><li><strong>Supply chain</strong>: typosquatted packages, dependency confusion, compromised maintainers (event-stream, xz). Use lockfiles, hash pinning, private registries and review dependency bumps.</li></ul>
+<h4>Measuring delivery: DORA metrics</h4>
+<p><strong>Deployment frequency</strong>, <strong>lead time for changes</strong>, <strong>change failure rate</strong> and <strong>time to restore service</strong>. Elite teams deploy many times per day with low failure rates; speed and stability improve together. Optimize the pipeline's feedback time first: if CI takes 40 minutes, people stop running it.</p>
+<h4>Database changes and zero downtime</h4>
+<p>Use versioned <strong>migrations</strong> (Flyway, Alembic, Rails migrations). Make changes backward compatible in steps (<strong>expand/contract</strong>): add the new column, deploy code that writes both, backfill, switch reads, then drop the old column. Never ship a code change and an incompatible schema change in one step.</p>
+<h4>Interview checks</h4>
+<ul><li>Walk me through what happens between <code>git push</code> and code running in production.</li><li>Difference between continuous delivery and continuous deployment?</li><li>How do you roll back? What if the change included a database migration?</li><li>How would you keep secrets out of a pipeline? What if a third-party action is compromised?</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>The team's <code>ci.yml</code> is supposed to deploy only after the tests pass. Yet last Friday a broken build went to production. Read the workflow with <code>cat ci.yml</code> and find the problem.</p>
+<p>The <code>deploy</code> job is missing a line that makes it wait for another job. Submit <strong>the name of the job</strong> it must wait for, e.g. <code>submit build</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="patterns.html">&lt; design patterns and SOLID</a><a href="agile.html">requirements, agile and teamwork &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "cicd", "title": "git workflows, CI/CD and DevSecOps", "user": "student", "host": "ci", "brief": "The team's <code>ci.yml<\/code> is supposed to deploy only after the tests pass. Yet last Friday a broken build went to production. Read the workflow with <code>cat ci.yml<\/code> and find the problem.\n\nThe <code>deploy<\/code> job is missing a line that makes it wait for another job. Submit <strong>the name of the job<\/strong> it must wait for, e.g. <code>submit build<\/code>.", "hints": ["In GitHub Actions, the <code>needs:<\/code> key lists jobs that must succeed first. Does the <code>deploy<\/code> job have one?", "There are three jobs: <code>lint<\/code>, <code>test<\/code> and <code>deploy<\/code>. The test job is the one that runs <code>pytest<\/code>."], "answers": ["9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"], "solution": "PGNvZGU+ZGVwbG95PC9jb2RlPiBoYXMgbm8gPGNvZGU+bmVlZHM6PC9jb2RlPiBrZXksIHNvIGFsbCB0aHJlZSBqb2JzIHN0YXJ0IGF0IHRoZSBzYW1lIHRpbWUgYW5kIGRlcGxveSBkb2VzIG5vdCBjYXJlIHdoZXRoZXIgdGVzdHMgcGFzcy4gQWRkaW5nIDxjb2RlPm5lZWRzOiBbdGVzdF08L2NvZGU+IChhbmQgYXJndWFibHkgPGNvZGU+bGludDwvY29kZT4gdG9vKSBtYWtlcyBpdCB3YWl0IGZvciA8c3Ryb25nPnRlc3Q8L3N0cm9uZz4gYW5kIHNraXAgd2hlbiBpdCBmYWlscy4gQWxzbyBub3RlIHRoZSBkZXBsb3kgam9iIHJ1bnMgb24gZXZlcnkgYnJhbmNoOiBhZGQgPGNvZGU+aWY6IGdpdGh1Yi5yZWYgPT0gJiN4Mjc7cmVmcy9oZWFkcy9tYWluJiN4Mjc7PC9jb2RlPiBzbyBmZWF0dXJlIGJyYW5jaGVzIGRvIG5vdCBkZXBsb3kuCg==", "fs": {"/home/student/pipeline/ci.yml": "name: ci\non: [push]\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: ruff check .\n\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install -r requirements.txt\n      - run: pytest\n\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: ./deploy.sh production\n        env:\n          TOKEN: ${{ secrets.DEPLOY_TOKEN }}\n", "/home/student/pipeline/README.txt": "Pipeline definition: ci.yml. Try: cat ci.yml   or   grep -n needs ci.yml\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/pipeline", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

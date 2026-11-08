@@ -1,0 +1,158 @@
+tagline: Model networks, dependencies and attack paths as graphs, then run BFS, DFS, topological sort, Dijkstra, union-find and minimum spanning trees on them.
+:: simple
+A **graph** is dots and lines: **vertices** (nodes) joined by **edges**. Computer networks, social networks, road maps, build dependencies and Active Directory permissions are all graphs. Edges can be **directed** (one-way, like a hyperlink or "can log in to") or **undirected** (two-way, like a cable), and can carry a **weight** (distance, latency, cost).
+
+Two ways to store a graph:
+- **Adjacency list**: for each vertex, a list of its neighbors. Memory O(V + E). The default choice.
+- **Adjacency matrix**: a V×V grid with 1 where an edge exists. Memory O(V²), but "is there an edge A to B?" is O(1). Good for dense graphs.
+
+Two basic ways to explore:
+- **BFS** (breadth-first search) uses a **queue** and visits everything 1 hop away, then 2 hops, and so on. It finds the **shortest path** when edges are unweighted.
+- **DFS** (depth-first search) uses a **stack** (or recursion) and goes as deep as it can before backing up. It finds connected components, detects cycles and orders tasks.
+
+Both take O(V + E). Run both on the same graph in the [visualizer](../cs/viz.html) and compare the order the nodes light up.
+
+In security: BloodHound turns Active Directory into a graph and finds the shortest path from a normal user to Domain Admin. Lateral movement, attack trees and network segmentation reviews are graph problems.
+:: mid
+### BFS and DFS
+```
+from collections import deque
+
+def bfs(g, start):                 # g = {node: [neighbors]}
+    dist = {start: 0}
+    q = deque([start])
+    while q:
+        u = q.popleft()
+        for v in g[u]:
+            if v not in dist:
+                dist[v] = dist[u] + 1
+                q.append(v)
+    return dist                     # fewest hops to every reachable node
+
+def dfs(g, u, seen=None):
+    seen = seen if seen is not None else set()
+    seen.add(u)
+    for v in g[u]:
+        if v not in seen: dfs(g, v, seen)
+    return seen
+```
+Mark nodes **seen when you enqueue/push them**, not later, or you will visit the same node many times.
+
+### Topological sort
+A **DAG** (directed acyclic graph) can be laid out in an order where every edge points forward. That is the order to compile files, run build steps or take courses with prerequisites. **Kahn's algorithm**: count each node's in-edges, queue the nodes with zero, repeatedly remove one and decrement its neighbors. If you cannot remove all nodes, there is a **cycle** (circular dependency). DFS can do it too: output nodes in reverse finishing order.
+
+### Dijkstra's shortest path (weights, no negatives)
+```
+import heapq
+
+def dijkstra(g, src):              # g = {u: [(v, w), ...]}
+    dist = {src: 0}
+    pq = [(0, src)]
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist.get(u, float("inf")): continue     # stale entry
+        for v, w in g[u]:
+            nd = d + w
+            if nd < dist.get(v, float("inf")):
+                dist[v] = nd
+                heapq.heappush(pq, (nd, v))
+    return dist
+```
+Greedy idea: the closest unfinished node already has its final distance because all weights are non-negative. Cost O((V + E) log V) with a heap. **Bellman-Ford** (relax every edge V−1 times, O(VE)) handles negative weights and detects negative cycles. **A\*** adds a heuristic estimate of remaining distance to guide the search (maps, games).
+
+### Union-find (disjoint sets)
+Tracks which items are in the same group. `find(x)` returns the group's representative, `union(a, b)` merges groups. With **path compression** and **union by rank** both operations run in nearly O(1) (inverse Ackermann). Use it for connected components, detecting cycles while adding edges, and Kruskal's algorithm.
+
+### Minimum spanning tree
+A **spanning tree** connects every vertex with V−1 edges and no cycles. The **minimum** one has the smallest total weight (cheapest cabling plan). **Kruskal**: sort edges, add each edge that does not form a cycle (check with union-find). **Prim**: grow one tree, always adding the cheapest edge leaving it (heap). Both O(E log V).
+
+### Which one do I use?
+| Question | Algorithm |
+|---|---|
+| Fewest hops, unweighted | BFS |
+| Cheapest path, weights ≥ 0 | Dijkstra |
+| Weights may be negative | Bellman-Ford |
+| Is it connected / how many groups | DFS or union-find |
+| Order tasks with dependencies | Topological sort |
+| Cheapest way to connect everything | Kruskal / Prim |
+:: complex
+### Why Dijkstra needs non-negative weights
+If a later edge were negative, a node popped from the heap as "finished" could still be improved through a path found later. The proof of correctness assumes that any unvisited path to the node costs at least as much as the best frontier candidate, and negative weights break that. Use Bellman-Ford, or reweight with **Johnson's algorithm** for all-pairs.
+
+### All-pairs and flow
+- **Floyd-Warshall**: three nested loops over (k, i, j) give all-pairs shortest paths in O(V³). Short and handy for small V.
+- **Max-flow / min-cut** (Ford-Fulkerson, Edmonds-Karp, Dinic): the most data you can push through a network, and the cheapest set of edges whose removal disconnects source from sink. A min-cut is literally the weakest set of links in a network.
+- **Strongly connected components** (Tarjan, Kosaraju): groups of nodes that can all reach each other in a directed graph. Collapsing them gives a DAG.
+- **Bipartite matching**: assign workers to tasks. Checking bipartiteness is a BFS 2-coloring.
+
+### Graphs in security work
+- **Attack paths**: nodes are users, groups, hosts; edges are "member of", "admin on", "has session on". BFS gives the shortest route to Domain Admin, and defenders break the shortest paths first.
+- **Network segmentation**: min-cut shows which firewall rules actually separate two zones.
+- **Dependency graphs**: a vulnerable library deep in a transitive dependency tree is a reachability question (software supply chain).
+- **Malware/function call graphs and control-flow graphs**: reverse engineering tools draw them and find loops with DFS back-edges.
+- **Threat intel graphs**: IPs, domains, hashes and actors linked by observed relationships; connected components cluster related campaigns.
+
+### Complexity pitfalls
+- Adjacency matrix BFS is O(V²), not O(V + E).
+- Recursive DFS on a path-shaped graph with 10⁶ nodes overflows the stack; use an explicit stack.
+- The shortest path problem is easy; the **longest** simple path and the **traveling salesman** problem are NP-hard. Heuristics and approximations take over there.
+
+### Interview checks
+- Number of islands in a grid: DFS/BFS or union-find, O(rows × cols).
+- Course schedule: is there a cycle in the prerequisite graph?
+- Word ladder: BFS where nodes are words and edges differ by one letter.
+- Clone a graph, detect a cycle in a directed vs undirected graph, find the shortest path in a weighted graph.
+:: lab
+host: dsa
+user: student
+cwd: /home/student/graphs
+py: yes
+:: brief
+`net.txt` lists links in a small network, one per line: `from to latency_ms`. Links work both ways. `route.py` has a Dijkstra skeleton. Finish the relaxation step, then run it to get the lowest total latency from `A` to `G`.
+
+Submit the **lowest total latency in milliseconds**, e.g. `submit 42`. A plain hop count would give the wrong route, because the path with the fewest hops is not the fastest one.
+:: answer
+11
+:: hint
+When you pop `(d, u)`, for every neighbor `(v, w)` compute `nd = d + w`. If `nd` beats `dist[v]`, store it and push `(nd, v)`.
+:: hint
+Remember links are undirected: the loader already adds both directions for you.
+:: solution
+Dijkstra gives `A -> B -> D -> F -> G` for a total of 2 + 3 + 4 + 2 = **11 ms**. The direct-looking route `A -> C -> G` has fewer hops but costs 6 + 9 = 15 ms. BFS would pick the 2-hop path and report the wrong answer, which is why weighted graphs need Dijkstra.
+:: verify
+python3 route.py
+:: file /home/student/graphs/route.py
+import heapq
+from collections import defaultdict
+
+g = defaultdict(list)
+for line in open("/home/student/graphs/net.txt").read().split("\n"):
+    if not line.strip():
+        continue
+    a, b, w = line.split()
+    g[a].append((b, int(w)))
+    g[b].append((a, int(w)))
+
+def dijkstra(src):
+    dist = {src: 0}
+    pq = [(0, src)]
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist.get(u, float("inf")):
+            continue
+        for v, w in g[u]:
+            # TODO: relax the edge u -> v
+            pass
+    return dist
+
+print("A to G:", dijkstra("A").get("G"))
+:: file /home/student/graphs/net.txt
+A B 2
+A C 6
+B D 3
+C G 9
+D F 4
+F G 2
+B C 5
+D E 7
+E G 8

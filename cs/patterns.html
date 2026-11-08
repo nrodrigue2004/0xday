@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>design patterns and SOLID :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, design patterns and SOLID: SOLID, strategy, observer, factory, builder, decorator, dependency injection, UML basics.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter patterns</p>
+<h1>~/cs/patterns</h1>
+<p>SOLID principles, the design patterns that actually show up (factory, builder, singleton, adapter, decorator, strategy, observer), UML basics, and when not to use a pattern.</p>
+<p class="muted small">CS240: software engineering · <a href="../courses/CS240.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="cs-patterns">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>design pattern</strong> is a named, reusable solution to a problem that keeps appearing in object-oriented code. They come from the 1994 "Gang of Four" book. Knowing the names lets you talk about design in one word ("use a strategy there") and recognize the structure when you read other people's code, such as Spring, Java's standard library or a plugin system.</p>
+<p>Patterns come in three families:</p>
+<ul><li><strong>Creational</strong> (how objects get made): Factory, Builder, Singleton.</li><li><strong>Structural</strong> (how objects fit together): Adapter, Decorator, Facade, Proxy.</li><li><strong>Behavioral</strong> (how objects talk): Strategy, Observer, Command, Iterator, State.</li></ul>
+<p>Before the patterns, learn the guide rails. The <strong>SOLID</strong> principles:</p>
+<ul><li><strong>S</strong>ingle responsibility: a class has one reason to change.</li><li><strong>O</strong>pen/closed: add new behavior by adding code, not editing working code.</li><li><strong>L</strong>iskov substitution: a subclass must work anywhere its parent works.</li><li><strong>I</strong>nterface segregation: many small interfaces beat one giant one.</li><li><strong>D</strong>ependency inversion: depend on abstractions (interfaces), not concrete classes.</li></ul>
+<p>Two shorthand rules: <strong>favor composition over inheritance</strong> (have an object, don't extend a class unless it really *is* one), and <strong>program to an interface</strong>.</p>
+<p>Patterns are tools, not goals. Using five patterns where a function would do is a bug of its own. See the OOP basics in the <a href="../learn/object-oriented-programming-java.html">Java OOP guide</a>.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Strategy: swap an algorithm</h4>
+<p>Pull the changing part behind an interface and pass it in.</p>
+<pre class="ex"><code><span class="o">class Checkout:</span>
+<span class="o">    def __init__(self, pricing):        # pricing is any object with .price(cart)</span>
+<span class="o">        self.pricing = pricing</span>
+<span class="o">    def total(self, cart):</span>
+<span class="o">        return self.pricing.price(cart)</span>
+<span class="o"></span>
+<span class="o">class Regular:   def price(self, cart): return sum(cart)</span>
+<span class="o">class BlackFriday: def price(self, cart): return sum(cart) * 0.7</span></code></pre>
+<p>No <code>if mode == &quot;bf&quot;</code> chain. In Python and JS a plain function often replaces the whole class.</p>
+<h4>Observer: tell everyone who cares</h4>
+<p>A subject keeps a list of listeners and notifies them of changes. This is event handlers, GUI toolkits, pub/sub queues and webhooks.</p>
+<pre class="ex"><code><span class="o">class Alerts:</span>
+<span class="o">    def __init__(self): self.subs = []</span>
+<span class="o">    def subscribe(self, f): self.subs.append(f)</span>
+<span class="o">    def fire(self, e): [f(e) for f in self.subs]</span></code></pre>
+<h4>Factory: hide which class gets created</h4>
+<p>A function or method returns the right implementation: <code>Parser.for_file(&quot;a.json&quot;)</code> returns <code>JsonParser</code>. Callers depend on the interface, and adding a format changes one place.</p>
+<h4>Builder: construct complex objects step by step</h4>
+<p>Useful when a constructor would take ten parameters. <code>HttpRequest.builder().url(u).header(k, v).timeout(5).build()</code>. The result can be immutable and validated once in <code>build()</code>.</p>
+<h4>Singleton: exactly one instance (use sparingly)</h4>
+<p>Makes sense for a config or logger; but it is global state in disguise, hard to test and hostile to concurrency. Prefer passing one instance in (<strong>dependency injection</strong>).</p>
+<h4>Adapter, Decorator, Facade, Proxy</h4>
+<ul><li><strong>Adapter</strong>: wrap an incompatible interface to look like the one you expect (a wrapper around a third-party SDK so you can swap vendors).</li><li><strong>Decorator</strong>: wrap an object to add behavior while keeping the same interface (a logging or caching layer, Python <code>@decorator</code>, Java <code>BufferedReader</code> around <code>FileReader</code>).</li><li><strong>Facade</strong>: a simple front over a messy subsystem.</li><li><strong>Proxy</strong>: a stand-in that controls access (lazy loading, access checks, remote calls).</li></ul>
+<h4>Dependency injection</h4>
+<p>Instead of a class creating its own database connection, it receives one in its constructor. Tests pass in a fake; production passes in the real one. Frameworks (Spring, ASP.NET, Angular) automate this with an <strong>IoC container</strong>.</p>
+<h4>UML at the level you need</h4>
+<ul><li><strong>Class diagram</strong>: boxes with name, fields, methods; arrows for inheritance (hollow triangle), implementation (dashed), association and composition (diamond).</li><li><strong>Sequence diagram</strong>: lifelines across the top, messages down the page; shows who calls whom in a request.</li><li><strong>Use case diagram</strong> and <strong>state diagram</strong> for requirements and lifecycles.</li></ul>
+<p>Sketch the small diagram that answers the question, not the whole system. Tools: draw.io, PlantUML, Mermaid (renders in GitHub markdown).</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Liskov in practice</h4>
+<p>If <code>Square</code> extends <code>Rectangle</code> and setting width also changes height, code written for rectangles breaks. A subclass must keep the parent's <strong>promises</strong>: accept at least what the parent accepts, return at least what the parent guarantees, throw no new surprises. When inheritance forces <code>NotImplementedError</code>, the hierarchy is wrong.</p>
+<h4>Dependency inversion and architecture</h4>
+<p>High-level policy (business rules) should not import low-level detail (SQL, HTTP). Both depend on an interface owned by the policy side. This is the heart of <strong>hexagonal / clean architecture</strong>: the domain sits in the center; databases, web frameworks and message queues plug in at the edges. It makes the core testable without a database and lets you replace infrastructure.</p>
+<h4>Command, State, Visitor, Iterator, Template Method</h4>
+<ul><li><strong>Command</strong>: turn a request into an object (undo/redo, job queues, macro recording).</li><li><strong>State</strong>: an object changes behavior with its internal state; replaces giant <code>switch</code> blocks (order: new, paid, shipped).</li><li><strong>Visitor</strong>: add operations to a class hierarchy without editing it (compilers walk syntax trees).</li><li><strong>Iterator</strong>: walk a collection without exposing its internals (<code>for x in obj</code>).</li><li><strong>Template Method</strong>: a base class fixes the steps, subclasses fill in some.</li><li><strong>Chain of Responsibility</strong>: pass a request along handlers until one handles it (middleware, servlet filters, logging).</li></ul>
+<h4>Anti-patterns and smells</h4>
+<p>God object, shotgun surgery (one change touches twenty files), feature envy, primitive obsession, deep inheritance trees, copy-paste duplication, premature abstraction ("we might need it"), the <strong>big ball of mud</strong>. Refactoring catalog (extract method, replace conditional with polymorphism, introduce parameter object) is the cure, backed by tests.</p>
+<h4>Patterns and security</h4>
+<ul><li><strong>Input validation at a boundary</strong> (facade/adapter) so untrusted data never reaches core logic.</li><li><strong>Least privilege</strong> by splitting interfaces (ISP): a component that only reads should only get a read interface.</li><li><strong>Secure defaults</strong> with the builder: unsafe options need explicit flags.</li><li>Singletons with mutable shared state are a source of race conditions and TOCTOU bugs.</li><li><strong>Deserialization</strong> of untrusted objects (a "factory" that instantiates any class named in the data) is a classic remote code execution bug in Java and Python.</li></ul>
+<h4>Interview checks</h4>
+<ul><li>Explain SOLID with one example for each letter.</li><li>When is a strategy better than an <code>if/else</code> chain, and when is it overkill?</li><li>Why do people call singletons an anti-pattern? How do you test code that uses one?</li><li>Design a parking lot, a rate limiter or a notification system: start with requirements, nouns become classes, then show which pattern you used and why.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="testing.html">&lt; software testing</a><a href="cicd.html">git workflows, CI/CD and DevSecOps &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -12,6 +12,10 @@ esc = html.escape
 CHAPTERS = [
     ("ai-history", "history", "From the 1956 Dartmouth workshop to LLMs, and the security timeline alongside it"),
     ("how-ai-works", "how it works", "Tokens, training, RAG and agents, plus classical ML, at three depths"),
+    ("ml-math", "ML math refresher", "Vectors, dot products, matrices and gradients in one short chapter, with Python"),
+    ("ml-regression", "regression", "Fit a line, gradient descent, train and test splits, overfitting"),
+    ("ml-classifiers", "classifiers", "Logistic regression, trees, forests, naive Bayes and a small neural net"),
+    ("ml-evaluation", "evaluating models", "Confusion matrix, precision and recall, the base-rate trap. Lab: read a classifier honestly"),
     ("ai-chatbot", "the chatbot", "How ~/ai/chat works: search over this site, optional local model, and why it can still be wrong"),
     ("ai-for-defense", "AI for defense", "Where AI helps a SOC, how to run it safely. Lab: audit an AI triage summary"),
     ("ai-for-attackers", "AI for attackers", "Phishing, deepfakes, recon, and what to change in your defenses"),
@@ -87,9 +91,10 @@ def build(page):
         f'<span class="ls-title">{esc(n)} <span class="muted small">{esc(b)}</span></span><span class="ls-tags">{g["lab"].get("style", "read") if g["lab"].get("brief") else "read"}</span></a></li>'
         for s, n, b, g in chs)
     page("ai.html", "ai :: 0xDay", f'''<p class="cmd">ls ~/ai</p><h1>~/ai</h1>
-<p>Artificial intelligence and AI in cybersecurity: where it came from, how it works, how defenders and attackers use it, how it gets attacked, where it is going, and how to use it well. Each chapter goes <strong>simple → mid → complex</strong>, and two of them end in a hands-on lab.</p>
+<p>Artificial intelligence and AI in cybersecurity: where it came from, how it works, how defenders and attackers use it, how it gets attacked, where it is going, and how to use it well. Each chapter goes <strong>simple → mid → complex</strong>, and several end in a hands-on lab. The four machine-learning chapters are course <a href="courses/CS330.html">CS330</a>.</p>
 <p class="muted small">Written by me, in my own words, and dated {esc(news["updated"])}. Forecasts are labeled as opinion. Anything time-sensitive lives on the <a href="ai/news.html">reading list</a>, which is hand-curated, not a live feed.</p>
 <div class="hub"><a class="tile" href="ai/chat.html"><span class="tile__k">./chat</span><span class="tile__v">ask the site, with sources</span><span class="tile__n">browser-only assistant</span></a>
+<a class="tile" href="ai/ml-lab.html"><span class="tile__k">./ml-lab</span><span class="tile__v">train a model in your browser</span><span class="tile__n">playground</span></a>
 <a class="tile" href="ai/news.html"><span class="tile__k">./news</span><span class="tile__v">dated reading list</span><span class="tile__n">curated by hand</span></a>
 <a class="tile" href="ai/ai-for-defense.html"><span class="tile__k">./triage-lab</span><span class="tile__v">catch what the AI summary left out</span><span class="tile__n">ticket lab</span></a>
 <a class="tile" href="ai/attacking-ai.html"><span class="tile__k">./injection-lab</span><span class="tile__v">trace a hijacked assistant</span><span class="tile__n">shell lab</span></a></div>

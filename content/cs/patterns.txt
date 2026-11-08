@@ -1,0 +1,96 @@
+tagline: SOLID principles, the design patterns that actually show up (factory, builder, singleton, adapter, decorator, strategy, observer), UML basics, and when not to use a pattern.
+:: simple
+A **design pattern** is a named, reusable solution to a problem that keeps appearing in object-oriented code. They come from the 1994 "Gang of Four" book. Knowing the names lets you talk about design in one word ("use a strategy there") and recognize the structure when you read other people's code, such as Spring, Java's standard library or a plugin system.
+
+Patterns come in three families:
+- **Creational** (how objects get made): Factory, Builder, Singleton.
+- **Structural** (how objects fit together): Adapter, Decorator, Facade, Proxy.
+- **Behavioral** (how objects talk): Strategy, Observer, Command, Iterator, State.
+
+Before the patterns, learn the guide rails. The **SOLID** principles:
+- **S**ingle responsibility: a class has one reason to change.
+- **O**pen/closed: add new behavior by adding code, not editing working code.
+- **L**iskov substitution: a subclass must work anywhere its parent works.
+- **I**nterface segregation: many small interfaces beat one giant one.
+- **D**ependency inversion: depend on abstractions (interfaces), not concrete classes.
+
+Two shorthand rules: **favor composition over inheritance** (have an object, don't extend a class unless it really *is* one), and **program to an interface**.
+
+Patterns are tools, not goals. Using five patterns where a function would do is a bug of its own. See the OOP basics in the [Java OOP guide](../learn/object-oriented-programming-java.html).
+:: mid
+### Strategy: swap an algorithm
+Pull the changing part behind an interface and pass it in.
+```
+class Checkout:
+    def __init__(self, pricing):        # pricing is any object with .price(cart)
+        self.pricing = pricing
+    def total(self, cart):
+        return self.pricing.price(cart)
+
+class Regular:   def price(self, cart): return sum(cart)
+class BlackFriday: def price(self, cart): return sum(cart) * 0.7
+```
+No `if mode == "bf"` chain. In Python and JS a plain function often replaces the whole class.
+
+### Observer: tell everyone who cares
+A subject keeps a list of listeners and notifies them of changes. This is event handlers, GUI toolkits, pub/sub queues and webhooks.
+```
+class Alerts:
+    def __init__(self): self.subs = []
+    def subscribe(self, f): self.subs.append(f)
+    def fire(self, e): [f(e) for f in self.subs]
+```
+
+### Factory: hide which class gets created
+A function or method returns the right implementation: `Parser.for_file("a.json")` returns `JsonParser`. Callers depend on the interface, and adding a format changes one place.
+
+### Builder: construct complex objects step by step
+Useful when a constructor would take ten parameters. `HttpRequest.builder().url(u).header(k, v).timeout(5).build()`. The result can be immutable and validated once in `build()`.
+
+### Singleton: exactly one instance (use sparingly)
+Makes sense for a config or logger; but it is global state in disguise, hard to test and hostile to concurrency. Prefer passing one instance in (**dependency injection**).
+
+### Adapter, Decorator, Facade, Proxy
+- **Adapter**: wrap an incompatible interface to look like the one you expect (a wrapper around a third-party SDK so you can swap vendors).
+- **Decorator**: wrap an object to add behavior while keeping the same interface (a logging or caching layer, Python `@decorator`, Java `BufferedReader` around `FileReader`).
+- **Facade**: a simple front over a messy subsystem.
+- **Proxy**: a stand-in that controls access (lazy loading, access checks, remote calls).
+
+### Dependency injection
+Instead of a class creating its own database connection, it receives one in its constructor. Tests pass in a fake; production passes in the real one. Frameworks (Spring, ASP.NET, Angular) automate this with an **IoC container**.
+
+### UML at the level you need
+- **Class diagram**: boxes with name, fields, methods; arrows for inheritance (hollow triangle), implementation (dashed), association and composition (diamond).
+- **Sequence diagram**: lifelines across the top, messages down the page; shows who calls whom in a request.
+- **Use case diagram** and **state diagram** for requirements and lifecycles.
+Sketch the small diagram that answers the question, not the whole system. Tools: draw.io, PlantUML, Mermaid (renders in GitHub markdown).
+:: complex
+### Liskov in practice
+If `Square` extends `Rectangle` and setting width also changes height, code written for rectangles breaks. A subclass must keep the parent's **promises**: accept at least what the parent accepts, return at least what the parent guarantees, throw no new surprises. When inheritance forces `NotImplementedError`, the hierarchy is wrong.
+
+### Dependency inversion and architecture
+High-level policy (business rules) should not import low-level detail (SQL, HTTP). Both depend on an interface owned by the policy side. This is the heart of **hexagonal / clean architecture**: the domain sits in the center; databases, web frameworks and message queues plug in at the edges. It makes the core testable without a database and lets you replace infrastructure.
+
+### Command, State, Visitor, Iterator, Template Method
+- **Command**: turn a request into an object (undo/redo, job queues, macro recording).
+- **State**: an object changes behavior with its internal state; replaces giant `switch` blocks (order: new, paid, shipped).
+- **Visitor**: add operations to a class hierarchy without editing it (compilers walk syntax trees).
+- **Iterator**: walk a collection without exposing its internals (`for x in obj`).
+- **Template Method**: a base class fixes the steps, subclasses fill in some.
+- **Chain of Responsibility**: pass a request along handlers until one handles it (middleware, servlet filters, logging).
+
+### Anti-patterns and smells
+God object, shotgun surgery (one change touches twenty files), feature envy, primitive obsession, deep inheritance trees, copy-paste duplication, premature abstraction ("we might need it"), the **big ball of mud**. Refactoring catalog (extract method, replace conditional with polymorphism, introduce parameter object) is the cure, backed by tests.
+
+### Patterns and security
+- **Input validation at a boundary** (facade/adapter) so untrusted data never reaches core logic.
+- **Least privilege** by splitting interfaces (ISP): a component that only reads should only get a read interface.
+- **Secure defaults** with the builder: unsafe options need explicit flags.
+- Singletons with mutable shared state are a source of race conditions and TOCTOU bugs.
+- **Deserialization** of untrusted objects (a "factory" that instantiates any class named in the data) is a classic remote code execution bug in Java and Python.
+
+### Interview checks
+- Explain SOLID with one example for each letter.
+- When is a strategy better than an `if/else` chain, and when is it overkill?
+- Why do people call singletons an anti-pattern? How do you test code that uses one?
+- Design a parking lot, a rate limiter or a notification system: start with requirements, nouns become classes, then show which pattern you used and why.

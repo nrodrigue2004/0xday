@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>requirements, agile and teamwork :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, requirements, agile and teamwork: Waterfall vs agile, user stories, Scrum and Kanban, estimation, code review, technical debt.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter agile</p>
+<h1>~/cs/agile</h1>
+<p>How software teams decide what to build and how they work: requirements, user stories, Scrum and Kanban, estimation, code review and technical debt.</p>
+<p class="muted small">CS240: software engineering · <a href="../courses/CS240.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="cs-agile">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Writing code is the easy part. The hard parts are knowing <strong>what</strong> to build and keeping a team working in step. A <strong>software development life cycle (SDLC)</strong> is the sequence of activities: requirements, design, implementation, testing, deployment, maintenance.</p>
+<p>Two ways to run it:</p>
+<ul><li><strong>Waterfall</strong>: finish each phase completely before the next. Good when requirements are fixed and mistakes are expensive to fix later (medical devices, avionics). Poor when the customer learns what they want only by seeing the software.</li><li><strong>Agile</strong>: work in short cycles, show working software often, change direction when you learn something. Most modern teams are some flavor of agile.</li></ul>
+<p>The <strong>Agile Manifesto</strong> values: individuals and interactions over process, working software over documentation, customer collaboration over contracts, responding to change over following a plan. The right-hand things still matter, the left-hand things matter more.</p>
+<p>Vocabulary you will hear every day:</p>
+<ul><li><strong>User story</strong>: a small piece of value from a user's view: "As a student, I want to reset my password so that I can log in when I forget it."</li><li><strong>Backlog</strong>: the ordered to-do list of stories.</li><li><strong>Sprint</strong>: a fixed time box (1-4 weeks) in which the team finishes a chosen set of stories.</li><li><strong>Stand-up</strong>: a 15-minute daily sync: what I did, what I will do, what blocks me.</li><li><strong>Definition of done</strong>: the shared checklist a story must meet (code reviewed, tests pass, deployed, documented).</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Requirements</h4>
+<ul><li><strong>Functional</strong>: what the system does ("a user can reset a password by email").</li><li><strong>Non-functional (quality attributes)</strong>: how well it does it: performance, security, availability, usability, maintainability. These drive architecture and are forgotten most often.</li><li><strong>Acceptance criteria</strong> make a story testable. Given/When/Then style: *Given* a registered user, *When* they request a reset, *Then* an email with a single-use link valid for 30 minutes is sent.</li><li>Good requirements are specific, testable and traceable. "The page should be fast" is not; "95% of requests complete in under 300 ms" is.</li><li>Use cases, prototypes and talking to real users find requirements that nobody wrote down.</li></ul>
+<h4>Scrum</h4>
+<p>Roles: <strong>product owner</strong> (decides priority and value), <strong>scrum master</strong> (removes obstacles, coaches the process), <strong>developers</strong>. Events: sprint planning, daily stand-up, sprint review (demo to stakeholders), retrospective (what do we improve?). Artifacts: product backlog, sprint backlog, the increment. Scrum is a framework, not a bag of ceremonies: the point is the feedback loops.</p>
+<h4>Kanban</h4>
+<p>Visualize work as cards on a board (To do, Doing, Review, Done), and set <strong>WIP (work in progress) limits</strong> per column so the team finishes things before starting new ones. Measure <strong>cycle time</strong>. Fits support and operations work where tasks arrive continuously. Many teams mix: "scrumban".</p>
+<h4>Estimation</h4>
+<p>Teams use <strong>story points</strong> (relative size; Fibonacci 1, 2, 3, 5, 8) or t-shirt sizes, discuss differences in <strong>planning poker</strong>, then track <strong>velocity</strong> (points finished per sprint) to forecast. Estimates are about uncertainty, not promises. Break big stories down; if it cannot be estimated, run a time-boxed <strong>spike</strong> to learn first.</p>
+<h4>Code review</h4>
+<p>A second pair of eyes on every change. Review for correctness, tests, readability, security (input validation, auth checks, secrets), and design. Keep PRs small (under about 400 lines). Be kind and specific: comment on the code, not the person; separate "must fix" from "nit". Reviews spread knowledge and are one of the cheapest defect-finding methods known.</p>
+<h4>Technical debt</h4>
+<p>Shortcuts that make the next change slower, like a loan: sometimes worth taking, but it accrues interest. Track it visibly, pay it down continuously (the "boy scout rule": leave the code a little cleaner), and tie big payoffs to risk or delivery speed when arguing for time. Dead code, no tests, out-of-date dependencies and missing documentation all count.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Estimating honestly and planning with uncertainty</h4>
+<p>The <strong>cone of uncertainty</strong>: early estimates can be off by a factor of 4 either way. Reduce risk by building the scariest part first, using ranges ("3 to 6 weeks"), and re-forecasting from real throughput rather than guesses. Beware <strong>Brooks' law</strong>: adding people to a late project makes it later, because onboarding and communication grow faster than output. Hofstadter's law: it always takes longer than you expect, even when you account for that.</p>
+<h4>Working agreements that keep teams fast</h4>
+<ul><li>Small batch sizes, thin vertical slices (UI to database) that can be released, not horizontal layers.</li><li><strong>Trunk-based development</strong> and CI so integration is never a big-bang event (<a href="cicd.html">CI/CD chapter</a>).</li><li><strong>Pairing and mob programming</strong> for hard or risky work and onboarding.</li><li><strong>Blameless postmortems</strong>: after an outage ask how the system allowed the failure, not who to blame. Write down timeline, impact, causes, and tracked actions.</li><li><strong>Architecture decision records (ADRs)</strong>: short documents capturing a decision, its context and trade-offs, so the reasoning survives staff turnover.</li><li>Write documentation where people look: README with how to run/test, runbooks for on-call, API specs (OpenAPI).</li></ul>
+<h4>Security in the process</h4>
+<ul><li>Add <strong>abuse cases</strong> and <strong>threat modeling</strong> (STRIDE) to design discussions: for each feature, how could someone misuse it?</li><li>Security acceptance criteria in stories ("password reset tokens are single-use").</li><li>Include security in the definition of done: dependency scan clean, no secrets, review by someone who knows the area.</li><li>A <strong>security champion</strong> inside each team connects developers with the security group.</li></ul>
+<p>See the <a href="architecture.html">secure SDLC chapter</a>.</p>
+<h4>Metrics: use with care</h4>
+<p>Velocity, burn-down charts and lines of code are easy to game and bad as targets (Goodhart's law: when a measure becomes a target it stops being a good measure). Prefer outcome measures: lead time, change failure rate, customer satisfaction, incidents.</p>
+<h4>Team and career skills this builds</h4>
+<p>Writing clear tickets and PR descriptions, estimating, breaking down ambiguous work, saying "I don't know yet, here is how I will find out", and communicating risk early. Interviewers ask behavioral questions about these; prepare a short story for a disagreement in code review, a deadline slip and a bug you introduced.</p>
+<h4>Interview checks</h4>
+<ul><li>Waterfall versus agile: when would you choose each?</li><li>Write a user story and acceptance criteria for "forgot password".</li><li>What does a good PR look like? What do you look for as a reviewer?</li><li>Scrum versus Kanban in one minute.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="cicd.html">&lt; git workflows, CI/CD and DevSecOps</a><a href="architecture.html">architecture and the secure SDLC &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

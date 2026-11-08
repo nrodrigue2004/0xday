@@ -1,0 +1,179 @@
+## 0
+Q: A server does not answer your request before the timeout. What can you safely conclude?
+* Nothing for certain: it may be down, slow, or your request or its reply may have been lost
+- The server has crashed
+- The network is broken
+- The request was never processed
+? You cannot tell slow from dead from lost over an unreliable network, which is why retries must be safe.
+
+Q: Which operation is idempotent?
+* Set the account balance to 50
+- Add 10 to the account balance
+- Append a line to a log file
+- Send an email
+? Running it twice leaves the same result as once. Adding 10 twice does not, unless a request ID is used to deduplicate.
+
+Q: What does a Lamport clock guarantee?
+* If event A happened before B (A caused B), then clock(A) is less than clock(B)
+- It matches wall-clock time within a millisecond
+- If clock(A) is less than clock(B), A caused B
+- It detects which events were concurrent
+? The reverse does not hold. Vector clocks are what tell concurrent events apart.
+
+Q: What is a retry storm?
+* Many clients retrying at once against a struggling service, which keeps it down
+- A burst of DNS lookups
+- A replication loop between two leaders
+- A queue that delivers a message twice
+? Exponential backoff with jitter spreads retries out and avoids it.
+
+Q: The FLP result says that in a fully asynchronous system with even one possible crash...
+* No deterministic algorithm can guarantee that consensus terminates
+- Consensus is impossible in all cases
+- Every node must be Byzantine
+- Replication needs at least 5 nodes
+? Real systems use timeouts, so they stay safe always and make progress when the network behaves.
+
+## 1
+Q: With N = 3 replicas, which setting guarantees a read sees the latest acknowledged write?
+* W = 2 and R = 2
+- W = 1 and R = 1
+- W = 1 and R = 2
+- W = 2 and R = 1 on different days
+? You need W + R > N so that every read set overlaps every write set.
+
+Q: During a network partition, a system that keeps answering on both sides is choosing...
+* Availability over consistency
+- Consistency over availability
+- Latency over durability
+- Safety over liveness
+? That is the AP side of CAP. The CP side would refuse some requests.
+
+Q: What does PACELC add to CAP?
+* Even without a partition, there is a trade-off between latency and consistency
+- Partitions cannot happen on cloud networks
+- Consistency is free if you use quorums
+- Availability always beats consistency
+? Waiting for a distant quorum costs latency even when everything is healthy.
+
+Q: Why is last-write-wins a risky conflict rule?
+* It silently discards one of two concurrent writes and depends on clocks that can be wrong
+- It needs three nodes
+- It cannot be used with replication
+- It always keeps the older write
+? Version vectors or CRDTs can keep or merge both writes instead.
+
+Q: What does a fencing token prevent?
+* A paused old leader from corrupting storage with stale writes after a new leader took over
+- A client from reading stale data
+- A message from being delivered twice
+- A follower from voting twice
+? Storage rejects writes carrying a token lower than the highest it has seen.
+
+## 2
+Q: In a 5-node Raft cluster, how many nodes can fail while the cluster still makes progress?
+* 2
+- 1
+- 3
+- 4
+? A majority is 3 of 5, so 2 failures are tolerated.
+
+Q: In Raft, what is a term?
+* A logical clock number that increases with each election
+- The time a leader is allowed to serve
+- A snapshot of the state machine
+- A group of followers
+? A message from an older term is rejected, which stops a returning old leader from overriding the new one.
+
+Q: When is a Raft log entry committed?
+* When a majority of nodes have stored it (from the leader's own term)
+- As soon as the leader appends it
+- When every node has stored it
+- When the client acknowledges it
+? A leader that cannot reach a majority can append but never commit.
+
+Q: A leader is cut off from the other two nodes. What happens to the entries it keeps appending?
+* They stay uncommitted and are discarded when it rejoins and sees the higher term
+- They are committed because it is still the leader
+- They are copied to the new leader
+- They are committed once a client retries
+? The other two elected a new leader in a higher term. The old leader steps down and its log is overwritten to match.
+
+Q: Why does a candidate need a log at least as up-to-date as the voter's?
+* So a new leader is guaranteed to hold every committed entry
+- So elections finish faster
+- So followers can vote twice
+- So the old leader can keep serving
+? This is the election restriction that gives leader completeness.
+
+## 3
+Q: A consumer does the work, then crashes before acking. What does an at-least-once queue do?
+* Redeliver the message, so it may be processed twice
+- Drop the message
+- Mark the work as done
+- Send it to the dead-letter queue immediately
+? That is why consumers need to be idempotent.
+
+Q: What gives you exactly-once effects in practice?
+* At-least-once delivery plus an idempotent consumer
+- A broker setting called exactly-once on any broker
+- Using more partitions
+- A shorter visibility timeout
+? Record the message ID in the same transaction as the side effect.
+
+Q: What is a dead-letter queue for?
+* Parking messages that keep failing so they do not block the queue
+- Storing acked messages for audit
+- Speeding up delivery
+- Holding messages for a second consumer group
+? A poison message that always crashes the consumer would otherwise be retried forever.
+
+Q: How does Kafka keep events for one account in order while still running in parallel?
+* Order is kept per partition, and the account ID is used as the partition key
+- A single global lock
+- By timestamp sorting at the consumer
+- By acking in reverse
+? Global ordering is expensive. Per-key ordering is usually enough.
+
+Q: Which is a security risk when consuming messages?
+* Deserializing untrusted payloads with an unsafe format such as Python pickle
+- Using a dead-letter queue
+- Using more than one consumer
+- Setting a visibility timeout
+? A queue message is untrusted input. Unsafe deserialization can mean remote code execution.
+
+## 4
+Q: In the simulator's CP mode, you kill two of the three nodes and write to the survivor. What happens?
+* The entry is appended but stays uncommitted, because there is no majority
+- It commits immediately
+- The survivor refuses to start
+- All data is lost
+? The cluster chooses consistency over availability and waits for a majority.
+
+Q: You isolate the leader and write to it, then heal. What happens to that entry?
+* It is discarded, because the other two nodes elected a new leader in a higher term
+- It is kept and replicated everywhere
+- It is merged with the new leader's log
+- It is kept only on the old leader
+? It was never committed, so no client should have trusted it.
+
+Q: In AP mode, n3 is isolated, you write x=1 on n1 and read x on n3. What do you get?
+* A stale or missing value, but the node still answers
+- An error saying the node is unavailable
+- The new value x=1
+- The leader's value
+? Availability over consistency: the read succeeds with old data.
+
+Q: In AP mode you write x=A on n1 and x=B on n3 while split, then heal. What happens?
+* One value wins by timestamp and the other write is lost
+- Both values are kept
+- The cluster elects a leader to decide
+- The writes cancel out
+? Last-write-wins converges, but a client's acknowledged write disappears.
+
+Q: In CP mode, why does a read from a follower get refused in this simulator?
+* Only the leader can confirm it holds the latest committed data
+- Followers have no data
+- Reads are always slower on followers
+- It is a bug in the simulator
+? Real systems either read from the leader or confirm leadership first, or accept staleness on purpose.

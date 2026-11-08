@@ -2,6 +2,11 @@
   {
     "date": "2026-11-08",
     "type": "feat",
+    "msg": "add CS320 distributed systems (~/dist, cluster simulator) and CS330 AI/ML (ML chapters, in-browser playground) courses"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "feat",
     "msg": "add ~/courses: 11 self-study courses wrapping the existing guides, drills and cert notes, with a quiz per module (176 questions) and a placement exam per course (80% tests out). New ~/transcript rolls up progress with export and import, and ~/start steps now tick the matching course modules. Progress stays in the browser"
   },
   {
