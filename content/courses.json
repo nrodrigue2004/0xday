@@ -38,7 +38,9 @@
         "PEN300",
         "BLU310",
         "CRY300",
-        "EXP400"
+        "EXP400",
+        "CS320",
+        "CS330"
       ],
       "pick": {
         "n": 1,
@@ -287,6 +289,157 @@
                 {
                   "t": "~/secplus: weak-spot drill",
                   "h": "secplus/weak.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "B",
+      "name": "CS core",
+      "courses": [
+        {
+          "code": "CS320",
+          "name": "Distributed systems",
+          "pre": [
+            "NET200"
+          ],
+          "blurb": "Why many machines are harder than one: replication, CAP, consensus with Raft, queues and a simulated 3-node cluster you can break.",
+          "modules": [
+            {
+              "t": "Why distributed is hard",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/dist: fundamentals",
+                  "h": "dist/dist-fundamentals.html"
+                }
+              ]
+            },
+            {
+              "t": "Replication and consistency",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/dist: replication (lab: the lost write)",
+                  "h": "dist/dist-replication.html"
+                }
+              ]
+            },
+            {
+              "t": "Consensus and Raft",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/dist: consensus (lab: the uncommitted write)",
+                  "h": "dist/dist-consensus.html"
+                },
+                {
+                  "t": "Raft visualization (external)",
+                  "h": "https://raft.github.io/"
+                }
+              ]
+            },
+            {
+              "t": "Queues and streams",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/dist: queues and streams (lab: the double charge)",
+                  "h": "dist/dist-queues.html"
+                }
+              ]
+            },
+            {
+              "t": "Break a cluster",
+              "m": 60,
+              "note": "Run the five experiments on the cluster page: crash the leader, lose the majority, isolate the leader and heal, a stale read in AP mode, and last-write-wins. For each, write down what you expected before you press the button.",
+              "links": [
+                {
+                  "t": "~/dist: cluster simulator",
+                  "h": "dist/cluster.html"
+                },
+                {
+                  "t": "~/learn: operating systems (processes, locks, concurrency)",
+                  "h": "learn/operating-systems.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CS330",
+          "name": "AI and machine learning",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "A short linear algebra refresher, regression, classifiers and honest evaluation, with a model you train in the browser. Security examples throughout.",
+          "modules": [
+            {
+              "t": "Math refresher",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/ai: ML math refresher",
+                  "h": "ai/ml-math.html"
+                },
+                {
+                  "t": "3Blue1Brown: Essence of linear algebra",
+                  "h": "https://www.3blue1brown.com/topics/linear-algebra"
+                }
+              ]
+            },
+            {
+              "t": "Regression",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/ai: regression",
+                  "h": "ai/ml-regression.html"
+                },
+                {
+                  "t": "~/learn: Python",
+                  "h": "learn/python.html"
+                }
+              ]
+            },
+            {
+              "t": "Classifiers",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/ai: classifiers",
+                  "h": "ai/ml-classifiers.html"
+                }
+              ]
+            },
+            {
+              "t": "Evaluating models",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/ai: evaluating models (lab: read a classifier)",
+                  "h": "ai/ml-evaluation.html"
+                }
+              ]
+            },
+            {
+              "t": "Train one and use it",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/ai: ML playground",
+                  "h": "ai/ml-lab.html"
+                },
+                {
+                  "t": "~/ai: how AI works",
+                  "h": "ai/how-ai-works.html"
+                },
+                {
+                  "t": "~/ai: attacking AI",
+                  "h": "ai/attacking-ai.html"
                 }
               ]
             }

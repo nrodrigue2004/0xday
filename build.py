@@ -260,6 +260,9 @@ import build_comptia
 COMPTIA = build_comptia.build(page)
 import build_ai
 AI = build_ai.build(page)
+import build_ml, build_dist
+build_ml.build(page, esc)
+DIST = build_dist.build(page, esc)
 import build_chat
 build_chat.build(page)
 import build_careers
@@ -490,6 +493,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("code", "code.html", "programming path: Python, Bash, PowerShell, SQL, git", f'{len(CODE)} chapters'),
        ("basics", "basics.html", "OSI, binary and hex, ports, OSINT, crypto, OS, web, APIs, databases", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
+       ("dist", "dist.html", "distributed systems: replication, consensus, queues + cluster sim", f'{len(DIST)} chapters'),
        ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
        ("history", "history.html", "Ada Lovelace to quantum computers, hacking timeline", f'{len(HISTORY)} chapters'),
        ("cases", "cases.html", "real exploits and malware: code, patches, labs", f'{len(CASES)} cases'),
@@ -560,6 +564,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "ctf": CTF, "ctfstats": CTFSTATS, "thm": CERTS.get("thm_username"), "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS,
         "guides": [{"slug": k, "name": v[0]["name"]} for k, v in GUIDES.items()],
         "ai": [{"slug": c[0], "name": c[1]} for c in AI],
+        "dist": [{"slug": c[0], "name": c[1]} for c in DIST],
         "drills": [{"slug": c[0], "name": c[1]} for c in DRILLS],
         "glossary": [{"t": t["t"], "d": t["d"]} for t in GLOSS],
 

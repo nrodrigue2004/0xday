@@ -11,10 +11,10 @@ from html.parser import HTMLParser
 esc = html.escape
 
 # (directory, label) pairs whose pages are indexed. Files listed in SKIP are not.
-DIRS = [("learn", "guide"), ("code", "code"), ("cloud", "cloud"), ("basics", "basics"), ("ai", "ai"),
+DIRS = [("learn", "guide"), ("code", "code"), ("cloud", "cloud"), ("basics", "basics"), ("ai", "ai"), ("dist", "dist"),
         ("man", "man"), ("drills", "drill"), ("history", "history"), ("cases", "case"), ("careers", "careers"), ("interview", "interview")]
 SECPLUS = re.compile(r"^\d\.\d\.html$")
-SKIP = {"ai/chat.html", "ai/news.html"}
+SKIP = {"ai/chat.html", "ai/news.html", "ai/ml-lab.html", "dist/cluster.html"}
 MAXCH = 900          # soft cap per chunk, in characters
 BLOCK = {"p", "li", "pre", "tr", "h1", "h2", "h3", "h4", "div", "section", "ul", "ol", "table", "blockquote", "dt", "dd"}
 DROP = {"script", "style", "button", "nav", "noscript", "form", "svg", "header", "footer"}

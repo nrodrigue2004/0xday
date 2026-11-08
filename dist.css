@@ -1,0 +1,23 @@
+/* ~/dist/cluster */
+.cl3__bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:1rem 0}
+.cl3__bar select{background:var(--panel);color:var(--fg);border:1px solid var(--border);font:inherit;padding:2px 4px}
+.cl3__bar input[type=range]{accent-color:var(--green);width:90px;vertical-align:middle}
+.cl3__nodes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.cl3__n{border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:8px 12px;min-width:0}
+.cl3__n h3{margin:.2rem 0 .4rem;font-size:1rem;display:flex;justify-content:space-between;gap:8px}
+.cl3__n.is-leader{border-color:var(--green)}
+.cl3__n.is-down{opacity:.45}
+.cl3__n.is-iso{border-style:dashed;border-color:var(--red)}
+.cl3__role{color:var(--green)}
+.cl3__n.is-down .cl3__role{color:var(--red)}
+.cl3__row{font-size:.82rem;margin:3px 0}
+.cl3__log-chips{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0;min-height:1.6rem}
+.cl3__chip{border:1px solid var(--green-dim);border-radius:3px;padding:0 4px;font-size:.72rem;white-space:nowrap}
+.cl3__chip.t0{background:rgba(59,255,127,.18)}.cl3__chip.t1{background:rgba(80,160,255,.2)}.cl3__chip.t2{background:rgba(255,200,60,.2)}.cl3__chip.t3{background:rgba(255,100,160,.2)}
+.cl3__chip.unc{border-style:dashed;background:none;opacity:.8}
+.cl3__btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cl3__btns .btn{padding:0 6px;font-size:.8rem}
+.cl3__cmd{margin:1rem 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cl3__cmd input,.cl3__cmd select{background:var(--panel);color:var(--fg);border:1px solid var(--border);font:inherit;padding:2px 6px}
+.cl3__log{max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:8px 12px;font-size:.8rem;white-space:pre-wrap}
+.cl3__log .w{color:var(--red)}.cl3__log .g{color:var(--green)}

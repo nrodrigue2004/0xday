@@ -1,0 +1,51 @@
+tagline: The linear algebra and slope you need for machine learning, as a short refresher with Python: vectors, dot products, matrices and gradients.
+:: simple
+You do not need a math degree to follow machine learning. You need four ideas, and you can run all of them in Python.
+
+**A vector is a list of numbers.** A login attempt could be `[hour, failed_count, new_country]` = `[3, 12, 1]`. Each position is a **feature**. Two vectors of the same length can be added or scaled position by position.
+
+**The dot product** multiplies matching positions and adds: `[1,2,3] . [4,5,6] = 1*4 + 2*5 + 3*6 = 32`. In ML this means "weigh each feature and add up the evidence". A weight vector `w` says how much each feature matters, and `w . x` is the score.
+
+**A matrix is a grid of numbers.** Rows can be examples and columns features. Multiplying a matrix by a vector does one dot product per row, so you score *all* your examples in one step. Neural networks are mostly big matrix multiplications.
+
+**A slope tells you which way is downhill.** Training a model means minimizing an error number. If you know the slope of the error at your current settings, you nudge the settings the opposite way. Repeat. That is **gradient descent**, and all of modern ML rests on it.
+```
+import numpy as np
+w = np.array([0.5, 2.0, -1.0])   # weights
+x = np.array([3, 12, 1])         # one login attempt
+print(w @ x)                     # dot product = the score: 24.5
+```
+> Vector = features. Dot product = weighted evidence. Matrix = many dot products at once. Slope = which way to adjust.
+:: mid
+### Vectors and distance
+The **length** (norm) of a vector is the square root of the sum of squares. The **distance** between two points is the length of their difference. Nearest-neighbor methods use exactly this. Features on very different scales (a count in the thousands next to a flag of 0/1) distort distance, so we **scale** features first, for example subtract the mean and divide by the standard deviation.
+
+**Cosine similarity** is the dot product of two vectors divided by both lengths. It measures the angle, not the size, and is how text and embeddings are compared: a value near 1 means "pointing the same way". The chat search on this site uses a text-ranking relative of this idea.
+
+### Matrices
+Shapes matter. An `(m, n)` matrix times an `(n, k)` matrix gives an `(m, k)` matrix. The inner sizes must match. A dataset `X` with 1000 examples and 3 features has shape `(1000, 3)`; weights `w` of shape `(3,)` give predictions `X @ w` of shape `(1000,)`. Transpose (`X.T`) swaps rows and columns. The **identity matrix** `I` leaves vectors unchanged. Most "shape mismatch" errors in ML code are this rule being broken.
+
+### Derivatives and the gradient
+The **derivative** of a function at a point is its slope there. For `f(x) = x^2` the slope is `2x`: at `x = 3` it is 6 (going up to the right), so to decrease `f` you move left. With many inputs, the **gradient** is the vector of slopes, one per input. It points uphill; you step the opposite way:
+```
+new_w = w - learning_rate * gradient
+```
+The **learning rate** is the step size. Too big and you overshoot and diverge; too small and training crawls.
+
+### The chain rule
+If the output depends on `g`, which depends on `x`, the slopes multiply: `d f(g(x)) / dx = f'(g(x)) * g'(x)`. **Backpropagation** is just this rule applied layer by layer, working backward from the error to every weight.
+:: complex
+### What to understand, not just compute
+- **Linear means "weighted sum"**. A linear model draws a straight line (a flat plane in more dimensions) through feature space. Stacking linear layers alone gives another linear model; the **nonlinearity** between layers (ReLU, tanh) is what lets networks bend the boundary.
+- **Loss surfaces**: for linear regression with squared error the surface is a single bowl (convex), so gradient descent reaches the one minimum. For neural networks the surface is bumpy; you find a *good* point, not a guaranteed best, and different random starts give different models.
+- **Stochastic / mini-batch gradient descent** estimates the gradient from a small batch of examples. It is noisier but much cheaper per step, and the noise often helps. One pass over the data is an **epoch**.
+- **Dimensions**: with many features, points are far apart and distance gets less meaningful (the "curse of dimensionality"), and the risk of fitting noise rises. This is why feature choice and regularization matter.
+- **Eigenvectors / PCA**: the directions along which data varies most; PCA keeps the top few to shrink dimensions or visualize. You will meet it in anomaly detection write-ups. Know what it is for before you know how to derive it.
+
+### Mini-exercises (run them in Python)
+1. Compute the dot product of `[2, 0, 1]` and `[1, 5, 3]` by hand, then with NumPy. (5)
+2. What is the shape of `A @ B` if `A` is `(4, 3)` and `B` is `(3, 2)`? What if `B` is `(2, 3)`? (`(4,2)`; error)
+3. For `f(x) = (x - 4)^2`, start at `x = 0` with learning rate 0.1 and do three gradient steps by hand. The gradient is `2(x - 4)`. (0 -> 0.8 -> 1.44 -> 1.952)
+
+### Where to go next
+Free, high-quality material: Khan Academy linear algebra, 3Blue1Brown's "Essence of linear algebra" videos, and the NumPy quickstart. Check the [AI reading list](news.html) for dated links. This chapter is a refresher; if a term here feels new, spend an evening with those videos before the next chapter.

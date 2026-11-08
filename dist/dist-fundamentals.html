@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fundamentals :: ~/dist :: 0xDay</title>
+<meta name="description" content="Distributed systems, fundamentals: Partial failure, unreliable networks, clocks, timeouts, retries, and the impossibility results.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">dist --chapter dist-fundamentals</p>
+<h1>~/dist/dist-fundamentals</h1>
+<p>Why a system spread across machines is a different kind of hard: partial failure, slow networks, and no shared clock.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="dist-fundamentals">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>distributed system</strong> is several computers that cooperate over a network so they look like one system to the user. You use them all day: a search engine, a bank, a chat app, a login page backed by three identical servers. We build them for three reasons: <strong>scale</strong> (one machine cannot hold or serve everything), <strong>availability</strong> (when one machine dies the service keeps going) and <strong>distance</strong> (put data near users).</p>
+<p>The price is that things you took for granted on one machine stop being true:</p>
+<ul><li><strong>Parts fail on their own.</strong> One server can crash while the rest keep running. On a single machine a crash is all-or-nothing. Across machines it is *partial failure*.</li><li><strong>The network is slow and unreliable.</strong> A message can be delayed, lost, duplicated or arrive out of order.</li><li><strong>There is no shared clock.</strong> Two machines never agree exactly what time it is.</li><li><strong>You cannot tell "slow" from "dead".</strong> If a server does not answer, you only know you got no answer. It may have crashed, or the reply may be on its way, or your request never arrived.</li></ul>
+<p>That last point drives almost every design in this course. Replication, consensus and retries all exist because you can never be sure.</p>
+<h4>Words to know</h4>
+<ul><li><strong>Node</strong>: one machine or process in the system.</li><li><strong>Latency</strong>: how long one message takes. <strong>Throughput</strong>: how much work per second.</li><li><strong>Replica</strong>: a copy of the same data on another node.</li><li><strong>Partition</strong>: the network splits and two groups of nodes cannot talk to each other (even though everyone is running).</li></ul>
+<p class="callout">If your service asks "did the other server get my message?" and the only way to find out is to ask over the same network, you are doing distributed systems.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The eight fallacies</h4>
+<p>Peter Deutsch and colleagues at Sun listed assumptions that new distributed-systems programmers make and that are all false: the network is reliable; latency is zero; bandwidth is infinite; the network is secure; topology does not change; there is one administrator; transport cost is zero; the network is homogeneous. Each one has caused real outages. The second and fourth matter most for you: latency is always there, and the network is *not* secure, so every link needs authentication and encryption (TLS, mTLS).</p>
+<h4>Failure models</h4>
+<p>Pick a failure model before designing, because it decides how hard the problem is.</p>
+<ul><li><strong>Crash-stop</strong>: a node works correctly and then stops forever.</li><li><strong>Crash-recovery</strong>: a node stops, then comes back, possibly with old state on disk.</li><li><strong>Omission</strong>: messages are lost.</li><li><strong>Byzantine</strong>: a node lies or is compromised and sends wrong data on purpose. Blockchains and aircraft computers pay a lot to tolerate this. Most business systems assume crash-recovery and trust their own nodes.</li></ul>
+<h4>Timeouts and retries</h4>
+<p>A timeout is a guess. Too short and you declare healthy nodes dead; too long and users wait. A retry after a timeout may run the operation <strong>twice</strong> (the first request may have worked). So operations that can be retried must be <strong>idempotent</strong>: doing them twice has the same effect as once. "Set balance to 50" is idempotent; "add 10 to balance" is not, unless you attach a unique request ID and remember which ones you already handled. Retries without backoff and jitter also turn a small outage into a <strong>retry storm</strong> that keeps the service down.</p>
+<h4>Time and ordering</h4>
+<p>Physical clocks drift, and NTP only keeps them within milliseconds on a good day. If you order events by timestamp, a node with a fast clock wins every argument. Leslie Lamport's insight (1978): what matters is <strong>happened-before</strong>. A <strong>Lamport clock</strong> is a counter: increment on each local event, attach it to each message, and on receive set your counter to max(yours, theirs) + 1. If event A caused event B then clock(A) &lt; clock(B), though the reverse is not guaranteed. <strong>Vector clocks</strong> keep one counter per node and can tell "A before B" from "A and B were concurrent".</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Impossibility results you should be able to explain</h4>
+<ul><li><strong>Two Generals</strong>: two parties communicating over a lossy channel cannot reach certain agreement that both will attack at the same time, no matter how many acknowledgments they send. Every protocol that uses acks is dealing with this at heart.</li><li><strong>FLP (1985)</strong>: in a fully asynchronous system where even one node may crash, no deterministic algorithm can guarantee consensus terminates. Real systems get around it with timeouts (partial synchrony): they stay safe always, and make progress when the network behaves well enough.</li><li><strong>CAP</strong> (next chapter): during a partition you must pick between consistency and availability.</li></ul>
+<h4>Safety versus liveness</h4>
+<p><strong>Safety</strong>: nothing bad ever happens (two leaders never commit different values). <strong>Liveness</strong>: something good eventually happens (the system eventually elects a leader). Good protocols never trade away safety; they accept losing liveness for a while when the network is bad. When someone says "the cluster is down" during a partition, usually the safety property held and liveness paid the price.</p>
+<h4>Observability is part of the design</h4>
+<p>You cannot attach a debugger to "the system". You need request IDs that follow a request across services (tracing), logs with node IDs and terms or epochs, and metrics for latency percentiles, not averages. Tail latency (p99) is what users feel when one request fans out to 50 backends: the chance that at least one is slow is high.</p>
+<h4>Security angle</h4>
+<p>Distributed systems widen the attack surface: east-west traffic between nodes needs mutual authentication; a compromised node should not be able to join the cluster or forge votes; secrets and tokens need rotation; and timing, retry and failover behavior can be abused (forcing leader elections is a denial of service). Treat intra-cluster ports as hostile until proven otherwise.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><span></span><a href="dist-replication.html">replication &gt;</a></nav><p><a href="../dist.html">cd ~/dist</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
