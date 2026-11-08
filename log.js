@@ -89,5 +89,15 @@
       save(log); $("lg-msg").textContent = "imported " + v.length + " entries."; render();
     }).catch(() => { $("lg-msg").textContent = "that file is not a valid log."; });
   });
+  // prefill from ~/start ("done + log it"): log.html?topic=secplus&min=45&what=...
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.get("what")) {
+      $("lg-what").value = q.get("what").slice(0, 200);
+      if (q.get("topic") in NAMES) $("lg-topic").value = q.get("topic");
+      const m = +q.get("min"); if (m > 0 && m <= 720) $("lg-min").value = m;
+      $("lg-msg").textContent = "prefilled from ~/start. Adjust the minutes and log it.";
+    }
+  } catch (e) {}
   render();
 })();
