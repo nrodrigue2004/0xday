@@ -17,6 +17,12 @@ $ info locals
 ```
 
 `uid` is the real user (you, 1001), `euid` is the **effective** user the kernel checks. They differ here because the program is **setuid root**.
+
+### What the OS actually does
+It shares one machine among many programs safely. The **kernel** controls the CPU (scheduling), memory (virtual memory and protection), storage (file systems), devices (drivers) and security (users, permissions). Programs run in **user mode** with limited rights and ask the kernel for anything privileged through **system calls** (open, read, write, fork, exec).
+
+### Processes and threads
+A **process** is a running program with its own memory. A **thread** is a path of execution inside it, sharing that memory. The OS switches rapidly between them (**context switch**). Every process has a PID, a parent, an owner and a state: running, ready, sleeping or zombie (finished but not yet collected).
 :: mid
 ### Processes and scheduling
 A **process** is a running program with its own memory, open files and a PID. It can have several **threads** that share that memory. The **scheduler** switches between them many times per second (a **context switch**), using policies like round robin and priorities. States: running, ready, blocked (waiting for I/O).
@@ -32,6 +38,15 @@ $ break 13
 $ continue
 $ print link
 ```
+
+### Memory
+Each process sees its own **virtual address space**, which the OS maps to physical RAM in pages. Protections mark pages readable, writable or executable. **Swap** moves idle pages to disk, which is slow. Typical layout: code, data, heap (grows up, `malloc`), stack (grows down, function calls). Out-of-memory conditions kill processes (the Linux OOM killer).
+
+### Files and permissions
+Everything is a file in Unix. Permissions are owner/group/other × read/write/execute; Windows uses ACLs on files and registry keys. Links: a **hard link** is another name for the same data, a **symbolic link** is a path pointer (attackers abuse them in races). Mounting attaches a file system at a directory.
+
+### Boot process
+Firmware (BIOS/UEFI) → boot loader (GRUB, Windows Boot Manager) → kernel → init system (systemd) → services → login. Secure Boot and measured boot with a TPM check that each stage is signed and unmodified. Rootkits and bootkits aim for these early stages.
 :: complex
 ### Race conditions and TOCTOU
 A **race condition** is a bug where the result depends on timing. The classic OS one is **TOCTOU** (time of check to time of use): a program **checks** something about a file, then later **uses** the file, and an attacker changes what the name points to in between, usually by swapping a **symlink**.
@@ -50,6 +65,59 @@ $ back
 - Open first, then check the open handle with `fstat()` (the handle can't be swapped)
 - `O_NOFOLLOW` to refuse symlinks, and avoid world-writable dirs like `/tmp` (Linux's `fs.protected_symlinks` helps too)
 - Better still, don't make it setuid: audit setuid binaries with `find / -perm -4000`
+
+### Synchronization and deadlock
+When threads share data they need locks, semaphores or atomic operations. Deadlock needs four conditions at once (mutual exclusion, hold and wait, no preemption, circular wait); break any one to prevent it. A **race condition** is when the result depends on timing, and a **TOCTOU** bug is a check followed by a use where the world changes in between.
+
+### Security mechanisms
+Privilege separation (user vs kernel, root vs normal), access control, ASLR (randomizes addresses), DEP/NX (data not executable), stack canaries, sandboxing and containers (namespaces and cgroups on Linux), seccomp (filter system calls), capabilities (split up root's powers), SELinux/AppArmor (mandatory access control), and virtualization-based isolation.
+
+### Tools to look inside
+Linux: `strace` (system calls), `ltrace`, `lsof`, `/proc/PID/`, `top`, `vmstat`, `dmesg`. Windows: Task Manager, Process Explorer, Process Monitor, `Get-Process`, `perfmon`. Watching what a program asks the kernel to do is the fastest way to understand it.
+:: ref
+### processes
+ps aux | all processes with owner and CPU
+ps -ef --forest | process tree
+top / htop | live resource use
+kill -15 PID | ask politely to stop (SIGTERM)
+kill -9 PID | force kill (SIGKILL)
+nice -n 10 cmd | start with lower priority
+jobs, bg, fg | manage shell background jobs
+### memory and disk
+free -h | memory and swap
+vmstat 1 | memory, swap and CPU every second
+cat /proc/meminfo | detailed memory info
+df -h | file system usage
+mount | what is mounted where
+lsof -p PID | files a process has open
+### inside a process
+strace -f -p PID | system calls of a running process
+strace -e openat cmd | only file-open calls
+ls -l /proc/PID/fd | open file descriptors
+cat /proc/PID/maps | memory map
+cat /proc/PID/cmdline | exact command line
+ldd /bin/ls | shared libraries needed
+### permissions
+ls -l | mode, owner and group
+chmod 750 f | rwx for owner, rx for group, none for others
+stat f | all metadata
+umask | default permission mask
+find / -perm -4000 2>/dev/null | setuid programs
+getcap -r / 2>/dev/null | files with Linux capabilities
+### signals
+SIGTERM (15) | polite stop request
+SIGKILL (9) | cannot be caught
+SIGINT (2) | Ctrl+C
+SIGHUP (1) | hangup, often "reload config"
+SIGSEGV | invalid memory access
+### terms
+Kernel | core of the OS with full privilege
+System call | request from a program to the kernel
+Virtual memory | per-process address space mapped by the OS
+Context switch | CPU moves to another process or thread
+Deadlock | tasks waiting on each other forever
+TOCTOU | time-of-check to time-of-use race
+ASLR / NX | randomized addresses / non-executable data
 :: lab
 style: debug
 host: lab

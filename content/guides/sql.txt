@@ -13,6 +13,11 @@ $ sqlite3 hr.db "SELECT name, title FROM employees WHERE dept = 'Finance';"
 > Text goes in single quotes ('Finance'). Numbers don't. Every statement ends with a semicolon.
 
 You can also type `sqlite3 hr.db` on its own to get an interactive `sqlite>` prompt. Type `.quit` to leave it.
+
+### What a database is
+Data in **tables**: rows (records) and columns (fields). A **primary key** uniquely identifies a row. A **foreign key** points at another table's primary key, which is how tables relate (an `orders.customer_id` points to `customers.id`). SQL is the language to ask questions of that data and to change it.
+
+The four verbs: `SELECT` (read), `INSERT` (add), `UPDATE` (change), `DELETE` (remove). Always run a `SELECT` with the same `WHERE` first to see which rows an `UPDATE` or `DELETE` will touch.
 :: mid
 Real questions need four more tools:
 
@@ -34,6 +39,15 @@ $ sqlite3 hr.db "SELECT e.name, COUNT(*) AS fails FROM logins l JOIN employees e
 ```
 
 > `logins l` and `employees e` are aliases, so you can write `l.success` instead of `logins.success`.
+
+### Clause order
+`SELECT columns FROM table WHERE row-filter GROUP BY column HAVING group-filter ORDER BY column LIMIT n`. The database evaluates them in a different order (FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT), which explains why you cannot use a column alias in `WHERE` and why `WHERE` filters rows while `HAVING` filters groups.
+
+### Joins
+`INNER JOIN` keeps rows that match on both sides. `LEFT JOIN` keeps every left row and fills `NULL` where there is no match, which is how you find things that have no counterpart (customers without orders: `LEFT JOIN ... WHERE o.id IS NULL`). `UNION` stacks two results with the same columns.
+
+### Aggregates and NULL
+`COUNT(*)`, `SUM`, `AVG`, `MIN`, `MAX`. `NULL` means unknown, so `= NULL` is never true; use `IS NULL`. `COUNT(column)` ignores NULLs while `COUNT(*)` does not. `COALESCE(a, b)` returns the first non-null value.
 :: complex
 Two things separate a quick query from a correct one.
 
@@ -54,6 +68,65 @@ $ sqlite3 hr.db "SELECT name FROM employees WHERE id NOT IN (SELECT employee_id 
 ### 3. Why this is a security skill
 - Most SIEMs and log tools speak SQL or something close to it (Splunk SPL, KQL, Elastic ES|QL)
 - **SQL injection** happens when an app glues user input into a query string. `' OR '1'='1` turns `WHERE pass = '...'` into a condition that's always true. The fix is parameterized queries (`WHERE pass = ?`), never string concatenation
+
+### Window functions and CTEs
+```
+WITH recent AS (
+  SELECT user_id, ts FROM logins WHERE ts > date('now','-7 day')
+)
+SELECT user_id, COUNT(*) AS n,
+       RANK() OVER (ORDER BY COUNT(*) DESC) AS rnk
+FROM recent GROUP BY user_id;
+```
+A **CTE** (`WITH`) names a subquery so the main query reads top to bottom. **Window functions** (`ROW_NUMBER`, `RANK`, `LAG`, `SUM() OVER`) calculate across rows without collapsing them, handy for "latest login per user" or "time since the previous event".
+
+### SQL injection in one paragraph
+If an application builds a query by gluing user text into a string, input like `' OR '1'='1` changes the meaning of the query. The fix is always the same: **parameterized queries** (prepared statements), where the database treats input strictly as data. Add least-privilege database accounts, input validation and no verbose errors shown to users.
+
+### Performance basics
+Index the columns you filter and join on, avoid `SELECT *` on wide tables, use `EXPLAIN` to see whether an index is used, and remember that a function on an indexed column (`WHERE lower(name)=...`) can stop the index from helping.
+:: ref
+### reading data
+SELECT * FROM t LIMIT 10 | peek at a table
+SELECT col FROM t WHERE x = 5 | filter rows
+SELECT DISTINCT col FROM t | unique values
+ORDER BY col DESC | sort largest first
+LIMIT 5 | only the first five
+WHERE col LIKE 'a%' | starts with a
+WHERE col IN (1,2,3) | in a list
+WHERE col BETWEEN 1 AND 9 | in a range
+WHERE col IS NULL | missing value
+### grouping
+SELECT col, COUNT(*) FROM t GROUP BY col | count per group
+HAVING COUNT(*) > 5 | filter on the group result
+SUM(x), AVG(x), MIN(x), MAX(x) | aggregates
+GROUP BY a, b | group by two columns
+### joins
+FROM a JOIN b ON a.id = b.a_id | rows matching on both sides
+FROM a LEFT JOIN b ON ... WHERE b.id IS NULL | rows in a with no match in b
+FROM a, b WHERE ... | old-style join, prefer JOIN syntax
+SELECT ... UNION SELECT ... | combine results, same column count
+### changing data
+INSERT INTO t (a,b) VALUES (1,'x') | add a row
+UPDATE t SET a = 2 WHERE id = 7 | change rows, always use WHERE
+DELETE FROM t WHERE id = 7 | remove rows, always use WHERE
+BEGIN; ... COMMIT; | do several changes as one unit
+ROLLBACK; | undo since BEGIN
+### structure
+CREATE TABLE t (id INTEGER PRIMARY KEY, name TEXT NOT NULL) | define a table
+ALTER TABLE t ADD COLUMN c TEXT | add a column
+CREATE INDEX idx ON t(col) | speed up lookups
+DROP TABLE t | delete a table and its data
+### sqlite shell
+.tables | list tables
+.schema t | show a table definition
+.headers on | show column names
+.mode column | tidy output
+.read file.sql | run a script
+### security
+Parameterized query | the fix for SQL injection
+GRANT SELECT ON t TO user | least privilege
+' OR '1'='1 | classic injection test string
 :: lab
 host: db01
 user: student

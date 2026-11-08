@@ -1,4 +1,5 @@
 tagline: The Linux shell is the one tool every security job uses. Learn to move around, read and search files, and understand permissions, then dig a hidden flag out of a messy home directory.
+sheet: linux
 :: simple
 The **shell** is a text interface: you type a command, press Enter, it prints a result. Everything in Linux is a file in one tree that starts at `/`. Your home directory is `~`.
 
@@ -22,6 +23,21 @@ $ ls -a
 ```
 
 > Press Tab to autocomplete names and the Up arrow to reuse commands. It works in this sandbox too.
+
+### How to read a command
+Almost every command follows the same shape: `command -options arguments`. Options (flags) change *how* it works, arguments say *what* to work on. `ls -l /etc` is "list, in long format, the directory /etc". Short flags stack, so `ls -la` is `ls -l -a`. Long flags use two dashes: `ls --all`.
+
+- **Absolute path** starts at `/` and works from anywhere (`/etc/passwd`). **Relative path** starts from where you are (`projects/servers.txt`).
+- `.` is "here", `..` is "one level up", `~` is your home directory.
+- Quoting matters: `"$HOME"` expands the variable, `'$HOME'` does not, and unquoted names break at spaces.
+- Stuck? `man ls` is the full manual (press `q` to leave), `ls --help` is the short one, and `whatis ls` is a single line.
+
+### The directories worth knowing
+- `/etc` configuration files (`/etc/passwd` users, `/etc/ssh/sshd_config`, `/etc/hosts`)
+- `/var/log` logs (`auth.log` logins, `syslog` general, `nginx/` web server)
+- `/home` one directory per user, `/root` is the admin's home
+- `/tmp` anyone can write here, which is why attackers like it
+- `/usr/bin`, `/bin` programs, `/proc` live system info that looks like files
 :: mid
 ### Finding things
 `find` searches by name, type or size, and `grep` searches inside files. `-r` makes grep search a whole directory tree, `-i` ignores case, `-l` lists only file names:
@@ -46,6 +62,26 @@ $ ls ~/projects | wc -l
 $ echo "checked $(date)" >> ~/log.txt
 $ cat ~/log.txt
 ```
+
+### Seeing and measuring files
+`wc -l file` counts lines, `head -n 20` and `tail -n 20` show the ends, and `tail -f /var/log/auth.log` follows a log live as new lines arrive. `less file` lets you scroll and search (`/word`, `n` for next, `q` to quit). `file mystery.bin` tells you what a file really is regardless of its name, `stat file` shows size, owner and timestamps, and `du -sh *` shows how big each item in a folder is.
+
+### Searching smarter
+- `grep -n` shows line numbers, `-v` inverts (lines that do NOT match), `-c` counts matches, `-E` allows extended regex such as `grep -E "fail|error"`
+- `find / -type f -perm -4000 2>/dev/null` lists SUID files. `2>/dev/null` throws away the "permission denied" noise
+- `find . -mtime -1` finds files changed in the last day, `-size +10M` finds files over 10 MB, `-user bob` finds files owned by bob
+
+### Variables, history and quick wins
+```
+export TARGET=10.0.0.5
+echo "$TARGET"
+history | grep ssh
+!!
+```
+`export` sets a variable for child programs, `history` lists what you ran, `!!` repeats the last command and `sudo !!` repeats it as root. `Ctrl+R` searches your history as you type, `Ctrl+C` stops a runaway command.
+
+### Streams
+Every program has three streams: **stdin** (0, input), **stdout** (1, normal output) and **stderr** (2, errors). `command > out.txt` redirects stdout, `command 2> err.txt` redirects stderr, `command > all.txt 2>&1` sends both to one file, and `command 2>/dev/null` discards errors.
 :: complex
 ### Permissions
 `ls -l` starts every line with something like `-rwxr-x---`: file type, then three groups of read/write/execute for the **owner**, the **group** and **everyone else**. As numbers, r=4, w=2, x=1, so `750` is `rwxr-x---`.
@@ -61,6 +97,70 @@ Security-relevant special bits: **SUID** (`s` in the owner execute spot) runs a 
 ```
 $ cut -d, -f2 ~/projects/servers.txt | sort | uniq -c | sort -rn
 ```
+
+### Users, groups and sudo
+`id` shows who you are and which groups you belong to. `sudo command` runs one command as root; `sudo -l` lists what you are allowed to run, which is the first thing to check after landing on a box. `/etc/passwd` lists accounts (a line per user, seven colon-separated fields) and `/etc/shadow` holds the password hashes, readable only by root. A user with UID 0 *is* root, whatever the name says.
+
+### Processes and the network
+```
+ps aux
+ps aux | grep sshd
+top
+ss -tulpn
+kill 1234
+```
+`ps aux` lists every process, `top` is the live view, `ss -tulpn` shows listening TCP/UDP sockets and the process behind each (`netstat` is the older tool), `kill PID` asks a process to stop and `kill -9 PID` forces it.
+
+### Scheduled jobs and startup
+`crontab -l` lists your scheduled jobs, and `/etc/crontab` plus `/etc/cron.d/` hold system ones. A cron line is `minute hour day month weekday command`. Persistence often hides here, or in `~/.bashrc`, `~/.ssh/authorized_keys` and systemd units.
+
+### Archives and moving data
+`tar -czf backup.tgz folder/` packs and compresses, `tar -xzf backup.tgz` unpacks, `scp file user@host:/path` copies over SSH, and `sha256sum file` gives a checksum to prove a file was not altered.
+:: ref
+### navigation
+pwd | print the current directory
+ls -la | long listing including hidden files
+cd - | jump back to the previous directory
+tree -L 2 | show a directory tree two levels deep
+### reading and searching
+less file | scroll through a file, / to search, q to quit
+head -n 20 file | first 20 lines
+tail -f /var/log/auth.log | follow a log as it grows
+grep -rin "word" dir/ | recursive, case-insensitive search with line numbers
+grep -v "word" file | lines that do NOT contain the word
+find / -name "*.conf" 2>/dev/null | find files by name, hiding permission errors
+find / -perm -4000 -type f 2>/dev/null | list SUID files
+find . -mtime -1 | files changed in the last 24 hours
+### text processing
+cut -d: -f1 /etc/passwd | pull the first colon-separated column
+sort file | uniq -c | count each distinct line
+sort -rn | sort numerically, biggest first
+awk '{print $1}' file | print the first whitespace-separated column
+sed 's/old/new/g' file | replace text in the stream
+tr 'a-z' 'A-Z' | translate characters
+wc -l file | count lines
+### permissions and users
+chmod 600 file | owner read/write only
+chmod +x script.sh | make a script executable
+chown user:group file | change owner and group
+id | your user, uid and groups
+sudo -l | what you are allowed to run as root
+su - user | switch user with their environment
+### processes and network
+ps aux | every process
+top | live process view
+kill -9 PID | force a process to end
+ss -tulpn | listening ports and the owning process
+ip a | interfaces and addresses
+ip r | routing table
+curl -I https://example.com | fetch only the HTTP headers
+### files and archives
+file name | identify the true file type
+stat name | size, owner, timestamps
+sha256sum name | checksum a file
+tar -czf out.tgz dir/ | create a compressed archive
+tar -xzf out.tgz | extract it
+scp file user@host:/tmp/ | copy a file over SSH
 :: lab
 host: box
 user: student

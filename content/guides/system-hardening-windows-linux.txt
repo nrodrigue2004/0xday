@@ -14,6 +14,15 @@ $ cat ~/audit/listening.txt
 ```
 
 > The **CIS Benchmarks** and DISA STIGs are free, detailed hardening checklists for almost every OS and app. Hardening is mostly working through one.
+
+### The hardening loop
+1. **Inventory**: what is on this machine (software, services, ports, accounts)?
+2. **Baseline**: what should it look like? Use a published benchmark (CIS Benchmarks, DISA STIGs, Microsoft security baselines) instead of inventing your own.
+3. **Apply**: change settings, ideally through automation (Group Policy, Ansible, scripts) so every machine matches.
+4. **Verify**: scan with a tool (Lynis, OpenSCAP, CIS-CAT, Microsoft Security Compliance Toolkit) and read what failed.
+5. **Repeat**: configurations drift, and new patches arrive every month.
+
+Hardening is a trade: every control costs some convenience. Document exceptions rather than silently skipping them.
 :: mid
 ### Linux: accounts and SSH
 `/etc/passwd` has one line per account: `name:x:UID:GID:comment:home:shell`. Only `root` should have UID **0**. Service accounts should have a `nologin` shell. Pull the fields you care about with `awk -F:`:
@@ -34,6 +43,26 @@ Group Policy enforces baselines across a domain. Typical wins: disable SMBv1 and
 ```
 $ cat ~/audit/windows-baseline.txt
 ```
+
+### Linux checklist
+- Patches: `apt update && apt upgrade`, turn on unattended security updates.
+- Accounts: no empty passwords (`awk -F: '($2=="")' /etc/shadow`), only root has UID 0, lock unused accounts, use sudo with named users.
+- SSH: `PermitRootLogin no`, `PasswordAuthentication no` once keys work, `AllowUsers` list, maybe a non-default port to cut log noise (not a real defense).
+- Services: `systemctl list-unit-files --state=enabled`, disable what you do not use. `ss -tulpn` should show only what you expect.
+- Firewall: default deny incoming with ufw or nftables, open only needed ports.
+- Files: world-writable files and SUID binaries reviewed, `/tmp` mounted `noexec,nosuid` where possible.
+- Logging: auditd or journald with remote forwarding, time sync on.
+- Extras: `fail2ban`, AppArmor or SELinux left on, kernel parameters (`sysctl`) such as disabling IP forwarding when not routing.
+
+### Windows checklist
+- Patches through Windows Update or WSUS, third-party software included.
+- Local admin: rename or disable the built-in Administrator, use **LAPS** so every machine has a unique admin password.
+- Accounts: standard users for daily work, strong password and lockout policy, MFA for admins.
+- Defender on, with tamper protection, ASR rules and cloud protection; BitLocker on laptops.
+- Firewall on for all profiles, inbound default block.
+- Remove SMBv1, disable LLMNR/NetBIOS if not needed, restrict RDP to a VPN or gateway with NLA.
+- PowerShell: script block logging and transcription, constrained language mode where practical.
+- Audit policy and Sysmon forward to the SIEM.
 :: complex
 ### Privilege escalation is a hardening checklist in reverse
 Attackers who land as a normal user look for exactly the misconfigurations hardening removes:
@@ -51,6 +80,60 @@ GTFOBins lists how almost every common binary can be abused when it's SUID or al
 
 ### Baselines and drift
 Harden once, then keep it that way: define a baseline (CIS level 1), apply it with automation (Ansible, GPO, Intune), and scan for **drift** regularly (OpenSCAP, Lynis, Microsoft Security Compliance Toolkit).
+
+### Benchmarks, scoring and exceptions
+CIS Benchmarks come in Level 1 (sensible, little breakage) and Level 2 (stricter, may affect function). Apply Level 1 widely, Level 2 to sensitive systems after testing. Keep a register of exceptions with owner, reason and review date. A finding you decided to accept is fine, an undocumented one is a gap.
+
+### Common misconfigurations attackers look for
+World-writable service paths, unquoted service paths with spaces, scheduled tasks running as SYSTEM with editable scripts, `NOPASSWD` entries in sudoers, SUID copies of `find`, `vim` or `python`, readable backups and `.bash_history`, passwords in scripts, shares open to Everyone, and old protocols such as telnet, FTP and SMBv1. Compare with GTFOBins (Linux) and LOLBAS (Windows) to see why each is dangerous.
+
+### Immutable and automated
+The strongest posture is to stop hand-editing servers. Build from a template or an Ansible role, rebuild when something drifts, keep the config in git, and treat any manual change as an incident to be explained.
+:: ref
+### linux auditing
+lynis audit system | full hardening audit with suggestions
+awk -F: '($3==0){print $1}' /etc/passwd | accounts with UID 0
+awk -F: '($2==""){print $1}' /etc/shadow | accounts with an empty password
+find / -perm -4000 -type f 2>/dev/null | SUID binaries
+find / -perm -0002 -type f 2>/dev/null | world-writable files
+ss -tulpn | listening services
+systemctl list-unit-files --state=enabled | services starting at boot
+sudo -l -U user | what a user may run as root
+sshd -T | effective SSH daemon settings
+last -a | recent logins
+### linux fixes
+passwd -l user | lock an account
+usermod -s /usr/sbin/nologin user | no interactive shell
+chmod o-w file | remove world write
+ufw default deny incoming | default-deny firewall
+ufw allow 22/tcp | allow SSH
+systemctl disable --now service | stop and disable a service
+apt install unattended-upgrades | automatic security patches
+### sshd_config
+PermitRootLogin no | block direct root login
+PasswordAuthentication no | keys only
+AllowUsers alice bob | whitelist who may log in
+MaxAuthTries 3 | limit guesses per connection
+X11Forwarding no | turn off unneeded feature
+### windows auditing (powershell)
+Get-LocalGroupMember Administrators | who is local admin
+Get-LocalUser | local accounts and their state
+Get-NetFirewallProfile | firewall state per profile
+Get-SmbServerConfiguration | SMB settings including SMBv1
+Get-MpComputerStatus | Defender status
+Get-Service | Where-Object StartType -eq Automatic | auto-start services
+auditpol /get /category:* | current audit policy
+secedit /export /cfg c:\sec.cfg | export local security policy
+### windows fixes
+Set-NetFirewallProfile -Enabled True | turn the firewall on
+Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol | remove SMBv1
+Set-MpPreference -DisableRealtimeMonitoring $false | make sure real-time protection is on
+net accounts /lockoutthreshold:5 | set lockout threshold
+### frameworks
+CIS Benchmark | consensus hardening guide per OS and product
+DISA STIG | US DoD configuration standards
+Microsoft security baseline | recommended GPO settings
+GTFOBins / LOLBAS | binaries abused for escalation on Linux / Windows
 :: lab
 host: app02
 user: auditor

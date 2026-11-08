@@ -18,6 +18,14 @@ $ step
 $ step
 $ info locals
 ```
+
+### The four ideas
+- **Encapsulation**: keep data private and expose behavior. Callers cannot put an object into an invalid state.
+- **Abstraction**: show what something does, hide how. An interface is a promise.
+- **Inheritance**: a class reuses and extends another (`class Admin extends User`).
+- **Polymorphism**: code written against the parent works with any child (`User u = new Admin();` and `u.canDelete()` runs the Admin version).
+
+A **class** is a blueprint, an **object** is one instance built from it with `new`. **Fields** hold state, **methods** hold behavior, a **constructor** sets the object up.
 :: mid
 ### Encapsulation is a security boundary
 If a class keeps `roles` private, the only way to change them should be through methods that check the rules (`grantRole()` that requires an admin). That only holds if the class never hands its internals to outsiders. Returning a **mutable** internal object (a `List`, an array, a `Date`) from a getter gives the caller a live handle to your private state.
@@ -34,6 +42,27 @@ An **interface** is a contract (`interface Authenticator { boolean verify(String
 
 ### Composition over inheritance
 Deep inheritance trees get fragile. Often it's cleaner for a class to *have* a helper object than to *be* a subclass.
+
+### A small worked example
+```
+public class Account {
+    private final String id;
+    private long cents;
+    public Account(String id, long cents) { this.id = id; this.cents = cents; }
+    public void withdraw(long amount) {
+        if (amount <= 0 || amount > cents) throw new IllegalArgumentException("bad amount");
+        cents -= amount;
+    }
+    public long balance() { return cents; }
+}
+```
+There is no setter for `cents`, so every change goes through a method that enforces the rules. That one design choice prevents a large class of bugs and security flaws.
+
+### static, final and visibility
+`private` (this class), package-private (default, same package), `protected` (subclasses too), `public` (everyone). `static` belongs to the class, not an object. `final` fields cannot be reassigned, `final` classes cannot be extended, `final` methods cannot be overridden. Default to the narrowest visibility that works.
+
+### Overriding and overloading
+Overriding replaces a parent method in a child (use `@Override`, the compiler then catches typos). Overloading is several methods with the same name and different parameters. `toString`, `equals` and `hashCode` are the methods you override most; if you override `equals`, override `hashCode` too.
 :: complex
 ### Defensive copies and immutability
 - Return `List.copyOf(roles)` or `Collections.unmodifiableList(roles)` instead of `roles`
@@ -49,6 +78,53 @@ $ back
 
 ### SOLID, briefly
 **S**ingle responsibility, **O**pen/closed, **L**iskov substitution, **I**nterface segregation, **D**ependency inversion. Each one makes code easier to test, and testable code is code whose security checks you can actually prove work.
+
+### Design principles you can recite
+SOLID: single responsibility, open for extension but closed for modification, Liskov substitution (a child must work anywhere its parent does), interface segregation (many small interfaces), dependency inversion (depend on interfaces, not concrete classes). Prefer composition (an object has another object) over inheritance for reuse.
+
+### Patterns you will run into
+**Factory** (create objects without naming the class), **Builder** (step-by-step construction of complex objects), **Singleton** (one instance, often overused), **Strategy** (swap an algorithm), **Observer** (notify listeners), **Decorator** (wrap to add behavior). Knowing the names makes code reviews quicker.
+
+### Security-minded OOP
+Make classes immutable when you can, copy mutable inputs and outputs (see defensive copies), validate in constructors, do not leak internals through getters that return live collections, and make classes `final` unless designed for inheritance, because subclasses can break your invariants.
+:: ref
+### class syntax
+class A { } | declare a class
+A a = new A(); | create an object
+this.x = x; | refer to the current object's field
+extends | inherit from a class
+implements | promise to provide an interface's methods
+super(...) | call the parent constructor
+@Override | tell the compiler this replaces a parent method
+### visibility and modifiers
+private | this class only
+protected | this package and subclasses
+public | everywhere
+static | belongs to the class, not an object
+final | cannot be reassigned, overridden or extended
+abstract | incomplete class or method, must be extended
+### core relationships
+Is-a | inheritance (Admin is a User)
+Has-a | composition (Car has an Engine)
+Interface | contract with no state
+Abstract class | partial implementation plus contract
+### object methods
+toString() | readable description
+equals(Object o) | logical equality
+hashCode() | must match equals, used by HashMap
+clone() | copy, best avoided
+### principles
+Encapsulation | hide state, expose behavior
+Polymorphism | one call, many behaviors
+SRP | one reason to change per class
+Liskov | children must honor the parent's contract
+Favor composition | build by combining, not extending
+### terms
+Instance | one object of a class
+Constructor | initializes a new object
+Getter / setter | read / change a private field
+Immutable | cannot change after creation
+Defensive copy | copy mutable data in and out
 :: lab
 style: debug
 host: dev

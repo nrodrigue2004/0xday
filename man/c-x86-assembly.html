@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man c-x86-assembly :: 0xDay</title>
+<meta name="description" content="c-x86-assembly cheatsheet: C / x86 Assembly commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=e9f8fbdf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=e9f8fbdf" defer></script>
+<script src="../site.js?v=e9f8fbdf" defer></script>
+<script src="../fx.js?v=e9f8fbdf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man c-x86-assembly</p>
+<div class="manhead"><span>C-X86-ASSEMBLY(7)</span><span>0xDay Field Manual</span><span>C-X86-ASSEMBLY(7)</span></div>
+<h1>c-x86-assembly <span class="muted">- C / x86 Assembly commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-registers">registers</a> <a href="#g-data-movement">data movement</a> <a href="#g-arithmetic-and-logic">arithmetic and logic</a> <a href="#g-compare-and-jump">compare and jump</a> <a href="#g-calls">calls</a> <a href="#g-tools">tools</a> <a href="#g-gdb-commands">gdb commands</a></p><h2 id="g-registers">registers</h2><dl class="man"><dt><code>rax</code></dt><dd>return value and accumulator</dd><dt><code>rdi rsi rdx rcx r8 r9</code></dt><dd>first six integer arguments (Linux System V)</dd><dt><code>rsp</code></dt><dd>stack pointer, top of the stack</dd><dt><code>rbp</code></dt><dd>frame pointer, base of the current frame</dd><dt><code>rip</code></dt><dd>instruction pointer</dd><dt><code>eax / ax / al</code></dt><dd>32, 16 and 8-bit parts of rax</dd></dl><h2 id="g-data-movement">data movement</h2><dl class="man"><dt><code>mov rax, rbx</code></dt><dd>copy rbx into rax</dd><dt><code>mov eax, [rbp-4]</code></dt><dd>load 4 bytes from memory</dd><dt><code>lea rax, [rbx+rcx*4]</code></dt><dd>compute an address, no memory read</dd><dt><code>push rax</code></dt><dd>decrement rsp and store</dd><dt><code>pop rax</code></dt><dd>load and increment rsp</dd></dl><h2 id="g-arithmetic-and-logic">arithmetic and logic</h2><dl class="man"><dt><code>add rax, 5</code></dt><dd>add</dd><dt><code>sub rsp, 16</code></dt><dd>subtract, used to reserve stack space</dd><dt><code>imul rax, rbx</code></dt><dd>signed multiply</dd><dt><code>xor eax, eax</code></dt><dd>set to zero</dd><dt><code>and / or / xor / not</code></dt><dd>bitwise operations</dd><dt><code>shl rax, 2</code></dt><dd>shift left, multiply by 4</dd></dl><h2 id="g-compare-and-jump">compare and jump</h2><dl class="man"><dt><code>cmp a, b</code></dt><dd>compute a - b, set flags only</dd><dt><code>test a, a</code></dt><dd>AND, set flags only, checks for zero</dd><dt><code>jmp label</code></dt><dd>unconditional jump</dd><dt><code>je / jz</code></dt><dd>jump if equal / zero</dd><dt><code>jne / jnz</code></dt><dd>jump if not equal / not zero</dd><dt><code>jg / jl</code></dt><dd>signed greater / less</dd><dt><code>ja / jb</code></dt><dd>unsigned above / below</dd></dl><h2 id="g-calls">calls</h2><dl class="man"><dt><code>call func</code></dt><dd>push return address and jump</dd><dt><code>ret</code></dt><dd>pop return address into rip</dd><dt><code>leave</code></dt><dd>mov rsp, rbp then pop rbp</dd><dt><code>syscall</code></dt><dd>enter the kernel, number in rax</dd></dl><h2 id="g-tools">tools</h2><dl class="man"><dt><code>gcc -S -masm=intel x.c</code></dt><dd>compile to Intel-syntax assembly</dd><dt><code>objdump -d -M intel prog</code></dt><dd>disassemble a binary</dd><dt><code>gdb ./prog</code></dt><dd>debugger</dd><dt><code>nasm -f elf64 x.asm &amp;&amp; ld -o x x.o</code></dt><dd>assemble and link</dd><dt><code>readelf -h prog</code></dt><dd>ELF header details</dd></dl><h2 id="g-gdb-commands">gdb commands</h2><dl class="man"><dt><code>break main</code></dt><dd>stop at a function</dd><dt><code>run</code></dt><dd>start the program</dd><dt><code>si / ni</code></dt><dd>step one instruction / step over calls</dd><dt><code>info registers</code></dt><dd>show registers</dd><dt><code>x/8xw $rsp</code></dt><dd>examine 8 words on the stack</dd><dt><code>disassemble</code></dt><dd>show the current function</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

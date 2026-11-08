@@ -1,4 +1,5 @@
 tagline: PowerShell is how Windows admins and attackers both get work done. Learn cmdlets, objects and the pipeline, then use exported service data to find malware disguised as a Windows service.
+sheet: powershell
 :: simple
 **PowerShell** is Windows' shell and scripting language. Its commands are **cmdlets** named `Verb-Noun`: `Get-Process`, `Get-Service`, `Stop-Service`, `Get-ADUser`. `Get-Help <cmdlet>` explains any of them, and `Get-Command *service*` finds them.
 
@@ -8,6 +9,14 @@ $ Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
 ```
 
 > The big difference from bash: PowerShell pipes **objects**, not text. `Get-Process` sends process objects with properties (Name, Id, CPU), so the next cmdlet can filter on a property instead of parsing columns.
+
+### Cmdlets and the pipeline
+PowerShell commands (**cmdlets**) are named `Verb-Noun`: `Get-Process`, `Stop-Service`, `New-Item`. The pipeline passes **objects**, not text, so you can sort or filter by a property name without cutting columns. `Get-Command *service*` finds commands, `Get-Help Get-Service -Examples` shows examples, and `Get-Member` lists the properties of whatever is flowing through.
+
+```
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 5 Name, CPU
+```
+Aliases like `ls`, `cat`, `ps` and `?` exist for speed; use full names in scripts so they stay readable.
 :: mid
 ### Filter, sort, select
 - `Where-Object` keeps objects matching a condition: `Where-Object Status -eq 'Running'`
@@ -25,6 +34,21 @@ $ Get-LocalUser | Where-Object Enabled
 ```
 $ head -3 ~/exports/services.csv
 ```
+
+### Variables, loops and conditions
+```
+$svcs = Get-Service
+foreach ($s in $svcs) { if ($s.Status -eq 'Stopped') { $s.Name } }
+Get-Service | ForEach-Object { $_.DisplayName }
+Get-Process | Where-Object { $_.WorkingSet -gt 200MB }
+```
+Comparison operators are words: `-eq`, `-ne`, `-gt`, `-lt`, `-like` (wildcards), `-match` (regex), `-contains`. `$_` is the current object in the pipeline.
+
+### Files, registry and output
+`Get-ChildItem -Recurse -Filter *.log`, `Get-Content file -Tail 50 -Wait`, `Select-String -Path *.log -Pattern "failed"` (grep for Windows), `Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Run` for autostart entries. Send results with `Export-Csv`, `ConvertTo-Json`, `Out-File` or `Format-Table -AutoSize` for the screen.
+
+### Execution policy is not security
+`Set-ExecutionPolicy` only stops accidental script runs; anyone can bypass it with `-ExecutionPolicy Bypass`. Treat it as a seatbelt, not a lock. Real control comes from code signing, AppLocker or WDAC, and constrained language mode.
 :: complex
 ### Hunting with PowerShell
 Malware loves to hide as a **service**: it survives reboots and runs as SYSTEM. Real Windows services run from `C:\Windows\System32` (or `Program Files` for apps), are signed by Microsoft or a known vendor, and have sensible names. Red flags: a binary in `C:\Users\...\AppData`, `C:\ProgramData` or `Temp`, a name that's *almost* a real one, an unsigned binary.
@@ -40,6 +64,53 @@ Attackers use PowerShell too (downloading payloads, running in memory, `-Encoded
 ```
 $ grep -i "4104" ~/exports/powershell-events.txt
 ```
+
+### Admin automation patterns
+- Wrap work in functions with parameters and `try/catch`, and use `-ErrorAction Stop` so errors are caught.
+- Use `Invoke-Command` for many machines, `Get-CimInstance` (not the old `Get-WmiObject`) for hardware and OS data.
+- Support `-WhatIf` and `-Confirm` on destructive scripts.
+- Store secrets in the SecretManagement module or a vault, never in the script.
+
+### Security-relevant logs
+Enable script block logging (event 4104), module logging (4103) and transcription through Group Policy. Process creation (4688 with command line, or Sysmon 1) shows `powershell -enc ...`. Encoded commands decode with `[Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($b64))`. Attackers use PowerShell because it is already there, which is why defenders watch for download cradles (`IEX (New-Object Net.WebClient).DownloadString(...)`), hidden windows and AMSI bypass attempts.
+:: ref
+### discovery
+Get-Command *name* | find a cmdlet
+Get-Help cmdlet -Examples | usage examples
+Get-Member | properties and methods of an object
+Get-Alias | list aliases
+### system information
+Get-ComputerInfo | OS, hardware and domain summary
+Get-HotFix | installed updates
+Get-CimInstance Win32_OperatingSystem | OS details and last boot
+Get-Process | running processes
+Get-Service | services and their state
+Get-LocalUser | local accounts
+Get-LocalGroupMember Administrators | local admins
+### filtering and shaping
+Where-Object { $_.CPU -gt 100 } | keep matching objects
+Sort-Object CPU -Descending | order results
+Select-Object -First 5 Name, CPU | choose count and columns
+Group-Object Status | count by value
+Measure-Object | count, sum, average
+Export-Csv out.csv -NoTypeInformation | save as CSV
+ConvertTo-Json | turn objects into JSON
+### files and text
+Get-ChildItem -Recurse -Filter *.log | find files
+Get-Content file -Tail 20 -Wait | follow a log
+Select-String -Pattern "error" -Path *.log | search text
+Get-FileHash file -Algorithm SHA256 | checksum a file
+Copy-Item / Move-Item / Remove-Item | file operations
+### network
+Test-NetConnection host -Port 443 | check reachability and port
+Get-NetTCPConnection -State Listen | listening ports
+Get-NetIPAddress | interface addresses
+Resolve-DnsName example.com | DNS query
+### remote and events
+Invoke-Command -ComputerName PC01 -ScriptBlock { hostname } | run remotely over WinRM
+Enter-PSSession PC01 | interactive remote shell
+Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625} | failed logons
+Get-EventLog -LogName System -Newest 20 | recent system events
 :: lab
 style: ticket
 host: ws-admin

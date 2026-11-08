@@ -16,6 +16,18 @@ $ echo "there are $(ls ~/sites | wc -l) site files"
 ```
 
 > Single quotes keep everything literal: `echo '$TARGET'` prints the dollar sign. Double quotes still expand variables. That one rule explains half of all bash bugs.
+
+### A script, line by line
+```
+#!/usr/bin/env bash
+set -euo pipefail
+name="${1:-world}"
+echo "hello, $name"
+```
+The first line (**shebang**) says which program runs it. `set -euo pipefail` makes the script stop on errors (`-e`), on undefined variables (`-u`) and when any part of a pipe fails. `$1` is the first argument and `${1:-world}` gives it a default. Save it, make it executable with `chmod +x script.sh`, and run it with `./script.sh nate`.
+
+### Variables and quoting
+`x=5` (no spaces around `=`), read with `$x` or `${x}`. Always quote expansions (`"$x"`), because unquoted values break on spaces and glob characters. `$(command)` captures output. `$?` is the last exit code, `$#` is the number of arguments, `$@` is all of them.
 :: mid
 Scripts get useful when they **repeat** and **decide**.
 
@@ -43,6 +55,26 @@ Put lines like these in a file and run it with `bash file.sh`. `$1`, `$2`... are
 $ cat ~/bin/audit.sh
 $ bash ~/bin/audit.sh ~/sites
 ```
+
+### Conditions and loops
+```
+if [[ -f "$file" && -r "$file" ]]; then echo ok; elif [[ -d "$file" ]]; then echo dir; else echo missing; fi
+for host in web1 web2 db1; do ping -c1 -W1 "$host" >/dev/null && echo "$host up"; done
+while read -r line; do echo "$line"; done < hosts.txt
+case "$1" in start) echo go;; stop) echo halt;; *) echo "usage";; esac
+```
+Test flags: `-f` file, `-d` directory, `-e` exists, `-z` empty string, `-n` non-empty, `-eq -ne -lt -gt` for numbers, `==` and `!=` for strings.
+
+### Functions, arrays, and parsing arguments
+```
+log() { printf '%s %s\n' "$(date +%T)" "$*" >&2; }
+hosts=(web1 web2 db1)
+for h in "${hosts[@]}"; do log "checking $h"; done
+```
+`getopts` handles `-v -f file` style flags. Return values come from `return N` (an exit code) or from echoing a result and capturing it with `$(...)`.
+
+### Everyday tasks
+Loop over files (`for f in *.log`), rename in bulk (`mv "$f" "${f%.log}.txt"`), parse CSV columns with `cut` or `awk`, run commands on many hosts with `ssh host cmd`, and schedule with cron. Print errors to stderr (`>&2`) and exit non-zero on failure.
 :: complex
 ### 1. Exit codes are the real booleans
 Every command returns a number: `0` means success, anything else is failure. `$?` holds the last one. `&&` runs the next command only on success, `||` only on failure:
@@ -66,6 +98,65 @@ $ while read h; do echo "would ping $h"; done < ~/hosts.txt
 - Prefer `[[ ]]` over `[ ]` in bash, and `$(...)` over backticks
 
 > The sandbox supports one-line `for`, `while read` and `if` blocks plus `bash script.sh`, which covers most of what security scripts do.
+
+### Safety and robustness
+- Quote everything. Use `--` before filenames that might start with `-`.
+- Use `mktemp` for temporary files and `trap 'rm -f "$tmp"' EXIT` to clean up.
+- Never build commands from untrusted input (`eval` and unquoted variables lead to command injection).
+- Validate input with patterns before using it; check that required tools exist (`command -v jq`).
+- Use `shellcheck script.sh` to catch bugs automatically. It is the single best habit.
+- Avoid parsing `ls` output; use globs or `find -print0` with `xargs -0`.
+
+### Debugging
+`bash -x script.sh` prints every command as it runs, `set -x` and `set +x` turn tracing on and off inside, and `echo` to stderr at decision points helps. If it works in your terminal but not in cron, suspect the PATH and the working directory.
+:: ref
+### script basics
+#!/usr/bin/env bash | shebang line, picks the interpreter
+set -euo pipefail | stop on errors, unset variables and failed pipes
+chmod +x s.sh | make executable
+bash -x s.sh | run with command tracing
+shellcheck s.sh | static checker for common bugs
+### variables
+x=5 | assign, no spaces around =
+"$x" or "${x}" | expand, always in quotes
+${x:-default} | use default if empty or unset
+${x%.log} | remove a suffix
+${x#prefix} | remove a prefix
+${#x} | length of the value
+$(cmd) | capture a command's output
+### special variables
+$0 | script name
+$1 $2 ... | positional arguments
+$@ | all arguments, each quoted
+$# | number of arguments
+$? | exit code of the last command
+$$ | current process ID
+### tests
+[[ -f f ]] | f is a regular file
+[[ -d d ]] | d is a directory
+[[ -z "$x" ]] | string is empty
+[[ "$a" == "$b" ]] | strings equal
+[[ $n -gt 5 ]] | number comparison
+[[ $x =~ ^[0-9]+$ ]] | regex match
+### control flow
+if cond; then ... fi | conditional
+for i in a b c; do ... done | loop over a list
+while read -r l; do ... done < f | loop over lines of a file
+case "$x" in a) ...;; esac | multi-way branch
+cmd1 && cmd2 | run cmd2 only if cmd1 succeeded
+cmd1 || cmd2 | run cmd2 only if cmd1 failed
+### redirection
+cmd > f | overwrite file
+cmd >> f | append
+cmd 2>&1 | send stderr to stdout
+cmd 2>/dev/null | discard errors
+cmd1 | cmd2 | pipe output into the next command
+cmd <<< "text" | feed a string as input
+### useful patterns
+trap 'rm -f "$tmp"' EXIT | cleanup on exit
+tmp=$(mktemp) | safe temp file
+find . -name '*.log' -print0 | xargs -0 gzip | handle odd filenames safely
+command -v jq >/dev/null || exit 1 | require a tool
 :: lab
 host: web01
 user: ops

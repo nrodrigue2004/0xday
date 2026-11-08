@@ -12,6 +12,15 @@ $ pct list
 ```
 
 > A homelab on Proxmox is the cheapest way to practice enterprise IT and security: a DC, a firewall, a SIEM and attack VMs on one box.
+
+### The words
+- **Hypervisor**: software that lets one physical machine run many virtual ones. Proxmox VE is a hypervisor built on Debian Linux with a web UI.
+- **Node**: one Proxmox server. Several nodes can be joined into a **cluster**.
+- **VM** (virtual machine): a full pretend computer with its own kernel. **CT** (container, LXC): shares the host's kernel, so it starts in seconds and uses less memory.
+- **ISO**: an installer image you upload once and boot VMs from. **Template**: a prepared VM you clone instead of reinstalling.
+- **Guest**: any VM or container running on the node.
+
+Each guest gets an ID number (100, 101, ...) which is what the command-line tools use.
 :: mid
 ### VMs vs containers
 - A **VM** emulates a whole computer and runs its own kernel. Strong isolation, any OS (Windows included)
@@ -31,6 +40,19 @@ $ qm config 101
 ```
 $ pvesm status
 ```
+
+### Creating a VM, in the order that matters
+1. Upload an ISO to a storage that allows ISO images.
+2. Create VM: give it a name and ID, pick the ISO, set the OS type.
+3. Disk: use **VirtIO SCSI** on local-lvm or similar. CPU: type `host` unless you plan to migrate across different CPUs. Memory: set what it really needs.
+4. Network: attach to a bridge (`vmbr0`), with a VLAN tag if your network uses them.
+5. Install, then install the **QEMU guest agent** inside so Proxmox can see its IP and shut it down cleanly.
+
+### Resource rules of thumb
+Do not give a guest more vCPUs than it will use, because idle vCPUs still need scheduling. RAM is the usual limit in a homelab, so budget it. Use thin provisioning for disks but keep an eye on the pool filling, because a full thin pool freezes every guest on it.
+
+### Backups, 3-2-1
+Keep three copies, on two kinds of media, one off-site. In Proxmox that means scheduled **vzdump** jobs to a different disk or a NAS (Datacenter → Backup), plus an occasional copy off the box. A snapshot is not a backup, because it lives on the same disk as the VM.
 :: complex
 ### Snapshots, backups and templates
 - **Snapshot**: point-in-time state of a VM on the same storage. Perfect before a risky change or before detonating malware. Not a backup
@@ -43,6 +65,54 @@ Whoever controls the hypervisor controls every VM on it. Keep the management int
 ```
 $ grep -A4 "vmbr2" ~/pve/interfaces
 ```
+
+### Networking in more detail
+A Linux bridge (`vmbr0`) behaves like a virtual switch. Make it **VLAN-aware** and tag each guest NIC to put guests on different networks over one cable; the upstream switch port must be a trunk. For a fully isolated lab, create a bridge with **no physical port** and let only the pfSense VM connect to both it and the outside, so the lab can only reach the world through the firewall.
+
+### Cluster and high availability
+Clusters need an odd number of voters for **quorum**; a two-node cluster loses quorum when one node dies unless you add a QDevice. Live migration needs shared or replicated storage. For a single-box homelab, skip clustering entirely, it adds failure modes you do not need.
+
+### Hardening and housekeeping
+- Put the web UI (port 8006) behind the VPN, never on the open internet.
+- Use named admin users with realm `pve` or PAM, enable two-factor, avoid daily use of `root@pam`.
+- Turn on the Proxmox firewall at datacenter, node and guest level, with the datacenter default policy set to drop for input.
+- Pass-through of PCI devices or disks to a guest weakens isolation, so do it only for guests you trust.
+- Apply updates through `apt update && apt full-upgrade`, then reboot if the kernel changed. Remove the enterprise repository if you have no subscription, or updates will error.
+:: ref
+### vm commands (qm)
+qm list | all VMs and their status
+qm config 100 | show the settings of VM 100
+qm start 100 | power on
+qm shutdown 100 | clean shutdown through the guest agent
+qm stop 100 | hard power off
+qm snapshot 100 pre-update | take a snapshot
+qm rollback 100 pre-update | go back to it
+qm clone 9000 120 --name web1 | clone a template into a new VM
+qm template 9000 | turn a VM into a template
+qm set 100 --memory 4096 | change a setting
+qm unlock 100 | clear a stale lock after a failed backup
+### container commands (pct)
+pct list | all containers
+pct enter 200 | get a shell inside container 200
+pct config 200 | container settings
+pct start 200 | start it
+### host and storage
+pvesm status | storage pools and free space
+pvecm status | cluster and quorum state
+pveversion -v | installed versions
+vzdump 100 --storage backup --mode snapshot | backup a guest now
+qmrestore backup.vma.zst 130 | restore a backup to a new ID
+journalctl -u pveproxy | web UI logs
+ip a | bridges and addresses
+cat /etc/network/interfaces | bridge and VLAN config
+### terms
+vmbr0 | the default Linux bridge, acts as a virtual switch
+local-lvm | thin-provisioned storage for guest disks
+local | directory storage for ISOs, templates and backups
+VirtIO | paravirtualized disk and network drivers, fastest option
+QEMU guest agent | in-guest helper for IP reporting and clean shutdowns
+Snapshot | point-in-time state kept on the same storage, not a backup
+Quorum | majority of cluster nodes needed to make changes
 :: lab
 host: pve
 user: root

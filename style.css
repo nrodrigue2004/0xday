@@ -602,3 +602,4 @@ pre.ex--code code{color:#b6f5c9}
 .dbg__v.chg span:last-child{color:var(--amber);font-weight:700}
 @media (max-width:1100px){.sb.sb--open .tk,.sb.sb--open .dbg{display:grid}.sb .tk,.sb .dbg{display:none}.sb.sb--open .tk{display:block}.dbg{height:30vh}.sb.sb--open .sb__out{height:28vh}}
 .res li{margin:.5rem 0}.res .warn{color:var(--amber,#e6b450);font-size:.85em;display:block}
+.lvl--ref{border-left-color:var(--border)}.lvl--ref h3{color:var(--strong);margin:1.2rem 0 .2rem;font-size:.95rem}

@@ -11,7 +11,7 @@
       const paint = () => {
         const p = prog(s);
         document.querySelectorAll(".got").forEach(b => { const on = p[T.indexOf(b.dataset.tier)]; b.textContent = on ? "[x] got it" : "[ ] got it"; b.classList.toggle("on", on); });
-        document.querySelectorAll(".tier").forEach(a => { const k = a.dataset.tier; a.classList.toggle("done", k === "lab" ? p[3] : p[T.indexOf(k)]); });
+        document.querySelectorAll(".tier").forEach(a => { const k = a.dataset.tier; a.classList.toggle("done", k === "ref" ? false : k === "lab" ? p[3] : p[T.indexOf(k)]); });
       };
       document.addEventListener("click", e => {
         const b = e.target.closest(".got"); if (!b) return;

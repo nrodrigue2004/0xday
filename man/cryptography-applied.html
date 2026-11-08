@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man cryptography-applied :: 0xDay</title>
+<meta name="description" content="cryptography-applied cheatsheet: Cryptography (applied) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=e9f8fbdf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=e9f8fbdf" defer></script>
+<script src="../site.js?v=e9f8fbdf" defer></script>
+<script src="../fx.js?v=e9f8fbdf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man cryptography-applied</p>
+<div class="manhead"><span>CRYPTOGRAPHY-APPLIED(7)</span><span>0xDay Field Manual</span><span>CRYPTOGRAPHY-APPLIED(7)</span></div>
+<h1>cryptography-applied <span class="muted">- Cryptography (applied) commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-hashing-and-encoding">hashing and encoding</a> <a href="#g-symmetric-encryption">symmetric encryption</a> <a href="#g-keys-and-signatures">keys and signatures</a> <a href="#g-certificates">certificates</a> <a href="#g-algorithm-guide">algorithm guide</a> <a href="#g-terms">terms</a></p><h2 id="g-hashing-and-encoding">hashing and encoding</h2><dl class="man"><dt><code>echo -n &quot;text&quot; | sha256sum</code></dt><dd>SHA-256 of a string (-n avoids the newline)</dd><dt><code>sha256sum file</code></dt><dd>checksum a file</dd><dt><code>sha256sum -c SHA256SUMS</code></dt><dd>verify against a checksum list</dd><dt><code>echo -n &quot;hi&quot; | base64</code></dt><dd>encode</dd><dt><code>echo &quot;aGk=&quot; | base64 -d</code></dt><dd>decode</dd><dt><code>echo -n &quot;hi&quot; | xxd -p</code></dt><dd>hex encode</dd><dt><code>openssl dgst -sha256 file</code></dt><dd>hash with OpenSSL</dd></dl><h2 id="g-symmetric-encryption">symmetric encryption</h2><dl class="man"><dt><code>openssl enc -aes-256-cbc -pbkdf2 -in a.txt -out a.enc</code></dt><dd>encrypt with a password</dd><dt><code>openssl enc -d -aes-256-cbc -pbkdf2 -in a.enc -out a.txt</code></dt><dd>decrypt it</dd><dt><code>gpg -c file</code></dt><dd>symmetric encrypt with GPG</dd><dt><code>gpg file.gpg</code></dt><dd>decrypt</dd></dl><h2 id="g-keys-and-signatures">keys and signatures</h2><dl class="man"><dt><code>openssl genpkey -algorithm ed25519 -out key.pem</code></dt><dd>create a private key</dd><dt><code>ssh-keygen -t ed25519</code></dt><dd>create an SSH key pair</dd><dt><code>openssl rand -hex 32</code></dt><dd>32 random bytes as hex</dd><dt><code>gpg --verify file.sig file</code></dt><dd>verify a signature</dd><dt><code>gpg --gen-key</code></dt><dd>create a PGP key pair</dd></dl><h2 id="g-certificates">certificates</h2><dl class="man"><dt><code>openssl x509 -in cert.pem -noout -text</code></dt><dd>read a certificate</dd><dt><code>openssl s_client -connect host:443 -servername host</code></dt><dd>inspect a live TLS handshake</dd><dt><code>openssl req -new -x509 -days 365 -nodes -out c.pem -keyout k.pem</code></dt><dd>self-signed cert for a lab</dd><dt><code>openssl verify -CAfile ca.pem cert.pem</code></dt><dd>validate a chain</dd></dl><h2 id="g-algorithm-guide">algorithm guide</h2><dl class="man"><dt><code>AES-GCM / ChaCha20-Poly1305</code></dt><dd>symmetric, authenticated encryption</dd><dt><code>RSA 2048+ / ECDSA / Ed25519</code></dt><dd>signatures and key exchange</dd><dt><code>SHA-256 / SHA-3</code></dt><dd>hashing</dd><dt><code>Argon2id / bcrypt / scrypt</code></dt><dd>password storage</dd><dt><code>HMAC-SHA256</code></dt><dd>message authentication</dd><dt><code>MD5 / SHA-1 / DES / RC4</code></dt><dd>broken, do not use</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Nonce / IV</code></dt><dd>value that must not repeat with the same key</dd><dt><code>Forward secrecy</code></dt><dd>past traffic stays safe if a long-term key leaks</dd><dt><code>PKI</code></dt><dd>system of CAs and certificates that binds names to keys</dd><dt><code>Salt</code></dt><dd>random value mixed into a password hash</dd><dt><code>Entropy</code></dt><dd>unpredictability, the raw material of keys</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

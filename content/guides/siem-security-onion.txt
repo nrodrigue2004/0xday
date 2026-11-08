@@ -38,6 +38,12 @@ $ cut -f2,4,5 ~/so/conn.log | sort | uniq -c | sort -rn | head
 ```
 
 > In Security Onion's hunt console the same pivot is a click: group by `source.ip`, then by `destination.ip`.
+
+### The Security Onion pieces, in one paragraph
+Sensors watch the wire (**Suricata** for signature alerts, **Zeek** for rich connection logs, **Stenographer** for full packet capture). **Elastic** stores and indexes everything. **Kibana-style dashboards** and the **Hunt** and **Alerts** pages in the Security Onion Console are how you look at it. A **grid** is the set of nodes (manager, search, sensors) working together, and a single standalone box can do all of it in a lab.
+
+### An alert is a question, not an answer
+Every alert deserves the same four questions: what fired (rule and category), who is involved (source, destination, user), is it expected for this host, and what else did that host do around the same time. Pivot from the alert to the Zeek `conn`, `dns`, `http` and `ssl` logs for the same IPs and time window, and to the PCAP if you need the bytes.
 :: complex
 ### Hunting: finding what no rule caught
 Threat hunting starts from a hypothesis ("malware is checking in with a C2 server") and looks for its fingerprint in the data, alert or not. **Beaconing** has a clear fingerprint:
@@ -58,6 +64,44 @@ $ awk '$5 == 443 {print $9}' ~/so/conn.log | sort -n | uniq -c | sort -rn | head
 
 ### Detection engineering
 Once you've found something by hand, turn it into a rule so the SIEM catches it next time: a Suricata signature, a Sigma rule, or an Elastic query over Zeek fields. Then tune it until it's quiet enough that people actually read it.
+
+### Writing a detection that is worth keeping
+A good rule has a clear hypothesis ("a workstation should not run `powershell -enc` from Office"), a log source that really contains the field, a test (generate the behavior in the lab and confirm it fires), a known false-positive list, and a note on what to do when it fires. Map it to an ATT&CK technique so gaps are visible. Sigma is a portable format that converts to Elastic queries, and Suricata rules cover the network side. Track each rule's alerts per week and retire or tune the noisy ones.
+
+### Operating the box
+Keep an eye on disk (PCAP fills it fast), set retention, watch the sensor's dropped-packet counters (a sensor that drops packets is blind), and make sure the SPAN or TAP really sends both directions. Time sync (NTP) matters, because correlating across sources with skewed clocks gives nonsense timelines.
+:: ref
+### roles and logs
+Suricata | signature-based IDS/IPS, writes alerts
+Zeek | passive network analyzer, writes conn, dns, http, ssl, files, notice logs
+Stenographer | full packet capture you can pull by IP, port and time
+Elastic | stores and searches all events
+Alerts page | the triage queue of IDS and other detections
+Hunt page | query and group events to look for what no rule caught
+PCAP | pivot from an event to the raw packets
+### zeek fields worth knowing
+id.orig_h / id.resp_h | source and destination IP
+id.resp_p | destination port
+conn_state | S0 no reply, SF normal finish, REJ rejected, RSTO reset by originator
+orig_bytes / resp_bytes | bytes sent by each side, large outbound can mean exfiltration
+query / qtype_name | DNS question, long or random names suggest tunnelling or DGA
+uid | connection ID that ties together entries across logs
+### hunting queries (patterns)
+event.dataset:conn AND destination.port:22 | all SSH connections
+event.dataset:dns AND dns.query.name:*.top | DNS lookups ending in a suspicious TLD
+rule.category:"Attempted Administrator Privilege Gain" | alerts of that class
+source.ip:10.0.30.20 | everything one host did
+groupby source.ip destination.port | stack to see who talks to what
+### triage verdicts
+True positive | real malicious activity, escalate and contain
+Benign true positive | rule worked, behavior is authorized (scanner, pentest)
+False positive | rule fired but behavior is not what it describes, tune it
+Undetermined | not enough data, collect more and note what is missing
+### command line
+so-status | health of all Security Onion services
+so-allow | open the firewall for a new analyst or sensor
+sudo so-rule-update | refresh the Suricata ruleset
+so-test | replay sample traffic to check alerting
 :: lab
 host: securityonion
 user: analyst

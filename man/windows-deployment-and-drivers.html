@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man windows-deployment-and-drivers :: 0xDay</title>
+<meta name="description" content="windows-deployment-and-drivers cheatsheet: Windows deployment &amp; drivers commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=e9f8fbdf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=e9f8fbdf" defer></script>
+<script src="../site.js?v=e9f8fbdf" defer></script>
+<script src="../fx.js?v=e9f8fbdf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man windows-deployment-and-drivers</p>
+<div class="manhead"><span>WINDOWS-DEPLOYMENT-AND-DRIVERS(7)</span><span>0xDay Field Manual</span><span>WINDOWS-DEPLOYMENT-AND-DRIVERS(7)</span></div>
+<h1>windows-deployment-and-drivers <span class="muted">- Windows deployment &amp; drivers commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-dism">dism</a> <a href="#g-sysprep">sysprep</a> <a href="#g-drivers">drivers</a> <a href="#g-disk-preparation-diskpart">disk preparation (diskpart)</a> <a href="#g-logs">logs</a> <a href="#g-terms">terms</a></p><h2 id="g-dism">dism</h2><dl class="man"><dt><code>dism /Get-WimInfo /WimFile:install.wim</code></dt><dd>list images in a WIM</dd><dt><code>dism /Mount-Image /ImageFile:install.wim /Index:1 /MountDir:C:\mnt</code></dt><dd>mount to edit</dd><dt><code>dism /Image:C:\mnt /Add-Driver /Driver:C:\drivers /Recurse</code></dt><dd>inject drivers</dd><dt><code>dism /Unmount-Image /MountDir:C:\mnt /Commit</code></dt><dd>save changes</dd><dt><code>dism /Capture-Image /ImageFile:out.wim /CaptureDir:C:\ /Name:Golden</code></dt><dd>capture a volume</dd><dt><code>dism /Apply-Image /ImageFile:out.wim /Index:1 /ApplyDir:W:\</code></dt><dd>apply an image</dd><dt><code>dism /Online /Cleanup-Image /RestoreHealth</code></dt><dd>repair the running system</dd></dl><h2 id="g-sysprep">sysprep</h2><dl class="man"><dt><code>sysprep /generalize /oobe /shutdown</code></dt><dd>prepare an image for capture</dd><dt><code>C:\Windows\System32\Sysprep\Panther</code></dt><dd>sysprep logs</dd></dl><h2 id="g-drivers">drivers</h2><dl class="man"><dt><code>pnputil /enum-drivers</code></dt><dd>drivers in the store</dd><dt><code>pnputil /add-driver x.inf /install</code></dt><dd>install a driver package</dd><dt><code>driverquery /v</code></dt><dd>loaded drivers</dd><dt><code>devmgmt.msc</code></dt><dd>Device Manager</dd><dt><code>Get-PnpDevice -Status Error</code></dt><dd>devices with problems</dd></dl><h2 id="g-disk-preparation-diskpart">disk preparation (diskpart)</h2><dl class="man"><dt><code>diskpart → list disk</code></dt><dd>show disks</dd><dt><code>select disk 0</code></dt><dd>choose one</dd><dt><code>clean</code></dt><dd>wipe the partition table</dd><dt><code>convert gpt</code></dt><dd>use GPT for UEFI</dd><dt><code>create partition efi size=260</code></dt><dd>EFI system partition</dd><dt><code>format fs=ntfs quick</code></dt><dd>format a volume</dd></dl><h2 id="g-logs">logs</h2><dl class="man"><dt><code>C:\Windows\Panther\setuperr.log</code></dt><dd>setup errors</dd><dt><code>C:\Windows\INF\setupapi.dev.log</code></dt><dd>driver installation log</dd><dt><code>C:\Windows\Logs\DISM\dism.log</code></dt><dd>DISM operations</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>WIM</code></dt><dd>file-based Windows image</dd><dt><code>WinPE</code></dt><dd>minimal boot environment for deployment</dd><dt><code>Sysprep</code></dt><dd>removes machine-specific data before capture</dd><dt><code>Autopilot</code></dt><dd>cloud-based device provisioning</dd><dt><code>Hardware ID</code></dt><dd>VEN and DEV string used to match drivers</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

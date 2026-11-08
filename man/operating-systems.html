@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man operating-systems :: 0xDay</title>
+<meta name="description" content="operating-systems cheatsheet: Operating systems commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=e9f8fbdf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=e9f8fbdf" defer></script>
+<script src="../site.js?v=e9f8fbdf" defer></script>
+<script src="../fx.js?v=e9f8fbdf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man operating-systems</p>
+<div class="manhead"><span>OPERATING-SYSTEMS(7)</span><span>0xDay Field Manual</span><span>OPERATING-SYSTEMS(7)</span></div>
+<h1>operating-systems <span class="muted">- Operating systems commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-processes">processes</a> <a href="#g-memory-and-disk">memory and disk</a> <a href="#g-inside-a-process">inside a process</a> <a href="#g-permissions">permissions</a> <a href="#g-signals">signals</a> <a href="#g-terms">terms</a></p><h2 id="g-processes">processes</h2><dl class="man"><dt><code>ps aux</code></dt><dd>all processes with owner and CPU</dd><dt><code>ps -ef --forest</code></dt><dd>process tree</dd><dt><code>top / htop</code></dt><dd>live resource use</dd><dt><code>kill -15 PID</code></dt><dd>ask politely to stop (SIGTERM)</dd><dt><code>kill -9 PID</code></dt><dd>force kill (SIGKILL)</dd><dt><code>nice -n 10 cmd</code></dt><dd>start with lower priority</dd><dt><code>jobs, bg, fg</code></dt><dd>manage shell background jobs</dd></dl><h2 id="g-memory-and-disk">memory and disk</h2><dl class="man"><dt><code>free -h</code></dt><dd>memory and swap</dd><dt><code>vmstat 1</code></dt><dd>memory, swap and CPU every second</dd><dt><code>cat /proc/meminfo</code></dt><dd>detailed memory info</dd><dt><code>df -h</code></dt><dd>file system usage</dd><dt><code>mount</code></dt><dd>what is mounted where</dd><dt><code>lsof -p PID</code></dt><dd>files a process has open</dd></dl><h2 id="g-inside-a-process">inside a process</h2><dl class="man"><dt><code>strace -f -p PID</code></dt><dd>system calls of a running process</dd><dt><code>strace -e openat cmd</code></dt><dd>only file-open calls</dd><dt><code>ls -l /proc/PID/fd</code></dt><dd>open file descriptors</dd><dt><code>cat /proc/PID/maps</code></dt><dd>memory map</dd><dt><code>cat /proc/PID/cmdline</code></dt><dd>exact command line</dd><dt><code>ldd /bin/ls</code></dt><dd>shared libraries needed</dd></dl><h2 id="g-permissions">permissions</h2><dl class="man"><dt><code>ls -l</code></dt><dd>mode, owner and group</dd><dt><code>chmod 750 f</code></dt><dd>rwx for owner, rx for group, none for others</dd><dt><code>stat f</code></dt><dd>all metadata</dd><dt><code>umask</code></dt><dd>default permission mask</dd><dt><code>find / -perm -4000 2&gt;/dev/null</code></dt><dd>setuid programs</dd><dt><code>getcap -r / 2&gt;/dev/null</code></dt><dd>files with Linux capabilities</dd></dl><h2 id="g-signals">signals</h2><dl class="man"><dt><code>SIGTERM (15)</code></dt><dd>polite stop request</dd><dt><code>SIGKILL (9)</code></dt><dd>cannot be caught</dd><dt><code>SIGINT (2)</code></dt><dd>Ctrl+C</dd><dt><code>SIGHUP (1)</code></dt><dd>hangup, often &quot;reload config&quot;</dd><dt><code>SIGSEGV</code></dt><dd>invalid memory access</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Kernel</code></dt><dd>core of the OS with full privilege</dd><dt><code>System call</code></dt><dd>request from a program to the kernel</dd><dt><code>Virtual memory</code></dt><dd>per-process address space mapped by the OS</dd><dt><code>Context switch</code></dt><dd>CPU moves to another process or thread</dd><dt><code>Deadlock</code></dt><dd>tasks waiting on each other forever</dd><dt><code>TOCTOU</code></dt><dd>time-of-check to time-of-use race</dd><dt><code>ASLR / NX</code></dt><dd>randomized addresses / non-executable data</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

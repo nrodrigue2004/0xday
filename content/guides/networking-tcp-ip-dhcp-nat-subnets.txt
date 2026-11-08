@@ -12,6 +12,12 @@ $ ipcalc 192.168.1.25/24
 ```
 
 > Private ranges, never routed on the internet: `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`. Your home network almost certainly uses one.
+
+### The five numbers every host needs
+A working network setting is five things: an **IP address** (who I am), a **subnet mask** (which addresses are local), a **default gateway** (the door to everything else), a **DNS server** (turns names into addresses) and a lease or static assignment. If you can ping an IP but not a name, it is DNS. If you can ping the gateway but not the internet, it is the router or the ISP. If you cannot ping the gateway, it is local.
+
+### Private address space
+`10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16` are private ranges, meaning they are not routed on the internet and are reused by every home and company. `169.254.x.x` means DHCP failed (the host gave itself an address). `127.0.0.1` is the machine itself.
 :: mid
 ### Subnetting
 The `/N` is how many bits are the network. A bigger number means a smaller network:
@@ -28,6 +34,17 @@ $ ipcalc 10.0.20.130/26
 
 ### DHCP
 Typing those settings into every device doesn't scale. **DHCP** hands them out automatically in four steps, **DORA**: Discover (client broadcasts), Offer, Request, Acknowledge. If DHCP fails, Windows gives itself a `169.254.x.x` (APIPA) address, which is a strong clue.
+
+### Subnetting cheat table
+Use this to do it in your head: `/24` is 255.255.255.0 with 254 usable hosts; `/25` has 126; `/26` has 62; `/27` has 30; `/28` has 14; `/29` has 6; `/30` has 2. Each step of one bit halves the size. The block size is 256 minus the interesting octet of the mask (for 255.255.255.192, block size 64, so networks start at .0, .64, .128, .192). Usable hosts are the block minus 2 (network and broadcast addresses).
+
+Worked example: `192.168.1.77/26`. Block size 64, so the network is `192.168.1.64`, the broadcast is `192.168.1.127`, usable range `.65` to `.126`.
+
+### DHCP, the four steps
+Discover (client shouts), Offer (server proposes an address), Request (client accepts), Acknowledge (server confirms). Remember it as **DORA**. A lease has a length; the client tries to renew halfway. A **reservation** ties an address to a MAC so a server always gets the same one. Two DHCP servers on one network (a rogue router) is a classic cause of strange outages and a classic attack.
+
+### ARP and ICMP
+ARP maps an IP to a MAC address on the local network. `ping` uses ICMP echo, and `traceroute` shows each router on the path. Many firewalls drop ICMP, so a failed ping does not always mean a down host.
 :: complex
 ### NAT
 Your ISP gives you one public IP, but your house has twenty devices. **NAT** (really PAT, port address translation) on the router rewrites each outgoing packet's private source address to the public one and tracks the connection by port, so replies come back to the right device. Side effects: nothing outside can start a connection in unless you add a **port forward**, and logs on the internet side all show one IP.
@@ -43,6 +60,60 @@ Link light → IP config (`ipconfig /all`, `ip a`) → ping the gateway → ping
 ```
 $ cat ~/configs/WS-14.txt
 ```
+
+### Routing basics
+A host sends traffic for its own subnet directly and everything else to the default gateway. A router looks up the destination in its routing table and picks the **longest matching prefix**. Static routes are added by hand; dynamic protocols (OSPF, BGP) exchange them automatically. Asymmetric routing, where the reply takes a different path than the request, breaks stateful firewalls.
+
+### VLANs, in a paragraph
+A VLAN splits one physical switch into separate virtual networks. Ports are either **access** (one VLAN, untagged) or **trunk** (many VLANs, tagged with 802.1Q). Devices in different VLANs can only talk through a router or firewall, which is exactly where you apply rules. VLAN 1 and the native VLAN are common misconfigurations.
+
+### The commands you will actually use
+`ipconfig /all` (Windows) or `ip a` (Linux) show your settings; `ipconfig /release` and `/renew` redo DHCP; `ping`, `tracert` or `traceroute`, `nslookup` or `dig`, and `arp -a` cover most investigations. `netstat -ano` or `ss -tulpn` show open ports. See the reference below.
+:: ref
+### windows
+ipconfig /all | full IP configuration, including DHCP and DNS servers
+ipconfig /release | drop the DHCP lease
+ipconfig /renew | ask for a new lease
+ipconfig /flushdns | clear the DNS cache
+ping -t 8.8.8.8 | continuous ping
+tracert 8.8.8.8 | path to a host
+nslookup example.com | DNS query
+arp -a | IP-to-MAC table
+netstat -ano | connections and listening ports with PIDs
+route print | routing table
+### linux
+ip a | addresses
+ip r | routes, the default gateway is the "default via" line
+ip neigh | ARP table
+ping -c 4 host | four pings
+traceroute host | path to a host
+dig example.com +short | quick DNS answer
+ss -tulpn | listening sockets and owning processes
+nmcli device show | NetworkManager details
+### subnet quick table
+/24 | 255.255.255.0, 254 usable hosts
+/25 | 255.255.255.128, 126 usable hosts
+/26 | 255.255.255.192, 62 usable hosts
+/27 | 255.255.255.224, 30 usable hosts
+/28 | 255.255.255.240, 14 usable hosts
+/29 | 255.255.255.248, 6 usable hosts
+/30 | 255.255.255.252, 2 usable hosts
+### well-known ports
+22 | SSH
+53 | DNS
+67/68 | DHCP server and client
+80 / 443 | HTTP and HTTPS
+123 | NTP
+445 | SMB
+3389 | RDP
+### terms
+DORA | discover, offer, request, acknowledge
+APIPA | 169.254.x.x self-assigned address after DHCP failure
+Gateway | router interface hosts use to leave their subnet
+NAT | rewriting private addresses to a public one
+PAT | NAT using port numbers so many hosts share one address
+MTU | largest packet a link carries, usually 1500
+TTL | hop limit, decremented by each router
 :: lab
 host: netadmin
 user: admin

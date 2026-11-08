@@ -15,6 +15,17 @@ $ cat ~/bench/intake.txt
 ```
 
 > Back up the user's data before you change anything on a machine with a suspect drive.
+
+### The method
+Start with the cheapest, most likely cause and work toward the expensive one. Ask what changed, reproduce the problem, check power and connections first (a surprising number of "dead" machines are an unplugged cable or a dead outlet), then isolate: swap one known-good part at a time. The beep codes and LED patterns on a motherboard are a language, look them up in the vendor manual.
+
+### The parts and what failing looks like
+- **PSU**: random shutdowns, no power at all, clicking at boot.
+- **RAM**: blue screens with different errors, failure to boot, beeps.
+- **Storage (HDD/SSD)**: slow, freezing, clicking drive, file corruption, missing boot device.
+- **CPU/cooling**: thermal throttling, shutdowns under load, loud fans.
+- **GPU**: artifacts on screen, black screen with fans running.
+- **Battery/charger** on laptops: swelling battery, not charging, shuts off at "50%".
 :: mid
 ### Drives: SMART
 Drives track their own health in **SMART** attributes. The ones that predict failure:
@@ -34,6 +45,21 @@ MemTest86 runs patterns through RAM; **any** error means a bad stick (test one a
 $ cat ~/bench/memtest.log
 $ sensors
 ```
+
+### Order of checks on a PC that will not boot
+1. Power: outlet, PSU switch, cable, power button, a different charger for laptops.
+2. Display: is it the monitor or cable? Try another port.
+3. POST: beeps or error LEDs? Reseat RAM, try one stick at a time.
+4. Boot device: is the drive detected in BIOS/UEFI? Boot order correct?
+5. Peripherals: unplug everything except keyboard and monitor.
+6. Clear CMOS (battery out for a minute) if settings look corrupt.
+7. Minimal build: CPU, one RAM, PSU, board, and see if it posts.
+
+### Tools of the trade
+Screwdriver set, anti-static strap, compressed air, thermal paste, a PSU tester, a multimeter, a USB boot stick with diagnostics (MemTest86, vendor tools, a live Linux), a known-good spare of common parts, and a drive-to-USB adapter for data recovery.
+
+### Data comes first
+Before repairs that risk the disk, ask whether the data matters and whether there is a backup. If a drive is failing, stop using it, image it (`ddrescue`) to a healthy disk, and repair the copy.
 :: complex
 ### Reading the whole picture
 One number rarely decides it. A drive with 2 reallocated sectors that hasn't changed in a year is stable; one that went from 0 to 400 this month is failing. Compare against the last report, and correlate with OS logs (disk I/O errors in Event Viewer / `dmesg`):
@@ -47,6 +73,47 @@ For refurbished laptops the call depends on part cost vs unit value, and on whet
 
 ### ESD and safety
 Ground yourself (wrist strap or touch bare chassis metal), unplug and remove the battery before opening a laptop, and never open a power supply.
+
+### Reading SMART numbers
+Reallocated sectors, current pending sectors and offline uncorrectable counts above zero on a spinning disk mean it is dying: copy data and replace. Media wearout and percentage used matter on SSDs. `smartctl -H` gives a pass/fail, `-a` the details, and `-t short` runs a self-test. A PASSED health flag with bad attributes is still a warning.
+
+### Memory and thermal tests
+Run MemTest86 for at least one full pass (several is better); any error means replace the module. Watch temperatures with HWMonitor or `sensors`: idle in the 30s to 40s °C, load under about 85°C for most CPUs. Dust, dried thermal paste and a failed fan are the usual causes of heat issues.
+
+### Documentation and warranty
+Record serial number, symptom, tests run and results on the ticket. Check warranty status before opening a device (some warranties void with opened seals) and keep removed parts in labeled, anti-static bags.
+:: ref
+### drives
+smartctl -H /dev/sda | health verdict
+smartctl -a /dev/sda | full SMART attributes
+smartctl -t short /dev/sda | start a short self-test
+lsblk | list disks and partitions
+ddrescue /dev/sda disk.img map.log | copy a failing drive, retrying bad areas
+badblocks -sv /dev/sdb | read test for bad sectors (data safe in read mode)
+chkdsk C: /f | check and fix a Windows volume
+### memory and cpu
+memtester 1G 1 | user-space memory test on Linux
+free -h | memory in use
+lscpu | CPU details
+sensors | temperatures and fan speeds
+stress-ng --cpu 4 --timeout 60s | load test to see if temperatures hold
+### system info
+lspci / lsusb | list PCI and USB devices
+dmidecode -t memory | RAM slots and modules
+journalctl -k | kernel messages, look for I/O errors
+dmesg | grep -i error | recent hardware errors
+Get-PhysicalDisk | disk health in PowerShell
+wmic memorychip list brief | installed RAM on older Windows
+### warning signs
+Clicking or grinding drive | mechanical failure, copy data immediately
+Rising reallocated sectors | drive is dying
+Beep codes at power on | check the board manual: RAM, GPU or CPU
+Shutdown at the same temperature | cooling or thermal paste
+Swollen battery | stop using, handle as hazardous
+### safety
+ESD strap | ground yourself before touching components
+Unplug power | hold the power button to drain residual charge
+Lithium batteries | never puncture, recycle properly
 :: lab
 style: ticket
 host: bench

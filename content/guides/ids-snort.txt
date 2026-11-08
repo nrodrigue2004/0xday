@@ -11,6 +11,15 @@ $ cat ~/rules/local.rules
 Read the first rule as a sentence: *alert* on *tcp* traffic from *any* source to the web server on port *80*, when the payload *contains* `/etc/passwd`, with this message and ID number (`sid`).
 
 > `alert` only logs. In IPS mode, `drop` blocks the packet and logs it.
+
+### The two modes
+An **IDS** only watches and alerts (it sits on a copy of the traffic, like a security camera). An **IPS** sits inline and can also drop packets (a guard at the door). Start in alert-only mode, tune, and only then consider blocking, because a false positive in IPS mode breaks real traffic.
+
+### Anatomy of a rule
+```
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"WEB admin probe"; flow:to_server,established; content:"/admin"; http_uri; sid:1000001; rev:1;)
+```
+Header: **action, protocol, source, source port, direction, destination, destination port**. Options in parentheses: `msg` is the alert text, `content` is the bytes to find, `flow` limits to a connection state and direction, `sid` is the unique ID (use 1,000,000 and up for your own rules) and `rev` is the revision.
 :: mid
 ### Reading alerts
 Snort's "fast" alert format puts everything on one line: time, `[gid:sid:rev]`, message, classification, priority, protocol and the source and destination:
@@ -30,6 +39,17 @@ $ grep -o "\[1:[0-9]*:[0-9]*\] [^[]*" ~/logs/alert.fast | sort | uniq -c | sort 
 ```
 $ grep "detection_filter" ~/rules/local.rules
 ```
+
+### More rule options
+- `pcre:"/regex/i"` matches a regular expression, powerful but slower than `content`
+- `nocase` ignores case, `offset`/`depth`/`within`/`distance` constrain where in the payload to look
+- `threshold: type both, track by_src, count 5, seconds 60` fires only after five hits from one source in a minute
+- `classtype:attempted-admin` and `priority` put the alert in a category
+- `reference:cve,2021-44228` links to the vulnerability
+- Fast pattern matching: put the most distinctive `content` first, because the engine searches that string and only then checks the rest
+
+### Variables and files
+`HOME_NET` must be set to your real internal ranges, or half the rules never match. Rules live in `/etc/snort/rules/` (or `/etc/suricata/rules/`), local rules go in `local.rules`, and `snort -T -c snort.conf` tests the config before you restart. Output alerts to `alert_fast` for reading and to unified2/JSON for tools.
 :: complex
 ### False positives and tuning
 A rule that fires on legitimate traffic trains analysts to ignore it. Tuning means making the match **more specific** (add `flow`, limit to `http_uri`, add a second `content`), adding **thresholds**, or **suppressing** a rule for one known-good host. Count which rules fire most and from where before deciding:
@@ -43,6 +63,55 @@ Attackers dodge signatures with encoding (`%2e%2e%2f` for `../`), fragmentation,
 
 ### Placement
 An IDS on a SPAN/tap port sees a copy of traffic (passive, can't block). An IPS inline must be fast and must decide what happens when it fails: **fail-open** (traffic flows unchecked) or **fail-closed** (the network goes down).
+
+### Snort vs Suricata
+Both read the same style of rules. Suricata is multi-threaded, understands more protocols natively and writes EVE JSON that feeds straight into Security Onion. Snort 3 is also multi-threaded and has a new rule syntax. Learn one and the other is a day of reading.
+
+### Tuning workflow
+1. Run alert-only for a week on a normal network.
+2. Sort alerts by count; the top five are usually noise.
+3. For each: is the behavior legitimate? If yes, **suppress** that source or destination, or **threshold** it. Do not disable the whole rule if one host is the problem.
+4. Keep a record of every suppression with a reason.
+5. Test new rules with a replayed PCAP (`snort -r capture.pcap -c snort.conf -A alert_fast`) before they go live.
+
+### What network IDS cannot see
+Encrypted payloads (you only see metadata unless you decrypt), traffic that never crosses your sensor (east-west on the same switch), and low-and-slow activity below your thresholds. Pair it with host logs.
+:: ref
+### rule header
+alert | log an alert and continue
+drop / reject | IPS only: discard (and send reset)
+pass | ignore matching traffic
+tcp udp icmp ip | protocol
+$HOME_NET / $EXTERNAL_NET | variables for inside and outside
+-> | direction, source to destination (<> for both)
+### rule options
+msg:"text" | alert message
+content:"bytes" | find these bytes in the payload
+content:"|0d 0a|" | match hex bytes inside pipes
+nocase | case-insensitive content match
+http_uri / http_header | restrict content to a URI or header
+pcre:"/regex/i" | regular-expression match
+flow:to_server,established | only requests in an established session
+threshold:type both,track by_src,count 5,seconds 60 | rate-based firing
+sid:1000001 | unique rule ID, 1000000+ for local rules
+rev:2 | revision number, bump on edits
+classtype:web-application-attack | category
+### running it
+snort -T -c /etc/snort/snort.conf | test the config
+snort -A console -q -c snort.conf -i eth0 | live alerts to the console
+snort -r file.pcap -c snort.conf -A alert_fast | run rules over a capture
+suricata -T -c /etc/suricata/suricata.yaml | test the config
+suricata -r file.pcap -l ./out | process a capture
+tail -f /var/log/snort/alert | watch alerts arrive
+### tuning
+suppress gen_id 1, sig_id 2100498, track by_src, ip 10.0.0.5 | silence one rule for one host
+event_filter gen_id 1, sig_id 2100498, type limit, track by_src, count 1, seconds 60 | cap alert rate
+### terms
+IDS / IPS | detect only / detect and block
+True positive | alert on real malicious traffic
+False positive | alert on harmless traffic
+False negative | missed attack, the worst kind
+Preprocessor | decodes protocols before rules run
 :: lab
 host: sensor01
 user: analyst

@@ -17,6 +17,11 @@ $ step
 $ step
 $ info locals
 ```
+
+### What a data structure is for
+Choose a structure by what you do most. **Array/list**: fast access by position. **Hash table** (dict, set): fast lookup by key. **Stack**: last in, first out (undo, call stack). **Queue**: first in, first out (job processing, BFS). **Linked list**: cheap insert in the middle, slow to search. **Tree**: hierarchical data and sorted lookup. **Heap**: always gives the smallest or largest next. **Graph**: networks and relationships (hosts, users, attack paths).
+
+Big-O describes how work grows with input size: O(1) constant, O(log n) halving, O(n) one pass, O(n log n) good sorting, O(n²) nested loops, O(2ⁿ) trying everything.
 :: mid
 ### Binary search
 On a **sorted** array, look at the middle: if it's too small, throw away the left half, if too big, the right half. Each step halves what's left, so a million entries take about 20 steps: **O(log n)**. Linear search would take up to a million.
@@ -35,6 +40,21 @@ Merge sort and quicksort are O(n log n); bubble sort is O(n²). You usually call
 
 ### Hash tables
 A hash function turns the key into a bucket number. Average O(1) lookup, which is why blocklists, caches and password-cracking wordlists use them. Collisions (two keys, same bucket) are handled with chaining or probing.
+
+### Complexity cheat table
+Array index O(1), array search O(n), sorted array binary search O(log n), hash lookup average O(1), insert into a balanced tree O(log n), sort O(n log n), nested loops over the same list O(n²). Space matters as well as time: a hash set trades memory for speed.
+
+### Patterns that solve most problems
+- **Hash map for counting and lookup**: count occurrences, find duplicates, two-sum.
+- **Two pointers / sliding window**: pairs in sorted data, longest substring without repeats.
+- **Stack**: matching brackets, parsing, undo.
+- **BFS** (queue): shortest path in an unweighted graph, nearest neighbor.
+- **DFS** (stack or recursion): explore everything, find connected components, detect cycles.
+- **Sorting first**: many problems get easy once the data is ordered.
+- **Binary search**: not just arrays, any monotonic yes/no question.
+
+### Recursion
+A recursive function needs a base case and a step toward it. Each call uses stack space, so deep recursion overflows; convert to a loop when depth is large. Memoization (cache results) turns exponential recursion like Fibonacci into linear.
 :: complex
 ### Off-by-one errors
 The most common algorithm bug. Binary search has three places to get it wrong: the initial `hi` (`n` or `n - 1`), the loop condition (`<` or `<=`), and the updates (`mid` or `mid ± 1`). They must agree. With `hi = n - 1` (inclusive), the loop must be `while (lo <= hi)`, otherwise the last remaining candidate is never checked.
@@ -53,6 +73,56 @@ $ print hi
 - **Graphs**: BloodHound models Active Directory as a graph and runs **shortest path** to find the quickest route from a normal user to Domain Admin
 - **Bloom filters**: tiny probabilistic sets, used to check "is this password in a breach list?" without storing the list
 - **Tries and Aho-Corasick**: match thousands of IDS signatures in one pass
+
+### Dynamic programming in one paragraph
+When a problem breaks into overlapping subproblems (shortest edit distance, knapsack, longest common subsequence), store each subproblem's answer in a table so it is computed once. Define the state, the transition, the base case and the order of filling.
+
+### Graphs in security
+Hosts and connections form a graph: BFS finds the shortest path an attacker could take, BloodHound is a graph of Active Directory permissions, dependency trees are graphs (supply chain), and firewall rule analysis is reachability. Trie and bloom filters power fast blocklist lookups, hashing powers integrity checks, and rate limiting uses queues and sliding windows.
+
+### Algorithmic attacks
+Hash collision attacks degrade a hash table to O(n) per lookup (a denial of service), catastrophic regex backtracking (ReDoS) takes exponential time on crafted input, and unbounded recursion or allocation exhausts memory. Know the worst case, not just the average case, for anything that handles untrusted input.
+:: ref
+### structures
+Array / list | indexed, O(1) access, O(n) search
+Hash map / set | O(1) average lookup, no order
+Stack | push and pop at the same end (LIFO)
+Queue | add at back, remove at front (FIFO)
+Deque | add and remove at both ends
+Linked list | nodes with pointers, cheap inserts
+Binary search tree | sorted, O(log n) when balanced
+Heap / priority queue | fast min or max
+Graph | nodes and edges
+Trie | prefix tree for words and IPs
+### big-o
+O(1) | constant, hash lookup
+O(log n) | halving, binary search
+O(n) | single pass
+O(n log n) | efficient sorting
+O(n^2) | nested loops
+O(2^n) | trying every subset, only for tiny inputs
+### algorithms
+Binary search | find in sorted data by halving
+Merge sort | O(n log n), stable
+Quick sort | O(n log n) average, O(n^2) worst
+BFS | level by level, shortest path unweighted
+DFS | go deep first, backtracking
+Dijkstra | shortest path with weights
+Two pointers | scan from both ends or a window
+Memoization | cache results of repeated calls
+### python equivalents
+list.append / pop | stack operations
+collections.deque | queue with O(1) both ends
+heapq.heappush / heappop | priority queue
+set / dict | hash set and hash map
+bisect.bisect_left | binary search in a sorted list
+sorted(x, key=...) | sort with a custom key
+### security connections
+Hash collision DoS | worst-case O(n) lookups from crafted keys
+ReDoS | regex that backtracks exponentially
+Bloom filter | memory-light "probably in the blocklist" check
+Graph search | attack path and permission analysis
+Rate limiting | sliding windows and token buckets
 :: lab
 style: debug
 host: fw-dev

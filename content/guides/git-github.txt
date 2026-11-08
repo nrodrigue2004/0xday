@@ -14,6 +14,18 @@ $ git log --oneline
 - A **branch** is a separate line of work; merge it back when it's done
 
 > Write commit messages that say *why*, not just *what*. Future you will read them during an outage.
+
+### The mental model
+Git saves **snapshots** (commits) of your project, each with a message, an author and a pointer to its parent. A **repository** is the folder plus its history. A **branch** is a movable label on a commit. **GitHub** hosts a remote copy so you can back up, share and collaborate. Three places hold your files: the working directory (what you see), the **staging area** (what will go in the next commit) and the repository (committed history).
+
+### The daily loop
+```
+git status
+git add file.txt
+git commit -m "Explain why, not just what"
+git push
+```
+Commit small, commit often, write messages in the imperative ("Fix login redirect"). `git pull` brings in other people's work first.
 :: mid
 ### Branches and pull requests
 Teams don't commit straight to `main`. You make a branch, push it, and open a **pull request** (PR): a request to merge, where others review the diff and CI runs the tests. **Branch protection** can require reviews and passing checks before merging.
@@ -25,6 +37,21 @@ $ git show --stat a41c9e2
 
 ### Seeing changes
 `git diff` shows uncommitted changes; `git show <sha>` shows exactly what one commit changed; `git log -p file` shows a file's whole history, change by change.
+
+### Branches and merging
+```
+git switch -c fix/login-bug
+git commit -am "Fix login redirect"
+git switch main
+git merge fix/login-bug
+```
+**Merge** keeps history as it happened; **rebase** replays your commits on top of the latest main for a straight line (never rebase commits other people already have). **Conflicts** appear when two branches edit the same lines: open the file, keep the right text between the `<<<<<<<` markers, remove the markers, then `git add` and commit.
+
+### Undoing things
+`git restore file` discards unstaged edits, `git restore --staged file` unstages, `git commit --amend` fixes the last commit message, `git revert <commit>` makes a new commit that undoes another (safe for shared branches), `git reset --hard <commit>` throws away work (dangerous), and `git reflog` shows where HEAD has been, which rescues "lost" commits.
+
+### Pull requests
+A PR proposes merging a branch. Good ones are small, explain the reason, link the issue, and pass automated checks. Reviewers look for correctness, security and clarity. Protect `main` with required reviews and checks.
 :: complex
 ### Secrets in history
 Deleting a secret in a new commit **doesn't remove it**: the old commit still contains it, and anyone who clones the repo gets the whole history. Bots scan public GitHub for leaked keys within minutes of a push.
@@ -43,6 +70,63 @@ $ git log -p --all -S "API_KEY" --oneline
 
 ### Supply chain
 Signed commits, protected branches, required reviews and pinned dependency versions all exist because a malicious commit or package can reach production through Git.
+
+### Useful investigation commands
+`git log --oneline --graph --all`, `git blame file` (who changed each line), `git log -S"password"` (when a string appeared or vanished), `git diff main..feature`, `git show <commit>`, and `git bisect` (binary search for the commit that introduced a bug).
+
+### Repository security
+Turn on secret scanning and push protection, use `.gitignore` for `.env` and keys, require signed commits where it matters, enable Dependabot or similar for vulnerable dependencies, pin GitHub Actions to commit SHAs, give Actions the minimum `permissions:`, and review third-party workflow code. If a secret is committed, **rotate it first**; rewriting history (`git filter-repo`) is cleanup, not a fix.
+
+### Workflows
+Trunk-based development (small changes straight to main with feature flags) suits fast CI; GitHub Flow (short branches plus PRs) is the common default; Git Flow (develop, release, hotfix branches) suits versioned releases. Pick one and write it down.
+:: ref
+### starting
+git init | create a repository here
+git clone URL | copy a remote repository
+git config --global user.name "Name" | set your identity
+git remote -v | show remotes
+### everyday
+git status | what changed
+git add -p | stage selected chunks
+git commit -m "msg" | save a snapshot
+git diff | unstaged changes
+git diff --staged | staged changes
+git pull | fetch and merge
+git push | upload commits
+### branches
+git branch | list branches
+git switch -c name | create and switch
+git switch name | change branch
+git merge name | merge into the current branch
+git rebase main | replay your work on top of main
+git branch -d name | delete a merged branch
+### history
+git log --oneline --graph --all | compact history graph
+git show <commit> | one commit in full
+git blame file | who last changed each line
+git log -S"text" | commits that added or removed text
+git log -p -- path | history of one file with diffs
+git bisect start | find the commit that broke something
+### undoing
+git restore file | discard edits in a file
+git restore --staged file | unstage
+git commit --amend | rewrite the last commit
+git revert <commit> | new commit that undoes one
+git reset --hard <commit> | discard everything after a commit
+git reflog | recover lost commits
+git stash / git stash pop | shelve work temporarily
+### secrets and hygiene
+git ls-files | files being tracked
+git rm --cached file | stop tracking but keep the file
+.gitignore | patterns Git should skip
+git filter-repo --path secrets.env --invert-paths | purge a file from history
+gitleaks detect | scan history for secrets
+### terms
+HEAD | the commit you are on
+origin | default name of the remote
+Fast-forward | merge that just moves the branch pointer
+Detached HEAD | checked out a commit, not a branch
+Fork | your own copy of someone's repo on GitHub
 :: lab
 host: dev
 user: dev

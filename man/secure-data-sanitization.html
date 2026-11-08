@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man secure-data-sanitization :: 0xDay</title>
+<meta name="description" content="secure-data-sanitization cheatsheet: Secure data sanitization commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=e9f8fbdf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=e9f8fbdf" defer></script>
+<script src="../site.js?v=e9f8fbdf" defer></script>
+<script src="../fx.js?v=e9f8fbdf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man secure-data-sanitization</p>
+<div class="manhead"><span>SECURE-DATA-SANITIZATION(7)</span><span>0xDay Field Manual</span><span>SECURE-DATA-SANITIZATION(7)</span></div>
+<h1>secure-data-sanitization <span class="muted">- Secure data sanitization commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-linux-tools">linux tools</a> <a href="#g-windows-tools">windows tools</a> <a href="#g-verification">verification</a> <a href="#g-nist-800-88-summary">nist 800-88 summary</a> <a href="#g-documentation-fields">documentation fields</a> <a href="#g-terms">terms</a></p><h2 id="g-linux-tools">linux tools</h2><dl class="man"><dt><code>shred -vzn 1 /dev/sdX</code></dt><dd>overwrite a disk once, then zeros</dd><dt><code>dd if=/dev/zero of=/dev/sdX bs=1M status=progress</code></dt><dd>zero a disk</dd><dt><code>hdparm -I /dev/sdX</code></dt><dd>check if Secure Erase is supported and not frozen</dd><dt><code>hdparm --user-master u --security-set-pass p /dev/sdX</code></dt><dd>set a temporary password before secure erase</dd><dt><code>hdparm --security-erase p /dev/sdX</code></dt><dd>ATA Secure Erase</dd><dt><code>nvme format /dev/nvme0n1 -s 1</code></dt><dd>NVMe format with user-data erase</dd><dt><code>blkdiscard /dev/sdX</code></dt><dd>TRIM the entire SSD</dd><dt><code>cryptsetup luksErase /dev/sdX</code></dt><dd>destroy LUKS keyslots, making data unreadable</dd></dl><h2 id="g-windows-tools">windows tools</h2><dl class="man"><dt><code>cipher /w:C:\</code></dt><dd>overwrite free space on a volume</dd><dt><code>diskpart → clean all</code></dt><dd>zero a whole disk</dd><dt><code>Reset this PC → Remove everything</code></dt><dd>consumer reset, clear-level only</dd><dt><code>Manage-bde -off C:</code></dt><dd>decrypt BitLocker if required (not a wipe)</dd></dl><h2 id="g-verification">verification</h2><dl class="man"><dt><code>sha256sum /dev/sdX</code></dt><dd>hash proves a zero or pattern fill if you know the expected value</dd><dt><code>xxd /dev/sdX | head</code></dt><dd>look at the start of the disk</dd><dt><code>photorec</code></dt><dd>try recovery on a wiped disk as a spot check</dd></dl><h2 id="g-nist-800-88-summary">nist 800-88 summary</h2><dl class="man"><dt><code>Clear</code></dt><dd>logical overwrite, resists simple recovery</dd><dt><code>Purge</code></dt><dd>resists laboratory recovery (secure erase, crypto erase, degauss)</dd><dt><code>Destroy</code></dt><dd>media can no longer be used (shred, disintegrate)</dd></dl><h2 id="g-documentation-fields">documentation fields</h2><dl class="man"><dt><code>Asset tag and serial</code></dt><dd>which device</dd><dt><code>Media type</code></dt><dd>HDD, SSD, flash, tape</dd><dt><code>Method and tool</code></dt><dd>what you did exactly</dd><dt><code>Operator and date</code></dt><dd>who and when</dd><dt><code>Verification</code></dt><dd>how you confirmed it</dd><dt><code>Disposition</code></dt><dd>reused, sold, recycled</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Degauss</code></dt><dd>magnetic erase for HDD and tape</dd><dt><code>Crypto erase</code></dt><dd>delete the key so encrypted data is unreadable</dd><dt><code>Legal hold</code></dt><dd>data that must not be destroyed</dd><dt><code>Certificate of destruction</code></dt><dd>vendor proof listing serials destroyed</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

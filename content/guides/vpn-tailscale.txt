@@ -12,6 +12,15 @@ Two common shapes:
 $ tailscale status
 $ ipcalc 100.101.7.12/10
 ```
+
+### What problem does it solve?
+Your homelab sits behind your home router. Opening ports on that router so you can reach it from outside exposes services to the whole internet, where scanners find them within hours. A VPN flips that: the lab opens **no** inbound ports, and you prove who you are to get in.
+
+### Words to know
+- **Tunnel**: an encrypted path between two points.
+- **Peer / node**: a device in the VPN.
+- **Public key**: WireGuard and Tailscale identify devices by key pairs, not passwords. The private key never leaves the device.
+- **NAT traversal**: tricks that let two devices behind home routers connect directly without port forwarding. If that fails, traffic relays through a server (**DERP** in Tailscale) and stays end-to-end encrypted.
 :: mid
 ### Protocols
 - **IPsec**: the standard for site-to-site, works at the network layer (IKE to negotiate keys, ESP to encrypt)
@@ -27,6 +36,14 @@ A device on the tailnet can advertise a whole subnet (`--advertise-routes=10.0.1
 ```
 $ tailscale status --json | grep -i route
 ```
+
+### Setting it up
+Install Tailscale on each device, run `tailscale up` and sign in. Each device gets a stable `100.x.y.z` address and a MagicDNS name (`proxmox.tailnet-name.ts.net`). From then on `ssh nate@proxmox` works from anywhere, without any open port at home.
+
+Useful options: `--ssh` lets Tailscale handle SSH authentication with your identity, `--advertise-routes=10.0.0.0/24` turns a node into a subnet router, `--advertise-exit-node` makes it an exit node (all your internet traffic leaves through it), and `--accept-routes` lets a client use routes others advertise. Routes and exit nodes must be approved in the admin console.
+
+### Tags, users and key expiry
+Servers should be tagged (`tag:server`) rather than owned by a person, so they do not disappear when someone leaves. Keys expire (180 days by default); for servers you disable expiry deliberately and note it. Use **device approval** and **MFA on your identity provider**, because the identity account is now the key to the whole network.
 :: complex
 ### Access control is the real security
 A VPN that lets every device reach everything just moves the flat network somewhere else. Tailscale uses an **ACL policy** (a JSON file) to say which users, groups or tags can reach which destinations and ports. Like a firewall, anything not allowed is denied.
@@ -40,6 +57,51 @@ Zero trust says don't trust a device just because it's "on the VPN". Check ident
 
 ### Watch out for
 Leaked or never-expiring auth keys, old devices that still have access, exit nodes that let a device browse "from" your network, and split tunnels on unmanaged devices.
+
+### Writing ACLs that mean something
+Tailscale's default policy lets every device talk to every device. Replace it with least privilege: groups for people, tags for machines, and rules that allow exactly what is needed.
+
+```
+{ "groups": {"group:admins": ["nate@example.com"]},
+  "tagOwners": {"tag:lab": ["group:admins"]},
+  "acls": [ {"action":"accept","src":["group:admins"],"dst":["tag:lab:22,8006"]} ] }
+```
+Run the ACL tests in the policy file (`tests`) so a typo cannot silently open everything. Read `tailscale status` and the admin console's last-seen times to spot devices you forgot.
+
+### Compare the options
+**WireGuard** (fast, small, you manage keys and config), **Tailscale** (WireGuard plus identity, coordination and ACLs), **OpenVPN** (older, flexible, TLS-based), **IPsec/IKEv2** (built into many OSs and routers). For a homelab with a handful of devices, Tailscale or plain WireGuard on pfSense are both sound. Keep a break-glass path (console access) in case the VPN itself is down.
+:: ref
+### tailscale cli
+tailscale up | connect and log in
+tailscale down | disconnect
+tailscale status | peers, addresses and connection state
+tailscale ip -4 | your tailnet IPv4 address
+tailscale ping host | test connectivity, shows direct or relayed
+tailscale ssh host | SSH using Tailscale identity
+tailscale file cp f host: | send a file to another device
+tailscale netcheck | diagnose NAT and relay reachability
+### up flags
+--advertise-routes=10.0.0.0/24 | share a local subnet with the tailnet
+--advertise-exit-node | offer to carry others' internet traffic
+--exit-node=host | send your traffic out through that node
+--accept-routes | use subnet routes advertised by others
+--ssh | enable Tailscale SSH on this device
+--shields-up | refuse all incoming connections
+### wireguard basics
+wg genkey | wg pubkey | generate a private key and its public key
+wg show | interfaces, peers, last handshake and transfer
+wg-quick up wg0 | bring up a tunnel from /etc/wireguard/wg0.conf
+AllowedIPs | which destinations go through this peer
+Endpoint | public address and port of the peer
+PersistentKeepalive = 25 | keep NAT mappings alive
+### terms
+Tailnet | your private Tailscale network
+MagicDNS | automatic names for devices
+DERP | Tailscale relay used when a direct path fails
+ACL | policy that decides who can reach what
+Subnet router | node that bridges a whole LAN into the tailnet
+Exit node | node that carries your internet traffic
+Split tunnel | only some traffic goes through the VPN
 :: lab
 host: laptop
 user: nathan

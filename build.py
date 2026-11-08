@@ -326,6 +326,7 @@ TOOLS = json.load(open("content/tools.json"))["tools"]
 DETS = json.load(open("content/detections.json"))["rules"]
 BOOKS = json.load(open("content/books.json"))["books"]
 SHEETS = json.load(open("content/cheatsheets.json"))
+build_learn.merge_sheets(SHEETS, GUIDES)
 
 def empty(what, file, example):
     # public pages show a short placeholder; the entry format lives in README.md
@@ -449,7 +450,7 @@ for sh in SHEETS:
 {toc}{grp}
 <p><a href="../man.html">cd ..</a></p>''', depth=1, desc=f'{sh["name"]} cheatsheet: {sh["summary"]}')
 def manrow(s): return f'<li><a class="ls-row" href="man/{s["slug"]}.html"><span class="ls-perm">{esc(s["name"])}({s["section"]})</span><span class="ls-title">{esc(s["summary"])}</span></a></li>'
-MANCATS = [("os", "operating systems", "apropos shell"), ("tools", "security tools", "apropos security")]
+MANCATS = [("os", "operating systems", "apropos shell"), ("tools", "security tools", "apropos security"), ("skills", "skill references", "apropos learn")]
 mi = "".join(f'<p class="cmd">{cmd}</p><h2>{label}</h2><ul class="ls manidx">{"".join(manrow(s) for s in SHEETS if s.get("category", "tools") == k)}</ul>' for k, label, cmd in MANCATS)
 page("man.html", "man :: 0xDay", f'<p class="cmd">apropos .</p><h1>~/man</h1><p>Command references for Windows, Linux and macOS, plus the security tools I use most, written as man pages.</p>{mi}')
 
