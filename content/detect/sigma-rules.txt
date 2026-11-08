@@ -1,0 +1,143 @@
+tagline: Sigma is a vendor-neutral format for log detections. Write the rule once, convert it to Splunk, Elastic, Sentinel or whatever your SIEM speaks.
+sheet: sigma
+:: simple
+A **Sigma rule** is a YAML file that describes a log pattern worth alerting on. It has three jobs: say what to look for, say where to look, and say what the match means.
+
+```code
+title: Encoded PowerShell command line
+id: 6f1c2b7e-0000-4000-8000-000000000001
+status: experimental
+description: PowerShell started with an encoded command
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\powershell.exe'
+        CommandLine|contains: ' -enc'
+    condition: selection
+falsepositives:
+    - Some admin and deployment scripts
+level: medium
+tags:
+    - attack.execution
+    - attack.t1059.001
+```
+
+- **logsource** says which logs the rule applies to (category, product, service).
+- **detection** holds named *selections* (field tests) and a **condition** that combines them.
+- **tags** carry the ATT&CK mapping. **level** is severity.
+
+A converter such as `sigma convert` (pySigma) turns this into your SIEM's query language. Rules are matched case-insensitively by default.
+:: mid
+### Field modifiers
+`Field|modifier: value` changes how the value is compared:
+
+- `contains`, `startswith`, `endswith`: substring tests.
+- `all`: every listed value must match (default for a list is OR).
+- `re`: regular expression. `cidr`: IP range. `base64offset`: matches encoded forms of a string.
+
+A list under one field means **OR**. Several fields in one selection mean **AND**.
+
+### Conditions
+```code
+detection:
+    selection:
+        Image|endswith: '\wmic.exe'
+        CommandLine|contains: 'process call create'
+    filter_admin:
+        ParentImage|endswith: '\SCCMAgent.exe'
+    condition: selection and not filter_admin
+```
+Operators: `and`, `or`, `not`, parentheses, `1 of selection_*`, `all of them`. Use a named `filter` selection for known-good so the tuning is visible.
+
+### Common logsources
+`process_creation` (Sysmon 1 / Security 4688), `network_connection`, `image_load`, `registry_set`, `file_event`, `dns_query`, `powershell` script block logs, `webserver`, and cloud (`aws` / `cloudtrail`). A rule is only as good as the field mapping: Sigma field names (`CommandLine`, `ParentImage`) are translated to your SIEM's field names by the pipeline.
+
+### Tuning loop
+Run on historical logs. For each false positive, add a narrow `filter`, not a blanket exclusion. Re-run. Record the reason next to the filter.
+:: complex
+### Writing rules that survive evasion
+- Prefer fields the attacker cannot rename: parent-child process pairs, access masks, registry paths, `OriginalFileName` or `Hashes` over only `Image`.
+- Match both short and long flag forms (`-enc`, `-encodedcommand`) and case variants, since the `-enc` prefix alone also hits `-encodedcommand` while ` -enc ` with a trailing space does not.
+- Cover alternate tools for the same technique, or write a second rule.
+- Use `fieldref`/`near`/temporal correlation (in newer pySigma tooling) only when your backend supports them; otherwise do correlation in the SIEM.
+
+### Testing as code
+Keep a sample event per rule (`tests/<rule>.json`) with an expected result. CI converts every rule to the target backend (a syntax check) and replays samples. Add a **negative** sample too, a benign event that must not fire.
+
+### Rule hygiene
+Unique `id` (UUID), `status` (`experimental`, `test`, `stable`), `date` and `modified`, `references` to the source of the idea, and `falsepositives` that name the actual benign cases. Review stale rules every quarter.
+
+### Sharing
+The public **SigmaHQ** repository holds thousands of community rules. Treat them as a starting point: read the logic, check the logsource fits your environment, and tune before enabling.
+:: ref
+### rule fields
+title / id / status | name, UUID, experimental|test|stable
+logsource | category (process_creation), product (windows), service
+detection | named selections plus a condition
+condition | selection and not filter / 1 of selection_* / all of them
+tags | attack.<tactic> and attack.tNNNN[.NNN] mapping
+level | informational, low, medium, high, critical
+### modifiers
+contains / startswith / endswith | substring tests (case-insensitive)
+all | every value in the list must match
+re | regular expression match
+cidr | IP is in the range
+base64offset | match a string in its base64 forms
+### pySigma
+sigma convert -t splunk -p sysmon rule.yml | convert a rule to a Splunk query
+sigma check rules/ | validate rule syntax
+sigma list targets | show supported SIEM backends
+### tactics
+attack.initial-access | attack.execution | attack.persistence
+attack.privilege-escalation | attack.defense-evasion | attack.credential-access
+attack.discovery | attack.lateral-movement | attack.collection
+attack.command-and-control | attack.exfiltration | attack.impact
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** during a purple-team test at **Fabrikam Tools**, the red team ran one PowerShell command, saved in `~/sigma/event.txt`. Three rules sit in `~/sigma/rules/`. Only **one** of them would fire on that command line (modifiers are case-insensitive substring matches).
+
+Find the rule whose `contains` text appears in the event's command line. Submit the **rule file name without .yml**, for example `submit my-rule`.
+:: answer
+ps-encoded-long
+:: hint
+Read the event first, then `grep -n contains ~/sigma/rules/*` to see each rule's test.
+:: hint
+Check each `contains` string against the command line, including whether there is a trailing space.
+:: solution
+The command line is `powershell.exe -NoP -EncodedCommand JABz...`. `ps-enc-short` looks for `' -enc '` with a trailing space, but `-EncodedCommand` has more letters after `-enc`, so it never matches. `ps-hidden` looks for `-windowstyle hidden`, which the attacker did not use. `ps-encoded-long` looks for `-encodedcommand` and matches. The lesson: a rule that matches only the short form misses the long form. Safer is a prefix like ` -enc` plus the long form, and test with real samples.
+:: verify
+cat ~/sigma/event.txt
+grep -n contains ~/sigma/rules/*
+:: file /home/analyst/sigma/event.txt
+EventID=1 Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+CommandLine=powershell.exe -NoP -EncodedCommand JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAA=
+ParentImage=C:\Windows\System32\cmd.exe
+:: file /home/analyst/sigma/rules/ps-enc-short.yml
+title: PowerShell encoded (short flag)
+logsource: {category: process_creation, product: windows}
+detection:
+    selection:
+        Image|endswith: '\powershell.exe'
+        CommandLine|contains: ' -enc '
+    condition: selection
+:: file /home/analyst/sigma/rules/ps-hidden.yml
+title: PowerShell hidden window
+logsource: {category: process_creation, product: windows}
+detection:
+    selection:
+        Image|endswith: '\powershell.exe'
+        CommandLine|contains: '-windowstyle hidden'
+    condition: selection
+:: file /home/analyst/sigma/rules/ps-encoded-long.yml
+title: PowerShell encoded (long flag)
+logsource: {category: process_creation, product: windows}
+detection:
+    selection:
+        Image|endswith: '\powershell.exe'
+        CommandLine|contains: '-encodedcommand'
+    condition: selection

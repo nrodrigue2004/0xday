@@ -1,0 +1,80 @@
+tagline: A strong cipher can still be used badly. The mode of operation and the handling of IVs and nonces decide whether AES is safe or leaks your data.
+sheet: openssl
+:: simple
+**Symmetric encryption** uses one secret key to encrypt and decrypt. **AES** is the standard block cipher: it encrypts 16-byte blocks with a 128, 192 or 256-bit key. Nobody attacks AES itself in practice; they attack how it is used.
+
+A block cipher alone only handles one block, so a **mode of operation** says how to handle longer data:
+
+- **ECB**: encrypt each block independently. Equal plaintext blocks give equal ciphertext blocks, so patterns leak. The famous "ECB penguin" image still shows the penguin. Never use it for real data.
+- **CBC**: each block is mixed with the previous ciphertext block, starting from a random **IV**. Needs padding. Confidentiality only, no tamper protection.
+- **CTR**: turns AES into a stream cipher by encrypting a counter. Fast, no padding, but a repeated nonce is catastrophic.
+- **GCM**: CTR plus an authentication tag. This is **authenticated encryption (AEAD)**, and the default choice today, along with ChaCha20-Poly1305.
+
+Rule of thumb: use an AEAD mode from a well-reviewed library and never write your own.
+:: mid
+### IV and nonce rules
+- **IV (CBC)**: random and unpredictable for each message; sent in the clear with the ciphertext.
+- **Nonce (CTR, GCM)**: must be **unique per key**, never repeated. It need not be secret. Reusing one in GCM leaks plaintext relationships and can expose the authentication key.
+- Random 96-bit nonces are fine for GCM until about 2^32 messages under one key; beyond that use counters or a different construction.
+
+### Why authentication matters
+Without a tag, an attacker can flip bits in the ciphertext and the decrypted plaintext changes predictably (CBC bit-flipping, CTR malleability). Encryption does not mean integrity. AEAD gives you both. If you must combine pieces, use **encrypt-then-MAC**.
+
+### Key handling
+Derive keys from passwords with a slow KDF (Argon2id, scrypt, PBKDF2 with high iterations), never a bare hash. Use a unique random **salt**. Do not hard-code keys. Rotate keys and keep them in a KMS or HSM where possible.
+
+### Hashes and MACs, in one line each
+A **hash** (SHA-256) fingerprints data with no key. A **MAC / HMAC** is a keyed hash that proves who made the data and that it was not changed. Do not use MD5 or SHA-1 for security.
+:: complex
+### Failure modes in the wild
+- **ECB in disguise**: databases that deterministically encrypt a column so equal values match. That leaks which rows are equal and enables frequency analysis.
+- **CBC padding oracle**: a server that reveals "bad padding" versus "bad MAC" lets an attacker decrypt (see the attacks chapter).
+- **Nonce reuse**: two CTR or GCM messages with the same key and nonce XOR together to leak the XOR of the plaintexts. With known text, crib dragging recovers both.
+- **Static IV**: CBC with a fixed IV leaks whether two messages share a prefix.
+- **Key = password**: using a 6-letter password padded to 16 bytes as the key.
+
+### Misuse-resistant options
+AES-GCM-SIV and XChaCha20-Poly1305 tolerate nonce mistakes better (SIV leaks only equality of identical messages; XChaCha has a 192-bit nonce safe to pick randomly). Libraries like libsodium and Google Tink expose high-level APIs so you do not choose modes at all.
+
+### Disk and storage
+Disk encryption (XTS mode, used by BitLocker and LUKS) is designed for random-access sectors and is not authenticated. It protects a lost device, not an attacker with a live system or write access to the disk.
+:: ref
+### openssl symmetric
+openssl enc -aes-256-cbc -pbkdf2 -salt -in f -out f.enc | encrypt a file with a password-derived key
+openssl enc -d -aes-256-cbc -pbkdf2 -in f.enc -out f | decrypt it
+openssl rand -hex 16 | 16 random bytes as hex (for a key or nonce)
+openssl dgst -sha256 f | SHA-256 of a file
+openssl dgst -sha256 -hmac KEY f | HMAC of a file
+### modes
+ECB | blocks encrypted independently, leaks patterns, do not use
+CBC | chained with an IV, needs padding, no integrity
+CTR | counter stream, nonce must never repeat
+GCM | CTR plus authentication tag (AEAD), the default choice
+AEAD | encryption that also detects tampering
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** an app at **Fabrikam Tools** encrypts customer records with AES and stores the hex ciphertext, one record per line, in `~/modes/records.hex`. `~/modes/modes.txt` says which mode each file used. A reviewer suspects ECB, which shows up as **identical 16-byte blocks** (32 hex characters) repeating.
+
+Find the **record number** (the line number, starting at 1) whose ciphertext repeats the same 32-hex-character block twice. Submit the number, for example `submit 7`.
+:: answer
+3
+:: hint
+Look at each line. In ECB, equal plaintext blocks encrypt to equal blocks. Read the lines in `~/modes/records.hex` and compare 32-character chunks.
+:: hint
+`cut -c1-32` and `cut -c33-64` on the file let you compare the first two blocks of every line.
+:: solution
+Line 3 starts with the same 32 hex characters twice (`aabb...`), so two plaintext blocks were identical, which is exactly what ECB leaks. The other lines have no repeated blocks. Fix: use AES-GCM with a fresh random nonce per record, store nonce and tag with the ciphertext, and bind each record to its ID using associated data.
+:: verify
+cat ~/modes/records.hex
+cut -c1-32 ~/modes/records.hex
+cut -c33-64 ~/modes/records.hex
+:: file /home/analyst/modes/modes.txt
+records.hex   AES-128, mode not documented (suspected ECB)
+:: file /home/analyst/modes/records.hex
+6c1f5e0a3b9d4472a8e1c05f7d2b9930e4a1d7c8556f10bb39ad2e47c0f1b66d
+91d04b7a2ce85f3016ab7de4c9f2305b13f6a8e0d97c4521be8f60a3c7d1e594
+aabbccdd11223344556677889900eeffaabbccdd11223344556677889900eeff1f2e3d4c5b6a79881706f5e4d3c2b1a0
+5d7e90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6e

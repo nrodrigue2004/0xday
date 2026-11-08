@@ -1,0 +1,243 @@
+## 0
+Q: Which mode of operation leaks patterns because equal plaintext blocks give equal ciphertext blocks?
+* ECB
+- CBC
+- CTR
+- GCM
+? ECB encrypts every block independently.
+
+Q: What does an AEAD mode such as AES-GCM provide?
+* Confidentiality and tamper detection together
+- Only confidentiality
+- Only compression
+- Key exchange
+? AEAD authenticates as well as encrypts.
+
+Q: What is the rule for a nonce in CTR or GCM mode?
+* It must never repeat under the same key
+- It must be secret
+- It must be reused to save space
+- It must be the plaintext length
+? It can be public, but repeating it is catastrophic.
+
+Q: How should keys be derived from a password?
+* With a slow KDF such as Argon2id and a unique salt
+- With one pass of MD5
+- By padding the password with zeros
+- By hashing without a salt
+? Slow, salted KDFs resist cracking.
+
+Q: What is AES?
+* A symmetric block cipher with 128-bit blocks
+- A public-key algorithm
+- A hash function
+- A key exchange
+? AES keys are 128, 192 or 256 bits.
+
+Q: Which is not secure for integrity on its own?
+* CBC encryption without a MAC
+- AES-GCM
+- ChaCha20-Poly1305
+- Encrypt-then-MAC
+? Encryption alone does not detect tampering.
+
+## 1
+Q: With RSA, who can decrypt a message encrypted with your public key?
+* Only the holder of your private key
+- Anyone
+- Only the sender
+- Only a CA
+? The public key encrypts; the private key decrypts.
+
+Q: To create a digital signature, which key do you use?
+* Your private key
+- Your public key
+- A shared symmetric key
+- The recipient's private key
+? Others verify it with your public key.
+
+Q: What does ephemeral Diffie-Hellman (ECDHE) give you?
+* Forward secrecy
+- A longer certificate chain
+- Smaller files
+- Faster hashing
+? Stealing the long-term key later cannot decrypt old sessions.
+
+Q: Roughly which key sizes give similar strength?
+* ECC 256-bit and RSA 3072-bit
+- ECC 256-bit and RSA 512-bit
+- ECC 3072-bit and RSA 256-bit
+- ECC 128-bit and RSA 4096-bit
+? ECC reaches strength with much smaller keys.
+
+Q: Why is a repeated ECDSA nonce dangerous?
+* It can leak the private key
+- It makes signatures longer
+- It slows verification
+- It breaks hashing
+? Nonce reuse in ECDSA has exposed real keys.
+
+Q: Which threat would a large quantum computer pose to RSA and ECC?
+* Shor's algorithm could break them
+- Nothing at all
+- It would only break AES-256
+- It would only break hashes
+? Post-quantum algorithms such as ML-KEM are being standardized.
+
+## 2
+Q: What does a CA do in PKI?
+* Signs certificates that bind a public key to a name
+- Encrypts web traffic
+- Stores users' passwords
+- Scans for malware
+? Clients trust the CA, so they trust what it signs.
+
+Q: A certificate is valid but the browser warns. The host is not in the SAN list. What failed?
+* Name matching
+- Expiry
+- Revocation
+- Key size
+? The SAN must include the exact host requested.
+
+Q: What is OCSP stapling?
+* The server attaches a signed proof of the certificate's status
+- A way to staple certificates together
+- A cipher suite
+- A DNS record
+? It saves clients from querying the CA.
+
+Q: Which protocol versions should be enabled today?
+* TLS 1.2 and TLS 1.3
+- SSL 3.0 and TLS 1.0
+- Only SSL 2.0
+- TLS 1.0 and 1.1
+? Older versions have known weaknesses.
+
+Q: What does Certificate Transparency allow?
+* Domain owners to see certificates issued for their names
+- Hiding certificates
+- Faster handshakes
+- Free hosting
+? Public logs expose mis-issuance.
+
+Q: A site works in a browser but fails in curl. A likely cause?
+* The server does not send the intermediate certificate
+- The browser has a faster CPU
+- curl cannot use TLS
+- The certificate is too short
+? Servers must send the full chain except the root.
+
+## 3
+Q: What does a padding oracle let an attacker do?
+* Decrypt CBC ciphertext by observing padding error differences
+- Guess a password
+- Break the RSA key
+- Poison DNS
+? Use AEAD or verify a MAC first.
+
+Q: If two messages are encrypted with the same stream-cipher key and nonce, XORing the ciphertexts gives?
+* The XOR of the two plaintexts
+- The key
+- Random noise
+- Nothing useful
+? A crib then reveals both messages.
+
+Q: Which is an appropriate source of randomness for tokens?
+* The operating system CSPRNG
+- Math.random()
+- The current time
+- A counter starting at 1
+? Use secrets, crypto.randomBytes or SecureRandom.
+
+Q: Why use HMAC instead of SHA256(secret || message)?
+* The simple form is vulnerable to length extension
+- HMAC is shorter
+- SHA-256 is broken
+- HMAC needs no key
+? Length extension forges extended messages.
+
+Q: What does a downgrade attack do?
+* Forces use of an older, weaker protocol or cipher
+- Lowers CPU usage
+- Deletes logs
+- Shrinks certificates
+? Disable old protocol versions and export-grade suites.
+
+Q: Which is a code-review red flag for crypto?
+* verify=False or a trust-all certificate manager
+- Using AES-GCM
+- Using a KMS
+- Using Argon2id
+? It disables TLS authentication.
+
+## 4
+Q: Where does each Android app run?
+* In its own sandbox as a separate Linux user
+- In a shared process with all apps
+- Directly as root
+- Inside the browser
+? The sandbox isolates app data.
+
+Q: What does android:exported="true" with no permission mean?
+* Other apps can start the component
+- It is encrypted
+- It is hidden
+- It can only be run by the system
+? Unneeded exported components are a common finding.
+
+Q: What does android:debuggable="true" allow in a release build?
+* Anyone can attach a debugger to the app
+- Faster startup
+- Smaller size
+- Automatic updates
+? Never ship debuggable releases.
+
+Q: Where should an Android app keep cryptographic keys?
+* In the Android Keystore
+- In SharedPreferences
+- Hard-coded in the code
+- In a public folder
+? Keystore keys can be hardware-backed.
+
+Q: Which tool decompiles an APK to readable Java?
+* jadx
+- nmap
+- Wireshark
+- John the Ripper
+? apktool decodes resources and the manifest.
+
+## 5
+Q: Where should an iOS app store a session token?
+* The Keychain
+- UserDefaults
+- A plain text file
+- The pasteboard
+? Keychain items can be device-bound and passcode-protected.
+
+Q: What does the Secure Enclave do?
+* Holds private keys and signs without exposing them
+- Caches images
+- Blocks ads
+- Runs apps faster
+? It is a separate hardware processor.
+
+Q: What does App Transport Security enforce by default?
+* HTTPS with modern TLS
+- Plain HTTP
+- VPN use
+- No cookies
+? Exceptions are declared in Info.plist.
+
+Q: What does certificate pinning protect against?
+* A rogue CA or interception proxy
+- Weak passwords
+- Slow networks
+- Bad UI
+? Testers can still bypass it on their own device, so keep server-side checks.
+
+Q: Should biometrics alone be sent to the server as proof of identity?
+* No; use them to unlock a local key
+- Yes, always
+- Yes, in plain text
+- Only on Android
+? Biometrics are a local unlock, not a server credential.

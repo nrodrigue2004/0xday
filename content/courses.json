@@ -1,106 +1,1492 @@
 {
-  "_help": "Course layer. tracks -> courses {code, name, pre[], blurb, modules[{t, m (minutes), links[{t, h}], note?}]}. Question banks live in content/courses/<code>.txt (see build_courses.py). Hrefs must exist or the build fails (http links are not checked). Module index is the quiz tag, so never reorder modules without renumbering the bank.",
+  "_help": "Course layer. tracks -> courses {code, name, pre[], blurb, modules[{t, m (minutes), links[{t, h}], note?}]}. Question banks live in content/courses/<code>.txt (see build_courses.py). Hrefs must exist or the build fails (http links are not checked). Module index is the quiz tag, so never reorder modules without renumbering the bank. tiers -> {key, name, need[] (must exist), want[] (counted only once that course exists in this file), pick {n, from[]} (any n of these capstone codes)}.",
   "tiers": [
-    {"key": "foundations", "name": "Foundations", "need": ["IT100", "IT110", "IT120", "SEC100"]},
-    {"key": "practitioner", "name": "Practitioner", "need": ["NET200", "NET300", "SYS300", "BLU200"]},
-    {"key": "specialist", "name": "Specialist", "need": ["CLD300", "BLU300", "MAL300"]},
-    {"key": "developer", "name": "Developer", "need": ["CS201", "CS240"]}
+    {
+      "key": "foundations",
+      "name": "Foundations",
+      "need": [
+        "IT100",
+        "IT110",
+        "IT120",
+        "SEC100"
+      ]
+    },
+    {
+      "key": "practitioner",
+      "name": "Practitioner",
+      "need": [
+        "NET200",
+        "NET300",
+        "SYS300",
+        "BLU200"
+      ],
+      "want": [
+        "CS201",
+        "CS240",
+        "WEB300"
+      ]
+    },
+    {
+      "key": "specialist",
+      "name": "Specialist",
+      "need": [
+        "CLD300",
+        "BLU300",
+        "MAL300"
+      ],
+      "want": [
+        "PEN300",
+        "BLU310",
+        "CRY300",
+        "EXP400"
+      ],
+      "pick": {
+        "n": 1,
+        "from": [
+          "CAP400",
+          "CAP410",
+          "CAP420"
+        ]
+      }
+    }
   ],
   "tracks": [
-    {"key": "A", "name": "Foundations", "courses": [
-      {"code": "IT100", "name": "How computers work", "pre": [], "blurb": "Number systems, hardware, what an OS does, and just enough basic electronics to read a circuit.", "modules": [
-        {"t": "Number systems", "m": 45, "links": [{"t": "~/basics: binary, hex and number systems", "h": "basics/number-systems.html"}]},
-        {"t": "Hardware and operating systems", "m": 90, "links": [{"t": "~/learn: hardware diagnostics and repair", "h": "learn/hardware-diagnostics-and-repair.html"}, {"t": "~/basics: Linux and Windows basics", "h": "basics/linux-windows-basics.html"}]},
-        {"t": "Basic EE", "m": 60, "note": "Voltage is push, current is flow, resistance is opposition. Ohm's law: V = I x R. Power: P = V x I. Series resistors add; parallel resistors share current. A resistor in series with an LED sets its current. Practice on a breadboard or a free simulator.", "links": [{"t": "Khan Academy: electrical engineering", "h": "https://www.khanacademy.org/science/electrical-engineering"}, {"t": "All About Circuits free textbook", "h": "https://www.allaboutcircuits.com/textbook/"}]},
-        {"t": "How we got here", "m": 20, "links": [{"t": "~/history: transistors and PCs", "h": "history/h2-transistors-pcs.html"}]}
-      ]},
-      {"code": "IT110", "name": "Networking basics", "pre": ["IT100"], "blurb": "OSI and TCP/IP, ports, addressing, subnets, DHCP and NAT.", "modules": [
-        {"t": "OSI and TCP/IP", "m": 45, "links": [{"t": "~/basics: OSI and TCP/IP", "h": "basics/osi-and-tcpip.html"}]},
-        {"t": "Ports and protocols", "m": 40, "links": [{"t": "~/basics: ports and protocols", "h": "basics/ports-and-protocols.html"}]},
-        {"t": "IP, subnets, DHCP, NAT", "m": 90, "links": [{"t": "~/learn: TCP/IP, DHCP, NAT, subnets", "h": "learn/networking-tcp-ip-dhcp-nat-subnets.html"}]},
-        {"t": "Practice", "m": 60, "links": [{"t": "~/arcade: subnet and port games", "h": "arcade.html"}, {"t": "~/learn: computer networks", "h": "learn/computer-networks.html"}]}
-      ]},
-      {"code": "IT120", "name": "Linux and Windows admin", "pre": ["IT100"], "blurb": "The command line on both sides, scripting, and the Active Directory basics every help desk touches.", "modules": [
-        {"t": "Linux command line", "m": 90, "links": [{"t": "~/learn: Linux command line", "h": "learn/linux-command-line.html"}, {"t": "~/drills: Linux permissions", "h": "drills/linux-permissions.html"}]},
-        {"t": "Bash scripting", "m": 90, "links": [{"t": "~/learn: bash scripting", "h": "learn/bash-scripting.html"}]},
-        {"t": "Windows and PowerShell", "m": 90, "links": [{"t": "~/learn: Windows admin and PowerShell", "h": "learn/windows-admin-powershell.html"}, {"t": "~/drills: Windows permissions", "h": "drills/windows-permissions.html"}]},
-        {"t": "Active Directory and Group Policy", "m": 120, "links": [{"t": "~/learn: Active Directory", "h": "learn/active-directory.html"}, {"t": "~/learn: Group Policy", "h": "learn/group-policy.html"}]}
-      ]},
-      {"code": "SEC100", "name": "Security+", "pre": ["IT110"], "blurb": "The five SY0-701 domains. This quiz is a quick check; the full study tools live in ~/secplus.", "modules": [
-        {"t": "General security concepts", "m": 120, "links": [{"t": "~/secplus 1.1", "h": "secplus/1.1.html"}]},
-        {"t": "Threats, vulnerabilities, mitigations", "m": 120, "links": [{"t": "~/secplus 2.1", "h": "secplus/2.1.html"}]},
-        {"t": "Security architecture", "m": 120, "links": [{"t": "~/secplus 3.1", "h": "secplus/3.1.html"}]},
-        {"t": "Security operations", "m": 120, "links": [{"t": "~/secplus 4.1", "h": "secplus/4.1.html"}]},
-        {"t": "Governance, risk, compliance", "m": 90, "links": [{"t": "~/secplus 5.1", "h": "secplus/5.1.html"}, {"t": "~/secplus: weak-spot drill", "h": "secplus/weak.html"}]}
-      ]}
-    ]},
-    {"key": "B", "name": "Programming and CS core", "courses": [
-      {"code": "CS201", "name": "Data structures and algorithms in depth", "pre": [], "blurb": "Sorting, hashing, trees, graphs, dynamic programming and proofs of cost, with a step-by-step visualizer, a lab per chapter and interview practice.", "modules": [
-        {"t": "Sorting", "m": 120, "links": [{"t": "~/cs: sorting algorithms", "h": "cs/sorting.html"}, {"t": "visualizer: sorting", "h": "cs/viz.html#sort"}, {"t": "~/bigo: cost tables", "h": "bigo.html"}]},
-        {"t": "Hashing and hash tables", "m": 90, "links": [{"t": "~/cs: hash tables and hashing", "h": "cs/hashing.html"}, {"t": "visualizer: hash tables", "h": "cs/viz.html#hash"}]},
-        {"t": "Trees, heaps and tries", "m": 120, "links": [{"t": "~/cs: trees, heaps and tries", "h": "cs/trees.html"}, {"t": "visualizer: trees and heaps", "h": "cs/viz.html#tree"}]},
-        {"t": "Graphs", "m": 150, "links": [{"t": "~/cs: graphs", "h": "cs/graphs.html"}, {"t": "visualizer: BFS, DFS, Dijkstra", "h": "cs/viz.html#graph"}]},
-        {"t": "Dynamic programming, greedy and backtracking", "m": 150, "links": [{"t": "~/cs: dynamic programming", "h": "cs/dp.html"}, {"t": "visualizer: DP tables", "h": "cs/viz.html#dp"}]},
-        {"t": "Algorithm analysis and proofs", "m": 90, "links": [{"t": "~/cs: algorithm analysis", "h": "cs/analysis.html"}, {"t": "~/bigo: growth chart and drill", "h": "bigo.html"}]},
-        {"t": "Interview practice", "m": 120, "note": "Pick three problems per topic, solve each on paper first, then code it with a timer. State time and space cost out loud, then test with an empty input and a one-item input.", "links": [{"t": "~/interview: technical screen", "h": "interview/technical.html"}, {"t": "~/dojo: coding katas", "h": "dojo.html"}, {"t": "~/learn: data structures and algorithms guide", "h": "learn/data-structures-and-algorithms.html"}]}
-      ]},
-      {"code": "CS240", "name": "Software engineering", "pre": [], "blurb": "Testing, design patterns, git and CI/CD, agile teamwork and architecture, with the security practices that go with each.", "modules": [
-        {"t": "Software testing", "m": 120, "links": [{"t": "~/cs: software testing", "h": "cs/testing.html"}]},
-        {"t": "Design patterns and SOLID", "m": 120, "links": [{"t": "~/cs: design patterns and SOLID", "h": "cs/patterns.html"}, {"t": "~/learn: object-oriented programming in Java", "h": "learn/object-oriented-programming-java.html"}]},
-        {"t": "Git workflows, CI/CD and DevSecOps", "m": 120, "links": [{"t": "~/cs: git workflows, CI/CD", "h": "cs/cicd.html"}, {"t": "~/learn: git and GitHub", "h": "learn/git-github.html"}]},
-        {"t": "Requirements, agile and teamwork", "m": 90, "links": [{"t": "~/cs: requirements, agile and teamwork", "h": "cs/agile.html"}]},
-        {"t": "Architecture and the secure SDLC", "m": 120, "links": [{"t": "~/cs: architecture and the secure SDLC", "h": "cs/architecture.html"}, {"t": "~/learn: REST APIs and Spring Boot", "h": "learn/rest-apis-and-spring-boot.html"}]},
-        {"t": "Interview practice", "m": 60, "note": "Prepare one short story each for: a bug you caught with a test, a disagreement in code review, a deploy or release that went wrong, and a design decision you can defend.", "links": [{"t": "~/interview: technical screen", "h": "interview/technical.html"}, {"t": "~/interview: software projects", "h": "interview/software.html"}]}
-      ]}
-    ]},
-    {"key": "C", "name": "Networks and systems", "courses": [
-      {"code": "NET200", "name": "Network+", "pre": ["IT110"], "blurb": "Network+ N10-009 domains, from concepts to troubleshooting.", "modules": [
-        {"t": "Networking concepts", "m": 120, "links": [{"t": "~/comptia Network+ 1.1", "h": "comptia/netplus/1.1.html"}]},
-        {"t": "Network implementation", "m": 120, "links": [{"t": "~/comptia Network+ 2.1", "h": "comptia/netplus/2.1.html"}]},
-        {"t": "Network operations", "m": 90, "links": [{"t": "~/comptia Network+ 3.1", "h": "comptia/netplus/3.1.html"}]},
-        {"t": "Network security", "m": 90, "links": [{"t": "~/comptia Network+ 4.1", "h": "comptia/netplus/4.1.html"}]},
-        {"t": "Troubleshooting", "m": 90, "links": [{"t": "~/comptia Network+ 5.1", "h": "comptia/netplus/5.1.html"}, {"t": "~/comptia Network+ drill", "h": "comptia/netplus/drill.html"}]}
-      ]},
-      {"code": "NET300", "name": "Network security", "pre": ["NET200"], "blurb": "Firewalls, IDS, VPNs and reading traffic.", "modules": [
-        {"t": "Firewalls", "m": 90, "links": [{"t": "~/learn: firewalls and pfSense", "h": "learn/firewalls-pfsense.html"}]},
-        {"t": "IDS and Snort", "m": 90, "links": [{"t": "~/learn: IDS and Snort", "h": "learn/ids-snort.html"}]},
-        {"t": "VPNs", "m": 60, "links": [{"t": "~/learn: VPN and Tailscale", "h": "learn/vpn-tailscale.html"}]},
-        {"t": "Traffic analysis", "m": 120, "links": [{"t": "~/learn: network traffic analysis", "h": "learn/network-traffic-analysis.html"}, {"t": "~/drills: read a packet capture", "h": "drills/read-a-packet-capture.html"}]}
-      ]},
-      {"code": "SYS300", "name": "Virtualization and homelab ops", "pre": ["IT120"], "blurb": "Proxmox, a segmented lab, hardening and keeping servers alive.", "modules": [
-        {"t": "Virtualization", "m": 90, "links": [{"t": "~/learn: virtualization and Proxmox", "h": "learn/virtualization-proxmox.html"}]},
-        {"t": "The homelab", "m": 60, "links": [{"t": "~/homelab", "h": "homelab.html"}]},
-        {"t": "Hardening", "m": 90, "links": [{"t": "~/learn: system hardening", "h": "learn/system-hardening-windows-linux.html"}, {"t": "~/harden", "h": "harden.html"}]},
-        {"t": "Linux server admin", "m": 90, "links": [{"t": "~/learn: Linux server admin (Ubuntu)", "h": "learn/linux-server-admin-ubuntu.html"}]}
-      ]},
-      {"code": "CLD300", "name": "Cloud and cloud security", "pre": ["NET200", "SEC100"], "blurb": "AWS and Azure side by side: identity, networking, storage and what breaks.", "modules": [
-        {"t": "Cloud basics", "m": 60, "links": [{"t": "~/cloud: cloud basics", "h": "cloud/cloud-basics.html"}]},
-        {"t": "Identity and access", "m": 60, "links": [{"t": "~/cloud: IAM", "h": "cloud/cloud-iam.html"}]},
-        {"t": "Networking, storage, compute", "m": 90, "links": [{"t": "~/cloud: networking", "h": "cloud/cloud-networking.html"}, {"t": "~/cloud: storage and compute", "h": "cloud/cloud-storage-compute.html"}]},
-        {"t": "Cloud security", "m": 90, "links": [{"t": "~/cloud: cloud security", "h": "cloud/cloud-security.html"}, {"t": "~/cloud: free-tier labs", "h": "cloud/cloud-free-labs.html"}]}
-      ]}
-    ]},
-    {"key": "D", "name": "Defensive security", "courses": [
-      {"code": "BLU200", "name": "Logs and SIEM", "pre": ["SEC100", "IT120"], "blurb": "Reading logs, shaping them with pipes and regex, and working a SIEM.", "modules": [
-        {"t": "Log analysis", "m": 90, "links": [{"t": "~/learn: log analysis", "h": "learn/log-analysis.html"}]},
-        {"t": "Parsing with pipes and regex", "m": 90, "links": [{"t": "~/drills: parse logs with pipes", "h": "drills/parse-logs-with-pipes.html"}, {"t": "~/drills: regex for logs", "h": "drills/regex-for-logs.html"}]},
-        {"t": "SIEM and Security Onion", "m": 120, "links": [{"t": "~/learn: SIEM and Security Onion", "h": "learn/siem-security-onion.html"}]},
-        {"t": "Hunt", "m": 90, "links": [{"t": "~/drills: Security Onion intrusion hunt", "h": "drills/security-onion-intrusion-hunt.html"}]}
-      ]},
-      {"code": "BLU300", "name": "Incident response and forensics", "pre": ["BLU200"], "blurb": "The IR lifecycle, disk and memory forensics, and phishing triage.", "modules": [
-        {"t": "Incident response", "m": 90, "links": [{"t": "~/learn: incident response", "h": "learn/incident-response.html"}]},
-        {"t": "Disk forensics", "m": 120, "links": [{"t": "~/learn: digital forensics", "h": "learn/digital-forensics.html"}, {"t": "~/learn: Autopsy and FTK Imager", "h": "learn/disk-forensics-autopsy-ftk-imager.html"}]},
-        {"t": "Memory forensics", "m": 90, "links": [{"t": "~/learn: memory forensics (Volatility)", "h": "learn/memory-forensics-volatility.html"}]},
-        {"t": "Phishing analysis", "m": 60, "links": [{"t": "~/learn: phishing analysis", "h": "learn/phishing-analysis.html"}]}
-      ]}
-    ]},
-    {"key": "E", "name": "Technical security", "courses": [
-      {"code": "MAL300", "name": "Reverse engineering and malware", "pre": ["IT100"], "blurb": "Assembly, the PE format, disassemblers, and safe malware handling.", "modules": [
-        {"t": "C and x86 assembly", "m": 150, "links": [{"t": "~/learn: C and x86 assembly", "h": "learn/c-x86-assembly.html"}]},
-        {"t": "The PE format", "m": 60, "links": [{"t": "~/learn: PE format and PE-bear", "h": "learn/pe-format-pe-bear.html"}]},
-        {"t": "Reverse engineering", "m": 150, "links": [{"t": "~/learn: reverse engineering", "h": "learn/reverse-engineering.html"}, {"t": "~/learn: Ghidra and IDA Pro", "h": "learn/ghidra-and-ida-pro.html"}]},
-        {"t": "Malware analysis", "m": 120, "links": [{"t": "~/learn: malware analysis", "h": "learn/malware-analysis.html"}]}
-      ]}
-    ]}
+    {
+      "key": "A",
+      "name": "Foundations",
+      "courses": [
+        {
+          "code": "IT100",
+          "name": "How computers work",
+          "pre": [],
+          "blurb": "Number systems, hardware, what an OS does, and just enough basic electronics to read a circuit.",
+          "modules": [
+            {
+              "t": "Number systems",
+              "m": 45,
+              "links": [
+                {
+                  "t": "~/basics: binary, hex and number systems",
+                  "h": "basics/number-systems.html"
+                }
+              ]
+            },
+            {
+              "t": "Hardware and operating systems",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: hardware diagnostics and repair",
+                  "h": "learn/hardware-diagnostics-and-repair.html"
+                },
+                {
+                  "t": "~/basics: Linux and Windows basics",
+                  "h": "basics/linux-windows-basics.html"
+                }
+              ]
+            },
+            {
+              "t": "Basic EE",
+              "m": 60,
+              "note": "Voltage is push, current is flow, resistance is opposition. Ohm's law: V = I x R. Power: P = V x I. Series resistors add; parallel resistors share current. A resistor in series with an LED sets its current. Practice on a breadboard or a free simulator.",
+              "links": [
+                {
+                  "t": "Khan Academy: electrical engineering",
+                  "h": "https://www.khanacademy.org/science/electrical-engineering"
+                },
+                {
+                  "t": "All About Circuits free textbook",
+                  "h": "https://www.allaboutcircuits.com/textbook/"
+                }
+              ]
+            },
+            {
+              "t": "How we got here",
+              "m": 20,
+              "links": [
+                {
+                  "t": "~/history: transistors and PCs",
+                  "h": "history/h2-transistors-pcs.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "IT110",
+          "name": "Networking basics",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "OSI and TCP/IP, ports, addressing, subnets, DHCP and NAT.",
+          "modules": [
+            {
+              "t": "OSI and TCP/IP",
+              "m": 45,
+              "links": [
+                {
+                  "t": "~/basics: OSI and TCP/IP",
+                  "h": "basics/osi-and-tcpip.html"
+                }
+              ]
+            },
+            {
+              "t": "Ports and protocols",
+              "m": 40,
+              "links": [
+                {
+                  "t": "~/basics: ports and protocols",
+                  "h": "basics/ports-and-protocols.html"
+                }
+              ]
+            },
+            {
+              "t": "IP, subnets, DHCP, NAT",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: TCP/IP, DHCP, NAT, subnets",
+                  "h": "learn/networking-tcp-ip-dhcp-nat-subnets.html"
+                }
+              ]
+            },
+            {
+              "t": "Practice",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/arcade: subnet and port games",
+                  "h": "arcade.html"
+                },
+                {
+                  "t": "~/learn: computer networks",
+                  "h": "learn/computer-networks.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "IT120",
+          "name": "Linux and Windows admin",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "The command line on both sides, scripting, and the Active Directory basics every help desk touches.",
+          "modules": [
+            {
+              "t": "Linux command line",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: Linux command line",
+                  "h": "learn/linux-command-line.html"
+                },
+                {
+                  "t": "~/drills: Linux permissions",
+                  "h": "drills/linux-permissions.html"
+                }
+              ]
+            },
+            {
+              "t": "Bash scripting",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: bash scripting",
+                  "h": "learn/bash-scripting.html"
+                }
+              ]
+            },
+            {
+              "t": "Windows and PowerShell",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: Windows admin and PowerShell",
+                  "h": "learn/windows-admin-powershell.html"
+                },
+                {
+                  "t": "~/drills: Windows permissions",
+                  "h": "drills/windows-permissions.html"
+                }
+              ]
+            },
+            {
+              "t": "Active Directory and Group Policy",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: Active Directory",
+                  "h": "learn/active-directory.html"
+                },
+                {
+                  "t": "~/learn: Group Policy",
+                  "h": "learn/group-policy.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SEC100",
+          "name": "Security+",
+          "pre": [
+            "IT110"
+          ],
+          "blurb": "The five SY0-701 domains. This quiz is a quick check; the full study tools live in ~/secplus.",
+          "modules": [
+            {
+              "t": "General security concepts",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 1.1",
+                  "h": "secplus/1.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Threats, vulnerabilities, mitigations",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 2.1",
+                  "h": "secplus/2.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Security architecture",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 3.1",
+                  "h": "secplus/3.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Security operations",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/secplus 4.1",
+                  "h": "secplus/4.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Governance, risk, compliance",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/secplus 5.1",
+                  "h": "secplus/5.1.html"
+                },
+                {
+                  "t": "~/secplus: weak-spot drill",
+                  "h": "secplus/weak.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "B",
+      "name": "CS core",
+      "courses": [
+        {
+          "code": "CS201",
+          "name": "Data structures and algorithms in depth",
+          "pre": [],
+          "blurb": "Sorting, hashing, trees, graphs, dynamic programming and proofs of cost, with a step-by-step visualizer, a lab per chapter and interview practice.",
+          "modules": [
+            {
+              "t": "Sorting",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: sorting algorithms",
+                  "h": "cs/sorting.html"
+                },
+                {
+                  "t": "visualizer: sorting",
+                  "h": "cs/viz.html#sort"
+                },
+                {
+                  "t": "~/bigo: cost tables",
+                  "h": "bigo.html"
+                }
+              ]
+            },
+            {
+              "t": "Hashing and hash tables",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cs: hash tables and hashing",
+                  "h": "cs/hashing.html"
+                },
+                {
+                  "t": "visualizer: hash tables",
+                  "h": "cs/viz.html#hash"
+                }
+              ]
+            },
+            {
+              "t": "Trees, heaps and tries",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: trees, heaps and tries",
+                  "h": "cs/trees.html"
+                },
+                {
+                  "t": "visualizer: trees and heaps",
+                  "h": "cs/viz.html#tree"
+                }
+              ]
+            },
+            {
+              "t": "Graphs",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/cs: graphs",
+                  "h": "cs/graphs.html"
+                },
+                {
+                  "t": "visualizer: BFS, DFS, Dijkstra",
+                  "h": "cs/viz.html#graph"
+                }
+              ]
+            },
+            {
+              "t": "Dynamic programming, greedy and backtracking",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/cs: dynamic programming",
+                  "h": "cs/dp.html"
+                },
+                {
+                  "t": "visualizer: DP tables",
+                  "h": "cs/viz.html#dp"
+                }
+              ]
+            },
+            {
+              "t": "Algorithm analysis and proofs",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cs: algorithm analysis",
+                  "h": "cs/analysis.html"
+                },
+                {
+                  "t": "~/bigo: growth chart and drill",
+                  "h": "bigo.html"
+                }
+              ]
+            },
+            {
+              "t": "Interview practice",
+              "m": 120,
+              "note": "Pick three problems per topic, solve each on paper first, then code it with a timer. State time and space cost out loud, then test with an empty input and a one-item input.",
+              "links": [
+                {
+                  "t": "~/interview: technical screen",
+                  "h": "interview/technical.html"
+                },
+                {
+                  "t": "~/dojo: coding katas",
+                  "h": "dojo.html"
+                },
+                {
+                  "t": "~/learn: data structures and algorithms guide",
+                  "h": "learn/data-structures-and-algorithms.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CS240",
+          "name": "Software engineering",
+          "pre": [],
+          "blurb": "Testing, design patterns, git and CI/CD, agile teamwork and architecture, with the security practices that go with each.",
+          "modules": [
+            {
+              "t": "Software testing",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: software testing",
+                  "h": "cs/testing.html"
+                }
+              ]
+            },
+            {
+              "t": "Design patterns and SOLID",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: design patterns and SOLID",
+                  "h": "cs/patterns.html"
+                },
+                {
+                  "t": "~/learn: object-oriented programming in Java",
+                  "h": "learn/object-oriented-programming-java.html"
+                }
+              ]
+            },
+            {
+              "t": "Git workflows, CI/CD and DevSecOps",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: git workflows, CI/CD",
+                  "h": "cs/cicd.html"
+                },
+                {
+                  "t": "~/learn: git and GitHub",
+                  "h": "learn/git-github.html"
+                }
+              ]
+            },
+            {
+              "t": "Requirements, agile and teamwork",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cs: requirements, agile and teamwork",
+                  "h": "cs/agile.html"
+                }
+              ]
+            },
+            {
+              "t": "Architecture and the secure SDLC",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: architecture and the secure SDLC",
+                  "h": "cs/architecture.html"
+                },
+                {
+                  "t": "~/learn: REST APIs and Spring Boot",
+                  "h": "learn/rest-apis-and-spring-boot.html"
+                }
+              ]
+            },
+            {
+              "t": "Interview practice",
+              "m": 60,
+              "note": "Prepare one short story each for: a bug you caught with a test, a disagreement in code review, a deploy or release that went wrong, and a design decision you can defend.",
+              "links": [
+                {
+                  "t": "~/interview: technical screen",
+                  "h": "interview/technical.html"
+                },
+                {
+                  "t": "~/interview: software projects",
+                  "h": "interview/software.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CS210",
+          "name": "Hardware and basic EE",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "Ohm's law, basic circuits, how the CPU, RAM and storage connect, and the boot chain. Basic electronics only, no gate-level logic.",
+          "modules": [
+            {
+              "t": "Voltage, current, resistance",
+              "m": 60,
+              "links": [
+                {
+                  "t": "Khan Academy: electrical engineering",
+                  "h": "https://www.khanacademy.org/science/electrical-engineering"
+                },
+                {
+                  "t": "All About Circuits: Volume 1, DC",
+                  "h": "https://www.allaboutcircuits.com/textbook/direct-current/"
+                }
+              ],
+              "note": "Voltage (volts, V) is the push between two points. Current (amps, A) is the flow of charge. Resistance (ohms) is how much a part opposes the flow. Ohm's law ties them together: V = I x R, so I = V / R and R = V / I. Example: 12 V across 4 kilohms gives 3 mA.\n\nPower (watts) is P = V x I. Combined with Ohm's law, P = I^2 x R = V^2 / R. A resistor must be rated for the power it burns: 5 V across 1 kilohm is 5 mA and 25 mW, fine for a 1/4 W part. Heat is where wasted power goes.\n\nDC has a fixed polarity (batteries, USB, every chip's supply). AC reverses direction (wall power). Chips run on low-voltage DC; the power supply in a PC converts AC to DC. Read the units carefully: milli = 1/1000, kilo = 1000, micro = 1/1,000,000."
+            },
+            {
+              "t": "Basic circuits and measuring",
+              "m": 75,
+              "links": [
+                {
+                  "t": "Falstad circuit simulator (free, in the browser)",
+                  "h": "https://www.falstad.com/circuit/"
+                },
+                {
+                  "t": "Tinkercad Circuits (free simulator)",
+                  "h": "https://www.tinkercad.com/circuits"
+                },
+                {
+                  "t": "~/learn: hardware diagnostics and repair",
+                  "h": "learn/hardware-diagnostics-and-repair.html"
+                }
+              ],
+              "note": "Series: parts in a chain. The same current flows through all of them and resistances add (R = R1 + R2 + ...). Voltage splits in proportion to resistance. Parallel: parts across the same two points. Each branch sees the same voltage, currents add, and the combined resistance is lower than the smallest branch (1/R = 1/R1 + 1/R2; for two parts, R = R1 x R2 / (R1 + R2)).\n\nVoltage divider: two resistors in series split the input, Vout = Vin x R2 / (R1 + R2). It is how sensors and reference levels are made. LEDs: past their forward voltage (about 2 V red, 3 V blue) they conduct freely, so always add a series resistor, R = (Vsupply - Vf) / I. A 5 V supply, a 2 V LED and 10 mA needs 300 ohms.\n\nMeter use: measure voltage in parallel, current in series (break the circuit), resistance with the part unpowered. Never put an ammeter across a supply. A solderless breadboard connects the five holes in each short row; power rails run the length of the board. Build the LED circuit in a simulator first, then on a real breadboard if you have one."
+            },
+            {
+              "t": "How the CPU, RAM and storage connect",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/learn: C and x86 assembly",
+                  "h": "learn/c-x86-assembly.html"
+                },
+                {
+                  "t": "~/basics: number systems",
+                  "h": "basics/number-systems.html"
+                },
+                {
+                  "t": "Crash Course Computer Science (YouTube)",
+                  "h": "https://www.youtube.com/playlist?list=PL8dPuuaLjXtNlUrzyH5r6jN9ulIgZBpdo"
+                }
+              ],
+              "note": "The CPU repeats fetch, decode, execute forever. The program counter holds the next instruction's address; registers hold the working values; the ALU does the math. Everything outside the CPU is slower, so there is a hierarchy: registers (under 1 ns), L1/L2/L3 cache (SRAM, a few ns), RAM (DRAM, about 100 ns), SSD (about 100 microseconds), hard disk (milliseconds). Caches work because programs reuse nearby data and recent data (locality).\n\nThe CPU talks to RAM over memory channels and to everything else over PCIe lanes, either directly or through the chipset. NVMe SSDs sit on PCIe; SATA drives use an older interface designed for spinning disks; USB and Ethernet reach the CPU through controllers. Devices can use DMA to move data into RAM without the CPU copying each byte, then raise an interrupt when done. Address width sets the ceiling: 32 bits reach 4 GiB, 64 bits far more.\n\nSecurity link: the same view explains why a malicious PCIe or Thunderbolt device can read memory unless an IOMMU limits DMA, and why exploits aim at the program counter. No gate-level logic is needed here; the goal is a mental map of the box."
+            },
+            {
+              "t": "Firmware and the boot chain",
+              "m": 45,
+              "links": [
+                {
+                  "t": "~/learn: Windows deployment and drivers",
+                  "h": "learn/windows-deployment-and-drivers.html"
+                },
+                {
+                  "t": "~/learn: system hardening",
+                  "h": "learn/system-hardening-windows-linux.html"
+                }
+              ],
+              "note": "Power on: the firmware (UEFI on modern machines, legacy BIOS on old ones) runs POST, initializes hardware, then loads a bootloader from the EFI system partition or the disk's first sector. The bootloader loads the kernel, and the kernel starts the init system and your login screen. Disks use MBR (2 TiB limit with 512-byte sectors, 4 primary partitions) or GPT (64-bit addressing, backup header, required by UEFI boot).\n\nSecure Boot makes the firmware check a signature on each stage before running it. A TPM is a small tamper-resistant chip that holds keys and records measurements of the boot chain, so BitLocker can refuse to release the disk key if the chain changed. Bootkits and firmware implants load before the OS and hide from it, which is why defenders watch the chain itself.\n\nPractical hardening for a laptop: set a firmware password, lock the boot order to the internal disk, turn on Secure Boot, and use full-disk encryption. Anyone with ten minutes and a USB stick can otherwise read an unencrypted disk."
+            }
+          ]
+        },
+        {
+          "code": "CS220",
+          "name": "Operating systems",
+          "pre": [
+            "CS210",
+            "IT120"
+          ],
+          "blurb": "Processes, scheduling, virtual memory, file systems, concurrency and deadlock, with scheduler, paging and Banker's simulators.",
+          "modules": [
+            {
+              "t": "Processes and threads",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: operating systems",
+                  "h": "learn/operating-systems.html"
+                },
+                {
+                  "t": "~/man: operating-systems cheatsheet",
+                  "h": "man/operating-systems.html"
+                },
+                {
+                  "t": "OSTEP: processes, free book",
+                  "h": "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+                }
+              ],
+              "note": "A program is a file; a process is a running instance with its own address space (code, globals, heap, stack), open files and a process ID. The kernel tracks each in a process control block (PCB). States: new, ready, running, waiting (blocked on I/O), terminated. A context switch saves one process's registers and program counter into its PCB and loads another's.\n\nOn Unix a new process starts with fork(), which copies the caller and returns 0 in the child and the child's PID in the parent. exec() replaces the current program image with a new one; wait() collects the exit status. That is how a shell runs a command: fork, exec in the child, wait in the parent. A child that exited but was not waited for is a zombie; a child whose parent died is an orphan, adopted by init.\n\nThreads live inside a process and share the heap, globals and open files, but each has its own stack, registers and program counter. That makes them cheap and also dangerous: shared memory needs locks. Processes talk through IPC: pipes, sockets, signals, shared memory. User code asks the kernel for services through system calls, a controlled trap into kernel mode. On Linux, try `strace ls` to watch them."
+            },
+            {
+              "t": "CPU scheduling",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/ossim: scheduler simulator",
+                  "h": "ossim.html"
+                },
+                {
+                  "t": "OSTEP: scheduling",
+                  "h": "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+                }
+              ],
+              "note": "The scheduler picks which ready process gets the CPU. Metrics: turnaround = completion - arrival; waiting = turnaround - burst; response = first run - arrival. Policies: FCFS (simple, suffers the convoy effect, where short jobs wait behind a long one); SJF (shortest next burst first, minimizes average waiting time but needs burst lengths and can starve long jobs); SRTF (the preemptive version); priority (aging prevents starvation); round robin (each job gets a fixed quantum, good response time, quantum too big becomes FCFS and too small drowns in switching); multilevel feedback queue (start high, demote CPU hogs, keeps interactive jobs snappy without knowing lengths).\n\nWorked example: bursts 24, 3, 3, all arriving at time 0. FCFS waits are 0, 24, 27, average 17. SJF runs 3, 3, 24 for waits 0, 3, 6, average 3. Do it by hand first, then check it in the simulator; change the quantum and watch round robin move between the two."
+            },
+            {
+              "t": "Virtual memory",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/ossim: page replacement simulator",
+                  "h": "ossim.html"
+                },
+                {
+                  "t": "OSTEP: virtual memory",
+                  "h": "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+                },
+                {
+                  "t": "~/learn: binary exploitation",
+                  "h": "learn/binary-exploitation.html"
+                }
+              ],
+              "note": "Each process sees its own virtual address space. The hardware MMU translates virtual to physical addresses using page tables: memory is cut into pages (usually 4 KiB), and a virtual address splits into a virtual page number and an offset. With 32-bit addresses and 4 KiB pages the offset is 12 bits and there are 2^20 page numbers, so real systems use multi-level tables. The TLB caches recent translations.\n\nPages need not all be in RAM. Touching a valid page that is on disk causes a page fault, and the OS loads it (demand paging). When RAM is full something must be evicted: FIFO, LRU, clock, and the unbuildable optimal (OPT) used as a yardstick. FIFO can get worse with more frames (Belady's anomaly): the string 1,2,3,4,1,2,5,1,2,3,4,5 gives 9 faults with 3 frames and 10 with 4. If working sets exceed RAM the machine thrashes. Copy-on-write lets fork() share pages until one side writes.\n\nSecurity link: page permissions give the NX bit (data is not executable) and let the OS keep user code out of kernel memory. ASLR randomizes the layout so exploits can't hard-code addresses. Segmentation faults are the OS stopping a bad access."
+            },
+            {
+              "t": "File systems",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/learn: digital forensics",
+                  "h": "learn/digital-forensics.html"
+                },
+                {
+                  "t": "~/learn: Autopsy and FTK Imager",
+                  "h": "learn/disk-forensics-autopsy-ftk-imager.html"
+                },
+                {
+                  "t": "OSTEP: file systems",
+                  "h": "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+                }
+              ],
+              "note": "A Unix file is an inode: owner, permissions, size, timestamps and pointers to data blocks. The name is not in the inode; a directory is a table of name-to-inode entries. So one inode can have several names (hard links, tracked by a link count), and a symbolic link is a tiny file holding a path. Deleting a file removes a name; when the link count reaches zero the blocks are marked free, but the data usually stays on disk until reused, which is what forensic recovery relies on. Space after a file's last byte in its final block is slack space.\n\nAn inode typically holds 12 direct pointers and then single, double and triple indirect blocks. With 4 KiB blocks and 4-byte pointers: direct covers 48 KiB, single indirect 1024 x 4 KiB = 4 MiB, double indirect 4 GiB. Alternatives are contiguous allocation (fast, fragments) and linked allocation (FAT).\n\nA crash halfway through an update can leave the filesystem inconsistent. Journaling filesystems (ext4, NTFS) log the change first and replay it after a crash. Permissions: rwx for owner, group and others, e.g. 640 is rw-r-----. Mount points and the VFS layer let many filesystems appear in one tree."
+            },
+            {
+              "t": "Concurrency and synchronization",
+              "m": 90,
+              "links": [
+                {
+                  "t": "OSTEP: concurrency",
+                  "h": "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+                },
+                {
+                  "t": "~/dojo",
+                  "h": "dojo.html"
+                }
+              ],
+              "note": "A race condition is when the result depends on how threads interleave. counter++ compiles to load, add, store, so two threads can both load 5 and both store 6. The region that touches shared state is the critical section, and it needs mutual exclusion.\n\nTools: a mutex (lock/unlock); a semaphore, a counter with atomic wait (decrement, block at 0) and signal (increment); condition variables to sleep until something changes; monitors that bundle a lock with its conditions. Hardware supplies atomic instructions: test-and-set and compare-and-swap (CAS). A spinlock busy-waits and is right only for very short holds; a mutex puts the thread to sleep.\n\nClassic problems: producer/consumer (semaphores empty = N, full = 0, plus a mutex), readers/writers, dining philosophers. Each exists to practice reasoning about ordering. Security link: TOCTOU. A program that checks a file with access() and then opens it can be raced by an attacker who swaps in a symlink. Operate on one file descriptor instead of re-resolving a name."
+            },
+            {
+              "t": "Deadlock",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/ossim: Banker's algorithm simulator",
+                  "h": "ossim.html"
+                },
+                {
+                  "t": "OSTEP: deadlock",
+                  "h": "https://pages.cs.wisc.edu/~remzi/OSTEP/"
+                }
+              ],
+              "note": "Deadlock needs all four Coffman conditions at once: mutual exclusion, hold and wait, no preemption, circular wait. Break any one and it cannot happen. Prevention in practice: lock ordering (every thread takes locks in the same global order) kills circular wait; take-all-or-nothing kills hold and wait; try-lock with backoff avoids waiting forever. Detection: build a wait-for graph and look for a cycle, then recover by killing or rolling back a process. Livelock is when threads keep reacting to each other without progress; starvation is when one never gets the resource.\n\nAvoidance with the Banker's algorithm: each process declares its maximum need; need = max - allocation. A state is safe if some order exists where every process can finish. Grant a request only if the resulting state is still safe. Example: available (3,3,2); P1 needs (1,2,2), which fits, so P1 can finish and return its resources, and the sequence continues. The simulator finds a safe sequence for you."
+            },
+            {
+              "t": "OS security and protection",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/learn: system hardening",
+                  "h": "learn/system-hardening-windows-linux.html"
+                },
+                {
+                  "t": "~/learn: binary exploitation",
+                  "h": "learn/binary-exploitation.html"
+                },
+                {
+                  "t": "~/learn: Linux server admin",
+                  "h": "learn/linux-server-admin-ubuntu.html"
+                }
+              ],
+              "note": "Protection starts in hardware: user mode and kernel mode (rings). User code can't run privileged instructions or touch kernel memory; it asks through system calls. The kernel then checks permissions: DAC (owners set access, normal Unix and Windows ACLs) and MAC (a central policy such as SELinux or AppArmor that owners can't override). Least privilege means each process and account gets only what it needs.\n\nPrivilege escalation targets the gaps: setuid-root programs (`find / -perm -4000`), sudo misconfigurations, writable service files, vulnerable drivers. Exploit mitigations make memory bugs harder: NX/DEP, ASLR, stack canaries, RELRO, control-flow integrity. Isolation: containers use namespaces (what a process sees) and cgroups (what it can use) but share the host kernel, so a kernel bug breaks them; VMs add a hypervisor boundary.\n\nA kernel-level rootkit can lie to user-mode tools about files and processes, which is why defenders use memory forensics and offline scans. Pair this module with the hardening guide and run the checklist on your own machine."
+            }
+          ]
+        },
+        {
+          "code": "CS230",
+          "name": "Databases",
+          "pre": [],
+          "blurb": "Relational model, normalization, indexes, query plans, transactions and database security, with a dependency tool, an index demo and a serializability checker.",
+          "modules": [
+            {
+              "t": "The relational model and SQL",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: SQL",
+                  "h": "learn/sql.html"
+                },
+                {
+                  "t": "~/learn: databases and SQL",
+                  "h": "learn/databases-and-sql.html"
+                },
+                {
+                  "t": "~/basics: relational databases",
+                  "h": "basics/relational-databases.html"
+                },
+                {
+                  "t": "~/man: SQL cheatsheet",
+                  "h": "man/sql.html"
+                }
+              ],
+              "note": "Data lives in relations (tables) of tuples (rows) over attributes (columns). A superkey identifies a row; a candidate key is a minimal superkey; the primary key is the candidate you choose; a foreign key must match a row in another table or be NULL (referential integrity). Relational algebra is the theory under SQL: selection picks rows (WHERE), projection picks columns (SELECT list), join combines tables.\n\nRefresh the core: SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT. WHERE filters rows before grouping; HAVING filters groups after aggregates. INNER JOIN keeps matches only; LEFT JOIN keeps every left row, filling NULLs, and `WHERE right.id IS NULL` finds rows with no match. NULL is unknown, so `= NULL` never matches; use IS NULL. Know the logical order: FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT. Practice in the SQL guide's shell before continuing."
+            },
+            {
+              "t": "Design and normalization",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/dbsim: functional dependency tool",
+                  "h": "dbsim.html"
+                },
+                {
+                  "t": "~/basics: relational databases",
+                  "h": "basics/relational-databases.html"
+                }
+              ],
+              "note": "Bad design causes anomalies: update (the same fact stored in many rows, change one and miss another), insert (cannot record a fact without an unrelated one), delete (removing a row loses an unrelated fact). Normalization removes them using functional dependencies: A -> B means rows that agree on A agree on B.\n\n1NF: atomic values, no repeating groups. 2NF: 1NF plus no partial dependency (a non-key column depending on only part of a composite key). 3NF: 2NF plus no transitive dependency (a non-key column determined by another non-key column). BCNF: every determinant is a candidate key. A handy rule: every non-key column depends on the key, the whole key, and nothing but the key.\n\nExample: Orders(order_id, product_id, qty, product_name, customer_id, customer_email) with key (order_id, product_id). product_name depends on product_id alone (partial). customer_email depends on customer_id (transitive). Split into orders, order_lines, products, customers. Model many-to-many with a junction table. Denormalize only on purpose, for measured read speed. Use the dependency tool to find keys and the highest normal form."
+            },
+            {
+              "t": "Indexes",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/dbsim: index versus scan demo",
+                  "h": "dbsim.html"
+                },
+                {
+                  "t": "Use The Index, Luke (free)",
+                  "h": "https://use-the-index-luke.com/"
+                }
+              ],
+              "note": "An index is a separate sorted structure that lets the database find rows without reading the whole table. Most are B-trees: shallow and wide, so one lookup in millions of rows is a handful of page reads (O(log n)) and range scans and ORDER BY come free. Hash indexes are O(1) for equality but have no ordering. A clustered index defines the physical row order (one per table); non-clustered indexes point back to rows. A covering index holds every column the query needs, so the table isn't touched.\n\nRules of thumb: a composite index (a, b) helps filters on a or on a and b, not b alone (leftmost prefix). A function on the column (UPPER(name), DATE(ts)) or a leading wildcard (LIKE '%son') usually defeats the index. Index the columns you filter, join and sort on. Low selectivity (a boolean) rarely pays. Every index slows writes and costs space, so do not index everything. Primary keys and unique constraints get one automatically; foreign keys often don't."
+            },
+            {
+              "t": "Query plans and the optimizer",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/dbsim: index versus scan demo",
+                  "h": "dbsim.html"
+                },
+                {
+                  "t": "SQLite EXPLAIN QUERY PLAN",
+                  "h": "https://www.sqlite.org/eqp.html"
+                },
+                {
+                  "t": "~/learn: databases and SQL",
+                  "h": "learn/databases-and-sql.html"
+                }
+              ],
+              "note": "The optimizer turns a query into a plan: access method for each table (sequential scan, index scan, index-only scan), join algorithm, join order. Nested loop join: for each outer row probe the inner, great with an index on the inner side. Hash join: build a hash table of one input, probe with the other, good for big equality joins. Merge join: both inputs sorted, walk them together. The optimizer picks the cheapest from row-count estimates based on statistics (run ANALYZE after big changes).\n\nRead plans with EXPLAIN (add ANALYZE in PostgreSQL for real timings). Red flags: a sequential scan on a large table for a selective filter, estimated rows far from actual rows, a sort that spills to disk, a nested loop over millions of rows. Fix loop: look at the plan, add or change an index, re-run, compare. Write queries so the optimizer can use indexes: compare the bare column to a constant, avoid SELECT * when a narrow covering index would do."
+            },
+            {
+              "t": "Transactions and ACID",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/dbsim: schedule serializability checker",
+                  "h": "dbsim.html"
+                },
+                {
+                  "t": "~/learn: databases and SQL",
+                  "h": "learn/databases-and-sql.html"
+                }
+              ],
+              "note": "A transaction is a group of statements treated as one unit (BEGIN ... COMMIT or ROLLBACK). ACID: Atomicity (all or nothing), Consistency (constraints hold before and after), Isolation (concurrent transactions don't see each other's half-done work), Durability (committed data survives a crash).\n\nDurability and atomicity come from write-ahead logging: log the change to disk first, then apply it; after a crash, redo committed work and undo the rest. Isolation levels trade safety for speed: READ UNCOMMITTED allows dirty reads; READ COMMITTED stops them; REPEATABLE READ also stops non-repeatable reads; SERIALIZABLE also stops phantoms and behaves as if transactions ran one at a time. Implementations use two-phase locking or MVCC, where readers see a snapshot and don't block writers. Concurrent locks can deadlock; the database aborts one victim, so applications should retry.\n\nA schedule is conflict-serializable if its precedence graph (an edge Ti -> Tj when an operation of Ti conflicts with and precedes one of Tj) has no cycle. Try some in the checker."
+            },
+            {
+              "t": "Database security",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/basics: web attack classes",
+                  "h": "basics/web-attack-classes.html"
+                },
+                {
+                  "t": "~/learn: MongoDB and NoSQL",
+                  "h": "learn/mongodb-and-nosql.html"
+                },
+                {
+                  "t": "~/learn: secure data sanitization",
+                  "h": "learn/secure-data-sanitization.html"
+                }
+              ],
+              "note": "SQL injection happens when user input is concatenated into a query so it's parsed as SQL. The fix is parameterized queries (prepared statements), which keep data separate from code. Escaping by hand is fragile. Add least privilege: the web app's account gets only the statements and tables it needs, never DROP or file-write rights. NoSQL stores have the same problem in a different shape, e.g. operator injection with {\"$ne\": null} in a login query.\n\nStore passwords as salted hashes from a slow algorithm (bcrypt, scrypt, Argon2), never reversible encryption. Encrypt data at rest to protect stolen disks and backups, and use TLS in transit; neither stops injection. Turn on auditing, patch the engine, don't expose the port to the internet, remove default accounts. Backups: keep copies offline or immutable so ransomware with database credentials can't destroy them, and test a restore before you need it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "C",
+      "name": "Networks and systems",
+      "courses": [
+        {
+          "code": "NET200",
+          "name": "Network+",
+          "pre": [
+            "IT110"
+          ],
+          "blurb": "Network+ N10-009 domains, from concepts to troubleshooting.",
+          "modules": [
+            {
+              "t": "Networking concepts",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 1.1",
+                  "h": "comptia/netplus/1.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Network implementation",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 2.1",
+                  "h": "comptia/netplus/2.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Network operations",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 3.1",
+                  "h": "comptia/netplus/3.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Network security",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 4.1",
+                  "h": "comptia/netplus/4.1.html"
+                }
+              ]
+            },
+            {
+              "t": "Troubleshooting",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/comptia Network+ 5.1",
+                  "h": "comptia/netplus/5.1.html"
+                },
+                {
+                  "t": "~/comptia Network+ drill",
+                  "h": "comptia/netplus/drill.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "NET300",
+          "name": "Network security",
+          "pre": [
+            "NET200"
+          ],
+          "blurb": "Firewalls, IDS, VPNs and reading traffic.",
+          "modules": [
+            {
+              "t": "Firewalls",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: firewalls and pfSense",
+                  "h": "learn/firewalls-pfsense.html"
+                }
+              ]
+            },
+            {
+              "t": "IDS and Snort",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: IDS and Snort",
+                  "h": "learn/ids-snort.html"
+                }
+              ]
+            },
+            {
+              "t": "VPNs",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/learn: VPN and Tailscale",
+                  "h": "learn/vpn-tailscale.html"
+                }
+              ]
+            },
+            {
+              "t": "Traffic analysis",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: network traffic analysis",
+                  "h": "learn/network-traffic-analysis.html"
+                },
+                {
+                  "t": "~/drills: read a packet capture",
+                  "h": "drills/read-a-packet-capture.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SYS300",
+          "name": "Virtualization and homelab ops",
+          "pre": [
+            "IT120"
+          ],
+          "blurb": "Proxmox, a segmented lab, hardening and keeping servers alive.",
+          "modules": [
+            {
+              "t": "Virtualization",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: virtualization and Proxmox",
+                  "h": "learn/virtualization-proxmox.html"
+                }
+              ]
+            },
+            {
+              "t": "The homelab",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/homelab",
+                  "h": "homelab.html"
+                }
+              ]
+            },
+            {
+              "t": "Hardening",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: system hardening",
+                  "h": "learn/system-hardening-windows-linux.html"
+                },
+                {
+                  "t": "~/harden",
+                  "h": "harden.html"
+                }
+              ]
+            },
+            {
+              "t": "Linux server admin",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: Linux server admin (Ubuntu)",
+                  "h": "learn/linux-server-admin-ubuntu.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CLD300",
+          "name": "Cloud and cloud security",
+          "pre": [
+            "NET200",
+            "SEC100"
+          ],
+          "blurb": "AWS and Azure side by side: identity, networking, storage and what breaks.",
+          "modules": [
+            {
+              "t": "Cloud basics",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/cloud: cloud basics",
+                  "h": "cloud/cloud-basics.html"
+                }
+              ]
+            },
+            {
+              "t": "Identity and access",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/cloud: IAM",
+                  "h": "cloud/cloud-iam.html"
+                }
+              ]
+            },
+            {
+              "t": "Networking, storage, compute",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cloud: networking",
+                  "h": "cloud/cloud-networking.html"
+                },
+                {
+                  "t": "~/cloud: storage and compute",
+                  "h": "cloud/cloud-storage-compute.html"
+                }
+              ]
+            },
+            {
+              "t": "Cloud security",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cloud: cloud security",
+                  "h": "cloud/cloud-security.html"
+                },
+                {
+                  "t": "~/cloud: free-tier labs",
+                  "h": "cloud/cloud-free-labs.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "D",
+      "name": "Defensive security",
+      "courses": [
+        {
+          "code": "BLU200",
+          "name": "Logs and SIEM",
+          "pre": [
+            "SEC100",
+            "IT120"
+          ],
+          "blurb": "Reading logs, shaping them with pipes and regex, and working a SIEM.",
+          "modules": [
+            {
+              "t": "Log analysis",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: log analysis",
+                  "h": "learn/log-analysis.html"
+                }
+              ]
+            },
+            {
+              "t": "Parsing with pipes and regex",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/drills: parse logs with pipes",
+                  "h": "drills/parse-logs-with-pipes.html"
+                },
+                {
+                  "t": "~/drills: regex for logs",
+                  "h": "drills/regex-for-logs.html"
+                }
+              ]
+            },
+            {
+              "t": "SIEM and Security Onion",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: SIEM and Security Onion",
+                  "h": "learn/siem-security-onion.html"
+                }
+              ]
+            },
+            {
+              "t": "Hunt",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/drills: Security Onion intrusion hunt",
+                  "h": "drills/security-onion-intrusion-hunt.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "BLU300",
+          "name": "Incident response and forensics",
+          "pre": [
+            "BLU200"
+          ],
+          "blurb": "The IR lifecycle, disk and memory forensics, and phishing triage.",
+          "modules": [
+            {
+              "t": "Incident response",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: incident response",
+                  "h": "learn/incident-response.html"
+                }
+              ]
+            },
+            {
+              "t": "Disk forensics",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: digital forensics",
+                  "h": "learn/digital-forensics.html"
+                },
+                {
+                  "t": "~/learn: Autopsy and FTK Imager",
+                  "h": "learn/disk-forensics-autopsy-ftk-imager.html"
+                }
+              ]
+            },
+            {
+              "t": "Memory forensics",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: memory forensics (Volatility)",
+                  "h": "learn/memory-forensics-volatility.html"
+                }
+              ]
+            },
+            {
+              "t": "Phishing analysis",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/learn: phishing analysis",
+                  "h": "learn/phishing-analysis.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "BLU310",
+          "name": "Detection engineering and threat hunting",
+          "pre": [
+            "BLU200"
+          ],
+          "blurb": "Write detections instead of just reading alerts: ATT&CK mapping, Sigma and YARA rules, and hypothesis-driven hunts.",
+          "modules": [
+            {
+              "t": "ATT&CK and detection basics",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/detect: ATT&CK and detection basics",
+                  "h": "detect/attack-mapping.html"
+                },
+                {
+                  "t": "~/learn: log analysis",
+                  "h": "learn/log-analysis.html"
+                },
+                {
+                  "t": "MITRE ATT&CK (attack.mitre.org)",
+                  "h": "https://attack.mitre.org/"
+                }
+              ]
+            },
+            {
+              "t": "Sigma rules",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/detect: Sigma rules",
+                  "h": "detect/sigma-rules.html"
+                },
+                {
+                  "t": "~/learn: SIEM with Security Onion",
+                  "h": "learn/siem-security-onion.html"
+                },
+                {
+                  "t": "SigmaHQ rule repository",
+                  "h": "https://github.com/SigmaHQ/sigma"
+                }
+              ]
+            },
+            {
+              "t": "YARA rules",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/detect: YARA rules",
+                  "h": "detect/yara-rules.html"
+                },
+                {
+                  "t": "~/learn: malware analysis",
+                  "h": "learn/malware-analysis.html"
+                },
+                {
+                  "t": "YARA documentation",
+                  "h": "https://yara.readthedocs.io/"
+                }
+              ]
+            },
+            {
+              "t": "Threat hunting",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/detect: threat hunting",
+                  "h": "detect/threat-hunting.html"
+                },
+                {
+                  "t": "~/learn: network traffic analysis",
+                  "h": "learn/network-traffic-analysis.html"
+                }
+              ],
+              "note": "Finish by writing one hunt in the template from the chapter and a Sigma rule that would have caught what you found."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "E",
+      "name": "Technical security",
+      "courses": [
+        {
+          "code": "MAL300",
+          "name": "Reverse engineering and malware",
+          "pre": [
+            "IT100"
+          ],
+          "blurb": "Assembly, the PE format, disassemblers, and safe malware handling.",
+          "modules": [
+            {
+              "t": "C and x86 assembly",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/learn: C and x86 assembly",
+                  "h": "learn/c-x86-assembly.html"
+                }
+              ]
+            },
+            {
+              "t": "The PE format",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/learn: PE format and PE-bear",
+                  "h": "learn/pe-format-pe-bear.html"
+                }
+              ]
+            },
+            {
+              "t": "Reverse engineering",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/learn: reverse engineering",
+                  "h": "learn/reverse-engineering.html"
+                },
+                {
+                  "t": "~/learn: Ghidra and IDA Pro",
+                  "h": "learn/ghidra-and-ida-pro.html"
+                }
+              ]
+            },
+            {
+              "t": "Malware analysis",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/learn: malware analysis",
+                  "h": "learn/malware-analysis.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CRY300",
+          "name": "Cryptography and mobile security",
+          "pre": [
+            "SEC100"
+          ],
+          "blurb": "How the primitives work and fail: cipher modes, RSA and ECC, TLS and PKI, classic attacks, and how mobile apps store secrets and talk to servers.",
+          "modules": [
+            {
+              "t": "Symmetric encryption and modes",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/crypto: symmetric encryption and modes",
+                  "h": "crypto/symmetric-modes.html"
+                },
+                {
+                  "t": "~/basics: CIA and crypto",
+                  "h": "basics/cia-and-crypto.html"
+                },
+                {
+                  "t": "~/learn: applied cryptography",
+                  "h": "learn/cryptography-applied.html"
+                }
+              ]
+            },
+            {
+              "t": "RSA, ECC and signatures",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/crypto: RSA, ECC and signatures",
+                  "h": "crypto/public-key.html"
+                }
+              ]
+            },
+            {
+              "t": "TLS and PKI internals",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/crypto: TLS and PKI",
+                  "h": "crypto/tls-pki.html"
+                },
+                {
+                  "t": "Cloudflare Learning: what is TLS",
+                  "h": "https://www.cloudflare.com/learning/ssl/transport-layer-security-tls/"
+                }
+              ]
+            },
+            {
+              "t": "Attacking crypto",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/crypto: attacking crypto",
+                  "h": "crypto/crypto-attacks.html"
+                },
+                {
+                  "t": "Cryptopals challenges (free, do sets 1 and 2)",
+                  "h": "https://cryptopals.com/"
+                },
+                {
+                  "t": "Stanford Cryptography I (free course)",
+                  "h": "https://www.coursera.org/learn/crypto"
+                }
+              ],
+              "note": "Cryptopals is coding practice and goes beyond the quiz. Sets 1 and 2 cover the ECB, CBC and nonce attacks from this module."
+            },
+            {
+              "t": "Android security",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/mobile: Android security",
+                  "h": "mobile/android-security.html"
+                },
+                {
+                  "t": "OWASP MASVS",
+                  "h": "https://mas.owasp.org/MASVS/"
+                }
+              ]
+            },
+            {
+              "t": "iOS and mobile crypto",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/mobile: iOS and mobile crypto",
+                  "h": "mobile/ios-and-mobile-crypto.html"
+                },
+                {
+                  "t": "~/learn: React Native and Expo apps",
+                  "h": "learn/mobile-apps-react-native-expo.html"
+                },
+                {
+                  "t": "~/learn: Flutter and Firebase apps",
+                  "h": "learn/mobile-apps-flutter-firebase.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SDL300",
+          "name": "Secure development",
+          "pre": [
+            "SEC100"
+          ],
+          "blurb": "Threat modeling, SAST and DAST, dependency and secret scanning, and the web flaws developers must prevent.",
+          "modules": [
+            {
+              "t": "Threat modeling",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/sdl: threat modeling",
+                  "h": "sdl/threat-modeling.html"
+                }
+              ]
+            },
+            {
+              "t": "SAST and DAST",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/sdl: SAST and DAST",
+                  "h": "sdl/sast-dast.html"
+                },
+                {
+                  "t": "OWASP ZAP",
+                  "h": "https://www.zaproxy.org/"
+                }
+              ]
+            },
+            {
+              "t": "Dependencies, secrets and the pipeline",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/sdl: dependencies, secrets and the pipeline",
+                  "h": "sdl/dependency-scanning.html"
+                },
+                {
+                  "t": "~/cases: Log4Shell",
+                  "h": "cases/log4shell.html"
+                },
+                {
+                  "t": "~/learn: git and GitHub",
+                  "h": "learn/git-github.html"
+                }
+              ]
+            },
+            {
+              "t": "Web flaws developers must prevent",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/basics: web attack classes",
+                  "h": "basics/web-attack-classes.html"
+                },
+                {
+                  "t": "~/learn: vulnerable lab targets (DVWA, WebGoat)",
+                  "h": "learn/vulnerable-lab-targets-dvwa-webgoat.html"
+                },
+                {
+                  "t": "OWASP Cheat Sheet Series",
+                  "h": "https://cheatsheetseries.owasp.org/"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ]
 }

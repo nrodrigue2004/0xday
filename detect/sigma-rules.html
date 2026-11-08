@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sigma rules :: ~/detect :: 0xDay</title>
+<meta name="description" content="Detection engineering and hunting, Sigma rules: Write vendor-neutral log detections, tune out noise. Lab: find the rule that misses the attack.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">detect --chapter sigma-rules</p>
+<h1>~/detect/sigma-rules</h1>
+<p>Sigma is a vendor-neutral format for log detections. Write the rule once, convert it to Splunk, Elastic, Sentinel or whatever your SIEM speaks.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="detect-sigma-rules">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>Sigma rule</strong> is a YAML file that describes a log pattern worth alerting on. It has three jobs: say what to look for, say where to look, and say what the match means.</p>
+<pre class="ex ex--code"><code>title: Encoded PowerShell command line
+id: 6f1c2b7e-0000-4000-8000-000000000001
+status: experimental
+description: PowerShell started with an encoded command
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: &#x27;\powershell.exe&#x27;
+        CommandLine|contains: &#x27; -enc&#x27;
+    condition: selection
+falsepositives:
+    - Some admin and deployment scripts
+level: medium
+tags:
+    - attack.execution
+    - attack.t1059.001</code></pre>
+<ul><li><strong>logsource</strong> says which logs the rule applies to (category, product, service).</li><li><strong>detection</strong> holds named *selections* (field tests) and a <strong>condition</strong> that combines them.</li><li><strong>tags</strong> carry the ATT&amp;CK mapping. <strong>level</strong> is severity.</li></ul>
+<p>A converter such as <code>sigma convert</code> (pySigma) turns this into your SIEM's query language. Rules are matched case-insensitively by default.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Field modifiers</h4>
+<p><code>Field|modifier: value</code> changes how the value is compared:</p>
+<ul><li><code>contains</code>, <code>startswith</code>, <code>endswith</code>: substring tests.</li><li><code>all</code>: every listed value must match (default for a list is OR).</li><li><code>re</code>: regular expression. <code>cidr</code>: IP range. <code>base64offset</code>: matches encoded forms of a string.</li></ul>
+<p>A list under one field means <strong>OR</strong>. Several fields in one selection mean <strong>AND</strong>.</p>
+<h4>Conditions</h4>
+<pre class="ex ex--code"><code>detection:
+    selection:
+        Image|endswith: &#x27;\wmic.exe&#x27;
+        CommandLine|contains: &#x27;process call create&#x27;
+    filter_admin:
+        ParentImage|endswith: &#x27;\SCCMAgent.exe&#x27;
+    condition: selection and not filter_admin</code></pre>
+<p>Operators: <code>and</code>, <code>or</code>, <code>not</code>, parentheses, <code>1 of selection_*</code>, <code>all of them</code>. Use a named <code>filter</code> selection for known-good so the tuning is visible.</p>
+<h4>Common logsources</h4>
+<p><code>process_creation</code> (Sysmon 1 / Security 4688), <code>network_connection</code>, <code>image_load</code>, <code>registry_set</code>, <code>file_event</code>, <code>dns_query</code>, <code>powershell</code> script block logs, <code>webserver</code>, and cloud (<code>aws</code> / <code>cloudtrail</code>). A rule is only as good as the field mapping: Sigma field names (<code>CommandLine</code>, <code>ParentImage</code>) are translated to your SIEM's field names by the pipeline.</p>
+<h4>Tuning loop</h4>
+<p>Run on historical logs. For each false positive, add a narrow <code>filter</code>, not a blanket exclusion. Re-run. Record the reason next to the filter.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Writing rules that survive evasion</h4>
+<ul><li>Prefer fields the attacker cannot rename: parent-child process pairs, access masks, registry paths, <code>OriginalFileName</code> or <code>Hashes</code> over only <code>Image</code>.</li><li>Match both short and long flag forms (<code>-enc</code>, <code>-encodedcommand</code>) and case variants, since the <code>-enc</code> prefix alone also hits <code>-encodedcommand</code> while <code> -enc </code> with a trailing space does not.</li><li>Cover alternate tools for the same technique, or write a second rule.</li><li>Use <code>fieldref</code>/<code>near</code>/temporal correlation (in newer pySigma tooling) only when your backend supports them; otherwise do correlation in the SIEM.</li></ul>
+<h4>Testing as code</h4>
+<p>Keep a sample event per rule (<code>tests/&lt;rule&gt;.json</code>) with an expected result. CI converts every rule to the target backend (a syntax check) and replays samples. Add a <strong>negative</strong> sample too, a benign event that must not fire.</p>
+<h4>Rule hygiene</h4>
+<p>Unique <code>id</code> (UUID), <code>status</code> (<code>experimental</code>, <code>test</code>, <code>stable</code>), <code>date</code> and <code>modified</code>, <code>references</code> to the source of the idea, and <code>falsepositives</code> that name the actual benign cases. Review stale rules every quarter.</p>
+<h4>Sharing</h4>
+<p>The public <strong>SigmaHQ</strong> repository holds thousands of community rules. Treat them as a starting point: read the logic, check the logsource fits your environment, and tune before enabling.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><strong>Scenario (fictional, simulated):</strong> during a purple-team test at <strong>Fabrikam Tools</strong>, the red team ran one PowerShell command, saved in <code>~/sigma/event.txt</code>. Three rules sit in <code>~/sigma/rules/</code>. Only <strong>one</strong> of them would fire on that command line (modifiers are case-insensitive substring matches).</p>
+<p>Find the rule whose <code>contains</code> text appears in the event's command line. Submit the <strong>rule file name without .yml</strong>, for example <code>submit my-rule</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it. Everything is simulated.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/sigma.html">cheatsheet</a></span></h2><h3>rule fields</h3><dl class="man"><dt><code>title / id / status</code></dt><dd>name, UUID, experimental|test|stable</dd><dt><code>logsource</code></dt><dd>category (process_creation), product (windows), service</dd><dt><code>detection</code></dt><dd>named selections plus a condition</dd><dt><code>condition</code></dt><dd>selection and not filter / 1 of selection_* / all of them</dd><dt><code>tags</code></dt><dd>attack.&lt;tactic&gt; and attack.tNNNN[.NNN] mapping</dd><dt><code>level</code></dt><dd>informational, low, medium, high, critical</dd></dl><h3>modifiers</h3><dl class="man"><dt><code>contains / startswith / endswith</code></dt><dd>substring tests (case-insensitive)</dd><dt><code>all</code></dt><dd>every value in the list must match</dd><dt><code>re</code></dt><dd>regular expression match</dd><dt><code>cidr</code></dt><dd>IP is in the range</dd><dt><code>base64offset</code></dt><dd>match a string in its base64 forms</dd></dl><h3>pySigma</h3><dl class="man"><dt><code>sigma convert -t splunk -p sysmon rule.yml</code></dt><dd>convert a rule to a Splunk query</dd><dt><code>sigma check rules/</code></dt><dd>validate rule syntax</dd><dt><code>sigma list targets</code></dt><dd>show supported SIEM backends</dd></dl><h3>tactics</h3><dl class="man"><dt><code>attack.initial-access | attack.execution</code></dt><dd>attack.persistence</dd><dt><code>attack.privilege-escalation | attack.defense-evasion</code></dt><dd>attack.credential-access</dd><dt><code>attack.discovery | attack.lateral-movement</code></dt><dd>attack.collection</dd><dt><code>attack.command-and-control | attack.exfiltration</code></dt><dd>attack.impact</dd></dl></section><nav class="pager"><a href="attack-mapping.html">&lt; ATT&amp;CK and detection basics</a><a href="yara-rules.html">YARA rules &gt;</a></nav><p><a href="../detect.html">cd ~/detect</a> · <a href="../courses/BLU310.html">course BLU310</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "detect-sigma-rules", "title": "Sigma rules", "user": "analyst", "host": "analyst", "brief": "<strong>Scenario (fictional, simulated):<\/strong> during a purple-team test at <strong>Fabrikam Tools<\/strong>, the red team ran one PowerShell command, saved in <code>~/sigma/event.txt<\/code>. Three rules sit in <code>~/sigma/rules/<\/code>. Only <strong>one<\/strong> of them would fire on that command line (modifiers are case-insensitive substring matches).\n\nFind the rule whose <code>contains<\/code> text appears in the event's command line. Submit the <strong>rule file name without .yml<\/strong>, for example <code>submit my-rule<\/code>.", "hints": ["Read the event first, then <code>grep -n contains ~/sigma/rules/*<\/code> to see each rule's test.", "Check each <code>contains<\/code> string against the command line, including whether there is a trailing space."], "answers": ["aac1db6d8fcf50724f25f073c824bbb0de4e22fac7d645524178113658eec36b"], "solution": "VGhlIGNvbW1hbmQgbGluZSBpcyA8Y29kZT5wb3dlcnNoZWxsLmV4ZSAtTm9QIC1FbmNvZGVkQ29tbWFuZCBKQUJ6Li4uPC9jb2RlPi4gPGNvZGU+cHMtZW5jLXNob3J0PC9jb2RlPiBsb29rcyBmb3IgPGNvZGU+JiN4Mjc7IC1lbmMgJiN4Mjc7PC9jb2RlPiB3aXRoIGEgdHJhaWxpbmcgc3BhY2UsIGJ1dCA8Y29kZT4tRW5jb2RlZENvbW1hbmQ8L2NvZGU+IGhhcyBtb3JlIGxldHRlcnMgYWZ0ZXIgPGNvZGU+LWVuYzwvY29kZT4sIHNvIGl0IG5ldmVyIG1hdGNoZXMuIDxjb2RlPnBzLWhpZGRlbjwvY29kZT4gbG9va3MgZm9yIDxjb2RlPi13aW5kb3dzdHlsZSBoaWRkZW48L2NvZGU+LCB3aGljaCB0aGUgYXR0YWNrZXIgZGlkIG5vdCB1c2UuIDxjb2RlPnBzLWVuY29kZWQtbG9uZzwvY29kZT4gbG9va3MgZm9yIDxjb2RlPi1lbmNvZGVkY29tbWFuZDwvY29kZT4gYW5kIG1hdGNoZXMuIFRoZSBsZXNzb246IGEgcnVsZSB0aGF0IG1hdGNoZXMgb25seSB0aGUgc2hvcnQgZm9ybSBtaXNzZXMgdGhlIGxvbmcgZm9ybS4gU2FmZXIgaXMgYSBwcmVmaXggbGlrZSA8Y29kZT4gLWVuYzwvY29kZT4gcGx1cyB0aGUgbG9uZyBmb3JtLCBhbmQgdGVzdCB3aXRoIHJlYWwgc2FtcGxlcy4K", "fs": {"/home/analyst/sigma/event.txt": "EventID=1 Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\nCommandLine=powershell.exe -NoP -EncodedCommand JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAA=\nParentImage=C:\\Windows\\System32\\cmd.exe\n", "/home/analyst/sigma/rules/ps-enc-short.yml": "title: PowerShell encoded (short flag)\nlogsource: {category: process_creation, product: windows}\ndetection:\n    selection:\n        Image|endswith: '\\powershell.exe'\n        CommandLine|contains: ' -enc '\n    condition: selection\n", "/home/analyst/sigma/rules/ps-hidden.yml": "title: PowerShell hidden window\nlogsource: {category: process_creation, product: windows}\ndetection:\n    selection:\n        Image|endswith: '\\powershell.exe'\n        CommandLine|contains: '-windowstyle hidden'\n    condition: selection\n", "/home/analyst/sigma/rules/ps-encoded-long.yml": "title: PowerShell encoded (long flag)\nlogsource: {category: process_creation, product: windows}\ndetection:\n    selection:\n        Image|endswith: '\\powershell.exe'\n        CommandLine|contains: '-encodedcommand'\n    condition: selection\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

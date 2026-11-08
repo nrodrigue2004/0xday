@@ -81,13 +81,23 @@ def build(page, esc):
             for l in m["links"]:
                 if not l["h"].startswith("http") and not os.path.exists(l["h"].split("#")[0]):
                     raise SystemExit(f"courses.json: {c['code']} link does not exist: {l['h']}")
+    import build_capstones
+    CAPS = build_capstones.load(codes)  # capstones read whatever courses exist; they are not quiz courses
+    cap_codes = [c["code"] for c in CAPS]
     for t in C["tiers"]:
         for k in t["need"]:
             assert k in codes, f"tier {t['key']}: unknown course {k}"
+        t["need"] = t["need"] + [k for k in t.get("want", []) if k in codes and k not in t["need"]]  # tiers grow as courses land
+        t.pop("want", None)
+        if "pick" in t:
+            t["pick"]["from"] = [k for k in t["pick"]["from"] if k in cap_codes]
+            if not t["pick"]["from"]:
+                del t["pick"]
     banks = {c["code"]: parse_bank(c["code"], f"content/courses/{c['code']}.txt", len(c["modules"])) for c in courses}
 
     track_of = {c["code"]: t["key"] for t in C["tracks"] for c in t["courses"]}
     meta = {"pass": PASS, "tiers": C["tiers"],
+            "caps": [{"code": c["code"], "name": c["name"], "pre": c["pre"], "n": sum(len(p["items"]) for p in c["phases"])} for c in CAPS],
             "courses": [{"code": c["code"], "name": c["name"], "pre": c["pre"], "mods": len(c["modules"]),
                          "min": sum(m["m"] for m in c["modules"]), "track": track_of[c["code"]]} for c in courses]}
     metaj = f'<script type="application/json" id="c-meta">{jsn(meta)}</script>'
@@ -118,7 +128,7 @@ def build(page, esc):
 <div id="cl" class="cl"><div class="cl__sum muted" id="cl-sum" aria-live="polite"></div>{"".join(blocks)}</div>
 <h2># prerequisites</h2>
 <pre class="cl__tree">{esc(chr(10).join(tree))}</pre>
-<p class="muted small">Companions: <a href="start.html">~/start</a> (the guided order) · <a href="transcript.html">~/transcript</a> · <a href="learn.html">~/learn</a> · <a href="secplus.html">~/secplus</a></p>
+<p class="muted small">Companions: <a href="start.html">~/start</a> (the guided order) · <a href="capstones.html">~/capstones</a> · <a href="transcript.html">~/transcript</a> · <a href="learn.html">~/learn</a> · <a href="secplus.html">~/secplus</a></p>
 {metaj}'''
     page("courses.html", "courses :: 0xDay", body, cur="learn", head=head,
          desc=f"{len(courses)} self-study courses with module quizzes and placement exams, progress saved in your browser.")
@@ -132,7 +142,7 @@ def build(page, esc):
         for i, m in enumerate(c["modules"]):
             links = " ".join(
                 f'<a href="{l["h"] if l["h"].startswith("http") else "../" + l["h"]}"{" rel=\"noopener\" target=\"_blank\"" if l["h"].startswith("http") else ""}>{esc(l["t"])}</a>' for l in m["links"])
-            note = f'<p class="cp__note">{esc(m["note"])}</p>' if m.get("note") else ""
+            note = "".join(f'<p class="cp__note">{esc(x)}</p>' for x in m["note"].split("\n\n")) if m.get("note") else ""
             nm = sum(1 for q in bank if q["m"] == i)
             rows += (f'<li class="cp__mod" data-i="{i}"><label class="cp__chk"><input type="checkbox" aria-label="module done: {esc(m["t"])}"><span class="cp__box" aria-hidden="true"></span></label>'
                      f'<div><strong>{i + 1}. {esc(m["t"])}</strong> <span class="muted small">~{m["m"]} min</span>'
@@ -161,20 +171,28 @@ def build(page, esc):
              desc=f"{c['name']}: {len(c['modules'])} modules, module quizzes and an exam.")
 
     # ---------- ~/transcript ----------
-    tiers = "".join(f'<li class="tr__tier" data-tier="{t["key"]}"><strong>{esc(t["name"])}</strong> <span class="muted small">({", ".join(t["need"])})</span> <span data-tier-st class="muted">0/{len(t["need"])}</span></li>' for t in C["tiers"])
+    def tier_li(t):
+        pk = t.get("pick")
+        extra = f' + {pk["n"]} of {", ".join(pk["from"])}' if pk else ""
+        tot = len(t["need"]) + (pk["n"] if pk else 0)
+        return f'<li class="tr__tier" data-tier="{t["key"]}"><strong>{esc(t["name"])}</strong> <span class="muted small">({", ".join(t["need"])}{extra})</span> <span data-tier-st class="muted">0/{tot}</span></li>'
+    tiers = "".join(tier_li(t) for t in C["tiers"])
     body = f'''<p class="cmd">cat ~/transcript</p><h1>~/transcript</h1>
-<p>Your progress across <a href="courses.html">~/courses</a>: what is passed, what was tested out, and the study time it represents. It is built from this browser's saved progress, so it only shows what you have done on this device. Use export to keep a backup. These are self-study milestones, not credits.</p>
+<p>Your progress across <a href="courses.html">~/courses</a> and <a href="capstones.html">~/capstones</a>: what is passed, what was tested out, and the study time it represents. It is built from this browser's saved progress, so it only shows what you have done on this device. Use export to keep a backup. These are self-study milestones, not credits.</p>
 <noscript><p class="callout">The transcript needs JavaScript.</p></noscript>
 <div id="tr" class="tr">
 <div class="cl__sum" id="tr-sum" aria-live="polite"></div>
 <h2># milestones</h2>
 <ul class="tr__tiers">{tiers}</ul>
+<p class="muted small">Milestones are Foundations, Practitioner and Specialist. They unlock from courses passed and capstones finished, and they grow when new courses are added to the site.</p>
 <h2># courses</h2>
 <div class="tbl"><table class="tr__tbl"><thead><tr><th>course</th><th>status</th><th>modules</th><th>exam</th><th>date</th></tr></thead><tbody id="tr-body"></tbody></table></div>
 <p class="tr__tools"><button class="btn" type="button" id="tr-export">[ export ]</button> <button class="btn" type="button" id="tr-import">[ import ]</button> <button class="btn" type="button" id="tr-reset">[ reset ]</button> <input type="file" id="tr-file" accept="application/json" hidden> <span class="muted small" id="tr-msg" role="status"></span></p>
 </div>
-<p class="muted small">Companions: <a href="courses.html">~/courses</a> · <a href="start.html">~/start</a> · <a href="log.html">~/log</a> · <a href="resume.html">~/resume</a></p>
+<p class="muted small">Companions: <a href="courses.html">~/courses</a> · <a href="capstones.html">~/capstones</a> · <a href="start.html">~/start</a> · <a href="log.html">~/log</a> · <a href="resume.html">~/resume</a></p>
 {metaj}'''
     page("transcript.html", "transcript :: 0xDay", body, cur="learn", head=head,
          desc="Course progress rollup with export and import, saved in your browser only.")
+    global metaj_last
+    metaj_last = metaj
     return len(courses), nq

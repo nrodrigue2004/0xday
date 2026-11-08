@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man mobile :: 0xDay</title>
+<meta name="description" content="mobile cheatsheet: Android and iOS testing commands and OWASP MASVS areas">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man mobile</p>
+<div class="manhead"><span>MOBILE(7)</span><span>0xDay Field Manual</span><span>MOBILE(7)</span></div>
+<h1>mobile <span class="muted">- Android and iOS testing commands and OWASP MASVS areas</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-adb">adb</a> <a href="#g-analysis">analysis</a> <a href="#g-manifest-flags">manifest flags</a> <a href="#g-ios-and-mobile-storage">ios and mobile storage</a> <a href="#g-testing-tools">testing tools</a> <a href="#g-owasp-masvs-areas">OWASP MASVS areas</a></p><h2 id="g-adb">adb</h2><dl class="man"><dt><code>adb devices</code></dt><dd>list connected devices and emulators</dd><dt><code>adb shell</code></dt><dd>open a shell on the device</dd><dt><code>adb install app.apk</code></dt><dd>install an APK</dd><dt><code>adb pull /sdcard/f .</code></dt><dd>copy a file off the device</dd><dt><code>adb logcat</code></dt><dd>stream the device log (look for leaked data)</dd></dl><h2 id="g-analysis">analysis</h2><dl class="man"><dt><code>apktool d app.apk</code></dt><dd>decode manifest and resources</dd><dt><code>jadx -d out app.apk</code></dt><dd>decompile to Java source</dd><dt><code>unzip app.apk -d out</code></dt><dd>unpack the APK as a zip</dd><dt><code>frida -U -f com.example.app</code></dt><dd>start an app with Frida attached</dd></dl><h2 id="g-manifest-flags">manifest flags</h2><dl class="man"><dt><code>exported=&quot;true&quot;</code></dt><dd>other apps may call this component</dd><dt><code>debuggable=&quot;true&quot;</code></dt><dd>a debugger can attach</dd><dt><code>allowBackup=&quot;true&quot;</code></dt><dd>app data may be extracted by backup</dd><dt><code>usesCleartextTraffic</code></dt><dd>permits plain HTTP</dd></dl><h2 id="g-ios-and-mobile-storage">ios and mobile storage</h2><dl class="man"><dt><code>Keychain</code></dt><dd>OS-managed secret store for tokens, passwords and keys</dd><dt><code>Secure Enclave</code></dt><dd>hardware that holds private keys and signs without exposing them</dd><dt><code>Data Protection</code></dt><dd>file encryption tied to the passcode and lock state</dd><dt><code>ATS</code></dt><dd>App Transport Security, enforces HTTPS and modern TLS by default</dd><dt><code>UserDefaults</code></dt><dd>plain preferences, never put secrets here</dd></dl><h2 id="g-testing-tools">testing tools</h2><dl class="man"><dt><code>frida / objection</code></dt><dd>runtime hooking and mobile test toolkit</dd><dt><code>mitmproxy / Burp</code></dt><dd>intercept test-device traffic</dd><dt><code>MobSF</code></dt><dd>automated static and dynamic mobile analysis</dd></dl><h2 id="g-owasp-masvs-areas">OWASP MASVS areas</h2><dl class="man"><dt><code>STORAGE | CRYPTO | AUTH | NETWORK | PLATFORM | CODE | RESILIENCE</code></dt><dd>PRIVACY</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

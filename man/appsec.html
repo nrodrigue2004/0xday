@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man appsec :: 0xDay</title>
+<meta name="description" content="appsec cheatsheet: STRIDE, common scanner commands and CI security gates">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man appsec</p>
+<div class="manhead"><span>APPSEC(7)</span><span>0xDay Field Manual</span><span>APPSEC(7)</span></div>
+<h1>appsec <span class="muted">- STRIDE, common scanner commands and CI security gates</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-stride">STRIDE</a> <a href="#g-dfd-elements">DFD elements</a> <a href="#g-sast-tools">SAST tools</a> <a href="#g-dast-tools">DAST tools</a> <a href="#g-terms">terms</a> <a href="#g-scanners">scanners</a></p><h2 id="g-stride">STRIDE</h2><dl class="man"><dt><code>Spoofing</code></dt><dd>pretending to be someone else -&gt; authentication</dd><dt><code>Tampering</code></dt><dd>modifying data -&gt; integrity</dd><dt><code>Repudiation</code></dt><dd>denying an action -&gt; logging and non-repudiation</dd><dt><code>Information disclosure</code></dt><dd>leaking data -&gt; confidentiality</dd><dt><code>Denial of service</code></dt><dd>exhausting a resource -&gt; availability</dd><dt><code>Elevation of privilege</code></dt><dd>gaining rights -&gt; authorization</dd></dl><h2 id="g-dfd-elements">DFD elements</h2><dl class="man"><dt><code>external entity</code></dt><dd>user or system outside your control</dd><dt><code>process</code></dt><dd>code that handles data</dd><dt><code>data store</code></dt><dd>database, file, bucket, queue</dd><dt><code>data flow</code></dt><dd>data moving between elements</dd><dt><code>trust boundary</code></dt><dd>where trust level changes; check every crossing</dd></dl><h2 id="g-sast-tools">SAST tools</h2><dl class="man"><dt><code>semgrep --config auto .</code></dt><dd>run Semgrep with community rules on the current folder</dd><dt><code>bandit -r src/</code></dt><dd>Python security linter</dd><dt><code>codeql database create db --language=python</code></dt><dd>build a CodeQL database</dd><dt><code>gitleaks detect</code></dt><dd>scan a repo and its history for secrets</dd></dl><h2 id="g-dast-tools">DAST tools</h2><dl class="man"><dt><code>zap-baseline.py -t URL</code></dt><dd>passive OWASP ZAP scan</dd><dt><code>zap-full-scan.py -t URL</code></dt><dd>active scan (staging only)</dd><dt><code>nikto -h URL</code></dt><dd>quick web server checks</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>CWE</code></dt><dd>Common Weakness Enumeration, catalog of bug types (CWE-89 is SQL injection)</dd><dt><code>false positive</code></dt><dd>a finding that is not a real vulnerability</dd><dt><code>taint analysis</code></dt><dd>tracking untrusted input from source to dangerous sink</dd><dt><code>baseline</code></dt><dd>the set of existing findings you accept for now</dd></dl><h2 id="g-scanners">scanners</h2><dl class="man"><dt><code>npm audit</code></dt><dd>check Node dependencies against advisories</dd><dt><code>pip-audit</code></dt><dd>check Python dependencies</dd><dt><code>osv-scanner -r .</code></dt><dd>scan a folder against the OSV database</dd><dt><code>grype dir:.</code></dt><dd>vulnerability scan using an SBOM or folder</dd><dt><code>syft dir:. -o cyclonedx-json</code></dt><dd>generate an SBOM</dd><dt><code>trivy fs .</code></dt><dd>scan files, images and IaC for vulnerabilities and misconfig</dd><dt><code>gitleaks detect</code></dt><dd>scan git history for secrets</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

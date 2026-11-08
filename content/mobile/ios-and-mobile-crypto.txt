@@ -1,0 +1,81 @@
+tagline: iOS locks down apps tightly and gives developers hardware-backed key storage, so the mistakes are usually about what the app chooses to store, trust and send.
+sheet: mobile
+:: simple
+**iOS** apps run in a sandbox, are code-signed, and are distributed through Apple's review process (or enterprise/TestFlight). The system provides strong tools, and most vulnerabilities come from not using them.
+
+The pieces to know:
+
+- **Keychain**: the place for passwords, tokens and keys. Items can be locked to the device, require a passcode or biometrics, and be excluded from backups.
+- **Secure Enclave**: a separate hardware processor that holds private keys and performs signing without ever exposing the key.
+- **Data Protection**: files are encrypted with keys tied to the device passcode; classes decide when they are readable (for example only while unlocked).
+- **App Transport Security (ATS)**: by default the app must use HTTPS with modern TLS. Exceptions are declared in `Info.plist`.
+- **Entitlements and permissions**: what an app may access, shown to the user as prompts.
+
+The same big risks as Android apply: secrets stored in plain `UserDefaults` or files, TLS verification disabled, authorization enforced only in the client.
+:: mid
+### Storing things correctly
+- Tokens and keys: **Keychain** with an accessibility level like `whenUnlockedThisDeviceOnly`.
+- Never in `UserDefaults`, plain files, `Info.plist`, logs, or the pasteboard.
+- Sensitive screens: hide content in app-switcher snapshots; clear the clipboard.
+
+### Mobile crypto rules
+- Use platform libraries (CryptoKit, Android Keystore / Tink). Do not write your own.
+- Keys generated on the device and kept in hardware-backed storage; non-extractable if possible.
+- AEAD modes (AES-GCM, ChaCha20-Poly1305) with fresh nonces. No ECB, no static IVs, no keys in the binary.
+- Use biometrics as a **local unlock for a key**, not as the only proof sent to the server.
+
+### Certificate pinning
+Pinning makes the app accept only specific certificates or public keys, which blocks a rogue CA or an intercepting proxy. Pin to a key plus a backup, plan for rotation, and have a safe update path. Testers bypass it with Frida or objection on devices they own, so pinning raises effort and does not replace server-side checks.
+
+### Testing iOS
+Common tools: a jailbroken test device (or the Xcode simulator), `frida`, `objection`, `class-dump` / Ghidra for the binary, Burp or mitmproxy with the proxy certificate installed, and MobSF. Keep to your own apps and test builds.
+:: complex
+### What jailbreaking changes
+A jailbreak removes sandbox and signing protections, giving a tester (or malware) full file access. Detection checks (known files, writable system paths, forking) are easy to bypass, so treat the client as hostile and design the server accordingly: rate limits, device attestation (App Attest on iOS, Play Integrity on Android), and server-side authorization.
+
+### Authentication on mobile
+OAuth 2.0 with PKCE through the system browser (ASWebAuthenticationSession / Custom Tabs), not an embedded web view that sees the password. Short-lived access tokens, refresh tokens in the Keychain, revocation on logout and on device loss. Passkeys (FIDO2) remove passwords altogether.
+
+### Data at rest and in transit end to end
+Combine ATS or Network Security Config, pinning (where justified), field-level encryption for the most sensitive data, and server-side logging of anomalies such as token use from two countries. Plan for lost devices: remote wipe, short sessions, and no long-lived secrets on the device.
+
+### MASVS areas
+Storage, Crypto, Auth, Network, Platform interaction, Code quality, Resilience, Privacy. MASTG is the matching testing guide. Report findings with these IDs so teams can track fixes.
+:: ref
+### ios and mobile storage
+Keychain | OS-managed secret store for tokens, passwords and keys
+Secure Enclave | hardware that holds private keys and signs without exposing them
+Data Protection | file encryption tied to the passcode and lock state
+ATS | App Transport Security, enforces HTTPS and modern TLS by default
+UserDefaults | plain preferences, never put secrets here
+### testing tools
+frida / objection | runtime hooking and mobile test toolkit
+mitmproxy / Burp | intercept test-device traffic
+MobSF | automated static and dynamic mobile analysis
+### OWASP MASVS areas
+STORAGE | CRYPTO | AUTH | NETWORK | PLATFORM | CODE | RESILIENCE | PRIVACY
+:: lab
+host: tester
+user: tester
+cwd: /home/tester
+:: brief
+**Scenario (fictional, simulated):** a fictional iOS app, **FieldNotes**, was extracted from a test device. `~/ios/files.txt` lists files in its sandbox with a short description of each. Read `~/ios/README.txt`.
+
+One file stores a **session token in plain text** where any backup or file extraction exposes it. Submit the **file name** (the part after the last slash), for example `submit notes.db`.
+:: answer
+prefs.plist
+:: hint
+Search the descriptions for `token`: `grep -i token ~/ios/files.txt`.
+:: hint
+Two files mention tokens. One says the value is held in the Keychain reference only. The other stores the token itself.
+:: solution
+`prefs.plist` (the app's `UserDefaults`) contains `auth_token=eyJ...` in plain text, so it appears in backups and in any file extraction. `keychain-ref.txt` only holds a Keychain item identifier, which is fine. Fix: store the token in the Keychain with a `ThisDeviceOnly` accessibility class, delete it from `UserDefaults`, and rotate tokens issued before the fix.
+:: verify
+grep -i token ~/ios/files.txt
+:: file /home/tester/ios/README.txt
+Fictional extracted iOS app (simulated). files.txt: path | description
+:: file /home/tester/ios/files.txt
+Library/Preferences/prefs.plist | UserDefaults: theme=dark, auth_token=eyJhbGciOi... (plain text)
+Library/Application Support/notes.db | SQLite notes, encrypted with a Keychain-held key
+Documents/keychain-ref.txt | token item id only, value held in the Keychain
+Library/Caches/img-cache.bin | cached thumbnails

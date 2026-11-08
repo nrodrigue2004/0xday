@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ossim :: 0xDay</title>
+<meta name="description" content="Operating-system simulators: CPU scheduling, page replacement and Banker&#x27;s algorithm.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="sims.css?v=a0141c11">
+<script src="sims.js?v=a0141c11" defer></script>
+<script src="data.js?v=82337135" defer></script>
+<script src="site.js?v=82337135" defer></script>
+<script src="fx.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="start.html">./start</a></li><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html" aria-current="page">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">./ossim</p><h1>~/ossim <span class="muted">operating-system simulators</span></h1>
+<p>Three small tools for <a href="courses/CS220.html">CS220</a>. Do the problem by hand first, then check yourself here. Everything runs in your browser.</p>
+<div id="sim-root">
+<section class="sm__p"><h2>CPU scheduler</h2><p>One process per line: <code>name arrival burst [priority]</code>, whole numbers. Lower priority number runs first. Load the 24/3/3 example and compare FCFS (average wait 17) with SJF (3) and round robin.</p><textarea id="sch-in" class="sm__ta" rows="6" spellcheck="false" aria-label="processes">A 0 8 2
+B 1 4 1
+C 2 9 3
+D 3 5 2</textarea>
+<p class="sm__row"><label>algorithm <select id="sch-algo"><option value="fcfs">FCFS</option><option value="sjf">SJF (non-preemptive)</option><option value="srtf">SRTF (preemptive SJF)</option><option value="prio">priority (non-preemptive)</option><option value="rr">round robin</option></select></label>
+<label id="sch-qrow" hidden>quantum <input id="sch-q" type="number" min="1" max="20" value="4"></label>
+<button class="btn btn--sm" type="button" id="sch-run">[ run ]</button> <button class="btn btn--sm" type="button" id="sch-ex">[ load 24/3/3 ]</button></p>
+<div id="sch-run-out" aria-live="polite"></div></section><section class="sm__p"><h2>Page replacement</h2><p>Reference string of page numbers, and how many frames. FIFO, LRU and optimal run side by side. The Belady button loads the classic string where FIFO gets <em>worse</em> from 3 to 4 frames.</p><p class="sm__row"><label>reference string <input id="pg-refs" class="sm__in" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1"></label>
+<label>frames <input id="pg-n" type="number" min="1" max="8" value="3"></label>
+<button class="btn btn--sm" type="button" id="pg-run">[ run ]</button> <button class="btn btn--sm" type="button" id="pg-ex">[ Belady, 3 frames ]</button> <button class="btn btn--sm" type="button" id="pg-ex2">[ Belady, 4 frames ]</button></p>
+<div id="pg-run-out" aria-live="polite"></div></section><section class="sm__p"><h2>Deadlock avoidance: Banker's algorithm</h2><p>One row per process. Enter the allocation matrix, the max-demand matrix and the available vector. The tool computes need, looks for a safe sequence, and can test a request (<code>process r1 r2 r3</code>, e.g. <code>1 1 0 2</code>).</p><p class="sm__row"><label>resource types <input id="bk-m" type="number" min="1" max="6" value="3"></label> <label>available <input id="bk-av" class="sm__in" value="3 3 2"></label></p>
+<div class="sm__two"><label>allocation<textarea id="bk-al" class="sm__ta" rows="6" spellcheck="false">0 1 0
+2 0 0
+3 0 2
+2 1 1
+0 0 2</textarea></label>
+<label>max<textarea id="bk-mx" class="sm__ta" rows="6" spellcheck="false">7 5 3
+3 2 2
+9 0 2
+2 2 2
+4 3 3</textarea></label></div>
+<p class="sm__row"><label>test a request <input id="bk-rq" class="sm__in" placeholder="1 1 0 2"></label>
+<button class="btn btn--sm" type="button" id="bk-run">[ run ]</button> <button class="btn btn--sm" type="button" id="bk-ex">[ load textbook example ]</button> <button class="btn btn--sm" type="button" id="bk-ex2">[ example: risky request ]</button></p>
+<div id="bk-run-out" aria-live="polite"></div></section></div>
+<noscript><p class="callout">The simulators need JavaScript.</p></noscript>
+<p class="muted small">Related: <a href="courses/CS220.html">CS220 operating systems</a> · <a href="dbsim.html">~/dbsim</a> · <a href="learn/operating-systems.html">operating-systems guide</a> · <a href="https://pages.cs.wisc.edu/~remzi/OSTEP/" rel="noopener" target="_blank">OSTEP (free book)</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

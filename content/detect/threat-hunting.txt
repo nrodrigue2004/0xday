@@ -1,0 +1,92 @@
+tagline: Detection waits for an alert. Hunting assumes something already got past the rules and goes looking, starting from a hypothesis.
+sheet: sigma
+:: simple
+**Threat hunting** is a human-led search through data for attacker activity that no alert caught. It is not "browse logs and hope".
+
+A hunt runs in a loop:
+
+1. **Hypothesis**: a specific, testable guess. "An attacker with a foothold would beacon to a rarely seen domain at regular intervals."
+2. **Data**: pick the logs that could confirm or deny it (proxy, DNS, EDR, auth).
+3. **Search and pivot**: query, find an odd thing, follow it to related hosts, users and time.
+4. **Decide**: it is malicious, benign (document why), or inconclusive (note what data was missing).
+5. **Turn it into a detection**: any hunt that worked should leave behind a rule, a dashboard or a logging fix.
+
+Hunts get their ideas from threat reports, ATT&CK techniques, recent incidents and "what would I do if I were the attacker here".
+:: mid
+### Techniques that work on common data
+- **Stacking (frequency analysis)**: count a field and read the rare end. The process names that appear on one host of 5,000, or the user agents seen only once.
+- **Beaconing**: group connections by source, destination and interval. Regular timing with small jitter and similar sizes points to automation.
+- **Long tail of parents**: which parent starts `cmd.exe` or `powershell.exe`? Office, a browser or a service host are red flags.
+- **First seen**: a service account logging on interactively for the first time, a new autorun key, a new scheduled task.
+- **Impossible travel / odd hours** for cloud and VPN sign-ins.
+
+### Example query ideas (SPL-style)
+```code
+index=proxy | stats count dc(user) by dest_domain | where count<5 AND dc(user)=1
+index=proxy src=ws-031 | bin _time span=1m | stats count by _time dest | streamstats ...
+```
+Exact syntax depends on your SIEM; the point is the shape: group, count, sort, read the edges.
+
+### Writing it down
+Record the hypothesis, data used, queries, findings (including negatives) and the follow-up. A hunt that found nothing still has value: it shows which techniques you checked and when.
+:: complex
+### Hunting maturity
+Level 0 is alert-only. Level 1 searches indicator lists. Level 2 follows published hunt procedures. Level 3 builds your own hypotheses from data and intel. Level 4 automates those hunts into detections. A team moves up by turning findings into automation, not by hunting more.
+
+### Intelligence-driven hunting
+Pick a group that targets your sector. List its ATT&CK techniques. For each, ask: do we log this, what would it look like in our logs, can we search the last 90 days? Hunt the techniques, not the indicators, since indicators are already stale.
+
+### Pivoting well
+From one suspicious process, pivot to its parent chain, network connections, files written, registry changes, logon session, then to other hosts that show the same artifact. Keep a timeline as you go. Use a notebook or case-management tool so the work is reproducible.
+
+### Common pitfalls
+- A hypothesis that cannot be disproved ("find bad stuff").
+- Missing data hidden by retention limits or sampling. Check coverage first.
+- Treating rare as malicious. Rare is a lead, not a verdict.
+- No handoff: if a hunt finds an active intruder, switch to incident response and preserve evidence, rather than continuing to poke around.
+:: ref
+### hunting patterns
+stacking | count values of a field and examine the rare end
+beaconing | regular connection intervals to one destination
+parent-child | which process started which: Office -> cmd is suspicious
+first seen | a user, host or binary doing something for the first time
+long tail | very low-frequency values in a large dataset
+### hypothesis template
+Hypothesis | If <attacker action> happened, we would see <artifact> in <log>
+Data | which sources and what time range
+Result | malicious / benign (why) / inconclusive (what is missing)
+Output | new rule, new logging, or no action
+:: lab
+host: hunter
+user: hunter
+cwd: /home/hunter
+:: brief
+**Scenario (fictional, simulated):** your hypothesis is that a compromised workstation is beaconing to a command-and-control server. The proxy log for one workstation, **ws-031**, is in `~/hunt/proxy.log` (fields: time, source, destination, bytes). Read `~/hunt/README.txt`.
+
+Find the destination contacted at **perfectly regular intervals**. Submit the **destination domain**, for example `submit example.test`.
+:: answer
+updates.cdn-metrics.test
+:: hint
+Count connections per destination: `cut -d' ' -f3 ~/hunt/proxy.log | sort | uniq -c | sort -rn`.
+:: hint
+Several domains are frequent, but only one has times that repeat every 60 seconds. Use `grep` on a candidate and read the timestamps.
+:: solution
+`news.example.test` and `mail.example.test` show human-looking, irregular timing. `updates.cdn-metrics.test` is contacted every 60 seconds with the same small byte count, which is typical beaconing: automated, constant interval, constant size. Next steps in a real hunt: check what process made the connection, whether the domain is new in the environment, and who else contacted it. If confirmed, hand off to incident response.
+:: verify
+cut -d' ' -f3 ~/hunt/proxy.log | sort | uniq -c | sort -rn
+grep cdn-metrics ~/hunt/proxy.log
+:: file /home/hunter/hunt/README.txt
+Fictional proxy log (simulated). Each line: time source destination bytes
+:: file /home/hunter/hunt/proxy.log
+09:00:00 ws-031 updates.cdn-metrics.test 312
+09:00:41 ws-031 news.example.test 48210
+09:01:00 ws-031 updates.cdn-metrics.test 312
+09:02:00 ws-031 updates.cdn-metrics.test 312
+09:02:17 ws-031 mail.example.test 9120
+09:03:00 ws-031 updates.cdn-metrics.test 312
+09:03:52 ws-031 news.example.test 30112
+09:04:00 ws-031 updates.cdn-metrics.test 312
+09:05:00 ws-031 updates.cdn-metrics.test 312
+09:05:33 ws-031 mail.example.test 2204
+09:06:00 ws-031 updates.cdn-metrics.test 312
+09:07:14 ws-031 news.example.test 51220

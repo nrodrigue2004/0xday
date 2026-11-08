@@ -39,3 +39,7 @@
 .tr__tier.done strong{color:var(--green)}
 .tr__ok{color:var(--green)}.tr__go{color:var(--amber,#e6b450)}
 .tr__tools{margin-top:1rem}
+/* capstones */
+.cap__log{overflow-x:auto;font-size:.82rem;line-height:1.5;white-space:pre}
+.cap__key summary{cursor:pointer;color:var(--green)}
+.cap__key h3{margin:1rem 0 .2rem;font-size:1rem}

@@ -1,0 +1,119 @@
+tagline: YARA matches files and process memory by text strings, hex patterns and conditions. It is the standard way to describe malware families.
+sheet: yara
+:: simple
+A **YARA rule** has a name, optional metadata, a set of **strings** and a **condition**. The rule matches a file when the condition is true.
+
+```code
+rule Demo_Dropper : trojan
+{
+    meta:
+        author = "analyst"
+        description = "Fictional dropper strings"
+    strings:
+        $a = "cmd /c start" ascii wide
+        $b = { 4D 5A 90 00 }
+        $c = /https?:\/\/[a-z0-9.]+\/payload/ nocase
+    condition:
+        uint16(0) == 0x5A4D and 2 of them
+}
+```
+
+- `$a` is a text string, `$b` a hex pattern (with `??` wildcards), `$c` a regular expression.
+- `ascii wide` matches both 1-byte and UTF-16 forms; Windows malware often stores strings as wide.
+- `uint16(0) == 0x5A4D` means the file starts with "MZ", so it is a Windows executable.
+- `2 of them` means at least two of the strings must appear.
+
+Run it with `yara rule.yar file_or_folder`. It prints the names of the rules that matched.
+:: mid
+### Condition building blocks
+- `filesize < 2MB`: bound the file size so you do not scan huge files.
+- `$a and $b`, `any of ($s*)`, `all of ($x*)`, `3 of ($s*)`: combine strings.
+- `#a > 5`: the string occurs more than five times. `$a at 0`, `$a in (0..1024)`: position tests.
+- `uint32(0) == 0x464c457f`: ELF header.
+
+### Good strings, bad strings
+Pick strings that are **unique to the family**: custom mutex names, unusual error text, PDB paths, config keys, rare instruction sequences. Avoid common API names (`CreateFile`) and library text, which also match clean software. A single short string is fragile, so combine several.
+
+### The PE module
+```code
+import "pe"
+rule Suspicious_Packer_Section
+{
+    condition:
+        pe.is_pe and pe.number_of_sections <= 3 and
+        for any s in pe.sections : (s.name == ".upx0")
+}
+```
+Imports let you test headers, imports (`pe.imphash()`), sections and resources without byte math.
+
+### Test before you ship
+Scan a **goodware corpus** (a clean OS install, common installers) and confirm zero hits. Then scan your malware samples and confirm hits. A rule that never fires on clean files and always fires on the family is a good rule.
+:: complex
+### Performance
+YARA is fast when the rule gives the scanner an anchor. Prefer strings of 4+ bytes with distinct leading bytes. Avoid regexes starting with `.*` or short wildcard hex runs, which force slow scanning. Put cheap checks first in the condition (`filesize`, `uint16(0)`), since evaluation short-circuits.
+
+### Packers and families
+Packed samples hide strings. Either write the rule against the **unpacked** sample (and scan memory dumps), or against the packer stub and header features. Memory scanning (`yara -p PID`, or Volatility's `yarascan`) finds strings that exist only after unpacking.
+
+### Rule management
+Use a naming scheme (`MAL_Family_Variant`, `HKTL_ToolName`), include `reference`, `hash` and `date` meta, and keep rules in git with a goodware regression test in CI. Public rule sets (Neo23x0 signature-base, YARA-Rules) are good reading, and need the same tuning you would give any borrowed rule.
+
+### Where it runs
+Endpoint scanners, sandboxes, email gateways, VirusTotal retrohunt, and incident response triage across a fleet. A rule that is too broad becomes an outage when it runs on every endpoint, so stage rollouts.
+:: ref
+### syntax
+rule Name : tag { ... } | define a rule with optional tags
+meta: key = "value" | author, description, reference, date, hash
+strings: $a = "text" ascii wide nocase | text string with modifiers
+strings: $b = { 4D 5A ?? 00 } | hex bytes, ?? is a wildcard
+strings: $c = /regex/ | regular expression
+condition: any of them | at least one string matches
+condition: 2 of ($s*) | at least two strings with that prefix
+### conditions
+filesize < 1MB | file size test
+uint16(0) == 0x5A4D | file begins with MZ (Windows executable)
+$a at 0 | string at an exact offset
+#a > 3 | string occurs more than 3 times
+### cli
+yara rules.yar target | scan a file or folder
+yara -r rules.yar dir/ | scan recursively
+yara -s rules.yar file | also print the matching strings
+yara -p PID | scan a running process
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, simulated):** you are triaging a fictional loader, **Duskmoth**. The sample's strings are in `~/yara/duskmoth-strings.txt`, and `~/yara/goodware-strings.txt` lists strings found in clean software. Read `~/yara/README.txt`.
+
+A good YARA string appears in the malware but **not** in goodware. Exactly one string in the sample list qualifies. Submit that **string** exactly as shown, for example `submit some_text`.
+:: answer
+dm_mutex_7c91
+:: hint
+Read both lists with `cat`. Which sample string is missing from the goodware list?
+:: hint
+Check a candidate with `grep -c -F STRING ~/yara/goodware-strings.txt`. A count of 0 means goodware never uses it.
+:: solution
+Most sample strings are generic: `CreateFileA`, `kernel32.dll`, `cmd /c`, `http://` all appear in clean software, so a rule built from them would false-positive everywhere. Only `dm_mutex_7c91`, a hard-coded mutex name, is absent from goodware. A good rule would use it with a PE-header check and one more malware-specific string, for example `uint16(0) == 0x5A4D and $mutex and 1 of ($other*)`.
+:: verify
+cat ~/yara/duskmoth-strings.txt
+cat ~/yara/goodware-strings.txt
+grep -c -F dm_mutex_7c91 ~/yara/goodware-strings.txt
+:: file /home/analyst/yara/README.txt
+Fictional Duskmoth loader triage (simulated).
+  duskmoth-strings.txt   strings pulled from the sample
+  goodware-strings.txt   strings seen in a clean software corpus
+:: file /home/analyst/yara/duskmoth-strings.txt
+CreateFileA
+kernel32.dll
+cmd /c
+http://
+dm_mutex_7c91
+VirtualAlloc
+:: file /home/analyst/yara/goodware-strings.txt
+CreateFileA
+kernel32.dll
+cmd /c
+http://
+VirtualAlloc
+user32.dll
