@@ -343,6 +343,8 @@ import build_code
 CODE = build_code.build(page, SHEETS)
 import build_cloud
 CLOUD = build_cloud.build(page, SHEETS)
+import build_adv
+ADV = build_adv.build(page, SHEETS)
 import build_history
 HISTORY, CASES = build_history.build(page, SHEETS)
 
@@ -491,6 +493,10 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("basics", "basics.html", "OSI, binary and hex, ports, OSINT, crypto, OS, web, APIs, databases", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
+       ("detect", "detect.html", "Sigma, YARA, ATT&CK, threat hunting (BLU310)", f'{len(ADV["detect"])} chapters'),
+       ("crypto", "crypto.html", "modes, RSA/ECC, TLS and PKI, crypto attacks (CRY300)", f'{len(ADV["crypto"])} chapters'),
+       ("sdl", "sdl.html", "threat modeling, SAST/DAST, dependency scanning (SDL300)", f'{len(ADV["sdl"])} chapters'),
+       ("mobile", "mobile.html", "Android and iOS security, mobile crypto", f'{len(ADV["mobile"])} chapters'),
        ("history", "history.html", "Ada Lovelace to quantum computers, hacking timeline", f'{len(HISTORY)} chapters'),
        ("cases", "cases.html", "real exploits and malware: code, patches, labs", f'{len(CASES)} cases'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
@@ -572,6 +578,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "code": [{"slug": c[0], "name": c[1]} for c in CODE],
         "cloud": [{"slug": c[0], "name": c[1]} for c in CLOUD],
+        "adv": {k: [{"slug": c[0], "name": c[1]} for c in v] for k, v in ADV.items()},
         "history": [{"slug": c[0], "name": c[1]} for c in HISTORY],
         "cases": [{"slug": c[0], "name": c[1]} for c in CASES],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}

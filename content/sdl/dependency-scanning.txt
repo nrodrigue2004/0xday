@@ -1,0 +1,91 @@
+tagline: Most of your application is other people's code. Dependency scanning, SBOMs and pipeline gates keep known-vulnerable and malicious packages out.
+sheet: appsec
+:: simple
+Modern apps pull in hundreds of **dependencies**, and most of them come in indirectly (a package your package needs: **transitive** dependencies). When one has a known vulnerability, your app has it too. Log4Shell (see ~/cases) is the example everyone remembers.
+
+The defenses:
+
+- **SCA (software composition analysis)**: scan your dependency list against vulnerability databases (the NVD, GitHub Advisories, OSV) and report affected versions.
+- **Lockfiles** (`package-lock.json`, `poetry.lock`, `go.sum`): pin exact versions so builds are repeatable.
+- **SBOM** (software bill of materials): a machine-readable inventory of what is in a build (formats: CycloneDX, SPDX). When the next Log4Shell lands, you can answer "are we affected?" in minutes.
+- **Secret scanning**: find API keys and passwords committed to git before an attacker does.
+- **Automated updates**: Dependabot or Renovate open pull requests for new versions.
+:: mid
+### Supply chain attacks to know
+- **Typosquatting**: a malicious package named `reqeusts` waiting for a typo.
+- **Dependency confusion**: an attacker publishes a public package with the same name as your private one, and your build fetches the public one with a higher version.
+- **Maintainer account takeover** or a malicious update to a trusted package.
+- **Build and CI compromise**: a tampered pipeline or action. (SolarWinds, 2020.)
+
+### Practical controls
+- Pin versions and commit lockfiles; use `npm ci` / `pip install --require-hashes` so installs match the lock.
+- Use a private registry or proxy and scope internal package names so the public registry cannot override them.
+- Review new dependencies: age, maintainers, downloads, install scripts.
+- Pin CI actions to a full commit SHA, not a mutable tag.
+- Give CI jobs least privilege and short-lived credentials (OIDC), and never print secrets in logs.
+
+### Reading a vulnerability report
+Check: is the vulnerable **function** actually used by your code (reachability)? Is there a fixed version? What is the CVSS score and is it exploited in the wild (CISA KEV list, EPSS score)? A critical CVE in a library you only use for tests is lower priority than a medium in your login path.
+
+### Secret scanning
+Tools: gitleaks, trufflehog, GitHub secret scanning. If a secret is committed, **rotate it first**. Deleting the commit does not help; assume it was copied.
+:: complex
+### SBOM in practice
+Generate it at build time (`syft`, `cyclonedx-*` plugins), store it with the artifact, and feed it to a vulnerability scanner (`grype`, Dependency-Track) on a schedule so new CVEs match old builds. Add **VEX** statements to say "this CVE is present but not exploitable here".
+
+### Provenance and signing
+**SLSA** levels describe build integrity. **Sigstore / cosign** signs container images and artifacts, and admission policies in Kubernetes can refuse unsigned images. Reproducible builds let a third party verify the artifact matches the source.
+
+### Policy gates
+A good CI gate: fail on new critical vulnerabilities with a fix available, on secrets, and on licenses you cannot ship. Allow time-boxed exceptions with an owner and expiry date in code. Do not fail the build on the entire backlog.
+
+### Respond to a big one
+When a Log4Shell-class issue lands: query the SBOMs for the package and version, find internet-facing services first, patch or mitigate, hunt in logs for exploitation attempts from before the patch, and record the timeline. The prepared team has the inventory already.
+:: ref
+### scanners
+npm audit | check Node dependencies against advisories
+pip-audit | check Python dependencies
+osv-scanner -r . | scan a folder against the OSV database
+grype dir:. | vulnerability scan using an SBOM or folder
+syft dir:. -o cyclonedx-json | generate an SBOM
+trivy fs . | scan files, images and IaC for vulnerabilities and misconfig
+gitleaks detect | scan git history for secrets
+### terms
+SCA | software composition analysis, finds vulnerable dependencies
+SBOM | software bill of materials, an inventory of components
+transitive dependency | a dependency of your dependency
+typosquatting | malicious package with a name near a popular one
+dependency confusion | public package overrides a private one of the same name
+KEV / EPSS | exploited-in-the-wild list / exploit probability score
+:: lab
+host: reviewer
+user: reviewer
+cwd: /home/reviewer
+:: brief
+**Scenario (fictional, simulated):** the lockfile for a fictional service is in `~/deps/lock.txt` (each line: package, version, and which package pulled it in). `~/deps/advisories.txt` lists vulnerable versions. Read `~/deps/README.txt`.
+
+The team only knew about their **direct** dependencies. Find the vulnerable package that is **only** pulled in **transitively**, and submit its **package name**, for example `submit foo`.
+:: answer
+yaml-lite
+:: hint
+List the advisory package names, then look each up in the lock file with `grep`.
+:: hint
+Direct dependencies show `direct` in the third column. The answer is vulnerable and shows another package as the parent.
+:: solution
+Advisories cover `web-framework 2.1.0`, `yaml-lite 0.9.2` and `left-padder 1.0.1`. The lockfile shows `web-framework` and `left-padder` as `direct` dependencies the team already knew about. `yaml-lite 0.9.2` is pulled in by `config-loader`, so nobody listed it, but it is exploitable if the app parses untrusted YAML. A scanner that reads the lockfile, or an SBOM, catches this. Fix: upgrade `config-loader` (or override the transitive version) and rebuild.
+:: verify
+cat ~/deps/advisories.txt
+cat ~/deps/lock.txt
+:: file /home/reviewer/deps/README.txt
+Fictional lockfile (simulated). lock.txt: package version parent. advisories.txt: package version issue.
+:: file /home/reviewer/deps/lock.txt
+web-framework 2.1.0 direct
+left-padder 1.0.1 direct
+config-loader 3.0.0 direct
+yaml-lite 0.9.2 config-loader
+http-client 5.2.1 web-framework
+logger-x 4.4.0 web-framework
+:: file /home/reviewer/deps/advisories.txt
+web-framework 2.1.0 request smuggling
+yaml-lite 0.9.2 arbitrary object construction
+left-padder 1.0.1 ReDoS
