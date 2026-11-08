@@ -34,6 +34,20 @@ The **learning rate** is the step size. Too big and you overshoot and diverge; t
 
 ### The chain rule
 If the output depends on `g`, which depends on `x`, the slopes multiply: `d f(g(x)) / dx = f'(g(x)) * g'(x)`. **Backpropagation** is just this rule applied layer by layer, working backward from the error to every weight.
+### Worked example: score a login with a dot product
+A simple anomaly scorer for logins is a weighted sum. Each feature has a **weight** (how much it should push the risk score) and the event gives a **value**:
+
+| feature | weight | value | weight x value |
+|---|---|---|---|
+| failed logins in the last hour | 2 | 5 | 10 |
+| new country | 3 | 1 | 3 |
+| outside working hours | 1 | 1 | 1 |
+| known device | -4 | 1 | -4 |
+| bias | -6 | 1 | -6 |
+
+Add the last column: 10 + 3 + 1 - 4 - 6 = **4**. That is `w . x + b`, the thing logistic regression, a neural network neuron and a simple risk score all compute. Raise the threshold above 4 and this login passes; set it at 3 and it alerts. Training is nothing more than finding the weights that make the scores match the labels.
+
+In NumPy it is one line: `np.dot([2,3,1,-4,-6], [5,1,1,1,1])` gives `4`.
 :: complex
 ### What to understand, not just compute
 - **Linear means "weighted sum"**. A linear model draws a straight line (a flat plane in more dimensions) through feature space. Stacking linear layers alone gives another linear model; the **nonlinearity** between layers (ReLU, tanh) is what lets networks bend the boundary.
@@ -49,3 +63,29 @@ If the output depends on `g`, which depends on `x`, the slopes multiply: `d f(g(
 
 ### Where to go next
 Free, high-quality material: Khan Academy linear algebra, 3Blue1Brown's "Essence of linear algebra" videos, and the NumPy quickstart. Check the [AI reading list](news.html) for dated links. This chapter is a refresher; if a term here feels new, spend an evening with those videos before the next chapter.
+:: lab
+style: shell
+host: soc-ml
+user: analyst
+cwd: /home/analyst
+:: brief
+A risk scorer for logins is a weighted sum. The file `~/model/login-score.txt` has one row per feature in the format `feature weight value`, for one login event. The last row is the bias (its value is 1, so its contribution is just its weight).
+
+Compute the **score**: the sum of weight x value over every row. Answer with the number.
+:: answer
+11
+:: hint
+`cat ~/model/login-score.txt` shows the rows. Multiply weight by value on each row, then add the results (watch the negative weight).
+:: hint
+There are six rows. Do one multiplication per row and keep a running total on paper; the sandbox awk cannot multiply for you.
+:: solution
+Rows: failed_logins 3 x 4 = 12, new_country 2 x 1 = 2, off_hours 1 x 0 = 0, impossible_travel 5 x 1 = 5, known_device -4 x 1 = -4, bias -4 x 1 = -4. Sum = 12 + 2 + 0 + 5 - 4 - 4 = **11**. A threshold of 8 would alert on this login. With NumPy: `np.dot(w, x)`.
+:: verify
+cat ~/model/login-score.txt
+:: file /home/analyst/model/login-score.txt
+failed_logins 3 4
+new_country 2 1
+off_hours 1 0
+impossible_travel 5 1
+known_device -4 1
+bias -4 1

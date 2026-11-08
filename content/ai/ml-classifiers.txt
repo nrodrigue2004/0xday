@@ -28,6 +28,14 @@ One hidden layer: `h = tanh(W1 x + b1)`, then `p = sigmoid(W2 h + b2)`. Training
 
 ### Feature engineering for security data
 Models need numbers. Typical features: URL length, count of digits and special characters, **entropy** of a domain name (random-looking domains from malware have high entropy), hour of day, bytes in versus out, ratio of failed to total logins, days since the account was created. Text becomes numbers with bag-of-words, TF-IDF or embeddings. Good features matter more than the choice of algorithm.
+### Worked example: k-nearest neighbors by hand
+You want to classify a new file as malicious or benign using its distance to eight labeled files (distance is computed from the features, smaller means more similar). Sort by distance and take a vote among the closest k:
+- **k = 1**: the single closest file decides. It is easy to fool with one mislabeled or odd sample.
+- **k = 3**: the three closest vote. A single bad neighbor is outvoted.
+- Larger k smooths the boundary further; too large and everything is swallowed by the majority class. Pick k on validation data, usually an odd number to avoid ties.
+
+### Worked example: a decision tree is just questions
+A tiny tree for logins: *failed logins > 10?* If yes, alert. If no, *new country?* If yes, *outside working hours?* If yes, alert, else ignore. Reading it back is trivial, which is why analysts like trees. The training step just picks, at each level, the question that separates malicious from benign best. A forest trains hundreds of such trees on random slices of the data and takes a vote.
 :: complex
 ### Choosing a model
 - Small tabular data and a need to explain decisions: logistic regression or a shallow tree.
@@ -50,3 +58,31 @@ A probability of 0.9 should be right about 90 percent of the time; many models a
 - **Model theft / extraction** and **membership inference**: probe the model to copy it or learn whether a record was in training.
 - **Drift**: attacker and normal behavior change, and the model silently decays. Monitor input distributions and retrain on a schedule.
 The chapter [attacking AI](attacking-ai.html) covers these in more detail.
+:: lab
+style: shell
+host: soc-ml
+user: analyst
+cwd: /home/analyst
+:: brief
+A new file arrived and your feature extractor measured its distance to eight labeled files. The result is in `~/model/knn.csv`, format `distance,label` (smaller distance means more similar).
+
+Classify the new file with **k = 3** nearest neighbors: take the three smallest distances and let their labels vote. Answer `malicious` or `benign`. Then notice what k = 1 would have said.
+:: answer
+malicious
+:: hint
+`sort -t, -k1 -n ~/model/knn.csv | head -3` shows the three nearest files.
+:: hint
+Count the labels in those three lines. The majority label is the prediction.
+:: solution
+The three nearest are 0.4 (benign), 0.5 (malicious) and 0.7 (malicious), so the vote is 2 to 1 for **malicious**. With k = 1 the nearest file (0.4, benign) would have decided and said benign. That is why a single neighbor is fragile and k is a setting you tune on validation data.
+:: verify
+sort -t, -k1 -n ~/model/knn.csv | head -3
+:: file /home/analyst/model/knn.csv
+0.9,benign
+0.4,benign
+1.7,benign
+0.7,malicious
+2.5,benign
+0.5,malicious
+1.1,benign
+3.0,benign

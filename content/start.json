@@ -121,6 +121,15 @@
      "w": "Terms are linked to guides. Look up anything unfamiliar as it appears.",
      "m": 15,
      "topic": "reading"
+    },
+    {
+     "id": "ml-intro",
+     "t": "What is machine learning?",
+     "h": "ai/ml-intro.html",
+     "w": "Plain English: spam filters, training versus prediction, overfitting, the confusion matrix. No math needed.",
+     "m": 45,
+     "topic": "reading",
+     "mod": "CS330.0"
     }
    ]
   },
