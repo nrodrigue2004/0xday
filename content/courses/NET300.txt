@@ -1,0 +1,115 @@
+## 0
+Q: What does a stateful firewall track?
+* The state of each connection, so replies to allowed traffic are let back in
+- Only source IP addresses
+- Only the contents of web pages
+- Only the MAC address table
+? A stateless filter would need explicit rules for return traffic.
+
+Q: On a typical pfSense install, what happens to unsolicited inbound traffic on the WAN?
+* It is blocked by default
+- It is allowed to the LAN
+- It is forwarded to the DMZ
+- It is logged but allowed
+? Default deny inbound is the safe baseline.
+
+Q: In a firewall ruleset evaluated top to bottom, which rule applies when several match?
+* The first match
+- The last match
+- The most specific match
+- The most restrictive match
+? Rule order matters, so put narrow rules above broad ones.
+
+Q: What does a port forward (destination NAT) rule do?
+* Sends inbound traffic on a public port to a chosen internal host
+- Hides all internal hosts from the internet
+- Blocks a port on every interface
+- Encrypts traffic to the LAN
+? Each forward is an opening, so keep them few and logged.
+
+## 1
+Q: What separates an IPS from an IDS?
+* An IPS sits inline and can block traffic, an IDS only alerts
+- An IDS blocks, an IPS only alerts
+- An IPS works only on hosts
+- There is no difference
+? An IDS usually watches a mirrored copy of traffic.
+
+Q: What is the main weakness of signature-based detection?
+* It misses new or modified attacks that have no signature yet
+- It produces no false positives
+- It requires encrypted traffic
+- It cannot see TCP
+? Anomaly detection fills some of that gap at the cost of more noise.
+
+Q: In the Snort rule "alert tcp any any -> $HOME_NET 22 (...)", what is "alert"?
+* The action to take when the rule matches
+- The protocol
+- The destination port
+- The rule ID
+? The action comes first, then protocol, addresses and ports, then options.
+
+Q: What is a false positive?
+* An alert for traffic that is actually benign
+- An attack that raised no alert
+- A blocked packet
+- A duplicate alert
+? Missing a real attack is a false negative.
+
+## 2
+Q: Which VPN technology is Tailscale built on?
+* WireGuard
+- PPTP
+- L2TP only
+- SSTP
+? WireGuard is small, fast and uses modern cryptography.
+
+Q: What is split tunneling?
+* Only some traffic goes through the VPN while the rest uses the normal connection
+- Using two VPNs at once
+- Splitting a file across tunnels
+- Blocking all local traffic
+? It saves bandwidth but reduces what the company can inspect.
+
+Q: What does a site-to-site VPN connect?
+* Two whole networks, such as two offices
+- One laptop to one phone
+- A server to a printer
+- Two wireless clients
+? A remote-access VPN connects a single user to a network.
+
+Q: Which is the safest way to reach a homelab from outside?
+* Through a VPN, with no management ports forwarded
+- Port forwarding RDP to the internet
+- Port forwarding SSH with a weak password
+- Putting the lab in a DMZ
+? Exposed management ports are scanned within minutes.
+
+## 3
+Q: Which expression is a Wireshark display filter showing HTTP traffic involving 10.0.0.5?
+* ip.addr == 10.0.0.5 && http
+- host 10.0.0.5 and port 80
+- show http 10.0.0.5
+- filter ip=10.0.0.5
+? The second option is capture-filter (BPF) syntax, used by tcpdump.
+
+Q: Which flags make up the TCP three-way handshake?
+* SYN, SYN-ACK, ACK
+- ACK, SYN, FIN
+- SYN, ACK, RST
+- FIN, ACK, FIN
+? FIN and RST end or abort a connection.
+
+Q: One source sends many SYN packets to many ports and never completes the handshake. What is this?
+* A SYN port scan
+- A DNS query
+- A TLS negotiation
+- Normal web browsing
+? Half-open connections are the signature of a stealth scan.
+
+Q: What does Follow TCP Stream show in Wireshark?
+* The reassembled conversation payload in order
+- Only the TCP headers
+- Wireless signal data
+- The router's routing table
+? It is the quickest way to read a cleartext protocol exchange.

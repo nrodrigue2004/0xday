@@ -1,0 +1,115 @@
+## 0
+Q: Which of these is an example of IaaS?
+* A virtual machine rented from a cloud provider
+- Gmail
+- Microsoft 365
+- A hosted CRM application
+? IaaS gives you infrastructure to manage. SaaS delivers a finished application.
+
+Q: What does the shared responsibility model say?
+* The provider secures the cloud itself, the customer secures what they put in it
+- The provider is responsible for everything
+- The customer is responsible for the data center
+- Responsibility depends on the contract price
+? Customers own identity, data and configuration in almost every model.
+
+Q: Which is a SaaS product?
+* Microsoft 365
+- A virtual network
+- An object storage bucket
+- A Kubernetes cluster
+? You use it, the vendor runs it.
+
+Q: What is an availability zone?
+* One or more isolated data centers inside a region
+- A country-level legal boundary
+- A type of firewall
+- A billing group
+? Spreading across zones protects against a single data center failing.
+
+## 1
+Q: What does least privilege mean for a cloud IAM policy?
+* Allow only the specific actions on the specific resources required
+- Allow all actions on one service
+- Allow everything to admins only
+- Allow read access to everyone
+? Wildcards in policies are the usual violation.
+
+Q: How should the root account of a cloud account be treated?
+* Protect it with MFA and avoid using it for daily work
+- Share it with the team
+- Create access keys for it
+- Use it for automation
+? Create individual users or roles for real work.
+
+Q: What does an IAM role provide that a long-lived user key does not?
+* Temporary credentials that expire
+- Permanent admin access
+- No audit trail
+- Free storage
+? Temporary credentials limit the damage from a leak.
+
+Q: A policy allows Action "*" on Resource "*". What is wrong with it?
+* It grants full administrative access to everything
+- It only works in one region
+- It blocks all traffic
+- It is read-only
+? That is the cloud equivalent of giving everyone root.
+
+## 2
+Q: What is an AWS security group?
+* A stateful virtual firewall attached to an instance or network interface
+- A group of IAM users
+- A stateless filter on a subnet
+- An encryption key policy
+? A network ACL is the stateless subnet-level layer.
+
+Q: What makes a subnet "public" in a typical AWS VPC?
+* A route to an internet gateway
+- A name that includes public
+- A larger address range
+- Having more instances
+? Without that route the subnet is private.
+
+Q: What is S3 Block Public Access for?
+* Preventing buckets and objects from being exposed publicly by mistake
+- Encrypting objects
+- Speeding up downloads
+- Backing up buckets
+? Public buckets are a leading cause of data leaks.
+
+Q: What is the Azure equivalent of an AWS security group?
+* A network security group (NSG)
+- A resource group
+- A management group
+- A key vault
+? A resource group is just a container for resources.
+
+## 3
+Q: What does AWS CloudTrail record?
+* API calls and account activity
+- Operating system logs inside VMs
+- Network packets
+- Billing invoices
+? It is the first place to look for who did what in an account.
+
+Q: What is the most common cause of cloud breaches?
+* Misconfiguration
+- Failures of the provider's hardware
+- Quantum computers
+- Expired licenses
+? Open storage, wide permissions and missing logging beat exotic exploits.
+
+Q: What does encryption at rest protect against?
+* Someone getting at the stored data without the key
+- Traffic being read in transit
+- A user with valid permissions reading the data
+- Denial of service
+? Use KMS-managed keys and control who can use them.
+
+Q: What does a cloud security posture management (CSPM) tool do?
+* Continuously checks configuration against best practice and flags drift
+- Replaces the firewall
+- Trains users
+- Creates backups
+? It finds the public bucket before an attacker does.
