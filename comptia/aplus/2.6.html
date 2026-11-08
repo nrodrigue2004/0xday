@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ 2.6 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ 220-1101 (Core 1) objective 2.6: Network Connections">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.6 --exam 220-1101 (Core 1)</p>
+<div class="manhead"><span>220-1101 (Core 1)</span><span>domain 2.0 · Networking</span><span>2.6</span></div>
+<h1><span class="ok">2.6</span> Network Connections</h1>
+<div class="obj" data-obj="aplus-2.6">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>DNS Configuration</h4>
+<ul><li>DNS is a <strong>hierarchical, distributed database</strong>: root (13 clusters, over 1,000 servers), TLDs (.com, .org, country codes), domains, hosts. A full name is the FQDN (<code>www.example.com</code>). Check with <code>dig example.com</code> or <code>nslookup example.com</code>; several A records give redundancy.</li><li><strong>Resource records</strong> (30+ types). Simple text zone file or web GUI; back up before editing since DNS is critical.<ul><li><strong>SOA</strong> start of authority. <strong>A</strong> name to IPv4. <strong>AAAA</strong> name to IPv6. <strong>CNAME</strong> alias to another name. <strong>MX</strong> mail exchanger (points to a name that needs an A record). <strong>TXT</strong> free text (public).</li><li><strong>TTL</strong>: how long clients cache the answer (such as 15 minutes).</li></ul></li><li><strong>TXT records for email security</strong>: <strong>SPF</strong> lists servers allowed to send for your domain; <strong>DKIM</strong> publishes the public key that verifies digital signatures on your mail; <strong>DMARC</strong> says what receivers should do when SPF/DKIM fail (accept, quarantine/spam, reject) and where to send reports. TXT is also used for domain verification.</li><li><code>dig example.com TXT</code> or <code>nslookup -type=txt example.com</code> lists them.</li></ul>
+<h4>DHCP Configuration</h4>
+<ul><li>Server settings: <strong>IP range (scope/pool)</strong> and mask, <strong>lease duration</strong>, <strong>DNS</strong>, <strong>gateway</strong>, extra options (VoIP). <strong>Exclusions</strong> carve addresses out of a range; <strong>reservations</strong> bind a <strong>MAC</strong> to an address (static DHCP).</li><li>Windows Server DHCP shows scope, address pool, address leases, reservations, scope options. SOHO router example: 10.10.10.2 to .100, lease 86,400 s (24 h), gateway 10.10.10.1.</li><li><strong>Assignment types</strong>: <strong>dynamic</strong> (any free address; returned to the pool after the lease), <strong>automatic</strong> (remembers previous clients and tries to give the same address), <strong>reservation</strong> (fixed per MAC, never given to anyone else).</li><li><strong>Lease and timers</strong>: renewed on reboot; can <strong>release</strong> manually. <strong>T1 = 50 percent</strong> of the lease (renew with the server), <strong>T2 = 87.5 percent (7/8)</strong> (rebind with any server). 8-day lease: T1 at 4 days, T2 at 7 days.</li></ul>
+<h4>VLANs and VPNs</h4>
+<ul><li><strong>LAN</strong> = one broadcast domain. Separate switches per network waste money, power and management. <strong>VLANs</strong> logically split one switch into several broadcast domains (port 1 = VLAN 1, port 9 = VLAN 2). VLANs cannot talk to each other without a router. Benefits: security, fewer broadcasts, cost.</li><li><strong>VPN</strong>: encrypted tunnel across a public network to a <strong>concentrator</strong> (hardware, firewall or server software). Always-on or enabled by the user; protects traffic even on open coffee-shop Wi-Fi. The concentrator decrypts into the corporate network and encrypts replies.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus-2.6"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Mail from your domain is being spoofed. Which DNS records help receivers detect forgery?</p><ul class="chk__o"><li><span class="ok">a)</span> SPF, DKIM, DMARC</li><li><span class="ok">b)</span> A, AAAA</li><li><span class="ok">c)</span> MX, NS</li><li><span class="ok">d)</span> PTR, SOA</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> These TXT records authenticate senders.</p></details></div><div class="chk"><p><strong>2.</strong> Your printer must always get 192.168.1.50. Configure:</p><ul class="chk__o"><li><span class="ok">a)</span> DHCP reservation by MAC</li><li><span class="ok">b)</span> Shorter lease</li><li><span class="ok">c)</span> New VLAN</li><li><span class="ok">d)</span> PRL</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Reservation ties MAC to IP.</p></details></div><div class="chk"><p><strong>3.</strong> A DHCP server is down at 50 percent of an 8-day lease. What happens at T2?</p><ul class="chk__o"><li><span class="ok">a)</span> Client rebinds with any DHCP server</li><li><span class="ok">b)</span> Client drops the IP at once</li><li><span class="ok">c)</span> Client uses APIPA</li><li><span class="ok">d)</span> Client reboots</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> T2 is 7 days, the client tries other servers.</p></details></div>
+<h2>short lab: Read the dig</h2><div class="prose lab"><p><code>dig example.com</code> shows three A records with TTL 900. Explain the redundancy and when a client would re-query.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Three IPs are alternatives if one server is down. TTL 900 s = 15 minutes: the client caches the answer and asks again after it expires.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/networking-tcp-ip-dhcp-nat-subnets.html">networking tcp ip dhcp nat subnets</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/computer-networks.html">computer networks</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.6" placeholder="# 2.6 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.5.html">&lt; 2.5</a><a href="2.7.html">2.7 &gt;</a></nav>
+<p><a href="../aplus.html">cd ~/comptia/aplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus-2.6-0", "q": "DNS hierarchy top to bottom?", "a": "Root, TLD, domain, host."}, {"id": "aplus-2.6-1", "q": "A, AAAA, CNAME, MX, TXT?", "a": "IPv4; IPv6; alias; mail server; text."}, {"id": "aplus-2.6-2", "q": "What does TTL do in DNS?", "a": "Caching time for a record on clients."}, {"id": "aplus-2.6-3", "q": "SPF, DKIM, DMARC?", "a": "Authorized senders; message signatures; policy and reports for failures."}, {"id": "aplus-2.6-4", "q": "Command to list TXT records?", "a": "dig example.com TXT, or nslookup -type=txt example.com."}, {"id": "aplus-2.6-5", "q": "What does an MX record need next to it?", "a": "An A record for the mail server's name."}, {"id": "aplus-2.6-6", "q": "DHCP scope?", "a": "Range of addresses, mask, lease and options for a subnet."}, {"id": "aplus-2.6-7", "q": "Dynamic vs automatic vs reserved assignment?", "a": "Any free address; remembers previous; fixed by MAC."}, {"id": "aplus-2.6-8", "q": "What do T1 and T2 mean?", "a": "50 percent of lease (renew) and 87.5 percent (rebind with any server)."}, {"id": "aplus-2.6-9", "q": "Manually releasing an address?", "a": "Returns it to the DHCP pool (such as ipconfig /release)."}, {"id": "aplus-2.6-10", "q": "What does a VLAN do?", "a": "Splits a switch into separate logical broadcast domains."}, {"id": "aplus-2.6-11", "q": "Do VLANs communicate without a router?", "a": "No."}, {"id": "aplus-2.6-12", "q": "What is a VPN concentrator?", "a": "Device terminating encrypted VPN tunnels."}, {"id": "aplus-2.6-13", "q": "Why use VPN on public Wi-Fi?", "a": "Encrypts traffic all the way to the VPN endpoint."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

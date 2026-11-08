@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ 4.2 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ 220-1101 (Core 1) objective 4.2: Client-side Virtualization">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 4.2 --exam 220-1101 (Core 1)</p>
+<div class="manhead"><span>220-1101 (Core 1)</span><span>domain 4.0 · Virtualization and Cloud Computing</span><span>4.2</span></div>
+<h1><span class="ok">4.2</span> Client-side Virtualization</h1>
+<div class="obj" data-obj="aplus-4.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Client-side Virtualization</h4>
+<ul><li>Run several OSes at once on one machine; each guest sees its own CPU, RAM and storage but they share the hardware. A <strong>hypervisor</strong> (virtual machine manager) allocates resources and manages networking and security. IBM mainframes did this in the 1960s. On a desktop it runs on top of your OS; on a server it hosts many VMs.</li><li><strong>Uses</strong>: legacy software on an old OS next to a new one; different OSes without rebooting or partitioning; cost and time saving; <strong>sandboxing/testing</strong> (isolated VM, snapshot, roll back, mirror production safely).</li><li><strong>Requirements</strong>: CPU hardware support (<strong>Intel VT</strong>, <strong>AMD-V</strong>; enable in BIOS), <strong>plenty of RAM</strong>, <strong>disk space</strong> per VM (many GB), and correct guest <strong>network configuration</strong>.</li><li><strong>Security</strong>: <strong>VM escape</strong> (malware reaches the hypervisor and hops to other VMs, especially risky on shared hosting). VMs still need <strong>host firewalls, antivirus</strong>, patches. <strong>Never trust downloaded pre-built VMs</strong> (could contain malware); build your own.</li><li><strong>VM networking</strong>: <strong>shared (NAT)</strong>: VM uses a private IP and NATs through the host's address; <strong>bridged</strong>: VM gets its own IP on the LAN (like a physical device, via DHCP); <strong>private (host-only)</strong>: VM can talk only to other VMs, not outside.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus-4.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Hypervisor won't start a 64-bit guest. First thing to check?</p><ul class="chk__o"><li><span class="ok">a)</span> VT/AMD-V enabled in BIOS</li><li><span class="ok">b)</span> Printer language</li><li><span class="ok">c)</span> PSU wattage</li><li><span class="ok">d)</span> DDR type</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Hardware virtualization support must be on.</p></details></div><div class="chk"><p><strong>2.</strong> You need a VM that is reachable by other LAN devices with its own address. Network mode?</p><ul class="chk__o"><li><span class="ok">a)</span> Private</li><li><span class="ok">b)</span> NAT</li><li><span class="ok">c)</span> Bridged</li><li><span class="ok">d)</span> Disabled</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Bridged gets its own IP.</p></details></div>
+<h2>short lab: Safe test VM</h2><div class="prose lab"><p>Set up a throwaway VM to test a risky installer. List four safety steps.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Build the VM yourself, take a snapshot, use private/host-only or NAT networking, no shared folders or clipboard, then revert to the snapshot afterward.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/virtualization-proxmox.html">virtualization proxmox</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 4.2" placeholder="# 4.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="4.1.html">&lt; 4.1</a><a href="5.1.html">5.1 &gt;</a></nav>
+<p><a href="../aplus.html">cd ~/comptia/aplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus-4.2-0", "q": "What is a hypervisor?", "a": "Software that creates and manages virtual machines on a host."}, {"id": "aplus-4.2-1", "q": "Client-side virtualization uses?", "a": "Legacy apps, testing, multiple OSes at once, sandboxes."}, {"id": "aplus-4.2-2", "q": "What CPU features are needed?", "a": "Intel VT or AMD-V, enabled in BIOS."}, {"id": "aplus-4.2-3", "q": "Resource needs for VMs?", "a": "Lots of RAM and disk space."}, {"id": "aplus-4.2-4", "q": "Snapshot use?", "a": "Save a VM state to revert to later."}, {"id": "aplus-4.2-5", "q": "VM escape?", "a": "Malware breaking out of a VM into the hypervisor/other VMs."}, {"id": "aplus-4.2-6", "q": "Danger of downloaded VMs?", "a": "May contain malware or backdoors."}, {"id": "aplus-4.2-7", "q": "Shared/NAT networking?", "a": "VM shares the host's IP via NAT."}, {"id": "aplus-4.2-8", "q": "Bridged networking?", "a": "VM has its own IP on the real network."}, {"id": "aplus-4.2-9", "q": "Private networking?", "a": "VM communicates only with other VMs on the host."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

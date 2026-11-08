@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 1.6 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 1.6: Network Topologies">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.6 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 1.0 · Networking Concepts</span><span>1.6</span></div>
+<h1><span class="ok">1.6</span> Network Topologies</h1>
+<div class="obj" data-obj="netplus-1.6">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Network Topologies</h4>
+<ul><li><strong>Star / hub and spoke</strong>: everything connects to one central device (a switch). Most LANs. All spoke-to-spoke traffic goes through the hub. Hub is a single point of failure.</li><li><strong>Mesh</strong>: more than one path between locations, so a failed link does not break the connection and load can be shared. Common on WANs. Full mesh costs many links.</li><li><strong>Hybrid</strong>: a real enterprise mixes star, point-to-point, mesh and others.</li><li><strong>Spine and leaf</strong>: data center design. <strong>Leaf</strong> switches (one at the top of each rack, "top-of-rack") connect to every <strong>spine</strong> switch. Leaves never connect to each other, spines never connect to each other. Result: any two devices are one leaf-spine-leaf hop apart, cabling stays inside the rack, redundancy is built in. Cost grows with every rack because each needs a switch.</li><li><strong>Point to point</strong>: one link between two points, old T1/T3 WAN lines and building-to-building campus links.</li></ul>
+<h4>Network Architectures</h4>
+<ul><li><strong>Three-tier</strong>: <strong>core</strong> (servers, apps, databases, the fast center), <strong>distribution</strong> (aggregates and redundantly connects access switches to the core), <strong>access</strong> (user-facing switches, usually per floor). Multiple links between layers give redundancy. City analogy: downtown = core, highways = distribution, local roads = access.</li><li><strong>Collapsed core</strong>: two tiers, core and distribution merged. Cheaper and simpler for small organizations, but less redundancy.</li><li><strong>Traffic flow in a data center</strong>: <strong>east-west</strong> stays inside the data center (server to server, fast). <strong>North-south</strong> enters or leaves (to or from the internet) and needs a different security posture.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-1.6"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A data center wants every server one switch hop from any other. Which design?</p><ul class="chk__o"><li><span class="ok">a)</span> Three-tier</li><li><span class="ok">b)</span> Spine and leaf</li><li><span class="ok">c)</span> Bus</li><li><span class="ok">d)</span> Collapsed core</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Leaf-spine-leaf with full leaf-to-spine connectivity.</p></details></div><div class="chk"><p><strong>2.</strong> Two file servers copy data to each other inside the same data center. This traffic is:</p><ul class="chk__o"><li><span class="ok">a)</span> North-south</li><li><span class="ok">b)</span> East-west</li><li><span class="ok">c)</span> Multicast only</li><li><span class="ok">d)</span> Broadcast only</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Internal to the data center.</p></details></div>
+<h2>short lab: Draw the architecture</h2><div class="prose lab"><p>A 3-floor office with 120 users, a small server room and two internet links. Choose three-tier or collapsed core and say where each device goes.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Collapsed core fits: access switches per floor (the users), two collapsed core/distribution switches in the server room for redundancy with the servers attached, two routers/firewalls to the two internet links. Three-tier is overkill unless the company grows into multiple buildings.</p></div></details>
+
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.6" placeholder="# 1.6 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.5.html">&lt; 1.5</a><a href="1.7.html">1.7 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-1.6-0", "q": "What is another name for star topology?", "a": "Hub and spoke."}, {"id": "netplus-1.6-1", "q": "Main benefit of mesh?", "a": "Redundant paths: survive link failure and allow load sharing."}, {"id": "netplus-1.6-2", "q": "Spine and leaf: who connects to whom?", "a": "Every leaf connects to every spine; leaves do not link to leaves and spines do not link to spines."}, {"id": "netplus-1.6-3", "q": "What is top-of-rack switching?", "a": "A leaf switch in each rack connecting all devices in that rack."}, {"id": "netplus-1.6-4", "q": "Three tiers of the three-tier model?", "a": "Core, distribution, access."}, {"id": "netplus-1.6-5", "q": "Collapsed core combines which layers?", "a": "Core and distribution."}, {"id": "netplus-1.6-6", "q": "Downside of collapsed core?", "a": "Less redundancy and scaling."}, {"id": "netplus-1.6-7", "q": "East-west vs north-south traffic?", "a": "East-west stays inside the data center; north-south goes into or out of it."}, {"id": "netplus-1.6-8", "q": "What is a hybrid topology?", "a": "A mix of topologies (star, mesh, point-to-point) in one network."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

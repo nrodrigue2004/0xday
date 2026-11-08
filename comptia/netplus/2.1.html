@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 2.1 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 2.1: Routing Technologies">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=cf7b0008" defer></script>
+<script src="../../site.js?v=cf7b0008" defer></script>
+<script src="../../fx.js?v=cf7b0008" defer></script>
+<script src="../../study.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.1 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 2.0 · Network Implementation</span><span>2.1</span></div>
+<h1><span class="ok">2.1</span> Routing Technologies</h1>
+<div class="obj" data-obj="netplus-2.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Static Routing</h4>
+<ul><li>A router reads the destination IP, looks it up in its <strong>routing table</strong>, and sends it out the interface toward the <strong>next hop</strong>. Directly connected subnets are known automatically. <strong>If there is no matching route the packet is discarded.</strong></li><li><strong>Static route</strong> = admin types it by hand on each router: <code>destination/prefix via next-hop</code>. Example: on router 1, send 10.10.20.0/24 to next hop 10.10.40.2 and 10.10.30.0/24 to 10.10.50.2.</li><li>Pros: instant, no CPU or memory overhead, no protocol traffic, predictable and fairly secure, ideal for <strong>stub networks</strong> (one link in and out) or small networks. Cons: does not scale to hundreds of routers, easy to mistype and create a <strong>routing loop</strong>, no automatic rerouting when a link fails.</li></ul>
+<h4>Dynamic Routing</h4>
+<ul><li>Routers discover routes and tell each other via routing protocols (updates are often multicast). They adapt automatically to added or removed routers. Costs: CPU and memory, plus initial planning and config.</li><li><strong>EIGRP</strong>: Cisco-centric, easy to set up, converges fast, loop avoiding, efficient updates (admin distance 90).</li><li><strong>OSPF</strong> (open shortest path first): open standard, multi-vendor, a <strong>link-state</strong> protocol used inside one <strong>autonomous system (AS)</strong> (everything you control). Picks the lowest <strong>cost</strong> (based on bandwidth, link state, delay) and can load-balance equal-cost paths (admin distance 110).</li><li><strong>BGP</strong> (border gateway protocol): the <strong>exterior gateway protocol</strong> that routes between autonomous systems and runs the internet and WAN/ISP connections ("three napkins protocol").</li><li><strong>RIP</strong>: old, <strong>hop count</strong> metric (admin distance 120).</li><li>Choose by what decides the best route (link state, hop count, speed), convergence speed, and vendor environment.</li></ul>
+<h4>Routing Technologies</h4>
+<ul><li>Reading an entry (Cisco style): code letter (<strong>C</strong> connected, <strong>S</strong> static, <strong>R</strong> RIP, <strong>D</strong> EIGRP, <strong>O</strong> OSPF, <strong>B</strong> BGP), destination/prefix, <code>[AD/metric]</code>, <code>via next-hop</code>, age, outgoing interface.</li><li><strong>Best-match order</strong>: 1) <strong>longest prefix</strong> (most specific route wins; for 192.168.1.6 a /32 beats /24 beats /16), 2) lowest <strong>administrative distance</strong> (trust of the source: connected 0, <strong>static 1</strong>, EIGRP 90, OSPF 110, RIP 120; lower is better), 3) lowest <strong>metric</strong> within one protocol (RIP = hop count, EIGRP and OSPF use their own calculations; metrics are not comparable across protocols).</li><li><strong>FHRP (first hop redundancy protocol)</strong>: two routers share a <strong>virtual IP</strong> used as the clients' default gateway. The active router owns it and the standby takes it over if the active router disappears, so clients never change settings (HSRP, VRRP are examples).</li><li><strong>Subinterfaces</strong>: one physical router interface split into virtual ones (<code>e1/1.10</code>, <code>e1/1.20</code>) so each VLAN on a <strong>trunk</strong> gets its own IP address ("router on a stick").</li></ul>
+<h4>Network Address Translation</h4>
+<ul><li>IPv4 ran out, NAT lets many private hosts share public addresses (private ranges in RFC 1918). <strong>Static/dynamic NAT</strong> swaps one private address for one public address (source address rewritten on the way out, destination rewritten on the way back).</li><li><strong>NAT overload / PAT (port address translation)</strong>: many inside hosts share one public IP, told apart by <strong>translated port numbers</strong> kept in the NAT table (10.10.20.50:3233 becomes 94.1.1.1:1055, the next host gets 94.1.1.1:1056). This is what your home router does.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-2.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A routing table has 10.0.0.0/8 via R1 (OSPF) and 10.1.0.0/16 via R2 (RIP). Traffic for 10.1.5.5 goes where?</p><ul class="chk__o"><li><span class="ok">a)</span> R1 because OSPF has lower AD</li><li><span class="ok">b)</span> R2 because /16 is more specific</li><li><span class="ok">c)</span> Both</li><li><span class="ok">d)</span> Dropped</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Longest prefix match is applied before administrative distance.</p></details></div><div class="chk"><p><strong>2.</strong> A small branch with one ISP link needs routing with minimal overhead. Best?</p><ul class="chk__o"><li><span class="ok">a)</span> BGP</li><li><span class="ok">b)</span> OSPF</li><li><span class="ok">c)</span> Static/default route</li><li><span class="ok">d)</span> EIGRP</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Stub network.</p></details></div><div class="chk"><p><strong>3.</strong> A hundred laptops share one public IP address. What feature?</p><ul class="chk__o"><li><span class="ok">a)</span> Static NAT</li><li><span class="ok">b)</span> PAT</li><li><span class="ok">c)</span> FHRP</li><li><span class="ok">d)</span> VXLAN</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Port translation distinguishes sessions.</p></details></div>
+<h2>short lab: Read a route line</h2><div class="prose lab"><p>Interpret <code>R 10.0.30.0/24 [120/1] via 10.10.50.2, 00:00:14, Serial0/3/1</code>.</p></div><details><summary>walkthrough</summary><div class="prose"><p>RIP-learned route to 10.0.30.0/24, administrative distance 120, metric 1 hop, next hop 10.10.50.2, learned 14 seconds ago, leaves via Serial0/3/1.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/networking-tcp-ip-dhcp-nat-subnets.html">networking tcp ip dhcp nat subnets</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.1" placeholder="# 2.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.8.html">&lt; 1.8</a><a href="2.2.html">2.2 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-2.1-0", "q": "What happens when a router has no matching route?", "a": "It discards the packet (or uses a default route if present)."}, {"id": "netplus-2.1-1", "q": "What is a stub network?", "a": "A network with a single path out, ideal for a static or default route."}, {"id": "netplus-2.1-2", "q": "Biggest static routing downside?", "a": "Manual work does not scale, mistakes cause loops, and no automatic failover."}, {"id": "netplus-2.1-3", "q": "OSPF type and metric basis?", "a": "Link-state, open standard, lowest cost (bandwidth and link state)."}, {"id": "netplus-2.1-4", "q": "Which routing protocol connects autonomous systems and runs the internet?", "a": "BGP."}, {"id": "netplus-2.1-5", "q": "EIGRP is mainly used with whose equipment?", "a": "Cisco."}, {"id": "netplus-2.1-6", "q": "RIP metric?", "a": "Hop count."}, {"id": "netplus-2.1-7", "q": "Administrative distances: connected, static, EIGRP, OSPF, RIP?", "a": "0, 1, 90, 110, 120."}, {"id": "netplus-2.1-8", "q": "What does a lower administrative distance mean?", "a": "The route source is more trusted and preferred."}, {"id": "netplus-2.1-9", "q": "Which wins: /16, /24 or /32 for a host inside all three?", "a": "The /32, because the longest prefix is the most specific."}, {"id": "netplus-2.1-10", "q": "Order of route selection?", "a": "Longest prefix match, then administrative distance, then metric."}, {"id": "netplus-2.1-11", "q": "What does \"C\" in a route table mean?", "a": "Directly connected network."}, {"id": "netplus-2.1-12", "q": "What does FHRP provide?", "a": "Gateway redundancy using a shared virtual IP between an active and standby router."}, {"id": "netplus-2.1-13", "q": "What is a subinterface used for?", "a": "Giving each VLAN on a trunk its own virtual router interface and IP."}, {"id": "netplus-2.1-14", "q": "Difference between NAT and PAT?", "a": "NAT translates addresses one to one; PAT (overload) also translates ports so many hosts share one public IP."}, {"id": "netplus-2.1-15", "q": "Where is the NAT translation recorded?", "a": "In the NAT table on the router/firewall, mapping private IP:port to public IP:port."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

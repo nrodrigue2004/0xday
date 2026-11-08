@@ -1,0 +1,1994 @@
+# Network+ N10-009 study notes. Structure follows Nate's own course notes (section.topic, one heading per video). Rewritten in my own words. Parsed by build_comptia.py.
+
+## 1.1 The OSI Model
+labs: networking-tcp-ip-dhcp-nat-subnets, network-traffic-analysis
+@notes
+### Understanding the OSI Model
+The OSI model is a seven-layer vocabulary for describing where something happens on a network. It is not a protocol suite and real traffic is TCP/IP, but "that's a layer 2 problem" means the same thing to everyone. One layer holds many protocols, and several layers often collapse into one in practice.
+
+Top to bottom: **7 Application, 6 Presentation, 5 Session, 4 Transport, 3 Network, 2 Data link, 1 Physical** (mnemonic: All People Seem To Need Data Processing).
+
+| layer | nickname | what lives here | troubleshooting hint |
+|---|---|---|---|
+| 1 Physical | signals | cables, fiber, radio, adapters, hubs | bad cable or fiber, interference, loopback tests, cable testers |
+| 2 Data link | switching, MAC layer | Ethernet frames, MAC (EUI-48/EUI-64) addresses, switches, bridges, access points (802.11 to 802.3) | MAC table, port problems, VLANs |
+| 3 Network | routing | IP addresses, subnet masks, routers, fragmentation | wrong IP/mask/gateway, routing |
+| 4 Transport | post office | TCP and UDP, port numbers, segmenting and reassembly | firewall port blocks, ports not listening |
+| 5 Session | control | setting up, maintaining, ending and restarting sessions, tunneling and control protocols | |
+| 6 Presentation | formatting | character encoding, encryption and decryption (TLS) | |
+| 7 Application | what you see | HTTP/HTTPS, FTP, DNS, POP3 and the app itself | the application's own errors |
+
+- **Any hardware address, switch behavior or frame is layer 2.** Anything with an IP or a subnet mask is layer 3. Anything with a TCP/UDP port is layer 4.
+- A **Wireshark decode** reads bottom-up through the layers: frame summary (L1), Ethernet II with MAC addresses (L2), IP (L3), TCP with ports (L4), then TLS and the application (L5-7 together). Destination port 443 tells you it is HTTPS.
+- Layers 5-7 are often lumped together because TLS-wrapped applications blur them.
+@cards
+Q: Name the OSI layers from 7 down to 1.
+A: Application, Presentation, Session, Transport, Network, Data link, Physical.
+Q: Which OSI layer do switches work at, and what do they look at?
+A: Layer 2, the destination MAC address.
+Q: Which OSI layer do routers work at, and what do they look at?
+A: Layer 3, the destination IP address.
+Q: At which layer do TCP and UDP ports live?
+A: Layer 4, the transport layer.
+Q: Which layer is blamed for a bad cable or fiber or wireless interference?
+A: Layer 1, physical.
+Q: Where does TLS encryption sit in the OSI model?
+A: Layer 6, presentation (it wraps what the application sends).
+Q: An access point translating 802.11 to 802.3 is which layer?
+A: Layer 2, data link.
+Q: What does "layer 3 switch" mean?
+A: One box containing both a layer 2 switch and a layer 3 router. The switch itself does not change layers.
+Q: What is EUI-48 vs EUI-64?
+A: Two sizes of hardware (MAC) identifier. EUI-48 is the usual 48-bit MAC, EUI-64 is the 64-bit form.
+Q: What is the layer 5 job?
+A: Starting, managing, ending and restarting sessions between two endpoints (and tunneling/control protocols).
+@check
+? A user can ping the server by IP but a specific app on TCP 8080 fails while others work. Which layer is the most likely culprit?
+a) Layer 1
+b) Layer 2
+c) Layer 4
+d) Layer 6
+= c | Reachability by IP is fine (layers 1-3). A single port failing points to the transport layer (listener or firewall rule).
+? A switch keeps flooding traffic for one host. Which address does it use to decide where to forward?
+a) Source IP
+b) Destination MAC
+c) Destination port
+d) VLAN name
+= b | Switches forward on destination MAC, so it is layer 2.
+@lab
+Place each item on a layer
+Place each on the OSI layer: (1) 00:1A:2B:3C:4D:5E (2) 10.4.4.9/24 (3) TCP 443 (4) a CAT6 patch cable (5) an HTTP GET (6) TLS handshake.
+@answer
+(1) layer 2 (MAC), (2) layer 3 (IP and mask), (3) layer 4 (port), (4) layer 1, (5) layer 7, (6) layer 6 (encryption), with the session setup arguably layer 5.
+
+## 1.2 Network Appliances and Applications
+labs: firewalls-pfsense, virtualization-proxmox
+@notes
+### Networking Devices
+- **Router**: layer 3, moves traffic between IP subnets (rooms apart or continents apart), joins LANs to WANs, over copper or fiber. A **layer 3 switch** adds routing inside a switch chassis.
+- **Switch**: layer 2, forwards on MAC address, mostly in hardware chips (**ASIC**). Enterprise switches add **PoE** (power over the Ethernet cable) and VLANs.
+- **Firewall**: filters by port; a **next-generation firewall (NGFW)** identifies the application itself and allows or blocks it. Firewalls commonly also do **VPN** termination, routing (sitting at the inside/outside edge) and **NAT**, and often speak dynamic routing protocols.
+- **IDS vs IPS**: both spot known attacks (exploits against OS and apps: buffer overflow, cross-site scripting and so on). IDS only alerts, IPS also blocks, so IPS is the usual choice inline. Much of this is now built into NGFWs.
+- **Load balancer**: spreads requests over a farm of servers so a site stays up. It notices a dead server and removes it from rotation. Extras: **TCP offload**, **SSL/TLS offload** (the balancer encrypts/decrypts instead of the servers), caching, **QoS** prioritizing and application-aware routing (certain pages to certain servers). Users see one address.
+- **Proxy**: sits in the middle and makes the request for the client, then checks the answer for malware before handing it back. Gives caching, authentication (login to reach the internet), URL and content filtering. **Explicit** proxies need client configuration, **transparent** proxies do not.
+- **NAS vs SAN**: NAS gives **file-level** access (move the whole file to change it, over a normal network share). SAN gives **block-level** access like a local disk (change only the modified blocks, efficient for huge files). Both usually sit on their own isolated, high-bandwidth network.
+- **Access point (AP)**: wireless to wired bridge, a layer 2 device. Offices use many dedicated APs, not the home all-in-one "wireless router". A **wireless LAN controller (WLC)** centrally configures, monitors and updates all APs and handles roaming policy. Usually vendor-specific.
+
+### Networking Functions
+- **CDN (content delivery network)**: copies of content cached at regional points so users fetch from nearby. Faster and spreads load. Video sites and most large sites use one.
+- **VPN**: encrypted tunnel across an untrusted network. The central endpoint is a **VPN concentrator / head-end**, usually dedicated hardware (high-speed crypto) or a feature of the NGFW. Small setups can use software concentrators and the VPN client built into Windows, macOS and Linux.
+- **QoS (traffic shaping)**: give real-time voice and video priority over bulk file transfers. Configured on routers, switches and firewalls, often with built-in application lists.
+- **TTL (time to live)**: a countdown that kills runaway things. In an **IP packet**, TTL counts hops: every router subtracts one and drops the packet at zero, which stops routing loops. Typical start values: 64 for Linux/macOS, 128 for Windows. A traceroute bouncing between the same two routers is a routing loop. In **DNS**, TTL is in seconds: how long a resolver may cache the answer (for example 300 s = 5 minutes), so changing a record takes about that long to spread. Caches use TTL the same way.
+@cards
+Q: What does an IPS do that an IDS does not?
+A: Blocks the attack. An IDS only detects and alerts.
+Q: How does an NGFW differ from a traditional firewall?
+A: It identifies and controls applications, not just ports.
+Q: NAS vs SAN access level?
+A: NAS is file-level; SAN is block-level.
+Q: What is a load balancer's health-check benefit?
+A: It detects failed servers and removes them from rotation, keeping the service up.
+Q: What is SSL/TLS offload?
+A: The load balancer handles encryption/decryption so the servers do not have to.
+Q: Explicit vs transparent proxy?
+A: Explicit requires client or OS configuration; transparent works invisibly with no client changes.
+Q: What is a wireless LAN controller?
+A: Central management for many access points: config, monitoring, updates and policy in one place.
+Q: What does a VPN concentrator do?
+A: Terminates many encrypted VPN tunnels, doing the crypto work at high speed.
+Q: What is a CDN for?
+A: Serving cached content from points near users for speed and load spreading.
+Q: Default IP TTL values on Windows vs Linux/macOS?
+A: Windows 128, Linux and macOS 64.
+Q: TTL unit in IP vs DNS?
+A: IP: hops (routers crossed). DNS: seconds (cache lifetime).
+Q: What does TTL prevent in IP routing?
+A: Packets circling forever in a routing loop.
+Q: What is QoS used for?
+A: Prioritizing important traffic such as voice and video over bulk transfers.
+@check
+? A web farm of 6 servers must stay online when one crashes. Which device provides this?
+a) Proxy
+b) Load balancer
+c) IDS
+d) WLC
+= b | Load balancers detect failures and route around them.
+? You changed an A record but some users still hit the old IP for up to an hour. What is the likely cause?
+a) IP TTL
+b) DNS TTL caching
+c) Spanning tree
+d) PoE budget
+= b | Resolvers cache the old answer until its DNS TTL (seconds) expires.
+@lab
+Reason about a routing loop
+A traceroute shows 10.1.10.1, 10.2.10.2, 10.1.10.1, 10.2.10.2 repeating. What is wrong, what stops it eventually, and where do you look?
+@answer
+A routing loop: each router thinks the other is the next hop (often one wrong static route). The IP TTL decrements at each hop and the packet is discarded at zero, so the loop is not infinite. Fix by checking the routing tables (`show route`) on both routers for the bad next hop.
+
+## 1.3 The Cloud
+labs: virtualization-proxmox
+@notes
+### Designing the Cloud
+- Cloud traits: **elasticity** (scale up and down with demand), access from anywhere, **multitenancy** (many customers share one infrastructure, which is what makes it cheap).
+- **NFV (network function virtualization)**: routers, switches and firewalls become virtual appliances on the hypervisor. Same functions, deployed with a click instead of a truck and a rack.
+- **VPC (virtual private cloud)**: a private, isolated chunk of cloud holding your web servers, databases, load balancers and virtual network gear. Big orgs use one VPC per app or business unit.
+- **Transit gateway**: a cloud router that links many VPCs. A VPN into the transit gateway gives remote users access to all of them.
+- **Internet gateway**: makes a VPC reachable from the public internet. **NAT gateway**: lets private instances reach out to the internet without being reachable from it. **VPC endpoint**: a private connection from a VPC to another service or provider so traffic never crosses the open internet (useful to reach a private subnet).
+- **Security lists** (applied to whole subnets/VCNs, coarse) vs **security groups / network security groups** (attached to individual virtual NICs, fine-grained, but more to administer). Rules are protocol + port + source/destination (single IP or CIDR block, IPv4 or IPv6), inbound and outbound, like a stateful firewall in front of the instance. Need more? Add a virtual firewall.
+
+### Cloud Models
+- **Deployment**: **public** (anyone, run by a provider), **private** (your own virtualized data center), **hybrid** (both).
+- **Service models** (who manages what): **SaaS** the finished app, you just log in and bring data (Gmail, Office 365). **PaaS** the provider gives the platform and tools, you build and maintain the app (Salesforce platform). **IaaS** (HaaS) you get raw compute, storage and network, and you install, patch and secure the software and data. Responsibility moves toward the provider as you go IaaS to PaaS to SaaS, but **you always own your data, accounts and devices**. On-prem is all yours, including the building.
+@cards
+Q: What is NFV?
+A: Network function virtualization: running routers, switches and firewalls as virtual appliances.
+Q: What is a VPC?
+A: A virtual private cloud: an isolated private network space inside a cloud provider.
+Q: What does a transit gateway do?
+A: Acts as a cloud router connecting multiple VPCs (and VPN or on-prem links) together.
+Q: Internet gateway vs NAT gateway?
+A: Internet gateway makes VPC resources reachable from the internet. NAT gateway lets private resources go out but not be reached from outside.
+Q: What is a VPC endpoint for?
+A: A private connection from a VPC to a service or another provider without using the public internet.
+Q: Security list vs security group granularity?
+A: Lists apply to a whole subnet or VCN; groups attach to individual virtual NICs for finer control.
+Q: IaaS, PaaS, SaaS in one line each?
+A: IaaS: you run everything above the hardware. PaaS: you run the app, provider runs the platform. SaaS: provider runs everything, you use the app.
+Q: Who is always responsible for the data in any cloud model?
+A: The customer.
+Q: What is multitenancy?
+A: Multiple customers sharing the same cloud infrastructure, isolated logically.
+Q: Public vs private vs hybrid cloud?
+A: Public: shared provider cloud. Private: dedicated to you. Hybrid: a mix of both.
+@check
+? A company runs private VMs in a cloud and needs them to download patches without being reachable from the internet. Best component?
+a) Internet gateway
+b) NAT gateway
+c) Transit gateway
+d) Load balancer
+= b | NAT gateways allow outbound-only access.
+? You need to deploy your own custom app and let the provider handle the OS and runtime. Which model?
+a) SaaS
+b) IaaS
+c) PaaS
+d) On-prem
+= c | PaaS provides the platform. You supply the application.
+@lab
+Sketch a small cloud network
+Design on paper: two app tiers in separate subnets, only the web tier public, remote admins via VPN, tier-to-tier traffic only on the DB port. Name the cloud components you use.
+@answer
+Web subnet behind an internet gateway, app/DB subnets private. NAT gateway for outbound patches. VPN to a transit gateway (or the VPC) for admins. Security group on the DB allows only the app tier on its DB port (for example TCP 3306); web security group allows TCP 443 from anywhere.
+
+## 1.4 Ports and Protocols
+labs: networking-tcp-ip-dhcp-nat-subnets, network-traffic-analysis
+@notes
+### Introduction to IP
+- Encapsulation picture: the network is the road, **IP is the truck**, **TCP/UDP are the boxes**, application data is inside. An Ethernet frame is header + IP packet + trailer; the IP packet is IP header + TCP/UDP segment; that holds the application data.
+- **TCP**: connection-oriented (formal setup and teardown), acknowledgments and numbered segments so lost data is resent and only the lost part, plus **flow control** (the receiver can tell the sender to slow down). "Reliable".
+- **UDP**: connectionless, no setup, no acknowledgments, no retransmit, no flow control. "Unreliable" means no delivery guarantee, not that it fails more. Low overhead, good for real-time voice and video and simple queries.
+- Both layer 4 protocols do **multiplexing**: many apps share one IP pair, told apart by **port numbers** (the "room in the house").
+- A **socket** = IP address + protocol + port. Server side uses a fixed port, client side a random one. Replies simply swap source and destination.
+- **Well-known (non-ephemeral) ports** are 0 to 1023. **Ephemeral** client ports are 1024 to 65535. Not a hard rule. Range overall: 0 to 65535.
+- TCP port 80 and UDP port 80 are different things. Changing a port is **not security**, you still need a firewall. If a server moves off the default port, clients must be told.
+
+### Common Ports (memorize)
+| port | proto | service | notes |
+|---|---|---|---|
+| 20, 21 | TCP | FTP | 20 data, 21 control; plain text, has login and directory commands |
+| 22 | TCP | SSH, SFTP | encrypted terminal; SFTP rides on SSH |
+| 23 | TCP | Telnet | clear text terminal, avoid, credentials sniffable |
+| 25 | TCP | SMTP | server-to-server mail, clear text |
+| 587 | TCP | SMTP with TLS | client mail submission |
+| 53 | UDP (TCP for big transfers) | DNS | names to IPs |
+| 67, 68 | UDP | DHCP | server 67, client 68; pool, lease, reservation by MAC |
+| 69 | UDP | TFTP | tiny no-auth file transfer, e.g. phone downloads config |
+| 80 | TCP | HTTP | clear web |
+| 443 | TCP | HTTPS | TLS web |
+| 123 | UDP | NTP | clock sync (about 1 ms accuracy), vital for log correlation |
+| 161, 162 | UDP | SNMP, traps | 161 queries, 162 traps sent by devices; v1 clear, v2 bulk but clear, v3 authenticated and encrypted |
+| 389, 636 | TCP | LDAP, LDAPS | directory (organization, OUs, users, devices); 636 is the secure version |
+| 445 | TCP | SMB/CIFS | Windows file and printer sharing, over IP directly now (NetBIOS before) |
+| 514 | UDP | syslog | central log collection, feeds a SIEM |
+| 1433 | TCP | Microsoft SQL Server | |
+| 3389 | TCP | RDP | Windows remote desktop, clients exist for every OS |
+| 5060, 5061 | TCP | SIP | VoIP call control (5061 is TLS) |
+| 143 | TCP | IMAP | mail retrieval (110 POP3, as seen in the exam objectives) |
+
+### Other Useful Protocols
+- **ICMP**: its own IP protocol (not TCP/UDP). Used by `ping`, and for messages such as "destination unreachable" and "time exceeded" (TTL hit zero).
+- **GRE**: tunnels packets inside IP, but **no encryption**. Pair with a VPN protocol.
+- **IPsec**: standard encrypted tunnel, vendor-neutral. Gives confidentiality, packet signatures (integrity) and anti-replay. Parts: **AH** (authentication/integrity only, data in clear) and **ESP** (encrypts and authenticates, the usual choice). **IKE** sets up the **security association (SA)**: phase 1 uses Diffie-Hellman over **ISAKMP, UDP 500** to agree a shared secret, phase 2 negotiates the ciphers and key sizes for each direction. **Transport mode** encrypts only the payload and leaves the original IP header visible. **Tunnel mode** encrypts the whole original packet and adds a new IP header, which is what site-to-site VPNs use.
+
+### Network Communication
+- **Unicast**: one to one (web, email, file transfer). **Multicast**: one to a subscribed group, efficient for video, market feeds, routing updates, needs multicast-aware gear and stays inside a network. **Anycast**: one to the nearest of many identical hosts (for example anycast DNS). **Broadcast**: one to everyone in the local broadcast domain (ARP, some routing). **IPv6 has no broadcast**; it uses multicast.
+@cards
+Q: TCP three features UDP lacks?
+A: Connection setup/teardown, acknowledgments with retransmission, and flow control.
+Q: What is a socket?
+A: IP address plus protocol (TCP/UDP) plus port number.
+Q: Ephemeral port range?
+A: 1024 to 65535 (the temporary client-side ports).
+Q: Which ports does FTP use?
+A: TCP 20 (data) and 21 (control).
+Q: Port for SSH and SFTP?
+A: TCP 22.
+Q: Port for Telnet and why avoid it?
+A: TCP 23; everything including passwords is sent in clear text.
+Q: SMTP ports?
+A: TCP 25 server-to-server (clear), TCP 587 with TLS for client submission.
+Q: DNS port?
+A: UDP 53 for queries, TCP 53 for large transfers.
+Q: DHCP ports?
+A: UDP 67 (server) and UDP 68 (client).
+Q: TFTP port and use?
+A: UDP 69; tiny unauthenticated transfers such as phone configs.
+Q: HTTP and HTTPS ports?
+A: TCP 80 and TCP 443.
+Q: NTP port?
+A: UDP 123.
+Q: SNMP ports?
+A: UDP 161 for queries and UDP 162 for traps.
+Q: Which SNMP version adds authentication and encryption?
+A: SNMPv3.
+Q: LDAP and LDAPS ports?
+A: TCP 389 and TCP 636.
+Q: SMB port?
+A: TCP 445.
+Q: Syslog port?
+A: UDP 514.
+Q: Microsoft SQL Server port?
+A: TCP 1433.
+Q: RDP port?
+A: TCP 3389.
+Q: SIP ports?
+A: TCP 5060 and 5061.
+Q: Which protocol does ping use?
+A: ICMP.
+Q: Does GRE encrypt?
+A: No. It only encapsulates; add IPsec for encryption.
+Q: IPsec AH vs ESP?
+A: AH authenticates (integrity) only; ESP encrypts and authenticates.
+Q: IPsec tunnel mode vs transport mode?
+A: Tunnel mode encrypts the entire original packet with a new outer header; transport mode encrypts only the payload.
+Q: What does IKE phase 1 do?
+A: Builds a protected channel (ISAKMP, UDP 500) and agrees a shared secret with Diffie-Hellman.
+Q: Which addressing method does IPv6 not have?
+A: Broadcast.
+Q: Anycast in one line?
+A: Same address on many hosts; traffic goes to the nearest one.
+@check
+? An admin sends router logs to a central collector. Which port by default?
+a) UDP 161
+b) UDP 514
+c) TCP 389
+d) UDP 123
+= b | Syslog uses UDP 514.
+? Which is true about IPsec tunnel mode?
+a) Original IP header stays visible
+b) Entire original packet is encrypted and a new IP header is added
+c) Only AH is allowed
+d) It uses TCP 22
+= b | That is why it is used for site-to-site VPNs.
+? A switch pings 8.8.8.8 and gets "TTL expired in transit". Which protocol reported that?
+a) TCP
+b) ICMP
+c) SNMP
+d) GRE
+= b | ICMP time exceeded.
+@lab
+Name that port
+In a capture you see: UDP 53, TCP 3389, UDP 123, TCP 445, UDP 162, TCP 636. Name each protocol and what it tells you about the traffic.
+@answer
+DNS lookups, RDP remote desktop session (Windows), NTP time sync, SMB file share/Windows file access, SNMP trap from a device, secure LDAP directory queries. Together: a Windows host doing remote desktop, name lookups and file access, with a monitored device sending traps.
+
+## 1.5 Transmission Media
+labs: hardware-diagnostics-and-repair
+@notes
+### Wireless Networking
+- **IEEE 802.11** is the Wi-Fi standard. The **Wi-Fi Alliance** certifies interoperability (the Wi-Fi logo). Generation names: 802.11n = Wi-Fi 4, 802.11ac = Wi-Fi 5, **802.11ax = Wi-Fi 6** (6E adds the 6 GHz band), 802.11be = Wi-Fi 7. Older a/b/g are rarely used. Bands: 2.4, 5 and 6 GHz. Theoretical link rates rise each generation (antenna and radio counts change the numbers).
+- **Cellular**: **4G LTE** (long term evolution, merged GSM and CDMA worlds) about 150 Mbps, LTE-A about 300 Mbps. **5G** (from 2020) target up to 10 Gbps, real-world 100 to 900 Mbps, which makes cellular a realistic wired substitute and enables big IoT deployments.
+- **Satellite**: for sites with no terrestrial option. Roughly 100 Mbps down and 5 Mbps up. Needs line of sight, so storms cause **rain fade**. Classic latency is about 250 ms each way, newer low-orbit service (Starlink) advertises about 40 ms and falling.
+
+### Ethernet Standards
+- Ethernet is defined by **IEEE 802.3**. Name decoding: **1000BASE-T** = speed (1000 Mbps), BASE = baseband (one frequency, versus broadband), suffix = media. **T** twisted pair copper, **F**/**SX** fiber (SX is short-wavelength light). **10GBASE-T** = 10 Gbps over copper. The name hints at the standard but you must read the standard for the exact details.
+
+### Optical Fiber
+- Light over fiber: hard to tap without notice, signal survives far longer than copper (km versus 100 m), immune to radio interference. Parts: light source (LED or laser), **core** (reflective), **cladding** (low reflectivity), buffer coating.
+- **Multimode**: wide core, several light modes, cheap LED light source, shorter runs (up to about 2 km). **Single-mode**: tiny core, one mode, laser, very long runs (up to about 100 km without regeneration).
+
+### Copper Cabling
+- **Twisted pair**: pairs carry opposite-polarity copies of the signal (TX+/TX-, RX+/RX-); twisting means interference hits both wires and is cancelled at the receiver. Each pair has a different twist rate. A cable has no "speed": the **Ethernet standard** and signal define the speed, and the **category** (Cat 5, 6, 7...) sets the minimum quality (1000BASE-T needs Cat 5 or better).
+- **Coax**: center conductor, insulator, shield, jacket, all on one axis. **RG-6** is the cable-TV/cable-modem coax. **Twinax**: two conductors, used for short 10 Gb SFP+ links (about 5 m), cheap and low latency.
+- **Plenum**: the air space above a drop ceiling. If it is shared air (no ductwork walls), cables there must be **plenum-rated** (FEP or low-smoke PVC jacket) so a fire does not pump toxic smoke through the building. Stiffer than normal cable.
+
+### Network Transceivers
+- A **transceiver** (transmitter + receiver) is a swappable module so one switch port can be copper or fiber, at the speed you need. Must match the switch type (Ethernet versus Fibre Channel).
+- **SFP**: small form-factor pluggable, 1 Gbps. **SFP+**: same size, up to 10 Gbps (spec says to about 16). **QSFP**: four SFP channels in a slightly larger module, 4 Gbps. **QSFP+**: four SFP+ channels, 40 Gbps (can be split into four 10G links).
+
+### Fiber Connectors
+- **SC** (subscriber/square/standard): push-pull, snaps in. **LC** (local/Lucent/little): smaller, latch clip you press to release, very common now. **ST** (straight tip): round **bayonet**, push and twist. **MPO** (multi-fiber push on, branded MTP): 12 fibers in one push-pull connector, for density. Fibers usually come in pairs, one transmit, one receive.
+
+### Copper Connectors
+- **RJ11**: 6 positions, 2 conductors used (6P2C), analog phone and DSL. **RJ45**: 8 positions, 8 conductors, Ethernet. **F-connector**: threaded, coax for cable TV and cable modems (DOCSIS). **BNC**: bayonet-style coax connector (push, twist), named after Neill and Concelman.
+@cards
+Q: Wi-Fi 6 is which 802.11 standard?
+A: 802.11ax (Wi-Fi 4 = n, Wi-Fi 5 = ac, Wi-Fi 7 = be).
+Q: Wi-Fi bands?
+A: 2.4 GHz, 5 GHz and 6 GHz.
+Q: Typical speeds for 4G LTE vs 5G?
+A: LTE about 150 Mbps (LTE-A about 300); 5G real-world 100 to 900 Mbps, up to 10 Gbps in theory.
+Q: What is rain fade?
+A: Satellite signal loss during heavy rain or storms.
+Q: Decode 1000BASE-T.
+A: 1000 Mbps, baseband signaling, twisted-pair copper.
+Q: What does IEEE 802.3 define?
+A: Ethernet.
+Q: Multimode vs single-mode fiber?
+A: Multimode: big core, LED, short distance (to about 2 km). Single-mode: small core, laser, very long distance (to about 100 km).
+Q: Why is fiber hard to tap and good for secure runs?
+A: It carries light, not RF, so it leaks no signal and tapping is noticeable.
+Q: What is the minimum cable category for 1000BASE-T?
+A: Cat 5 (anything better also works).
+Q: Why do twisted pairs carry opposite signals?
+A: So interference affects both wires equally and can be cancelled at the receiver.
+Q: What is twinax used for?
+A: Short, cheap, low-latency 10 Gbps SFP+ links (about 5 m).
+Q: What is the plenum and what cable goes there?
+A: The air space above ceilings; plenum-rated (FEP or low-smoke PVC) cable to limit toxic smoke.
+Q: SFP vs SFP+ vs QSFP vs QSFP+ speeds?
+A: 1G, 10G, 4G (4x1G), 40G (4x10G).
+Q: Which fiber connector uses a twist-lock bayonet?
+A: ST.
+Q: Which fiber connector has a push-down latch clip and is small?
+A: LC.
+Q: How many fibers in an MPO connector?
+A: 12.
+Q: RJ11 vs RJ45?
+A: RJ11: 6 position, 2 wires, phone/DSL. RJ45: 8 position, 8 wires, Ethernet.
+Q: Which connector is used on cable modem coax?
+A: F-connector.
+Q: BNC stands for what style of locking?
+A: Bayonet (push and twist).
+@check
+? A run must go 40 km between two buildings. Which medium?
+a) Cat 6
+b) Multimode fiber
+c) Single-mode fiber
+d) Twinax
+= c | Only single-mode fiber with a laser reaches that far.
+? A rack needs a 40 Gbps port from a single module. Which transceiver?
+a) SFP
+b) SFP+
+c) QSFP+
+d) RJ45
+= c | Four SFP+ channels give 40 Gbps.
+? Cabling goes above a drop ceiling with open shared air. Which jacket?
+a) PVC
+b) Plenum-rated FEP or low-smoke PVC
+c) Any shielded cable
+d) Coax
+= b | Required for fire safety in air-handling spaces.
+@lab
+Pick the cable
+For each need choose media and connector: (a) office desk 1 Gbps, (b) rack-to-rack 10 Gbps, 3 m, (c) between buildings 12 km, (d) cable internet into a modem.
+@answer
+(a) Cat 5e/6 with RJ45, 1000BASE-T. (b) Twinax SFP+ DAC (or SFP+ fiber). (c) Single-mode fiber, LC pair. (d) Coax RG-6 with an F-connector.
+
+## 1.6 Network Topologies
+@notes
+### Network Topologies
+- **Star / hub and spoke**: everything connects to one central device (a switch). Most LANs. All spoke-to-spoke traffic goes through the hub. Hub is a single point of failure.
+- **Mesh**: more than one path between locations, so a failed link does not break the connection and load can be shared. Common on WANs. Full mesh costs many links.
+- **Hybrid**: a real enterprise mixes star, point-to-point, mesh and others.
+- **Spine and leaf**: data center design. **Leaf** switches (one at the top of each rack, "top-of-rack") connect to every **spine** switch. Leaves never connect to each other, spines never connect to each other. Result: any two devices are one leaf-spine-leaf hop apart, cabling stays inside the rack, redundancy is built in. Cost grows with every rack because each needs a switch.
+- **Point to point**: one link between two points, old T1/T3 WAN lines and building-to-building campus links.
+
+### Network Architectures
+- **Three-tier**: **core** (servers, apps, databases, the fast center), **distribution** (aggregates and redundantly connects access switches to the core), **access** (user-facing switches, usually per floor). Multiple links between layers give redundancy. City analogy: downtown = core, highways = distribution, local roads = access.
+- **Collapsed core**: two tiers, core and distribution merged. Cheaper and simpler for small organizations, but less redundancy.
+- **Traffic flow in a data center**: **east-west** stays inside the data center (server to server, fast). **North-south** enters or leaves (to or from the internet) and needs a different security posture.
+@cards
+Q: What is another name for star topology?
+A: Hub and spoke.
+Q: Main benefit of mesh?
+A: Redundant paths: survive link failure and allow load sharing.
+Q: Spine and leaf: who connects to whom?
+A: Every leaf connects to every spine; leaves do not link to leaves and spines do not link to spines.
+Q: What is top-of-rack switching?
+A: A leaf switch in each rack connecting all devices in that rack.
+Q: Three tiers of the three-tier model?
+A: Core, distribution, access.
+Q: Collapsed core combines which layers?
+A: Core and distribution.
+Q: Downside of collapsed core?
+A: Less redundancy and scaling.
+Q: East-west vs north-south traffic?
+A: East-west stays inside the data center; north-south goes into or out of it.
+Q: What is a hybrid topology?
+A: A mix of topologies (star, mesh, point-to-point) in one network.
+@check
+? A data center wants every server one switch hop from any other. Which design?
+a) Three-tier
+b) Spine and leaf
+c) Bus
+d) Collapsed core
+= b | Leaf-spine-leaf with full leaf-to-spine connectivity.
+? Two file servers copy data to each other inside the same data center. This traffic is:
+a) North-south
+b) East-west
+c) Multicast only
+d) Broadcast only
+= b | Internal to the data center.
+@lab
+Draw the architecture
+A 3-floor office with 120 users, a small server room and two internet links. Choose three-tier or collapsed core and say where each device goes.
+@answer
+Collapsed core fits: access switches per floor (the users), two collapsed core/distribution switches in the server room for redundancy with the servers attached, two routers/firewalls to the two internet links. Three-tier is overkill unless the company grows into multiple buildings.
+
+## 1.7 IPv4 Addressing
+labs: networking-tcp-ip-dhcp-nat-subnets
+@notes
+### Binary Math
+- A **bit** is 0 or 1; 8 bits = a **byte / octet**. Write the place values right to left, doubling each time: **128 64 32 16 8 4 2 1**. Binary to decimal: add the place values under every 1 (`10000010` = 128+2 = **130**, `11111111` = **255**). Decimal to binary: go left to right and put a 1 whenever the place value still fits in what remains (154 = 128+16+8+2 = `10011010`).
+- n bits give 2^n values (2 bits = 4, 3 = 8, 4 = 16, 5 = 32, 6 = 64, 7 = 128, 8 = 256).
+
+### IPv4 Addressing
+- IPv4 address: 32 bits, 4 octets, each 0 to 255, written dotted decimal. A **subnet mask** (also 4 octets, never sent on the wire) tells the host which addresses are on its own subnet. Traffic for anything else goes to the **default gateway**, a router address inside your own subnet (often .1).
+- **Loopback** 127.0.0.0/8 (127.0.0.1 = this host; ping it to test the local IP stack). **Reserved / class E**: 240.0.0.0 and up. **VIP** (virtual IP): an address not tied to one physical NIC (for example on a VM or a router).
+- Manual configuration (address, mask, gateway, DNS) was replaced by **DHCP**. If DHCP fails, the host gives itself an **APIPA / link-local** address **169.254.x.x** (169.254.1.0 to 169.254.254.255 usable), picked after an ARP check for conflicts. It only talks on the local subnet. **Seeing 169.254 means "DHCP did not answer".**
+- **Private ranges (RFC 1918)**, not routable on the internet, reached out through **NAT**: **10.0.0.0/8** (10.0.0.0 to 10.255.255.255, 16.7 million), **172.16.0.0/12** (172.16.0.0 to 172.31.255.255, about 1 million), **192.168.0.0/16** (about 65,000). IPv4 public space is exhausted, which is why NAT exists.
+
+### Classful Subnetting (the starting point)
+- Classes by first octet: **A 1-126** (mask 255.0.0.0, /8), **B 128-191** (255.255.0.0, /16), **C 192-223** (255.255.255.0, /24), **D 224-239** multicast, **E 240-255** reserved. First bits: A `0`, B `10`, C `110`, D `1110`, E `1111`. Classes were abandoned in 1993 but are still the mental starting point.
+- Four numbers to know for any subnet: **network address** (all host bits 0), **first usable** (network + 1), **broadcast** (all host bits 1), **last usable** (broadcast - 1). Example 192.168.4.77/24: network .4.0, first .4.1, broadcast .4.255, last .4.254.
+
+### IPv4 Subnet Masks (CIDR)
+- Since 1993: **classless** (CIDR). The mask is a run of 1s then 0s, written as a **prefix length** (/24 = 255.255.255.0). Windows wants the dotted mask, routers and switches usually accept /nn.
+- Octet values for a partial mask: **128, 192, 224, 240, 248, 252, 254, 255** (one to eight 1-bits). /26 = 255.255.255.192, /20 = 255.255.240.0, /12 = 255.240.0.0, /19 = 255.255.224.0.
+
+### Calculating IPv4 Subnets and Hosts (VLSM)
+- **VLSM** cuts the pizza any way you like. Subnets = **2^(borrowed bits)**. Hosts per subnet = **2^(host bits) - 2** (minus network and broadcast).
+- 10.1.1.0/24 (borrowing 16 bits from the /8): 65,536 subnets of 254 hosts. 192.168.11.0/26: 4 subnets of 62 hosts. 172.16.55.0/21: 32 subnets of 2,046 hosts.
+- Sizing: need 40 hosts per subnet, 192.168.1.0/24? /27 gives 30 hosts (too few), **/26 gives 62** (right answer, 4 networks). /25 = 126 hosts, 2 networks. /30 = 2 hosts (point to point). /31 and /32 are special (no usable hosts in the classic sense).
+
+### Magic Number Method (no binary)
+1. Write the mask in decimal. 2. The **interesting octet** is the one that is neither 255 nor 0. 3. **Magic number = 256 minus the mask value** in that octet (the block size). 4. Network address: copy the IP octets where the mask is 255, put 0 where the mask is 0, and in the interesting octet use the **multiple of the magic number at or below the IP's value**. 5. Broadcast: copy where 255, use 255 where 0, interesting octet = network value + magic number - 1. 6. First = network + 1, last = broadcast - 1.
+- Worked: 165.245.77.14 mask 255.255.240.0. Interesting octet is the third (240). Magic = 16. 77 falls in 64-79, so network **165.245.64.0**, broadcast **165.245.79.255**, range .64.1 to .79.254.
+- Worked: 10.180.122.244 mask 255.248.0.0. Interesting octet 2, magic 8, 180 is in 176-183, so network **10.176.0.0**, broadcast **10.183.255.255**.
+- Worked: 172.16.242.133/27 (255.255.255.224). Magic 32, 133 in 128-159, network **172.16.242.128**, broadcast **.159**, hosts .129 to .158.
+
+### Seven Second Subnetting (chart method)
+- Build a table once on the exam whiteboard: for each prefix, the decimal mask, number of subnets (2,4,8...256) and block size (128, 64, 32, 16, 8, 4, 2, 1). Prefix to octet: /9-/16 = second octet, /17-/24 = third, /25-/30 = fourth. Then: network = copy address where mask is 255, 0 where mask is 0, block start in the interesting octet; broadcast = the number just before the next block start (255s where mask is 0). Same answers as magic number, just lookups instead of subtraction.
+- Check: 165.245.12.88/26: block size 64, 88 is in 64-127, network .12.64, broadcast .12.127, hosts .65-.126. 160.245.12.88/20: third octet mask 240, blocks of 16, .12 is in 0-15, network x.x.0.0, broadcast x.x.15.255. 18.172.200.77/11: mask 255.224.0.0, blocks of 32, 172 is in 160-191, network 18.160.0.0, broadcast 18.191.255.255.
+- Practice tip: pick one method and drill it until it is automatic. On a testing-center whiteboard bring your own fine-tip dry-erase pen if allowed.
+@cards
+Q: Place values of one octet?
+A: 128 64 32 16 8 4 2 1.
+Q: Convert binary 10000010 to decimal.
+A: 130 (128 + 2).
+Q: Convert 154 to binary.
+A: 10011010.
+Q: How many bits in an IPv4 address?
+A: 32 (four 8-bit octets).
+Q: What is the default gateway?
+A: A router address on your own subnet that you use to reach other subnets.
+Q: What does a 169.254.x.x address tell you?
+A: The host could not reach a DHCP server and used APIPA (link-local, local subnet only).
+Q: Loopback range and its use?
+A: 127.0.0.0/8; ping 127.0.0.1 to test the local IP stack.
+Q: Three RFC 1918 private ranges?
+A: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.
+Q: How do private addresses reach the internet?
+A: Through NAT, which translates them to a public address.
+Q: First-octet ranges for class A, B, C?
+A: A 1-126, B 128-191, C 192-223.
+Q: Class D and E?
+A: D 224-239 multicast; E 240-255 reserved.
+Q: Default masks for classes A, B, C?
+A: /8 (255.0.0.0), /16 (255.255.0.0), /24 (255.255.255.0).
+Q: How do you find the network address?
+A: Set all host bits to 0.
+Q: How do you find the broadcast address?
+A: Set all host bits to 1.
+Q: Usable host count formula?
+A: 2^(host bits) - 2.
+Q: Number of subnets formula?
+A: 2^(borrowed subnet bits).
+Q: /24 mask, /25, /26, /27 in decimal?
+A: 255.255.255.0, .128, .192, .224.
+Q: /28, /29, /30 in decimal and hosts?
+A: .240 (14 hosts), .248 (6 hosts), .252 (2 hosts).
+Q: /20 in decimal?
+A: 255.255.240.0.
+Q: /12 in decimal?
+A: 255.240.0.0.
+Q: What is VLSM?
+A: Variable length subnet masks: choosing a different prefix per subnet to fit its size.
+Q: Magic number formula?
+A: 256 minus the mask value in the interesting octet (the block size).
+Q: What is the interesting octet?
+A: The octet where the mask is not 255 or 0.
+Q: Hosts and subnets for 192.168.11.0/26?
+A: 4 subnets, 62 hosts each.
+Q: Need 40 hosts per subnet in a /24: best prefix?
+A: /26 (62 hosts). /27 only gives 30.
+Q: Network and broadcast for 172.16.242.133/27?
+A: Network 172.16.242.128, broadcast 172.16.242.159.
+Q: CIDR was introduced when?
+A: 1993; it replaced class-based addressing.
+@check
+? A host gets 169.254.17.40. What is the most likely problem?
+a) DNS failure
+b) No DHCP response
+c) Wrong gateway
+d) Duplicate MAC
+= b | That is APIPA after DHCP failure.
+? Which subnet mask gives at least 50 hosts per subnet with the most subnets?
+a) /25
+b) /26
+c) /27
+d) /28
+= b | /26 gives 62 hosts. /27 gives only 30.
+? What are the network and broadcast addresses for 10.180.122.244/13 (255.248.0.0)?
+a) 10.176.0.0 and 10.183.255.255
+b) 10.180.0.0 and 10.187.255.255
+c) 10.128.0.0 and 10.191.255.255
+d) 10.180.122.0 and 10.180.122.255
+= a | Magic number 8; 180 lies in the block 176-183.
+@lab
+Subnet it by hand
+For 192.168.50.0/24 you need 5 subnets of up to 25 hosts each. Choose the prefix, list the subnets and the first and last usable host of the third subnet.
+@answer
+5 subnets need 3 borrowed bits (8 subnets). 25 hosts need 5 host bits (30 hosts). /27 fits both: 255.255.255.224, block size 32. Subnets start at .0, .32, .64, .96, .128, .160, .192, .224. Third subnet is 192.168.50.64/27: first usable .65, last usable .94, broadcast .95.
+
+## 1.8 Network Environments
+labs: virtualization-proxmox, firewalls-pfsense
+@notes
+### Software Defined Networking
+- Every network device has three planes. **Data plane (infrastructure layer)**: the forwarding itself (moving frames between interfaces, trunking, encryption, NAT). **Control plane**: the tables and logic that decide where traffic goes (routing, switching, NAT, firewall rule tables). **Management plane (application layer)**: how admins configure it (SSH, console, web GUI). **SDN** splits these into software so they can be virtualized and centrally controlled.
+- **SD-WAN**: a WAN built for cloud-era traffic. It is **application aware** (it knows it is email or a database and sends it straight to the nearest cloud service instead of back through HQ), **transport agnostic** (fiber, 5G, DSL all fine), has **central policy management** (one console pushes policy to all SD-WAN routers) and **zero-touch provisioning** (devices update themselves when services move).
+
+### Virtual Extensible LAN (VXLAN)
+- Problem: apps and VMs span multiple data centers (**data center interconnect, DCI**) with different IP schemes and links. VLANs top out around 4,000 networks and are layer 2 only. **VXLAN** supports about **16 million** virtual networks (24-bit VNI) and runs over a **layer 3** network.
+- Each data center has a **VTEP** (VXLAN tunnel endpoint, often the top-of-rack switch). Networks are named by a **VNI**. The original Ethernet frame is **encapsulated** in VXLAN inside **UDP** inside IP, routed across, then decapsulated on the far side, so VMs in different sites feel they are on the same LAN.
+
+### Zero Trust
+- Edge-only security leaves the inside wide open. **Zero trust**: every user, device and application is untrusted until verified, with authentication, encryption, extra firewalls and monitoring everywhere.
+- **Policy-based / adaptive authentication** weighs who, where, from which IP, what connection and what time. Inside HQ in work hours = password; unknown foreign IP over VPN at 3 a.m. = more factors or deny.
+- **Authorization** follows: role (help desk can read, the manager can edit), location, whether it is a managed laptop with a valid certificate. **Least privilege**: only the rights the job needs, never admin by default (malware on an admin's box gets admin everywhere).
+- **SASE (secure access service edge)**: security in the cloud near the apps, with a client on every device. "Next-generation VPN." Combines networking (QoS, routing) with ZTNA, firewall as a service and DNS security, always on, for users anywhere reaching apps anywhere.
+
+### Infrastructure as Code
+- **IaC**: describe servers, networks, firewalls and apps in files and let the platform build them. Rebuild identically in another data center, version changes, redeploy. Cures **configuration drift**, enforces compliance, makes test = production, and documents the build.
+- **Playbooks**: scripted response steps (breach investigation, ransomware recovery: remove from network, wipe, reimage, redeploy). Centralized in **SOAR** (security orchestration, automation and response).
+- **Source / version control (Git)**: one central repository, tracked changes, **branches** for testing, **merging**, **conflict** detection when two people edit the same line.
+
+### IPv6 Addressing
+- IPv4: 32 bits, 4.29 billion addresses, exhausted, extended by NAT. **IPv6: 128 bits**, hexadecimal, eight 16-bit groups separated by colons. Example `fe80::5d18:652:6ffd:8f52`.
+- **Compression rules**: drop leading zeros in each group, and replace one run of all-zero groups with `::` (only once per address). `2601:04C3:4002:BE00:0000:0000:0000:0066` becomes `2601:4C3:4002:BE00::66`. `2600:DDDD:1111:0001:0000:0000:0000:0001` becomes `2600:DDDD:1111:1::1`.
+- IPv4 and IPv6 cannot talk directly. Bridges: **dual stack** (host runs both, separate routing tables, the common method today), **tunneling** (**6to4**: IPv6 over IPv4, needs a relay, no NAT, removed from Windows. **4in6**: IPv4 over IPv6; both rare now), **NAT64 + DNS64** (DNS64 hands an IPv6-only client a synthesized IPv6 address that points at the NAT64 router, which translates to the real IPv4 server).
+@cards
+Q: The three planes of a network device?
+A: Data (forwarding), control (tables and logic), management (admin access).
+Q: What is SD-WAN's key idea?
+A: An application-aware, transport-agnostic WAN with central policy and zero-touch provisioning, built for cloud traffic.
+Q: What is zero-touch provisioning?
+A: Devices configure and update themselves automatically with no manual setup.
+Q: VXLAN vs VLAN scale?
+A: VXLAN about 16 million virtual networks over layer 3; VLAN about 4,000 over layer 2.
+Q: What is a VTEP?
+A: The VXLAN tunnel endpoint that encapsulates and decapsulates traffic (often the top-of-rack switch).
+Q: What does VNI stand for?
+A: VXLAN network identifier.
+Q: VXLAN encapsulation wraps what in what?
+A: The original Ethernet frame inside VXLAN, inside UDP, inside IP.
+Q: What does "zero trust" assume?
+A: No user, device or application is trusted by default; everything is verified.
+Q: What is adaptive identity?
+A: Authentication that adjusts its strictness based on context such as who, where, device and time.
+Q: Why avoid giving users admin rights?
+A: Malware running as the user inherits admin access; least privilege limits damage.
+Q: What is SASE?
+A: Cloud-delivered networking plus security (ZTNA, firewall, DNS security) for users anywhere: a next-gen VPN.
+Q: What problem does IaC solve?
+A: Configuration drift and slow manual builds: identical, versioned, repeatable deployments.
+Q: What is a playbook?
+A: A defined sequence of response steps, often automated in a SOAR platform.
+Q: What does SOAR stand for?
+A: Security orchestration, automation and response.
+Q: Name a popular version control system.
+A: Git.
+Q: IPv6 address size and notation?
+A: 128 bits, eight groups of 16 bits in hex separated by colons.
+Q: How many times can :: be used in an IPv6 address?
+A: Once.
+Q: Compress 2601:04C3:4002:BE00:0000:0000:0000:0066.
+A: 2601:4C3:4002:BE00::66
+Q: What is dual stack?
+A: A host or network running IPv4 and IPv6 at the same time.
+Q: What do NAT64 and DNS64 do together?
+A: Let IPv6-only clients reach IPv4-only servers by synthesizing addresses and translating.
+@check
+? Admin logs in to a switch over SSH to change a setting. Which plane?
+a) Data
+b) Control
+c) Management
+d) Physical
+= c | Admin access is the management plane.
+? Two data centers use different IP schemes but VMs must act as if on the same LAN. Best fit?
+a) VLAN
+b) VXLAN
+c) APIPA
+d) 6to4
+= b | VXLAN overlays layer 2 over a layer 3 network.
+? Which technique prevents a dozen servers from drifting apart in configuration?
+a) IaC
+b) Dual stack
+c) PoE
+d) QoS
+= a | One definition applied everywhere.
+@lab
+Compress and expand
+Compress `2001:0DB8:0000:0000:0000:0000:0000:0001` and expand `fe80::1` to eight groups.
+@answer
+`2001:DB8::1`. `fe80:0:0:0:0:0:0:1` (full form fe80:0000:0000:0000:0000:0000:0000:0001).
+
+## 2.1 Routing Technologies
+labs: networking-tcp-ip-dhcp-nat-subnets
+@notes
+### Static Routing
+- A router reads the destination IP, looks it up in its **routing table**, and sends it out the interface toward the **next hop**. Directly connected subnets are known automatically. **If there is no matching route the packet is discarded.**
+- **Static route** = admin types it by hand on each router: `destination/prefix via next-hop`. Example: on router 1, send 10.10.20.0/24 to next hop 10.10.40.2 and 10.10.30.0/24 to 10.10.50.2.
+- Pros: instant, no CPU or memory overhead, no protocol traffic, predictable and fairly secure, ideal for **stub networks** (one link in and out) or small networks. Cons: does not scale to hundreds of routers, easy to mistype and create a **routing loop**, no automatic rerouting when a link fails.
+
+### Dynamic Routing
+- Routers discover routes and tell each other via routing protocols (updates are often multicast). They adapt automatically to added or removed routers. Costs: CPU and memory, plus initial planning and config.
+- **EIGRP**: Cisco-centric, easy to set up, converges fast, loop avoiding, efficient updates (admin distance 90).
+- **OSPF** (open shortest path first): open standard, multi-vendor, a **link-state** protocol used inside one **autonomous system (AS)** (everything you control). Picks the lowest **cost** (based on bandwidth, link state, delay) and can load-balance equal-cost paths (admin distance 110).
+- **BGP** (border gateway protocol): the **exterior gateway protocol** that routes between autonomous systems and runs the internet and WAN/ISP connections ("three napkins protocol").
+- **RIP**: old, **hop count** metric (admin distance 120).
+- Choose by what decides the best route (link state, hop count, speed), convergence speed, and vendor environment.
+
+### Routing Technologies
+- Reading an entry (Cisco style): code letter (**C** connected, **S** static, **R** RIP, **D** EIGRP, **O** OSPF, **B** BGP), destination/prefix, `[AD/metric]`, `via next-hop`, age, outgoing interface.
+- **Best-match order**: 1) **longest prefix** (most specific route wins; for 192.168.1.6 a /32 beats /24 beats /16), 2) lowest **administrative distance** (trust of the source: connected 0, **static 1**, EIGRP 90, OSPF 110, RIP 120; lower is better), 3) lowest **metric** within one protocol (RIP = hop count, EIGRP and OSPF use their own calculations; metrics are not comparable across protocols).
+- **FHRP (first hop redundancy protocol)**: two routers share a **virtual IP** used as the clients' default gateway. The active router owns it and the standby takes it over if the active router disappears, so clients never change settings (HSRP, VRRP are examples).
+- **Subinterfaces**: one physical router interface split into virtual ones (`e1/1.10`, `e1/1.20`) so each VLAN on a **trunk** gets its own IP address ("router on a stick").
+
+### Network Address Translation
+- IPv4 ran out, NAT lets many private hosts share public addresses (private ranges in RFC 1918). **Static/dynamic NAT** swaps one private address for one public address (source address rewritten on the way out, destination rewritten on the way back).
+- **NAT overload / PAT (port address translation)**: many inside hosts share one public IP, told apart by **translated port numbers** kept in the NAT table (10.10.20.50:3233 becomes 94.1.1.1:1055, the next host gets 94.1.1.1:1056). This is what your home router does.
+@cards
+Q: What happens when a router has no matching route?
+A: It discards the packet (or uses a default route if present).
+Q: What is a stub network?
+A: A network with a single path out, ideal for a static or default route.
+Q: Biggest static routing downside?
+A: Manual work does not scale, mistakes cause loops, and no automatic failover.
+Q: OSPF type and metric basis?
+A: Link-state, open standard, lowest cost (bandwidth and link state).
+Q: Which routing protocol connects autonomous systems and runs the internet?
+A: BGP.
+Q: EIGRP is mainly used with whose equipment?
+A: Cisco.
+Q: RIP metric?
+A: Hop count.
+Q: Administrative distances: connected, static, EIGRP, OSPF, RIP?
+A: 0, 1, 90, 110, 120.
+Q: What does a lower administrative distance mean?
+A: The route source is more trusted and preferred.
+Q: Which wins: /16, /24 or /32 for a host inside all three?
+A: The /32, because the longest prefix is the most specific.
+Q: Order of route selection?
+A: Longest prefix match, then administrative distance, then metric.
+Q: What does "C" in a route table mean?
+A: Directly connected network.
+Q: What does FHRP provide?
+A: Gateway redundancy using a shared virtual IP between an active and standby router.
+Q: What is a subinterface used for?
+A: Giving each VLAN on a trunk its own virtual router interface and IP.
+Q: Difference between NAT and PAT?
+A: NAT translates addresses one to one; PAT (overload) also translates ports so many hosts share one public IP.
+Q: Where is the NAT translation recorded?
+A: In the NAT table on the router/firewall, mapping private IP:port to public IP:port.
+@check
+? A routing table has 10.0.0.0/8 via R1 (OSPF) and 10.1.0.0/16 via R2 (RIP). Traffic for 10.1.5.5 goes where?
+a) R1 because OSPF has lower AD
+b) R2 because /16 is more specific
+c) Both
+d) Dropped
+= b | Longest prefix match is applied before administrative distance.
+? A small branch with one ISP link needs routing with minimal overhead. Best?
+a) BGP
+b) OSPF
+c) Static/default route
+d) EIGRP
+= c | Stub network.
+? A hundred laptops share one public IP address. What feature?
+a) Static NAT
+b) PAT
+c) FHRP
+d) VXLAN
+= b | Port translation distinguishes sessions.
+@lab
+Read a route line
+Interpret `R 10.0.30.0/24 [120/1] via 10.10.50.2, 00:00:14, Serial0/3/1`.
+@answer
+RIP-learned route to 10.0.30.0/24, administrative distance 120, metric 1 hop, next hop 10.10.50.2, learned 14 seconds ago, leaves via Serial0/3/1.
+
+## 2.2 Switching Technologies
+labs: networking-tcp-ip-dhcp-nat-subnets
+@notes
+### VLANs and Trunking
+- A LAN is one **broadcast domain**. A **VLAN** carves one physical switch into several separate broadcast domains (defined by number, per interface). Devices on different VLANs cannot talk without a router. Saves power, rack space and management versus one switch per network.
+- Spanning several switches: one cable per VLAN does not scale, so use a **trunk** (**802.1Q**, "dot1q"). The switch **tags** each frame with a **12-bit VLAN ID** (inserted after the source MAC), so a single link carries up to **4,094** usable VLANs; the far switch reads the tag, strips it and delivers to the right VLAN. **ISL** was Cisco's old proprietary trunking, rarely seen now.
+- **Default VLAN** (usually VLAN 1): where every port starts. **Native VLAN**: the one VLAN sent **untagged** on a trunk (for devices that do not speak 802.1Q and some management traffic). It must **match on both ends** or you get log errors.
+- **Layer 3 switch**: switching plus routing in one box. Routing between VLANs uses **SVIs** (switched virtual interfaces), and routing may need to be enabled (sometimes a reload). Less capable than a real router ("a switch should switch, a router should route"), fine for small sites.
+- **Voice and data**: VoIP phones and PCs share one cable (PC plugs into the phone). Put voice in its own VLAN (say 200) and data in another (100) so bursty data does not hurt call quality; the switch separates them with tagging.
+
+### Interface Configurations
+- **Speed** must match on both ends or there is **no link** at all. **Duplex** mismatch (one half, one full) still links but performs terribly. Auto-negotiate on both sides is the norm. First check on a bad Ethernet link: speed and duplex, then IP config (address, mask, gateway, DNS must match what the admin assigned).
+- **Link aggregation (LAG / port bonding)**: bundle several ports into one logical link (four 1 Gb links = 4 Gb throughput) without causing a loop. **LACP** negotiates it automatically.
+- **MTU**: normal Ethernet payload is **1500 bytes**. Fragmenting is slow and one lost fragment forces resending everything. Path MTU discovery is automatic but firewalls can break it, so you may need to set MTU by hand. **Jumbo frames** raise MTU up to about **9,000 to 9,216 bytes** (6x fewer frames), but **every device in the path** must support them or the frames are dropped.
+
+### Spanning Tree Protocol
+- A cable loop between switches makes frames circulate forever (Ethernet has no hop counter), creating a **broadcast storm** within seconds. **STP (802.1D)** prevents loops by **blocking** redundant ports.
+- Port states: **blocking** (no forwarding), **listening** (clears tables, hears neighbors), **learning** (builds MAC table), **forwarding**, plus **disabled** (admin down). Roles: one **root bridge** is elected; each switch has a **root port** (best path to the root), **designated ports** (forward traffic) and **blocked** ports (the loop breakers). If a link fails, STP recalculates and unblocks a backup port.
+- **RSTP (802.1w, Rapid STP)**: same idea, converges in about **6 seconds** versus 30 to 50 seconds for classic STP, and is backward compatible.
+@cards
+Q: What is a broadcast domain?
+A: The set of devices that receive each other's broadcasts: one LAN, or one VLAN.
+Q: What does a VLAN do?
+A: Splits a switch into separate logical LANs (broadcast domains).
+Q: What standard defines VLAN trunking?
+A: IEEE 802.1Q (dot1q).
+Q: How many bits in the 802.1Q VLAN ID and how many VLANs?
+A: 12 bits; 4,094 usable VLANs.
+Q: Where is the 802.1Q tag inserted in the frame?
+A: After the source MAC address.
+Q: What is ISL?
+A: Cisco's older proprietary trunking protocol, replaced by 802.1Q.
+Q: Native VLAN behavior?
+A: Its traffic is sent untagged on the trunk; it must match on both ends.
+Q: What is an SVI?
+A: A switched virtual interface: a layer 3 interface in a switch used to route a VLAN.
+Q: Why separate voice and data VLANs?
+A: Voice needs steady, consistent access; bursty data can degrade call quality.
+Q: Speed mismatch vs duplex mismatch symptoms?
+A: Speed mismatch: no link. Duplex mismatch: link works but very slow with errors.
+Q: What is LAG and which protocol automates it?
+A: Link aggregation (port bonding); LACP.
+Q: Default Ethernet MTU?
+A: 1500 bytes.
+Q: Jumbo frame size?
+A: About 9,000 bytes (up to 9,216), and every device on the path must support it.
+Q: What does STP prevent?
+A: Layer 2 switching loops and broadcast storms.
+Q: STP standard numbers?
+A: 802.1D (STP) and 802.1w (RSTP).
+Q: STP port states in order?
+A: Blocking, listening, learning, forwarding (disabled is separate).
+Q: STP port roles?
+A: Root port, designated port, blocked (alternate) port.
+Q: RSTP convergence time vs STP?
+A: About 6 seconds vs 30 to 50 seconds.
+@check
+? Two switches are connected with two cables and the network goes down within seconds. What would normally prevent this?
+a) LACP or STP
+b) DHCP snooping
+c) NAT
+d) MTU
+= a | STP blocks one path; LACP bundles the links into one logical link. Both avoid a loop.
+? A link between a PC (auto) and a switch port forced to 100/half is slow but up. Fix?
+a) Change the cable category
+b) Match duplex and speed settings (set both to auto)
+c) Add a VLAN
+d) Increase MTU
+= b | Duplex mismatch causes collisions and poor throughput.
+? Two ends of a trunk disagree about the native VLAN. What do you see?
+a) Nothing
+b) Log errors and misdelivered untagged traffic
+c) Link down
+d) STP disabled
+= b | Native VLAN must match.
+@lab
+Configure a trunk on paper
+Switch A and B each have VLAN 100 (data) and VLAN 200 (voice). Describe the single link setup and the router-on-a-stick option for routing between them.
+@answer
+One cable between A and B, both ends set to 802.1Q trunk allowing VLANs 100 and 200, same native VLAN. To route: either an SVI per VLAN on a layer 3 switch, or a router with a trunk to the switch and subinterfaces (for example g0/0.100 and g0/0.200) each with an IP in its VLAN as the gateway.
+
+## 2.3 Wireless Devices
+labs: vpn-tailscale
+@notes
+### Wireless Technologies
+- IEEE 802.11 standards have friendly names: 802.11ac = Wi-Fi 5, 802.11ax = Wi-Fi 6 (6E extends into 6 GHz), 802.11be = Wi-Fi 7.
+- **Frequencies and channels**: 2.4, 5 and 6 GHz bands, divided into numbered **channels** (2.4 GHz channel 6 is centered on 2.437 GHz, 5 GHz channel 44 on 5.220 GHz). **Channel width** (bandwidth) 20, 40, 80 or 160 MHz: wider is faster but uses more spectrum. The 2.4 GHz band has only **three non-overlapping channels (1, 6, 11)** at 20 MHz, 5 GHz has many more, 6 GHz even more.
+- Older clients may only do 2.4 GHz. **Band steering** makes the AP nudge dual-band clients onto 5 GHz (better throughput) instead of letting them pick by signal strength alone.
+- Regulation: the **FCC** in the US allocates spectrum; the ITU coordinates globally. **802.11h** adds interoperability: **DFS (dynamic frequency selection)** moves the AP off channels that conflict with other users (and tells clients), **TPC (transmit power control)** lets the AP tell clients to lower power.
+
+### Wireless Networking
+- **IBSS** = ad hoc, device to device with no AP (used when first configuring IoT gear).
+- **SSID** = network name. **BSSID** = the AP's radio hardware (MAC) address. **ESSID** = the same SSID shared across multiple APs so clients **roam** seamlessly across the building.
+- **Captive portal**: first connection redirects to a page for terms or login; success adds you to an access table for a set time (for example 24 hours).
+- **Security modes**: open (no security), **OWE** (opportunistic wireless encryption: encrypts without a password, isolates users), **WEP** (broken), **WPA/WPA2/WPA3 Personal = PSK** (one shared passphrase), **Enterprise / 802.1X** (each person authenticates with their own credentials, so disabling an account cuts access). Enterprises should use 802.1X.
+- **Antennas**: **omnidirectional** spreads signal in all directions (put the AP in the middle). **Directional** focuses signal: **Yagi** (high gain, narrow), **parabolic** (dish, collects and focuses, long distance). Gain is in dB: **every +3 dB roughly doubles** power.
+- **Autonomous AP**: standalone (home). **Lightweight AP**: the brains live in a **wireless LAN controller** (WLC) managed over **CAPWAP** (control and provisioning of wireless access points), a single pane of glass for deploy, monitor, change, report.
+
+### Network Types
+- **Mesh**: APs link to each other and heal themselves if one drops (home mesh). **Ad hoc / IBSS**: two devices directly, no AP. **Point-to-point**: AP-to-AP links over long distance (building to building) needing the right antennas, power and frequency. **Infrastructure**: clients connect to a central AP (most common); some APs offer **client isolation** so wireless devices cannot talk to each other.
+
+### Wireless Encryption
+- Wireless needs authentication, **encryption** (confidentiality) and a **message integrity check**. **WEP**: vulnerable cryptography. **WPA**: temporary fix that ran on WEP hardware. **WPA2** (2004): **AES** with **CCMP** (counter mode with CBC-MAC, encryption and integrity together). **WPA3** (2018): AES with **GCMP** (Galois counter mode) and GMAC for integrity. Use the newest your devices support.
+@cards
+Q: Wi-Fi 5, 6, 7 are which 802.11 standards?
+A: ac, ax, be.
+Q: How many non-overlapping 2.4 GHz channels at 20 MHz?
+A: Three (1, 6, 11).
+Q: What is band steering?
+A: AP feature that pushes dual-band clients to the better band (usually 5 GHz).
+Q: What do DFS and TPC do (802.11h)?
+A: DFS avoids conflicting channels; TPC lets the AP control client transmit power.
+Q: SSID vs BSSID vs ESSID?
+A: SSID: network name. BSSID: AP's hardware address. ESSID: one SSID spread across many APs for roaming.
+Q: What is IBSS?
+A: Independent basic service set: ad hoc device-to-device wireless with no AP.
+Q: What is a captive portal?
+A: A web page that must be completed (terms or login) before network access is granted.
+Q: What does OWE provide?
+A: Encryption on an open network without a password, and isolation between clients.
+Q: PSK vs 802.1X?
+A: PSK: one shared password. 802.1X/Enterprise: individual credentials per user.
+Q: Omnidirectional vs directional antenna use?
+A: Omni for even coverage around the AP; directional (Yagi, parabolic) for focused long-range links.
+Q: What does +3 dB mean?
+A: About double the power.
+Q: Autonomous vs lightweight AP?
+A: Autonomous is standalone; lightweight is managed by a wireless LAN controller via CAPWAP.
+Q: What is CAPWAP for?
+A: Control and provisioning of wireless access points by a central controller.
+Q: What is wireless mesh?
+A: APs that interconnect and self-heal; clients reach the network through the nearest node.
+Q: What is client isolation?
+A: Preventing wireless clients from talking to each other, only to the AP and beyond.
+Q: WPA2 cipher mode?
+A: AES-CCMP.
+Q: WPA3 cipher mode and year?
+A: AES-GCMP with GMAC integrity; introduced 2018.
+Q: Why is WEP unsafe?
+A: Significant cryptographic weaknesses make it quickly crackable.
+@check
+? Employees leave and must immediately lose Wi-Fi access without changing a shared password. Best?
+a) WPA2-PSK
+b) WPA2/WPA3 Enterprise with 802.1X
+c) Open with captive portal
+d) WEP
+= b | Per-user credentials can be disabled individually.
+? Three adjacent APs on 2.4 GHz cause heavy interference. Which channels would you use?
+a) 1, 6, 11
+b) 2, 3, 4
+c) 6, 7, 8
+d) 1, 2, 3
+= a | Only these three do not overlap at 20 MHz.
+@lab
+Design the Wi-Fi
+A 3-floor office with 150 users, guests and laptops. Pick standards, bands, security and management.
+@answer
+Wi-Fi 6/6E APs with lightweight management by a WLC, one ESSID for staff with WPA3-Enterprise (802.1X) and a separate guest SSID on its own VLAN with captive portal and client isolation. Prefer 5/6 GHz with band steering, 2.4 GHz on channels 1/6/11 only for legacy. DFS and TPC on.
+
+## 2.4 Physical Installations
+labs: virtualization-proxmox
+@notes
+### Installing Networks
+- A **distribution frame** is where cables are passively terminated (punch-down blocks, patch panels). **MDF** (main distribution frame): the central room (usually the data center) where WAN circuits and internal LAN runs come together and the core gear lives. **IDF** (intermediate distribution frame): a satellite closet per floor or building that connects back to the MDF.
+- **Racks**: 19 inches wide, height in **rack units (U)** of 1.75 inches each, typically **42U** tall, depth varies. Lockable cabinets add physical security and need ventilation.
+- **Cooling**: an **HVAC** designed for the heat load, with enough power, and tied into the fire system (shuts off if fire). **Hot aisle / cold aisle**: equipment faces so servers pull cold air from the cold aisle and exhaust to the hot aisle (cold air often through a raised floor, hot air drawn out of the ceiling). Cold aisles are often enclosed.
+- **Cabling practice**: run one cable from each desk to a patch panel (**110 punch-down block** on the back, **RJ45** jacks on the front) and never touch it again. Moves, adds and changes are done with **patch cables** between the panel and the switch. Fiber panels: respect the **bend radius** and leave a **service loop** of slack for future changes.
+
+### Power
+- **Safety**: disconnect power before working, and remember capacitors in CRT monitors and laser printers can still shock you. Never ground yourself to an energized circuit.
+- **Units**: **amps** (current, the hose diameter), **volts** (pressure, 120 V or 240 V), **watts = volts x amps** (120 V x 0.5 A = 60 W). **AC** (wall power: 110-120 V at 60 Hz in the US, 220-240 V at 50 Hz in Europe) is converted to **DC** inside device power supplies.
+- **UPS**: batteries ride through outages and even out **brownouts** (low voltage) and **surges**. **Offline/standby** (cheapest, tiny gap that can reboot switches), **line-interactive** (boosts during brownouts), **online/double-conversion** (always on battery, no gap, preferred in data centers). Features: auto shutdown, capacity, outlets.
+- **PDU**: power distribution unit, rack-mounted, often intelligent: IP-managed with a built-in web server, per-outlet remote power on/off.
+
+### Environmental Factors
+- Data centers use about 2 percent of US electricity, much of it for the environment. Ideal **humidity 40 to 60 percent** (too high: condensation, too low: static discharge). Temperature roughly **64 to 81 degrees F**. HVAC with sensors keeps it even.
+- **Fire suppression**: no water on live equipment. Use inert gas or chemical agents that smother the fire (clean agent systems), integrated with HVAC shutdown to cut off oxygen.
+@cards
+Q: MDF vs IDF?
+A: MDF is the main central distribution room; IDFs are intermediate closets on other floors or buildings that connect back to it.
+Q: Width of a standard rack and height unit?
+A: 19 inches wide; one rack unit (U) is 1.75 inches; racks are commonly 42U.
+Q: What are hot and cold aisles?
+A: Rows arranged so servers draw in cold air from one aisle and exhaust hot air into the other.
+Q: What is a patch panel used for?
+A: Terminating permanent cable runs so changes are made with short patch cables instead of rewiring.
+Q: Fiber panel best practices?
+A: Respect the bend radius and keep a service loop of slack.
+Q: What does a 110 block do?
+A: Punch-down termination of twisted pair cable on the back of a patch panel.
+Q: Watts formula?
+A: Watts = volts x amps.
+Q: AC vs DC?
+A: AC alternates direction (wall power); DC flows one direction (device internals).
+Q: US vs European AC?
+A: US 110-120 V at 60 Hz; Europe 220-240 V at 50 Hz.
+Q: Brownout vs surge?
+A: Brownout: voltage drops. Surge: voltage spikes.
+Q: Three UPS types?
+A: Offline/standby, line-interactive, online/double-conversion.
+Q: Why is a standby UPS risky for switches?
+A: The brief switchover gap can make them reboot.
+Q: What is a PDU?
+A: Power distribution unit; intelligent models allow remote outlet control.
+Q: Ideal data center humidity?
+A: 40 to 60 percent.
+Q: Ideal temperature range?
+A: About 64 to 81 degrees F.
+Q: Fire suppression in data centers?
+A: Inert gas or chemical agents, not water, tied into HVAC shutdown.
+@check
+? A switch reboots during brief power blips even though it has a UPS. Most likely UPS type?
+a) Online double-conversion
+b) Offline/standby
+c) Line-interactive with AVR
+d) PDU
+= b | The transfer gap is long enough to reboot sensitive gear.
+? You must reach a fiber patch panel that was bent tightly. What risk?
+a) Increased humidity
+b) Exceeded bend radius damaging the fiber
+c) Over-voltage
+d) DFS
+= b | Fiber breaks or loses signal when bent past its radius.
+@lab
+Power math
+A rack draws 12 A at 208 V. How many watts, and what UPS rating (in VA) would you at least need?
+@answer
+12 x 208 = 2,496 W. UPS VA is roughly watts divided by a power factor of about 0.9 plus headroom, so choose about 3 kVA or more (more if you want runtime or growth).
+
+## 3.1 Processes and Procedures
+labs: help-desk-ticketing-osticket
+@notes
+### Network Documentation
+- **Physical network map**: devices, cables and connections as built (you could follow the cable in the room), made in Visio, OmniGraffle, Gliffy. **Logical map**: high-level connectivity (sites joined across a WAN cloud) without ports and cables, good for planning new sites.
+- **Rack diagram**: front view of a rack by unit number ("go to U15 in row 3, rack W and reboot that server") for remote hands. **Cable map**: floor plan with numbered drops that correspond to patch panel ports, vital for tracing faults. **Layered diagrams** overlay layer 1 (ports/cables), layer 2 (MAC addresses) and layer 3 (IP addresses).
+- **Asset management**: tag every device (barcode or RFID) and keep one database tying tag, components, user, location, purchase date, warranty and installed software (license counts). Tags also let tickets refer to "router 42" and support depreciation.
+- **IPAM (IP address management)**: plan and track subnets, DHCP scopes and who held which IP at what time (key with dynamic addressing), spot shortages, IPv4 and IPv6 in one console.
+- **SLA (service level agreement)**: contract with a provider defining minimum service, for example 99.99 percent uptime or no more than 4 hours of unscheduled downtime.
+- **Site survey**: map the wireless environment (all APs including neighbors, frequencies in use) to minimize interference. A **heat map** shows signal strength across the building. Repeat in shared buildings.
+
+### Life Cycle Management
+- **EOL (end of life)**: vendor stops selling and improving the product (may still patch). **EOS (end of support)**: no more patches or updates at all, a serious security risk. EOL means plan and budget a replacement, EOS means act now.
+- **Patching**: OS and app updates are often monthly on a schedule with out-of-band emergency fixes (zero-days). Updates also change security configuration (password rules, firewall settings, anti-malware). **Firmware** (software embedded in hardware: printers, modems, thermostats) must be updated too, often by hand. Keep old firmware images so you can roll back. Vendors can be slow: some IoT firmware bugs took more than a year to fix, so security must decide whether to keep a device.
+- **Decommissioning**: sanitize or destroy media before disposal, respect legal retention requirements (keep in secure storage until allowed), never throw gear in the trash.
+- **Change management**: defined process with allowed change windows, approvals, install procedure and a **rollback plan**. **Service requests**: a help desk ticketing system for triage, assignment, resolution and closing.
+
+### Configuration Management
+- **Production configuration**: the tested standard for a device class including hardware revisions, firmware, drivers and software versions. Test in a lab first.
+- **Backup before every change** (copy the config file, or a **VM snapshot**) so you can revert. Record changes so a system can be rebuilt after a disaster.
+- **Baseline / golden configuration**: the certified known-good complete config of an application deployment (workstations, firewall, servers). Compare production against it for **integrity checks**: either fix production to match, or approve the change and update the baseline to a new version.
+@cards
+Q: Physical vs logical network map?
+A: Physical shows actual devices, ports and cables. Logical shows how the network is connected at a high level.
+Q: What is a rack diagram for?
+A: Showing exact rack, unit and device positions so remote staff can locate equipment.
+Q: What is a cable map?
+A: Floor plan of numbered cable drops tied to patch panel ports.
+Q: Why use asset tags?
+A: To identify devices in tickets, track location, warranty, depreciation and software licenses.
+Q: What is IPAM?
+A: IP address management: planning and tracking subnets, DHCP and who used which IP when.
+Q: What is an SLA?
+A: Contract that defines minimum service levels such as uptime and recovery times.
+Q: What is a wireless site survey and heat map?
+A: Survey documents APs and frequencies; the heat map shows signal strength across areas.
+Q: EOL vs EOS?
+A: EOL: vendor stops selling or improving; EOS: no more updates, including security fixes.
+Q: Which is the bigger emergency, EOL or EOS?
+A: EOS, because no more security patches will come.
+Q: What is firmware?
+A: Software embedded in hardware devices (printers, modems, switches).
+Q: Why keep old firmware images?
+A: To roll back if a new version causes problems.
+Q: What belongs in a change management process?
+A: Approval, change window, installation steps and a rollback plan.
+Q: What should you do before making a config change?
+A: Back up the current config or snapshot the VM.
+Q: What is a golden configuration?
+A: The known-good, certified baseline used to verify production configs.
+Q: What do you do when production differs from the baseline?
+A: Either correct production or formally update the baseline if the change is approved.
+@check
+? A vendor announces that no more security patches will ever ship for your core switch. Which milestone?
+a) EOL
+b) EOS
+c) SLA
+d) IPAM
+= b | End of support means no updates at all.
+? Before a router upgrade, the first thing to do is?
+a) Reboot it
+b) Back up the configuration and keep the old firmware
+c) Change the SLA
+d) Decommission it
+= b | Backup and rollback path first.
+@lab
+Build a documentation checklist
+List six pieces of documentation you would hand to a new network admin on day one.
+@answer
+Physical and logical network maps, rack diagrams, cable map with drop numbers, IPAM export with DHCP scopes, asset database with warranty and firmware versions, SLA contracts plus golden configs and the change management policy.
+
+## 3.2 Network Monitoring
+labs: siem-security-onion, network-traffic-analysis, log-analysis
+@notes
+### SNMP
+- **SNMP** lets a management station query and manage devices from any vendor. Devices hold values in a **MIB** (management information base), each value addressed by an **OID** (object identifier, a dotted number path such as 1.3.6.1.2.1...). Standard values live in **MIB-2**; vendors add their own OIDs and provide MIB files to load into the console. Polling uses **UDP 161**.
+- Versions: **v1** original, clear text. **v2/v2c**: bulk retrieval, still clear text. **v3**: encryption, integrity and real authentication (username and password hash).
+- **Community strings** (v1/v2c) are simple shared passwords, for example read-only "public" and read-write "private" (change the defaults!). A **MIB walker** (MIB browser) enumerates everything on a device.
+- Polling only finds a problem at the next poll, so devices can send **traps** (unsolicited alerts, **UDP 162**), such as a CRC error threshold, which can trigger tickets or scripts. Poll results over time become graphs of utilization and errors.
+
+### Logs and Monitoring
+- **NetFlow**: summary statistics of traffic flows (who talked to whom, ports, bytes). A **probe** (inline tap or switch **SPAN**/mirror port) summarizes packets and exports to a **collector** with reports: top conversations, top endpoints, top applications by port.
+- **Protocol analyzer** (Wireshark etc.): see raw frames, wired or wireless, with drill-down. Some places store full packet captures long term.
+- **Baseline**: what "normal" looks like (utilization, per device). Compare current numbers to the baseline to decide if something is wrong.
+- **Syslog** (UDP 514) forwards logs from any device to a **SIEM** (security information and event manager), which records the sending device, **facility** (originating program) and **severity** of each message. Dashboards and alerts show failed logins, devices going offline, and reports across time. Tune the severity captured so you do not store everything. Example query: records containing "fail" and "password" reveal brute force or spraying and support forensics.
+- **API integration**: manage hundreds of devices by script (send commands, query config) rather than logging in by hand to each.
+- **Port mirroring (SPAN)** or a **network tap** copies traffic to a monitoring device (IDS/IPS, NetFlow collector), even across switches.
+
+### Network Solutions
+- **Discovery**: LLDP (open standard link layer discovery) and CDP (Cisco discovery protocol) show neighbors. Ping scans, port scans and SNMP discover hosts. Nightly scans give an inventory.
+- **Traffic analysis**: firewall logs list timestamp, protocol, ports, client and server IP, application and bytes, useful for reports and forensics.
+- **Performance** (utilization, errors) from SNMP, NetFlow, protocol analysis or agents. **Availability monitoring**: up/down status (green/red) with alerts, tickets and uptime reports.
+- **Configuration monitoring**: back up and restore device configs (a config may need matching firmware, so keep the old software), compare identical devices, alert on unapproved changes via change control.
+@cards
+Q: What does SNMP use to name each value?
+A: An OID in the device's MIB.
+Q: SNMP versions and security?
+A: v1 and v2c are clear text with community strings; v3 adds authentication, integrity and encryption.
+Q: What is an SNMP trap?
+A: An unsolicited alert from a device to the manager (UDP 162).
+Q: Default SNMP community strings?
+A: public (read-only) and private (read-write): change them.
+Q: What is NetFlow?
+A: Summarized traffic flow statistics exported from probes to a collector.
+Q: What is a SPAN port?
+A: A switch port that receives a copy of traffic from other ports for monitoring.
+Q: What is a network baseline for?
+A: Knowing normal levels so abnormal activity is easy to spot.
+Q: What does a SIEM do with syslog data?
+A: Aggregates, correlates, alerts, and supports reports and forensics.
+Q: Two syslog fields besides the message?
+A: Facility (source program) and severity.
+Q: Why use APIs for network management?
+A: To automate changes and queries across many devices without manual logins.
+Q: LLDP vs CDP?
+A: LLDP is the open standard neighbor discovery; CDP is Cisco's.
+Q: What does availability monitoring show?
+A: Whether devices are up or down, with alerts.
+Q: Why keep old firmware with config backups?
+A: Configs may only load on the matching software version.
+@check
+? You want an alert the instant a router's CRC errors spike, without waiting for polling. Which?
+a) SNMP trap
+b) MIB walk
+c) NetFlow report
+d) LLDP
+= a | Traps are device-initiated notifications.
+? Which tool tells you which apps use the most bandwidth by port, summarized?
+a) Wireshark
+b) NetFlow
+c) CDP
+d) TFTP
+= b | Flow summaries rank applications and endpoints.
+@lab
+Find the brute force
+Your SIEM shows 4,000 "failed password" events for user admin from one external IP between 02:00 and 02:10. What do you do?
+@answer
+Brute force. Check the source IP reputation and geolocation, verify no success after the failures, block the IP, lock or monitor the account, enforce MFA and account lockout, and add an alert rule for repeated failures in a short window.
+
+## 3.3 Disaster Recovery
+labs: incident-response
+@notes
+### Disaster Recovery
+- **DRP (disaster recovery plan)** covers backups, offsite replication, cloud replacements and alternate sites, plus third parties (temporary facilities, recovery services).
+- **RTO (recovery time objective)**: how long until service is back (aim near zero; web server example one hour). **RPO (recovery point objective)**: how much data (time) you can afford to lose, determined by backup or replication frequency (banking, patient data need very short RPO; website edits can tolerate hours). On a timeline: last good recovery point, outage, restored service. Outage minus last recovery point = RPO, outage to restoration = RTO.
+- **MTTR (mean time to repair)**: average time to fix a failure. **MTBF (mean time between failures)**: expected life before failure (20 years for a firewall means fewer spares needed).
+- **Site resiliency**: moving operations to another site and back later. **Cold site**: empty building, bring everything, cheapest, slowest. **Warm site**: some infrastructure (power, racks, perhaps hardware), bring data and finish setup. **Hot site**: near exact replica with current data (replication), switch quickly, most expensive.
+- **Testing**: a **tabletop exercise** is a meeting where key people walk through a scenario (a day or two, cheap). **Validation tests** perform the actual failover steps for a scenario (building fire, regional evacuation), once or more a year. Document what worked and fix the gaps.
+
+### Network Redundancy
+- **Active-passive**: two devices, one active, one standby, constantly exchanging status. On failure the standby takes over. Config, session tables and routing tables must be kept in sync.
+- **Active-active**: both devices pass traffic at the same time, using all capacity, and the survivor simply carries the load after a failure. Needs more engineering because the two directions of a flow might take different paths, so you must track flows and design routing carefully.
+@cards
+Q: RTO in one line?
+A: Recovery time objective: how quickly service must be restored after an outage.
+Q: RPO in one line?
+A: Recovery point objective: the maximum acceptable amount of data loss measured in time.
+Q: Which of RTO and RPO is driven by backup frequency?
+A: RPO.
+Q: MTTR vs MTBF?
+A: MTTR: average time to repair. MTBF: average time between failures.
+Q: Cold site?
+A: Empty facility: you bring equipment, data and people. Cheapest and slowest.
+Q: Warm site?
+A: Partial infrastructure; add data and some equipment. Mid cost and speed.
+Q: Hot site?
+A: Fully equipped and nearly current replica; fastest and most expensive.
+Q: What is a tabletop exercise?
+A: A discussion-based walk-through of a disaster scenario by key staff.
+Q: Why run validation tests?
+A: To prove the plan works and find gaps before a real disaster.
+Q: Active-passive vs active-active?
+A: Passive standby takes over on failure; active-active uses both devices simultaneously.
+Q: What must be synchronized in active-passive pairs?
+A: Configuration and live state like session and routing tables.
+Q: Why is active-active harder?
+A: Asymmetric flows and the need to track state across both devices.
+@check
+? A bank can lose at most 5 minutes of transactions. Which objective is this?
+a) RTO
+b) RPO
+c) MTBF
+d) SLA
+= b | RPO limits data loss.
+? An organization wants a facility that can be running within hours with current data. Which site?
+a) Cold
+b) Warm
+c) Hot
+d) Remote
+= c | Hot sites mirror the production environment.
+@lab
+Set RTO and RPO
+For an online shop: order database, marketing site, internal wiki. Propose RTO and RPO for each.
+@answer
+Order DB: RPO near zero (continuous replication), RTO under 1 hour. Marketing site: RPO 1 day, RTO 4 hours. Wiki: RPO 24 hours, RTO 24 to 48 hours. The tighter the objective, the more expensive the solution.
+
+## 3.4 IP Services
+labs: networking-tcp-ip-dhcp-nat-subnets, linux-server-admin-ubuntu
+@notes
+### DHCP
+- History: manual config, then **BOOTP**, then **DHCP**. The four-step **DORA** exchange: **Discover** (client, source 0.0.0.0, broadcast to 255.255.255.255, UDP 68 to 67), **Offer** (server, broadcast, UDP 67 to 68), **Request** (client picks one offer, broadcast), **Acknowledge** (server confirms, client applies the settings). Everything is broadcast because the client has no IP yet.
+- Broadcasts do not cross routers, so central DHCP servers use a **DHCP relay / helper** on the router. The relay turns the broadcast into a **unicast** to the DHCP server (source becomes the router's interface IP) and turns the reply back into a broadcast on the client subnet.
+
+### Configuring DHCP
+- A **scope** (per subnet): the address **pool/range**, **exclusions**, subnet mask, **lease duration** and **options** (DNS servers, default gateway, VoIP call server). Servers remember MAC-to-IP pairings and will often give you the same address back.
+- **Reservation** (static DHCP, IP reservation): bind a MAC address to a fixed IP in the server, so printers and servers always get the same address and are still managed centrally.
+- **Lease timers**: **T1 = 50 percent** of the lease: client tries to **renew** with the original server. **T2 = 87.5 percent (7/8)**: if that failed, the client **rebinds** with any DHCP server. Example, 8-day lease: T1 at 4 days, T2 at 7 days. Clients release their address on shutdown.
+- **DHCP options**: numbered fields (up to 254) for extra settings, for example **option 129** call server IP, **option 135** HTTP proxy. The server must support the option.
+
+### IPv6 and SLAAC
+- DHCPv6 exists, but IPv6 hosts can also self-configure (**stateless**, no leases, no server). **NDP (neighbor discovery protocol)** replaces ARP and uses **multicast**, not broadcast. **SLAAC** steps: host sends a **router solicitation (RS)**, router answers with a **router advertisement (RA)** (the 64-bit prefix, prefix length, DNS and other parameters; routers also send **unsolicited RAs**). The host builds the **last 64 bits (interface ID)** from its MAC address (modified EUI-64: insert `ff:fe` in the middle) or randomizes it. **Duplicate address detection (DAD)** checks nobody else uses it. Result: a unique, routable address.
+
+### An Overview of DNS
+- DNS translates names to IPs. Hierarchy: root (`.`, 13 server clusters, over 1,000 servers), **TLDs** (.com, .org, .net, country codes like .us .uk), domains, hosts. A full name is an **FQDN** (www.example.com). Use redundant servers: **primary** (holds the editable zone) and **secondary** (read-only copy).
+- **Local resolution**: the **hosts file** (Windows: `C:\Windows\System32\drivers\etc\hosts`, usually needs write permission changed) overrides DNS for testing or fixes. Some apps ignore it.
+- **Forward lookup**: name to IP (`dig www.example.com`, `nslookup`). **Reverse lookup**: IP to name (`dig -x 1.2.3.4`). The reverse name can differ from the forward name (for example a CDN's name).
+- **Authoritative** server = owns the zone. **Non-authoritative** = answered from a cache or secondary copy. **TTL** (seconds) controls how long caches keep an answer (300 = 5 minutes).
+- **Recursive resolution**: the client (resolver) asks its local DNS server, which asks a **root server** (points to the .com servers), then the **TLD server** (points to the domain's name server), then the **authoritative server** (gives the IP), caches it and answers the client.
+- **Security**: DNS is clear text and unauthenticated. **DNSSEC** digitally signs responses (authenticity and integrity, not secrecy). **DNS over TLS (DoT)** encrypts on **TCP 853**. **DNS over HTTPS (DoH)** encrypts inside HTTPS on **TCP 443** (looks like web traffic, many browsers use it by default).
+
+### DNS Records
+- **SOA** start of authority (zone info, serial, refresh/retry/expire). **A** hostname to IPv4. **AAAA** (quad-A) hostname to IPv6. **CNAME** alias to another name (needs a second lookup). **MX** mail exchanger for the domain (points at a name that needs an A record). **TXT** free text, used for **SPF** (which servers may send mail for you) and **DKIM** (public key to verify mail signatures). **NS** the domain's name servers. **PTR** reverse lookup (IP to name, stored in a reverse zone such as 23.168.192.in-addr.arpa).
+
+### Time Protocols
+- **NTP** (UDP 123): clients sync to servers; accurate to milliseconds (about 10 ms from a local server). Servers do not set their own time, a client component syncs them upstream. Many orgs run an internal NTP server. Critical for log correlation, and **Kerberos fails if clocks differ by more than 5 minutes** (feeding wrong time is a denial of service).
+- **NTS (network time security)** authenticates NTP: TLS handshake with an **NTS key exchange server** gets a **cookie** that the client includes in NTP requests. **PTP (precision time protocol)**: hardware-based, **nanosecond** accuracy, for industrial uses.
+@cards
+Q: DHCP four steps?
+A: Discover, Offer, Request, Acknowledge (DORA).
+Q: Why are DHCP messages broadcast?
+A: The client has no IP address yet and does not know the server.
+Q: What does a DHCP relay do?
+A: Forwards client broadcasts to a DHCP server on another subnet as unicast.
+Q: What is a DHCP scope?
+A: Per-subnet configuration: pool, exclusions, mask, lease time, options.
+Q: DHCP reservation?
+A: Fixed IP bound to a device's MAC address in the server.
+Q: T1 and T2 timers?
+A: T1 = 50 percent of the lease (renew with the same server); T2 = 87.5 percent (rebind with any server).
+Q: What are DHCP options?
+A: Extra numbered settings sent to clients such as DNS, gateway, call server (129) and proxy (135).
+Q: What replaces ARP in IPv6?
+A: NDP, the Neighbor Discovery Protocol (multicast based).
+Q: What is SLAAC?
+A: Stateless address autoconfiguration: the host builds its own IPv6 address from the router's prefix and its own interface ID.
+Q: RS and RA in NDP?
+A: Router solicitation (host asks for routers); router advertisement (router replies with prefix and parameters).
+Q: What does DAD do?
+A: Duplicate address detection: checks that a self-made IPv6 address is unique.
+Q: Forward vs reverse DNS lookup?
+A: Forward: name to IP. Reverse: IP to name.
+Q: Authoritative vs non-authoritative answer?
+A: Authoritative comes from the zone owner; non-authoritative from a cache or secondary.
+Q: What does DNS TTL control?
+A: How many seconds a resolver may cache the answer.
+Q: Sequence of a recursive DNS lookup?
+A: Local resolver to root, then TLD, then authoritative server; result cached.
+Q: What does DNSSEC provide?
+A: Signed responses: proof of origin and integrity (not encryption).
+Q: DoT vs DoH ports?
+A: DoT TCP 853; DoH TCP 443.
+Q: Where is the Windows hosts file?
+A: C:\Windows\System32\drivers\etc\hosts.
+Q: A, AAAA, CNAME, MX, NS, PTR, TXT, SOA in short?
+A: IPv4 address; IPv6 address; alias; mail server; name server; reverse pointer; text (SPF/DKIM); zone authority info.
+Q: What are SPF and DKIM?
+A: SPF lists authorized sending servers; DKIM publishes a public key to verify mail signatures. Both live in TXT records.
+Q: NTP port and kerberos skew limit?
+A: UDP 123; Kerberos breaks when clocks differ by more than 5 minutes.
+Q: NTS vs PTP?
+A: NTS authenticates NTP; PTP gives nanosecond hardware-based precision.
+@check
+? A client has an 8-day lease. When does it first try to renew?
+a) 1 day
+b) 4 days
+c) 7 days
+d) 8 days
+= b | T1 is 50 percent of the lease.
+? Clients on a remote VLAN get 169.254.x.x though the DHCP server is on another subnet. Likely missing piece?
+a) NAT
+b) DHCP relay on the router
+c) PTR record
+d) RPO
+= b | Broadcasts need a relay to reach the remote server.
+? Users reach the old IP of a site for 10 minutes after a DNS change. Cause?
+a) NTP
+b) TTL caching of the old record
+c) DNSSEC
+d) SLAAC
+= b | Resolvers keep the answer until TTL expires.
+@lab
+Dig it
+Interpret `dig www.example.com`: answer section shows `www.example.com. 300 IN A 93.184.216.34`. What do 300, IN, A mean and when will other resolvers see a change?
+@answer
+300 = TTL seconds, IN = Internet class, A = IPv4 address record. Caches may keep the old value for up to 5 minutes, so a change propagates within about that time.
+
+## 3.5 Network Access
+labs: vpn-tailscale, linux-server-admin-ubuntu
+@notes
+### VPNs
+- A VPN encrypts traffic across a public network to a **VPN concentrator** (often the firewall). **Client-to-site**: VPN client software on a laptop, started manually or **always-on**. **Site-to-site**: concentrators at two sites build a permanent encrypted tunnel; users are unaware. **Clientless VPN**: runs in an HTML5 browser (web cryptography API), no software to install.
+- **Full tunnel**: all client traffic goes through the VPN (corporate controls everything but it adds a detour for internet traffic). **Split tunnel**: only corporate-bound traffic uses the VPN, other traffic goes straight to the internet (more efficient, less visibility and protection).
+
+### Remote Access
+- **SSH** (TCP 22): encrypted remote terminal, replaces **Telnet** (TCP 23, clear). **RDP** for remote Windows desktops, **VNC** (uses the **RFB** protocol, many OSes) for graphical control. **API**: automate device management with the device's own language, with error handling, instead of scripts over CLI.
+- **Console**: direct serial connection to a device (RJ45 serial, DB9, or USB-to-serial) with a text CLI. Works even when the network is down. **Jump server (jump box)**: a hardened, MFA-protected host you reach through VPN or SSH, then hop to internal devices. Keep it patched.
+- **In-band management**: reach the device over the network via its management IP using SSH or a web GUI (sometimes a dedicated management interface). **Out-of-band management**: a path that does not use the production network: serial console/COM port, a separate management network, even a **modem on a phone line** or a **COM server** to dial in when everything else is down.
+@cards
+Q: Client-to-site vs site-to-site VPN?
+A: Client-to-site connects a user's device to a network; site-to-site permanently links two networks via concentrators.
+Q: What is a clientless VPN?
+A: A browser-based (HTML5) VPN needing no installed client.
+Q: Full vs split tunnel?
+A: Full: everything through the VPN. Split: only corporate traffic through the VPN, the rest direct.
+Q: Telnet vs SSH?
+A: Telnet (TCP 23) is clear text; SSH (TCP 22) is encrypted. Always use SSH.
+Q: What is VNC and its protocol?
+A: Cross-platform graphical remote control using RFB.
+Q: Why use a console connection?
+A: Works with no network access, directly through the device's serial or USB console port.
+Q: What is a jump server?
+A: A hardened gateway host used to access internal devices.
+Q: In-band vs out-of-band management?
+A: In-band uses the production network and management IP; out-of-band uses a separate path such as serial console, dial-in modem or COM server.
+Q: Why use APIs to manage devices?
+A: Automation at scale with error handling in the device's native interface.
+@check
+? A switch is unreachable by IP after a bad config push. Best way to fix remotely?
+a) SSH
+b) Out-of-band console via COM server or modem
+c) RDP
+d) SNMP
+= b | The management path that does not rely on the broken network.
+? A remote user wants to browse the corporate intranet and also the public internet without detours through HQ. Which?
+a) Full tunnel
+b) Split tunnel
+c) Site-to-site
+d) GRE
+= b | Only corporate traffic is tunneled.
+@lab
+Pick the access method
+For each: (1) help desk fixes a user's Windows desktop, (2) engineer edits a core router from home, (3) core router crashed and lost its IP config.
+@answer
+(1) RDP (or VNC) to the desktop. (2) VPN, then jump server, then SSH to the router. (3) Console or out-of-band serial access.
+
+## 4.1 Network Security Concepts
+labs: computer-networks, active-directory
+@notes
+### Security Concepts
+- **Data in transit** (in motion) crosses a network; switches and routers only forward it, so protection comes from firewalls, IPS and **encryption (TLS, IPsec)**. **Data at rest** sits on storage; protect with **full disk, database, or file/folder encryption** plus **ACLs** set by the OS.
+- **PKI** = policies and processes managing keys and certificates. A **certificate authority (CA)** signs certificates so anyone trusting the CA trusts them. Internal CAs sign for internal users and devices (public CA for the internet). A **web of trust** is the decentralized alternative: if A trusts B and B trusts C, A trusts C.
+- **IAM** = identity and access management: authentication, authorization and auditing of who touches data. **Least privilege**: only the rights the job needs. **Role-based access control (RBAC)**: permissions attach to roles, users get roles (in Windows, via groups).
+- **Geofencing / geographic restriction**: allow or deny based on location, found by IP (inaccurate), GPS, or the Wi-Fi network/access point.
+- **Physical**: **CCTV** (motion detect, plate or face recognition, central recording), locks (key, deadbolt, PIN, RFID badge, biometrics); combine for multiple factors.
+
+### Authentication
+- **AAA**: identification (public, such as a username), **authentication** (prove it with private info), **authorization** (what you may access), **accounting** (log logins, logouts, failures). A VPN or switch sends credentials to an **AAA server**, which says approved or denied.
+- **SSO**: log in once, use many resources, usually for about a day. Depends on the auth method.
+- **RADIUS**: widely supported AAA protocol (VPN, 802.1X Wi-Fi, switches, firewalls). **LDAP**: read/write a directory (X.500 attributes: OU, org, location, domain). Containers and leaf objects form a tree; used by Active Directory, OpenDirectory, eDirectory. **SAML**: open XML standard for web SSO. Client hits a resource, is redirected to the identity provider, authenticates, gets a signed token and presents it to the resource. **TACACS+**: Cisco-origin AAA protocol, now open; separates AAA functions.
+- **MFA** factors: something you **know**, **have**, **are**, somewhere you **are**. **TOTP**: time-based one-time password from a shared secret plus the clock (about 30 seconds), needs time sync.
+
+### Security Technologies
+- **Honeypot**: a decoy system to watch attackers. **Honeynet**: a whole decoy network (servers, workstations, routers, NAS).
+- **Risk** = exposure to harm. **Vulnerability** = a weakness. **Exploit** = using a vulnerability. **Threat** = what could exploit it (agent, action, or accidents like fire or flood).
+- **CIA triad**: **confidentiality** (encryption, access limits), **integrity** (unchanged data; hashes, digital signatures), **availability** (systems usable when needed).
+
+### Regulatory Compliance
+- Laws and standards bring fines or worse. **Data localization**: data on a country's citizens must stay inside it. **GDPR** (EU): protects personal data of EU residents (name, address, photo, email, bank, browsing); gives people control, including deletion. **PCI DSS** (an industry standard, not a law): six goals, secure network, protect cardholder data, vulnerability program, strong access control, monitor and test, security policy. Failing audits can end your right to process cards.
+
+### Segmentation Enforcement
+- Segment physically or with VLANs for **performance** and **security** (limit who talks to whom; PCI requires it for card data).
+- **IoT** (sensors, cameras, doorbells) is often weakly secured: put it on its own network. **IIoT** and **SCADA/ICS** (large industrial control, real-time) and **OT** (grid, traffic, plants) need uptime and isolation. **Guest network**: internet only, no internal access, passphrase or login. **BYOD**: personal devices get a segmented work area (company data can be wiped on exit).
+@cards
+Q: Data in transit vs at rest?
+A: In transit crosses a network (protect with TLS/IPsec); at rest sits on storage (full disk, database or file encryption, ACLs).
+Q: What is PKI?
+A: The policies and infrastructure that issue, manage and revoke keys and certificates.
+Q: What does a CA do?
+A: Digitally signs certificates so others can trust them.
+Q: What is a web of trust?
+A: Decentralized trust: if A trusts B and B trusts C, A trusts C.
+Q: Least privilege?
+A: Give users only the access their job needs.
+Q: RBAC?
+A: Role-based access control: permissions attach to roles and users are assigned roles (Windows groups).
+Q: Geofencing?
+A: Allow or deny access based on physical location (GPS, IP, Wi-Fi).
+Q: Three As of AAA?
+A: Authentication, Authorization, Accounting.
+Q: SSO?
+A: Authenticate once and access many resources for a period of time.
+Q: RADIUS use?
+A: A common AAA protocol for VPN, 802.1X wireless and device logins.
+Q: LDAP?
+A: Protocol for reading and writing a centralized directory (X.500 attributes), as in Active Directory.
+Q: SAML?
+A: Open standard for SSO: identity provider authenticates the user and issues a signed token the resource accepts.
+Q: TACACS+?
+A: Cisco-origin AAA protocol, separates authentication, authorization and accounting.
+Q: MFA factor types?
+A: Know, have, are, and somewhere you are.
+Q: TOTP?
+A: Time-based one-time password from a shared secret and synchronized clock, changing about every 30 seconds.
+Q: Honeypot vs honeynet?
+A: Honeypot is one decoy system; honeynet is a decoy network of several devices.
+Q: Risk, vulnerability, exploit, threat?
+A: Exposure to harm; weakness; use of the weakness; what could exploit it.
+Q: CIA triad?
+A: Confidentiality, Integrity, Availability.
+Q: GDPR vs PCI DSS?
+A: GDPR is EU law protecting personal data; PCI DSS is an industry standard protecting card data.
+Q: Why segment IoT, ICS and OT?
+A: They are weakly secured or critical; isolation limits attacks and keeps them available.
+Q: Guest network goal?
+A: Internet access with no access to internal services.
+Q: BYOD segmentation?
+A: Separates company data from personal data so it can be managed or wiped.
+@check
+? A user logs in once and then reaches mail, files and intranet without re-entering a password. What is this?
+a) RBAC
+b) SSO
+c) Geofencing
+d) PKI
+= b | Single sign-on.
+? Which protocol is the standard for authenticating Wi-Fi users with 802.1X against a central server?
+a) RADIUS
+b) NTP
+c) SNMP
+d) DoH
+= a | RADIUS backs 802.1X.
+? Cameras and thermostats keep being compromised and the attacker reaches file servers. Best fix?
+a) Segment IoT onto its own VLAN
+b) Disable DNS
+c) Add DHCP options
+d) Use a hub
+= a | Isolation limits lateral movement.
+@lab
+Name the factor
+Classify each login element: password, authenticator app code, fingerprint, being inside HQ GPS fence, hardware key.
+@answer
+Password = know. App code (TOTP) = have. Fingerprint = are. GPS fence = somewhere you are. Hardware key = have.
+
+## 4.2 Attack Types
+labs: network-traffic-analysis
+@notes
+### Denial of Service
+- **DoS**: make a service unavailable, by overload, a software flaw, a distraction while another attack runs, or plain physical action (cut power, water leak). Accidents count: a **switching loop** without **STP** floods the network, and one huge download can saturate a small link.
+- **DDoS**: many devices (a **botnet**) attack together. It is **asymmetric**: attackers with few resources beat big ones.
+- **Reflection and amplification**: the attacker sends small spoofed requests (source = victim) to open servers; they answer the victim with far bigger replies. Protocols abused: **NTP, DNS, ICMP**. Example: a 28-byte DNS query with the `ANY` type returned about 1,300 bytes. Defenses: patching, rate limits, anti-spoofing filters, closing open resolvers, upstream scrubbing.
+
+### VLAN Hopping
+- VLANs separate traffic unless a router connects them. Two tricks cross without a router:
+- **Switch spoofing**: the attacker pretends to be a switch; if the port auto-negotiates a **trunk** (DTP), they reach every VLAN on it. Fix: **disable trunk auto-negotiation**, set ports manually to access, and list the allowed VLANs on trunks.
+- **Double tagging**: a frame with two 802.1Q tags. The first switch strips the tag that matches the **native VLAN** and forwards the frame, the next switch reads the second tag and drops it onto the target VLAN. Traffic is **one-way** (no replies), enough for DoS. Fix: don't put users in the native VLAN, change native VLAN from 1 to an unused ID, and tag the native VLAN.
+
+### MAC Flooding
+- A **MAC address** is 48 bits (6 bytes, hex); first 3 bytes = **OUI** (vendor), last 3 = NIC serial. The **burned-in address** is stored in ROM.
+- A switch **learns source MACs** per port into a **MAC (CAM) table**; entries age out in about 5 minutes (STP also uses MACs). Frames for known MACs go out one port only; **unknown destinations are flooded** to all ports.
+- **MAC flooding**: send many frames with random source MACs to fill the limited table; then all traffic floods like a **hub** and the attacker can sniff it. Fix: **port security** (limit MACs per port, sticky MACs, violation action).
+
+### ARP and DNS Poisoning
+- **Spoofing** = pretending to be another person/device (email, caller ID, IP, DNS). It enables **on-path** (man-in-the-middle) attacks.
+- **ARP** has no authentication and accepts unsolicited replies. In **ARP poisoning** the attacker sends a reply "192.168.1.1 is at attacker-MAC", the victim caches it, and all its router traffic goes through the attacker (usually forwarded on, so nobody notices). Defenses: **dynamic ARP inspection (DAI)**, static entries, 802.1X.
+- **DNS poisoning**: change records on the DNS server or forge responses in transit (often from an on-path position), or edit the client **hosts file** (which overrides DNS). Victims are sent to the attacker's server. Defenses: DNSSEC, patching, DoT/DoH, locked-down hosts file.
+
+### Rogue Services
+- **Rogue DHCP server**: DHCP has no authentication, so a fake server can hand out bad IPs, gateways or DNS (outage or on-path). Defenses: **DHCP snooping** (only trusted ports may answer), AD-authorized DHCP servers. If found, remove it and renew all leases.
+- **Rogue access point**: an unauthorized AP plugged into the LAN (or OS Wi-Fi sharing). Find with wireless scans and walk-arounds; prevent with **802.1X (NAC)** on switch ports.
+- **Evil twin**: malicious AP copying a real SSID/captive portal, often at higher power. Always use **VPN or HTTPS**.
+- **On-path attack**: sits between two parties to read or change traffic. Examples: evil twin, ARP poisoning, session hijacking, HTTPS spoofing, Wi-Fi eavesdropping. Encryption limits the damage.
+
+### Social Engineering
+- **Phishing**: spoofed message to steal data. Check the sender domain, link target, spelling and graphics; open suspicious links only in an isolated VM, better, don't click.
+- **Shoulder surfing**: watching a screen (also through windows, binoculars, or hijacked webcams). Use privacy filters, sit back to a wall, face screens away from windows.
+- **Tailgating**: follow an authorized person through a door without their knowledge. **Piggybacking**: they let you in knowingly (hands full, "hold the door"). Prevent with **badges, one-at-a-time rules, access control vestibules (airlocks)**, and employees who challenge unbadged strangers.
+- **Dumpster diving**: sorting through trash for names and documents. Prevent by locking or fencing bins, cameras, **shredding** or burning.
+
+### Malware
+- **Virus**: needs a human to spread. **Worm**: self-replicates over the network with no help (more dangerous, uses unpatched vulnerabilities). **Ransomware**: encrypts data and demands payment for the key. **Trojan**: disguised as something wanted. **Rootkit**: hides inside the OS, hard to detect or remove. **Keylogger**: records keystrokes and credentials. **Adware/spyware**: ads and spying for profit. **Bloatware**: unwanted preinstalled software (not malicious, wastes resources). **Logic bomb**: triggers on a date or event. **Botnet / bot**: remote-controlled infected hosts. **Backdoor**: hidden remote access.
+- Delivery: links, pop-ups, **drive-by downloads**. Defense: patch OS and apps, don't click, backups.
+@cards
+Q: What is a DoS attack?
+A: Any action that makes a service unavailable.
+Q: DDoS vs DoS?
+A: DDoS uses many (often botnet) sources at once.
+Q: Why is DDoS called asymmetric?
+A: A small attacker can overwhelm a much bigger target.
+Q: Reflection and amplification?
+A: Small spoofed requests to open servers (DNS, NTP, ICMP) trigger larger replies sent to the victim.
+Q: Which protocol prevents switching loops that cause a DoS?
+A: Spanning Tree Protocol.
+Q: Two VLAN hopping methods?
+A: Switch spoofing and double tagging.
+Q: Fix for switch spoofing?
+A: Disable trunk auto-negotiation; configure access ports manually.
+Q: Fix for double tagging?
+A: Do not use the native VLAN for users; change native VLAN from 1 and tag it.
+Q: Is double tagging two-way?
+A: No, one-way only.
+Q: MAC address structure?
+A: 48 bits: 3-byte OUI (vendor) + 3-byte NIC-specific.
+Q: How does a switch build its MAC table?
+A: Learns the source MAC and port of incoming frames; entries age out in about 5 minutes.
+Q: MAC flooding effect?
+A: Fills the table so the switch floods traffic out all ports like a hub.
+Q: Defense against MAC flooding?
+A: Port security.
+Q: What is ARP poisoning?
+A: Fake ARP replies make victims map an IP (such as the gateway) to the attacker's MAC.
+Q: Defense against ARP poisoning?
+A: Dynamic ARP inspection, static entries, 802.1X.
+Q: How can DNS be poisoned?
+A: Alter server records, forge replies, or edit a client's hosts file.
+Q: DHCP snooping?
+A: Switch feature that only allows DHCP replies from trusted ports.
+Q: Rogue AP vs evil twin?
+A: Rogue AP is any unauthorized AP on the network; evil twin copies a legitimate SSID to lure users.
+Q: Best prevention for rogue APs on switch ports?
+A: 802.1X network access control.
+Q: On-path attack?
+A: Attacker sits between two parties to read or change traffic (formerly man in the middle).
+Q: Tailgating vs piggybacking?
+A: Tailgating = unnoticed following; piggybacking = invited or held door.
+Q: Control that physically allows one person in at a time?
+A: Access control vestibule (airlock).
+Q: Counter to dumpster diving?
+A: Locked bins, cameras and shredding.
+Q: Virus vs worm?
+A: Virus needs user action; worm spreads on its own.
+Q: What is a rootkit?
+A: Malware hidden deep in the OS, hard to detect.
+Q: Logic bomb?
+A: Malware that triggers on a time or event.
+Q: What is ransomware?
+A: Malware that encrypts data and demands payment for the key.
+@check
+? Sniffing shows traffic for other hosts after a switch was hit with thousands of fake source MACs. Attack?
+a) ARP poisoning
+b) MAC flooding
+c) Double tagging
+d) DNS poisoning
+= b | The table filled, so the switch floods like a hub.
+? Which feature stops a laptop from offering IPs to clients on an access port?
+a) DHCP snooping
+b) STP
+c) NTP
+d) Port mirroring
+= a | Only trusted ports may send DHCP offers.
+? An attacker sends frames with two 802.1Q tags and gets no reply. Why?
+a) Switch spoofing is one-way
+b) Double tagging is one-way
+c) STP blocked it
+d) DNSSEC
+= b | Replies cannot be routed back across VLANs.
+? A person follows an employee through a badge door without being noticed. Best control?
+a) Privacy filter
+b) Access control vestibule
+c) MAC filter
+d) Shredder
+= b | Forces one person at a time.
+@lab
+Spot the poison
+`arp -a` on a host shows the gateway 192.168.1.1 and another host 192.168.1.14 with the same MAC. What happened and what are the next steps?
+@answer
+Two IPs with one MAC means the .14 machine claimed the gateway's IP (ARP poisoning). Find .14's port via the switch MAC table, isolate it, flush ARP caches (`arp -d *`), and enable dynamic ARP inspection.
+
+## 4.3 Network Security Features
+labs: firewalls-pfsense, computer-networks
+@notes
+### Device Security
+- **Close unused ports/services**: every listening service is an entry point (ports 0 to 65,535). Check with **nmap**; use a **firewall** to limit who can reach the ones you keep.
+- **Change default credentials** on every switch, router and firewall; default admin logins are public.
+- **Port security** (switches): limit the number of MACs per port or pin specific MACs; a violation usually **shuts the port down** and alerts the admin. Stops someone swapping in their own device.
+- **Disable unused interfaces** (wall jacks, conference rooms) until needed.
+- **NAC / 802.1X**: require authentication before a port or Wi-Fi network works.
+- **MAC filtering**: allow or block by MAC. Weak, **security through obscurity**: MACs are easy to sniff and change.
+- **Key management**: central console to create, track expiry, renew, revoke and report on certificates, SSL keys and SSH keys per user or service.
+
+### Security Rules
+- **ACL**: allow/deny list matching source and destination IP, port, protocol, time or application. Found on routers, firewalls and operating systems.
+- **Firewall rules** are read **top to bottom, first match wins**: put specific rules first, general ones last. If nothing matches, the **implicit deny** blocks the traffic. Sample rule base: allow TCP 22, 80, 443, 3389 in; allow UDP 53 and 123 out; deny ICMP; implicit deny at the end.
+- **URL filtering**: allow or block specific URLs or **categories**; combine with firewall rules so users can't bypass. **Content filtering** goes further: inspect content for leaked documents or financial data, unsafe content, malware (antivirus). Next-generation firewalls include both.
+- **Screened subnet (DMZ)**: separate network for public services (web, mail) so the internet reaches them but not the internal LAN.
+- **Zones**: group networks into **trusted/untrusted**, or inside, internet, server, database and screened subnet zones. Rules reference zones rather than IPs ("trusted to untrusted: allow", "untrusted to trusted: deny"). This is a **zone-based firewall**.
+@cards
+Q: Why close unused ports?
+A: Each open port is an entry point into a service; fewer ports, smaller attack surface.
+Q: Tool to see which ports are open on a host?
+A: nmap.
+Q: Why change default credentials?
+A: Defaults are public and usually give admin access.
+Q: What does port security do?
+A: Limits which or how many MAC addresses may use a switch port; violations can shut the port down.
+Q: Why disable unused switch ports?
+A: Prevents someone plugging into a live jack.
+Q: What is NAC (802.1X)?
+A: Authentication required before a device gets network access.
+Q: Why is MAC filtering weak?
+A: MACs can be sniffed and spoofed; it is security through obscurity.
+Q: What does a key management system provide?
+A: Central creation, expiry tracking, renewal, revocation and reporting for keys and certificates.
+Q: What is an ACL?
+A: A list of allow and deny rules matching traffic criteria.
+Q: How is a firewall rule base processed?
+A: Top to bottom, first match wins.
+Q: Implicit deny?
+A: Traffic matching no rule is blocked by default.
+Q: Order of rules: specific or general first?
+A: Specific first, general last.
+Q: URL vs content filtering?
+A: URL filtering controls sites or categories; content filtering inspects the data itself (leaks, malware, unsafe content).
+Q: What is a screened subnet?
+A: A separate network (DMZ) for public-facing servers, isolated from the internal LAN.
+Q: Zone-based firewall?
+A: Rules written between security zones (trusted, untrusted, screened subnet) instead of IP ranges.
+@check
+? Traffic from the internet matches no firewall rule. What happens?
+a) Allowed
+b) Implicit deny
+c) Logged only
+d) Sent to the DMZ
+= b | Unmatched traffic is dropped by default.
+? A public web server should be reachable but not expose the internal LAN. Where do you place it?
+a) Inside the trusted zone
+b) Screened subnet
+c) On the management VLAN
+d) Behind a hub
+= b | Screened subnet isolates public services.
+? Someone plugs a personal laptop into a wall jack and gets network access. Best control?
+a) 802.1X with port security
+b) More DNS servers
+c) Longer lease times
+d) NTP
+= a | Authenticate and limit devices per port.
+@lab
+Order the rules
+A firewall has: (1) deny all, (2) allow TCP 443 to web server, (3) deny TCP 443 from 203.0.113.5. Put them in a working order so that the bad host is blocked and others reach the site.
+@answer
+Deny 203.0.113.5 to 443 first (specific), then allow TCP 443 to the web server, then deny all (explicit version of the implicit deny) last.
+
+## 5.1 Troubleshooting
+labs: computer-networks
+@notes
+### Network Troubleshooting Methodology
+- Steps in order: **1 identify the problem** (gather information, question users, identify symptoms, determine what changed, duplicate the problem if possible, approach multiple problems individually). **2 establish a theory of probable cause** (question the obvious; consider multiple approaches such as top-down or bottom-up through the OSI model, or divide and conquer). **3 test the theory**; if it fails, make a new theory or escalate. **4 establish a plan of action** and identify potential effects. **5 implement the solution** or escalate. **6 verify full system functionality** and implement preventive measures. **7 document** findings, actions and outcomes.
+- Ask "what changed?" (cables moved, device powered off, config edits). Users plus switch and router metrics give the best picture. Labs help reproduce problems; split large problems into pieces.
+- Start with quick, obvious causes (swap a cable). Eliminating variables helps: if the issue shows on two operating systems, the OS isn't the cause.
+- Production changes go through **change control** with a **plan B, plan C and a rollback**. The troubleshooters and the team implementing the change may differ. Always confirm the fix with the users, discuss prevention, then record it in the help desk or knowledge base.
+@cards
+Q: Seven troubleshooting steps in order?
+A: Identify problem; theory of probable cause; test theory; plan of action; implement; verify functionality and prevent; document.
+Q: Key question when identifying a problem?
+A: What has changed?
+Q: Top-down vs bottom-up?
+A: Top-down starts at the application layer and works down the OSI model; bottom-up starts at physical and works up.
+Q: What if the tested theory is wrong?
+A: Form a new theory or escalate.
+Q: Why have a rollback plan?
+A: Production changes may fail; rollback restores the previous state.
+Q: When is troubleshooting finished?
+A: After full functionality is verified with users and everything is documented.
+@check
+? A fix works in the lab. What is the next step?
+a) Document
+b) Plan the change, with change control and rollback
+c) Close the ticket
+d) Reboot everything
+= b | Plan of action comes before implementation.
+? Before changing anything, what question is most useful?
+a) Who is to blame?
+b) What has changed?
+c) Which vendor?
+d) How much is the budget?
+= b | Most outages follow a change.
+@lab
+Put them in order
+Shuffle: document, test the theory, question users, implement the fix, verify with users, establish theory, plan the change.
+@answer
+Question users (identify), establish theory, test theory, plan the change, implement, verify with users, document.
+
+## 5.2 Physical Issues
+labs: hardware-diagnostics-and-repair, computer-networks
+@notes
+### Cable Issues
+- **Fiber mismatch**: single-mode (core about 9 microns, one light path) vs multimode (50 or 62.5 micron core, many paths), all with 125 micron cladding, so they look identical. Mixing them causes signal errors. Colors are not reliable; read the jacket print and document your fiber. Transceivers must also match the **wavelength** (850 nm multimode, 1310 nm single-mode).
+- **Copper categories** (set by TIA, minimums come from IEEE): **1000BASE-T** needs Cat 5 up to **100 m**; **10GBASE-T** needs Cat 6 (UTP about **55 m**) or Cat 6A (100 m). **Bandwidth** = theoretical maximum; **throughput** = what you actually move. Wrong category means errors and slowdowns.
+- **UTP vs STP**: STP has a shield (grounded) around the cable or each pair; use it near interference.
+- **Crosstalk**: leaking between pairs. **NEXT** near-end, **FEXT** far-end, **alien** from other cables. **ACR** compares attenuation to near-end crosstalk, like signal to noise (higher is better). Fix: re-terminate, keep twists up to the connector, use Cat 6A with spacers.
+- **EMI**: keep cables away from power lines, fluorescent lights, generators and fire systems; never break the shield. Respect **bend radius**, no staples, use Velcro ties, not tight plastic ones.
+- **Attenuation**: loss of signal over distance (copper, fiber, Wi-Fi); explains length limits.
+- **Bad terminations**: pins must match end to end (1-1, 2-2...). Wrong pins drop speed (1 Gb falls to 100 Mb), **reversed** pairs give no link, **crossed** pairs (half cross) appear as 1-3 and 3-1. Auto-MDIX may hide this, but terminate properly. Always test with a **cable tester**.
+
+### Interface Issues
+- Monitor with **SNMP** (standard counters in **MIB-II**, plus vendor MIBs). Watch **link status** (up/down), **utilization** and **errors**.
+- Ethernet frame: preamble/SFD, destination MAC, source MAC, EtherType, payload, **FCS**. A bad FCS = **CRC error** (cable, interface, duplex or interference). **Runt** = under 64 bytes (collisions on half duplex). **Giant** = over 1,518 bytes (or over the configured jumbo size). **Drops** = no buffer room (congestion).
+- **Error disabled**: the switch shut a port itself (flapping link, port security violation, errors). It stays down until an admin re-enables it. **Administratively down**: an admin turned it off. **Suspended**: incompatible configuration at once, for example **LACP** on one side only.
+
+### Hardware Issues
+- **PoE**: power on data wires. Source: **endspan** (PoE switch) or **midspan** (injector). Standards: **PoE 802.3af 15.4 W**, **PoE+ 802.3at 25.5 W**, **PoE++ 802.3bt** type 3 up to 51 W and type 4 up to 71.3 W (cameras, laptops). Check device class and the switch's **total PoE budget** (such as 200 W or 720 W).
+- **Transceiver mismatches**: wavelength and fiber type must agree; labels are small and hidden once inserted.
+- **Power budget**: transmit power (dBm) minus loss (distance, connectors, splices) = received power; it must be **above the receiver sensitivity**. Example: sensitivity -17 dBm; receiving -15 dBm is fine, -20 dBm is too weak.
+@cards
+Q: Single-mode vs multimode fiber?
+A: Single-mode: small core (~9 microns), one path, long distance. Multimode: 50 or 62.5 micron core, multiple paths, shorter.
+Q: Symptom of mixing fiber types?
+A: Signal errors or no link.
+Q: Minimum cable and distance for 1000BASE-T?
+A: Cat 5, 100 m.
+Q: Minimum cable for 10GBASE-T?
+A: Cat 6 (about 55 m UTP) or Cat 6A (100 m).
+Q: Bandwidth vs throughput?
+A: Bandwidth is the theoretical maximum; throughput is the actual data transferred.
+Q: STP vs UTP?
+A: STP has shielding (grounded) against interference; UTP does not.
+Q: NEXT, FEXT, alien crosstalk?
+A: Near-end, far-end and cable-to-cable interference.
+Q: What is ACR?
+A: Attenuation to crosstalk ratio, like signal to noise.
+Q: Common causes of EMI?
+A: Power cords, fluorescent lights, generators, fire systems.
+Q: What is attenuation?
+A: Signal loss over distance.
+Q: Reversed vs crossed pairs?
+A: Reversed: pin swap such as 1-2 and 2-1, gives no link. Crossed: wrong pair pins (1-3, 3-1).
+Q: Why did a 1 Gb link run at 100 Mb?
+A: Likely bad termination or damaged pairs.
+Q: Tool to verify a new cable run?
+A: Cable tester/certifier.
+Q: What protocol gathers interface statistics?
+A: SNMP using MIB-II.
+Q: CRC error means?
+A: FCS mismatch: corrupted frame (cable, interface, duplex or EMI).
+Q: Runt, giant, drop?
+A: Under 64 bytes; over 1,518 bytes (or jumbo limit); frame discarded for lack of buffer.
+Q: Error disabled vs administratively down?
+A: Error disabled: switch shut it automatically. Admin down: an admin shut it deliberately.
+Q: Suspended port example?
+A: LACP configured on one side only.
+Q: Port flapping?
+A: Interface repeatedly going up and down.
+Q: Endspan vs midspan?
+A: Endspan: PoE switch supplies power. Midspan: injector between a non-PoE switch and device.
+Q: PoE wattages?
+A: PoE 15.4 W, PoE+ 25.5 W, PoE++ up to 51 W (type 3) or 71.3 W (type 4).
+Q: What must be checked on a PoE switch besides standard?
+A: Total power budget against all connected devices.
+Q: How to compute a fiber power budget?
+A: Transmit dBm minus distance, connector and splice loss must still exceed receiver sensitivity.
+@check
+? A switch port went down after a user unplugged a desktop and plugged in a personal laptop. Status?
+a) Error disabled (port security)
+b) Administratively down
+c) Suspended
+d) Full duplex
+= a | The violation shut the port; re-enable it manually.
+? A 10GBASE-T run of 80 m on Cat 6 UTP drops packets. Most likely cause?
+a) Cat 6 UTP only supports about 55 m at 10G
+b) DHCP
+c) A runt
+d) NTP
+= a | Use Cat 6A or shorten.
+? Interface counters show a growing CRC count. Where do you look first?
+a) Cable and connectors
+b) DNS
+c) VLAN IDs
+d) DHCP scope
+= a | CRC errors point to the physical layer.
+? Receiver sensitivity is -17 dBm and the link delivers -20 dBm. Result?
+a) Fine
+b) Too weak, signal loss
+c) Too strong
+d) Needs PoE
+= b | Received power is below sensitivity.
+@lab
+Read the counters
+An interface shows `5 runts, 0 giants, 4821 CRC, 12 drops`, link up, half duplex on one end and full on the other. Diagnose.
+@answer
+A duplex mismatch causes collisions (runts), CRC errors and drops. Set both ends to auto-negotiate or the same fixed speed and duplex, replace the cable if the CRC count continues to rise.
+
+## 5.3 Troubleshooting Network Services
+labs: computer-networks, networking-tcp-ip-dhcp-nat-subnets
+@notes
+### Switching Issues
+- Ethernet frames have no TTL, so a **switching loop** circulates forever and broadcast/multicast storms kill the network. **Spanning Tree Protocol (STP)** prevents them.
+- STP switches exchange **BPDUs** (MAC multicast, hello **every 2 seconds**). Missing **three** hellos = link down and the topology is recomputed. A **root bridge** is elected: **lowest bridge ID** wins (settable from 0 to 61,440 in steps; ties broken by lowest MAC). Others pick a **root port** toward the root; **designated ports** forward; **blocked/discarding** ports break loops. Port states: **blocking/discarding, listening, learning, forwarding**, **disabled** (admin). Failures unblock ports automatically.
+- **VLAN issues**: device has an IP but can't reach neighbors? Check the **access port's VLAN ID** on the switch.
+- **ACLs**: if routing and VLANs look right but packets disappear, check ACLs on the path. Like firewall rules: first match, specific entries first, **implicit deny**, so an empty ACL on an interface blocks everything. Be careful editing ACLs on the interface you are managing through (you can lock yourself out).
+
+### Routing and IP Issues
+- Check the **routing table on every router** along the path and the **return path**. No route = packet dropped, often with **ICMP destination/host unreachable**. Compare with a network map.
+- **Gateway of last resort** = default route, **0.0.0.0/0**, usually static (`ip route 0.0.0.0 0.0.0.0 10.10.50.2`). Routing table sources: directly connected, static, learned (RIP, OSPF, etc.).
+- **Address pool exhaustion**: clients get **APIPA 169.254.x.x** (local only, nonroutable). Check the DHCP server or **IPAM**, enlarge the pool, **shorten the lease** on transient networks.
+- **Incorrect IP, mask or gateway**: verify with the admin, packet capture, or other devices. Test in order: **ping self, ping gateway, ping beyond the gateway** (and traceroute).
+- **Duplicate IPs**: static device inside a DHCP pool, overlapping scopes on two servers, or a rogue DHCP server. Modern OSes warn on conflict. Ping the address before assigning; if it answers, find it: ping, then **ARP table** for the MAC, then **switch MAC table** for the port. Capture DHCP offers to catch duplicate servers.
+@cards
+Q: Why can't a switch network stop loops by itself?
+A: Ethernet frames have no TTL, so they circulate indefinitely.
+Q: What does STP use to talk?
+A: BPDUs, sent every 2 seconds.
+Q: When does STP consider a link down?
+A: After three missed hellos (BPDUs).
+Q: How is the root bridge chosen?
+A: Lowest bridge ID; ties go to the lowest MAC address.
+Q: Root port vs designated port vs blocked port?
+A: Root: best path to root. Designated: forwarding port for a segment. Blocked: prevents a loop.
+Q: STP port states?
+A: Blocking/discarding, listening, learning, forwarding, plus disabled.
+Q: Device has valid IP but can't talk to local hosts. What to check?
+A: The switch port's VLAN assignment.
+Q: ACL gotcha?
+A: Implicit deny at the end; an empty ACL on an interface blocks all traffic.
+Q: What happens when no route matches?
+A: The packet is dropped, often with ICMP destination unreachable.
+Q: Gateway of last resort?
+A: Default route 0.0.0.0/0 used when nothing else matches.
+Q: What does a 169.254.x.x address mean?
+A: APIPA: DHCP failed (such as pool exhaustion) and the host self-assigned a nonroutable address.
+Q: How to reduce pool exhaustion on guest networks?
+A: Shorten lease times and enlarge the pool; monitor with IPAM.
+Q: Ping test order for IP problems?
+A: Self, default gateway, remote address (then traceroute).
+Q: Causes of duplicate IPs?
+A: Static IPs inside the DHCP scope, overlapping scopes, rogue DHCP server.
+Q: How to find who has a duplicate IP?
+A: Ping it, read the ARP table for the MAC, then look it up in the switch MAC table.
+@check
+? Network comes to a halt after someone adds a second cable between two switches. Missing feature?
+a) STP
+b) DHCP relay
+c) NTS
+d) PoE
+= a | A loop without STP floods the network.
+? A PC gets 169.254.12.7. Likely cause?
+a) DNS cache
+b) DHCP unavailable or pool exhausted
+c) Wrong VLAN trunk
+d) NTP drift
+= b | APIPA means no DHCP lease.
+? Router 1 sends traffic to 10.3.10.0/24 but pings get "destination unreachable." What do you check?
+a) Routing tables, in both directions
+b) The hosts file
+c) Port security
+d) Cable category
+= a | Missing route on the path or return.
+@lab
+Chase the conflict
+Windows reports an IP conflict for 192.168.1.50. Write the commands to find the other device.
+@answer
+`ping 192.168.1.50`, then `arp -a` to read its MAC, then on the switch `show mac address-table address <mac>` to find the port. Remove or fix that device, then renew leases.
+
+## 5.4 Performance Issues
+labs: computer-networks
+@notes
+### Performance Issues
+- **Congestion**: more traffic arrives than a link can send (two 1 Gb links into one 1 Gb uplink). Small buffers fill and packets are **dropped**. Fix: faster links, more links, or less traffic (QoS).
+- **Bottleneck**: the slowest component limits everything (bus, CPU, storage, slowest link). Drill down: the example web transaction at about 1,500 to 1,750 ms was dominated by the database; a database fix cut it to about 500 ms.
+- **Bandwidth (utilization)** percentage over time, **throughput** actual data moved; gather with the switch, **SNMP** or **NetFlow**.
+- **Latency**: delay between request and response; measure at each hop with packet captures (microsecond resolution).
+- **Packet loss/discards**: valid packets dropped by congestion or outage; corruption (bad cable, weak Wi-Fi) forces retransmission.
+- **Jitter**: variation in the time between packets. Voice and live video need regular spacing; high jitter causes clicks and stutters.
+
+### Wireless Issues
+- **Interference and channels**: 2.4 GHz has only three non-overlapping channels in North America (**1, 6, 11**). Channel 8 would overlap 6 and 11. 5 GHz and 6 GHz have many more. Let APs auto-select channels; recheck manual ones.
+- Best practices: **disable legacy/low-speed support**, lower output power on small areas, split big networks across APs on different channels, upgrade to newer standards.
+- **Signal attenuation**: weaker with distance. Use a **Wi-Fi analyzer** and **heat map**; raise power (if supported), add a **higher-gain antenna**, keep coax runs short and undamaged. Run **site surveys** repeatedly (neighbors change).
+- **Client disassociation**: older 802.11 management frames are unprotected, so an attacker can kick clients off (DoS). Look for deauth frames in a capture; newer standards (protected management frames) prevent it.
+- **Roaming**: multiple APs with the **same SSID** must have **identical settings** and security, or roaming clients get dropped.
+@cards
+Q: What causes congestion?
+A: More traffic than a link or buffer can carry; leads to drops.
+Q: What is a bottleneck?
+A: The slowest component limits overall performance.
+Q: Tools to gather bandwidth statistics?
+A: Switch counters, SNMP and NetFlow.
+Q: Latency definition?
+A: Delay between a request and its response.
+Q: Packet loss causes?
+A: Congestion, outages, bad cables or weak wireless leading to dropped or corrupt packets.
+Q: What is jitter and what does it affect?
+A: Variation in packet spacing; hurts voice and live video.
+Q: Non-overlapping 2.4 GHz channels (North America)?
+A: 1, 6 and 11.
+Q: Which bands give the most channels?
+A: 5 GHz and 6 GHz.
+Q: Why disable legacy Wi-Fi support?
+A: Old standards slow the whole network.
+Q: Fixes for weak Wi-Fi signal?
+A: Move or add APs, raise power, higher-gain antenna, shorter coax.
+Q: What does a wireless heat map show?
+A: Signal strength across a space from site-survey walks.
+Q: What is client disassociation attack?
+A: Forged deauth management frames kick clients off Wi-Fi.
+Q: Requirement for roaming between APs?
+A: Same SSID and identical security/config on every AP.
+@check
+? Voice calls stutter though bandwidth is plentiful and ping averages are fine. Which metric?
+a) Jitter
+b) Attenuation
+c) MTU
+d) TTL
+= a | Uneven packet spacing hurts real-time audio.
+? Two APs share 2.4 GHz. Which channel pair avoids overlap?
+a) 1 and 6
+b) 6 and 8
+c) 3 and 5
+d) 9 and 10
+= a | 1, 6 and 11 are non-overlapping.
+? Laptops repeatedly drop off Wi-Fi and a capture shows many deauth frames. Probable cause?
+a) Client disassociation attack
+b) DNS poisoning
+c) CRC errors
+d) Giants
+= a | Forged management frames.
+@lab
+Fix the channel plan
+Three APs in one building use 2.4 GHz channels 1, 4 and 9. Complaints are about slow Wi-Fi. What do you change?
+@answer
+Channels 4 and 9 overlap with their neighbors. Use 1, 6 and 11, or move clients to 5 GHz or 6 GHz, and lower power on APs that cover small areas.
+
+## 5.5 Tools and Protocols
+labs: network-traffic-analysis, linux-command-line, networking-tcp-ip-dhcp-nat-subnets
+@notes
+### Software Tools
+- **Protocol analyzer** (Wireshark): decodes captured frames from wired or wireless links. Devices can capture natively and export files. Some sites capture all packets to disk for later search.
+- **nmap** (network mapper, an **active** scanner): finds hosts in a range (even with layer-2 scans on the same subnet, so rogue devices can't hide), **open ports**, **services and versions**, **OS** guesses, and runs scripts (NSE). Unexpected open ports (the example showed 22, 80, 443, 548 AFP, 2049 NFS) need investigation.
+- **CDP** (Cisco proprietary) and **LLDP** (vendor-neutral, IEEE) are **discovery protocols**: neighbors announce name, addresses, port, native VLAN and software, so you learn the wiring and config without logging in.
+- **Speed tests**: measure download and upload before and after a change and at different times of day. Test sites differ by distance and load; your ISP's own site is often the most accurate (also fast.com, speedtest.net).
+
+### Command Line Tools
+- **ping**: ICMP echo request/reply; shows reachability, TTL, round-trip time, loss. Ctrl+C prints statistics (continuous ping on Linux and macOS; Windows `-t`). First test on any problem.
+- **traceroute** (`tracert` on Windows): maps the routers on the path by sending packets with TTL 1, 2, 3 and so on; each router answers **ICMP time exceeded**, revealing its IP and latency (three probes per hop). `*` means ICMP is filtered or lost. Compare traces to find where a path breaks. Windows uses ICMP echo; Linux and macOS default to UDP and can change the payload.
+- **nslookup** (deprecated) and **dig**: query DNS directly (A, MX, TXT and more) and choose a server (`dig @1.1.1.1 example.com`). Several A records can exist for redundancy.
+- **tcpdump** (Linux/macOS; WinDump on Windows): CLI packet capture with filters, saves **pcap** files for Wireshark.
+- **netstat**: `-a` all connections and listeners, `-n` numeric (no DNS), `-b` (Windows) shows the executable, shows states (established, waiting, closing).
+- **ipconfig** (Windows; `/all` adds MAC, DHCP, DNS), **ifconfig** (Linux/macOS, deprecated) and **ip address** (modern Linux) show IP settings.
+- **arp -a**: local ARP cache of IP-to-MAC pairs (works on every OS). Pinging a host fills the entry; use the MAC to look it up in a switch's MAC table.
+
+### Hardware Tools
+- **Tone generator + inductive probe**: put an analog tone on a wire, hold the probe near cables to find the far end in a bundle. Many probes also test continuity.
+- **Cable tester**: continuity only (pins 1 to 8 in order, shorts, opens, crossed wires); it doesn't certify a category. **Certifier** does the category tests.
+- **Taps**: copy traffic to an analyzer. **Physical tap** (breaks the link at install; **passive** = unpowered, common on fiber; **active** = powered, regenerates the signal). **Port mirror / SPAN**: switch copies a port's traffic to another port; limited by the mirror port's bandwidth (a 2 Gb stream cannot fit a 1 Gb mirror), so use a tap for heavy links.
+- **Wi-Fi analyzer**: shows channels, strengths, APs and interference; **spectrum analyzer** shows every signal on a range of frequencies (microwave ovens, non-Wi-Fi sources) and signal-to-noise ratio.
+- **Visual fault locator (VFL)**: a fiber flashlight; light leaks out where the fiber is broken or bent too much.
+
+### Basic Network Device Commands
+- Syntax varies by vendor but the ideas match. Examples (Cisco-style): `show mac address-table`, `show ip route` (codes: **C** connected, **S** static, **R** RIP, plus a more specific route wins), `show interface` (up/down, line protocol, speed, duplex, MTU, CRC, drops, input/output errors, rates), `show running-config` (active config; `show startup-config` for stored), `show arp`, `show vlan`, `show power inline` (PoE use: for example 370 W capacity, 40 W used, 330 W free).
+@cards
+Q: What does a protocol analyzer do?
+A: Captures and decodes network frames (Wireshark).
+Q: What does nmap find?
+A: Live hosts, open ports, services and versions, and operating systems.
+Q: Active or passive: nmap?
+A: Active; it sends probes.
+Q: CDP vs LLDP?
+A: CDP is Cisco-proprietary; LLDP is the vendor-neutral standard; both advertise neighbor details.
+Q: Why test speed at different times?
+A: Available bandwidth changes through the day.
+Q: What does ping use?
+A: ICMP echo request and reply.
+Q: How does traceroute work?
+A: Increments the TTL from 1 and records the ICMP time exceeded reply from each router.
+Q: Windows name of traceroute?
+A: tracert.
+Q: What does an asterisk in traceroute mean?
+A: No reply: ICMP filtered or lost at that hop.
+Q: nslookup vs dig?
+A: Both query DNS; dig is the modern replacement for deprecated nslookup.
+Q: Command-line packet capture tool?
+A: tcpdump (WinDump on Windows); saves pcap files.
+Q: netstat -a, -n, -b?
+A: All connections; numeric addresses; executable per connection (Windows).
+Q: Windows vs Linux/macOS IP config commands?
+A: ipconfig vs ifconfig/ip address.
+Q: What does arp -a show?
+A: The local IP to MAC cache.
+Q: Tone generator and probe purpose?
+A: Locate a specific cable in a bundle.
+Q: Cable tester vs certifier?
+A: Tester checks continuity and wiring; certifier proves category performance.
+Q: Passive vs active tap?
+A: Passive is unpowered (often fiber); active is powered and regenerates the signal.
+Q: Port mirror (SPAN) limitation?
+A: The mirror port's bandwidth can be exceeded on busy links.
+Q: Spectrum analyzer purpose?
+A: See all RF signals and noise, including non-Wi-Fi interference.
+Q: What is a visual fault locator for?
+A: Finding breaks and tight bends in fiber with visible light.
+Q: Which command lists a switch's learned MACs?
+A: show mac address-table.
+Q: Which command shows a router's routes?
+A: show ip route (show route).
+Q: Which command shows interface errors and duplex?
+A: show interface.
+Q: Which command shows the active config?
+A: show running-config.
+Q: Which command shows PoE budget?
+A: show power inline.
+@check
+? You need to find which wall jack cable in a thick bundle goes to a switch port. Tool?
+a) Tone generator and inductive probe
+b) Spectrum analyzer
+c) Visual fault locator
+d) Port mirror
+= a | Trace the tone at the far end.
+? Pings succeed to the gateway but not to a remote site. Which tool shows where the path stops?
+a) traceroute
+b) ipconfig
+c) arp
+d) show vlan
+= a | Hop-by-hop path.
+? Which command shows a switch CRC counter and duplex?
+a) show interface
+b) show arp
+c) show vlan
+d) show route
+= a | Interface statistics.
+? To capture all traffic crossing a busy 10 Gb link without loss, best choice?
+a) Port mirror to a 1 Gb port
+b) Physical tap
+c) nmap
+d) tracert
+= b | A tap avoids mirror port oversubscription.
+@lab
+Command picker
+Pick one command for each: (1) who is using TCP 443 on this PC, (2) MX records for example.com, (3) which switch port has MAC aa:bb:cc:dd:ee:ff, (4) is PoE power left on the switch.
+@answer
+(1) `netstat -ano` (or `-b`). (2) `dig example.com MX`. (3) `show mac address-table address aa:bb:cc:dd:ee:ff`. (4) `show power inline`.
