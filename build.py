@@ -23,7 +23,7 @@ FLAGS = {"source": "0xDAY{v13w_s0urc3_4lw4ys}", "console": "0xDAY{c0ns0l3_c0wb0y
 for p in POSTS:
     p["body"] = open(f"content/posts/{p['slug']}.html").read()
 esc = html.escape
-V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "resume.js", "glossary.js")).encode()).hexdigest()[:8]  # cache-buster
+V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "train.js", "train.css", "resume.js", "glossary.js")).encode()).hexdigest()[:8]  # cache-buster
 
 def short(d):
     import datetime

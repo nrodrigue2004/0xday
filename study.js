@@ -82,7 +82,12 @@
       if (g === 1) { s.box = 1; s.due = today(); queue.splice(Math.min(3, queue.length), 0, cur); }
       else if (g === 2) { s.box = Math.max(1, s.box); s.due = addDays(1); }
       else { s.box = Math.min(5, s.box + 1); s.due = addDays(INTERVAL[s.box]); }
-      all[cur.id] = s; set("oxday-cards", all); done++; next();
+      all[cur.id] = s; set("oxday-cards", all); done++;
+      // miss log shared with ~/secplus/train (weak-spot drill)
+      const w = get("oxday-weak", {}), e = w[cur.id] || { m: 0, c: 0 };
+      if (g === 1) { e.m++; e.c = 0; } else if (g === 3) e.c++;
+      e.o = cur.o || cur.id.split("-")[0]; e.t = today(); w[cur.id] = e; set("oxday-weak", w);
+      next();
     }
     el.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if (!b) return; const a = b.dataset.a; if (a === "flip") flip(); else if (a === "cram") { cram = true; build(); } else grade(+a); });
     el.tabIndex = 0;
