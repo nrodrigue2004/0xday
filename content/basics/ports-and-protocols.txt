@@ -1,0 +1,88 @@
+tagline: The ports and protocols that show up in every exam, log and scan, grouped by job, with the secure replacement for each insecure one. DNS and DHCP get a closer look.
+:: simple
+A **port** is a number (0-65535) that picks which program on a host receives the traffic. An IP address finds the machine; the port finds the program. **Well-known ports** are 0-1023, **registered** 1024-49151, **ephemeral** 49152-65535 (the random source port your client uses).
+
+| Port | Protocol | Use | Note |
+|---|---|---|---|
+| 20/21 | FTP | file transfer | cleartext. Use SFTP or FTPS |
+| 22 | SSH / SFTP / SCP | remote shell, secure copy | the secure default |
+| 23 | Telnet | remote shell | cleartext, replace with SSH |
+| 25 | SMTP | mail between servers | cleartext unless STARTTLS |
+| 53 | DNS | names to IPs | UDP normally, TCP for big answers and zone transfers |
+| 67/68 | DHCP | automatic IP config | UDP, server 67, client 68 |
+| 69 | TFTP | trivial file transfer | no authentication |
+| 80 | HTTP | web | cleartext |
+| 110 | POP3 | fetch mail | cleartext |
+| 123 | NTP | time sync | UDP |
+| 143 | IMAP | mail sync | cleartext |
+| 161/162 | SNMP | device monitoring | v1/v2c cleartext, use v3 |
+| 389 | LDAP | directory lookups | cleartext |
+| 443 | HTTPS | web over TLS | the secure default |
+| 445 | SMB | Windows file shares | never expose to the internet |
+| 465/587 | SMTPS / submission | send mail securely | clients submit on 587 |
+| 514 | Syslog | log forwarding | UDP, no delivery guarantee |
+| 636 | LDAPS | LDAP over TLS | secure |
+| 993/995 | IMAPS / POP3S | mail over TLS | secure |
+| 1433 | MS SQL | database | |
+| 3306 | MySQL | database | |
+| 3389 | RDP | Windows remote desktop | frequent ransomware entry point |
+| 5432 | PostgreSQL | database | |
+
+> Pattern: the secure version is usually the same protocol wrapped in TLS on a different port (HTTP 80 to HTTPS 443, LDAP 389 to LDAPS 636, IMAP 143 to IMAPS 993).
+:: mid
+### TCP vs UDP
+- **TCP**: connection first (handshake), ordered, retransmits loss, slower. Web, mail, SSH, databases.
+- **UDP**: no connection, no guarantee, low overhead. DNS queries, DHCP, NTP, VoIP, streaming, syslog.
+
+### DNS: the phone book
+You type `example.com`; your **stub resolver** asks a **recursive resolver** (ISP, 1.1.1.1, 8.8.8.8, or the corporate DNS server), which walks the tree: root servers, then `.com` servers, then the domain's **authoritative** server, and caches the answer for the record's **TTL**.
+
+Record types:
+- **A** name to IPv4, **AAAA** name to IPv6
+- **CNAME** alias to another name
+- **MX** mail servers (with priority)
+- **NS** authoritative servers for the zone
+- **TXT** free text, used for SPF, DKIM, DMARC and domain verification
+- **PTR** reverse lookup, IP to name
+- **SOA** zone metadata, **SRV** service locations (AD uses these heavily)
+```
+$ dig example.com A
+$ dig example.com MX +short
+$ dig -x 8.8.8.8
+$ nslookup example.com
+```
+
+### DHCP: automatic addressing
+The **DORA** exchange, all broadcast at first: **D**iscover (client shouts), **O**ffer (server proposes an address), **R**equest (client accepts), **A**cknowledge (server confirms the **lease**). The lease also carries the subnet mask, default gateway, DNS servers and lease time. Renewal starts at 50% of the lease. Servers can hand out **reservations** (same IP for a given MAC) so servers and printers stay put.
+- **APIPA**: no DHCP answer means a Windows host self-assigns 169.254.x.x. Seeing this means DHCP is unreachable.
+- **DHCP relay** (IP helper) forwards broadcasts across routers so one server can serve many VLANs.
+
+### Other protocols to place
+- **ARP**: IP to MAC on a local network (L2/3). **ICMP**: ping and error messages. **NAT/PAT**: rewrite private addresses to a public one.
+- **Kerberos** 88 and **LDAP** 389: Active Directory authentication and lookups. **RADIUS** 1812: network login (Wi-Fi, VPN). **TACACS+** 49: admin login to network gear.
+- **IPsec** (IKE 500/4500) and **OpenVPN** (1194) and **WireGuard** (51820): VPNs.
+:: complex
+### DNS security
+- **Cache poisoning**: an attacker gets a resolver to store a forged answer. Defenses: random source ports and query IDs, **DNSSEC** (signed records).
+- **Zone transfer (AXFR)**: copies a whole zone. Should be limited to secondary servers; an open AXFR hands an attacker the entire host list.
+- **DNS tunneling**: data smuggled in long subdomain names or TXT answers. Look for very long or high-entropy query names and one host sending huge volumes of queries.
+- **DNS hijacking**: changing a domain's registrar records or a router's DNS setting. Defenses: registrar lock, MFA, monitor records.
+- **Typosquatting** and **lookalike domains**: `paypa1.com`. Defense: user training, email filtering, DNS filtering.
+- **DNS over HTTPS/TLS** (DoH, DoT) hides queries from the local network, which protects privacy but also blinds a corporate DNS filter.
+
+### DHCP security
+- **Rogue DHCP server** hands out a malicious gateway or DNS. Defense: **DHCP snooping** on the switch (only trusted ports may answer).
+- **DHCP starvation**: flood Discovers to exhaust the pool. Defense: port security, rate limits.
+- Reading logs: a lease log ties an IP and time to a MAC, which is often the only way to map an alert's IP to a real device.
+
+### Reading ports on a host
+```
+$ ss -tulnp          # Linux: listening TCP/UDP with process
+$ netstat -ano       # Windows: all connections with PID
+$ nmap -sV -p- 10.0.0.5
+```
+Anything listening that you can't explain is a finding. States to know: LISTEN, ESTABLISHED, TIME_WAIT, SYN_SENT (many in a row means outbound scanning or a blocked destination), SYN_RECV (many means a SYN flood).
+
+### Scan results decoded
+- **open**: service answered. **closed**: host answered with RST, nothing listening. **filtered**: no answer, a firewall is dropping.
+- The most common internet-facing risks: 3389 RDP, 445 SMB, 23 Telnet, 21 FTP, 1433/3306 databases, 161 SNMP with the default `public` community.

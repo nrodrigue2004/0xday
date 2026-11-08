@@ -1,0 +1,111 @@
+tagline: Open-source intelligence is collecting what is already public and turning it into something useful. It is a core recon skill for defenders and attackers, and the legal and ethical lines matter more than the tools.
+:: simple
+**OSINT** (open-source intelligence) means gathering information from sources anyone can legally access: websites, social media, search engines, public records, DNS, job postings, code repositories, news, satellite imagery. It is used by SOC and threat intel teams, fraud and investigations teams, journalists, penetration testers (as the first phase of an engagement) and, unfortunately, by criminals building a phishing or social engineering plan.
+
+> **Rules first.** OSINT is only fine when (1) the information is genuinely public, (2) you have a legitimate purpose, and (3) you stay inside the law and the engagement rules. Only investigate a target you are **authorized** to assess (your own organization, a signed scope, a CTF or training scenario that says OSINT is the point). Never log in to, guess passwords for, or trick your way into anything. Never collect on private individuals out of curiosity, never stalk or harass, and never publish personal data you find. "It was public" does not make every use legal or ethical.
+
+Passive vs active:
+- **Passive**: you never touch the target's systems. Search engines, archived pages, WHOIS, certificate transparency logs, social media posts. Leaves no trace on the target.
+- **Active**: you interact with the target (port scans, directory brute forcing, visiting a login page). Can be logged and can be illegal without authorization.
+
+The intelligence cycle gives OSINT structure: **plan** (what question, what scope), **collect**, **process** (clean and dedupe), **analyze** (what does it mean, how confident), **report**, and then refine the question.
+:: mid
+### What defenders look for about their own organization
+- Employee names, roles and email format (`first.last@`) that make phishing believable.
+- Exposed subdomains, forgotten test sites, open cloud storage, leaked credentials or API keys in public repos.
+- Job posts that reveal the tech stack ("experience with Palo Alto, Splunk, AD").
+- Photos that show badges, screens, whiteboards or office layout.
+- Lookalike domains and fake social accounts impersonating the brand.
+
+### Common techniques and tools
+- **Search operators** (Google dorks): `site:example.com filetype:pdf`, `intitle:"index of"`, `inurl:login`, quotes for exact match, `-` to exclude.
+- **Domains**: `whois`, `dig`, `nslookup`, certificate transparency search (crt.sh) for every certificate ever issued to a domain, which reveals subdomains. DNSdumpster and SecurityTrails for DNS history.
+- **Archived pages**: the Wayback Machine shows deleted pages and old staff lists.
+- **Internet-wide search**: Shodan and Censys index banners of exposed services (what is visible, without you scanning).
+- **Email and breaches**: Have I Been Pwned shows whether an address appeared in a known breach, using the check on your own or authorized addresses.
+- **Code**: public GitHub search for an organization's name plus words like `password`, `api_key`, `secret`.
+- **People and social**: LinkedIn, X, forums. Pivot on usernames across sites. For authorized assessments only.
+- **Images**: reverse image search (Google Lens, TinEye), EXIF metadata (camera, timestamps, sometimes GPS), shadows and landmarks for geolocation exercises.
+- **Frameworks**: Maltego (link analysis), SpiderFoot, theHarvester, Recon-ng, and the OSINT Framework web directory of sources.
+```
+$ whois example.com
+$ dig example.com ANY +noall +answer
+$ theHarvester -d example.com -b crtsh
+$ exiftool photo.jpg
+```
+
+### Good practice
+- Keep notes with **source, URL, date and time** for every finding; pages change. Take screenshots or archive copies.
+- Rate **reliability** of the source and **confidence** in your conclusion. One post is a lead, not a fact.
+- Use a clean browser profile or VM and no personal accounts, so you don't tip off the target or leak your own identity.
+:: complex
+### Law and ethics in more detail
+- **Authorization** is the dividing line. Testing or probing systems you don't own without permission can violate computer misuse law (in the US the CFAA) even if all you did was request public URLs thousands of times.
+- **Terms of service**: scraping or creating fake accounts can break a site's rules and expose you to account bans or legal action.
+- **Privacy law**: personal data of EU residents falls under GDPR, and several US states have privacy laws. Collecting and storing personal data needs a lawful basis, minimization and secure storage. Check with legal or a supervisor before building a dossier on a person.
+- **Pretexting and impersonation** (pretending to be someone to extract information) is social engineering, not passive OSINT. It is allowed in a scoped red team exercise and nowhere else.
+- **Minimize harm**: redact personal data in reports, don't collect family members' details, stop when the question is answered, and report exposures (leaked keys, exposed databases) to the owner through proper channels instead of using them.
+- **Doxxing**, stalking and harassment are crimes in many places and end careers. A good rule: would you be comfortable explaining exactly what you did, and why, to the target and a judge?
+
+### OSINT in the attack lifecycle
+It maps to **reconnaissance** (MITRE ATT&CK TA0043) and is the first stage of the cyber kill chain. Attackers use it to pick targets, craft spear phishing, find credentials and choose an entry point. Defenders reverse the view: **attack surface management** is continuous OSINT of your own estate, and **threat intelligence** is OSINT plus feeds about adversaries.
+
+### Reducing your own footprint
+- Lock down social profiles, don't post badges, screens or travel in real time.
+- Use role addresses on public pages (`info@`, `security@`), not named staff lists where possible.
+- Remove old subdomains and certificates, and set up monitoring for new certificates issued for your domain.
+- Add a `security.txt` so researchers know who to tell.
+- Run secret scanning on repositories and rotate any key that was ever committed, even briefly.
+
+### Verification and bias
+- **Corroborate** with at least two independent sources; check dates, since old data gets recycled as new.
+- Watch for **disinformation** and planted breadcrumbs; a source that is too convenient may be bait.
+- Beware **confirmation bias**: look for evidence against your hypothesis too.
+- State your analysis in calibrated language ("likely", "almost certain") with the confidence level, and separate what you saw from what you infer.
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, training only):** you are authorized to assess **Northwind Traders**, a made-up company. Everything you need is in `~/osint` as exported public pages, DNS output and a paste of a code repository. Nothing here is real, and you must never apply these steps to real people without authorization.
+
+An attacker would use public leaks to get in. Find the **single most dangerous exposure**: a forgotten test subdomain that also carries a leaked credential. Start with `ls ~/osint` and `cat ~/osint/README.txt`.
+
+Submit the **subdomain** that you would report first, e.g. `submit portal.northwind.example`.
+:: answer
+staging-old.northwind.example
+:: hint
+Compare subdomains in `crtsh.txt` with the ones the company actually mentions in `site-about.txt`. Anything certified but never mentioned is a forgotten asset.
+:: hint
+Search the repo paste for secrets: `grep -n -i "password\|key\|secret" ~/osint/repo-paste.txt`. Which hostname does the leaked config point to?
+:: solution
+`cat ~/osint/crtsh.txt` lists four certificates: `www`, `portal`, `mail` and **staging-old**. The about page and job post only mention www, portal and mail. `grep -n -i "password" ~/osint/repo-paste.txt` shows a config committed by a former intern: `DB_HOST=staging-old.northwind.example` with `DB_PASSWORD=Summer2019!`. That is a forgotten, internet-reachable test system with a plaintext credential in a public repository, and a password that is a season plus a year. Report it, tell the owner to take the host down, rotate the password everywhere it was reused, and enable secret scanning. Note what you did **not** do: you never logged in, scanned, or used the credential.
+:: verify
+cat ~/osint/crtsh.txt
+grep -n -i "password" ~/osint/repo-paste.txt
+:: file /home/analyst/osint/README.txt
+Northwind Traders (FICTIONAL training scenario). Exports of public sources:
+  crtsh.txt        certificate transparency results for northwind.example
+  site-about.txt   text of the public About and Careers pages
+  repo-paste.txt   a public code repository paste
+Rules: read only. Do not log in to anything, even in a real exercise, unless the scope says so.
+:: file /home/analyst/osint/crtsh.txt
+id         logged      name
+1100231    2024-02-11  www.northwind.example
+1100877    2024-02-11  portal.northwind.example
+1203310    2024-06-30  mail.northwind.example
+0987442    2019-08-02  staging-old.northwind.example
+:: file /home/analyst/osint/site-about.txt
+About Northwind Traders
+We ship specialty goods from three warehouses. Customers log in at portal.northwind.example.
+Webmail is at mail.northwind.example. Visit www.northwind.example for the catalog.
+Careers: IT Generalist. Our stack: Windows Server, Microsoft 365, a small MySQL database.
+Contact: info (at) northwind.example
+:: file /home/analyst/osint/repo-paste.txt
+# commit 3f9a1c2 "added test db config" by intern-2019
+APP_ENV=test
+DB_HOST=staging-old.northwind.example
+DB_USER=app_user
+DB_PASSWORD=Summer2019!
+# commit 8b11d07 "remove nothing, just notes"
+TODO: move to vault someday
