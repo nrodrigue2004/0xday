@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dynamic programming, greedy and backtracking :: ~/cs :: 0xDay</title>
+<meta name="description" content="Computer science, dynamic programming, greedy and backtracking: The five-step DP recipe, coin change, LCS, knapsack, greedy proofs. Lab: where greedy fails.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cs --chapter dp</p>
+<h1>~/cs/dp</h1>
+<p>Solve problems by breaking them into overlapping subproblems and remembering the answers: memoization, tabulation, the classic DP problems, plus greedy algorithms and backtracking.</p>
+<p class="muted small">CS201: data structures and algorithms in depth · <a href="../courses/CS201.html">course page with quizzes and exam</a></p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="cs-dp">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Dynamic programming (DP)</strong> is a trick for problems where the same smaller question gets asked again and again. Instead of recomputing, you store each answer the first time and reuse it.</p>
+<p>The standard example is Fibonacci. The naive recursion <code>fib(n) = fib(n-1) + fib(n-2)</code> recomputes <code>fib(3)</code> thousands of times and takes exponential time (about 1.6ⁿ steps). Remember each result and it drops to n steps.</p>
+<pre class="ex"><code><span class="o">from functools import lru_cache</span>
+<span class="o"></span>
+<span class="o">@lru_cache(None)</span>
+<span class="o">def fib(n):</span>
+<span class="o">    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)</span></code></pre>
+<p>DP works when two things are true:</p>
+<ol><li><strong>Overlapping subproblems</strong>: the same sub-question repeats.</li><li><strong>Optimal substructure</strong>: the best answer to the big problem is built from best answers to smaller ones.</li></ol>
+<p>Two styles:</p>
+<ul><li><strong>Top-down (memoization)</strong>: write the recursion, cache the results.</li><li><strong>Bottom-up (tabulation)</strong>: fill a table from the smallest case up, in the right order.</li></ul>
+<p>Two relatives you should be able to tell apart from DP:</p>
+<ul><li><strong>Greedy</strong>: always take the locally best choice and never look back. Fast, but only correct for some problems.</li><li><strong>Backtracking</strong>: try a choice, recurse, undo it if it fails. Used for puzzles (sudoku, N-queens, permutations).</li></ul>
+<p>Watch a DP table fill cell by cell in the <a href="../cs/viz.html">visualizer</a>.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The five-step recipe</h4>
+<ol><li><strong>State</strong>: what do the parameters of a subproblem mean? (<code>dp[i]</code> = best answer using the first i items.)</li><li><strong>Transition</strong>: how does a state follow from smaller ones?</li><li><strong>Base cases</strong>: the smallest states you can answer directly.</li><li><strong>Order</strong>: smaller states must be ready first.</li><li><strong>Answer</strong>: which state holds the final result?</li></ol>
+<h4>Coin change (fewest coins)</h4>
+<pre class="ex"><code><span class="o">def min_coins(coins, amount):</span>
+<span class="o">    INF = float(&quot;inf&quot;)</span>
+<span class="o">    dp = [0] + [INF] * amount          # dp[x] = fewest coins to make x</span>
+<span class="o">    for x in range(1, amount + 1):</span>
+<span class="o">        for c in coins:</span>
+<span class="o">            if c &lt;= x and dp[x - c] + 1 &lt; dp[x]:</span>
+<span class="o">                dp[x] = dp[x - c] + 1</span>
+<span class="o">    return dp[amount] if dp[amount] != INF else -1</span></code></pre>
+<p>Greedy (always take the biggest coin) fails here: with coins {1, 3, 4} and amount 6, greedy gives 4+1+1 (three coins), DP finds 3+3 (two). Cost O(amount × coins).</p>
+<h4>Longest common subsequence (LCS)</h4>
+<p><code>dp[i][j]</code> = LCS length of the first i characters of A and first j of B. If <code>A[i-1] == B[j-1]</code> then <code>dp[i-1][j-1] + 1</code>, otherwise <code>max(dp[i-1][j], dp[i][j-1])</code>. O(len(A) × len(B)). The same table, with different costs, is <strong>edit distance</strong> (Levenshtein): the fewest inserts, deletes and replaces to turn one string into another. It powers spell check, diff tools and fuzzy matching of file names or malware families.</p>
+<h4>0/1 knapsack</h4>
+<p>Choose items with weights and values to maximize value without exceeding capacity W. <code>dp[w]</code> = best value with capacity w; for each item, loop w from W down to the item's weight and set <code>dp[w] = max(dp[w], dp[w - wt] + val)</code>. O(n × W). (Note: W is a number, not the input size, so this is "pseudo-polynomial".)</p>
+<h4>Other classics</h4>
+<p>Longest increasing subsequence (O(n²) or O(n log n) with binary search), climbing stairs, house robber, grid paths, partition into equal sums, matrix chain multiplication, longest palindromic substring.</p>
+<h4>Greedy in practice</h4>
+<ul><li><strong>Interval scheduling</strong>: sort by end time, take every interval that starts after the last chosen one ends.</li><li><strong>Huffman coding</strong>: repeatedly merge the two least frequent symbols with a heap. Used in compression.</li><li><strong>Dijkstra</strong>, <strong>Prim</strong>, <strong>Kruskal</strong>: greedy graph algorithms (<a href="graphs.html">graphs chapter</a>).</li></ul>
+<p>A greedy choice must be proven safe (an "exchange argument": any optimal solution can be changed to include the greedy choice without getting worse). If you cannot prove it, test against DP on small inputs.</p>
+<h4>Backtracking template</h4>
+<pre class="ex"><code><span class="o">def subsets(nums):</span>
+<span class="o">    out, path = [], []</span>
+<span class="o">    def go(i):</span>
+<span class="o">        if i == len(nums): out.append(path[:]); return</span>
+<span class="o">        go(i + 1)                  # skip nums[i]</span>
+<span class="o">        path.append(nums[i]); go(i + 1); path.pop()   # take it, then undo</span>
+<span class="o">    go(0)</span>
+<span class="o">    return out</span></code></pre>
+<p>Prune early (stop as soon as a partial answer cannot work) or it explodes: subsets are 2ⁿ, permutations n!.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Memoization vs tabulation trade-offs</h4>
+<p>Top-down only computes the states it needs and is easy to write, but it can hit the recursion limit (Python default is about 1000 frames) and has call overhead. Bottom-up avoids recursion and lets you keep only the last row or two: LCS can drop from O(mn) to O(min(m, n)) space. If you need the actual solution rather than just its score, store a parent pointer or walk the table backwards.</p>
+<h4>Recognizing DP problems</h4>
+<p>Phrases: "number of ways", "minimum/maximum cost", "is it possible", "longest/shortest ... subsequence", and a decision at each step where later choices depend on a small summary of earlier ones. If the state needs the whole history (not a small summary), DP will not be polynomial.</p>
+<h4>State design</h4>
+<ul><li>1-D: position or amount (<code>dp[i]</code>).</li><li>2-D: two sequences or two ranges (<code>dp[i][j]</code>), or position + remaining budget.</li><li>Bitmask: which items are used, for small n ≤ 20 (<strong>traveling salesman</strong> in O(n² 2ⁿ) instead of n!).</li><li>Interval DP: <code>dp[l][r]</code>, as in matrix chain and optimal BSTs.</li><li>Tree DP: states at each node combine children's states.</li></ul>
+<h4>Complexity vs the input</h4>
+<p>Counting states × cost per transition gives the running time. Knapsack is O(nW), which is exponential in the number of bits of W, so it is <strong>pseudo-polynomial</strong>, and the general problem is NP-hard. DP is a way to be polynomial in the *values*, not a way around hardness.</p>
+<h4>DP in security and systems</h4>
+<p>Sequence alignment (Smith-Waterman) compares malware samples and binaries; edit distance clusters typosquatted domains and phishing URLs; Viterbi decoding (DP over a graph) drives speech recognition and some network anomaly models; dependency solvers and package managers use backtracking with pruning.</p>
+<h4>Interview checks</h4>
+<ul><li>Climbing stairs, house robber, coin change, LCS, edit distance, LIS, 0/1 knapsack: know the state and transition of each from memory.</li><li>When does greedy work and when does it need DP? (Greedy-choice property vs overlapping subproblems.)</li><li>Reduce space: coin change is already O(amount); LCS only needs two rows.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>A vending machine only takes coins worth 1, 5, 12 and 19 cents. <code>change.py</code> has a greedy function (biggest coin first) and a stub for the DP version. Finish <code>dp_coins()</code> so it returns the <strong>fewest coins</strong> for 15 cents, and compare it to what greedy returns.</p>
+<p>Submit the <strong>fewest number of coins</strong> for 15 cents, e.g. <code>submit 9</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="graphs.html">&lt; graphs</a><a href="analysis.html">algorithm analysis and proofs &gt;</a></nav><p><a href="../cs.html">cd ~/cs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "dp", "title": "dynamic programming, greedy and backtracking", "user": "student", "host": "dsa", "brief": "A vending machine only takes coins worth 1, 5, 12 and 19 cents. <code>change.py<\/code> has a greedy function (biggest coin first) and a stub for the DP version. Finish <code>dp_coins()<\/code> so it returns the <strong>fewest coins<\/strong> for 15 cents, and compare it to what greedy returns.\n\nSubmit the <strong>fewest number of coins<\/strong> for 15 cents, e.g. <code>submit 9<\/code>.", "hints": ["<code>dp[x] = min(dp[x - c] + 1 for every coin c &lt;= x)<\/code>, with <code>dp[0] = 0<\/code>.", "Greedy takes 12 first (the biggest coin that fits 15), then 1 + 1 + 1. Is there a better mix? Try 5 + 5 + 5."], "answers": ["4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"], "solution": "VGhlIERQIHRhYmxlIGdpdmVzIDxjb2RlPmRwWzE1XSA9IDM8L2NvZGU+IGZyb20gNSArIDUgKyA1LiBHcmVlZHkgdGFrZXMgdGhlIDEyIGZpcnN0IGFuZCB0aGVuIG5lZWRzIDEgKyAxICsgMSwgc28gaXQgcmV0dXJucyA8c3Ryb25nPjQ8L3N0cm9uZz4gY29pbnMgYW5kIGlzIHdyb25nLiBHcmVlZHkgaXMgb25seSBzYWZlIGZvciBzb21lIGNvaW4gc3lzdGVtcyAobGlrZSBVUyBjb2lucyk7IERQIHdvcmtzIGZvciBhbnkuIEZvciAyNCBjZW50cyBib3RoIGhhcHBlbiB0byBhZ3JlZSBvbiAyIGNvaW5zLCB3aGljaCBpcyBhIGdvb2QgcmVtaW5kZXIgdGhhdCBvbmUgcGFzc2luZyB0ZXN0IGRvZXMgbm90IHByb3ZlIGEgZ3JlZWR5IGFsZ29yaXRobSBjb3JyZWN0Lgo=", "fs": {"/home/student/dp/change.py": "COINS = [1, 5, 12, 19]\n\ndef greedy(amount):\n    n = 0\n    for c in sorted(COINS, reverse=True):\n        n += amount // c\n        amount %= c\n    return n\n\ndef dp_coins(amount):\n    INF = float(\"inf\")\n    dp = [0] + [INF] * amount\n    # TODO: fill dp so dp[x] is the fewest coins that make x\n    return dp[amount]\n\nfor amt in (15, 24):\n    print(amt, \"greedy:\", greedy(amt), \"dp:\", dp_coins(amt))\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/dp", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

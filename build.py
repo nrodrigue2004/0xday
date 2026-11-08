@@ -269,6 +269,8 @@ INTERVIEW = build_interview.build(page, esc)
 build_log.build(page, esc)
 import build_basics
 BASICS = build_basics.build(page)
+import build_cs
+CS = build_cs.build(page)
 
 # ---------- now ----------
 def nl(xs): return "".join(f"<li>{esc(x)}</li>" for x in xs)
@@ -489,6 +491,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
        ("code", "code.html", "programming path: Python, Bash, PowerShell, SQL, git", f'{len(CODE)} chapters'),
        ("basics", "basics.html", "OSI, binary and hex, ports, OSINT, crypto, OS, web, APIs, databases", f'{len(BASICS)} chapters'),
+       ("cs", "cs.html", "CS201 DSA depth + CS240 software engineering, algorithm visualizer", f'{len(CS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
        ("history", "history.html", "Ada Lovelace to quantum computers, hacking timeline", f'{len(HISTORY)} chapters'),
@@ -564,6 +567,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "interview": INTERVIEW["projects"],
         "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "code": [{"slug": c[0], "name": c[1]} for c in CODE],
+        "cs": [{"slug": c[0], "name": c[1]} for c in CS],
         "cloud": [{"slug": c[0], "name": c[1]} for c in CLOUD],
         "history": [{"slug": c[0], "name": c[1]} for c in HISTORY],
         "cases": [{"slug": c[0], "name": c[1]} for c in CASES],

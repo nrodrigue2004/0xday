@@ -1,0 +1,251 @@
+## 0
+Q: Which sorting algorithm is stable and runs in O(n log n) in every case?
+* Merge sort
+- Quicksort
+- Heapsort
+- Selection sort
+? Merge sort keeps equal items in order and always splits and merges the same way. Quicksort and heapsort are not stable; selection sort is O(n²).
+
+Q: What is the worst-case running time of quicksort with a last-item pivot on an already sorted array?
+* O(n²)
+- O(n log n)
+- O(n)
+- O(log n)
+? Every partition removes only one item, so you get n levels of work. Random or median-of-three pivots avoid this.
+
+Q: Which sort is the best choice for a list that is already nearly sorted?
+* Insertion sort
+- Selection sort
+- Heapsort
+- Bubble sort without an early exit
+? Insertion sort is close to O(n) when few items are out of place. Selection sort always does about n²/2 comparisons.
+
+Q: A comparison-based sort can never beat which bound in the worst case?
+* Ω(n log n)
+- Ω(n)
+- Ω(log n)
+- Ω(n²)
+? There are n! orderings and each comparison yields one bit, so you need at least log₂(n!) which is about n log n comparisons.
+
+Q: You must sort one million 16-bit unsigned integers as fast as possible. What fits best?
+* Counting sort with 65,536 counters
+- Bubble sort
+- Insertion sort
+- Selection sort
+? Keys come from a small known range, so counting sort runs in O(n + k) without comparing items.
+
+## 1
+Q: What happens when two different keys hash to the same bucket?
+* A collision, handled with chaining or probing
+- The table crashes
+- The second key overwrites the first
+- The hash function is changed automatically
+? Hash tables must handle collisions: chaining keeps a list per bucket, open addressing probes for another slot.
+
+Q: What is the load factor of a hash table?
+* The number of items divided by the number of buckets
+- The number of collisions divided by the number of items
+- The size of the biggest chain
+- The memory the table uses
+? The load factor controls average chain length or probe length. Tables resize (usually double) when it passes a threshold such as 0.75.
+
+Q: Why is inserting into a dynamic array or hash table that doubles when full amortized O(1)?
+* Expensive resizes are rare enough that the average cost per insert stays constant
+- Resizing is free
+- Each insert is always O(1) with no exceptions
+- The table never needs to resize
+? One insert may copy n items, but doubling means that over n inserts the total copying is under 2n.
+
+Q: How does a hash-flooding denial-of-service attack work?
+* The attacker sends many keys that collide so lookups degrade toward O(n)
+- The attacker guesses the hash of a password
+- The attacker overflows the hash output
+- The attacker deletes keys from the table
+? Fix: randomized keyed hashing such as SipHash, and trees for long chains.
+
+Q: A Bloom filter answers a membership query. Which result can be wrong?
+* "Probably present" can be a false positive
+- "Definitely absent" can be wrong
+- Both answers are always exact
+- It never answers absent
+? A Bloom filter has no false negatives, only false positives, and uses far less memory than storing the keys.
+
+## 2
+Q: In which order does an in-order traversal visit a binary search tree?
+* Sorted ascending
+- Level by level
+- Root first, then children
+- Leaves first, then root
+? Left subtree, node, right subtree gives the keys in sorted order.
+
+Q: Inserting the keys 1, 2, 3, 4, 5 in order into a plain BST produces what height?
+* 5, the tree degenerates into a linked list
+- 3
+- 2
+- log₂ 5
+? Each new key is larger than every existing key and goes right. Self-balancing trees (AVL, red-black) prevent this.
+
+Q: Why do databases use B+ trees for indexes instead of binary trees?
+* High fan-out keeps the tree shallow, so few disk reads are needed
+- They use less code
+- They sort data automatically on insert
+- They avoid needing a key
+? Each node is one disk page holding many keys, so a lookup in millions of rows takes only a handful of page reads.
+
+Q: In a binary min-heap stored in an array, where are the children of index i?
+* 2i+1 and 2i+2
+- i+1 and i+2
+- i/2 and i/2+1
+- 2i and 2i+1 for zero-based arrays
+? Zero-based layout: parent of i is (i-1)//2, children are 2i+1 and 2i+2.
+
+Q: Which structure gives fast prefix lookup, such as autocomplete?
+* A trie
+- A hash map
+- A stack
+- A min-heap
+? A trie follows one character per edge, so lookup costs O(length of the key) and all words with a prefix sit under one node.
+
+## 3
+Q: Which algorithm finds the fewest hops between two nodes in an unweighted graph?
+* BFS
+- DFS
+- Kruskal
+- Topological sort
+? BFS explores level by level with a queue, so the first time it reaches a node is by the shortest path.
+
+Q: Why does Dijkstra's algorithm fail with negative edge weights?
+* A node marked final might still be improved through a later negative edge
+- Heaps cannot store negative numbers
+- It runs in exponential time
+- It only works on trees
+? Its correctness relies on the closest unfinished node having its final distance. Use Bellman-Ford when weights can be negative.
+
+Q: What does a topological sort of a directed graph require?
+* The graph has no cycles (a DAG)
+- All weights are positive
+- The graph is a tree
+- The graph is undirected
+? A cycle means circular dependencies, so no valid order exists. Kahn's algorithm detects this when nodes remain unprocessed.
+
+Q: What is the time complexity of BFS on a graph stored as an adjacency list?
+* O(V + E)
+- O(V²)
+- O(E²)
+- O(V log V)
+? Every vertex is enqueued once and every edge is examined a constant number of times.
+
+Q: Which data structure does Kruskal's minimum spanning tree algorithm use to avoid cycles?
+* Union-find (disjoint sets)
+- A queue
+- A trie
+- A stack
+? For each edge in sorted order, it adds the edge only if the endpoints are in different sets.
+
+## 4
+Q: Which two properties must a problem have for dynamic programming to apply?
+* Overlapping subproblems and optimal substructure
+- Sorted input and unique keys
+- A graph and weights
+- Randomness and recursion depth below 1000
+? Overlap is what makes caching pay off; optimal substructure lets you build the answer from sub-answers.
+
+Q: With coins 1, 5, 12 and 19, what is the fewest coins for 15 cents?
+* 3 (5+5+5)
+- 4 (12+1+1+1)
+- 2
+- 5
+? Greedy takes 12 first and ends with four coins, but dynamic programming finds three.
+
+Q: Naive recursive Fibonacci runs in exponential time. What makes memoization fix it?
+* Each fib(k) is computed once and then looked up
+- The recursion is replaced by iteration
+- Python optimizes tail calls
+- The input is smaller
+? There are only n distinct subproblems, so n steps total instead of about 1.6ⁿ.
+
+Q: What does dp[i][j] mean in the standard longest common subsequence table?
+* LCS length of the first i characters of A and first j characters of B
+- The number of mismatched characters
+- The edit distance
+- The position of the last match
+? On a match take dp[i-1][j-1]+1, otherwise max(dp[i-1][j], dp[i][j-1]).
+
+Q: What is a safe way to justify that a greedy algorithm is correct?
+* An exchange argument showing the greedy choice never makes an optimal solution worse
+- Running it on two examples
+- Showing it is fast
+- Using recursion
+? Examples can pass by luck (the coin example works for 24 cents and fails for 15). A proof or a comparison against DP on many small cases is needed.
+
+## 5
+Q: If f(n) = 3n² + 10n + 7, what is the tight bound?
+* Θ(n²)
+- Θ(n)
+- Θ(n³)
+- Θ(10n)
+? Constants and lower-order terms drop out, and n² is both an upper and a lower bound.
+
+Q: What does the recurrence T(n) = 2T(n/2) + n solve to?
+* Θ(n log n)
+- Θ(n)
+- Θ(n²)
+- Θ(log n)
+? Master theorem case 2: the work per level is n and there are log n levels. This is merge sort.
+
+Q: What does it mean that appending to a dynamic array is amortized O(1)?
+* Any sequence of n appends costs O(n) in total
+- Every single append takes constant time
+- Appends are fast on average over random inputs
+- Appending never allocates memory
+? Amortized analysis gives a guarantee over any worst-case sequence, without probability.
+
+Q: What must you show to prove a loop correct with a loop invariant?
+* Initialization, maintenance and termination
+- That it runs in O(n)
+- That it has no nested loops
+- That the variables are integers
+? The invariant is true before the first iteration, stays true after each one, and implies the goal when the loop ends.
+
+Q: What does it mean that a problem is NP-complete?
+* It is in NP and every problem in NP reduces to it, so no fast exact algorithm is known
+- It cannot be solved at all
+- It is solved in exponential time by DP
+- It needs a quantum computer
+? Examples are SAT, subset sum and traveling salesman (decision). Use heuristics, approximations or small-input exact methods.
+
+## 6
+Q: In an interview you are asked to find two numbers in an array that add up to a target. Which approach gives O(n) time?
+* One pass with a hash map from value to index
+- Sort and compare all pairs
+- Try every pair
+- Recursion on halves
+? For each x check whether target - x was seen. Sorted arrays also allow two pointers in O(1) extra space.
+
+Q: Which technique detects a cycle in a linked list in O(1) extra space?
+* Floyd's tortoise and hare (two pointers at different speeds)
+- A hash set of visited nodes
+- Sorting the nodes
+- Recursion
+? If there is a cycle the fast pointer eventually meets the slow one. The hash set works too but uses O(n) space.
+
+Q: What should you state after giving any solution in an interview?
+* Its time and space complexity, with the case you mean
+- Only the language you used
+- Nothing, wait for the interviewer to ask
+- The number of lines
+? Naming the cost unprompted shows you reason about performance. Then test with a small example and an edge case.
+
+Q: A problem says "count the number of ways" with choices at each step. What should you try first?
+* Dynamic programming with a clearly defined state
+- Bubble sort
+- A trie
+- Binary search on the answer only
+? Counting ways and min/max cost problems with overlapping subproblems are classic DP signals.
+
+Q: Number of islands in a grid of 0s and 1s is best solved with:
+* DFS or BFS flood fill (or union-find) in O(rows x columns)
+- Dijkstra
+- Quicksort
+- A heap
+? Each land cell is visited once while marking its connected component.

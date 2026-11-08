@@ -1,0 +1,136 @@
+tagline: Solve problems by breaking them into overlapping subproblems and remembering the answers: memoization, tabulation, the classic DP problems, plus greedy algorithms and backtracking.
+:: simple
+**Dynamic programming (DP)** is a trick for problems where the same smaller question gets asked again and again. Instead of recomputing, you store each answer the first time and reuse it.
+
+The standard example is Fibonacci. The naive recursion `fib(n) = fib(n-1) + fib(n-2)` recomputes `fib(3)` thousands of times and takes exponential time (about 1.6ⁿ steps). Remember each result and it drops to n steps.
+
+```
+from functools import lru_cache
+
+@lru_cache(None)
+def fib(n):
+    return n if n < 2 else fib(n - 1) + fib(n - 2)
+```
+
+DP works when two things are true:
+1. **Overlapping subproblems**: the same sub-question repeats.
+2. **Optimal substructure**: the best answer to the big problem is built from best answers to smaller ones.
+
+Two styles:
+- **Top-down (memoization)**: write the recursion, cache the results.
+- **Bottom-up (tabulation)**: fill a table from the smallest case up, in the right order.
+
+Two relatives you should be able to tell apart from DP:
+- **Greedy**: always take the locally best choice and never look back. Fast, but only correct for some problems.
+- **Backtracking**: try a choice, recurse, undo it if it fails. Used for puzzles (sudoku, N-queens, permutations).
+
+Watch a DP table fill cell by cell in the [visualizer](../cs/viz.html).
+:: mid
+### The five-step recipe
+1. **State**: what do the parameters of a subproblem mean? (`dp[i]` = best answer using the first i items.)
+2. **Transition**: how does a state follow from smaller ones?
+3. **Base cases**: the smallest states you can answer directly.
+4. **Order**: smaller states must be ready first.
+5. **Answer**: which state holds the final result?
+
+### Coin change (fewest coins)
+```
+def min_coins(coins, amount):
+    INF = float("inf")
+    dp = [0] + [INF] * amount          # dp[x] = fewest coins to make x
+    for x in range(1, amount + 1):
+        for c in coins:
+            if c <= x and dp[x - c] + 1 < dp[x]:
+                dp[x] = dp[x - c] + 1
+    return dp[amount] if dp[amount] != INF else -1
+```
+Greedy (always take the biggest coin) fails here: with coins {1, 3, 4} and amount 6, greedy gives 4+1+1 (three coins), DP finds 3+3 (two). Cost O(amount × coins).
+
+### Longest common subsequence (LCS)
+`dp[i][j]` = LCS length of the first i characters of A and first j of B. If `A[i-1] == B[j-1]` then `dp[i-1][j-1] + 1`, otherwise `max(dp[i-1][j], dp[i][j-1])`. O(len(A) × len(B)). The same table, with different costs, is **edit distance** (Levenshtein): the fewest inserts, deletes and replaces to turn one string into another. It powers spell check, diff tools and fuzzy matching of file names or malware families.
+
+### 0/1 knapsack
+Choose items with weights and values to maximize value without exceeding capacity W. `dp[w]` = best value with capacity w; for each item, loop w from W down to the item's weight and set `dp[w] = max(dp[w], dp[w - wt] + val)`. O(n × W). (Note: W is a number, not the input size, so this is "pseudo-polynomial".)
+
+### Other classics
+Longest increasing subsequence (O(n²) or O(n log n) with binary search), climbing stairs, house robber, grid paths, partition into equal sums, matrix chain multiplication, longest palindromic substring.
+
+### Greedy in practice
+- **Interval scheduling**: sort by end time, take every interval that starts after the last chosen one ends.
+- **Huffman coding**: repeatedly merge the two least frequent symbols with a heap. Used in compression.
+- **Dijkstra**, **Prim**, **Kruskal**: greedy graph algorithms ([graphs chapter](graphs.html)).
+A greedy choice must be proven safe (an "exchange argument": any optimal solution can be changed to include the greedy choice without getting worse). If you cannot prove it, test against DP on small inputs.
+
+### Backtracking template
+```
+def subsets(nums):
+    out, path = [], []
+    def go(i):
+        if i == len(nums): out.append(path[:]); return
+        go(i + 1)                  # skip nums[i]
+        path.append(nums[i]); go(i + 1); path.pop()   # take it, then undo
+    go(0)
+    return out
+```
+Prune early (stop as soon as a partial answer cannot work) or it explodes: subsets are 2ⁿ, permutations n!.
+:: complex
+### Memoization vs tabulation trade-offs
+Top-down only computes the states it needs and is easy to write, but it can hit the recursion limit (Python default is about 1000 frames) and has call overhead. Bottom-up avoids recursion and lets you keep only the last row or two: LCS can drop from O(mn) to O(min(m, n)) space. If you need the actual solution rather than just its score, store a parent pointer or walk the table backwards.
+
+### Recognizing DP problems
+Phrases: "number of ways", "minimum/maximum cost", "is it possible", "longest/shortest ... subsequence", and a decision at each step where later choices depend on a small summary of earlier ones. If the state needs the whole history (not a small summary), DP will not be polynomial.
+
+### State design
+- 1-D: position or amount (`dp[i]`).
+- 2-D: two sequences or two ranges (`dp[i][j]`), or position + remaining budget.
+- Bitmask: which items are used, for small n ≤ 20 (**traveling salesman** in O(n² 2ⁿ) instead of n!).
+- Interval DP: `dp[l][r]`, as in matrix chain and optimal BSTs.
+- Tree DP: states at each node combine children's states.
+
+### Complexity vs the input
+Counting states × cost per transition gives the running time. Knapsack is O(nW), which is exponential in the number of bits of W, so it is **pseudo-polynomial**, and the general problem is NP-hard. DP is a way to be polynomial in the *values*, not a way around hardness.
+
+### DP in security and systems
+Sequence alignment (Smith-Waterman) compares malware samples and binaries; edit distance clusters typosquatted domains and phishing URLs; Viterbi decoding (DP over a graph) drives speech recognition and some network anomaly models; dependency solvers and package managers use backtracking with pruning.
+
+### Interview checks
+- Climbing stairs, house robber, coin change, LCS, edit distance, LIS, 0/1 knapsack: know the state and transition of each from memory.
+- When does greedy work and when does it need DP? (Greedy-choice property vs overlapping subproblems.)
+- Reduce space: coin change is already O(amount); LCS only needs two rows.
+:: lab
+host: dsa
+user: student
+cwd: /home/student/dp
+py: yes
+:: brief
+A vending machine only takes coins worth 1, 5, 12 and 19 cents. `change.py` has a greedy function (biggest coin first) and a stub for the DP version. Finish `dp_coins()` so it returns the **fewest coins** for 15 cents, and compare it to what greedy returns.
+
+Submit the **fewest number of coins** for 15 cents, e.g. `submit 9`.
+:: answer
+3
+:: hint
+`dp[x] = min(dp[x - c] + 1 for every coin c <= x)`, with `dp[0] = 0`.
+:: hint
+Greedy takes 12 first (the biggest coin that fits 15), then 1 + 1 + 1. Is there a better mix? Try 5 + 5 + 5.
+:: solution
+The DP table gives `dp[15] = 3` from 5 + 5 + 5. Greedy takes the 12 first and then needs 1 + 1 + 1, so it returns **4** coins and is wrong. Greedy is only safe for some coin systems (like US coins); DP works for any. For 24 cents both happen to agree on 2 coins, which is a good reminder that one passing test does not prove a greedy algorithm correct.
+:: verify
+python3 change.py
+:: file /home/student/dp/change.py
+COINS = [1, 5, 12, 19]
+
+def greedy(amount):
+    n = 0
+    for c in sorted(COINS, reverse=True):
+        n += amount // c
+        amount %= c
+    return n
+
+def dp_coins(amount):
+    INF = float("inf")
+    dp = [0] + [INF] * amount
+    # TODO: fill dp so dp[x] is the fewest coins that make x
+    return dp[amount]
+
+for amt in (15, 24):
+    print(amt, "greedy:", greedy(amt), "dp:", dp_coins(amt))
