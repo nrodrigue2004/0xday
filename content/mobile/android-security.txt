@@ -1,0 +1,95 @@
+tagline: Android apps run in a per-app sandbox, ask for permissions in a manifest, and ship as APK files you can unpack and read. That makes both defending and testing them very hands-on.
+sheet: mobile
+:: simple
+Each Android app runs as its own Linux user in a **sandbox**, so one app cannot read another's files. What an app may do beyond that is declared in its **AndroidManifest.xml** and granted as **permissions** (camera, location, contacts, internet).
+
+An app ships as an **APK** (a zip file) holding the manifest, compiled code (`classes.dex`), resources and a signature. Anyone can unzip one, which is why you must assume attackers can read your client code and any secret inside it.
+
+The main risk areas (from the **OWASP Mobile Top 10** and **MASVS**):
+
+- **Insecure storage**: secrets left in plain files, SharedPreferences, SQLite or logs.
+- **Insecure communication**: no TLS, or TLS with certificate checks turned off.
+- **Weak authentication and authorization**: checks done only in the app; the server must enforce them.
+- **Exported components**: activities, services and receivers other apps can call.
+- **Hard-coded secrets**: API keys and passwords inside the APK.
+- **Weak crypto** and **poor code quality**: ECB, static keys, debuggable builds.
+:: mid
+### Reading a manifest
+Look for:
+
+- `android:exported="true"` on components without a permission requirement: any app can start them.
+- `android:debuggable="true"`: lets anyone attach a debugger. Never in release builds.
+- `android:allowBackup="true"`: app data can be pulled with `adb backup` on older versions; set false for sensitive apps.
+- `android:usesCleartextTraffic="true"` or a network security config allowing HTTP.
+- Dangerous permissions the app does not need.
+
+### Storage
+Private app files are in `/data/data/<package>/` and are protected by the sandbox on an unrooted device. But **external storage** is shared, and a rooted device or a backup exposes everything. Use the **Android Keystore** for keys (hardware-backed where available) and `EncryptedSharedPreferences` / Jetpack Security for small secrets. Do not log tokens.
+
+### Network
+Use TLS everywhere. Android's **Network Security Config** can block cleartext and pin certificates. Do not ship a `TrustManager` that accepts everything.
+
+### Tooling
+`apktool` decodes resources and the manifest, `jadx` decompiles to readable Java, `adb` talks to a device or emulator, **Frida** hooks functions at runtime, **MobSF** automates static and dynamic analysis, and Burp or mitmproxy intercept traffic from a test device. Practice on intentionally vulnerable apps (DIVA, InsecureBankv2) and on devices you own.
+:: complex
+### Platform defenses
+SELinux confines processes, verified boot protects the OS image, **Play Protect** scans apps, and **app signing** ties updates to the original developer. Scoped storage limits file access, and runtime permissions let users revoke access. Newer releases tighten background launches and clipboard access.
+
+### Attack surface in depth
+- **Intents**: an exported component that trusts intent extras can be tricked into performing actions (intent redirection). Validate inputs and prefer explicit intents and non-exported components.
+- **WebViews**: JavaScript enabled with untrusted content, or `addJavascriptInterface` exposed to remote pages, can lead to code execution. Load only trusted content and restrict file access.
+- **Deep links**: handlers that skip authentication checks.
+- **Content providers**: SQL injection or path traversal through exported providers.
+- **Root and tamper detection**: obfuscation (R8/ProGuard), integrity checks and runtime protection raise the cost but never replace server-side enforcement.
+
+### Testing approach
+Static: unpack, read manifest, search for URLs, keys and risky APIs. Dynamic: proxy traffic, exercise every screen, test authorization by replaying requests with another user's IDs. Report findings against MASVS control IDs with evidence.
+:: ref
+### adb
+adb devices | list connected devices and emulators
+adb shell | open a shell on the device
+adb install app.apk | install an APK
+adb pull /sdcard/f . | copy a file off the device
+adb logcat | stream the device log (look for leaked data)
+### analysis
+apktool d app.apk | decode manifest and resources
+jadx -d out app.apk | decompile to Java source
+unzip app.apk -d out | unpack the APK as a zip
+frida -U -f com.example.app | start an app with Frida attached
+### manifest flags
+exported="true" | other apps may call this component
+debuggable="true" | a debugger can attach
+allowBackup="true" | app data may be extracted by backup
+usesCleartextTraffic | permits plain HTTP
+:: lab
+host: tester
+user: tester
+cwd: /home/tester
+:: brief
+**Scenario (fictional, simulated):** **Fabrikam Tools** has a fictional Android app, **FieldNotes**. The decoded manifest is `~/apk/AndroidManifest.xml`. Read `~/apk/README.txt`.
+
+One component is **exported** with **no permission required**, and it handles a sensitive action. Submit the **component class name** (the text after the last dot), for example `submit MainActivity`.
+:: answer
+ExportReceiver
+:: hint
+Search for exported components: `grep -n exported ~/apk/AndroidManifest.xml`.
+:: hint
+`MainActivity` is exported too, but that is the normal app entry point with an intent filter for launching. Look at the receiver.
+:: solution
+`MainActivity` is exported because it is the launcher entry. `SettingsActivity` is not exported. `ExportReceiver` is exported with no `android:permission`, and its action `com.fabrikam.fieldnotes.EXPORT_ALL` copies all notes to shared storage, so any other app on the device can trigger the export. Fix: set `android:exported="false"` (or require a signature-level permission) and check the caller.
+:: verify
+grep -n exported ~/apk/AndroidManifest.xml
+:: file /home/tester/apk/README.txt
+Fictional app manifest (simulated).
+:: file /home/tester/apk/AndroidManifest.xml
+<manifest package="com.fabrikam.fieldnotes">
+  <application android:allowBackup="false" android:debuggable="false">
+    <activity android:name=".MainActivity" android:exported="true">
+      <intent-filter><action android:name="android.intent.action.MAIN"/></intent-filter>
+    </activity>
+    <activity android:name=".SettingsActivity" android:exported="false"/>
+    <receiver android:name=".ExportReceiver" android:exported="true">
+      <intent-filter><action android:name="com.fabrikam.fieldnotes.EXPORT_ALL"/></intent-filter>
+    </receiver>
+  </application>
+</manifest>

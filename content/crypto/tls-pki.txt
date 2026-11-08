@@ -1,0 +1,91 @@
+tagline: TLS protects almost every connection you make. PKI is why your browser trusts a certificate it has never seen. Both fail in specific, checkable ways.
+sheet: openssl
+:: simple
+**TLS** (Transport Layer Security) gives a connection three things: **confidentiality** (encryption), **integrity** (tamper detection) and **authentication** (you are really talking to the server, not an imposter). HTTPS is HTTP inside TLS.
+
+The short version of a TLS handshake:
+
+1. The client says hello and lists the versions and cipher suites it supports.
+2. The server answers with its choice and its **certificate**.
+3. The client **validates the certificate** (more below).
+4. Both sides agree on session keys using an ephemeral key exchange.
+5. Everything after that is encrypted with fast symmetric crypto.
+
+A **certificate** is a signed statement: "this public key belongs to this name". A **Certificate Authority (CA)** signs it. Your OS and browser ship with a list of **root CAs** they trust. This system of CAs, certificates and rules is the **PKI** (public key infrastructure).
+:: mid
+### Validating a certificate
+The client checks, in order: the **chain** leads to a trusted root; every signature is valid; each certificate is **within its dates**; the **name matches** (the SAN list must include the host you asked for; CN alone is not used); the key usage allows server authentication; the certificate is **not revoked**.
+
+### Chains
+A server sends its **leaf** certificate plus **intermediates**; the root is already on the client. Roots stay offline and sign intermediates, which sign leaves. A missing intermediate is the most common "works in my browser, fails in curl" bug.
+
+### Revocation
+**CRL** (a big list), **OCSP** (ask a responder per certificate), and **OCSP stapling** (the server attaches a fresh signed answer). Browsers are inconsistent about enforcing revocation, so short certificate lifetimes (90 days or less with ACME / Let's Encrypt) are the practical defense.
+
+### Versions and suites
+Use **TLS 1.2 and 1.3**. Disable SSL 2/3 and TLS 1.0/1.1. TLS 1.3 removes weak ciphers, requires forward secrecy and encrypts more of the handshake. A suite name such as `TLS_AES_256_GCM_SHA384` names the bulk cipher and hash.
+
+### HSTS and pinning
+**HSTS** tells browsers to use HTTPS only, blocking downgrade to HTTP. **Certificate pinning** (mostly in mobile apps) accepts only expected keys, which blocks a rogue CA at the cost of operational risk.
+:: complex
+### Inside the TLS 1.3 handshake
+ClientHello carries key shares (X25519 etc.) so the server can reply with its own share in one round trip. Both derive handshake keys through HKDF, the rest of the handshake including the certificate is encrypted, and the server proves possession of its private key by signing the handshake transcript. Resumption uses PSKs; **0-RTT** early data is replayable, so only send idempotent requests in it.
+
+### Where PKI breaks
+- **Compromised or coerced CAs** (DigiNotar, 2011) issue certificates for names they should not. **Certificate Transparency** logs make every public certificate visible, so domain owners can monitor for unexpected ones.
+- **Mis-issuance via weak validation**, such as domain validation bypassed by BGP hijack or email takeover.
+- **Private key theft** from a server, then impersonation. Ephemeral key exchange protects past traffic but not future impersonation.
+- **Interception proxies**: corporate TLS inspection installs a private root on endpoints. Legitimate, but that root key is now a crown jewel.
+- **Client mistakes**: apps that disable verification ("accept all certificates") are common in mobile and embedded code.
+
+### Defensive checks
+Monitor CT logs for your domains, set CAA DNS records to limit who may issue, automate renewal and alert at 21 and 7 days, scan your estate for old protocols and expired or weak certs, and keep private keys out of images and repos.
+:: ref
+### openssl x509 and s_client
+openssl s_client -connect host:443 -servername host | open a TLS connection and print the chain
+openssl s_client -connect host:443 -tls1_3 | force TLS 1.3 to test support
+openssl x509 -in c.pem -noout -text | print a certificate in full
+openssl x509 -in c.pem -noout -subject -issuer -dates | subject, issuer, validity
+openssl x509 -in c.pem -noout -ext subjectAltName | list the names the cert covers
+openssl verify -CAfile ca.pem c.pem | check a cert against a CA file
+openssl req -new -newkey rsa:3072 -nodes -keyout k.pem -out c.csr | key and certificate signing request
+### terms
+SAN | Subject Alternative Name, the list of hostnames a cert is valid for
+CT | Certificate Transparency, public append-only log of issued certs
+CAA | DNS record limiting which CAs may issue for a domain
+OCSP stapling | server sends a signed freshness proof with the cert
+HSTS | header forcing browsers to use HTTPS only
+:: lab
+host: auditor
+user: auditor
+cwd: /home/auditor
+:: brief
+**Scenario (fictional, simulated):** users report a browser warning on `shop.fabrikam.test`. You exported what the server sends: `~/tls/chain.txt` shows each certificate's subject, issuer, dates and names. Today's date is **2026-11-08**. Read `~/tls/README.txt`.
+
+Find the **one reason** the certificate fails. Submit one word: `expired`, `name`, `chain` or `revoked`.
+:: answer
+name
+:: hint
+Compare the host the users typed with the SAN list in the leaf certificate.
+:: hint
+Check dates and issuers too, but only one problem is real.
+:: solution
+The dates are valid (until 2027-01-05) and the leaf chains through `Fabrikam Issuing CA` to a trusted root. But the SAN list contains only `www.fabrikam.test` and `fabrikam.test`, not `shop.fabrikam.test`, so the name does not match and browsers warn. Fix: reissue a certificate that includes `shop.fabrikam.test` (or a `*.fabrikam.test` wildcard if appropriate) and deploy it.
+:: verify
+cat ~/tls/chain.txt
+:: file /home/auditor/tls/README.txt
+Fictional chain export (simulated). Users browse to https://shop.fabrikam.test
+Revocation status: not revoked (OCSP good).
+:: file /home/auditor/tls/chain.txt
+[0] LEAF
+    subject : CN=www.fabrikam.test
+    SAN     : DNS:www.fabrikam.test, DNS:fabrikam.test
+    issuer  : CN=Fabrikam Issuing CA
+    valid   : 2026-10-06 to 2027-01-05
+[1] INTERMEDIATE
+    subject : CN=Fabrikam Issuing CA
+    issuer  : CN=Fabrikam Root CA
+    valid   : 2024-01-01 to 2034-01-01
+[2] ROOT (trusted by client)
+    subject : CN=Fabrikam Root CA
+    valid   : 2020-01-01 to 2040-01-01

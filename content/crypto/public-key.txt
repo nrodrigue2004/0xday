@@ -1,0 +1,91 @@
+tagline: Public-key cryptography solves "how do two strangers share a secret" and "who really sent this". RSA and elliptic curves are the two families you will meet.
+sheet: openssl
+:: simple
+**Asymmetric (public-key) cryptography** uses a pair of keys. What one does, the other undoes.
+
+- **Encryption**: anyone encrypts with your **public key**; only your **private key** decrypts.
+- **Digital signature**: you sign with your **private key**; anyone verifies with your **public key**. A signature proves who signed and that the data did not change.
+- **Key exchange**: two parties agree on a shared secret over an open channel (Diffie-Hellman, ECDH), then use fast symmetric encryption with it.
+
+Real systems **mix them**: public-key math sets up a symmetric key, then AES or ChaCha20 does the bulk work, because asymmetric operations are slow.
+
+The families:
+
+- **RSA**: based on the difficulty of factoring a product of two large primes. Keys are big: 2048 bits is the minimum today, 3072 for longer-lived keys.
+- **Elliptic curve (ECC)**: ECDSA, ECDH, Ed25519, X25519. A 256-bit curve key gives security comparable to RSA-3072, with faster operations and tiny keys.
+:: mid
+### Sizes and strength (rough, for planning)
+- **~112-bit security**: RSA 2048, ECC 224 (3DES is retired).
+- **~128-bit security**: RSA 3072, ECC 256, with AES-128.
+- **~192-bit security**: RSA 7680, ECC 384, with AES-192.
+
+The point: RSA keys grow fast as strength rises, while ECC stays small.
+
+### How RSA is used safely
+- Use **OAEP** padding to encrypt and **PSS** padding to sign. Raw ("textbook") RSA and PKCS#1 v1.5 encryption have known attacks.
+- Encrypt small things only (a symmetric key). Do not encrypt files directly.
+- Never reuse one key for both encrypting and signing.
+
+### ECC in practice
+Common choices: **P-256** (NIST, ubiquitous), **Ed25519** for signatures (fast, simple, hard to misuse), **X25519** for key exchange. ECDSA needs a fresh random value per signature; a repeated or predictable one leaks the private key, as happened to a game console and to some Bitcoin wallets.
+
+### Forward secrecy
+With **ephemeral** Diffie-Hellman (DHE/ECDHE) each session uses a throwaway key, so stealing the server's long-term key later does not decrypt recorded traffic. TLS 1.3 requires it.
+
+### Hashing in signatures
+Signing hashes the data first (SHA-256 or better) and signs the hash. A weak hash (MD5, SHA-1) lets an attacker craft two documents with the same hash, which broke real certificates in the past.
+:: complex
+### Quantum threat, plainly
+A large quantum computer running Shor's algorithm would break RSA and ECC. None exists at that scale today, but data recorded now could be decrypted later ("harvest now, decrypt later"). NIST has standardized post-quantum algorithms (ML-KEM for key exchange, ML-DSA and SLH-DSA for signatures). Real deployments use **hybrid** key exchange (classical plus post-quantum) while confidence grows. Symmetric crypto is much less affected: doubling key size (AES-256) is the answer.
+
+### Implementation pitfalls
+- **Small public exponent and bad padding** (Bleichenbacher-style attacks) when PKCS#1 v1.5 error messages leak.
+- **Shared prime factors**: two keys generated with weak randomness can share a prime, so a GCD computation factors both. This was found on thousands of internet devices.
+- **Invalid-curve and small-subgroup attacks** when software does not validate a received ECC point. Use maintained libraries.
+- **Side channels**: timing and cache leaks during the private-key operation. Constant-time implementations matter.
+
+### Key management
+Generate keys on the device that will use them (or in an HSM), protect private keys with permissions and a passphrase, set expiries, plan revocation and rotation, and keep an inventory. Most real compromises steal the key; few break the math.
+:: ref
+### openssl keys
+openssl genpkey -algorithm ed25519 -out key.pem | generate an Ed25519 private key
+openssl genrsa -out rsa.pem 3072 | generate a 3072-bit RSA key
+openssl ecparam -name prime256v1 -genkey -noout -out ec.pem | generate a P-256 key
+openssl pkey -in key.pem -pubout -out pub.pem | extract the public key
+openssl pkey -in key.pem -text -noout | print key details and size
+### sign and verify
+openssl dgst -sha256 -sign key.pem -out f.sig f | sign a file
+openssl dgst -sha256 -verify pub.pem -signature f.sig f | verify a signature (prints Verified OK)
+### terms
+RSA-OAEP / RSA-PSS | recommended padding for encrypting / signing with RSA
+ECDHE | ephemeral elliptic-curve Diffie-Hellman, gives forward secrecy
+Ed25519 / X25519 | modern curve for signatures / key exchange
+KEM | key encapsulation mechanism, used by post-quantum key exchange
+:: lab
+host: auditor
+user: auditor
+cwd: /home/auditor
+:: brief
+**Scenario (fictional, simulated):** **Fabrikam Tools** keeps an inventory of the public keys used by its servers in `~/keys/inventory.txt` (host, algorithm, size, expiry). Policy says RSA keys must be **at least 2048 bits**. Read `~/keys/POLICY.txt`.
+
+Exactly one host has an RSA key below the minimum. Submit its **host name**, for example `submit app-1`.
+:: answer
+legacy-ftp
+:: hint
+Filter to RSA rows first: `grep RSA ~/keys/inventory.txt`.
+:: hint
+Of the RSA rows, check the size column. ECDSA and Ed25519 sizes are measured differently, so ignore them.
+:: solution
+`legacy-ftp` has RSA-1024, which is under the 2048-bit minimum and is no longer considered safe (factorable by well-funded attackers). The others are RSA-2048 or RSA-3072, or ECDSA P-256 and Ed25519, which are fine. Fix: generate a new key (ECDSA P-256 or RSA-3072), reissue the certificate and retire the old key. Also check why this host went unnoticed: an inventory with policy checks in CI would have flagged it.
+:: verify
+grep RSA ~/keys/inventory.txt
+:: file /home/auditor/keys/POLICY.txt
+Key policy (fictional, simulated): RSA >= 2048 bits. ECDSA P-256 or better. Ed25519 allowed. No DSA.
+:: file /home/auditor/keys/inventory.txt
+host        algorithm   size   expires
+web-1       RSA         2048   2027-03-01
+web-2       RSA         3072   2027-05-12
+api-1       ECDSA       P-256  2026-12-30
+vpn-gw      Ed25519     256    2027-01-15
+legacy-ftp  RSA         1024   2026-11-20
+mail-1      RSA         2048   2027-02-02

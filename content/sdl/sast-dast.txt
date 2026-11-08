@@ -1,0 +1,112 @@
+tagline: SAST reads your code, DAST attacks your running app, and each finds things the other cannot. The hard skill is deciding which findings are real.
+sheet: appsec
+:: simple
+Automated security testing comes in a few flavors:
+
+- **SAST** (static application security testing): analyzes source code or bytecode without running it. Finds injection patterns, hard-coded secrets, unsafe functions. Fast, runs on every commit, but produces **false positives** and cannot see runtime configuration.
+- **DAST** (dynamic): attacks a running application from outside, like an attacker would, and watches the responses. Finds misconfiguration, missing headers, reflected XSS. Needs a running environment and cannot point to the line of code.
+- **IAST** (interactive): an agent inside the running app watches data flow during tests. More precise, but needs instrumentation.
+- **SCA** (software composition analysis): scans your dependencies for known vulnerabilities (next chapter).
+- **Manual code review and pentest**: still finds the logic and authorization flaws tools miss.
+
+Tools you will meet: Semgrep, CodeQL, SonarQube, Bandit (Python), SpotBugs (Java) for SAST; OWASP ZAP and Burp Suite for DAST.
+:: mid
+### What each finds best
+- SAST: SQL injection through string concatenation, `eval` of user input, weak crypto calls, secrets in code, dangerous deserialization.
+- DAST: missing security headers, cookie flags, TLS config, reflected and stored XSS, open redirects, exposed admin pages, error leakage.
+- Neither is good at: broken access control (user A reads user B's record), business logic abuse, race conditions. Those need tests written by a human, and review.
+
+### Triage workflow
+1. **Is it reachable?** Can untrusted input actually reach this line?
+2. **Is it exploitable?** Is there sanitization or a framework protection in the path?
+3. **What is the impact?** Data exposed, code run, or a harmless test file?
+4. Mark it **true positive**, **false positive** (with a reason) or **accepted risk**, and ticket the fixes with an owner.
+
+Suppress findings in code or config with a comment explaining why, so the next person does not redo the analysis.
+
+### A Semgrep rule
+```code
+rules:
+  - id: sql-string-concat
+    languages: [python]
+    message: SQL built by string formatting, use parameters
+    severity: ERROR
+    pattern: cursor.execute("..." + $X)
+```
+Custom rules turn a bug you just fixed into a check that stops it coming back.
+
+### ZAP in CI
+`zap-baseline.py -t https://staging.example.test` does a passive scan; `zap-full-scan.py` actively attacks. Run against a staging copy, never production, and with an agreed scope.
+:: complex
+### Putting it in the pipeline
+A common setup: pre-commit hooks for secrets and linters; on pull request, SAST and SCA with results as review comments; on merge to staging, DAST; before release, a gate that fails on new **high** findings. Gate on **new** findings only, or the first scan blocks everything and the tool gets turned off.
+
+### Reducing noise
+Tune rule sets to your frameworks, baseline existing findings and track burn-down, and measure the false-positive rate per rule. Disable rules nobody acts on. A scanner with 4,000 open findings is a scanner nobody reads.
+
+### Limits to remember
+- A clean scan is not a secure app.
+- Taint analysis loses track across services, reflection and templates.
+- DAST coverage depends on crawling: authenticated areas and single-page apps need configured logins and API definitions (OpenAPI).
+- Scanners can hurt: active scans send attack payloads and create data. Use test data and rate limits.
+
+### Reporting
+For each real finding: title, location, evidence, impact, reproduction steps, fix guidance and a reference (CWE ID, OWASP category). Developers fix what they can reproduce and understand.
+:: ref
+### SAST tools
+semgrep --config auto . | run Semgrep with community rules on the current folder
+bandit -r src/ | Python security linter
+codeql database create db --language=python | build a CodeQL database
+gitleaks detect | scan a repo and its history for secrets
+### DAST tools
+zap-baseline.py -t URL | passive OWASP ZAP scan
+zap-full-scan.py -t URL | active scan (staging only)
+nikto -h URL | quick web server checks
+### terms
+CWE | Common Weakness Enumeration, catalog of bug types (CWE-89 is SQL injection)
+false positive | a finding that is not a real vulnerability
+taint analysis | tracking untrusted input from source to dangerous sink
+baseline | the set of existing findings you accept for now
+:: lab
+host: reviewer
+user: reviewer
+cwd: /home/reviewer
+:: brief
+**Scenario (fictional, simulated):** a SAST scan of a fictional app reported four findings in `~/scan/report.txt`. The code around each one is in `~/scan/code/`. Read `~/scan/README.txt`.
+
+Exactly **one** finding is a true, exploitable SQL injection reachable by user input. The others are false positives. Submit the **finding ID**, for example `submit F9`.
+:: answer
+F2
+:: hint
+For each SQL finding, open the code and ask: does user input reach the query, and is it parameterized?
+:: hint
+`grep -n "execute" ~/scan/code/*` shows how each query is built.
+:: solution
+F1 builds a query from a hard-coded table constant (no user input), so it is a false positive. F3 uses a parameterized query (`?` placeholder). F4 is in a test file with fixed data. **F2** concatenates the `name` request parameter straight into the SQL string with no validation, so an input like `' OR '1'='1` changes the query. That is the true positive. Fix: use a parameterized query.
+:: verify
+cat ~/scan/report.txt
+grep -n execute ~/scan/code/*
+:: file /home/reviewer/scan/README.txt
+Fictional scan (simulated).
+:: file /home/reviewer/scan/report.txt
+F1  sql-injection   code/report.py   line 4   query built with +
+F2  sql-injection   code/search.py   line 6   query built with +
+F3  sql-injection   code/login.py    line 5   query built with +
+F4  sql-injection   code/test_db.py  line 3   query built with +
+:: file /home/reviewer/scan/code/report.py
+TABLE = "monthly_totals"
+def totals(db):
+    rows = db.execute("SELECT * FROM " + TABLE)
+    return rows
+:: file /home/reviewer/scan/code/search.py
+def search(db, request):
+    name = request.args["name"]
+    rows = db.execute("SELECT * FROM users WHERE name = '" + name + "'")
+    return rows
+:: file /home/reviewer/scan/code/login.py
+def login(db, user):
+    q = "SELECT id FROM users WHERE name = ?"
+    return db.execute(q, (user,))
+:: file /home/reviewer/scan/code/test_db.py
+def test_insert(db):
+    db.execute("INSERT INTO t VALUES (" + "1" + ")")

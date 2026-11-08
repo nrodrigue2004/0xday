@@ -973,6 +973,85 @@
               ]
             }
           ]
+        },
+        {
+          "code": "BLU310",
+          "name": "Detection engineering and threat hunting",
+          "pre": [
+            "BLU200"
+          ],
+          "blurb": "Write detections instead of just reading alerts: ATT&CK mapping, Sigma and YARA rules, and hypothesis-driven hunts.",
+          "modules": [
+            {
+              "t": "ATT&CK and detection basics",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/detect: ATT&CK and detection basics",
+                  "h": "detect/attack-mapping.html"
+                },
+                {
+                  "t": "~/learn: log analysis",
+                  "h": "learn/log-analysis.html"
+                },
+                {
+                  "t": "MITRE ATT&CK (attack.mitre.org)",
+                  "h": "https://attack.mitre.org/"
+                }
+              ]
+            },
+            {
+              "t": "Sigma rules",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/detect: Sigma rules",
+                  "h": "detect/sigma-rules.html"
+                },
+                {
+                  "t": "~/learn: SIEM with Security Onion",
+                  "h": "learn/siem-security-onion.html"
+                },
+                {
+                  "t": "SigmaHQ rule repository",
+                  "h": "https://github.com/SigmaHQ/sigma"
+                }
+              ]
+            },
+            {
+              "t": "YARA rules",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/detect: YARA rules",
+                  "h": "detect/yara-rules.html"
+                },
+                {
+                  "t": "~/learn: malware analysis",
+                  "h": "learn/malware-analysis.html"
+                },
+                {
+                  "t": "YARA documentation",
+                  "h": "https://yara.readthedocs.io/"
+                }
+              ]
+            },
+            {
+              "t": "Threat hunting",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/detect: threat hunting",
+                  "h": "detect/threat-hunting.html"
+                },
+                {
+                  "t": "~/learn: network traffic analysis",
+                  "h": "learn/network-traffic-analysis.html"
+                }
+              ],
+              "note": "Finish by writing one hunt in the template from the chapter and a Sigma rule that would have caught what you found."
+            }
+          ]
         }
       ]
     },
@@ -1029,6 +1108,179 @@
                 {
                   "t": "~/learn: malware analysis",
                   "h": "learn/malware-analysis.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CRY300",
+          "name": "Cryptography and mobile security",
+          "pre": [
+            "SEC100"
+          ],
+          "blurb": "How the primitives work and fail: cipher modes, RSA and ECC, TLS and PKI, classic attacks, and how mobile apps store secrets and talk to servers.",
+          "modules": [
+            {
+              "t": "Symmetric encryption and modes",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/crypto: symmetric encryption and modes",
+                  "h": "crypto/symmetric-modes.html"
+                },
+                {
+                  "t": "~/basics: CIA and crypto",
+                  "h": "basics/cia-and-crypto.html"
+                },
+                {
+                  "t": "~/learn: applied cryptography",
+                  "h": "learn/cryptography-applied.html"
+                }
+              ]
+            },
+            {
+              "t": "RSA, ECC and signatures",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/crypto: RSA, ECC and signatures",
+                  "h": "crypto/public-key.html"
+                }
+              ]
+            },
+            {
+              "t": "TLS and PKI internals",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/crypto: TLS and PKI",
+                  "h": "crypto/tls-pki.html"
+                },
+                {
+                  "t": "Cloudflare Learning: what is TLS",
+                  "h": "https://www.cloudflare.com/learning/ssl/transport-layer-security-tls/"
+                }
+              ]
+            },
+            {
+              "t": "Attacking crypto",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/crypto: attacking crypto",
+                  "h": "crypto/crypto-attacks.html"
+                },
+                {
+                  "t": "Cryptopals challenges (free, do sets 1 and 2)",
+                  "h": "https://cryptopals.com/"
+                },
+                {
+                  "t": "Stanford Cryptography I (free course)",
+                  "h": "https://www.coursera.org/learn/crypto"
+                }
+              ],
+              "note": "Cryptopals is coding practice and goes beyond the quiz. Sets 1 and 2 cover the ECB, CBC and nonce attacks from this module."
+            },
+            {
+              "t": "Android security",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/mobile: Android security",
+                  "h": "mobile/android-security.html"
+                },
+                {
+                  "t": "OWASP MASVS",
+                  "h": "https://mas.owasp.org/MASVS/"
+                }
+              ]
+            },
+            {
+              "t": "iOS and mobile crypto",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/mobile: iOS and mobile crypto",
+                  "h": "mobile/ios-and-mobile-crypto.html"
+                },
+                {
+                  "t": "~/learn: React Native and Expo apps",
+                  "h": "learn/mobile-apps-react-native-expo.html"
+                },
+                {
+                  "t": "~/learn: Flutter and Firebase apps",
+                  "h": "learn/mobile-apps-flutter-firebase.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "SDL300",
+          "name": "Secure development",
+          "pre": [
+            "SEC100"
+          ],
+          "blurb": "Threat modeling, SAST and DAST, dependency and secret scanning, and the web flaws developers must prevent.",
+          "modules": [
+            {
+              "t": "Threat modeling",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/sdl: threat modeling",
+                  "h": "sdl/threat-modeling.html"
+                }
+              ]
+            },
+            {
+              "t": "SAST and DAST",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/sdl: SAST and DAST",
+                  "h": "sdl/sast-dast.html"
+                },
+                {
+                  "t": "OWASP ZAP",
+                  "h": "https://www.zaproxy.org/"
+                }
+              ]
+            },
+            {
+              "t": "Dependencies, secrets and the pipeline",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/sdl: dependencies, secrets and the pipeline",
+                  "h": "sdl/dependency-scanning.html"
+                },
+                {
+                  "t": "~/cases: Log4Shell",
+                  "h": "cases/log4shell.html"
+                },
+                {
+                  "t": "~/learn: git and GitHub",
+                  "h": "learn/git-github.html"
+                }
+              ]
+            },
+            {
+              "t": "Web flaws developers must prevent",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/basics: web attack classes",
+                  "h": "basics/web-attack-classes.html"
+                },
+                {
+                  "t": "~/learn: vulnerable lab targets (DVWA, WebGoat)",
+                  "h": "learn/vulnerable-lab-targets-dvwa-webgoat.html"
+                },
+                {
+                  "t": "OWASP Cheat Sheet Series",
+                  "h": "https://cheatsheetseries.owasp.org/"
                 }
               ]
             }

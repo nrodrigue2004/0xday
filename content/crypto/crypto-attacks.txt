@@ -1,0 +1,85 @@
+tagline: Real-world cryptography fails at the edges: padding errors, reused nonces, weak randomness, downgrade tricks. Learn the pattern of each so you can spot it in code review.
+sheet: openssl
+:: simple
+Crypto rarely breaks because the algorithm is weak. It breaks because of **how it is used**. The classic failure patterns:
+
+- **Reused nonce / keystream**: encrypting two messages with the same key and nonce (CTR, GCM, RC4, a one-time pad used twice). XORing the two ciphertexts cancels the key and leaves the XOR of the plaintexts, which is often readable.
+- **ECB patterns**: identical plaintext blocks give identical ciphertext blocks.
+- **Padding oracle**: a server that says "bad padding" differently from "bad MAC" lets an attacker decrypt CBC ciphertext byte by byte.
+- **Weak randomness**: keys or tokens made from a clock or `rand()` can be guessed.
+- **Password hashing mistakes**: fast unsalted hashes (MD5, SHA-1) crack by the billion per second on a GPU.
+- **Downgrade**: forcing a connection onto an old, weak protocol version or cipher.
+- **Hard-coded keys and secrets** in apps and firmware.
+
+Cryptopals (cryptopals.com) is a free set of exercises that has you perform many of these attacks yourself.
+:: mid
+### Nonce reuse, concretely
+If `C1 = P1 XOR K` and `C2 = P2 XOR K`, then `C1 XOR C2 = P1 XOR P2`. With a guess of a common word in one message (a **crib**), you slide it along and read the other message wherever it produces readable text. Defense: unique nonces, or a nonce-misuse-resistant mode.
+
+### Padding oracle
+CBC decryption strips padding. If the application reveals whether padding was valid (different error, timing), an attacker modifies the previous block and watches the response to recover one byte at a time, about 256 tries per byte. Defense: use AEAD, or verify a MAC **before** decrypting, and return one uniform error.
+
+### Randomness
+Use the OS CSPRNG (`secrets` in Python, `crypto.randomBytes` in Node, `/dev/urandom`, `SecureRandom` in Java). A Mersenne Twister or `Math.random()` is predictable after observing enough outputs. A seed from a timestamp has a tiny search space.
+
+### Password storage
+Use Argon2id, scrypt or bcrypt with a per-user salt and a tuned cost. Never encrypt passwords reversibly. Check against breached-password lists. Peppering and MFA add layers.
+
+### Other classics
+- **Length extension** on `SHA256(secret || message)`: use HMAC instead.
+- **Timing attacks** on string comparison of MACs: use constant-time compare.
+- **Compression side channels** (CRIME, BREACH) when secrets and attacker-controlled data are compressed together.
+- **Downgrade attacks** (POODLE, FREAK, Logjam): disable old protocols and export-grade suites.
+:: complex
+### Bleichenbacher and its descendants
+RSA decryption with PKCS#1 v1.5 padding that leaks "valid or invalid format" is an oracle that lets an attacker decrypt or sign without the key. The attack keeps returning in new forms (ROBOT, DROWN) years after the first fix. Answer: OAEP, or do not use RSA key transport at all (TLS 1.3 removed it).
+
+### Related-key and key-recovery bugs
+ECDSA with a repeated or biased nonce leaks the private key through a few signatures. RSA keys from weak entropy at boot share primes. Heartbleed leaked server private keys from memory. Treat key compromise as a rotation event, not a patch event.
+
+### Protocol-level thinking
+Many breaks are logic flaws rather than math: confusing which party authenticated, accepting an unauthenticated field, replaying old messages, or signing something different from what is shown. Ask for each message: who authenticates it, what binds it to this session, can it be replayed or reordered, what happens if a field is omitted.
+
+### Reviewing code for crypto
+Search for: ECB, DES, RC4, MD5, SHA1 for security, `Math.random` / `rand()` for secrets, constants that look like keys or IVs, `verify=False` / trust-all managers, home-made schemes ("XOR with the key"), and key derivation with a bare hash. Each is a finding worth a ticket.
+:: ref
+### attack patterns
+nonce reuse | same key and nonce twice, XOR of ciphertexts = XOR of plaintexts
+padding oracle | error difference reveals CBC padding validity
+Bleichenbacher | RSA PKCS#1 v1.5 error oracle
+length extension | forge hash(secret||msg) extensions, use HMAC
+downgrade | force an older protocol or weak suite
+CRIME / BREACH | compression leaks secrets mixed with attacker data
+### grep targets in code review
+ECB | AES.new(key, AES.MODE_ECB) or Cipher "AES/ECB"
+weak hash | md5( / sha1( used for passwords or signatures
+weak random | Math.random() / rand() / random.random() for tokens
+trust-all TLS | verify=False, TrustAllCerts, rejectUnauthorized: false
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+py: yes
+:: brief
+**Scenario (fictional, simulated):** a fictional tool at **Fabrikam Tools** encrypts messages with a stream cipher but reuses the same key and nonce for two messages. The first 10 bytes of each ciphertext are in `~/reuse/c1.hex` and `~/reuse/c2.hex`. Read `~/reuse/README.txt`.
+
+You know (a crib) that message 1 begins with the ten characters `Meeting at`. XOR `c1` with the crib to recover the keystream, then XOR that with `c2` to read message 2. Python is available in the sandbox. Submit the **first word of message 2**, in lowercase.
+:: answer
+payroll
+:: hint
+Keystream = c1 XOR crib. Message 2 = c2 XOR keystream. In Python: `bytes(a^b for a,b in zip(x,y))` and `bytes.fromhex(...)`.
+:: hint
+One line does it: `python3 -c "c1=bytes.fromhex(open('reuse/c1.hex').read().strip());c2=bytes.fromhex(open('reuse/c2.hex').read().strip());ks=bytes(a^b for a,b in zip(c1,b'Meeting at'));print(bytes(a^b for a,b in zip(c2,ks)))"` (adjust the paths if your shell is not in your home folder).
+:: solution
+Because both messages used the same keystream, `c1 XOR c2 = m1 XOR m2`. With the crib `m1 = "Meeting at"` you get the keystream, and XORing it with `c2` gives `Payroll fi`. The first word is **payroll**. One known or guessable message exposes every other message under that key. Fix: unique nonces, AEAD (GCM or ChaCha20-Poly1305), and a message counter per key.
+:: verify
+cat ~/reuse/README.txt
+cat ~/reuse/c1.hex
+:: file /home/analyst/reuse/README.txt
+Fictional two-time-pad exercise (simulated). Same key and nonce for both messages.
+  c1.hex  ciphertext of message 1 (first 10 bytes, hex)
+  c2.hex  ciphertext of message 2 (first 10 bytes, hex)
+:: file /home/analyst/reuse/c1.hex
+1759186d8bdaa1a191d7
+:: file /home/analyst/reuse/c2.hex
+0a5d046b8dd8aaa196ca

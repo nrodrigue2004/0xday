@@ -40,6 +40,10 @@ The programming path. Chapters are `content/code/<slug>.txt` in the same format 
 
 Later/optional certs after Security+. `content/comptia/certs.json` lists them; each built cert has `content/comptia/<slug>.txt` (format in the `build_comptia.py` docstring: per objective `@notes`, `@cards`, `@check`, `@lab`, `@answer`). CySA+ (CS0-004) is built. Network+ (`netplus.txt`), A+ Core 1 (`aplus.txt`) and A+ Core 2 (`aplus2.txt`) are built from Nate's own notes; a new cert is a `.txt` file plus a certs.json entry with `built: true` and a `domains` map.
 
+## ~/detect, ~/crypto, ~/sdl, ~/mobile
+
+Advanced security chapters for courses BLU310, CRY300 and SDL300. Chapters are `content/<section>/<slug>.txt` in the learn-guide format; sections, order and blurbs are in `SECTIONS` in `build_adv.py`, which also publishes each chapter's `:: ref` as a cheatsheet (`man sigma`, `man yara`, `man openssl`, `man appsec`, `man mobile`). Question banks are `content/courses/<CODE>.txt`; the courses are listed in `content/courses.json`.
+
 ## ~/ai
 
 Chapters are `content/ai/<slug>.txt` in the same format as the learn guides (tiers plus optional lab); order and blurbs are in `CHAPTERS` in `build_ai.py`. The reading list is `content/ai/news.json` (hand-curated and dated, the site is static, so update it by hand and bump `updated`).
