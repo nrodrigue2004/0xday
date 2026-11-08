@@ -1,0 +1,90 @@
+tagline: Message queues and event streams: decoupling services, delivery guarantees, why "exactly once" is hard, and idempotent consumers.
+:: simple
+A **message queue** sits between two services. The sender (**producer**) drops a message in; the receiver (**consumer**) takes it out when it is ready. The producer does not wait for the consumer, and the consumer can be slow, restarted or offline without losing the work. Examples: RabbitMQ, Amazon SQS, Kafka, Redis streams, Google Pub/Sub.
+
+Why use one?
+- **Decoupling**: services do not need to be up at the same moment.
+- **Smoothing bursts**: a spike of 10,000 orders waits in the queue instead of crashing the database.
+- **Fan-out**: one event, many consumers (email, billing, analytics).
+- **Retry**: a failed job goes back and is tried again.
+
+Two shapes you will see: a **work queue** (each message goes to one consumer, so workers share the load) and **publish / subscribe** (each message goes to every subscriber).
+
+### The ack
+A consumer takes a message, does the work, then sends an **acknowledgment (ack)**. If it crashes before the ack, the broker hands the message to someone else. That makes the queue safe against crashes, and it also means a message can be processed **more than once**.
+> If the work happened but the ack never arrived, the queue cannot know. It will deliver the message again.
+:: mid
+### Delivery guarantees
+- **At-most-once**: send and forget. No duplicates, but messages can be lost. Fine for metrics.
+- **At-least-once**: retry until acked. Nothing lost, duplicates possible. The default in most systems.
+- **Exactly-once**: each message has its effect exactly one time. A broker cannot promise this end to end on its own (it is the Two Generals problem again). In practice it is **at-least-once delivery + an idempotent consumer**, which gives exactly-once *effects*. Kafka offers transactions and idempotent producers inside Kafka, and the same caveat applies once you touch an outside database or send an email.
+
+### Idempotent consumers
+Give every message a unique ID. Before doing the work, check a table of processed IDs; do the effect and record the ID in the **same database transaction**. Payments APIs do the same with an **idempotency key** header so a retried HTTP request does not charge twice.
+
+### Ordering
+A single queue can keep order, but several parallel consumers process out of order. Kafka keeps order **per partition**, and you choose the partition by key (for example the account ID), so all events for one account stay in order while different accounts run in parallel. Global ordering is costly; ask whether you really need it.
+
+### Failure handling
+- **Visibility timeout** (SQS): while a consumer works, the message is hidden. If no ack in time, it reappears. Set it longer than the job.
+- **Retry with backoff and jitter**, not instant loops.
+- **Dead-letter queue (DLQ)**: after N failed attempts the message moves aside for a human. A **poison message** that always crashes the consumer would otherwise block the queue forever.
+- **Backpressure**: if consumers fall behind, the queue grows. Monitor **queue depth** and **consumer lag** and alert on growth. Bound queue size or shed load rather than running out of disk.
+:: complex
+### Logs versus queues
+A traditional queue deletes a message once it is acked. A **log** (Kafka) keeps messages for a retention period; each consumer group tracks its own **offset**, so you can replay history, add a new consumer later, or rebuild a database from the stream. This is the base of **event sourcing** (store the events, derive state) and **CDC** pipelines. Kafka replicates each partition across brokers with a leader and in-sync replicas (the ISR), and uses a consensus-based controller (Raft in KRaft mode) for metadata: the previous two chapters at work.
+
+### The outbox pattern
+A service must update its database and publish an event. If it does both separately, a crash between them leaves them inconsistent (the dual-write problem). Solution: write the event into an **outbox table** in the same transaction as the change, and let a separate relay publish rows from the outbox, at-least-once. Consumers dedupe by ID.
+
+### Choosing parameters
+Prefetch count (how many unacked messages a consumer may hold), batch size, and ack mode trade throughput against duplicates after a crash. Persist messages to disk and replicate before acking the producer if you cannot lose data; this costs latency (the PACELC trade again).
+
+### Security angle
+- **Authenticate and authorize** producers and consumers per topic; an open broker lets anyone inject jobs or read everything. Redis, RabbitMQ with the default guest user and unauthenticated Kafka have all been found exposed on the internet.
+- **Messages are input**: validate and size-limit them like any untrusted request. Never deserialize untrusted payloads with unsafe formats (Python pickle, Java native serialization): that is remote code execution through a queue.
+- **Replay attacks**: if a message authorizes an action ("refund order 9"), include a nonce or ID and a short validity time so a copy cannot be replayed.
+- **Sensitive data**: encrypt in transit and consider field-level encryption, because retained logs, DLQs and backups become a second copy of everything.
+- **Denial of service**: a flood fills the queue or a poison message wedges the consumer. Rate limit producers, set TTLs and use DLQs.
+- For detection: broker audit logs and unusual publisher identities or topic access are worth sending to the SIEM.
+:: lab
+style: shell
+host: worker-01
+user: ops
+cwd: /home/ops
+:: brief
+An order system uses an at-least-once queue. Finance reports that one customer was charged twice for the same order.
+
+Investigate in `~/queue`: the broker's delivery log and the payment worker's log. Find the **message ID** whose charge ran twice, and submit it.
+:: answer
+m-0412
+:: hint
+`grep -c CHARGED ~/queue/worker.log` counts charges. Look for a message ID that appears in more than one `CHARGED` line.
+:: hint
+In the broker log, find the same ID with a `redeliver` line, and check whether the worker had an `ack` before it.
+:: solution
+Message `m-0412`: worker-1 charged the card, then crashed before sending the ack. After the visibility timeout the broker redelivered it to worker-2, which charged again. At-least-once delivery did exactly what it promises; the bug is that the consumer is not **idempotent**. Fix: store processed message IDs (or an idempotency key sent to the payment provider) in the same transaction as the charge, so the second delivery becomes a no-op. Also refund the duplicate.
+:: verify
+grep CHARGED ~/queue/worker.log | grep m-0412
+:: file /home/ops/queue/broker.log
+10:00:01 deliver m-0410 to worker-1
+10:00:02 ack m-0410 from worker-1
+10:00:05 deliver m-0411 to worker-2
+10:00:06 ack m-0411 from worker-2
+10:00:09 deliver m-0412 to worker-1
+10:00:39 visibility timeout m-0412 (no ack from worker-1)
+10:00:39 redeliver m-0412 to worker-2
+10:00:41 ack m-0412 from worker-2
+10:00:44 deliver m-0413 to worker-2
+10:00:45 ack m-0413 from worker-2
+:: file /home/ops/queue/worker.log
+10:00:01 worker-1 got m-0410 CHARGED order=7001 amount=19.99
+10:00:02 worker-1 sent ack m-0410
+10:00:05 worker-2 got m-0411 CHARGED order=7002 amount=5.00
+10:00:06 worker-2 sent ack m-0411
+10:00:09 worker-1 got m-0412 CHARGED order=7003 amount=42.00
+10:00:10 worker-1 CRASH (out of memory) before ack
+10:00:39 worker-2 got m-0412 CHARGED order=7003 amount=42.00
+10:00:41 worker-2 sent ack m-0412
+10:00:44 worker-2 got m-0413 CHARGED order=7004 amount=12.50
+10:00:45 worker-2 sent ack m-0413

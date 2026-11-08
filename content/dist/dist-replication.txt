@@ -1,0 +1,90 @@
+tagline: Keeping copies of data on several nodes: leaders, followers, quorums, consistency levels, and what CAP actually says.
+:: simple
+**Replication** means keeping the same data on more than one node. You do it for **durability** (a disk dies, the data lives), **availability** (a node dies, another answers) and **speed** (read from a nearby copy).
+
+The simplest design is **leader / follower** (also called primary / replica). All writes go to one leader, which sends the change to the followers. Reads can go to the leader or to followers.
+
+- **Synchronous** replication: the leader waits until followers confirm before telling the client "done". Safe, but slower, and a slow follower slows every write.
+- **Asynchronous** replication: the leader answers immediately and sends the change later. Fast, but if the leader dies right after, that write may be gone.
+
+Because followers can lag, a read from a follower can return **stale** data. You save a profile change, reload the page, hit a lagging replica, and your change seems to have vanished. That is **replication lag**.
+
+### CAP in one paragraph
+When the network splits, a system has two choices. It can keep answering on both sides (**availability**) and risk the sides disagreeing, or refuse some requests until the split heals (**consistency**). You cannot have both during a partition. That is the **CAP theorem**. A bank ledger leans consistent (CP). A shopping-cart or "like" counter often leans available (AP).
+> CAP is about what happens *during a partition*. Partitions are rare but not optional, so the real question is which side of the trade you take when one happens.
+:: mid
+### Quorums
+With **N** replicas, a write must be acknowledged by **W** and a read must consult **R**. If **W + R > N**, every read set overlaps every write set by at least one node, so a read sees the latest acknowledged write. Common setups for N = 3: W = 2, R = 2 (balanced); W = 3, R = 1 (fast reads, a write fails if any node is down); W = 1, R = 3 (fast writes). Dynamo-style stores (Cassandra, Riak, DynamoDB's design) let you pick these per request.
+
+### Consistency models, weakest to strongest
+- **Eventual**: if writes stop, all replicas converge. No promises about when or about what you read in between.
+- **Read-your-writes**: after you write, *you* always see it (route your reads to the leader for a while, or track a version).
+- **Monotonic reads**: you never see time go backward (stick a user to one replica).
+- **Causal**: if B was a reaction to A, nobody sees B without A.
+- **Sequential / linearizable**: all operations look like they happened one at a time in an order consistent with real time. This is what people mean by "strong consistency". It costs a coordination round per operation.
+
+### PACELC
+CAP only covers partitions. Daniel Abadi's PACELC adds: **else** (no partition), you still trade **latency** against **consistency**. Even on a healthy network, waiting for a quorum in another region costs tens of milliseconds, so systems often choose lower latency and weaker consistency.
+
+### Conflicts
+If two replicas accept writes to the same key while split, you need a merge rule when they reconnect.
+- **Last write wins (LWW)**: highest timestamp wins. Simple, loses data, and depends on clocks (which lie).
+- **Version vectors**: detect that two writes were concurrent, then keep both ("siblings") for the app or user to resolve.
+- **CRDTs**: data types designed so that merging is always safe and order does not matter, for example a grow-only counter or an add-wins set. Used in collaborative editing and some databases.
+:: complex
+### Failover and split brain
+When a leader dies, someone must take over. Done carelessly you get **split brain**: two nodes both believe they are leader and both accept writes, and the data diverges. Defenses:
+- Elect leaders with a **majority** vote, so only one side of a partition can win (next chapter).
+- Use **fencing tokens**: each leadership term has a number, and storage rejects any write carrying an older number. A paused leader that wakes up after a GC pause or VM freeze then cannot corrupt data with stale writes.
+- Use **STONITH** ("shoot the other node in the head") in clustered databases and HA pairs: power off or isolate the old primary before promoting the new one.
+
+### Replication mechanics
+- **Statement-based** shipping replays SQL on followers (breaks on `NOW()` and random). **Write-ahead log shipping** sends the physical log (PostgreSQL streaming replication). **Logical/row-based** replication sends row changes (MySQL binlog in row mode, CDC tools like Debezium).
+- **Replication lag** is a metric you must alarm on; a growing lag means failover will lose data.
+- **Multi-leader** (one leader per region) cuts write latency but needs conflict handling; **leaderless** (Dynamo style) uses quorums plus read repair and anti-entropy to fix stragglers.
+
+### Partitioning is not partition
+**Sharding** (also called partitioning) splits the dataset across nodes by key: range, hash, or consistent hashing. It is about scale, and each shard is usually replicated too. Do not confuse it with a *network* partition. Hot keys, resharding and cross-shard transactions are the pain points.
+
+### Security angle
+Replication traffic carries your whole database, so encrypt it and authenticate peers. A replica is a copy of the data and needs the same access control and backup protection as the primary. Cloud snapshots and replicas in other accounts have caused real data exposures. In incident response, remember that deleting data on the primary does not delete it from lagging replicas or backups.
+:: lab
+style: shell
+host: db-ops
+user: sre
+cwd: /home/sre
+:: brief
+Two database nodes were running as a primary and a replica when the link between them dropped for a while. Afterwards a customer says the address change they saved earlier is gone.
+
+Investigate in `~/repl`: the two node logs and the post-mortem notes. Find which write was lost after the nodes reconnected, and submit the **key** that was overwritten with an old value.
+:: answer
+customer_8841
+:: hint
+Read both logs side by side, `cat ~/repl/node-a.log ~/repl/node-b.log`, and look for writes that happened while the nodes could not talk to each other.
+:: hint
+Both nodes accepted a write for the same key during the partition. When they reconnected, one of them won using a rule listed in `policy.txt`.
+:: solution
+During the partition both nodes accepted writes (`node-a` was also still taking traffic, which is split brain in a two-node setup). `customer_8841` was written on node-b at 10:02:11 (new address) and on node-a at 10:02:30 (old address, from a retried job). The resolution policy is **last write wins** by wall-clock timestamp, so node-a's later but stale write won and the customer's change was discarded. Fixes: stop accepting writes on both sides (use a third node or witness so only a majority side can write), use version vectors so conflicts surface instead of vanishing, and make the retry job carry the original version.
+:: verify
+grep -h customer_8841 ~/repl/node-a.log ~/repl/node-b.log
+:: file /home/sre/repl/policy.txt
+conflict_resolution: last-write-wins
+clock_source: local system time
+witness_node: none
+write_quorum: 1
+:: file /home/sre/repl/node-a.log
+10:00:00 link up peer=node-b
+10:01:58 link DOWN peer=node-b (timeout)
+10:02:04 write key=cart_5521 val=3-items ts=10:02:04 local-only
+10:02:30 write key=customer_8841 val=addr:12-Old-St ts=10:02:30 local-only (retry-job)
+10:04:10 link up peer=node-b
+10:04:11 merge from node-b key=cart_5521 theirs=3-items mine=3-items keep=same
+10:04:11 merge from node-b key=customer_8841 theirs=addr:99-New-Ave(ts=10:02:11) mine=addr:12-Old-St(ts=10:02:30) keep=mine
+:: file /home/sre/repl/node-b.log
+10:00:00 link up peer=node-a
+10:01:58 link DOWN peer=node-a (timeout)
+10:02:11 write key=customer_8841 val=addr:99-New-Ave ts=10:02:11 local-only
+10:03:05 write key=order_1002 val=paid ts=10:03:05 local-only
+10:04:10 link up peer=node-a
+10:04:11 merge from node-a key=customer_8841 theirs=addr:12-Old-St(ts=10:02:30) mine=addr:99-New-Ave(ts=10:02:11) keep=theirs
+10:04:11 merge from node-a key=order_1002 theirs=(none) mine=paid keep=mine

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>regression :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, regression: Fit a line, gradient descent, train and test splits, overfitting.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ml-regression</p>
+<h1>~/ai/ml-regression</h1>
+<p>Fitting a line to data: linear regression, the loss, gradient descent, overfitting and why you hold out a test set.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ml-regression">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Machine learning</strong> replaces hand-written rules with a model fitted to examples. The simplest supervised kind is <strong>regression</strong>: predict a number from other numbers.</p>
+<p>Example: you have 50 past incidents with <code>(number of affected hosts, hours to contain)</code>. Plot them and draw the straight line that passes closest to all the points. Now for a new incident with 30 hosts you can read off an estimate. That line is a <strong>linear regression model</strong>: <code>hours = w * hosts + b</code>. The slope <code>w</code> and intercept <code>b</code> are the <strong>parameters</strong> the machine learned.</p>
+<p>How does it find the best line? It needs a number that says how wrong a line is. For each example take the gap between the prediction and the real value, square it, and average them. That is the <strong>mean squared error (MSE)</strong>, the <strong>loss</strong>. Training means changing <code>w</code> and <code>b</code> to make the loss small.</p>
+<p>The three words to keep: <strong>features</strong> (inputs), <strong>labels</strong> (the right answers), <strong>model</strong> (the formula with adjustable numbers). Learning from labeled examples is <strong>supervised learning</strong>.</p>
+<p class="callout">A model never "understands" anything. It finds numbers that make a loss small on the data you gave it. Everything else follows from that sentence.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Gradient descent on a line</h4>
+<p>Start with any <code>w</code> and <code>b</code> (for example 0). Compute the loss, then the slope of the loss for each parameter, then take a small step downhill:</p>
+<pre class="ex"><code><span class="o">for epoch in range(1000):</span>
+<span class="o">    pred = w * X + b</span>
+<span class="o">    err = pred - y</span>
+<span class="o">    w -= lr * (2 * (err * X).mean())</span>
+<span class="o">    b -= lr * (2 * err.mean())</span></code></pre>
+<p>The learning rate <code>lr</code> sets the step. If the loss goes up or turns into <code>nan</code>, it is too large. For plain linear regression there is also a direct formula (the normal equation) that jumps to the answer, and <code>scikit-learn</code>'s <code>LinearRegression</code> uses linear algebra for that. Gradient descent matters because it works for models that have no formula, including neural networks. Play with this on the <a href="ml-lab.html">ML playground</a>.</p>
+<h4>Many features</h4>
+<p>With several features the model is a dot product: <code>y = w . x + b</code>. The same code works with <code>X</code> as a matrix and <code>w</code> as a vector (see the math refresher). <strong>Scale your features</strong> (mean 0, spread 1), or gradient descent zigzags because one feature's units dwarf the others.</p>
+<h4>Train, validation, test</h4>
+<p>If you check the model on the same data it learned from, you only learn how well it memorized. So split the data:</p>
+<ul><li><strong>Train</strong> (about 70 to 80 percent): fit the parameters.</li><li><strong>Validation</strong>: compare model choices and settings.</li><li><strong>Test</strong>: touch once at the end for an honest score.</li></ul>
+<p>Time-ordered data (logs, incidents) must be split <strong>by time</strong> (train on the past, test on the future), not shuffled, or you leak the future into training.</p>
+<h4>Overfitting and underfitting</h4>
+<p>A line too simple for the data <strong>underfits</strong> (high error everywhere). A model with too many knobs (a degree-15 polynomial, a huge tree) can pass through every training point and <strong>overfit</strong>: low training error, high test error, because it learned the noise. The fix menu: more data, fewer or simpler features, <strong>regularization</strong> (penalize large weights so the model stays simple), early stopping, and cross-validation to measure honestly.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Regularization, in one equation</h4>
+<p>Ridge (L2) adds <code>lambda * sum(w^2)</code> to the loss, which shrinks weights toward zero and is stable when features are correlated. Lasso (L1) adds <code>lambda * sum(|w|)</code> and tends to push some weights exactly to zero, acting as feature selection. <code>lambda</code> is a <strong>hyperparameter</strong>: you set it, you do not learn it, and you tune it on the validation set.</p>
+<h4>Bias, variance, and the honest error</h4>
+<p>Expected test error splits into <strong>bias</strong> (the model family is too simple, systematic miss), <strong>variance</strong> (the fit changes wildly with different training samples) and <strong>irreducible noise</strong> (no model removes it). More complexity lowers bias and raises variance, which is the shape behind the overfitting curve. Learning curves (error versus training-set size) tell you whether more data will help: if train and validation error have converged high, you need a better model, not more data.</p>
+<h4>Diagnostics that catch real mistakes</h4>
+<ul><li><strong>Residual plots</strong>: if the errors show a pattern instead of noise, the model is missing structure (a curve, an interaction).</li><li><strong>Outliers</strong> pull a squared-error fit hard; consider robust losses or inspect those rows.</li><li><strong>Leakage</strong>: a feature that secretly contains the answer (the ticket's "resolved_at" used to predict resolution time) gives a gorgeous test score and a useless model. Ask of each feature: *will I know this at prediction time?*</li><li><strong>Extrapolation</strong>: a model fitted on 5 to 50 hosts says nothing reliable about 5,000.</li><li><strong>Correlation is not cause</strong>: regression finds association in the data you have.</li></ul>
+<h4>Security uses</h4>
+<p>Forecasting capacity and log volume, estimating time-to-contain, scoring risk, baselining normal traffic per host so that big deviations stand out. For anomalies, a regression baseline plus a threshold on the residual is a cheap first detector.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="ml-math.html">&lt; ML math refresher</a><a href="ml-classifiers.html">classifiers &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
