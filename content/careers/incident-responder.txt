@@ -1,0 +1,78 @@
+slug: incident-responder
+title: Incident Responder / DFIR Analyst
+family: cyber
+tagline: When something real happens, you contain it, work out what the attacker did, and help the business recover. Usually the step after SOC Tier 2.
+titles: Incident Responder, DFIR Analyst, CSIRT Analyst, Digital Forensics Examiner, Threat Hunter
+:: about
+Incident response (IR) is the work that happens after an alert becomes an incident. Responders decide how to contain it, collect evidence in a defensible way, reconstruct a timeline, find the entry point, and make sure the attacker is really gone. **Digital forensics** (DFIR) is the evidence side: disk, memory, logs and network artifacts.
+
+Most responders arrive here from SOC or sysadmin work, because you need to know what "normal" looks like on a system before you can see what is wrong. Entry-level roles exist, often as a SOC Tier 2 or a junior forensics position.
+:: ladder
+- SOC Tier 1/2 or sysadmin | the foundation
+- Incident responder / forensic analyst | investigations, containment, reporting
+- Senior IR / threat hunter | leads incidents, hunts proactively, builds playbooks
+- Specializations | malware reverse engineering, threat intelligence, IR consulting, management
+:: day
+- Triage escalated incidents and decide scope and severity
+- Collect and preserve evidence (memory capture, disk images, log exports) with chain of custody
+- Analyze artifacts: process trees, persistence, registry, event logs, browser and file system timelines
+- Coordinate containment and recovery with IT, legal and management
+- Write the timeline and report, then update playbooks and detections
+:: certs
+- CompTIA Security+ and CySA+ | foundations
+- GIAC GCIH / GCFE / GCFA | the best-known DFIR certifications (SANS; costly)
+- Blue Team Level 1 | affordable practical start
+- Cellebrite / Magnet certifications | for forensics jobs using those tools
+- EC-Council CHFI | forensics-focused, recognized by some employers
+:: courses
+- TryHackMe DFIR and Windows forensics rooms | guided labs | https://tryhackme.com
+- CyberDefenders challenges | real forensic and network scenarios | https://cyberdefenders.org
+- SANS free posters and the NIST SP 800-61 guide | the standard process | https://csrc.nist.gov
+- Volatility Foundation docs | memory forensics | https://volatilityfoundation.org
+- 13Cubed YouTube channel | free, clear DFIR tutorials | https://www.youtube.com/@13Cubed
+:: skills
+- Incident response lifecycle | preparation to lessons learned | incident-response | normal
+- Digital forensics | acquisition, hashing, artifacts, timelines | digital-forensics | normal
+- Log analysis | reconstruct events across hosts | log-analysis | normal
+- Network traffic analysis | PCAP evidence | network-traffic-analysis | normal
+- Malware analysis | triage behavior and indicators | malware-analysis | hard
+- Windows and Active Directory internals | registry, services, tokens, Kerberos | active-directory | hard
+- SIEM | pivoting at scale | siem-security-onion | normal
+- Linux command line | the live-response toolbox | linux-command-line | normal
+- Scripting (Python, PowerShell) | parse artifacts and automate collection | python | normal
+- Reverse engineering | understanding the sample | reverse-engineering | hard
+:: projects
+- [easy] Evidence habits | Practice hashing and imaging a USB drive, document chain of custody on a form, and verify the hash after copying.
+- [easy] Timeline | Build a timeline of events from Windows event logs for a lab machine after you run a few suspicious commands.
+- [normal] Memory forensics | Capture memory from a lab VM running a harmless sample, then use Volatility to find the process list, network connections and injected code.
+- [normal] Public challenge | Solve a CyberDefenders or Blue Team Labs investigation and write a report with timeline, IOCs and ATT&CK mapping.
+- [hard] Ransomware tabletop | Write a full incident response plan and playbook, then run a tabletop with a friend playing the attacker and management.
+- [hard] Triage collector | Write a Python or PowerShell script that gathers volatile data (processes, connections, scheduled tasks, run keys) into a hashed archive.
+:: resume
+- Show cases: "investigated X incidents; reduced time to contain."
+- Emphasize process: evidence handling, timelines, reports.
+- List tools: Volatility, Autopsy/FTK, Wireshark, KAPE, Velociraptor, Sysmon, Splunk.
+- Public write-ups are the best proof of report-writing ability.
+:: basic
+- [e] Why incident response? => You like the investigation and being useful when it matters. Mention the lab work that gave you a taste of it, and that you understand the calm, documented approach the work demands.
+- [e] How do you stay calm during a major incident? => Follow the process, write down every action with time, communicate on a schedule, divide tasks, and avoid guessing. A checklist is what keeps people steady.
+- [e] What makes a good incident report? => Short executive summary, a timeline in UTC with evidence references, root cause, impact, actions taken, indicators, and lessons with owners and dates. Readable by both management and technical staff.
+:: technical
+- [e] What are the phases of incident response? => NIST: preparation; detection and analysis; containment, eradication and recovery; post-incident activity.
+- [e] What is the order of volatility? => Collect most volatile first: CPU registers and cache, RAM, network state and processes, disk, remote logs, archives. RAM first because it disappears on shutdown.
+- [e] What is chain of custody? => Documentation of who handled evidence, when, and what was done, so it stays admissible and trustworthy. Combined with hashes to prove it wasn't changed.
+- [e] Why hash evidence? => A cryptographic hash (SHA-256) of the original and the copy proves they are identical, and lets you show integrity later.
+- [n] Why not just power off a compromised machine? => You lose volatile evidence (processes, network connections, keys in memory) and may trigger tampering. Prefer isolating from the network and capturing memory first, unless there is ongoing destructive damage.
+- [n] What artifacts show program execution on Windows? => Prefetch, Amcache, ShimCache, UserAssist, SRUM, event logs (4688 with command line, Sysmon 1), and scheduled tasks and services. Know that each has caveats and combine them.
+- [n] What are common persistence mechanisms? => Run keys, scheduled tasks, services, startup folder, WMI event subscriptions, DLL hijacking, cron jobs, systemd units, SSH authorized_keys, and new accounts.
+- [n] How do you decide when to contain vs. keep watching? => Weigh the risk of ongoing damage against intelligence value. If data is leaving or ransomware is spreading, contain at once. Otherwise, a short, coordinated observation can reveal scope, but only with management agreement.
+- [n] How do you find the initial access? => Work backward from the earliest known malicious activity: phishing emails, exposed services, VPN logs, web server logs, and new accounts. Look for the first anomalous logon or process for the earliest timestamp.
+- [n] What is the difference between a threat hunt and an investigation? => A hunt starts with a hypothesis and searches for undetected activity. An investigation starts with a known alert or incident.
+- [n] How do you analyze a suspicious process on a live system? => List the process tree and parent, check command line and path, signature, network connections, loaded modules, file hashes against intelligence, and compare to baseline. Capture memory if it's worth preserving.
+- [h] What does the Volatility `pslist` vs `psscan` difference tell you? => `pslist` walks the active process list; `psscan` scans memory for process structures. A process in `psscan` but not `pslist` may be hidden or terminated, so investigate it.
+- [h] How would you determine whether data was exfiltrated? => Review proxy, firewall, DNS and NetFlow for large or unusual outbound transfers, cloud storage uploads, archives staged on disk, and tool use such as rclone. Establish what data the accessed account could reach.
+- [h] Describe how pass-the-hash works and how to respond. => An attacker uses an NTLM hash directly to authenticate without the password. Detect with logon type 3 NTLM from unusual sources and credential dumping indicators. Respond by resetting credentials (including krbtgt if domain compromise), limiting admin logons, and enabling credential guard.
+- [h] What goes into a containment plan for a domain compromise? => Isolate affected systems, reset privileged and service credentials in order (krbtgt twice), remove persistence, block attacker infrastructure, patch the entry point, rebuild critical hosts, and monitor closely. Plan the communication with leadership.
+:: scenario
+- [n] A web server shows an unfamiliar file in its upload directory. => Isolate and preserve first. Capture the file's hash and metadata, review web logs for the upload and later requests to it, check for a web shell, review process creation from the web service, and work out the vulnerability used.
+- [h] Management wants the server back online now, but you haven't finished the investigation. => Explain the risk with specifics, capture what evidence is needed quickly (image or memory), offer a rebuilt clean system as a faster safe path, and let leadership decide with the risk documented.

@@ -1,0 +1,85 @@
+slug: software-dev
+title: Software Developer
+family: dev
+tagline: You design, write, test and maintain software. A strong portfolio and a few well-understood projects matter more than any certificate.
+titles: Software Developer, Software Engineer, Junior Developer, Full-Stack Developer, Application Developer, Backend Developer
+:: about
+Developers turn requirements into working software and keep it working. Day to day that means reading existing code, making changes, reviewing teammates' work, fixing bugs and talking to people about what to build. Entry-level interviews check data structures and algorithms, basic design, and whether you can explain your own projects.
+
+Languages matter less than fundamentals: be strong in one (Python, Java, JavaScript/TypeScript), comfortable with Git, SQL and APIs, and able to learn the rest.
+:: ladder
+- Junior developer | small features, bugs, tests, code review
+- Developer / engineer | owns features and services, designs components
+- Senior engineer | architecture, mentoring, cross-team work
+- Specializations | security engineer, DevOps/SRE, data engineer, engineering management
+:: day
+- Pick up a ticket, read the code, ask questions, then implement and test
+- Open a pull request and respond to review comments
+- Debug issues in logs, with a debugger or by writing a failing test first
+- Join stand-ups and planning, and keep tickets honest
+- Deploy, monitor and fix what you shipped
+:: certs
+- Certifications matter little for software roles. A strong portfolio matters more.
+- AWS Cloud Practitioner or Azure AZ-900 | cheap proof of cloud basics if the job uses the cloud
+- Oracle Java SE certification | only if a Java shop asks
+- Security+ | helpful for government-adjacent or security-minded teams
+:: courses
+- Harvard CS50 | free, rigorous introduction | https://cs50.harvard.edu
+- The Odin Project | free full-stack path | https://www.theodinproject.com
+- freeCodeCamp | free curriculum with projects | https://www.freecodecamp.org
+- NeetCode roadmap | organized interview practice | https://neetcode.io
+- Python for Everybody | gentle start in Python | https://www.py4e.com
+- MIT "Missing Semester" | tools every developer uses | https://missing.csail.mit.edu
+:: skills
+- Data structures and algorithms | the basis of coding interviews | data-structures-and-algorithms | hard
+- Big-O reasoning | explain the cost of your code | data-structures-and-algorithms | normal
+- Python | scripting and backends | python | easy
+- Java | typed, enterprise and Android work | java | normal
+- Object-oriented programming | classes, interfaces, composition | object-oriented-programming-java | normal
+- TypeScript and JavaScript | the language of the web | typescript-javascript | normal
+- Full-stack web (React, Node, MongoDB) | build a complete app | full-stack-web-typescript-react-mongodb | hard
+- Mobile apps (Flutter, Firebase) | a second platform to show range | mobile-apps-flutter-firebase | hard
+- Git and GitHub | branches, pull requests, history | git-github | easy
+- Databases and SQL | store and query data | databases-and-sql | normal
+- Linux command line | tools and deployment | linux-command-line | easy
+- C and assembly | how code runs on a machine | c-x86-assembly | hard
+:: projects
+- [easy] Command-line tool | Build a small tool (todo, log parser, unit converter) with tests, a README and a clean Git history.
+- [easy] Daily drills | Use the [dojo](../dojo.html) to practice katas in a language you want to be quick in.
+- [normal] REST API | Build an API with authentication, a database, input validation and tests, and document the endpoints.
+- [normal] Full-stack app | Add a React front end to that API, deploy it somewhere public, and write down the design decisions and trade-offs.
+- [hard] Team project | Contribute to an open-source issue, or run a project with a friend using branches, pull requests and code review.
+- [hard] Performance and scale | Take a slow piece of your own code, profile it, improve its complexity, and show before-and-after numbers.
+:: resume
+- Projects section first for new graduates: tech stack, what you built, and a measurable outcome.
+- Link a clean GitHub profile with pinned repositories that have READMEs and tests.
+- Include a deployed link when you can. A running thing beats a screenshot.
+- Describe the problem solved, not just the technology: "reduced load time from 4 s to 800 ms."
+:: basic
+- [e] Why software development? => Describe building something and the satisfaction of it working, and be specific about a project. Show you like the problem solving, not only the language.
+- [e] Tell me about a project you built. => State the goal, the stack and why you chose it, one hard problem and how you solved it, what you'd change, and what you learned. Be ready to open the code and explain any file.
+- [e] How do you approach learning a new language or framework? => Skim the docs, build a small project, read good code, ask what the idioms are, and compare with languages you know. Give an example of a language you picked up quickly.
+- [e] How do you handle code review feedback? => Treat it as improving the code, not judging you. Ask questions when a comment is unclear, fix and explain, and give reviews that are kind and specific yourself.
+:: technical
+- [e] What is the difference between an array and a linked list? => Arrays have contiguous memory with O(1) index access and expensive middle inserts. Linked lists have O(1) insert at a known node but O(n) access. Arrays are usually faster in practice due to cache locality.
+- [e] What is Big-O notation? => A way to describe how time or space grows with input size, ignoring constants. Examples: O(1) lookup, O(log n) binary search, O(n) scan, O(n log n) good sorts, O(n²) nested loops.
+- [e] What is the difference between a stack and a queue? => Stack: last-in-first-out (undo, call stack). Queue: first-in-first-out (task scheduling, BFS).
+- [e] What are the four pillars of object-oriented programming? => Encapsulation, abstraction, inheritance and polymorphism. Mention preferring composition over inheritance.
+- [e] What is the difference between `==` and `===` in JavaScript? => `==` converts types before comparing; `===` compares value and type without conversion. Prefer `===`.
+- [n] How does a hash table work? => A hash function maps a key to a bucket index. Collisions are handled by chaining or open addressing. Average O(1) get and set, worst case O(n). Resize keeps the load factor low.
+- [n] Explain recursion and when you'd avoid it. => A function that calls itself with a smaller problem and a base case. Avoid it with deep inputs risking stack overflow or when an iterative version is clearer; memoization fixes repeated work.
+- [n] What is the difference between a process and a thread? => A process has its own memory space. Threads share memory inside a process, so they are lighter but need synchronization (locks) to avoid race conditions.
+- [n] What are REST APIs and common status codes? => Resource-oriented HTTP APIs using verbs (GET, POST, PUT, DELETE). 200 OK, 201 created, 204 no content, 400 bad request, 401 unauthenticated, 403 forbidden, 404 not found, 500 server error.
+- [n] What is the difference between SQL and NoSQL databases? => SQL: tables, schemas, joins and transactions (ACID). NoSQL: flexible models (documents, key-value, graph) that scale horizontally in some designs. Choose by data shape and consistency needs.
+- [n] What is a JOIN? Explain INNER vs LEFT. => INNER returns rows with matches in both tables. LEFT returns all rows from the left table, with NULLs where the right has no match.
+- [n] Explain Git branching and the difference between merge and rebase. => Branches isolate work. Merge combines histories with a merge commit. Rebase replays your commits on top of another branch for a linear history. Don't rebase shared branches.
+- [n] What is a unit test and why write one? => A small automated test of a single piece of behavior. It catches regressions, documents expected behavior and allows safe refactoring. Mention mocking dependencies and testing edge cases.
+- [n] What is the difference between authentication and authorization? => Authentication proves who you are. Authorization decides what you may do. Many bugs come from checking the first and not the second.
+- [h] How would you detect a cycle in a linked list? => Floyd's tortoise and hare: a slow pointer moves one step, a fast one two. If they meet, there's a cycle. O(n) time, O(1) space. A hash set of visited nodes is the simpler O(n) space option.
+- [h] Design a URL shortener. => Clarify requirements and scale. Generate unique short IDs (base62 of a counter or random with collision check), store a mapping in a database, add caching for reads, redirect with 301/302, and consider analytics, rate limits and expiry. Discuss trade-offs.
+- [h] What happens during a deadlock and how do you prevent it? => Threads wait on each other's locks forever. Needs mutual exclusion, hold-and-wait, no preemption and circular wait. Prevent by acquiring locks in a consistent order, using timeouts, or reducing shared state.
+- [h] How would you secure a web application's login? => Hash passwords with Argon2 or bcrypt, enforce MFA, rate-limit and lock out, use HTTPS and secure cookies, protect against CSRF and session fixation, avoid user enumeration in messages, and log failures.
+- [h] Given an array, find two numbers that add up to a target. => Use a hash map storing seen values: for each number, check whether `target - n` was seen. O(n) time and space. Sorting with two pointers is O(n log n) with O(1) extra space.
+:: scenario
+- [n] You're asked to fix a bug in code you've never seen. => Reproduce it, read the surrounding code and tests, add a failing test, make the smallest fix, run the suite and explain the change in the pull request. Ask a teammate when stuck after a time-box.
+- [h] A deployment causes errors in production. => Roll back or disable the feature first to limit impact, check logs and metrics to confirm cause, communicate status, fix forward with a test, and write a short postmortem without blame.

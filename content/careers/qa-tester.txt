@@ -1,0 +1,76 @@
+slug: qa-tester
+title: QA / Software Tester
+family: dev
+tagline: You find the problems before users do, and increasingly you write the automation that does it. A realistic first job in software and a bridge to development or security testing.
+titles: QA Analyst, QA Engineer, Software Tester, Test Automation Engineer, SDET
+:: about
+QA verifies that software does what it should. Manual testers explore the product, write test cases and report bugs precisely. Automation engineers write code (Selenium, Playwright, Cypress, API tests) that runs those checks on every change. Strong testers think like users and like attackers, and write bug reports a developer can act on without a conversation.
+
+QA is a good first job for people with a degree but little professional coding history, and it moves naturally toward development, test engineering or application security.
+:: ladder
+- QA analyst (manual) | test cases, exploratory testing, bug reports
+- QA automation engineer | scripts, frameworks, CI integration
+- SDET / senior QA | test strategy, tooling, performance and security testing
+- Specializations | developer, DevOps, application security, QA lead
+:: day
+- Read requirements or tickets and write test cases, including edge cases
+- Test new builds, log defects with steps, expected and actual results, and evidence
+- Automate regression tests and keep them reliable
+- Join planning and refinement and ask what is untestable or unclear
+- Verify fixes and retest before release
+:: certs
+- ISTQB Certified Tester Foundation Level | the common QA credential
+- Security+ | if you want to lean toward security testing
+- AWS Cloud Practitioner | useful where tests run in the cloud
+- Vendor training (Playwright, Cypress) is free and a portfolio matters more
+:: courses
+- ISTQB Foundation syllabus | free to download and study | https://www.istqb.org
+- Playwright documentation and tutorials | modern browser automation | https://playwright.dev
+- Test Automation University | free courses on tools and practices | https://testautomationu.applitools.com
+- Postman Learning Center | API testing | https://learning.postman.com
+- Ministry of Testing | community articles | https://www.ministryoftesting.com
+:: skills
+- Python or JavaScript | write automation | python | normal
+- TypeScript and JavaScript | Playwright and Cypress live here | typescript-javascript | normal
+- SQL | verify data in the database | databases-and-sql | easy
+- Git and GitHub | tests live in version control | git-github | easy
+- Full-stack web basics | know what you are testing | full-stack-web-typescript-react-mongodb | normal
+- Linux command line | run suites, read logs | linux-command-line | easy
+- Help desk and ticketing habits | clear, structured reports | help-desk-ticketing-osticket | easy
+- Data structures and algorithms | writing helpers and reading code | data-structures-and-algorithms | normal
+:: projects
+- [easy] Test plan | Pick a real app (a to-do app, a shopping cart) and write a test plan with 30 cases across happy paths, edge cases and negative cases.
+- [easy] Bug reports | Find five real bugs in open-source or demo sites and write clear reports with steps, expected/actual, environment and screenshots.
+- [normal] UI automation | Automate a login-to-checkout flow with Playwright, with stable selectors and reports. Run it in GitHub Actions on every push.
+- [normal] API tests | Write API tests for a public API in Postman and as code (pytest or Jest), including auth, errors and schema checks.
+- [hard] Test framework | Build a small framework with page objects, test data management, parallel execution and flaky-test detection.
+- [hard] Security checks | Add an automated check for common web issues (headers, XSS probes, auth bypass) to the pipeline and document findings.
+:: resume
+- Use numbers: "wrote 120 automated regression tests; reduced release test time from 2 days to 40 minutes."
+- List tools: Playwright, Selenium, Postman, Jira, GitHub Actions, SQL.
+- Link to a repository with a test suite and a README.
+- Show defects found and how you prioritized them.
+:: basic
+- [e] Why QA? => Say you enjoy finding edge cases and care about quality for users, and that it builds both product and technical knowledge. Be ready to describe a bug you found.
+- [e] Do you want to stay in QA or move to development? => Either answer is fine if honest. A good one: "I want to grow in test automation, and I'm open to development roles where I can use that mindset." Show curiosity for both.
+- [e] How do you work with developers who disagree that something is a bug? => Reproduce it, show the steps and evidence, reference the requirement or user impact, stay neutral, and let the product owner decide when requirements are unclear. It's about the product, not winning.
+:: technical
+- [e] What is the difference between verification and validation? => Verification: are we building the product right (meets spec). Validation: are we building the right product (meets user needs).
+- [e] What is the difference between severity and priority? => Severity is the technical impact of the bug. Priority is how soon it should be fixed. A typo on the homepage can be low severity but high priority.
+- [e] What goes into a good bug report? => Title, environment (build, OS, browser), steps to reproduce, expected and actual results, evidence (screenshot, logs), and severity. Reproducible and minimal.
+- [e] What are the levels of testing? => Unit, integration, system and acceptance testing, from smallest to whole product. Know who usually owns each.
+- [n] What is regression testing and why automate it? => Re-testing existing features after changes to catch breakage. It's repetitive and runs often, which makes it the best candidate for automation.
+- [n] Which tests should you not automate? => Exploratory tests, one-off checks, features that change often, and anything where setup costs more than the manual run. Prioritize stable, high-value, high-frequency paths.
+- [n] What is the test pyramid? => Many fast unit tests at the base, fewer integration/API tests in the middle, and few slow UI tests at the top. Inverting it gives slow, flaky suites.
+- [n] Explain boundary value analysis and equivalence partitioning. => Split inputs into classes expected to behave the same (equivalence), then test the edges of each class (boundaries). For ages 18-65: test 17, 18, 65, 66.
+- [n] How do you handle flaky tests? => Identify the cause (timing, shared data, environment), replace sleeps with explicit waits, isolate test data, retry only as a diagnostic, and quarantine and fix. Never ignore flakiness, since it destroys trust in the suite.
+- [n] What is the difference between black-box and white-box testing? => Black-box tests behavior without knowing the code. White-box uses knowledge of the code structure, such as branch coverage.
+- [n] How would you test a login page? => Valid login, wrong password, empty fields, SQL/script characters, lockout after attempts, password reset, session expiry, MFA, accessibility, error messages that don't reveal whether the user exists, and different browsers and devices.
+- [n] How do you test an API? => Check status codes, response body and schema, headers, auth and permissions, error cases and bad input, rate limits, idempotency, and performance. Use Postman or a code-based suite, and run it in CI.
+- [h] How would you decide what to test when you don't have enough time? => Risk-based testing: weigh likelihood of failure and business impact, cover the critical paths and recent changes first, and communicate what was not tested.
+- [h] Design the test strategy for a new payments feature. => Requirements review, unit and integration tests for calculations, API contract tests, end-to-end happy path and failures (declines, timeouts, duplicates), security (authorization, PCI concerns), performance, monitoring in production, and a rollback plan.
+- [h] What is a good metric for QA, and what is a bad one? => Good: escaped defects, time to detect, test reliability, cycle time. Bad: raw number of bugs found or test cases written, which can be gamed and say nothing about quality.
+- [h] How does testing fit into CI/CD? => Fast unit tests and linting on every commit, integration and API tests on merge, a small smoke UI suite before deployment, and broader regression on a schedule. Failures block the pipeline and reports are visible.
+:: scenario
+- [n] A release is tomorrow and you find a serious bug today. => Report it immediately with evidence and impact, help the team assess options (fix, delay, disable the feature), retest the fix, and leave the decision to the product owner with the risks documented.
+- [h] You're given a feature with no requirements. => Ask for acceptance criteria, talk to the developer and product owner, explore the feature, write down the assumptions, and get them confirmed. Document what you tested.

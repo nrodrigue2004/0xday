@@ -1,0 +1,84 @@
+slug: soc-analyst
+title: SOC Analyst (Tier 1 / Tier 2)
+family: cyber
+tagline: You watch the alerts, decide which are real, and stop incidents early. The most common way into security, and a good fit for people who like investigation.
+titles: SOC Analyst, Security Analyst, Cyber Defense Analyst, Security Operations Analyst, Threat Monitoring Analyst
+:: about
+A Security Operations Center (SOC) monitors an organization's systems around the clock. Tools such as a **SIEM** (Splunk, Elastic, Microsoft Sentinel, Security Onion) collect logs and raise **alerts**. Analysts **triage** each one: is it a false positive, suspicious, or a confirmed incident? Real incidents are escalated or handled using a runbook.
+
+Tier 1 does triage and escalation. Tier 2 investigates deeper, hunts, and tunes detections. Shift work and ticket volume are common. The job rewards curiosity, written clarity and not being rattled by noise.
+:: ladder
+- Tier 1 analyst | alert triage, ticketing, escalation, following playbooks
+- Tier 2 analyst / incident handler | deeper investigation, host and network analysis, containment
+- Tier 3 / threat hunter / detection engineer | hunting, writing detections, malware triage
+- Specializations | incident response, threat intelligence, security engineering, forensics
+:: day
+- Work the alert queue, look up the user, host, IP and process involved
+- Pivot in the SIEM: what else did this host or account do around that time?
+- Check indicators against threat intelligence and decide: false positive, benign true positive, or incident
+- Write a clear ticket: what happened, what evidence, what action, who was told
+- Tune noisy rules with the detection team and hand off cleanly at shift change
+:: certs
+- CompTIA Security+ | the baseline most entry-level SOC postings list
+- CompTIA CySA+ | analyst-focused: logs, vulnerabilities, incident response
+- Blue Team Level 1 (BTL1) | practical, SOC-oriented, respected for entry roles
+- Microsoft SC-200 | Sentinel and Defender, useful where employers run Microsoft
+- Splunk Core Certified User / Power User | SIEM skills on a very common platform
+- GIAC GSEC / GCIH | stronger and expensive; usually employer-paid later
+:: courses
+- TryHackMe SOC Level 1 path | free-to-start labs on SIEM, phishing, Windows events | https://tryhackme.com
+- Professor Messer Security+ and CySA+ | free video courses | https://www.professormesser.com
+- Splunk free fundamentals training | learn search processing language | https://www.splunk.com/en_us/training.html
+- Blue Team Labs Online | investigations and challenges | https://blueteamlabs.online
+- LetsDefend | simulated SOC alert queue | https://letsdefend.io
+- MITRE ATT&CK | the common vocabulary for attacker behavior | https://attack.mitre.org
+:: skills
+- Log analysis | read Windows, Linux, web and firewall logs | log-analysis | easy
+- SIEM and Security Onion | search, dashboards, correlation, alert triage | siem-security-onion | normal
+- Network traffic analysis | Wireshark, flows, DNS and HTTP patterns | network-traffic-analysis | normal
+- Phishing analysis | headers, URLs, attachments, sandboxing | phishing-analysis | easy
+- Incident response | the lifecycle from detection to lessons learned | incident-response | normal
+- IDS (Snort) | write and read signatures | ids-snort | normal
+- Networking fundamentals | you can't read traffic without knowing TCP/IP, DNS and DHCP | networking-tcp-ip-dhcp-nat-subnets | easy
+- Active Directory | most intrusions touch identity | active-directory | normal
+- Digital forensics | evidence handling and artifacts | digital-forensics | hard
+- Malware analysis basics | static triage of suspicious files | malware-analysis | hard
+- Linux command line | grep, awk and pipes for log work | linux-command-line | easy
+:: projects
+- [easy] Triage write-ups | Complete TryHackMe SOC rooms and write one page per alert: what fired, evidence, verdict, next step.
+- [easy] Phishing report | Analyze five real-looking phishing emails safely (headers, links, attachments in a sandbox) and write a standard report.
+- [normal] Home SIEM | Deploy Security Onion or Elastic in a VM, forward Windows event logs and Sysmon from a test machine, and build three dashboards.
+- [normal] Detection rule | Write and test a rule for something real, such as repeated failed logons followed by a success, and document false-positive tuning.
+- [hard] Attack and detect | Run a handful of Atomic Red Team tests against a lab VM and show which ones your SIEM caught, which missed, and the rule you wrote to close the gap. Map each to MITRE ATT&CK.
+- [hard] Full incident report | Investigate a published PCAP or forensic image challenge from start to finish, build a timeline, and write an executive summary plus technical details.
+:: resume
+- Use verbs from the job: triaged, investigated, escalated, tuned, documented.
+- Put numbers on lab work: "forwarded Sysmon + Windows events from 5 VMs; built 3 detections mapped to ATT&CK."
+- Link public write-ups (this site works) so recruiters can see your reasoning.
+- List tools: Splunk, Security Onion, Wireshark, Sysmon, Zeek, Snort, Nmap, VirusTotal, MITRE ATT&CK.
+:: basic
+- [e] Why a SOC role? => Say you like investigating and finding the story in the data, and that you've practiced it: name the SIEM lab or the rooms you completed. Mention you understand it is repetitive and that you see tuning and documentation as part of the job.
+- [e] How would you handle shift work and high alert volume? => Describe prioritizing by severity and asset value, using playbooks for consistency, taking short notes as you go, and escalating rather than sitting on something uncertain.
+- [e] What is the difference between a false positive and a false negative? => A false positive is an alert on benign activity. A false negative is a real attack that raised no alert. The second is more dangerous; the first costs time and causes alert fatigue.
+:: technical
+- [e] What is the CIA triad? => Confidentiality (only authorized access), Integrity (data not altered improperly), Availability (systems usable when needed). Give an example of each attack type: data theft, tampering, DoS or ransomware.
+- [e] What is a SIEM and what does it do? => It collects and normalizes logs from many sources, correlates events, raises alerts and supports search and reporting. Examples: Splunk, Elastic, Sentinel.
+- [e] What is the difference between an IDS and an IPS? => An IDS detects and alerts. An IPS sits inline and can block. IPS risks blocking legitimate traffic on a false positive.
+- [e] What are the phases of incident response? => Preparation; detection and analysis; containment, eradication and recovery; post-incident activity (NIST 800-61). The older SANS version splits it into six steps.
+- [e] What is phishing and what are signs of it? => Deceptive messages to steal credentials or deliver malware. Signs: mismatched sender domain, urgency, odd links, unexpected attachments, requests for credentials or payment.
+- [n] You get an alert for 50 failed logons followed by one success for the same account. What do you do? => Treat as possible brute force or password spray success. Check source IP and geolocation, whether the account is privileged, what the account did after the success (new processes, remote logons, mailbox rules), and contact the user. If suspicious, disable or reset the account, isolate the host and escalate.
+- [n] Which Windows event IDs do you know? => 4624 successful logon, 4625 failed logon, 4672 special privileges assigned, 4688 process creation, 4720 account created, 4732 member added to a local group, 1102 audit log cleared, 7045 new service installed. Mention logon types (2 interactive, 3 network, 10 remote interactive).
+- [n] How do you tell if an IP is malicious? => Check threat intelligence (VirusTotal, AbuseIPDB), reverse DNS, ownership and ASN, whether internal systems talked to it and how much data moved, and whether the behavior fits a known pattern. Context decides; reputation alone is not proof.
+- [n] What is the difference between a vulnerability, a threat and a risk? => A vulnerability is a weakness, a threat is something that can exploit it, and risk is the likelihood and impact of that happening.
+- [n] What is MITRE ATT&CK? => A knowledge base of adversary tactics (goals) and techniques (methods) based on real observations. SOCs use it to label detections, find coverage gaps and describe incidents consistently.
+- [n] Explain DNS tunneling and how you might detect it. => Data hidden in DNS queries and responses. Look for very long or high-entropy subdomains, many TXT queries, a single domain with an abnormal query volume, and regular beaconing intervals.
+- [n] How would you analyze a suspicious email attachment safely? => Don't open it on a normal machine. Check the hash on VirusTotal, detonate in a sandbox, inspect macros or scripts statically, extract indicators (domains, IPs, file names), and report findings. Quarantine the email for everyone else.
+- [n] What is the difference between TCP and UDP? => TCP is connection-oriented, reliable and ordered. UDP is connectionless and faster with no delivery guarantee. DNS uses UDP mostly, web uses TCP.
+- [n] What does a port scan look like in logs? => One source touching many ports or many hosts in a short time, mostly with SYNs and resets. Firewall deny logs and IDS signatures show it. Slow scans are harder, so look at long time windows.
+- [h] Walk through a ransomware incident from first alert to recovery. => Detect (mass file renames, shadow-copy deletion, EDR alert), contain (isolate hosts, disable accounts, block C2), scope (patient zero, lateral movement, data staging), eradicate (remove persistence, reset credentials, patch the entry point), recover (restore from clean backups, verify), then lessons learned. Mention preserving evidence and informing legal/management.
+- [h] What is lateral movement and how would you detect it? => The attacker moving from host to host after initial access using techniques such as PsExec, WMI, RDP, pass-the-hash. Detect with unusual remote logons (type 3 or 10), admin share access, new services, and accounts logging into machines they never used.
+- [h] What are indicators of compromise vs indicators of attack? => IOCs are artifacts such as hashes, IPs and domains, and go stale quickly. IOAs describe behavior (for example Office spawning PowerShell), which holds up longer. Good detection uses both.
+- [h] What is Kerberoasting? => An attacker with any domain account requests service tickets for accounts with SPNs and cracks them offline. Detect with event 4769 using RC4 encryption for unusual accounts and volume. Mitigate with long random service-account passwords or managed service accounts.
+:: scenario
+- [n] An alert says a workstation contacted a known malicious domain. What now? => Confirm the connection in proxy/DNS/firewall logs, identify the process and user, check for other hosts contacting it, see what was downloaded, isolate if there's evidence of execution, scan the host, and document with timestamps.
+- [h] An executive reports clicking a link and entering a password. => Treat as a likely credential compromise. Reset the password and revoke sessions and tokens, review sign-in logs and mailbox rules for the account, check for MFA changes and forwarding, block the phishing domain, search for other recipients, and notify per policy.

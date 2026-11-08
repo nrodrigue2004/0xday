@@ -1,0 +1,81 @@
+slug: it-help-desk
+title: IT Help Desk / Support Technician
+family: it
+tagline: The front line of IT. You fix people's problems, learn how an entire company's technology fits together, and build the base that every other IT and security job stands on.
+titles: Help Desk Technician, IT Support Specialist, Desktop Support, Service Desk Analyst, Technical Support Engineer
+:: about
+Help desk is the most common entry point into IT, and one of the best. In a single week you touch accounts, passwords, printers, laptops, networking, software installs and security incidents (the phishing email someone clicked). You work through a **ticketing system**, follow procedures, and escalate what you can't solve to Tier 2 or to specialists.
+
+What employers look for: patience, clear writing, a methodical troubleshooting habit, and enough breadth to be useful on day one. Certifications help most at this level because they prove the breadth before you have a job history.
+:: ladder
+- Tier 1 help desk | password resets, account unlocks, known-issue fixes, ticket logging
+- Tier 2 / desktop support | imaging, deployment, software and hardware problems, remote tools
+- Systems or network administrator | servers, Active Directory, networks, patching, backup
+- Specialization | security analyst, cloud engineer, endpoint management, IT manager
+:: day
+- Take tickets and calls, confirm the problem, and record every step in the ticket
+- Reset passwords and unlock accounts after verifying identity (not just trusting a caller)
+- Troubleshoot Windows, macOS, Office 365, VPN, Wi-Fi, printers and peripherals
+- Onboard and offboard users: create accounts, assign groups and licenses, ship laptops
+- Escalate with a clean handoff: what the user reported, what you tested, what you found
+:: certs
+- CompTIA A+ | the standard entry cert: hardware, OS, troubleshooting, basic security
+- Google IT Support Professional Certificate | a structured beginner course on Coursera, good for the fundamentals
+- CompTIA Network+ | networking depth that sets you apart from other Tier 1 candidates
+- CompTIA Security+ | your target cert; also meets many government and contractor baselines
+- Microsoft MD-102 (Endpoint Administrator) | the cloud-managed Windows fleet skills employers ask about
+- ITIL 4 Foundation | the vocabulary of incident, problem and change management
+:: courses
+- Professor Messer A+ and Network+ videos | free, exam-aligned | https://www.professormesser.com
+- Google IT Support Professional Certificate | Coursera, about six months part-time | https://www.coursera.org/professional-certificates/google-it-support
+- TryHackMe Pre Security and Intro to Networking rooms | the networking and Linux basics | https://tryhackme.com
+- Microsoft Learn: Windows client and Microsoft 365 modules | free and current | https://learn.microsoft.com/training
+- Linux Journey | the Linux basics you will use on servers | https://linuxjourney.com
+:: skills
+- Troubleshooting method | ask, reproduce, isolate, test one change at a time, document | help-desk-ticketing-osticket | easy
+- Ticketing and documentation | write tickets another person can follow without calling you | help-desk-ticketing-osticket | easy
+- Windows and Active Directory basics | accounts, groups, OUs, password policy, Group Policy | active-directory | normal
+- Group Policy | how settings reach every machine | group-policy | normal
+- Networking basics (TCP/IP, DHCP, DNS, NAT) | most "the internet is down" tickets are one of these | networking-tcp-ip-dhcp-nat-subnets | normal
+- Linux command line | server tickets and scripting later | linux-command-line | normal
+- Hardware diagnostics | memory, drives, power, peripherals; knowing when to replace | hardware-diagnostics-and-repair | easy
+- Secure data sanitization | wiping retired drives correctly | secure-data-sanitization | easy
+- Virtualization | build and break test machines safely | virtualization-proxmox | normal
+- PowerShell and Bash scripting | automate account creation and checks | bash-scripting | hard
+:: projects
+- [easy] Build a ticket queue | Install osTicket in a VM, create five categories, and work ten fake tickets end to end with notes and resolutions. Screenshot the queue.
+- [easy] Document a fix | Write a one-page knowledge base article for "user can't connect to Wi-Fi" that a stranger could follow.
+- [normal] Mini domain | Stand up Windows Server with Active Directory in Proxmox or VirtualBox, join a Windows 10/11 client, create OUs, groups and a Group Policy that maps a drive and sets a password policy.
+- [normal] Imaging and deployment | Build a clean Windows image, deploy it to a second VM, and write down every step so it is repeatable.
+- [hard] Onboarding automation | Write a PowerShell script that reads a CSV of new hires and creates the AD user, home folder and group memberships, with logging and error handling.
+- [hard] Remote support lab | Set up a VPN (Tailscale or WireGuard) and a remote desktop route, then prove you can support a "remote employee" VM across it.
+:: resume
+- Quantify what you did: tickets handled per day, time to resolve, users supported, machines imaged.
+- Name the tools: ticketing system, Active Directory, Microsoft 365 admin center, remote support software.
+- Lab projects count at this level. List the lab, the tools, and what you proved it could do.
+- Keep it to one page; lead with certifications you hold or are scheduled for.
+:: basic
+- [e] Why do you want to work in IT support? => Say what you like about solving problems for people and mention a time you did it, such as helping a friend or running a lab. Tie it to a longer path: "I want to understand how the whole environment fits together, and support is the best place to learn that."
+- [e] What does a good support interaction look like? => Greet, listen without interrupting, confirm the problem in your own words, set expectations on time, fix or escalate with a clean handoff, confirm the user is happy, and document everything.
+- [e] How do you deal with an angry or frustrated user? => Stay calm, acknowledge the impact ("that sounds disruptive"), stop defending, restate the issue, give them a concrete next step and time, and follow through. The frustration is almost never about you.
+- [e] How do you handle a ticket you can't solve? => Show what you tried, search the knowledge base and logs, ask a peer, then escalate with the evidence. Tell the user honestly what is happening and when they'll hear back.
+:: technical
+- [e] A user says "my computer is slow." What do you do? => Ask when it started and whether anything changed. Check Task Manager or Activity Monitor for CPU, memory, disk and network, check free disk space, startup programs, pending updates and malware scans, and test whether it is one app or everything. Change one thing at a time and re-test.
+- [e] What is the difference between a hub, switch and router? => A hub repeats traffic to every port, a switch forwards frames to the right port by MAC address, and a router moves packets between different networks by IP address.
+- [e] What does DHCP do, and what happens if it fails? => It hands out IP addresses, masks, gateway and DNS automatically. If it fails, clients may self-assign a 169.254.x.x (APIPA) address and can't reach anything off their segment. Check the DHCP server, the scope, and the cable or Wi-Fi.
+- [e] What is DNS? => The system that translates names to IP addresses. If you can ping an IP but not a name, DNS is the likely problem. Test with `nslookup` and flush the cache with `ipconfig /flushdns`.
+- [e] A user is locked out of their account. How do you proceed? => Verify identity using the company procedure first. Then check the lockout in Active Directory (`Unlock-ADAccount`), find the source of repeated bad passwords (phone with old password, mapped drive), and reset only if needed.
+- [n] A user can't print. Walk me through it. => Check if it's one user or everyone, whether the printer is on and has no error, whether it's the right printer and not paused, the print queue and spooler service, network connectivity to the printer's IP, and drivers. Test with another user and another document.
+- [n] A PC can't reach the internet but others can. => Check the link light and Wi-Fi, run `ipconfig /all` to see the address, gateway and DNS, ping the gateway, then a public IP (8.8.8.8), then a name. Where the chain breaks tells you the layer: local link, routing, or DNS.
+- [n] What is the difference between a domain account and a local account? => A domain account is stored in Active Directory and works on any domain-joined machine with central policy and password control. A local account exists only on one machine.
+- [n] What is Group Policy? => A way to push settings to users and computers in AD by OU: password rules, mapped drives, software restrictions, firewall settings. Use `gpresult /r` to see what applied and `gpupdate /force` to refresh.
+- [n] What are the steps of the CompTIA troubleshooting methodology? => Identify the problem, establish a theory of probable cause, test the theory, establish a plan and implement it, verify full functionality and add preventive measures, then document findings. Be ready to use it on an example.
+- [n] What is the difference between RAID 0, 1 and 5? => RAID 0 stripes data for speed and has no redundancy. RAID 1 mirrors two drives and survives one failure. RAID 5 stripes with parity across at least three drives and survives one failure. RAID is not a backup.
+- [n] How do you secure a new laptop before giving it to a user? => Full disk encryption (BitLocker), current updates, endpoint protection, a standard (non-admin) user account, strong password or MFA, firewall on, and required software installed through the management tool. Record the asset tag and recovery key.
+- [h] Explain what happens when you type a URL into a browser and press enter. => DNS resolves the name (cache, resolver, root, TLD, authoritative). The client opens a TCP connection to the IP (three-way handshake), negotiates TLS for HTTPS, sends an HTTP request, and renders the response. Mention ARP and the default gateway for the local step if asked to go deeper.
+- [h] A user's mailbox is full and they're missing important mail. What do you do? => Confirm the quota and what's consuming it, help them archive or clean up, and consider raising the quota or enabling online archive with approval. Check for mail rules or a loop causing floods, and confirm new mail is arriving after the fix.
+- [h] How would you offboard an employee? => Disable the account (don't delete right away), reset the password, remove from groups and revoke VPN and MFA tokens, convert or forward mailbox per policy, collect hardware, wipe or reimage devices, transfer files to the manager, and record each step in the ticket.
+- [h] How do you tell if a suspicious email is phishing, and what do you do? => Check the sender domain and reply-to, links by hovering, urgency or unusual requests, and attachments. Don't click. Report it through the security channel, and if someone clicked, isolate the machine and reset credentials. Mention header analysis as a deeper step.
+:: scenario
+- [n] Three users report they can't open the shared drive, five minutes apart. => Likely not a user problem. Confirm the pattern, check whether the file server and its network path are up, check recent changes and DNS, tell the people reporting that it's being worked, and raise it as an incident rather than three tickets.
+- [h] Your manager asks you to give a user admin rights "just for today" without a ticket. => Explain the risk politely, ask for a ticket or an approval record so there is a paper trail, offer a safer alternative such as a one-time elevation or installing the software for them, and don't hand out admin quietly.
