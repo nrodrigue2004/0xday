@@ -1,0 +1,90 @@
+tagline: How to prove what an algorithm costs and that it is correct: asymptotic notation, recurrences and the master theorem, amortized analysis, loop invariants, and NP-hardness at a glance.
+:: simple
+Algorithm analysis answers two questions: **is it correct** and **how does the work grow** as the input grows. You do not time it on your laptop; you count steps as a function of input size *n*, so the answer holds on any machine.
+
+The notations:
+- **O(f)**: grows **no faster than** f (an upper bound). "Linear search is O(n)."
+- **Ω(f)**: grows **at least as fast as** f (a lower bound). "Comparison sorting is Ω(n log n)."
+- **Θ(f)**: both, a tight bound. "Merge sort is Θ(n log n)."
+Constants and lower-order terms drop out: 3n² + 10n + 7 is Θ(n²).
+
+Common growth rates from best to worst: 1, log n, √n, n, n log n, n², n³, 2ⁿ, n!. See [~/bigo](../bigo.html) for a visual of how fast they explode.
+
+Count loops:
+- One loop over n items: O(n).
+- Loop inside a loop over the same n: O(n²).
+- A loop that halves (or doubles) its counter: O(log n).
+- Recursion that splits the problem in half and does linear work per level: O(n log n).
+
+Always say which case you mean: **best, average or worst**. Quicksort is O(n log n) on average and O(n²) in the worst case. Also state **space** used, not only time.
+:: mid
+### Formal definition
+f(n) is O(g(n)) if there exist constants c > 0 and n₀ such that f(n) ≤ c·g(n) for all n ≥ n₀. To show 3n² + 10n + 7 is O(n²): for n ≥ 1, 10n ≤ 10n² and 7 ≤ 7n², so f(n) ≤ 20n². Pick c = 20 and n₀ = 1. Done.
+
+Other useful facts: log_a n and log_b n differ only by a constant, so O(log n) needs no base. Polynomials of higher degree dominate. Exponentials beat any polynomial. n! beats 2ⁿ.
+
+### Counting loops properly
+```
+for i in range(n):          # n times
+    for j in range(i):      # 0, 1, ... n-1 times
+        work()              # total n(n-1)/2 = Θ(n²)
+
+i = 1
+while i < n:                # runs log₂ n times
+    i *= 2
+```
+Nested loops are not always n²: if the inner loop runs `i` times the sum is 0+1+...+(n−1). If the inner loop is O(log n) the total is n log n.
+
+### Recurrences
+Divide-and-conquer algorithms have running times like **T(n) = a·T(n/b) + f(n)**: a subproblems each of size n/b, plus f(n) work to split and combine.
+- Merge sort: T(n) = 2T(n/2) + n → Θ(n log n).
+- Binary search: T(n) = T(n/2) + 1 → Θ(log n).
+- Naive Fibonacci: T(n) = T(n−1) + T(n−2) → Θ(φⁿ), exponential.
+
+**Master theorem** (compare f(n) with n^(log_b a)):
+1. If f(n) is polynomially **smaller**: T(n) = Θ(n^(log_b a)). Example: T(n) = 8T(n/2) + n² → Θ(n³).
+2. If f(n) is **about equal**: T(n) = Θ(n^(log_b a) · log n). Example: merge sort.
+3. If f(n) is polynomially **larger** (and regular): T(n) = Θ(f(n)). Example: T(n) = T(n/2) + n → Θ(n).
+
+You can always fall back on a **recursion tree**: draw the levels, add up the work per level, multiply by the number of levels.
+
+### Amortized analysis
+Some operations are usually cheap but occasionally expensive. **Amortized cost** averages over a worst-case *sequence*, no probability involved. A dynamic array that doubles when full: pushes cost 1, except the push that copies n items. Total for n pushes ≤ 3n, so each push is **amortized O(1)**. Methods: aggregate (total ÷ n), accounting (charge each cheap op extra "credit" to pay for the rare expensive one) and potential function.
+
+### Loop invariants and correctness
+To prove an iterative algorithm correct show three things about a property that holds at the top of every iteration:
+1. **Initialization**: true before the first iteration.
+2. **Maintenance**: if true before an iteration, still true after.
+3. **Termination**: when the loop stops, the invariant gives the answer you wanted.
+For recursion use **induction**: prove the base case, assume the recursive calls on smaller inputs are correct, prove the whole call is.
+:: complex
+### Proving a recurrence by substitution
+Guess T(n) ≤ c·n·log n for T(n) = 2T(n/2) + n. Assume it holds for n/2: T(n) ≤ 2·c(n/2)log(n/2) + n = c·n·log n − c·n + n ≤ c·n·log n whenever c ≥ 1. Fix the base case with a suitable n₀. The guess is proven; never "prove" by only checking small inputs.
+
+### Lower bounds
+- **Comparison sorting**: Ω(n log n) from the decision-tree argument (n! leaves need height log₂(n!)).
+- **Searching an unsorted list**: Ω(n); you may have to look at every item.
+- **Adversary arguments**: pretend an adversary answers every query so as to force the most work.
+Matching an upper bound and a lower bound proves an algorithm **optimal** for that model.
+
+### P, NP and NP-complete in practice
+- **P**: solvable in polynomial time (sorting, shortest path, MST).
+- **NP**: a proposed answer can be **checked** in polynomial time (a sudoku solution, a satisfying assignment, a Hamiltonian path).
+- **NP-complete**: the hardest problems in NP; if any one has a fast algorithm, all do. SAT, 3-coloring, subset sum, traveling salesman (decision form), clique, vertex cover. Knowing a problem is NP-complete tells you to stop looking for an exact fast algorithm and use heuristics, approximations, small-input DP or SAT solvers.
+- Proving a new problem NP-hard: **reduce** a known NP-hard problem to it in polynomial time.
+- **P vs NP** is unsolved. Modern cryptography assumes certain problems (factoring, discrete log) are hard on average, which is not the same as NP-complete.
+
+### Beyond worst case
+- **Randomized algorithms**: expected time (randomized quicksort is O(n log n) expected for every input) vs always-correct Las Vegas vs sometimes-wrong Monte Carlo (Miller-Rabin primality test).
+- **Smoothed and average-case analysis**: why simplex and quicksort work well in practice.
+- **Cache and I/O models**: an O(n) pass over an array beats an O(n) pointer chase by 10× or more because of memory locality. Constants matter once complexity ties.
+- **Space-time trade-offs**: hash tables, memoization and lookup tables trade memory for speed.
+
+### Complexity attacks
+ReDoS (regular expressions with exponential backtracking), hash flooding, quicksort with a predictable pivot, zip bombs and XML entity expansion all abuse the *gap between average and worst case*. When you review code that handles untrusted input, ask what the worst-case input costs, not the typical one.
+
+### Interview checks
+- State the time and space complexity of every solution you give, unprompted, with the case you mean.
+- Solve T(n) = 3T(n/3) + n² with the master theorem. (n² dominates: Θ(n²).)
+- Why is building a heap O(n) and not O(n log n)? (Most nodes are near the bottom and sift down only a few levels.)
+- Amortized vs average: what is the difference? (Amortized is a guarantee over any sequence; average assumes a distribution.)

@@ -1,0 +1,133 @@
+tagline: Binary search trees, why balance matters, heaps and priority queues, tries, and the four traversals, with the cost of every operation.
+:: simple
+A **tree** is data arranged as a root with child nodes below it, no loops. Folders on a disk, the HTML page you are reading and a company org chart are all trees. A **binary tree** gives each node at most two children, called left and right.
+
+A **binary search tree (BST)** adds one rule: everything in a node's left subtree is smaller, everything in the right subtree is larger. To find a value, start at the root and go left or right, throwing away half the tree each step. If the tree is **balanced** this takes O(log n): a million items need about 20 steps.
+
+Four ways to walk a tree (traverse it):
+- **In-order** (left, node, right): visits a BST in sorted order.
+- **Pre-order** (node, left, right): copy a tree or print a folder structure.
+- **Post-order** (left, right, node): delete a tree, or compute sizes from the bottom up.
+- **Level-order** (row by row, using a queue): the BFS of trees.
+
+A **heap** is a different tree: the parent is always smaller (min-heap) or larger (max-heap) than its children, so the smallest item is always at the top. It powers **priority queues**: "give me the most urgent job next".
+
+Insert numbers into the BST and heap tabs of the [visualizer](../cs/viz.html) and watch the shape change.
+:: mid
+### BST operations
+```
+class Node:
+    def __init__(self, k): self.k, self.l, self.r = k, None, None
+
+def insert(root, k):
+    if root is None: return Node(k)
+    if k < root.k: root.l = insert(root.l, k)
+    elif k > root.k: root.r = insert(root.r, k)
+    return root
+
+def search(root, k):
+    while root and root.k != k:
+        root = root.l if k < root.k else root.r
+    return root
+
+def inorder(root):
+    if root:
+        yield from inorder(root.l); yield root.k; yield from inorder(root.r)
+```
+Cost is O(**height**). Random inserts give height about 2·log₂ n. Sorted inserts (1, 2, 3, ...) give a straight line of height n, so everything degrades to O(n): the tree needs to rebalance itself.
+
+**Deleting** a node: a leaf is just removed; a node with one child is replaced by that child; a node with two children is replaced by its in-order successor (smallest key in the right subtree), which then is deleted from where it was.
+
+### Self-balancing trees
+- **AVL tree**: after each insert/delete, every node's two subtree heights differ by at most 1. Violations are fixed with **rotations** (single or double, left or right). Strictly balanced, so lookups are fastest.
+- **Red-black tree**: a looser color-based balance, fewer rotations on updates. Used in Java `TreeMap`, C++ `std::map` and the Linux scheduler.
+- **B-tree / B+ tree**: nodes hold many keys and have many children, so the tree is very shallow. Built for disk: each node is one disk page. This is what database indexes and file systems use.
+All guarantee O(log n) search, insert and delete.
+
+### Heaps
+Stored in a plain array: node `i` has children `2i+1` and `2i+2` and parent `(i-1)//2`.
+- **push**: append at the end, **sift up** while smaller than the parent. O(log n).
+- **pop min**: swap the root with the last item, remove it, **sift down**. O(log n).
+- **peek** the min: O(1). **heapify** an existing array: O(n).
+```
+import heapq
+h = []
+for x in [5, 1, 8, 3]: heapq.heappush(h, x)
+heapq.heappop(h)      # 1
+heapq.nsmallest(2, [5,1,8,3])   # [1, 3]
+```
+Use heaps for the top-k items, merging k sorted lists, scheduling, and Dijkstra's shortest path.
+
+### Tries
+A **trie** (prefix tree) has one edge per character; a path from the root spells a word. Lookup and insert cost O(length of the word), independent of how many words are stored. Perfect for autocomplete, dictionary checks, IP routing tables (longest-prefix match) and matching many malware or IDS signature strings (Aho-Corasick builds on a trie).
+
+### Quick complexity table
+| Structure | Search | Insert | Delete | Notes |
+|---|---|---|---|---|
+| Unbalanced BST | O(h) | O(h) | O(h) | h from log n to n |
+| AVL / red-black | O(log n) | O(log n) | O(log n) | ordered, range queries |
+| Binary heap | O(n) | O(log n) | O(log n) | min/max in O(1) |
+| Trie | O(L) | O(L) | O(L) | L = key length |
+:: complex
+### Proving the height bound
+A perfect binary tree of height h has 2^(h+1) − 1 nodes, so n nodes need height at least log₂(n+1) − 1. An AVL tree of height h has at least F(h+3) − 1 nodes (Fibonacci), which grows like φ^h with φ ≈ 1.618, so h ≤ 1.44·log₂ n. That is the proof that AVL operations are O(log n) even in the worst case.
+
+### Rotations
+A right rotation at node `y` with left child `x` makes `x` the parent, moves `x`'s old right child to become `y`'s left child, and keeps the BST order intact. Four imbalance cases: left-left (one right rotation), right-right (one left rotation), left-right (left then right) and right-left (right then left). Each rotation is O(1), and an insert needs at most two, so insert stays O(log n).
+
+### Other useful tree structures
+- **Segment tree / Fenwick tree**: range sums or minimums with updates in O(log n).
+- **Skip list**: a probabilistic layered linked list with O(log n) expected operations. Redis uses it for sorted sets.
+- **Merkle tree**: each parent is the hash of its children. Proves a file chunk belongs to a set with O(log n) hashes. Git, Bitcoin, certificate transparency and BitTorrent use it.
+- **Treap, splay tree, LSM tree**: randomization, self-adjusting, and write-optimized storage (RocksDB, Cassandra).
+
+### Traversal without recursion
+Deep trees overflow the call stack, so interviews ask for iterative versions: in-order uses an explicit stack (go left pushing nodes, pop, visit, go right); level-order uses a queue. **Morris traversal** does in-order in O(1) space by temporarily threading pointers.
+
+### Interview checks
+- Validate a BST: pass min/max bounds down; do not only compare a node with its children.
+- Lowest common ancestor of two nodes in a BST: walk down until the two values split.
+- Why do databases use B+ trees instead of binary trees? (Fewer disk reads: high fan-out means 3-4 levels for millions of rows.)
+- Top-k frequent items: count with a hash map, then keep a size-k heap.
+:: lab
+host: dsa
+user: student
+cwd: /home/student/trees
+py: yes
+:: brief
+`bst.py` inserts the numbers in `keys.txt` into a plain, unbalanced BST. Finish `height()` (the number of nodes on the longest root-to-leaf path), then run it. The keys arrive in sorted order, so the tree is far taller than a balanced one would be.
+
+Submit the **height** the script prints, e.g. `submit 7`.
+:: answer
+12
+:: hint
+Base case: an empty tree has height 0. Otherwise `1 + max(height(left), height(right))`.
+:: hint
+The script prints the balanced minimum next to yours (`ceil(log2(n+1))`). Compare them.
+:: solution
+`def height(n): return 0 if n is None else 1 + max(height(n.l), height(n.r))`. The 12 keys arrive in order, so every insert goes right and the tree is a straight line of height **12**, while a balanced tree holding 12 keys needs only 4 levels. That gap is why AVL and red-black trees exist: same data, 3 times as many steps per lookup (and a million sorted keys would be 50,000 times worse).
+:: verify
+python3 bst.py
+:: file /home/student/trees/bst.py
+import math
+keys = [int(x) for x in open("/home/student/trees/keys.txt").read().split()]
+
+class Node:
+    def __init__(self, k): self.k, self.l, self.r = k, None, None
+
+def insert(root, k):
+    if root is None: return Node(k)
+    if k < root.k: root.l = insert(root.l, k)
+    else: root.r = insert(root.r, k)
+    return root
+
+def height(n):
+    # TODO: number of nodes on the longest path from n down to a leaf
+    return 0
+
+root = None
+for k in keys: root = insert(root, k)
+print("height:", height(root))
+print("balanced minimum:", math.ceil(math.log2(len(keys) + 1)))
+:: file /home/student/trees/keys.txt
+1 2 3 4 5 6 7 8 9 10 11 12

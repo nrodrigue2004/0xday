@@ -11,7 +11,7 @@ from html.parser import HTMLParser
 esc = html.escape
 
 # (directory, label) pairs whose pages are indexed. Files listed in SKIP are not.
-DIRS = [("learn", "guide"), ("code", "code"), ("cloud", "cloud"), ("detect", "detect"), ("crypto", "crypto"), ("sdl", "sdl"), ("mobile", "mobile"), ("basics", "basics"), ("ai", "ai"), ("dist", "dist"),
+DIRS = [("learn", "guide"), ("code", "code"), ("cloud", "cloud"), ("detect", "detect"), ("crypto", "crypto"), ("sdl", "sdl"), ("mobile", "mobile"), ("basics", "basics"), ("cs", "cs"), ("ai", "ai"), ("dist", "dist"),
         ("man", "man"), ("drills", "drill"), ("history", "history"), ("cases", "case"), ("careers", "careers"), ("interview", "interview")]
 SECPLUS = re.compile(r"^\d\.\d\.html$")
 SKIP = {"ai/chat.html", "ai/news.html", "ai/ml-lab.html", "dist/cluster.html"}

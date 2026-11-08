@@ -1,0 +1,131 @@
+tagline: Unit, integration and end-to-end tests, test-driven development, mocks, coverage, property and fuzz testing, and how to find a bug with a boundary test.
+:: simple
+**Testing** means running your code against examples where you already know the right answer, automatically, so you find out something broke in seconds instead of in production. A test suite is the safety net that lets you change code without fear.
+
+The levels (the **test pyramid**):
+- **Unit tests**: one function or class in isolation. Hundreds of them, each runs in milliseconds.
+- **Integration tests**: several parts together, such as your code with a real database or an API call. Dozens.
+- **End-to-end (E2E) tests**: drive the whole app like a user, through a browser or a real HTTP client. A handful, because they are slow and flaky.
+Many cheap tests at the bottom, few expensive ones at the top.
+
+What a unit test looks like (Python `pytest`):
+```
+def add_tax(price, rate):
+    return round(price * (1 + rate), 2)
+
+def test_add_tax():
+    assert add_tax(100, 0.08) == 108.0
+
+def test_zero_price():
+    assert add_tax(0, 0.08) == 0
+```
+Every test follows **arrange, act, assert**: set up the input, call the code, check the result.
+
+Where bugs hide: **boundaries**. If a rule says "free shipping at 50 dollars or more", test 49.99, 50 and 50.01. Off-by-one errors (`<` vs `<=`) are the most common bug in the world.
+
+```
+$ python3 -c "print(round(100*(1+0.08),2))"
+```
+:: mid
+### Test-driven development (TDD)
+A loop: **red** (write a failing test for the next small behavior), **green** (write the least code that passes), **refactor** (clean up with the tests as a safety net). It forces testable design and gives you a regression suite for free. It is a habit, not a religion: use it where the rule is clear.
+
+### What makes a good test
+- **Fast, isolated, repeatable, self-checking**: no ordering between tests, no reliance on the clock, network or a shared database state.
+- Tests one behavior, with a name that says which (`test_expired_token_is_rejected`).
+- Fails for exactly one reason, and the failure message explains it.
+- Tests behavior through the public interface, not private details, so a refactor does not break it.
+- **Flaky tests** (pass and fail randomly) are worse than none: people stop trusting red builds. Fix or delete them.
+
+### Test doubles
+When the real dependency is slow, random or dangerous (network, database, clock, payment API), swap in a stand-in:
+- **Stub**: returns canned answers.
+- **Fake**: a working lightweight version (in-memory database).
+- **Mock**: also records calls so you can assert "sent exactly one email".
+```
+from unittest.mock import Mock
+def test_alert_sent():
+    mailer = Mock()
+    notify(mailer, "disk full")
+    mailer.send.assert_called_once_with("ops@example.com", "disk full")
+```
+Over-mocking makes tests pass while the real thing is broken. Mock the boundary of your system, not your own internals.
+
+### Coverage
+**Line/branch coverage** says which code ran during tests. 100% does not mean correct (it ran, but was it asserted?). Low coverage in a security-critical path, such as authentication, is a red flag. Use it to find untested code, not as a score. **Mutation testing** goes further: it changes your code (flips `<` to `<=`) and checks that a test fails; surviving mutants reveal weak tests.
+
+### Tools you will see
+Python `pytest`/`unittest`, Java `JUnit`/`Mockito`, JavaScript `Jest`/`Vitest`, browser E2E with `Playwright`/`Cypress`, API tests with `Postman`/`curl`. Run them with one command in CI ([next chapter](cicd.html)).
+:: complex
+### Property-based testing and fuzzing
+Instead of hand-picked examples, state a **property** that must hold for all inputs and let a library generate hundreds of cases (Python `hypothesis`, JS `fast-check`, Haskell QuickCheck).
+```
+from hypothesis import given, strategies as st
+@given(st.lists(st.integers()))
+def test_sort_properties(xs):
+    ys = sorted(xs)
+    assert len(ys) == len(xs)
+    assert all(a <= b for a, b in zip(ys, ys[1:]))
+```
+Good properties: round trips (`decode(encode(x)) == x`), idempotence (`sort(sort(x)) == sort(x)`), invariants, comparison to a slow but obviously correct version. The library **shrinks** a failing input to the smallest example.
+
+**Fuzzing** is the security cousin: feed huge numbers of malformed or random inputs into a parser and watch for crashes, hangs and memory errors. Coverage-guided fuzzers (AFL++, libFuzzer, Jazzer, Go's built-in fuzzing) mutate inputs that reach new code paths. Most memory-safety CVEs in parsers were found this way. Run a fuzzer in CI on every code path that handles untrusted data.
+
+### Testing hard things
+- **Time and randomness**: inject a clock and a seeded random generator; never call `time.now()` deep inside logic.
+- **Databases**: run migrations against a throwaway real database in a container (Testcontainers) rather than mocking SQL.
+- **Concurrency**: tests can pass 999 times and fail once; use deterministic schedulers, thread sanitizers and stress runs.
+- **Legacy code with no tests**: first write **characterization tests** that record what the code does today, then refactor.
+- **Contract tests** (Pact) check that two services agree on an API shape without a full integration environment.
+- **Snapshot tests** store output and diff it; easy to write, easy to approve blindly.
+
+### Security testing in the pipeline
+SAST (static analysis such as CodeQL, Semgrep, Bandit), DAST (scan the running app, OWASP ZAP), dependency scanning (Dependabot, `pip-audit`, `npm audit`), secret scanning (gitleaks) and container scanning (Trivy). They catch categories of bugs unit tests do not think of. Treat findings like failing tests: triage, fix or document the exception.
+
+### Regression tests for bugs
+When a bug is reported: **first write a failing test that reproduces it**, then fix it. The test stays forever and the same bug cannot return unnoticed. Do this for every security fix too.
+
+### Interview checks
+- Explain the test pyramid and why E2E-heavy suites become slow and flaky.
+- What is the difference between a mock and a stub?
+- How would you test a function that sends an email or reads the clock?
+- Someone says "we have 90% coverage, so we are safe". Respond.
+:: lab
+host: dev
+user: student
+cwd: /home/student/testing
+py: yes
+:: brief
+`shipping.py` prices a parcel: up to **and including** 1 kg costs 5, up to and including 5 kg costs 10, anything heavier costs 20. `tests.py` checks the boundaries and prints a line for each failing case. Run `python3 tests.py`, find the bug in `shipping.py`, and fix it.
+
+Submit the **weight (in kg) that failed** before your fix, e.g. `submit 3`.
+:: answer
+5
+:: hint
+Run `python3 tests.py` and read the FAIL line. Which boundary does it name?
+:: hint
+Compare the comparison operators in `shipping.py` with the words "up to and including".
+:: solution
+The second tier used `weight < 5` where the rule says "up to and including 5", so exactly **5** kg fell through to the 20 tier. The fix is `weight <= 5`. A boundary test caught what an example in the middle of the range (3 kg) never would. After fixing it, add the failing case to the suite so the bug cannot return.
+:: verify
+python3 tests.py
+:: file /home/student/testing/shipping.py
+def shipping_cost(weight):
+    if weight <= 1:
+        return 5
+    if weight < 5:
+        return 10
+    return 20
+:: file /home/student/testing/tests.py
+import sys
+sys.path.insert(0, "/home/student/testing")
+from shipping import shipping_cost
+
+CASES = [(0.5, 5), (1, 5), (1.01, 10), (3, 10), (5, 10), (5.01, 20), (9, 20)]
+bad = 0
+for w, want in CASES:
+    got = shipping_cost(w)
+    if got != want:
+        bad += 1
+        print("FAIL weight", w, "expected", want, "got", got)
+print(len(CASES) - bad, "passed,", bad, "failed")

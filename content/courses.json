@@ -301,6 +301,206 @@
       "name": "CS core",
       "courses": [
         {
+          "code": "CS201",
+          "name": "Data structures and algorithms in depth",
+          "pre": [],
+          "blurb": "Sorting, hashing, trees, graphs, dynamic programming and proofs of cost, with a step-by-step visualizer, a lab per chapter and interview practice.",
+          "modules": [
+            {
+              "t": "Sorting",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: sorting algorithms",
+                  "h": "cs/sorting.html"
+                },
+                {
+                  "t": "visualizer: sorting",
+                  "h": "cs/viz.html#sort"
+                },
+                {
+                  "t": "~/bigo: cost tables",
+                  "h": "bigo.html"
+                }
+              ]
+            },
+            {
+              "t": "Hashing and hash tables",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cs: hash tables and hashing",
+                  "h": "cs/hashing.html"
+                },
+                {
+                  "t": "visualizer: hash tables",
+                  "h": "cs/viz.html#hash"
+                }
+              ]
+            },
+            {
+              "t": "Trees, heaps and tries",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: trees, heaps and tries",
+                  "h": "cs/trees.html"
+                },
+                {
+                  "t": "visualizer: trees and heaps",
+                  "h": "cs/viz.html#tree"
+                }
+              ]
+            },
+            {
+              "t": "Graphs",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/cs: graphs",
+                  "h": "cs/graphs.html"
+                },
+                {
+                  "t": "visualizer: BFS, DFS, Dijkstra",
+                  "h": "cs/viz.html#graph"
+                }
+              ]
+            },
+            {
+              "t": "Dynamic programming, greedy and backtracking",
+              "m": 150,
+              "links": [
+                {
+                  "t": "~/cs: dynamic programming",
+                  "h": "cs/dp.html"
+                },
+                {
+                  "t": "visualizer: DP tables",
+                  "h": "cs/viz.html#dp"
+                }
+              ]
+            },
+            {
+              "t": "Algorithm analysis and proofs",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cs: algorithm analysis",
+                  "h": "cs/analysis.html"
+                },
+                {
+                  "t": "~/bigo: growth chart and drill",
+                  "h": "bigo.html"
+                }
+              ]
+            },
+            {
+              "t": "Interview practice",
+              "m": 120,
+              "note": "Pick three problems per topic, solve each on paper first, then code it with a timer. State time and space cost out loud, then test with an empty input and a one-item input.",
+              "links": [
+                {
+                  "t": "~/interview: technical screen",
+                  "h": "interview/technical.html"
+                },
+                {
+                  "t": "~/dojo: coding katas",
+                  "h": "dojo.html"
+                },
+                {
+                  "t": "~/learn: data structures and algorithms guide",
+                  "h": "learn/data-structures-and-algorithms.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CS240",
+          "name": "Software engineering",
+          "pre": [],
+          "blurb": "Testing, design patterns, git and CI/CD, agile teamwork and architecture, with the security practices that go with each.",
+          "modules": [
+            {
+              "t": "Software testing",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: software testing",
+                  "h": "cs/testing.html"
+                }
+              ]
+            },
+            {
+              "t": "Design patterns and SOLID",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: design patterns and SOLID",
+                  "h": "cs/patterns.html"
+                },
+                {
+                  "t": "~/learn: object-oriented programming in Java",
+                  "h": "learn/object-oriented-programming-java.html"
+                }
+              ]
+            },
+            {
+              "t": "Git workflows, CI/CD and DevSecOps",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: git workflows, CI/CD",
+                  "h": "cs/cicd.html"
+                },
+                {
+                  "t": "~/learn: git and GitHub",
+                  "h": "learn/git-github.html"
+                }
+              ]
+            },
+            {
+              "t": "Requirements, agile and teamwork",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/cs: requirements, agile and teamwork",
+                  "h": "cs/agile.html"
+                }
+              ]
+            },
+            {
+              "t": "Architecture and the secure SDLC",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/cs: architecture and the secure SDLC",
+                  "h": "cs/architecture.html"
+                },
+                {
+                  "t": "~/learn: REST APIs and Spring Boot",
+                  "h": "learn/rest-apis-and-spring-boot.html"
+                }
+              ]
+            },
+            {
+              "t": "Interview practice",
+              "m": 60,
+              "note": "Prepare one short story each for: a bug you caught with a test, a disagreement in code review, a deploy or release that went wrong, and a design decision you can defend.",
+              "links": [
+                {
+                  "t": "~/interview: technical screen",
+                  "h": "interview/technical.html"
+                },
+                {
+                  "t": "~/interview: software projects",
+                  "h": "interview/software.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "code": "CS210",
           "name": "Hardware and basic EE",
           "pre": [
