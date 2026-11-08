@@ -1,0 +1,134 @@
+tagline: Functional programming builds answers out of small pure functions: map, filter and fold. It makes detection pipelines easy to test. Use it to compute a result from firewall records without a single mutable counter.
+sheet: langs
+sources: [Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/9780262510875/structure-and-interpretation-of-computer-programs/) (SICP, free online) · [Python functools docs](https://docs.python.org/3/library/functools.html)
+:: simple
+Functional style treats a program as a series of **transformations** of data, not a series of changes to variables. Three tools cover most of it:
+
+- **map** applies a function to every item: `[len(s) for s in names]`
+- **filter** keeps the items that pass a test: `[e for e in events if e["port"] == 443]`
+- **fold / reduce** combines all items into one value: `sum(...)`, `max(...)`, `functools.reduce`
+
+A data pipeline reads left to right (or inside out): take the records, keep the interesting ones, pull out the number, add them up.
+
+```code
+events = [{"port": 443, "bytes": 900}, {"port": 22, "bytes": 40}, {"port": 443, "bytes": 100}]
+total = sum(e["bytes"] for e in events if e["port"] == 443)
+print(total)                  # 1000
+```
+
+No counter, no loop variable that changes, nothing to reset. If you run it twice you get the same answer.
+
+> **Functions are values.** You can pass a function to another function, store it in a list, or return it from a function. That one idea is the foundation of everything else here.
+:: mid
+### Higher-order functions
+A **higher-order function** takes or returns a function.
+```code
+def keep(pred, items):
+    return [x for x in items if pred(x)]
+
+is_https = lambda e: e["port"] == 443
+keep(is_https, events)
+```
+`sorted(items, key=f)`, `max(items, key=f)` and `map(f, items)` are all higher-order. The `key=` argument is how you sort or rank by *anything* without writing a new sort.
+
+### Fold (reduce) in full
+`functools.reduce(f, items, start)` repeatedly combines an accumulator with the next item. `sum` is `reduce(lambda a, x: a + x, items, 0)`. Anything you do with an accumulating loop variable can be written as a fold, such as merging counts from many logs into one table.
+
+### Immutability
+Instead of changing a list, make a new one. Tuples, `frozenset` and strings are immutable in Python. The payoffs are practical: no function can change your data behind your back, you can share data between threads without locks, and you can keep the old version around (an undo, or a diff).
+
+### Recursion instead of loops
+A function that calls itself is how a purely functional language repeats. Every recursion needs a **base case** (stop) and a step that moves toward it:
+```code
+def total(items):
+    if not items: return 0                 # base case
+    return items[0] + total(items[1:])     # smaller problem
+```
+Python limits recursion depth (about 1000 calls) and does not optimize tail calls, so in Python prefer a loop or `sum` for long inputs. Recursion shines for trees: directory walks, JSON, parsers.
+
+### Comprehensions vs map/filter
+In Python a list comprehension is the readable form of map plus filter. A generator expression `(f(x) for x in xs)` is the same but lazy: it produces items one at a time, so it can process a ten-gigabyte log without holding it in memory.
+:: complex
+### Closures and currying
+A function that returns a function remembers its arguments (see [closures](scope.html)). **Currying** turns `f(a, b)` into `f(a)(b)`; **partial application** fixes some arguments up front: `functools.partial(is_port, 443)`. Detection rule builders use this: `make_threshold_rule(5, 30)` returns a rule function already tuned.
+
+### Why purity helps
+- **Testing**: no setup, no mocks. Input in, value out
+- **Caching (memoization)**: a pure function's result can be stored by its arguments (`functools.lru_cache`). With side effects the cached answer would be wrong
+- **Parallelism**: if no function touches shared state, you can `map` across cores (or machines, as in MapReduce) in any order
+- **Reasoning**: you can replace a call by its result, the same trick as in algebra
+
+### Effects at the edge
+Programs still need I/O. The usual design is a **functional core, imperative shell**: read all input, hand plain data to pure functions, then write the result. Bugs concentrate in the thin shell, and the core is trivially testable. Haskell enforces this with types (an `IO` type marks effects); in Python it is a habit.
+
+### Complexity warning
+Functional style copies data. `lst + [x]` in a loop is O(n²). Persistent data structures (shared-structure trees) make "copy" cheap and are what Clojure and Scala use. In Python, accumulate into a list and build once. See [Big-O](../bigo.html).
+
+### Where it shows up in security work
+SIEM query languages are pipelines (`filter | stats count by src | sort`); Splunk SPL, KQL and `jq` are functional in spirit. Stream processors (Kafka Streams, Spark) are map/filter/reduce at scale. Writing detection logic as small pure functions over events lets you replay old logs through new rules and get the same answers.
+:: ref
+### functional python
+[f(x) for x in xs if p(x)] | map and filter in one comprehension
+(f(x) for x in xs) | lazy generator expression, one item at a time
+map(f, xs) | apply f to each item (lazy)
+filter(p, xs) | keep items where p is true (lazy)
+functools.reduce(f, xs, init) | fold a list into one value
+sum(xs) / max(xs, key=f) | common folds
+sorted(xs, key=f) | sort by any function of the item
+functools.partial(f, a) | fix the first argument of f
+functools.lru_cache | memoize a pure function
+itertools.groupby(xs, key=f) | group consecutive items (sort first)
+:: lab
+host: dev
+user: student
+cwd: /home/student/pipeline
+py: yes
+:: brief
+`traffic.csv` is a firewall export: `src,dst_port,action,bytes`. Finish `pipeline.py` using **only expressions** (a generator or comprehension plus `sum` and `max`, no running counter that you update):
+
+1. keep rows where the firewall **allowed** the traffic and the destination port is **443**
+2. sum the bytes **per source IP**
+3. print the source IP with the **largest** total
+
+Run it with `python3 pipeline.py`. Submit the **IP address**.
+:: answer
+198.51.100.9
+:: hint
+Parse each line with `line.strip().split(",")`. Skip the header line.
+:: hint
+Build the allowed rows first: `rows = [r for r in parsed if r[2] == "allow" and r[1] == "443"]`. A dict comprehension over `set(r[0] for r in rows)` can then sum `int(r[3])` per source.
+:: hint
+`max(totals, key=totals.get)` returns the key with the biggest value.
+:: solution
+`totals = {ip: sum(int(r[3]) for r in rows if r[0] == ip) for ip in {r[0] for r in rows}}` then `print(max(totals, key=totals.get))`. The answer is **198.51.100.9** with 7,300 bytes of allowed HTTPS. 203.0.113.77 sent far more bytes overall, but most of it was denied or on port 22, which the filter removes. The key lesson of the pipeline: the filter and the aggregate are separate, replaceable steps.
+:: verify
+python3 - <<'PY'
+s = open("pipeline.py").read()
+s = s.replace("rows = []", "rows = [r for r in parsed if r[2] == 'allow' and r[1] == '443']")
+s = s.replace("totals = {}", "totals = {ip: sum(int(r[3]) for r in rows if r[0] == ip) for ip in {r[0] for r in rows}}")
+s = s.replace("print()", "print(max(totals, key=totals.get))")
+open("pipeline.py", "w").write(s)
+PY
+python3 pipeline.py
+:: file /home/student/pipeline/traffic.csv
+src,dst_port,action,bytes
+203.0.113.77,443,deny,9000
+198.51.100.9,443,allow,4000
+203.0.113.77,22,allow,8000
+192.0.2.140,443,allow,2500
+198.51.100.9,443,allow,3300
+203.0.113.77,443,allow,1200
+192.0.2.140,80,allow,9500
+192.0.2.140,443,allow,900
+:: file /home/student/pipeline/pipeline.py
+lines = open("traffic.csv").read().splitlines()[1:]
+parsed = [l.split(",") for l in lines]
+
+# TODO 1: keep only allowed rows to port 443
+rows = []
+
+# TODO 2: total bytes per source IP (a dict comprehension works)
+totals = {}
+
+# TODO 3: print the IP with the largest total
+print()

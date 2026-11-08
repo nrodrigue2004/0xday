@@ -1,0 +1,116 @@
+tagline: Types decide what a value can do and when a mistake is caught: before the program runs, or in the middle of the night in production. Learn the two axes (static or dynamic, strong or weak) and fix a real dynamic-typing bug.
+sheet: langs
+sources: [Types and Programming Languages](https://www.cis.upenn.edu/~bcpierce/tapl/) (Pierce, the standard text) · [Python typing docs](https://docs.python.org/3/library/typing.html)
+:: simple
+A **type** says what kind of value something is (integer, text, list) and so which operations make sense. `"80" + 1` makes no sense; `80 + 1` does.
+
+Two separate questions:
+
+- **When is the type checked?**
+  - **Static**: before the program runs, by a compiler (C, Java, Rust, TypeScript). A mistake is a build error.
+  - **Dynamic**: while the program runs (Python, JavaScript, Ruby). A mistake is an exception, found only if that line executes.
+- **How strict is the language about mixing types?**
+  - **Strong**: it refuses nonsense (Python: `"80" + 1` raises `TypeError`)
+  - **Weak**: it converts silently (JavaScript: `"80" + 1` is `"801"`, and `"80" - 1` is `79`)
+
+So Python is dynamic and strong, C is static and weak-ish (it lets you treat memory as any type), Java is static and strong, JavaScript is dynamic and weak.
+
+```code
+>>> "80" + 1
+TypeError: can only concatenate str (not "int") to str
+>>> int("80") + 1
+81
+```
+
+> Config files, JSON and web forms hand you **strings** even when the value is a number. Convert at the edge, once.
+:: mid
+### Same bug, different moment
+```code
+def open_port(cfg):
+    return cfg["port"] + 1       # cfg["port"] is the string "443"
+```
+- In a **dynamic** language this fails (or worse, passes) when the line runs, which may be a rare code path
+- In a **static** language the declared type `int port` makes the build fail, or the parse step rejects `"443"` immediately
+
+Type hints in Python (`def f(port: int) -> int`) do nothing at runtime. A separate checker such as `mypy` reads them and reports mismatches before you run anything: static checking bolted on to a dynamic language.
+
+### Common conversions that bite
+- `"10" < "9"` is **True** (compares text, not numbers)
+- `0.1 + 0.2 != 0.3` (floating point is binary)
+- JavaScript `==` coerces; `===` does not. `null`, `undefined`, `0` and `""` are all "falsy" in different ways
+- Integer overflow: a 32-bit `int` wraps. `2147483647 + 1` becomes `-2147483648` in C. Python ints grow without limit
+
+### Type systems and memory safety
+C lets you treat any bytes as any type, so a length confused with a signed number or a pointer cast away is a classic source of buffer overflows. Languages with strong static types and no raw pointers (Java, Rust, Go) remove whole bug classes. That is a big part of why "rewrite it in a memory-safe language" is current security advice.
+
+### Where types meet input
+**Parse, don't validate**: turn untrusted strings into a typed value once at the boundary (`int(x)`, a schema, a class), and the rest of the code uses the safe type. Never pass raw strings deeper than you have to.
+:: complex
+### Soundness and what a checker proves
+A type system is **sound** if "well-typed programs do not go wrong" in the ways it claims (no adding a string to an int, no calling a missing method). Few mainstream languages are fully sound: TypeScript is deliberately not (`any` and unchecked casts escape the checker), Java has unchecked generic casts, C has none to speak of.
+
+### Inference, generics, subtyping
+- **Type inference**: the compiler works out types you did not write (`let x = 5` is an int in Rust, TypeScript and Go)
+- **Generics**: one definition for many types (`List<T>`), checked without losing the element type
+- **Subtyping**: a `Dog` can be used where an `Animal` is expected. Mutable containers make this subtle: a list of dogs is *not* a list of animals, because you could add a cat
+
+### Algebraic data types (sum and product)
+A **product type** holds several fields at once (a record). A **sum type** is *one of* several shapes (`Result = Ok(value) | Err(reason)`). Pattern matching over a sum type makes the compiler tell you when you forgot a case. It is the typed version of "did you handle the error?", and it is how Rust avoids null.
+
+### Types as a security tool
+- **Null** is a type hole: the "billion dollar mistake". Options (`Option<T>`) make absence explicit
+- **Taint tracking** marks strings from the network as untrusted types that cannot reach a SQL call without passing a sanitizer
+- **Units and newtypes** (`Seconds` vs `Milliseconds`) prevent the class of bug that destroyed a Mars probe
+- **Gradual typing** (TypeScript, typed Python) lets a team tighten a codebase one file at a time
+
+### Runtime type confusion
+In dynamic languages and in engines like a JavaScript JIT, a wrong assumption about a value's type is the root of a whole family of vulnerabilities: the optimized code trusts "this is always an integer" and the attacker supplies an object. The check that was skipped was a type check.
+:: ref
+### type terms
+static typing | types checked before the program runs
+dynamic typing | types checked at runtime
+strong typing | the language refuses to mix types silently
+weak typing | the language converts types silently
+type inference | the compiler works out types you did not write
+generics | one definition parameterized over types
+sum type | a value that is one of several shapes
+product type | a record with several fields at once
+sound | the checker's guarantees actually hold
+### python type commands
+type(x) | the runtime type of a value
+isinstance(x, int) | check a type at runtime
+int("443") | convert text to a number (raises ValueError if it is not one)
+mypy file.py | static type check of the hints
+x: int = 5 | a type hint (ignored when the program runs)
+:: lab
+host: dev
+user: student
+cwd: /home/student/ports
+py: yes
+:: brief
+`ports.py` totals the open ports listed in `config.json`. It crashes with a `TypeError`: whoever wrote the config quoted some of the numbers, so they arrive as **strings**.
+
+Fix the script so every value is converted to an integer with `int()`, run it with `python3 ports.py`, and submit the **total** it prints.
+:: answer
+8625
+:: hint
+Run `python3 ports.py` and read the error. Which operands are being added?
+:: hint
+In the loop use `total += int(p)` instead of `total += p`.
+:: hint
+The ports are 22, "80", 443 and "8080". Add them.
+:: solution
+`total += int(p)` converts the quoted values. 22 + 80 + 443 + 8080 = **8625**. Without the conversion Python (strong typing) refuses to add a string to an int, which is the right behavior: a weakly typed language would have produced something like `"2280"` or worse and continued. The longer-term fix is a schema that rejects `"80"` at the boundary so the rest of the program only sees ints.
+:: verify
+sed -i 's/total += p$/total += int(p)/' ports.py
+python3 ports.py
+:: file /home/student/ports/config.json
+{"name": "edge-fw", "ports": [22, "80", 443, "8080"]}
+:: file /home/student/ports/ports.py
+import json
+
+cfg = json.load(open("config.json"))
+total = 0
+for p in cfg["ports"]:
+    total += p
+print("total of open ports:", total)

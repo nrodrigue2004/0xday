@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>rev :: 0xDay</title>
+<meta name="description" content="rev: run it in a sandbox and read what it touched: files, registry, network; entropy, stubs, the original entry point and how to tell a packed file; x86 listing to source: recover the logic of a license check, with browser labs.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="data.js?v=82337135" defer></script>
+<script src="site.js?v=82337135" defer></script>
+<script src="fx.js?v=82337135" defer></script>
+<script src="learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="start.html">./start</a></li><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html" aria-current="page">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ls ~/rev</p><h1>~/rev</h1>
+<p>More practice for <a href="courses/MAL300.html">MAL300</a> (reverse engineering and malware) and <a href="courses/EXP400.html">EXP400</a> (binary exploitation). The main guides are in <a href="learn.html">~/learn</a>: <a href="learn/malware-analysis.html">malware analysis</a>, <a href="learn/reverse-engineering.html">reverse engineering</a>, <a href="learn/binary-exploitation.html">binary exploitation</a>. These chapters add labs, one per technique.</p>
+<h2># MAL300 Reverse engineering and malware (extra labs)</h2><ul class="ls guides"><li class="guiderow" data-skill="dynamic-analysis"><a class="ls-row" href="rev/dynamic-analysis.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">dynamic analysis <span class="muted small">run it in a sandbox and read what it touched: files, registry, network</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="unpacking"><a class="ls-row" href="rev/unpacking.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">packers and unpacking <span class="muted small">entropy, stubs, the original entry point and how to tell a packed file</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="re-crackme"><a class="ls-row" href="rev/re-crackme.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">reading a check function <span class="muted small">x86 listing to source: recover the logic of a license check</span></span><span class="ls-tags">shell</span></a></li></ul><h2># EXP400 Binary exploitation (toy programs only)</h2><ul class="ls guides"><li class="guiderow" data-skill="format-strings"><a class="ls-row" href="rev/format-strings.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">format strings <span class="muted small">when user input is the format: leaking the stack and why it is fixed</span></span><span class="ls-tags">debug</span></a></li><li class="guiderow" data-skill="mitigations"><a class="ls-row" href="rev/mitigations.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">mitigations <span class="muted small">NX, stack canaries, ASLR, PIE and RELRO: what each stops and what it does not</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="rop-basics"><a class="ls-row" href="rev/rop-basics.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">ROP concepts <span class="muted small">why return-oriented programming exists and how a defender spots it</span></span><span class="ls-tags">shell</span></a></li></ul>
+<p class="muted small">progress: <span class="bar__on">[####]</span> = all levels read and the lab solved. Saved in your browser. Courses with quizzes and exams: <a href="courses.html">~/courses</a>.</p>
+<p class="muted small">Everything here is a toy. The programs are made up, the samples are fictional text, and no chapter ships a working exploit, shellcode or malware. The point is to read what a defender sees: logs, disassembly, crash state and mitigations. Run real samples only in an isolated VM with no shared folders and no route to your network.</p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

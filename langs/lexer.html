@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>the lexer :: ~/langs :: 0xDay</title>
+<meta name="description" content="langs, the lexer: turn characters into tokens and report where it went wrong. Simple, mid and complex levels plus a hands-on lab.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">langs --chapter lexer</p>
+<h1>~/langs/lexer</h1>
+<p class="learn__meta"><span class="muted">CS310 Compilers</span></p>
+<p>The lexer turns raw characters into tokens, the first step of every compiler, interpreter, SQL engine and log parser. Write one with regular expressions and see why "unexpected character" is its error.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="lexer">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>lexer</strong> (also called a scanner or tokenizer) reads a stream of characters and groups them into <strong>tokens</strong>: the words of the language. It throws away whitespace and comments, and it does not care whether the tokens make sense together; that is the parser's job.</p>
+<p>Source: <code>total = price * 3 + 12</code></p>
+<div class="tbl"><table><thead><tr><th>Token kind</th><th>Text</th></tr></thead><tbody><tr><td>NAME</td><td><code>total</code></td></tr><tr><td>EQUALS</td><td><code>=</code></td></tr><tr><td>NAME</td><td><code>price</code></td></tr><tr><td>STAR</td><td><code>*</code></td></tr><tr><td>NUMBER</td><td><code>3</code></td></tr><tr><td>PLUS</td><td><code>+</code></td></tr><tr><td>NUMBER</td><td><code>12</code></td></tr></tbody></table></div>
+<p>Each token has a <strong>kind</strong> and the <strong>text</strong> it came from (plus a position for good error messages). The kinds are defined by simple patterns: a NUMBER is one or more digits, a NAME starts with a letter, and so on. Patterns that simple are exactly what <strong>regular expressions</strong> describe.</p>
+<p class="callout">Anything that processes text into structure starts with a lexer: your shell splits <code>ls -la &quot;my file&quot;</code> into three words, a Splunk query is tokenized, and a log parser's regex is a lexer in disguise.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>A regex lexer in Python</h4>
+<pre class="ex ex--code"><code>import re
+TOKEN_SPEC = [
+    (&quot;NUMBER&quot;, r&quot;\d+&quot;),
+    (&quot;NAME&quot;,   r&quot;[A-Za-z_]\w*&quot;),
+    (&quot;OP&quot;,     r&quot;[+\-*/=]&quot;),
+    (&quot;LPAREN&quot;, r&quot;\(&quot;), (&quot;RPAREN&quot;, r&quot;\)&quot;),
+    (&quot;SKIP&quot;,   r&quot;[ \t\n]+&quot;),
+    (&quot;BAD&quot;,    r&quot;.&quot;),            # anything else is an error
+]
+PATTERN = re.compile(&quot;|&quot;.join(f&quot;(?P&lt;{k}&gt;{p})&quot; for k, p in TOKEN_SPEC))
+
+def tokenize(src):
+    for m in PATTERN.finditer(src):
+        kind = m.lastgroup
+        if kind == &quot;SKIP&quot;: continue
+        if kind == &quot;BAD&quot;: raise SyntaxError(f&quot;unexpected {m.group()!r} at {m.start()}&quot;)
+        yield kind, m.group()</code></pre>
+<p>The patterns are tried <strong>in order</strong> at each position, so put more specific ones first. The final catch-all <code>BAD</code> guarantees the lexer never loops forever or silently skips junk.</p>
+<h4>Maximal munch and keywords</h4>
+<p>Lexers take the <strong>longest match</strong>: <code>&lt;=</code> is one token, not <code>&lt;</code> then <code>=</code>; <code>iffy</code> is a NAME, not the keyword <code>if</code> plus <code>fy</code>. A common trick: match every word as a NAME, then check a set of keywords and relabel (<code>while</code>, <code>if</code>).</p>
+<h4>Tracking position</h4>
+<p>Store the line and column in each token. A good message says <code>line 3, col 9: unexpected &#x27;@&#x27;</code>, not just "syntax error". Keep a running line count by counting newlines as you consume them.</p>
+<h4>Strings and comments</h4>
+<p>A string literal is a token that can contain spaces and operator characters: <code>&quot;a + b&quot;</code> is one STRING. The lexer needs a mode for "inside a string", which is why plain <code>split()</code> is not a tokenizer. Unterminated strings and escape sequences are the usual edge cases.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Lexers as finite automata</h4>
+<p>A regular expression and a deterministic finite automaton (DFA) describe the same set of strings. A lexer generator (<strong>lex</strong>, <strong>flex</strong>, <strong>ANTLR</strong>, the engine inside Python's <code>re</code>) takes your patterns, builds a combined automaton, and runs it over the input one character at a time in O(n). Hand-written lexers do the same with a loop and a <code>switch</code>. See <a href="automata.html">automata and regex</a>.</p>
+<h4>Why the lexer is a security boundary</h4>
+<p>Injection happens when the lexer or parser of the *downstream* system reads your data as code. If you build <code>&quot;SELECT * FROM t WHERE name = &#x27;&quot; + user + &quot;&#x27;&quot;</code>, the SQL lexer sees a quote in the data and ends the string early. The defense, <strong>parameterized queries</strong>, keeps data out of the token stream entirely. Same mechanism in shell injection, HTML/JS injection and log injection (a newline in a username forges a log line).</p>
+<p>Two systems that lex the *same* text differently are a classic vulnerability: a WAF that tokenizes a request one way and the application another lets an attacker hide a payload in the gap. (HTTP request smuggling, unicode normalization bypasses.)</p>
+<h4>Lexing hard languages</h4>
+<p>Some languages are awkward: Python uses indentation, so the lexer emits INDENT and DEDENT tokens; C needs the symbol table to tell a type from a name (<code>a * b;</code> is a declaration or a multiplication); regex literals in JavaScript depend on the previous token. A lexer that needs context is a sign the grammar and lexer should talk to each other.</p>
+<h4>Tools</h4>
+<p>Production code usually uses a generator or a library, but writing one by hand once is the way to understand every error message you will ever see from a parser.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>lexer.py</code> tokenizes <code>program.calc</code> but only knows numbers and a few operators. Run <code>python3 lexer.py</code>: it stops with <strong>unexpected character</strong> at the first variable name.</p>
+<p>Add the missing token patterns (<strong>names</strong>, <strong>parentheses</strong>, **<code>&gt;</code><strong> and the </strong><code>;</code><strong> separator) so the whole file tokenizes, rerun it, and submit the </strong>number of tokens** it reports.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/langs.html">cheatsheet</a></span></h2><h3>lexer terms</h3><dl class="man"><dt><code>token</code></dt><dd>a kind plus the text it came from</dd><dt><code>lexeme</code></dt><dd>the actual text of a token</dd><dt><code>longest match</code></dt><dd>the lexer takes the longest string a pattern allows</dd><dt><code>keyword</code></dt><dd>a reserved name such as if, while, return</dd><dt><code>whitespace</code></dt><dd>skipped between tokens</dd></dl><h3>python re for lexers</h3><dl class="man"><dt><code>re.compile(p)</code></dt><dd>compile a pattern once</dd><dt><code>(?P&lt;NAME&gt;pattern)</code></dt><dd>a named group</dd><dt><code>m.lastgroup</code></dt><dd>name of the group that matched</dd><dt><code>m.start() / m.end()</code></dt><dd>position of the match</dd><dt><code>re.finditer(p, s)</code></dt><dd>iterate over all matches</dd><dt><code>\d+ / \w+ / \s+</code></dt><dd>digits / word characters / whitespace</dd></dl></section><section class="lvl" id="sources"><h2><span class="lvl__n">src</span> further reading <span class="muted">// read these, not just me</span></h2><p><a href="https://craftinginterpreters.com/scanning.html">Crafting Interpreters: Scanning</a> · <a href="https://docs.python.org/3/library/re.html">Python re docs</a></p></section><nav class="pager"><a href="compiler-pipeline.html">&lt; source to machine code</a><a href="parser.html">grammars and the parser &gt;</a></nav><p><a href="../langs.html">cd ~/langs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "lexer", "title": "the lexer", "user": "student", "host": "dev", "brief": "<code>lexer.py<\/code> tokenizes <code>program.calc<\/code> but only knows numbers and a few operators. Run <code>python3 lexer.py<\/code>: it stops with <strong>unexpected character<\/strong> at the first variable name.\n\nAdd the missing token patterns (<strong>names<\/strong>, <strong>parentheses<\/strong>, **<code>&gt;<\/code><strong> and the <\/strong><code>;<\/code><strong> separator) so the whole file tokenizes, rerun it, and submit the <\/strong>number of tokens** it reports.", "hints": ["Run <code>python3 lexer.py<\/code> and read which character it rejects.", "Add <code>(&quot;NAME&quot;, r&quot;[A-Za-z_]\\w*&quot;)<\/code>, <code>(&quot;PUNCT&quot;, r&quot;[();{}]&quot;)<\/code> and include <code>&gt;<\/code> in the operator class, before the <code>BAD<\/code> pattern.", "The program has two lines. Count only non-whitespace tokens: the script prints the total once the lexer is fixed."], "answers": ["eb1e33e8a81b697b75855af6bfcdbcbf7cbbde9f94962ceaec1ed8af21f5a50f"], "solution": "QWZ0ZXIgYWRkaW5nIE5BTUUsIFBVTkNUIGFuZCA8Y29kZT4mZ3Q7PC9jb2RlPiB0byB0aGUgc3BlY3MsIHRoZSBsZXhlciByZXBvcnRzIDxzdHJvbmc+MzE8L3N0cm9uZz4gdG9rZW5zIGZvciB0aGUgdHdvLWxpbmUgcHJvZ3JhbS4gUGF0dGVybiBvcmRlciBtYXR0ZXJzOiBOQU1FIG11c3QgY29tZSBiZWZvcmUgdGhlIGNhdGNoLWFsbCwgYW5kIGEga2V5d29yZCBsaWtlIDxjb2RlPndoaWxlPC9jb2RlPiBpcyBqdXN0IGEgTkFNRSBmb3Igbm93LiBUaGUgcGFyc2VyIHdpbGwgY2FyZSBsYXRlcjsgdGhlIGxleGVyIG9ubHkgc3BsaXRzLgo=", "fs": {"/home/student/lexer/program.calc": "n = 10; total = 0;\nwhile n > 0 { total = total + n * (n - 1); n = n - 1 }\n", "/home/student/lexer/lexer.py": "import re\n\nTOKEN_SPEC = [\n    (\"NUMBER\", r\"\\d+\"),\n    (\"OP\",     r\"[+\\-*/=]\"),      # TODO: the language also has >\n    (\"SKIP\",   r\"\\s+\"),\n    # TODO: add NAME and PUNCT patterns here\n    (\"BAD\",    r\".\"),\n]\nPATTERN = re.compile(\"|\".join(f\"(?P<{k}>{p})\" for k, p in TOKEN_SPEC))\n\ndef tokenize(src):\n    for m in PATTERN.finditer(src):\n        kind = m.lastgroup\n        if kind == \"SKIP\":\n            continue\n        if kind == \"BAD\":\n            raise SyntaxError(f\"unexpected character {m.group()!r} at offset {m.start()}\")\n        yield kind, m.group()\n\ntokens = list(tokenize(open(\"program.calc\").read()))\nprint(len(tokens), \"tokens\")\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/lexer", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

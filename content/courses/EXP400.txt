@@ -1,0 +1,115 @@
+## 0
+Q: What is a stack buffer overflow?
+* Writing more data into a local buffer than it holds, overwriting nearby stack data such as the return address
+- A full disk
+- Too many open files
+- A slow function
+? Functions like gets() do not check lengths.
+
+Q: In the binary exploitation lab, what is the offset?
+* The number of bytes from the start of the buffer to the saved return address
+- The file size
+- The address of main
+- The number of functions
+? It was 72 for the 64-byte buffer plus 8 bytes of saved RBP.
+
+Q: What does the saved return address control?
+* Where the CPU continues when the function returns
+- The size of the stack
+- The program's name
+- Memory allocation
+? Overwriting it redirects execution.
+
+Q: Which fix removes the bug rather than hiding it?
+* Using a bounds-checked copy such as fgets with a size
+- Enabling ASLR
+- Renaming the buffer
+- Running as root
+? Mitigations raise the cost; the bounds check removes the flaw.
+
+## 1
+Q: What is wrong with printf(name) when name comes from the user?
+* The user controls the format string
+- It prints too slowly
+- It cannot print text
+- It needs a newline
+? Use printf("%s", name).
+
+Q: What does %p do in a format string with no matching argument?
+* Prints the next stack or register value, leaking memory contents
+- Prints the program name
+- Pauses the program
+- Prints the process ID
+? An information leak.
+
+Q: Why is %n more dangerous than %p?
+* It writes the number of characters printed so far to a memory address
+- It prints newlines
+- It crashes only the logger
+- It deletes the string
+? A leak becomes a write primitive.
+
+Q: A leaked 64-bit value is 0x2121743372633373. What is its text, given little-endian storage?
+* s3cr3t!!
+- !!t3rc3s
+- 2121743372633373
+- Not text
+? Reverse the byte order: 73 33 63 72 33 74 21 21.
+
+## 2
+Q: What does NX (DEP) do?
+* Marks the stack and heap as non-executable so injected bytes will not run
+- Randomizes addresses
+- Adds a secret before the return address
+- Encrypts the binary
+? Attackers respond by reusing existing code.
+
+Q: What does a stack canary detect?
+* A change to a secret value placed before the return address, checked when the function returns
+- A network scan
+- A missing library
+- A slow loop
+? The program aborts with a stack smashing message.
+
+Q: What does PIE add on top of ASLR?
+* The program's own code is also loaded at a random address
+- It makes the stack executable
+- It encrypts strings
+- It removes the canary
+? Without PIE the code is at fixed addresses every run.
+
+Q: checksec shows No canary found and No PIE for a binary. What does that tell a reviewer?
+* An overflow can reach the return address unchecked and code addresses are fixed
+- The binary is safe
+- The binary is encrypted
+- It cannot be debugged
+? NX may still be on; code reuse does not care.
+
+## 3
+Q: What is a ROP gadget?
+* A few instructions ending in ret, borrowed from the program's own code
+- A kind of malware family
+- A network packet
+- A debugger command
+? Chaining gadgets avoids injecting new code.
+
+Q: Why is pop rdi; ret useful on 64-bit Linux?
+* The first function argument is passed in rdi, so it lets a chain set that argument
+- It exits the program
+- It clears the stack
+- It disables NX
+? The value to load sits next on the stack.
+
+Q: Which defense makes ROP much harder by checking every return?
+* A hardware or software shadow stack (for example Intel CET)
+- A longer password
+- Disabling logging
+- Larger buffers
+? Returns that do not match a call are rejected.
+
+Q: What is the safe way to practice this material?
+* Toy or practice binaries in an isolated VM you own
+- Against any public website
+- On your work laptop's network
+- Against a neighbor's router
+? Practice binaries exist for exactly this (ROP Emporium, pwn.college).

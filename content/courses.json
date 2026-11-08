@@ -968,6 +968,193 @@
               ]
             }
           ]
+        },
+        {
+          "code": "CS340",
+          "name": "Programming languages",
+          "pre": [
+            "CS201"
+          ],
+          "blurb": "What separates languages: paradigms, static and dynamic types, scope and closures, and functional programming. ~/code and ~/dojo are the reps.",
+          "modules": [
+            {
+              "t": "Paradigms",
+              "m": 45,
+              "links": [
+                {
+                  "t": "~/langs: paradigms",
+                  "h": "langs/paradigms.html"
+                },
+                {
+                  "t": "~/learn: OOP in Java",
+                  "h": "learn/object-oriented-programming-java.html"
+                }
+              ]
+            },
+            {
+              "t": "Types",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/langs: types",
+                  "h": "langs/types.html"
+                },
+                {
+                  "t": "~/learn: TypeScript and JavaScript",
+                  "h": "learn/typescript-javascript.html"
+                }
+              ]
+            },
+            {
+              "t": "Scope and closures",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/langs: scope and closures",
+                  "h": "langs/scope.html"
+                },
+                {
+                  "t": "~/dojo: Python",
+                  "h": "dojo/python.html"
+                }
+              ]
+            },
+            {
+              "t": "Functional programming",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/langs: functional programming",
+                  "h": "langs/functional.html"
+                },
+                {
+                  "t": "SICP (free book)",
+                  "h": "https://mitpress.mit.edu/9780262510875/structure-and-interpretation-of-computer-programs/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "CS310",
+          "name": "Compilers",
+          "pre": [
+            "CS340"
+          ],
+          "blurb": "How source text becomes a running program: the pipeline, a lexer, a recursive-descent parser and a tree-walking interpreter you finish yourself.",
+          "modules": [
+            {
+              "t": "Source to machine code",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/langs: source to machine code",
+                  "h": "langs/compiler-pipeline.html"
+                },
+                {
+                  "t": "~/learn: C and x86 assembly",
+                  "h": "learn/c-x86-assembly.html"
+                },
+                {
+                  "t": "Compiler Explorer",
+                  "h": "https://godbolt.org/"
+                }
+              ]
+            },
+            {
+              "t": "The lexer",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/langs: the lexer",
+                  "h": "langs/lexer.html"
+                },
+                {
+                  "t": "~/drills: regex for logs",
+                  "h": "drills/regex-for-logs.html"
+                }
+              ]
+            },
+            {
+              "t": "Grammars and the parser",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/langs: grammars and the parser",
+                  "h": "langs/parser.html"
+                },
+                {
+                  "t": "Crafting Interpreters (free book)",
+                  "h": "https://craftinginterpreters.com/"
+                }
+              ]
+            },
+            {
+              "t": "A tiny interpreter",
+              "m": 120,
+              "links": [
+                {
+                  "t": "~/langs: a tiny interpreter",
+                  "h": "langs/interpreter.html"
+                },
+                {
+                  "t": "Crafting Interpreters (free book)",
+                  "h": "https://craftinginterpreters.com/"
+                }
+              ],
+              "note": "Stretch goal after the lab: add an if statement and a function call to the calculator language, then read the first half of Crafting Interpreters."
+            }
+          ]
+        },
+        {
+          "code": "CS301",
+          "name": "Theory of computation (optional)",
+          "pre": [],
+          "blurb": "Light and optional: automata and regular expressions, context-free grammars, Turing machines, the halting problem and what NP means. No discrete math prerequisite.",
+          "modules": [
+            {
+              "t": "Finite automata and regex",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/langs: automata and regex",
+                  "h": "langs/automata.html"
+                },
+                {
+                  "t": "regex101",
+                  "h": "https://regex101.com/"
+                }
+              ]
+            },
+            {
+              "t": "Grammars and the stack",
+              "m": 45,
+              "links": [
+                {
+                  "t": "~/langs: grammars, Turing machines and limits",
+                  "h": "langs/computability.html#tier-1"
+                },
+                {
+                  "t": "~/langs: grammars and the parser",
+                  "h": "langs/parser.html"
+                }
+              ]
+            },
+            {
+              "t": "Computability and complexity",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/langs: limits of computation",
+                  "h": "langs/computability.html#tier-2"
+                },
+                {
+                  "t": "Sipser's textbook",
+                  "h": "https://math.mit.edu/~sipser/book.html"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1506,7 +1693,7 @@
           "pre": [
             "IT100"
           ],
-          "blurb": "Assembly, the PE format, disassemblers, and safe malware handling.",
+          "blurb": "Assembly, the PE format, disassemblers, safe malware handling, and extra labs in dynamic analysis, unpacking and reading check functions.",
           "modules": [
             {
               "t": "C and x86 assembly",
@@ -1549,6 +1736,48 @@
                 {
                   "t": "~/learn: malware analysis",
                   "h": "learn/malware-analysis.html"
+                }
+              ]
+            },
+            {
+              "t": "Dynamic analysis",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/rev: dynamic analysis",
+                  "h": "rev/dynamic-analysis.html"
+                },
+                {
+                  "t": "~/learn: malware analysis",
+                  "h": "learn/malware-analysis.html"
+                }
+              ]
+            },
+            {
+              "t": "Packers and unpacking",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/rev: packers and unpacking",
+                  "h": "rev/unpacking.html"
+                },
+                {
+                  "t": "~/learn: PE format and PE-bear",
+                  "h": "learn/pe-format-pe-bear.html"
+                }
+              ]
+            },
+            {
+              "t": "Reading a check function",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/rev: reading a check function",
+                  "h": "rev/re-crackme.html"
+                },
+                {
+                  "t": "~/learn: Ghidra and IDA Pro",
+                  "h": "learn/ghidra-and-ida-pro.html"
                 }
               ]
             }
@@ -1722,6 +1951,68 @@
                 {
                   "t": "OWASP Cheat Sheet Series",
                   "h": "https://cheatsheetseries.owasp.org/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "code": "EXP400",
+          "name": "Binary exploitation",
+          "pre": [
+            "MAL300"
+          ],
+          "blurb": "How memory bugs become control of a program and how mitigations stop them: stack overflows, format strings, canaries, ASLR and ROP. Toy programs only, in a lab.",
+          "modules": [
+            {
+              "t": "Stack overflows",
+              "m": 90,
+              "links": [
+                {
+                  "t": "~/learn: binary exploitation",
+                  "h": "learn/binary-exploitation.html"
+                },
+                {
+                  "t": "~/learn: C and x86 assembly",
+                  "h": "learn/c-x86-assembly.html"
+                }
+              ]
+            },
+            {
+              "t": "Format strings",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/rev: format strings",
+                  "h": "rev/format-strings.html"
+                },
+                {
+                  "t": "~/cases: Heartbleed",
+                  "h": "cases/heartbleed.html"
+                }
+              ]
+            },
+            {
+              "t": "Mitigations",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/rev: mitigations",
+                  "h": "rev/mitigations.html"
+                }
+              ]
+            },
+            {
+              "t": "ROP concepts",
+              "m": 75,
+              "links": [
+                {
+                  "t": "~/rev: ROP concepts",
+                  "h": "rev/rop-basics.html"
+                },
+                {
+                  "t": "ROP Emporium (practice binaries)",
+                  "h": "https://ropemporium.com/"
                 }
               ]
             }

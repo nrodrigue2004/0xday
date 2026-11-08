@@ -1,0 +1,137 @@
+tagline: Reverse engineering is turning assembly back into the idea behind it. Read a small license-check function line by line, write its logic in Python, and recover the password. Practice for crackmes, CTF reversing and reading malware routines.
+sheet: rev
+sources: [Practical Malware Analysis](https://nostarch.com/malware) (labs 1 to 6 are this skill) · [crackmes.one](https://crackmes.one/) (community crackmes, run them in a VM) · [Compiler Explorer](https://godbolt.org/) (write C, see the assembly) · [Ghidra](https://ghidra-sre.org/)
+:: simple
+A **crackme** is a small program written to be reverse engineered: it asks for a password, and your job is to find out what it wants by reading its code, not by guessing. The skill is exactly what you use on malware: read a function and say what it *does* in plain language.
+
+A method that works every time:
+
+1. **Find the decision.** Look for the message or the jump that separates success from failure (`cmp` then `je`/`jne`)
+2. **Work backward** from that jump: what value is being compared, and where did it come from?
+3. **Name things.** Write `i` for the counter, `len` for the length, `ok` for the result. Names make the pattern visible
+4. **Translate to a few lines of Python or C.** Once it is in a language you read fluently, the answer is usually obvious
+5. **Test** your answer by running the program
+
+```code
+cmp ecx, 8       ; is the counter 8?
+jne .fail        ; if not equal, go to the failure label
+```
+
+That pair reads as `if (len != 8) fail;`. Learn the handful of patterns (compare-and-jump, loop with a counter, a byte-by-byte comparison against a table) and most check functions are quick.
+:: mid
+### Reading x86 you meet in checks
+| Pattern | Meaning |
+|---|---|
+| `xor ecx, ecx` | `i = 0` (xor with itself zeroes a register) |
+| `cmp byte [rsi+rcx], 0` / `je` | is `s[i] == 0` (end of string)? this is `strlen` |
+| `movzx eax, byte [rdi+rcx]` | `eax = s[i]` (load one byte) |
+| `xor al, 0x5a` | `al ^= 0x5a`, a one-byte XOR with a key |
+| `inc ecx` / `cmp ecx, 8` / `jl` | `i++; if (i < 8) loop again` |
+| `mov eax, 1` then `ret` | return 1 (success); `xor eax, eax` returns 0 |
+
+The return value of a function is in `eax`/`rax`. A check function usually returns 1 for "good" and 0 for "bad"; the caller tests it and picks which message to print.
+
+### Reconstructing the C
+```code
+int check(const char *s) {
+    if (strlen(s) != 8) return 0;
+    for (int i = 0; i < 8; i++)
+        if ((s[i] ^ 0x5a) != enc[i]) return 0;
+    return 1;
+}
+```
+The password is whatever makes every `s[i] ^ 0x5a` equal the stored byte. XOR is its own inverse, so `s[i] = enc[i] ^ 0x5a`. In the lab, compute it with `python3 -c`.
+
+### When it is not an XOR
+The same shape handles `add`/`sub` (reverse with the opposite), `rol`/`ror` (rotate the other way), a lookup table (invert the table) and a running checksum (solve for the last byte). If the transform cannot be inverted (a real hash), you stop reversing and **search**: a wordlist, or constraint solving (angr, Z3).
+
+### Static vs dynamic
+You can read the listing, or run the program under gdb, break at the `cmp`, and look at the register that holds the "expected" value. Doing both catches mistakes: the disassembly says what *should* happen and the debugger shows what *does*.
+:: complex
+### Tooling for scale
+- **Ghidra / IDA decompiler** gives you C-like pseudocode at once; the habit is to verify it against the disassembly for the one function that matters. Decompilers get loops, integer sizes and signedness wrong sometimes
+- **Z3 / angr**: describe the constraints (`all (s[i] ^ 0x5a) == enc[i]`, length 8, printable) and let a solver find an input. Essential when the check is a tangle of arithmetic, useless against a crypto hash
+- **Patching** instead of solving: change the `jne` to `je` (or `nop` it). Fine for a crackme; in malware it is how you force a code path (see [patching anti-VM checks](../posts/anti-vm-patching.html))
+- **Binary diffing** (Ghidra's Version Tracking, BinDiff): compare a patched and an unpatched binary to find what a security update fixed, the starting point of "patch diffing" for n-day analysis
+
+### Calling conventions and arguments
+On 64-bit Linux the first arguments arrive in `rdi, rsi, rdx, rcx, r8, r9`; on 64-bit Windows in `rcx, rdx, r8, r9`. Reading which register holds a pointer to your input is the first thing to establish in any function. On 32-bit x86 the arguments are on the stack. See [C and x86 assembly](../learn/c-x86-assembly.html).
+
+### What malware does with the same shape
+String decryption routines are this loop: `for i in range(len): out[i] = in[i] ^ key`. Config extractors, API-hash resolvers and C2 protocol encoders are the same idea with different arithmetic. Once you can read this function you can write a decoder script and extract the strings from every sample of the family, which feeds YARA rules and IOC lists. See the XOR lab in [malware analysis](../learn/malware-analysis.html).
+
+### Ethics and legality
+Reverse engineering software you own or a crackme for practice is fine. Breaking license checks on commercial software to avoid paying, or analyzing code you were told not to, is a legal problem (DMCA, EULA and contract terms). Do research on your own copies and in an isolated VM.
+:: ref
+### x86 patterns
+xor eax, eax | set register to 0
+cmp a, b / jne L | if (a != b) goto L
+test eax, eax / jz L | if (eax == 0) goto L
+movzx eax, byte [p+i] | eax = p[i] (one byte)
+xor al, K | al ^= K
+inc ecx / dec ecx | i++ / i--
+call f | call a function; result in eax/rax
+ret | return
+### reversing commands
+objdump -d -M intel bin | disassemble in Intel syntax
+gdb -q ./bin | start the debugger
+break *0x401136 | breakpoint at an address
+x/8bx $rsp | examine 8 bytes in hex
+info registers | all registers
+python3 -c 'print(...)' | quick decoder calculations
+:: lab
+host: re-lab
+user: student
+cwd: /home/student/crackme
+py: yes
+:: brief
+`check.asm` is the disassembly of the password check from a toy crackme. It takes the input string in `rdi`, returns 1 for a correct password and 0 otherwise. The 8 encoded bytes are in the `enc` table at the end of the file.
+
+Work out what the loop does, then compute the password that passes the check. Python is available: `python3 -c '...'`.
+
+Submit the **password** (8 characters).
+:: answer
+ghost4me
+:: hint
+Read `check.asm` from the top: the first block checks the length (8). The loop XORs each input byte with a constant and compares it with `enc[i]`.
+:: hint
+The constant is `0x5a`. XOR is its own inverse, so `input[i] = enc[i] ^ 0x5a`.
+:: hint
+`python3 -c 'print("".join(chr(b ^ 0x5a) for b in [0x1d,0x32,0x35,0x29,0x2e,0x6e,0x17,0x3f]))'`
+:: solution
+The function returns 0 unless the length is 8, and then requires `(s[i] ^ 0x5a) == enc[i]` for every i. Inverting gives `s[i] = enc[i] ^ 0x5a`: the table `1d 32 35 29 2e 6e 17 3f` becomes **Ghost4Me** (answers here ignore capitalization). In real malware the same loop decodes strings: once you know the key you can decode every string in the sample, and the key is an indicator you can share.
+:: verify
+python3 -c 'print("".join(chr(b ^ 0x5a) for b in [0x1d,0x32,0x35,0x29,0x2e,0x6e,0x17,0x3f]))'
+:: file /home/student/crackme/check.asm
+; toy crackme: int check(const char *s)   s in rdi, result in eax
+check:
+    push rbp
+    mov  rbp, rsp
+    xor  ecx, ecx                  ; ecx = 0
+.len:
+    cmp  byte [rdi+rcx], 0         ; end of string?
+    je   .lendone
+    inc  ecx
+    jmp  .len
+.lendone:
+    cmp  ecx, 8                    ; length must be 8
+    jne  .fail
+    xor  ecx, ecx                  ; i = 0
+.loop:
+    movzx eax, byte [rdi+rcx]      ; eax = s[i]
+    xor  al, 0x5a
+    lea  rdx, [rel enc]
+    cmp  al, [rdx+rcx]             ; compare with enc[i]
+    jne  .fail
+    inc  ecx
+    cmp  ecx, 8
+    jl   .loop
+    mov  eax, 1                    ; success
+    pop  rbp
+    ret
+.fail:
+    xor  eax, eax                  ; failure
+    pop  rbp
+    ret
+
+enc: db 0x1d, 0x32, 0x35, 0x29, 0x2e, 0x6e, 0x17, 0x3f

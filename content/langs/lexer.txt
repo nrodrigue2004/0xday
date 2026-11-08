@@ -1,0 +1,128 @@
+tagline: The lexer turns raw characters into tokens, the first step of every compiler, interpreter, SQL engine and log parser. Write one with regular expressions and see why "unexpected character" is its error.
+sheet: langs
+sources: [Crafting Interpreters: Scanning](https://craftinginterpreters.com/scanning.html) · [Python re docs](https://docs.python.org/3/library/re.html)
+:: simple
+A **lexer** (also called a scanner or tokenizer) reads a stream of characters and groups them into **tokens**: the words of the language. It throws away whitespace and comments, and it does not care whether the tokens make sense together; that is the parser's job.
+
+Source: `total = price * 3 + 12`
+
+| Token kind | Text |
+|---|---|
+| NAME | `total` |
+| EQUALS | `=` |
+| NAME | `price` |
+| STAR | `*` |
+| NUMBER | `3` |
+| PLUS | `+` |
+| NUMBER | `12` |
+
+Each token has a **kind** and the **text** it came from (plus a position for good error messages). The kinds are defined by simple patterns: a NUMBER is one or more digits, a NAME starts with a letter, and so on. Patterns that simple are exactly what **regular expressions** describe.
+
+> Anything that processes text into structure starts with a lexer: your shell splits `ls -la "my file"` into three words, a Splunk query is tokenized, and a log parser's regex is a lexer in disguise.
+:: mid
+### A regex lexer in Python
+```code
+import re
+TOKEN_SPEC = [
+    ("NUMBER", r"\d+"),
+    ("NAME",   r"[A-Za-z_]\w*"),
+    ("OP",     r"[+\-*/=]"),
+    ("LPAREN", r"\("), ("RPAREN", r"\)"),
+    ("SKIP",   r"[ \t\n]+"),
+    ("BAD",    r"."),            # anything else is an error
+]
+PATTERN = re.compile("|".join(f"(?P<{k}>{p})" for k, p in TOKEN_SPEC))
+
+def tokenize(src):
+    for m in PATTERN.finditer(src):
+        kind = m.lastgroup
+        if kind == "SKIP": continue
+        if kind == "BAD": raise SyntaxError(f"unexpected {m.group()!r} at {m.start()}")
+        yield kind, m.group()
+```
+The patterns are tried **in order** at each position, so put more specific ones first. The final catch-all `BAD` guarantees the lexer never loops forever or silently skips junk.
+
+### Maximal munch and keywords
+Lexers take the **longest match**: `<=` is one token, not `<` then `=`; `iffy` is a NAME, not the keyword `if` plus `fy`. A common trick: match every word as a NAME, then check a set of keywords and relabel (`while`, `if`).
+
+### Tracking position
+Store the line and column in each token. A good message says `line 3, col 9: unexpected '@'`, not just "syntax error". Keep a running line count by counting newlines as you consume them.
+
+### Strings and comments
+A string literal is a token that can contain spaces and operator characters: `"a + b"` is one STRING. The lexer needs a mode for "inside a string", which is why plain `split()` is not a tokenizer. Unterminated strings and escape sequences are the usual edge cases.
+:: complex
+### Lexers as finite automata
+A regular expression and a deterministic finite automaton (DFA) describe the same set of strings. A lexer generator (**lex**, **flex**, **ANTLR**, the engine inside Python's `re`) takes your patterns, builds a combined automaton, and runs it over the input one character at a time in O(n). Hand-written lexers do the same with a loop and a `switch`. See [automata and regex](automata.html).
+
+### Why the lexer is a security boundary
+Injection happens when the lexer or parser of the *downstream* system reads your data as code. If you build `"SELECT * FROM t WHERE name = '" + user + "'"`, the SQL lexer sees a quote in the data and ends the string early. The defense, **parameterized queries**, keeps data out of the token stream entirely. Same mechanism in shell injection, HTML/JS injection and log injection (a newline in a username forges a log line).
+
+Two systems that lex the *same* text differently are a classic vulnerability: a WAF that tokenizes a request one way and the application another lets an attacker hide a payload in the gap. (HTTP request smuggling, unicode normalization bypasses.)
+
+### Lexing hard languages
+Some languages are awkward: Python uses indentation, so the lexer emits INDENT and DEDENT tokens; C needs the symbol table to tell a type from a name (`a * b;` is a declaration or a multiplication); regex literals in JavaScript depend on the previous token. A lexer that needs context is a sign the grammar and lexer should talk to each other.
+
+### Tools
+Production code usually uses a generator or a library, but writing one by hand once is the way to understand every error message you will ever see from a parser.
+:: ref
+### lexer terms
+token | a kind plus the text it came from
+lexeme | the actual text of a token
+longest match | the lexer takes the longest string a pattern allows
+keyword | a reserved name such as if, while, return
+whitespace | skipped between tokens
+### python re for lexers
+re.compile(p) | compile a pattern once
+(?P<NAME>pattern) | a named group
+m.lastgroup | name of the group that matched
+m.start() / m.end() | position of the match
+re.finditer(p, s) | iterate over all matches
+\d+ / \w+ / \s+ | digits / word characters / whitespace
+:: lab
+host: dev
+user: student
+cwd: /home/student/lexer
+py: yes
+:: brief
+`lexer.py` tokenizes `program.calc` but only knows numbers and a few operators. Run `python3 lexer.py`: it stops with **unexpected character** at the first variable name.
+
+Add the missing token patterns (**names**, **parentheses**, **`>`** and the **`;`** separator) so the whole file tokenizes, rerun it, and submit the **number of tokens** it reports.
+:: answer
+31
+:: hint
+Run `python3 lexer.py` and read which character it rejects.
+:: hint
+Add `("NAME", r"[A-Za-z_]\w*")`, `("PUNCT", r"[();{}]")` and include `>` in the operator class, before the `BAD` pattern.
+:: hint
+The program has two lines. Count only non-whitespace tokens: the script prints the total once the lexer is fixed.
+:: solution
+After adding NAME, PUNCT and `>` to the specs, the lexer reports **31** tokens for the two-line program. Pattern order matters: NAME must come before the catch-all, and a keyword like `while` is just a NAME for now. The parser will care later; the lexer only splits.
+:: verify
+sed -i 's/("BAD"/("NAME", r"[A-Za-z_]\\w*"), ("PUNCT", r"[();{}]"), ("BAD"/; s/\[+\\-\*\/=\]/[+\\-*\/=>]/' lexer.py
+python3 lexer.py
+:: file /home/student/lexer/program.calc
+n = 10; total = 0;
+while n > 0 { total = total + n * (n - 1); n = n - 1 }
+:: file /home/student/lexer/lexer.py
+import re
+
+TOKEN_SPEC = [
+    ("NUMBER", r"\d+"),
+    ("OP",     r"[+\-*/=]"),      # TODO: the language also has >
+    ("SKIP",   r"\s+"),
+    # TODO: add NAME and PUNCT patterns here
+    ("BAD",    r"."),
+]
+PATTERN = re.compile("|".join(f"(?P<{k}>{p})" for k, p in TOKEN_SPEC))
+
+def tokenize(src):
+    for m in PATTERN.finditer(src):
+        kind = m.lastgroup
+        if kind == "SKIP":
+            continue
+        if kind == "BAD":
+            raise SyntaxError(f"unexpected character {m.group()!r} at offset {m.start()}")
+        yield kind, m.group()
+
+tokens = list(tokenize(open("program.calc").read()))
+print(len(tokens), "tokens")

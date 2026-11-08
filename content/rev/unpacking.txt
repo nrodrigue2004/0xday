@@ -1,0 +1,126 @@
+tagline: A packer wraps a program in a compressed or encrypted shell with a small stub that unpacks it at run time. Learn the signs of a packed file (entropy, odd sections, few imports) and how to find the original entry point with a tail jump.
+sheet: rev
+sources: [Practical Malware Analysis](https://nostarch.com/malware) (chapter 18, packers and unpacking) · [UPX](https://upx.github.io/) (the common legitimate packer) · [PE-bear](https://github.com/hasherezade/pe-bear)
+:: simple
+A **packer** compresses or encrypts an executable and adds a small program, the **stub**, in front. When you run the packed file, the stub unpacks the real program into memory and then jumps to it. Software makers use packers to shrink files. Malware authors use them to hide the real code from antivirus and from `strings`, so every sample of the same malware can look different on disk.
+
+How you can tell a file is packed:
+
+- **High entropy**: compressed or encrypted data is close to random. Entropy is scored 0 to 8 per byte; normal code is about 5 to 6, and packed data is above 7
+- **Strange section names** such as `UPX0`, `UPX1`, `.aspack`, or random letters
+- **A section that is big in memory but empty on disk**: the place the stub will unpack into
+- **Very few imports**: often just `LoadLibrary` and `GetProcAddress`, because the real import table is rebuilt at run time
+- **Almost no readable strings**
+
+The goal of **unpacking** is to get the original program back: either let it run until it has unpacked itself and dump it from memory, or work out how the stub does it.
+
+```
+$ cat sections.txt
+```
+:: mid
+### The unpacking idea
+1. The OS loads the packed file and runs the stub at the **entry point**
+2. The stub allocates memory, decompresses or decrypts the real code into it, and fixes up imports
+3. The stub performs a **tail jump** to the **original entry point (OEP)**, the first instruction of the real program
+4. From the OEP on, the real program runs
+
+To unpack manually, you find the tail jump, break on it, and then dump the process memory to a file (and repair the import table). Everything before the OEP is stub.
+
+### Finding the tail jump
+In a debugger the stub ends with something recognizable: a `pushad`/`popad` pair around the unpacker, followed by a `jmp` to an address **far from the stub**, in a different section than the code you are executing. A UPX-style stub finishes with something like `popad; ... ; jmp 0x401a30`. The address that leaves the stub's section is the OEP. Heuristics: a long run of `00` bytes after the jump (the unused end of the stub), or a jump whose target section has just been written to.
+
+### Tools
+- **PE-bear / DIE (Detect It Easy)** show sections, entropy and a packer guess
+- **UPX** itself unpacks files it packed: `upx -d packed.exe` (try it first; it fails on modified packers)
+- **x64dbg** with a break on `VirtualProtect` / the tail jump, then **Scylla** to dump and rebuild imports
+- **Memory dump + Volatility** when the sample is already running: dump the process after it has unpacked
+- Automatic sandboxes unpack common packers for you and give you the unpacked memory
+
+### Is packed malicious?
+No. Many legitimate installers and commercial software are packed. Packing is a **signal**, not a verdict: combine it with imports, strings (what is left), signature, origin and behavior in [dynamic analysis](dynamic-analysis.html).
+:: complex
+### Entropy, precisely
+Shannon entropy of a block is `-sum(p * log2 p)` over byte frequencies. Text is about 4.5, x86 code 5.5 to 6.5, compressed or encrypted data 7.8 to 8. Compute it per section and per sliding window; the high-entropy region is the payload. A fully encrypted blob with a small low-entropy stub in front is the normal picture. Malware also appends junk or mixes in padding to **lower the average entropy** and slip past naive checks.
+
+### Packer families
+- **Compressors** (UPX, MPRESS): reversible with a tool, mostly harmless
+- **Protectors** (Themida, VMProtect, Enigma): obfuscate, virtualize and detect debuggers; hard
+- **Crypters**: custom encryption stub, usually per-customer, designed to defeat signatures
+- **Custom malware packers**: often a decryption loop (XOR, RC4, AES) plus manual import resolution; reading the loop shows the key
+- **Multi-stage**: the unpacked code is itself a loader that fetches a payload
+
+### API resolution and import rebuilding
+A stub often avoids a normal import table. It walks the loaded modules in memory (via the process environment block, PEB) and finds functions by comparing **hashes of names**. That is why the imports list is nearly empty and why hash-resolving routines are a signature of malware; once unpacked, you rebuild the import table so a disassembler can label the calls.
+
+### Manual unpack, in outline
+Run in a debugger, find the allocation and decrypt loop, break on the tail jump or on the first execution of the newly written region (a hardware breakpoint on execute), dump the region, fix the entry point to the OEP and the imports with Scylla, and open the result in Ghidra. Reading the unpacker teaches you the key and algorithm to unpack the next sample in the family without running it.
+
+### Defender view
+Yara rules that match the **unpacked** strings only fire on memory, so scan memory as well as disk. Rules on the packer's stub catch every sample from that crypter, regardless of payload. Good detection combines both. Related: the [wg2 RAT](../posts/wg2-rat-teardown.html) and the [PE format](../learn/pe-format-pe-bear.html).
+:: ref
+### packer triage
+pecheck / pe-bear | list sections, entropy, imports
+diec file.exe | Detect It Easy: packer and compiler guess
+upx -d file.exe | unpack a UPX-packed file
+strings -n 8 file | readable strings (few = packed)
+xxd file | head | look at the raw bytes
+ent file | entropy of a file (0 to 8)
+### packer terms
+stub | the small program that unpacks the real one
+OEP | original entry point: where the real program starts
+tail jump | the jump from the stub to the OEP
+entropy | randomness per byte, 0 to 8; above 7 is packed or encrypted
+UPX0 / UPX1 | UPX section names
+import rebuild | repairing the import table after dumping
+PEB walk | stub finds API functions by looking at loaded modules
+:: lab
+host: analysis-vm
+user: analyst
+cwd: /home/analyst/sample
+:: brief
+`sections.txt` is a section listing for `update_helper.exe` (fictional) and `stub_tail.txt` is the last part of the unpack stub, disassembled in a debugger.
+
+Read the section table first: the section with entropy near 8 holds the packed payload and the stub, and the big empty section is where the program will be unpacked. Then, in `stub_tail.txt`, find the **tail jump**: the one `jmp` that leaves the stub for the code it just unpacked.
+
+Submit the **address of the original entry point** (the target of that tail jump), written as `0x...`.
+:: answer
+0x401a30
+0x00401a30
+401a30
+:: hint
+`cat sections.txt`. Note which section has entropy near 8 and the virtual address ranges: `UPX0` is where the code will land, `UPX1` is the stub and packed data.
+:: hint
+`cat stub_tail.txt`. Several `jmp` instructions stay inside the stub (addresses starting `0x4a`). One jumps into the `UPX0` range (starting `0x40`).
+:: hint
+`grep jmp stub_tail.txt`. The one whose target is in `UPX0` is the tail jump.
+:: solution
+`UPX0` has a raw size of 0: it is empty on disk, and the unpacker writes the program there. `UPX1` holds the stub and the compressed data (entropy 7.9). The stub's loops jump back inside `UPX1` (`0x4a....`), but the final `jmp 0x401a30` leaves for the `UPX0` region; that target is the **original entry point 0x401a30**. Break there, dump the process, rebuild imports and you have the original program for Ghidra.
+:: verify
+grep jmp stub_tail.txt
+:: file /home/analyst/sample/sections.txt
+update_helper.exe  (PE32, entry point 0x4a3e60)
+name    vaddr      vsize     raw_size   entropy  flags
+UPX0    0x00401000 0x0009f000 0x00000000 0.00     R-X (empty on disk)
+UPX1    0x004a0000 0x00006000 0x00005a00 7.92     RWX
+.rsrc   0x004a6000 0x00001000 0x00000400 3.10     R--
+imports: LoadLibraryA, GetProcAddress, VirtualProtect, ExitProcess
+strings: 6 found (4 are API names)
+:: file /home/analyst/sample/stub_tail.txt
+; update_helper.exe stub, last instructions of the unpacker
+0x004a3e60  pushad
+0x004a3e61  mov  esi, 0x004a0014
+0x004a3e66  lea  edi, [esi-0x9f014]
+0x004a3e6c  push edi
+0x004a3e6d  jmp  0x004a3e7a
+0x004a3e7a  mov  al, [esi]          ; decompress loop begins
+0x004a3e7c  inc  esi
+0x004a3e7d  mov  [edi], al
+0x004a3e7f  inc  edi
+0x004a3e80  dec  ecx
+0x004a3e81  jnz  0x004a3e7a         ; back to the loop
+0x004a3e83  jmp  0x004a3f02         ; skip the import fixer data
+0x004a3f02  call 0x004a3f40         ; rebuild imports
+0x004a3f07  popad
+0x004a3f08  jmp  0x004a3f10         ; skip padding
+0x004a3f10  jmp  0x00401a30         ; <- leaves the stub
+0x004a3f15  db   00 00 00 00 00 00 00 00

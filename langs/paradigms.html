@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>paradigms :: ~/langs :: 0xDay</title>
+<meta name="description" content="langs, paradigms: imperative, object-oriented, functional and declarative: what each one is good at. Simple, mid and complex levels plus a hands-on lab.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">langs --chapter paradigms</p>
+<h1>~/langs/paradigms</h1>
+<p class="learn__meta"><span class="muted">CS340 Programming languages</span></p>
+<p>A paradigm is a style of organizing a program, not a language. Most languages you use let you mix several. Learn what each style is good at, and what bugs it invites, by running the same task written three ways.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="paradigms">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>The same job can be organized in very different ways. The main styles:</p>
+<ul><li><strong>Imperative / procedural</strong>: a list of steps that change variables. C, shell scripts, most Python you have written. "Do this, then that."</li><li><strong>Object-oriented</strong>: data and the functions that touch it are bundled into <strong>objects</strong>. Java, C#, Python classes. "Ask the object to do it."</li><li><strong>Functional</strong>: build the answer by combining functions that take values in and give values out, without changing anything. Haskell, and the <code>map</code>/<code>filter</code> parts of Python and JavaScript.</li><li><strong>Declarative</strong>: say *what* you want and let the system decide how. SQL (<code>SELECT ... WHERE</code>), regular expressions, HTML, firewall rules.</li></ul>
+<p>Most real languages are <strong>multi-paradigm</strong>. Python is imperative, object-oriented and has functional tools. What changes is which habits the language makes easy.</p>
+<pre class="ex ex--code"><code># one task, two styles: total bytes on port 443
+total = 0                                   # imperative: mutate a counter
+for e in events:
+    if e[&quot;port&quot;] == 443:
+        total += e[&quot;bytes&quot;]
+
+total = sum(e[&quot;bytes&quot;] for e in events      # functional / declarative flavor:
+            if e[&quot;port&quot;] == 443)            # describe the result</code></pre>
+<p class="callout">A language is a tool for thinking. Learning a second paradigm changes how you write code in the first one.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>What each style is good at</h4>
+<div class="tbl"><table><thead><tr><th>Style</th><th>Strength</th><th>Typical bug</th></tr></thead><tbody><tr><td>Imperative</td><td>direct, close to how the CPU works, fast</td><td>shared mutable state changed from somewhere you forgot</td></tr><tr><td>Object-oriented</td><td>models things with identity and behavior, hides details</td><td>deep inheritance, objects in half-built states</td></tr><tr><td>Functional</td><td>easy to test and reason about, safe to run in parallel</td><td>stack depth on deep recursion, awkward I/O</td></tr><tr><td>Declarative</td><td>short, and the engine can optimize</td><td>the engine does something slow or surprising you cannot see</td></tr></tbody></table></div>
+<h4>Pure functions and side effects</h4>
+<p>A <strong>pure function</strong> returns the same output for the same input and changes nothing outside itself. A <strong>side effect</strong> is any other visible change: writing a file, printing, mutating a global, reading the clock.</p>
+<pre class="ex ex--code"><code>def add_pure(a, b):          # pure
+    return a + b
+
+count = 0
+def add_counted(a, b):       # impure: also changes a global
+    global count
+    count += 1
+    return a + b</code></pre>
+<p>Pure functions are the easiest to test: no setup, no mocks. Side effects are unavoidable (a program that does nothing visible is useless), so the skill is <strong>pushing them to the edges</strong>: pure logic in the middle, input and output at the borders.</p>
+<h4>Object-oriented vocabulary</h4>
+<ul><li><strong>Encapsulation</strong>: callers use methods, not the internals</li><li><strong>Inheritance</strong>: a subclass reuses and overrides a parent's behavior</li><li><strong>Polymorphism</strong>: the same call (<code>shape.area()</code>) does the right thing for each type</li><li>Prefer <strong>composition</strong> (an object *has* another) over deep inheritance (an object *is* another) when the "is-a" is not obvious</li></ul>
+<h4>Why security cares</h4>
+<p>Mutable shared state is where race conditions and TOCTOU bugs live. A declarative language (SQL) can be an injection target because your data gets mixed into the *program*. Knowing the paradigm tells you where the dangerous seam is.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Programming by contract and state</h4>
+<p>Imperative code is a sequence of <strong>state transitions</strong>. To prove it correct you reason about the state before and after each step: a <strong>precondition</strong> (what must hold on entry), a <strong>postcondition</strong> (what holds on exit) and an <strong>invariant</strong> (what holds on every loop iteration). You do this informally every time you write <code>assert len(buf) &lt;= MAX</code>.</p>
+<p>Functional code replaces state with <strong>substitution</strong>: you can replace a call by its value (<strong>referential transparency</strong>) and the program means the same thing. That is what lets a compiler reorder, cache or parallelize the work.</p>
+<h4>Evaluation strategy</h4>
+<ul><li><strong>Strict / eager</strong>: arguments are computed before the call (Python, Java, C)</li><li><strong>Lazy</strong>: arguments are computed only if used (Haskell by default; Python generators give you laziness on purpose)</li><li>Short-circuit operators (<code>and</code>, <code>or</code>, <code>&amp;&amp;</code>) are a small piece of laziness, and <code>if x and x.name == &quot;root&quot;</code> relies on it to avoid a crash</li></ul>
+<h4>Objects are closures; closures are objects</h4>
+<p>A closure bundling a function with captured variables is an object with one method, and an object with methods is a set of closures sharing state. The two paradigms are less opposed than the arguments suggest (see <a href="scope.html">scope and closures</a>).</p>
+<h4>Declarative systems are interpreters</h4>
+<p>A SQL engine, a regex engine and a firewall each take a *description* and run their own planner or matcher. That planner is a small language implementation, which is why <a href="compiler-pipeline.html">compilers</a> and <a href="automata.html">automata</a> turn up in all of them.</p>
+<h4>Choosing in practice</h4>
+<p>Pick the style where the dangerous part is smallest: data transformation as pure functions, long-lived resources in objects with clear ownership, and queries declaratively. Mixed codebases are normal. Mixed *within one function* is where readers get lost.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>styles.py</code> has three functions that all produce "the next ticket number" in different styles: one <strong>global counter</strong>, one <strong>object with a field</strong>, and one <strong>pure function</strong> that takes the current number and returns the next.</p>
+<p>Run <code>python3 styles.py</code>. It calls each one twice with the same starting input. One of the functions gives the <strong>same answer both times</strong> for the same input, which is what makes it pure.</p>
+<p>Submit the <strong>function name</strong> of the pure one.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/langs.html">cheatsheet</a></span></h2><h3>paradigm terms</h3><dl class="man"><dt><code>pure function</code></dt><dd>same input gives same output, no side effects</dd><dt><code>side effect</code></dt><dd>any visible change outside the function: I/O, globals, mutation</dd><dt><code>referential transparency</code></dt><dd>a call can be replaced by its value without changing the program</dd><dt><code>encapsulation</code></dt><dd>callers use methods, not internals</dd><dt><code>polymorphism</code></dt><dd>one call, behavior chosen by the object's type</dd><dt><code>composition</code></dt><dd>an object holds another instead of inheriting from it</dd><dt><code>declarative</code></dt><dd>state the result you want, not the steps (SQL, regex)</dd><dt><code>invariant</code></dt><dd>a fact that stays true on every loop iteration</dd><dt><code>strict vs lazy</code></dt><dd>arguments evaluated before the call vs only when used</dd></dl></section><section class="lvl" id="sources"><h2><span class="lvl__n">src</span> further reading <span class="muted">// read these, not just me</span></h2><p><a href="https://www.plai.org/">Programming Languages: Application and Interpretation</a> (free book, Shriram Krishnamurthi) · <a href="https://craftinginterpreters.com/">Crafting Interpreters</a> (free, Robert Nystrom) · <a href="https://cs50.harvard.edu/python/">CS50's Introduction to Programming with Python</a></p></section><nav class="pager"><span></span><a href="types.html">types &gt;</a></nav><p><a href="../langs.html">cd ~/langs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "paradigms", "title": "paradigms", "user": "student", "host": "dev", "brief": "<code>styles.py<\/code> has three functions that all produce \"the next ticket number\" in different styles: one <strong>global counter<\/strong>, one <strong>object with a field<\/strong>, and one <strong>pure function<\/strong> that takes the current number and returns the next.\n\nRun <code>python3 styles.py<\/code>. It calls each one twice with the same starting input. One of the functions gives the <strong>same answer both times<\/strong> for the same input, which is what makes it pure.\n\nSubmit the <strong>function name<\/strong> of the pure one.", "hints": ["Run <code>python3 styles.py<\/code> and compare the two lines for each function.", "A function is pure if calling it twice with the same argument gives the same result. The other two remember something between calls.", "Read <code>styles.py<\/code>: which function has no <code>global<\/code>, no <code>self<\/code> and nothing but its argument?"], "answers": ["370005f383d5301f0466e131164e9c1ffa37a6e30f05af495932476b3bf8f064"], "solution": "PGNvZGU+bmV4dF9wdXJlKG4pPC9jb2RlPiByZXR1cm5zIDxjb2RlPm4gKyAxPC9jb2RlPiBhbmQgdG91Y2hlcyBub3RoaW5nIGVsc2UsIHNvIDxjb2RlPm5leHRfcHVyZSgxMCk8L2NvZGU+IGlzIDExIGV2ZXJ5IHRpbWUuIDxjb2RlPm5leHRfZ2xvYmFsKCk8L2NvZGU+IGFuZCA8Y29kZT5UaWNrZXRzLm5leHQoKTwvY29kZT4gZ2l2ZSAxMSB0aGVuIDEyIGZvciB0aGUgc2FtZSBjYWxsIGJlY2F1c2UgdGhleSBjYXJyeSBoaWRkZW4gc3RhdGUuIFRoYXQgaGlkZGVuIHN0YXRlIGlzIHdoYXQgbWFrZXMgdGhlbSBoYXJkZXIgdG8gdGVzdCBhbmQgdW5zYWZlIHRvIHNoYXJlIGJldHdlZW4gdGhyZWFkcyB3aXRob3V0IGEgbG9jay4K", "fs": {"/home/student/styles/styles.py": "counter = 0\n\ndef next_global():\n    global counter\n    counter += 1\n    return 10 + counter\n\nclass Tickets:\n    def __init__(self):\n        self.n = 10\n    def next(self):\n        self.n += 1\n        return self.n\n\ndef next_pure(n):\n    return n + 1\n\nt = Tickets()\nprint(\"next_global:\", next_global(), next_global())\nprint(\"Tickets.next:\", t.next(), t.next())\nprint(\"next_pure:\", next_pure(10), next_pure(10))\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/styles", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

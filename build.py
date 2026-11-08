@@ -350,6 +350,8 @@ import build_cloud
 CLOUD = build_cloud.build(page, SHEETS)
 import build_adv
 ADV = build_adv.build(page, SHEETS)
+import build_langs
+LANGS, REV = build_langs.build(page, SHEETS)
 import build_sectracks
 SECT = {S["dir"]: chs for S, chs in build_sectracks.build(page, SHEETS)}
 import build_history
@@ -504,6 +506,8 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
        ("detect", "detect.html", "Sigma, YARA, ATT&CK, threat hunting (BLU310)", f'{len(ADV["detect"])} chapters'),
        ("crypto", "crypto.html", "modes, RSA/ECC, TLS and PKI, crypto attacks (CRY300)", f'{len(ADV["crypto"])} chapters'),
+       ("langs", "langs.html", "languages, compilers, theory of computation (CS340, CS310, CS301)", f'{len(LANGS)} chapters'),
+       ("rev", "rev.html", "dynamic analysis, unpacking, format strings, mitigations, ROP (MAL300, EXP400)", f'{len(REV)} chapters'),
        ("sdl", "sdl.html", "threat modeling, SAST/DAST, dependency scanning (SDL300)", f'{len(ADV["sdl"])} chapters'),
        ("mobile", "mobile.html", "Android and iOS security, mobile crypto", f'{len(ADV["mobile"])} chapters'),
        ("grc", "grc.html", "frameworks, risk, policy, audits, privacy, ethics (GRC200)", f'{len(SECT["grc"])} chapters + worksheet'),
@@ -590,6 +594,8 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "code": [{"slug": c[0], "name": c[1]} for c in CODE],
         "cs": [{"slug": c[0], "name": c[1]} for c in CS],
         "cloud": [{"slug": c[0], "name": c[1]} for c in CLOUD],
+        "langs": [{"slug": c[0], "name": c[1]} for c in LANGS],
+        "rev": [{"slug": c[0], "name": c[1]} for c in REV],
         "adv": {k: [{"slug": c[0], "name": c[1]} for c in v] for k, v in ADV.items()},
         "sect": {k: [{"slug": c[0], "name": c[1]} for c in v] for k, v in SECT.items()},
         "history": [{"slug": c[0], "name": c[1]} for c in HISTORY],

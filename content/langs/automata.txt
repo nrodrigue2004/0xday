@@ -1,0 +1,125 @@
+tagline: A finite automaton is a machine with a fixed handful of states that reads input one symbol at a time. It is the idea behind regular expressions, lexers and many IDS rules. Build one and see what it can and cannot do.
+sheet: langs
+sources: [Introduction to the Theory of Computation](https://math.mit.edu/~sipser/book.html) (Sipser, the standard text; Chapter 1 is this chapter) · [regex101](https://regex101.com/) (watch a regex match step by step)
+:: simple
+Imagine a turnstile with two states, **locked** and **unlocked**. A coin moves it from locked to unlocked; a push moves it from unlocked back to locked. It has no memory except which state it is in. That is a **finite automaton**: a small set of **states**, a start state, some "accepting" states, and a rule for every (state, input symbol) pair saying which state to go to next.
+
+To check a string, start at the start state, read one symbol at a time, follow the arrows, and at the end ask: am I in an accepting state? If yes, the string is **accepted**.
+
+Example: which binary strings have an **even number of 1s**?
+
+```code
+state EVEN (start, accepting):  read 0 -> EVEN    read 1 -> ODD
+state ODD:                      read 0 -> ODD     read 1 -> EVEN
+```
+`1011` goes EVEN → ODD → ODD → EVEN → ODD: rejected (three 1s). `1001` ends in EVEN: accepted.
+
+The machine only ever remembers *which state it is in*. It cannot count to a million, because it would need a million states. What it can recognize are called **regular languages**, and they are exactly the languages **regular expressions** describe.
+:: mid
+### DFA in code
+A **deterministic** finite automaton (DFA) has exactly one move for each state and symbol. A table and a loop implement any DFA:
+```code
+T = {("EVEN","0"):"EVEN", ("EVEN","1"):"ODD",
+     ("ODD","0"):"ODD",   ("ODD","1"):"EVEN"}
+def accepts(s):
+    state = "EVEN"
+    for ch in s:
+        state = T[(state, ch)]
+    return state == "EVEN"
+```
+It runs in one pass, O(n), and uses constant memory. That is the reason regex engines built on automata (RE2, grep, Hyperscan) have predictable speed.
+
+### NFA and regex
+A **nondeterministic** automaton may have several possible moves (or an "empty" move). It is easier to build from a regex, and it accepts exactly the same languages: every NFA can be converted to a DFA, sometimes with many more states. Building blocks of a regex map straight to automaton pieces: concatenation `ab` chains two machines, alternation `a|b` branches, and `a*` loops back.
+
+### What a regex can match
+Match: fixed strings, character classes, repetition, "ends with .exe", an IPv4 *shape*, a hex string. Cannot match: balanced parentheses, "as many b's as a's", palindromes of any length. Those need a stack or counter, which a finite machine does not have (the **pumping lemma** proves it). That is why you cannot validate HTML or nested JSON with a pure regex.
+
+### Practical regex pitfalls
+- **Backtracking engines** (Python `re`, PCRE, JavaScript) try alternatives one at a time and can take exponential time on patterns like `(a+)+b` with input `aaaa...c`. This is **ReDoS**, a real denial-of-service bug class. Automaton-based engines (RE2, Rust `regex`) are immune
+- Anchors matter: without `^`...`$`, `\d+` "validates" `abc123def`
+- Regex-based filters are bypassed by anything the pattern did not anticipate (encodings, case, whitespace)
+:: complex
+### Closure and decision problems
+Regular languages are closed under union, intersection, complement and concatenation: you can combine two detection patterns and get another automaton. Questions about them are **decidable**: is this pattern equivalent to that one, is the language empty? Tools that diff firewall rule sets or prove a regex cannot match something rely on this.
+
+### Minimization
+Every regular language has one smallest DFA (Myhill-Nerode). Two states that behave identically on every future input merge. Compilers for lexers (flex) and network-rule compilers minimize automata to keep the table small.
+
+### Where automata show up in security
+- **Intrusion detection**: Snort/Suricata content matching uses Aho-Corasick (a multi-pattern automaton) to find thousands of signatures in one pass
+- **Protocol state machines**: TLS, TCP and SSH are state machines. Many protocol bugs are *state confusion*: a message accepted in a state where the spec says it must not be (the SMTP-over-TLS "STARTTLS injection" family, TLS "early CCS")
+- **Input validation**: a lexer for a data format *is* an automaton, and parser differential bugs are two automata disagreeing
+- **Malware families**: behavior models and "is this DGA domain plausible" classifiers use automata and Markov models
+- **Fuzzing**: coverage-guided fuzzers explore the state machine of the target
+
+### Beyond finite
+Add a stack and you get a pushdown automaton, which recognizes context-free languages (nested structure: parentheses, programming languages). Add an unbounded tape and you get a Turing machine. See [grammars, Turing machines and limits](computability.html).
+:: ref
+### automata terms
+state | a node: all the machine remembers
+transition | which state to go to on a given input symbol
+accepting state | ending here means the string is accepted
+DFA | exactly one move for each state and symbol
+NFA | may have several moves or empty moves
+regular language | what a DFA or regex can recognize
+pumping lemma | proof tool for showing a language is not regular
+ReDoS | regex that takes exponential time on crafted input
+Aho-Corasick | automaton that finds many fixed strings in one pass
+### regex basics
+. | any character
+[abc] / [^abc] | one of / none of those
+a* / a+ / a? | zero or more / one or more / optional
+a{2,4} | between 2 and 4
+(x|y) | alternation
+^ and $ | start and end of the string
+\d \w \s | digit, word character, whitespace
+:: lab
+host: dev
+user: student
+cwd: /home/student/dfa
+py: yes
+:: brief
+A DFA can test whether a binary number is divisible by 3 using three states: the **remainder so far** (0, 1 or 2). Reading a bit `b` takes remainder `r` to `(2*r + b) % 3`, and the number is divisible by 3 if it ends in remainder 0.
+
+`dfa.py` has the transition table but not the simulator. Write `accepts(s)`, run `python3 dfa.py`, and submit **how many of the strings in `inputs.txt` are accepted**.
+:: answer
+5
+:: hint
+Start with `state = 0` and loop over the characters: `state = T[(state, ch)]`.
+:: hint
+Accept when `state == 0` at the end.
+:: hint
+Check by hand: `110` is 6, which is divisible by 3, so it must be accepted.
+:: solution
+The simulator is three lines (`state = 0`, a loop applying `T[(state, ch)]`, `return state == 0`). Of the ten inputs exactly **5** are accepted: `0`, `11`, `110`, `1001` and `1100`, which are 0, 3, 6, 9 and 12. The automaton never converts the string to a number and never needs more than three states, which is why it works on a binary number of any length.
+:: verify
+python3 - <<'PY'
+s = open("dfa.py").read()
+s = s.replace("    # TODO: run the machine over s and return True when it accepts\n    return False", "    state = 0\n    for ch in s:\n        state = T[(state, ch)]\n    return state == 0")
+open("dfa.py", "w").write(s)
+PY
+python3 dfa.py
+:: file /home/student/dfa/inputs.txt
+0
+11
+110
+101
+1001
+1100
+111
+10
+1110
+10100
+:: file /home/student/dfa/dfa.py
+# States are the remainder (0, 1, 2). Reading bit b: new remainder = (2*r + b) % 3
+T = {(r, str(b)): (2 * r + b) % 3 for r in range(3) for b in (0, 1)}
+
+def accepts(s):
+    # TODO: run the machine over s and return True when it accepts
+    return False
+
+lines = open("inputs.txt").read().split()
+good = [s for s in lines if accepts(s)]
+print("accepted:", good)
+print("count:", len(good))
