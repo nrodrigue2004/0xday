@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>log :: 0xDay</title>
+<meta name="description" content="Weekly study log with a streak counter, saved in your browser only.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=fbd5d8bf">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="log.css?v=a8ff2b86">
+<script src="log.js?v=a8ff2b86" defer></script>
+<script src="data.js?v=fbd5d8bf" defer></script>
+<script src="site.js?v=fbd5d8bf" defer></script>
+<script src="fx.js?v=fbd5d8bf" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html" aria-current="page">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">tail -f ~/log</p><h1>~/log</h1>
+<p>A weekly study log. Add what you covered after each session and the streak takes care of itself. A day counts if you log anything, so a short session keeps the streak alive. Entries are saved in this browser only (nothing is sent anywhere), so use <strong>export</strong> now and then to keep a backup.</p>
+<noscript><p class="callout">The log needs JavaScript.</p></noscript>
+<div id="lg" class="lg">
+<div class="lg__stats" aria-live="polite">
+ <div class="tile"><span class="tile__k" id="lg-streak">0</span><span class="tile__v">day streak</span><span class="tile__n" id="lg-best"></span></div>
+ <div class="tile"><span class="tile__k" id="lg-week">0 min</span><span class="tile__v">this week</span><span class="tile__n" id="lg-days"></span></div>
+ <div class="tile"><span class="tile__k" id="lg-total">0</span><span class="tile__v">sessions logged</span><span class="tile__n" id="lg-hours"></span></div>
+</div>
+<form class="lg__form" id="lg-form" autocomplete="off">
+ <p class="cmd">echo "..." &gt;&gt; ~/log</p>
+ <div class="lg__row"><label>date<input type="date" id="lg-date" required></label>
+ <label>topic<select id="lg-topic"><option value="secplus">Security+</option><option value="homelab">homelab</option><option value="dojo">coding dojo</option><option value="interview">interview prep</option><option value="thm">TryHackMe</option><option value="reading">reading / writing</option><option value="other">other</option></select></label>
+ <label>minutes<input type="number" id="lg-min" min="1" max="720" value="30" required></label></div>
+ <label class="lg__wide">what did you cover?<input type="text" id="lg-what" maxlength="200" placeholder="e.g. 2.3 vulnerability types, flashcards" required></label>
+ <label class="lg__wide">one thing that stuck or was hard (optional)<input type="text" id="lg-note" maxlength="300"></label>
+ <button class="btn" type="submit">[ log it ]</button> <span class="muted small" id="lg-msg" role="status"></span>
+</form>
+<h2># this week</h2><div class="lg__week" id="lg-weekgrid"></div>
+<p class="muted small" id="lg-split"></p>
+<h2># last 8 weeks</h2><pre class="lg__bars" id="lg-bars" aria-label="minutes per week"></pre>
+<h2># goal</h2><p>Study on <select id="lg-goal"><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select> days a week. <span id="lg-goalmsg" class="muted"></span></p>
+<h2># entries</h2><div id="lg-list" class="lg__list"></div>
+<p class="lg__tools"><button class="btn" id="lg-export" type="button">[ export json ]</button> <button class="btn" id="lg-import" type="button">[ import json ]</button> <input type="file" id="lg-file" accept="application/json" hidden></p>
+</div>
+<p class="muted small">Related: <a href="secplus.html">~/secplus</a> · <a href="interview.html">~/interview</a> · <a href="dojo.html">~/dojo</a> · <a href="homelab.html">~/homelab</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

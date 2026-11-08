@@ -259,6 +259,9 @@ import build_ai
 AI = build_ai.build(page)
 import build_careers
 CAREERS = build_careers.build(page, esc)
+import build_interview, build_log
+INTERVIEW = build_interview.build(page, esc)
+build_log.build(page, esc)
 import build_basics
 BASICS = build_basics.build(page)
 
@@ -476,6 +479,8 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("basics", "basics.html", "OSI, ports, OSINT, crypto, OS basics", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
+       ("interview", "interview.html", "pitches + questions for each resume project", f'{INTERVIEW["questions"]} questions'),
+       ("log", "log.html", "weekly study log + streak", "saved in browser"),
        ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
@@ -486,6 +491,8 @@ DRILLS = build_drills.build(page)
 GLOSS = build_glossary.build(page)
 HUB.insert(1, ("drills", "drills.html", "packets, permissions, regex, log labs", f"{len(DRILLS)} drills"))
 HUB.insert(2, ("glossary", "glossary.html", "terms linked to guides", f"{len(GLOSS)} terms"))
+import build_hlops
+HUB += build_hlops.build(page, esc)
 import build_arcade
 HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
@@ -524,6 +531,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "glossary": [{"t": t["t"], "d": t["d"]} for t in GLOSS],
 
         "careers": CAREERS["paths"],
+        "interview": INTERVIEW["projects"],
         "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")

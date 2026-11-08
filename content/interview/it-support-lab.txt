@@ -1,0 +1,21 @@
+slug: it-support-lab
+title: Enterprise IT Support Lab
+resume: Enterprise IT Support Lab
+guides: active-directory, group-policy, windows-admin-powershell, help-desk-ticketing-osticket
+posts: finance-share-access-denied
+tagline: An Active Directory domain with OUs, groups, Group Policy drive mapping and PowerShell, with tickets worked in osTicket.
+:: pitch
+**30-second version.** "I set up a small Active Directory domain and ran it like a help desk would: organizational units, security groups, Group Policy to map network drives, PowerShell for repetitive changes, and a ticketing system where I worked the kinds of requests users really send, like access denied errors and password resets."
+**What the interviewer is testing:** troubleshooting method and customer handling, not just knowing menus. Lead with a ticket and how you solved it.
+:: prep
+- Re-read the [finance share access denied](posts/finance-share-access-denied.html) post and be able to retell the diagnosis step by step.
+- Know the order Group Policy applies (local, site, domain, OU) and how to check with `gpresult /r`.
+- Be able to explain share permissions versus NTFS permissions.
+:: q
+- [e] What did you do in your IT support lab? => Describe the domain (users, OUs, security groups), the Group Policy you wrote (drive mapping), PowerShell you used for bulk tasks, and that you worked tickets in osTicket. One sentence each, then offer a specific ticket.
+- [e] A user says they can't open a shared drive. What do you do? => Ask what exactly happens (error text, when it started, other users affected). Check the basics: network, logged into the domain, drive mapped. Then permissions: group membership, share permission and NTFS permission (the most restrictive wins). Check `gpresult /r` for whether the mapping policy applied. Fix, confirm with the user, document in the ticket.
+- [e] What is the difference between a user account and a security group, and why use groups? => Permissions go on groups, users go in groups. When someone changes roles you change their membership instead of hunting through every resource, and audits stay readable.
+- [n] What is Group Policy and how did you use it? => Centrally managed settings applied to users and computers by OU. You used it to map drives per department. Mention that policy order matters, that changes need a refresh (`gpupdate /force`), and that you test on a pilot OU first.
+- [n] How do you reset a password or unlock an account, and what do you check first? => Verify identity per policy before touching anything, then use Active Directory Users and Computers or `Unlock-ADAccount` / `Set-ADAccountPassword`, require change at next logon. Check why it locked out (stale cached credentials on another device are common) so it does not repeat.
+- [n] Show me you can use PowerShell for something useful. => Give a real one-liner and explain it, for example `Get-ADUser -Filter {Enabled -eq $false}` to list disabled accounts, or creating users from a CSV with `Import-Csv | ForEach-Object { New-ADUser ... }`. Replace with something you actually ran.
+- [h] You have ten tickets open, one is from an executive and one is a server outage. How do you prioritize? => Impact and urgency: the outage affects many people, so it comes first, with a quick acknowledgement to the executive and a realistic time. Say you communicate status, escalate when stuck, and never let a ticket sit silently.

@@ -1,0 +1,36 @@
+/* Homelab practice tools: ~/harden, ~/report, ~/weekly. Self-contained, uses the site's CSS variables. */
+.ho-app{margin:1.4rem 0}
+.ho-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+.ho-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.ho-tabs .btn[aria-pressed="true"]{background:var(--green);color:var(--bg)}
+.ho-score{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;border:1px solid var(--border-2);border-radius:8px;padding:12px 14px;background:var(--panel);margin-bottom:12px}
+.ho-score__n{font-size:2rem;font-weight:700;color:var(--green)}
+.ho-score__n.lo{color:var(--red)}.ho-score__n.mid{color:var(--amber)}
+.ho-meter{height:8px;background:var(--panel-2);border:1px solid var(--border-2);border-radius:4px;overflow:hidden;flex:1 1 160px;min-width:120px}
+.ho-meter i{display:block;height:100%;background:var(--green)}
+.ho-delta{color:var(--green)}.ho-delta.neg{color:var(--red)}
+.ho-chk{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.ho-chk input{margin-top:4px;accent-color:var(--green)}
+.ho-chk label{color:var(--strong);cursor:pointer}
+.ho-chk .w{color:var(--muted);font-size:.75rem;margin-left:6px}
+.ho-chk .why{grid-column:2;color:var(--muted);font-size:.85rem}
+.ho-chk .how{grid-column:2;font-size:.8rem;color:var(--cyan)}
+.ho-chk.done label{color:var(--green-dim);text-decoration:line-through}
+.ho-sum{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+.ho-sum td,.ho-sum th{border-bottom:1px solid var(--border);padding:4px 8px;text-align:left}
+.ho-form{display:grid;gap:10px}
+.ho-form label{color:var(--muted);font-size:.85rem;display:block;margin-bottom:2px}
+.ho-form input,.ho-form textarea,.ho-form select,.ho-io{width:100%;background:var(--panel-2);color:var(--fg);border:1px solid var(--border-2);border-radius:5px;padding:6px 8px;font:inherit;font-size:.9rem;box-sizing:border-box}
+.ho-form textarea{min-height:200px;resize:vertical}
+.ho-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.ho-cols{grid-template-columns:1fr}}
+.ho-out{white-space:pre-wrap;word-break:break-word;background:#05080a;border:1px solid var(--border-2);border-radius:8px;padding:12px;font-size:.82rem;min-height:300px;color:var(--fg)}
+.ho-task{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;padding:9px 0;border-bottom:1px solid var(--border);align-items:start}
+.ho-task input{margin-top:4px;accent-color:var(--green)}
+.ho-task label{color:var(--strong);cursor:pointer}
+.ho-task .d{grid-column:2;color:var(--muted);font-size:.85rem}
+.ho-task .m{color:var(--muted);font-size:.8rem}
+.ho-task.done label{color:var(--green-dim);text-decoration:line-through}
+.ho-focus{border:1px solid var(--green-dim);border-radius:8px;padding:10px 14px;margin-bottom:12px;background:var(--panel)}
+.ho-focus b{color:var(--green)}
+.ho-note{color:var(--muted);font-size:.8rem}

@@ -14,6 +14,8 @@ CHAPTERS = [
     ("windows-permissions", "Windows permissions", "NTFS, shares, inheritance, nested groups. Lab ticket: why can the intern see Payroll"),
     ("regex-for-logs", "regex for logs", "Patterns from zero, encodings and false hits. Lab: count path traversal attempts"),
     ("parse-logs-with-pipes", "parse logs with pipes", "Narrow, extract, count on key=value logs. Lab: the one outside admin login"),
+    ("security-onion-intrusion-hunt", "Security Onion intrusion hunt", "A night of fictional alerts, conn and DNS logs. Lab ticket: which host is beaconing, and to where"),
+    ("password-hygiene-audit", "password hygiene audit", "Reuse, MFA and SSH keys on a made-up lab. Lab: the one password protecting too much"),
 ]
 
 

@@ -1,0 +1,327 @@
+tagline: Work a night of fictional Security Onion alerts, Zeek conn logs and DNS. Find the one host that is compromised and the server it phones home to.
+:: simple
+A SIEM shows you hundreds of alerts. Almost all of them are noise: scans you started yourself, updates, software doing what software does. A **hunt** is how you find the few that matter.
+
+The approach is the same every time:
+
+1. **Rank by severity, but do not stop there.** High-severity alerts are a starting point, not the answer.
+2. **Pick a suspect** (a host or an address) and pull everything about it.
+3. **Build a timeline** around the suspect: what happened just before, and just after?
+4. **Ask what is regular.** Software that talks to the same address every 60 seconds is either a clock or malware. Humans are not that regular.
+
+In this lab the files are fictional, in the style of what Security Onion shows: an alert export, a Zeek `conn.log` (one line per connection) and a Zeek `dns.log`.
+:: mid
+### What each log tells you
+
+- **alerts** (Suricata): a rule matched. It says *what looked wrong*, not that anything is proven.
+- **conn.log** (Zeek): who talked to whom, when, on which port, and how many bytes. No content, but great for patterns.
+- **dns.log** (Zeek): which names a host looked up, and the answers. Malware usually has to look up its server.
+
+### Known noise, in this lab
+
+`10.20.0.66` is the Kali box. Scan alerts from it are *you*. Downloads from `198.51.100.77` are the update mirror every host uses. Neither is the story. Write that down in your notes so the next analyst does not chase it.
+
+### Pulling everything about one host
+
+```
+$ grep 10.20.0.50 ~/hunt/alerts.csv
+$ grep 10.20.0.50 ~/hunt/conn.log | head
+$ grep 10.20.0.50 ~/hunt/dns.log
+```
+
+### Counting destinations
+
+When you are not sure where a host is talking, count:
+
+```
+$ grep 10.20.0.50 ~/hunt/conn.log | awk '{print $3}' | sort | uniq -c | sort -rn
+```
+
+A destination with a very high count and very similar byte sizes is worth a look.
+:: complex
+### Beaconing
+
+Malware that checks in with its operator tends to do it on a timer: every 60 seconds, with a little **jitter** so it is not perfectly regular. The signature in `conn.log` is the same destination, the same port, tiny and nearly identical byte counts, running for hours. Look at the timestamps for one pair of addresses:
+
+```
+$ grep 198.51.100.44 ~/hunt/conn.log | head
+```
+
+Real tools do this at scale with Zeek scripts or RITA, but you can see it by eye in a short log.
+
+### The kill chain order
+
+Even in a small data set you can often put the events in order: *delivery* (an executable downloaded), *execution* (the host starts talking to something new), *command and control* (the regular beacon). If you can find all three on one host, you have a confident finding, not a hunch.
+
+### Write the hypothesis first
+
+A good hunt starts with a sentence: "If a workstation downloaded and ran something, I should see a new, regular outbound connection soon after." Then you test it against the logs. If the logs do not agree, the hypothesis was wrong, and that is a result too.
+
+### What to do next (outside this lab)
+
+Isolate the host, capture memory and disk before wiping, block the destination at the firewall and the DNS server, then look for the same destination from other hosts. Write it up: the [incident report generator](../report.html) turns your lab notes into a report.
+
+### Common mistakes
+
+- Treating a high-severity alert as the finding and stopping.
+- Chasing your own scanner. Always rule out your own tools first.
+- Calling it compromised from one alert. Get a second, independent kind of evidence (here: DNS plus conn).
+:: lab
+style: ticket
+host: so-console
+user: analyst
+cwd: /home/analyst
+system: security onion
+id: #HUNT-0412
+subject: Possible compromised workstation, overnight alerts
+priority: P2
+from: SOC lead
+sla: 4h
+attach: alerts.csv, conn.log, dns.log
+:: brief
+The overnight export is in `~/hunt`. One internal host downloaded something and started beaconing to an outside server. Most of the alerts are noise, including scans from the Kali box (`10.20.0.66`) and traffic to the update mirror (`198.51.100.77`).
+
+Find the host that is compromised, then find the **outside IP address it beacons to**. Resolve the ticket with that IP address.
+:: answer
+198.51.100.44
+:: hint
+Look at the high-severity alerts first. Which internal host was the destination of the executable downloads, and when?
+:: hint
+Pull that host out of `conn.log` and count its destinations: `grep 10.20.0.50 ~/hunt/conn.log | awk '{print $3}' | sort | uniq -c | sort -rn`.
+:: hint
+One destination has about sixty connections, minute after minute, with almost the same byte count. Check `dns.log` for the name that host asked for.
+:: solution
+Two high alerts at 02:14 show an executable retrieved from **203.0.113.9** by **10.20.0.50** (the workstation). `dns.log` shows it resolving `dl.fileshare-drop.example` a few seconds earlier. About 19 minutes later it begins connecting to **198.51.100.44** on 443 about once a minute with nearly identical byte counts (305 to 318 bytes), for an hour, and `dns.log` shows it looking up `update-cdn-check.example`, which resolves to that address. That is download, execution, then beacon. Everything else was noise: Nmap alerts from your own Kali box and updates from the mirror. Next steps: isolate 10.20.0.50, preserve memory and disk, block 198.51.100.44 and the domain, search conn.log for any other host talking to it, and write the incident report.
+:: verify
+grep 10.20.0.50 ~/hunt/conn.log | awk '{print $3}' | sort | uniq -c | sort -rn | head -3
+:: file /home/analyst/hunt/alerts.csv
+ts,sev,signature,src,dst,dport
+2026-11-06T00:05:27Z,med,GPL SNMP public access udp,10.20.0.66,10.20.0.20,161
+2026-11-06T00:15:05Z,low,ET POLICY Windows Update download,10.20.0.50,198.51.100.77,443
+2026-11-06T00:17:30Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T00:29:22Z,med,ET INFO Packed Executable Download,10.20.0.30,198.51.100.77,443
+2026-11-06T00:37:36Z,med,ET INFO Observed DNS Query to .top TLD,10.20.0.50,10.20.0.10,53
+2026-11-06T00:46:44Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T00:52:34Z,high,ET SCAN Nmap Scripting Engine User-Agent Detected,10.20.0.66,10.20.0.20,80
+2026-11-06T00:52:36Z,low,ET POLICY Windows Update download,10.20.0.50,198.51.100.77,443
+2026-11-06T01:02:35Z,high,ET SCAN Nmap Scripting Engine User-Agent Detected,10.20.0.66,10.20.0.20,80
+2026-11-06T01:25:41Z,med,ET INFO Packed Executable Download,10.20.0.30,198.51.100.77,443
+2026-11-06T01:40:40Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T01:48:21Z,low,ET POLICY Windows Update download,10.20.0.50,198.51.100.77,443
+2026-11-06T01:49:18Z,high,ET SCAN Nmap Scripting Engine User-Agent Detected,10.20.0.66,10.20.0.20,80
+2026-11-06T02:06:35Z,med,GPL SNMP public access udp,10.20.0.66,10.20.0.20,161
+2026-11-06T02:14:31Z,high,ET POLICY PE EXE or DLL Windows file download HTTP,203.0.113.9,10.20.0.50,80
+2026-11-06T02:14:33Z,high,ET INFO Executable Retrieved With Minimal HTTP Headers,203.0.113.9,10.20.0.50,80
+2026-11-06T02:19:15Z,med,SURICATA STREAM reassembly overlap,10.20.0.30,10.20.0.50,445
+2026-11-06T02:26:09Z,med,ET INFO Observed DNS Query to .top TLD,10.20.0.50,10.20.0.10,53
+2026-11-06T02:29:37Z,low,ET POLICY Windows Update download,10.20.0.50,198.51.100.77,443
+2026-11-06T02:31:05Z,med,ET INFO Observed DNS Query to .example TLD,10.20.0.50,10.20.0.10,53
+2026-11-06T02:37:03Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T02:44:22Z,med,ET INFO Packed Executable Download,10.20.0.30,198.51.100.77,443
+2026-11-06T02:45:24Z,med,SURICATA STREAM reassembly overlap,10.20.0.30,10.20.0.50,445
+2026-11-06T02:46:28Z,med,SURICATA STREAM reassembly overlap,10.20.0.30,10.20.0.50,445
+2026-11-06T03:26:02Z,med,ET INFO Observed DNS Query to .top TLD,10.20.0.50,10.20.0.10,53
+2026-11-06T03:43:34Z,med,GPL SNMP public access udp,10.20.0.66,10.20.0.20,161
+2026-11-06T04:02:47Z,high,ET SCAN Nmap Scripting Engine User-Agent Detected,10.20.0.66,10.20.0.30,80
+2026-11-06T04:03:39Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T04:04:07Z,high,ET SCAN Potential SSH Scan,10.20.0.66,10.20.0.20,22
+2026-11-06T04:07:31Z,med,ET INFO Observed DNS Query to .top TLD,10.20.0.50,10.20.0.10,53
+2026-11-06T04:19:33Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T04:19:35Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T04:36:50Z,med,ET POLICY curl User-Agent Outbound,10.20.0.30,198.51.100.77,443
+2026-11-06T04:37:25Z,high,ET SCAN Nmap Scripting Engine User-Agent Detected,10.20.0.66,10.20.0.20,80
+2026-11-06T04:51:29Z,med,SURICATA STREAM reassembly overlap,10.20.0.30,10.20.0.50,445
+2026-11-06T05:15:25Z,med,ET INFO Observed DNS Query to .top TLD,10.20.0.50,10.20.0.10,53
+2026-11-06T05:36:43Z,high,ET SCAN Potential SSH Scan,10.20.0.66,10.20.0.20,22
+2026-11-06T05:49:15Z,med,ET INFO Observed DNS Query to .top TLD,10.20.0.50,10.20.0.10,53
+:: file /home/analyst/hunt/conn.log
+ts src dst dport proto bytes_out
+2026-11-06T00:00:01Z 10.20.0.30 10.20.0.10 88 tcp 48243
+2026-11-06T00:02:08Z 10.20.0.50 198.51.100.77 443 tcp 41954
+2026-11-06T00:05:16Z 10.20.0.50 198.51.100.77 80 tcp 53745
+2026-11-06T00:05:42Z 10.20.0.66 10.20.0.10 53 udp 55333
+2026-11-06T00:10:28Z 10.20.0.66 10.20.0.10 389 tcp 26522
+2026-11-06T00:13:33Z 10.20.0.50 198.51.100.77 80 tcp 23907
+2026-11-06T00:13:42Z 10.20.0.50 10.20.0.10 389 tcp 20042
+2026-11-06T00:14:30Z 10.20.0.30 10.20.0.10 53 udp 13091
+2026-11-06T00:16:13Z 10.20.0.50 10.20.0.10 53 udp 19399
+2026-11-06T00:17:01Z 10.20.0.50 10.20.0.10 389 tcp 41778
+2026-11-06T00:20:43Z 10.20.0.30 198.51.100.77 80 tcp 34170
+2026-11-06T00:29:00Z 10.20.0.30 10.20.0.10 88 tcp 22426
+2026-11-06T00:32:28Z 10.20.0.10 198.51.100.77 443 tcp 37013
+2026-11-06T00:38:54Z 10.20.0.30 10.20.0.10 88 tcp 14775
+2026-11-06T00:44:54Z 10.20.0.10 10.20.0.30 445 tcp 17312
+2026-11-06T00:51:46Z 10.20.0.50 198.51.100.77 443 tcp 42777
+2026-11-06T00:53:42Z 10.20.0.10 10.20.0.30 445 tcp 8058
+2026-11-06T00:54:16Z 10.20.0.66 10.20.0.10 88 tcp 15586
+2026-11-06T01:00:31Z 10.20.0.50 10.20.0.30 445 tcp 54666
+2026-11-06T01:01:09Z 10.20.0.50 10.20.0.10 53 udp 38919
+2026-11-06T01:04:13Z 10.20.0.66 198.51.100.77 443 tcp 29076
+2026-11-06T01:05:11Z 10.20.0.66 10.20.0.10 53 udp 10115
+2026-11-06T01:06:47Z 10.20.0.10 198.51.100.77 443 tcp 22654
+2026-11-06T01:16:03Z 10.20.0.50 198.51.100.77 443 tcp 12071
+2026-11-06T01:22:11Z 10.20.0.30 10.20.0.10 88 tcp 270
+2026-11-06T01:29:14Z 10.20.0.50 10.20.0.10 88 tcp 49134
+2026-11-06T01:30:39Z 10.20.0.50 10.20.0.10 53 udp 47726
+2026-11-06T01:30:56Z 10.20.0.66 10.20.0.30 445 tcp 11899
+2026-11-06T01:34:06Z 10.20.0.30 198.51.100.77 80 tcp 24029
+2026-11-06T01:34:09Z 10.20.0.66 198.51.100.77 80 tcp 34508
+2026-11-06T01:38:00Z 10.20.0.30 10.20.0.10 389 tcp 51058
+2026-11-06T01:39:24Z 10.20.0.30 198.51.100.77 443 tcp 9935
+2026-11-06T01:39:51Z 10.20.0.10 10.20.0.30 445 tcp 51868
+2026-11-06T01:39:52Z 10.20.0.66 10.20.0.30 445 tcp 39250
+2026-11-06T01:44:33Z 10.20.0.66 198.51.100.77 80 tcp 57644
+2026-11-06T01:53:28Z 10.20.0.10 198.51.100.77 80 tcp 9187
+2026-11-06T01:56:06Z 10.20.0.30 198.51.100.77 443 tcp 5709
+2026-11-06T02:00:09Z 10.20.0.50 10.20.0.10 88 tcp 27656
+2026-11-06T02:00:29Z 10.20.0.50 10.20.0.10 389 tcp 52477
+2026-11-06T02:03:53Z 10.20.0.50 10.20.0.10 389 tcp 8707
+2026-11-06T02:05:17Z 10.20.0.66 10.20.0.30 445 tcp 3970
+2026-11-06T02:05:46Z 10.20.0.50 10.20.0.10 88 tcp 24183
+2026-11-06T02:05:51Z 10.20.0.66 10.20.0.30 445 tcp 47505
+2026-11-06T02:09:35Z 10.20.0.66 10.20.0.30 445 tcp 36132
+2026-11-06T02:14:31Z 203.0.113.9 10.20.0.50 80 tcp 412
+2026-11-06T02:14:32Z 10.20.0.50 203.0.113.9 80 tcp 388
+2026-11-06T02:16:34Z 10.20.0.50 198.51.100.77 80 tcp 27660
+2026-11-06T02:23:21Z 10.20.0.66 198.51.100.77 443 tcp 36053
+2026-11-06T02:25:09Z 10.20.0.66 10.20.0.30 445 tcp 35366
+2026-11-06T02:28:32Z 10.20.0.50 10.20.0.30 445 tcp 35149
+2026-11-06T02:32:41Z 10.20.0.30 10.20.0.10 389 tcp 13371
+2026-11-06T02:33:39Z 10.20.0.30 10.20.0.10 389 tcp 19562
+2026-11-06T02:34:12Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:35:10Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T02:36:10Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T02:37:07Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T02:38:03Z 10.20.0.50 198.51.100.77 443 tcp 6909
+2026-11-06T02:38:09Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:39:12Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:40:13Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:40:14Z 10.20.0.30 10.20.0.10 88 tcp 5736
+2026-11-06T02:41:10Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T02:42:08Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:43:07Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:44:08Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T02:44:13Z 10.20.0.66 198.51.100.77 80 tcp 15244
+2026-11-06T02:45:06Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:45:26Z 10.20.0.66 198.51.100.77 80 tcp 23712
+2026-11-06T02:46:06Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:47:06Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:48:08Z 10.20.0.30 10.20.0.10 53 udp 53924
+2026-11-06T02:48:08Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:49:10Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:50:12Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T02:51:11Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T02:52:10Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T02:53:10Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T02:54:13Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:55:14Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:56:13Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:57:13Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T02:58:12Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T02:59:09Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T03:00:09Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:01:09Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:02:07Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:03:08Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:04:06Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T03:05:05Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:06:03Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T03:06:30Z 10.20.0.66 10.20.0.10 389 tcp 41768
+2026-11-06T03:07:06Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T03:08:05Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:09:07Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:10:05Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T03:10:42Z 10.20.0.30 10.20.0.10 389 tcp 54755
+2026-11-06T03:11:05Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T03:11:10Z 10.20.0.10 198.51.100.77 443 tcp 17831
+2026-11-06T03:12:02Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:12:59Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T03:14:01Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T03:15:01Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:15:59Z 10.20.0.50 198.51.100.77 80 tcp 29498
+2026-11-06T03:16:03Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:16:12Z 10.20.0.30 10.20.0.10 88 tcp 45585
+2026-11-06T03:17:03Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:18:03Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:19:00Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:19:57Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:20:39Z 10.20.0.30 198.51.100.77 443 tcp 33331
+2026-11-06T03:21:00Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:22:03Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T03:22:46Z 10.20.0.50 198.51.100.77 80 tcp 2099
+2026-11-06T03:23:00Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:24:02Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:25:04Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:26:03Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:27:00Z 10.20.0.50 198.51.100.44 443 tcp 318
+2026-11-06T03:28:00Z 10.20.0.50 198.51.100.44 443 tcp 305
+2026-11-06T03:28:20Z 10.20.0.66 198.51.100.77 443 tcp 4954
+2026-11-06T03:28:57Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:29:30Z 10.20.0.30 198.51.100.77 443 tcp 31908
+2026-11-06T03:29:57Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:31:00Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:31:59Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:32:43Z 10.20.0.50 10.20.0.10 88 tcp 11858
+2026-11-06T03:32:56Z 10.20.0.50 198.51.100.44 443 tcp 312
+2026-11-06T03:34:53Z 10.20.0.66 10.20.0.30 445 tcp 58443
+2026-11-06T03:37:02Z 10.20.0.30 10.20.0.10 53 udp 26019
+2026-11-06T03:47:05Z 10.20.0.66 10.20.0.10 389 tcp 47700
+2026-11-06T03:47:51Z 10.20.0.50 10.20.0.10 53 udp 15059
+2026-11-06T03:53:28Z 10.20.0.10 198.51.100.77 443 tcp 36803
+2026-11-06T04:03:15Z 10.20.0.66 198.51.100.77 443 tcp 12737
+2026-11-06T04:08:02Z 10.20.0.66 10.20.0.10 88 tcp 34731
+2026-11-06T04:20:08Z 10.20.0.10 198.51.100.77 80 tcp 45452
+2026-11-06T04:29:28Z 10.20.0.30 10.20.0.10 88 tcp 46281
+2026-11-06T04:53:00Z 10.20.0.66 198.51.100.77 80 tcp 31622
+2026-11-06T04:58:01Z 10.20.0.50 10.20.0.30 445 tcp 49885
+2026-11-06T05:18:38Z 10.20.0.66 198.51.100.77 80 tcp 16073
+2026-11-06T05:19:33Z 10.20.0.50 10.20.0.10 88 tcp 49974
+2026-11-06T05:22:57Z 10.20.0.50 198.51.100.77 443 tcp 30226
+2026-11-06T05:27:32Z 10.20.0.50 10.20.0.10 53 udp 26664
+2026-11-06T05:31:09Z 10.20.0.66 10.20.0.10 88 tcp 18823
+2026-11-06T05:41:42Z 10.20.0.30 10.20.0.10 53 udp 24198
+2026-11-06T05:47:56Z 10.20.0.30 198.51.100.77 443 tcp 16950
+2026-11-06T05:50:56Z 10.20.0.50 10.20.0.30 445 tcp 39296
+2026-11-06T05:51:32Z 10.20.0.66 10.20.0.30 445 tcp 9329
+2026-11-06T05:51:35Z 10.20.0.30 10.20.0.10 389 tcp 25914
+2026-11-06T05:57:32Z 10.20.0.50 198.51.100.77 443 tcp 41312
+2026-11-06T05:59:08Z 10.20.0.30 198.51.100.77 80 tcp 28630
+:: file /home/analyst/hunt/dns.log
+ts src query answer
+2026-11-06T00:08:02Z 10.20.0.50 registry.example.org 198.51.100.12
+2026-11-06T00:11:21Z 10.20.0.30 time.example.net 198.51.100.12
+2026-11-06T00:14:09Z 10.20.0.50 time.example.net 198.51.100.12
+2026-11-06T00:17:57Z 10.20.0.30 time.example.net 198.51.100.12
+2026-11-06T00:47:55Z 10.20.0.50 time.example.net 198.51.100.12
+2026-11-06T01:17:27Z 10.20.0.66 time.example.net 198.51.100.12
+2026-11-06T01:30:26Z 10.20.0.66 time.example.net 198.51.100.12
+2026-11-06T01:36:58Z 10.20.0.30 time.example.net 198.51.100.12
+2026-11-06T01:40:16Z 10.20.0.30 registry.example.org 198.51.100.12
+2026-11-06T01:49:23Z 10.20.0.66 registry.example.org 198.51.100.12
+2026-11-06T02:11:05Z 10.20.0.50 update-cdn-check.example 198.51.100.44
+2026-11-06T02:14:29Z 10.20.0.50 dl.fileshare-drop.example 203.0.113.9
+2026-11-06T02:15:23Z 10.20.0.66 updates.example-cdn.example 198.51.100.77
+2026-11-06T02:16:47Z 10.20.0.50 registry.example.org 198.51.100.12
+2026-11-06T02:21:48Z 10.20.0.30 mirror.example-cdn.example 198.51.100.77
+2026-11-06T02:32:50Z 10.20.0.50 update-cdn-check.example 198.51.100.44
+2026-11-06T02:36:23Z 10.20.0.30 mirror.example-cdn.example 198.51.100.77
+2026-11-06T03:03:58Z 10.20.0.30 registry.example.org 198.51.100.12
+2026-11-06T03:08:35Z 10.20.0.50 mirror.example-cdn.example 198.51.100.77
+2026-11-06T03:22:05Z 10.20.0.50 update-cdn-check.example 198.51.100.44
+2026-11-06T03:33:05Z 10.20.0.50 update-cdn-check.example 198.51.100.44
+2026-11-06T03:39:48Z 10.20.0.66 mirror.example-cdn.example 198.51.100.77
+2026-11-06T03:41:15Z 10.20.0.66 registry.example.org 198.51.100.12
+2026-11-06T03:41:28Z 10.20.0.30 mirror.example-cdn.example 198.51.100.77
+2026-11-06T03:47:33Z 10.20.0.50 mirror.example-cdn.example 198.51.100.77
+2026-11-06T04:14:28Z 10.20.0.30 mirror.example-cdn.example 198.51.100.77
+2026-11-06T04:31:00Z 10.20.0.50 mirror.example-cdn.example 198.51.100.77
+2026-11-06T04:42:25Z 10.20.0.50 mirror.example-cdn.example 198.51.100.77
+2026-11-06T04:44:05Z 10.20.0.50 update-cdn-check.example 198.51.100.44
+2026-11-06T04:49:02Z 10.20.0.50 updates.example-cdn.example 198.51.100.77
+2026-11-06T04:54:29Z 10.20.0.30 mirror.example-cdn.example 198.51.100.77
+2026-11-06T04:55:05Z 10.20.0.50 update-cdn-check.example 198.51.100.44
+2026-11-06T05:05:03Z 10.20.0.66 time.example.net 198.51.100.12
+2026-11-06T05:10:04Z 10.20.0.30 time.example.net 198.51.100.12
+2026-11-06T05:25:58Z 10.20.0.50 updates.example-cdn.example 198.51.100.77
+2026-11-06T05:44:41Z 10.20.0.30 updates.example-cdn.example 198.51.100.77
+2026-11-06T05:48:07Z 10.20.0.66 mirror.example-cdn.example 198.51.100.77

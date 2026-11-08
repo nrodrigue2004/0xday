@@ -1,0 +1,21 @@
+slug: forensics
+title: HiTek Digital Forensics Challenge
+resume: HiTek Digital Forensics Challenge
+guides: digital-forensics, network-traffic-analysis, log-analysis
+posts: hitek-forensics
+tagline: Reconstructed a data exfiltration from Windows and Ubuntu disk images and a PCAP with FTK Imager, Autopsy and Wireshark.
+:: pitch
+**30-second version.** "I worked a forensics case where data had been exfiltrated. I had Windows and Ubuntu disk images and a packet capture. I used FTK Imager and Autopsy to examine the images, Wireshark for the PCAP, and put together a timeline of what left the network and how."
+**What the interviewer is testing:** evidence handling, reasoning from artifacts to a conclusion, and clear reporting.
+:: prep
+- Re-read your [HiTek forensics write-up](posts/hitek-forensics.html) and memorize the timeline.
+- Know hashing and chain of custody cold.
+- Have a one-sentence conclusion: who or what, how, and when.
+:: q
+- [e] What is chain of custody and why does it matter? => A documented record of who handled evidence and when, so it can be trusted in court or an investigation. Hash the evidence on acquisition and verify later, work on copies, never on the original.
+- [e] How did you analyze the disk images? => Opened them in FTK Imager and Autopsy without modifying them, then looked at user activity: recent files, browser and shell history, installed or run programs, and file timestamps. Keep it to what you actually found.
+- [n] How did you use the packet capture? => In Wireshark, filter to find large or unusual transfers (conversations and endpoints), identify the protocol used (for example FTP or HTTP), follow the stream to see what was sent, and tie the timestamps to activity on the disk images.
+- [n] How do you build a timeline? => Collect timestamps from every source (file system, logs, browser history, packets), normalize them to one time zone, sort, and look for the sequence that tells the story. Corroborate across at least two sources before concluding.
+- [n] What artifacts differ between Windows and Linux? => Windows: registry hives, event logs, prefetch, recent files and jump lists. Linux: shell history, `/var/log` (auth, syslog), cron entries, package and home directory changes. Say which you used in the case.
+- [h] How would you prove the data left the network and wasn't just copied locally? => Match the file or its hash on the disk image with the content in the capture, show an outbound connection at the right time, and confirm the destination. Be clear about what is proven and what is inference.
+- [h] What would you put in the report for a non-technical manager? => Summary first: what happened, impact, confidence level. Then timeline, evidence, and recommended actions. Keep jargon in an appendix.
