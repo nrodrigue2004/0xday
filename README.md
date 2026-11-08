@@ -48,6 +48,10 @@ Chapters are `content/ai/<slug>.txt` in the same format as the learn guides (tie
 
 Drills are `content/drills/<slug>.txt` in the learn-guide format (tiers plus one lab, all data fictional); order and blurbs are in `CHAPTERS` in `build_drills.py`. The glossary is `content/glossary.json` (`t`, `d`, `c`, `l`); each link is `g:`/`s:`/`m:`/`d:`/`a:` plus a slug and the build fails if one is missing.
 
+## ~/cloud
+
+Cloud chapters are `content/cloud/<slug>.txt` in the learn-guide format; order and blurbs are in `CHAPTERS` in `build_cloud.py`. A chapter's `:: ref` becomes a man page named by `sheet:` in its header (`cloud`, `aws` or `az`). Labs are simulated (files, or canned `aws`/`az` output with `:: cmd ...$`, anchored so pipes still work); no lab touches a real account.
+
 ## ~/basics
 
 Foundations chapters are `content/basics/<slug>.txt` in the same format as the learn guides (tables with `|` rows are supported); order and blurbs are in `CHAPTERS` in `build_basics.py`.

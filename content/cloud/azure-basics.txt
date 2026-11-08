@@ -1,0 +1,105 @@
+tagline: Azure organizes everything under Entra ID tenants and subscriptions, and controls it with RBAC. Learn that structure, the az CLI, and how to spot an over-privileged assignment.
+sheet: az
+sheet_summary: Azure CLI commands for accounts, RBAC, storage, VMs and logs
+:: simple
+**Microsoft Azure** is the second big cloud, and the one most Microsoft-centric organizations use because it plugs into Windows, Microsoft 365 and Active Directory.
+
+The structure, from top to bottom:
+- **Tenant**: your organization's **Microsoft Entra ID** (formerly Azure Active Directory), which holds users, groups and apps.
+- **Management groups** (optional) collect subscriptions.
+- **Subscription**: the billing and isolation boundary. Resources live inside one.
+- **Resource group**: a folder of related resources you can delete in one go.
+- **Resource**: a VM, storage account, database.
+
+Core services to know: **Virtual Machines**, **Storage accounts** (Blob, Files), **Virtual Network**, **App Service**, **Azure SQL**, **Key Vault**, **Azure Monitor / Log Analytics**, **Microsoft Defender for Cloud**, **Microsoft Sentinel** (the SIEM).
+
+> Microsoft offers learn sandboxes and a free account with credits and some always-free services. Terms change, so check the current Azure free account page, set a budget alert first, and delete the resource group when done.
+:: mid
+### RBAC
+Access is a **role assignment**: who (user, group, service principal, managed identity), what role, at which **scope**. Inheritance flows down. **Owner** can do everything and grant access; **Contributor** cannot grant access; **Reader** only views. Prefer groups over individuals, narrow scopes (a resource group, not the subscription), and **PIM** for just-in-time elevation. **Guest** users (external collaborators, shown as `name_domain#EXT#@tenant.onmicrosoft.com`) deserve the most scrutiny.
+
+### CLI basics
+```
+$ az login
+$ az account show
+$ az role assignment list --all -o table
+```
+`az account show` is the "where am I" check: tenant, subscription, signed-in identity. Use `-o table|json|tsv` and `--query` (JMESPath). Cloud Shell in the portal gives a ready-made CLI with no install.
+
+### Naming your way around
+| Task | Azure | AWS equivalent |
+|---|---|---|
+| Who did what | Activity Log | CloudTrail |
+| Metrics and logs | Azure Monitor, Log Analytics | CloudWatch |
+| SIEM | Microsoft Sentinel | (Security Lake, partner SIEMs) |
+| Posture | Defender for Cloud | Security Hub, Config |
+| Secrets and keys | Key Vault | Secrets Manager, KMS |
+| Policy guardrails | Azure Policy | SCPs, Config rules |
+:: complex
+### Entra ID security
+Turn on **Security defaults** or, better, **Conditional Access**: require MFA for admins and for risky sign-ins, block legacy authentication, require compliant devices for sensitive apps. Use **PIM** so admin roles are eligible, not permanent, and review them. Emergency "break-glass" accounts are excluded from normal policy but monitored with alerts.
+
+### Common Azure findings
+- Subscription Owner held by a guest or by too many people.
+- Storage accounts allowing public blob access or with long-lived SAS tokens.
+- NSGs open to `Any` on RDP (3389) or SSH (22).
+- Key Vault with broad access policies and no logging.
+- Diagnostic settings not sending logs anywhere, so there is no evidence when you need it.
+- Service principal secrets that never expire.
+
+### Governance
+**Azure Policy** can deny or audit resource configurations (no public storage, allowed regions only, require tags). **Blueprints / landing zones** deploy a governed baseline. **Defender for Cloud** gives a secure score and recommendations. **Cost Management + Budgets** alert before the bill does.
+
+### Investigating
+Sign-in logs and Audit logs in Entra for identity activity; the subscription **Activity Log** for control-plane changes; resource diagnostic logs for the data plane; Sentinel for correlation and KQL hunting queries.
+:: ref
+### account and identity
+az login | sign in (browser or device code)
+az account show | current tenant, subscription and user
+az account list -o table | all subscriptions you can see
+az role assignment list --all -o table | every role assignment: principal, role, scope
+az role assignment create --assignee X --role Reader --scope S | grant a role (least privilege, narrow scope)
+az ad user list | Entra users (needs directory permissions)
+### resources
+az group list -o table | resource groups
+az group delete -n NAME | delete a group and everything inside (the clean way to stop billing)
+az vm list -d -o table | VMs with state and IPs
+az network nsg rule list -g RG --nsg-name N | firewall rules on a network security group
+az storage account list -o table | storage accounts
+az storage account show -n NAME --query allowBlobPublicAccess | is public blob access allowed
+az keyvault list -o table | key vaults
+### logs and cost
+az monitor activity-log list --max-events 20 | recent control-plane changes
+az consumption usage list | cost data for the subscription
+az policy state list | Azure Policy compliance results
+:: lab
+host: auditor
+user: auditor
+cwd: /home/auditor
+:: brief
+**Scenario (fictional, simulated):** a **simulated Azure CLI** is pointed at a made-up tenant, **Adventure Works Lab**. Nothing here is real. Try `az account show`, then `az role assignment list --all -o table`.
+
+Policy: nobody outside the company should hold broad rights. Find the **external guest** (their name contains `#EXT#`) who has the **Owner** role at **subscription** scope. Submit their **principal name** (the part before `#EXT#` is enough).
+:: answer
+acme-guest
+acme-guest_acme.example
+acme-guest_acme.example#ext#@adventure-lab.onmicrosoft.com
+:: hint
+In the role assignment table, look at the Principal and Scope columns, not only the Role. Filter with `grep EXT`.
+:: hint
+Three guests appear. Only one has Owner, and at the whole subscription scope.
+:: solution
+Three principals have `#EXT#` in the name: `acme-guest_acme.example` is **Owner** at `/subscriptions/0000-sim`, the whole subscription, which also allows granting access to others. The other two guests hold Reader and a Contributor on a single resource group, which is far less risky. Fix: remove the Owner assignment, give the vendor the narrowest role at the narrowest scope with an expiry (PIM or access review), and check the Activity Log for what that account has done.
+:: verify
+az role assignment list --all -o table | grep EXT
+:: cmd ^az account show$
+{"name": "Adventure Works Lab", "id": "0000-sim", "tenantDomain": "adventure-lab.onmicrosoft.com", "user": "auditor@adventure-lab.onmicrosoft.com"} (simulated)
+:: cmd ^az role assignment list --all -o table$
+Principal                                                    Role         Scope
+-----------------------------------------------------------  -----------  ---------------------------------------------
+cloud-admins (group)                                         Owner        /subscriptions/0000-sim
+dev-team (group)                                             Contributor  /subscriptions/0000-sim/resourceGroups/dev
+auditor@adventure-lab.onmicrosoft.com                        Reader       /subscriptions/0000-sim
+acme-guest_acme.example#EXT#@adventure-lab.onmicrosoft.com   Owner        /subscriptions/0000-sim
+temp-contractor_fabrikam.example#EXT#@adventure-lab.onmicrosoft.com  Contributor  /subscriptions/0000-sim/resourceGroups/dev
+intern-viewer_northwind.example#EXT#@adventure-lab.onmicrosoft.com  Reader  /subscriptions/0000-sim

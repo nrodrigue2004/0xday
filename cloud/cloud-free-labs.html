@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>free-tier labs :: ~/cloud :: 0xDay</title>
+<meta name="description" content="Cloud basics, free-tier labs: Practice safely: sandboxes, local emulators, billing guardrails, teardown.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cloud --chapter cloud-free-labs</p>
+<h1>~/cloud/cloud-free-labs</h1>
+<p>You can practice cloud skills for free or nearly free, if you set guardrails first. Sandboxes, local emulators and a strict teardown habit keep a lab from becoming a bill.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="cloud-free-labs">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Reading about the cloud only goes so far. You want to click through a console, run the CLI and break things. There are four safe ways to do it, safest first:</p>
+<ol><li><strong>Provider-run sandboxes.</strong> Microsoft Learn offers hands-on sandboxes that give you a temporary Azure environment with no subscription of your own. AWS Skill Builder and AWS Educate have guided labs. Nothing to bill, nothing to leak.</li><li><strong>Local emulators.</strong> <strong>LocalStack</strong> fakes many AWS APIs on your own machine; <strong>Azurite</strong> emulates Azure Storage. No account at all.</li><li><strong>Training-only vulnerable apps.</strong> Intentionally broken environments such as flaws.cloud and flaws2.cloud are hosted by their authors for learning. Only touch the intended targets. Tools that deploy vulnerable infrastructure into <strong>your own</strong> account (for example CloudGoat) cost money and create real exposure, so treat them as advanced and read the warnings first.</li><li><strong>Your own free-tier account.</strong> Real, and the most realistic, but real accounts have real bills.</li></ol>
+<p class="callout"><strong>Never test against anyone else's cloud account, bucket or tenant.</strong> Guessing bucket names and probing other people's resources without permission can be illegal, even if "it was public".</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Guardrails before you create anything</h4>
+<ol><li><strong>Use a dedicated email</strong> for the lab account, a password manager, and <strong>MFA on root/owner</strong>. Create an everyday admin identity and stop using root.</li><li><strong>Set a budget and billing alert</strong> (AWS Budgets, Azure Cost Management) at a tiny number such as the price of a coffee. Turn on free-tier usage alerts.</li><li><strong>Stay in one region</strong> and use the smallest sizes.</li><li><strong>Tag everything</strong> (<code>project=lab</code>) so you can find leftovers.</li><li><strong>Never commit keys.</strong> Add <code>.aws/</code>, <code>*.pem</code>, <code>.env</code> and <code>terraform.tfstate</code> to <code>.gitignore</code>, and enable secret scanning on any repo.</li><li><strong>Don't expose management ports</strong> to <code>0.0.0.0/0</code>. Restrict SSH to your IP, or use Session Manager / Azure Bastion.</li></ol>
+<h4>Teardown habit</h4>
+<p>End every session with an inventory: list instances, volumes, snapshots, load balancers, NAT gateways, public IPs and storage. In Azure, deleting the <strong>resource group</strong> removes everything inside it. In AWS, use CloudFormation/Terraform <code>destroy</code>, or a resource explorer, to find leftovers. Check the billing page the next day.</p>
+<h4>Starter exercises (all free-tier sized)</h4>
+<ol><li>Create an account, set MFA and a budget alarm. 2. Create an IAM user with a read-only policy and test what it can and cannot do. 3. Make a private bucket and a public one on purpose, then fix the public one with Block Public Access. 4. Launch the smallest VM, restrict SSH to your IP, connect, then terminate it. 5. Turn on CloudTrail (or the Activity Log) and find your own actions in it. 6. Write a CloudFormation or Bicep template for step 3 and tear it down with one command.</li></ol><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Learning in the open without leaking</h4>
+<p>Write up labs in your own words. Redact account IDs, ARNs, IPs, subscription IDs and any resource names that identify you, and never paste a command's raw output without reading it first. Rotate any credential that ever touched a screenshot or a paste.</p>
+<h4>Mapping exercises to certifications</h4>
+<ul><li><strong>AWS Certified Cloud Practitioner</strong> and <strong>Microsoft AZ-900</strong> are entry-level cloud fundamentals, and they cover exactly the first six chapters here.</li><li><strong>Security+</strong> (SY0-701) tests cloud models, shared responsibility, and cloud security at a conceptual level. See <code>~/secplus</code>.</li><li>Next steps: AWS Security Specialty or AZ-500 once you are building and securing real workloads.</li></ul>
+<h4>Infrastructure as code for labs</h4>
+<p>Keep each lab as a template in git: it documents what you built, makes teardown one command, and lets you rebuild after a mistake. Run a scanner (checkov, tfsec, cfn-lint) on it as a habit, since the scanner is where you learn what "secure by default" looks like.</p>
+<h4>When a bill surprises you</h4>
+<p>Don't panic. Check the Billing console's cost breakdown by service and region, look for resources in regions you never use, rotate keys, and open a support case: providers often forgive first-time accidents, especially when you act quickly and the cause is a leak. Then add the guardrail you skipped.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/cloud.html">cheatsheet</a></span></h2><h3>lab hygiene</h3><dl class="man"><dt><code>budget alert</code></dt><dd>tiny spend threshold that emails you before the bill grows</dd><dt><code>free tier</code></dt><dd>quota- or time-limited free usage; terms change, read the current page</dd><dt><code>resource group delete</code></dt><dd>Azure: remove everything in the lab in one command</dd><dt><code>terraform destroy</code></dt><dd>tear down everything a Terraform lab created</dd><dt><code>LocalStack</code></dt><dd>local emulator for AWS APIs, no account needed</dd><dt><code>Azurite</code></dt><dd>local emulator for Azure Storage</dd><dt><code>.gitignore</code></dt><dd>keep keys, .env, .pem and tfstate out of git</dd><dt><code>secret scanning</code></dt><dd>detect committed credentials; rotate any that leak</dd></dl></section><nav class="pager"><a href="cloud-security.html">&lt; cloud security</a><span></span></nav><p><a href="../cloud.html">cd ~/cloud</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

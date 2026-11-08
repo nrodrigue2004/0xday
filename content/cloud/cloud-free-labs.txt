@@ -1,0 +1,49 @@
+tagline: You can practice cloud skills for free or nearly free, if you set guardrails first. Sandboxes, local emulators and a strict teardown habit keep a lab from becoming a bill.
+sheet: cloud
+:: simple
+Reading about the cloud only goes so far. You want to click through a console, run the CLI and break things. There are four safe ways to do it, safest first:
+
+1. **Provider-run sandboxes.** Microsoft Learn offers hands-on sandboxes that give you a temporary Azure environment with no subscription of your own. AWS Skill Builder and AWS Educate have guided labs. Nothing to bill, nothing to leak.
+2. **Local emulators.** **LocalStack** fakes many AWS APIs on your own machine; **Azurite** emulates Azure Storage. No account at all.
+3. **Training-only vulnerable apps.** Intentionally broken environments such as flaws.cloud and flaws2.cloud are hosted by their authors for learning. Only touch the intended targets. Tools that deploy vulnerable infrastructure into **your own** account (for example CloudGoat) cost money and create real exposure, so treat them as advanced and read the warnings first.
+4. **Your own free-tier account.** Real, and the most realistic, but real accounts have real bills.
+
+> **Never test against anyone else's cloud account, bucket or tenant.** Guessing bucket names and probing other people's resources without permission can be illegal, even if "it was public".
+:: mid
+### Guardrails before you create anything
+1. **Use a dedicated email** for the lab account, a password manager, and **MFA on root/owner**. Create an everyday admin identity and stop using root.
+2. **Set a budget and billing alert** (AWS Budgets, Azure Cost Management) at a tiny number such as the price of a coffee. Turn on free-tier usage alerts.
+3. **Stay in one region** and use the smallest sizes.
+4. **Tag everything** (`project=lab`) so you can find leftovers.
+5. **Never commit keys.** Add `.aws/`, `*.pem`, `.env` and `terraform.tfstate` to `.gitignore`, and enable secret scanning on any repo.
+6. **Don't expose management ports** to `0.0.0.0/0`. Restrict SSH to your IP, or use Session Manager / Azure Bastion.
+
+### Teardown habit
+End every session with an inventory: list instances, volumes, snapshots, load balancers, NAT gateways, public IPs and storage. In Azure, deleting the **resource group** removes everything inside it. In AWS, use CloudFormation/Terraform `destroy`, or a resource explorer, to find leftovers. Check the billing page the next day.
+
+### Starter exercises (all free-tier sized)
+1. Create an account, set MFA and a budget alarm. 2. Create an IAM user with a read-only policy and test what it can and cannot do. 3. Make a private bucket and a public one on purpose, then fix the public one with Block Public Access. 4. Launch the smallest VM, restrict SSH to your IP, connect, then terminate it. 5. Turn on CloudTrail (or the Activity Log) and find your own actions in it. 6. Write a CloudFormation or Bicep template for step 3 and tear it down with one command.
+:: complex
+### Learning in the open without leaking
+Write up labs in your own words. Redact account IDs, ARNs, IPs, subscription IDs and any resource names that identify you, and never paste a command's raw output without reading it first. Rotate any credential that ever touched a screenshot or a paste.
+
+### Mapping exercises to certifications
+- **AWS Certified Cloud Practitioner** and **Microsoft AZ-900** are entry-level cloud fundamentals, and they cover exactly the first six chapters here.
+- **Security+** (SY0-701) tests cloud models, shared responsibility, and cloud security at a conceptual level. See `~/secplus`.
+- Next steps: AWS Security Specialty or AZ-500 once you are building and securing real workloads.
+
+### Infrastructure as code for labs
+Keep each lab as a template in git: it documents what you built, makes teardown one command, and lets you rebuild after a mistake. Run a scanner (checkov, tfsec, cfn-lint) on it as a habit, since the scanner is where you learn what "secure by default" looks like.
+
+### When a bill surprises you
+Don't panic. Check the Billing console's cost breakdown by service and region, look for resources in regions you never use, rotate keys, and open a support case: providers often forgive first-time accidents, especially when you act quickly and the cause is a leak. Then add the guardrail you skipped.
+:: ref
+### lab hygiene
+budget alert | tiny spend threshold that emails you before the bill grows
+free tier | quota- or time-limited free usage; terms change, read the current page
+resource group delete | Azure: remove everything in the lab in one command
+terraform destroy | tear down everything a Terraform lab created
+LocalStack | local emulator for AWS APIs, no account needed
+Azurite | local emulator for Azure Storage
+.gitignore | keep keys, .env, .pem and tfstate out of git
+secret scanning | detect committed credentials; rotate any that leak
