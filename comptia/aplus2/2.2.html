@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 2.2 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 2.2: Windows Security">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.2 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 2.0 · Security</span><span>2.2</span></div>
+<h1><span class="ok">2.2</span> Windows Security</h1>
+<div class="obj" data-obj="aplus2-2.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Defender Antivirus</h4>
+<ul><li>Built in and on by default (Microsoft Defender Antivirus, in the <strong>Windows Security</strong> app &gt; Virus &amp; threat protection). Keep <strong>real-time protection</strong> on; only disable temporarily (UAC prompt appears). Settings include cloud-delivered protection, automatic sample submission, tamper protection, controlled folder access, exclusions. Update definitions via Protection updates &gt; <strong>Check for updates</strong>.</li></ul>
+<h4>Windows Firewall</h4>
+<ul><li>Enable/disable per profile (domain, private, public) in Windows Security &gt; Firewall &amp; network protection (needs admin). <strong>Block all incoming connections</strong> overrides allowed-app rules (useful on public Wi-Fi). Configure firewall notifications; <strong>Security providers</strong> shows which AV/firewall is active (to spot third-party products).</li></ul>
+<h4>Authentication Settings</h4>
+<ul><li><strong>Local account</strong> (on the PC), <strong>Microsoft account</strong> (cloud sync across devices), <strong>domain account</strong> (Active Directory). Default local accounts: Administrator, Guest (limited), Default; groups include Administrators, Backup Operators, Guests, Users, Power Users (legacy). Manage in Computer Management &gt; Local Users and Groups.</li><li>Login options: password, <strong>PIN</strong>, biometrics, SSO. <strong>Passwordless</strong> methods (Windows Hello, facial recognition, security keys) avoid weak or written-down passwords; the first login may still use a password.</li></ul>
+<h4>File Permissions</h4>
+<ul><li><strong>NTFS permissions</strong> (local file system) vs <strong>share permissions</strong> (network access). When both apply, the <strong>most restrictive wins</strong>, and an explicit <strong>deny</strong> overrides allows. NTFS permissions are inherited by child folders and new files. <strong>Explicit</strong> permissions override inherited ones. Moving a file within the same volume keeps its original permissions.</li><li>Example: NTFS Everyone full control but share Everyone read: a network user only gets read.</li></ul>
+<h4>Elevation and Encryption</h4>
+<ul><li><strong>Run as administrator</strong> is explicit even for admins. <strong>UAC (User Account Control)</strong> prompts "Do you want to allow this app to make changes?" for admin tasks; levels range from always notify to never.</li><li><strong>BitLocker</strong> (FDE) encrypts a whole volume; <strong>BitLocker To Go</strong> protects USB drives. <strong>EFS</strong> encrypts selected files/folders on NTFS (not in Home) using your credentials; if the password is administratively reset, encrypted data can be lost, so keep backups.</li></ul>
+<h4>Active Directory</h4>
+<ul><li><strong>AD</strong> is a centralized database of users, computers, shares and printers that provides authentication and permissions. <strong>Domain controllers</strong> host and replicate it (distributed). Computers must be explicitly <strong>joined</strong> by an administrator (Settings &gt; System &gt; About &gt; Domain or workgroup, or PowerShell), then rebooted and logged in with domain credentials.</li><li><strong>OUs (organizational units)</strong> organize objects (by site, building, department) and are where policies attach. Manage with <strong>Active Directory Users and Computers</strong>: reset passwords, disable accounts, add to groups, <strong>move</strong> objects between OUs (which changes the policies they get).</li><li><strong>Group Policy Objects (GPOs)</strong> are created and linked in Group Policy Management; edit under user or computer configuration (e.g. Administrative Templates &gt; Desktop to hide the Recycle Bin). <code>gpupdate /force</code> refreshes; some settings need logoff/logon.</li><li><strong>Logon scripts</strong> (User Configuration &gt; Policies &gt; Windows Settings &gt; Scripts) can map drives (e.g. <code>net use G: \\server\share</code>). <strong>Home folders</strong> map a personal network drive (<code>\\server\home\%username%</code>). <strong>Folder redirection</strong> sends Documents, Desktop and Downloads to a server for backup, often paired with <strong>offline files</strong> for laptops.</li><li><strong>Groups</strong> assign permissions at scale: add users to groups instead of setting rights per user (e.g. Remote Desktop Users).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-2.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> NTFS gives Everyone full control, share gives Everyone read. A remote user can:</p><ul class="chk__o"><li><span class="ok">a)</span> Read only</li><li><span class="ok">b)</span> Full control</li><li><span class="ok">c)</span> Nothing</li><li><span class="ok">d)</span> Delete</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Most restrictive.</p></details></div><div class="chk"><p><strong>2.</strong> You must stop employees from losing data when laptops are stolen. Enable:</p><ul class="chk__o"><li><span class="ok">a)</span> BitLocker</li><li><span class="ok">b)</span> Fast Startup</li><li><span class="ok">c)</span> UAC off</li><li><span class="ok">d)</span> Guest account</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Full-disk encryption.</p></details></div><div class="chk"><p><strong>3.</strong> Marketing needs a different desktop policy than accounting. Use:</p><ul class="chk__o"><li><span class="ok">a)</span> Separate OUs with GPOs</li><li><span class="ok">b)</span> Separate workgroups</li><li><span class="ok">c)</span> Local passwd</li><li><span class="ok">d)</span> Shares</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Policies attach to OUs.</p></details></div><div class="chk"><p><strong>4.</strong> A user's Documents must be backed up centrally without user action:</p><ul class="chk__o"><li><span class="ok">a)</span> Folder redirection</li><li><span class="ok">b)</span> Defrag</li><li><span class="ok">c)</span> Hibernate</li><li><span class="ok">d)</span> EFS</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Redirection.</p></details></div><div class="chk"><p><strong>5.</strong> Defender real-time protection is off. Risk?</p><ul class="chk__o"><li><span class="ok">a)</span> None</li><li><span class="ok">b)</span> Files not scanned as they are accessed</li><li><span class="ok">c)</span> Updates stop</li><li><span class="ok">d)</span> Disk fills</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Real-time monitoring gone.</p></details></div>
+<h2>short lab: Onboard a user</h2><div class="prose lab"><p>Describe steps to give a new hire a domain login, a mapped H: drive and access to the accounting share.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Create the user in AD in the right OU, set a home folder <code>\\server\home\%username%</code> mapped H:, add the user to the Accounting group that holds share/NTFS permissions, and have them log on to a domain-joined PC (gpupdate if needed).</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/system-hardening-windows-linux.html">system hardening windows linux</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/group-policy.html">group policy</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/windows-admin-powershell.html">windows admin powershell</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.2" placeholder="# 2.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.1.html">&lt; 2.1</a><a href="2.3.html">2.3 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-2.2-0", "q": "Where is Defender Antivirus managed?", "a": "Windows Security app > Virus & threat protection."}, {"id": "aplus2-2.2-1", "q": "Default Defender setting?", "a": "Real-time protection on."}, {"id": "aplus2-2.2-2", "q": "How to update definitions manually?", "a": "Protection updates > Check for updates."}, {"id": "aplus2-2.2-3", "q": "What does \"block all incoming connections\" do?", "a": "Blocks everything inbound even apps on the allowed list."}, {"id": "aplus2-2.2-4", "q": "Windows firewall profiles?", "a": "Domain, private, public."}, {"id": "aplus2-2.2-5", "q": "Security providers page shows?", "a": "Which AV, firewall and web protection are active."}, {"id": "aplus2-2.2-6", "q": "Local, Microsoft and domain accounts?", "a": "Local on the PC; Microsoft in the cloud; domain in Active Directory."}, {"id": "aplus2-2.2-7", "q": "Passwordless Windows options?", "a": "Windows Hello face/fingerprint/PIN, security keys."}, {"id": "aplus2-2.2-8", "q": "NTFS vs share permission conflict?", "a": "The most restrictive applies; deny wins."}, {"id": "aplus2-2.2-9", "q": "Do child folders inherit permissions?", "a": "Yes, unless explicit permissions are set."}, {"id": "aplus2-2.2-10", "q": "Move a file within the same volume?", "a": "It keeps its original permissions."}, {"id": "aplus2-2.2-11", "q": "UAC prompt?", "a": "Asks to allow a program to make admin changes."}, {"id": "aplus2-2.2-12", "q": "BitLocker To Go?", "a": "Encrypts removable USB drives."}, {"id": "aplus2-2.2-13", "q": "EFS limitation?", "a": "Not in Home; tied to the user account, data lost if credentials are reset without a backup."}, {"id": "aplus2-2.2-14", "q": "Domain controller?", "a": "Server holding and replicating the AD database."}, {"id": "aplus2-2.2-15", "q": "What is an OU?", "a": "Organizational unit: container used to organize AD objects and apply GPOs."}, {"id": "aplus2-2.2-16", "q": "Which tool resets domain passwords?", "a": "Active Directory Users and Computers."}, {"id": "aplus2-2.2-17", "q": "Effect of moving a user to a different OU?", "a": "They receive that OU's policies."}, {"id": "aplus2-2.2-18", "q": "Force group policy refresh?", "a": "gpupdate /force."}, {"id": "aplus2-2.2-19", "q": "Logon script purpose?", "a": "Automatically maps drives or runs tasks at login."}, {"id": "aplus2-2.2-20", "q": "Home folder?", "a": "Personal network drive mapped per user."}, {"id": "aplus2-2.2-21", "q": "Folder redirection?", "a": "Stores Documents/Desktop on a server for backup."}, {"id": "aplus2-2.2-22", "q": "Why assign permissions via groups?", "a": "Scales and avoids per-user errors."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

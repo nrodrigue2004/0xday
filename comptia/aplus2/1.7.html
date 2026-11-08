@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 1.7 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 1.7: Windows Networking">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.7 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 1.0 · Operating Systems</span><span>1.7</span></div>
+<h1><span class="ok">1.7</span> Windows Networking</h1>
+<div class="obj" data-obj="aplus2-1.7">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Shares, Workgroups and Domains</h4>
+<ul><li>A <strong>share</strong> exposes a file, folder or printer on the network. Map a drive letter in File Explorer (Map network drive: <code>\\server\share</code>, reconnect at sign-in, different credentials) or with <code>net use H: &quot;\\server\Share Name&quot;</code> (quote names with spaces). A trailing <strong>$</strong> makes a share <strong>hidden</strong> (e.g. <code>ADMIN$</code>); it still works if you know the name. View shares in Computer Management &gt; Shared Folders.</li><li><strong>Workgroup</strong>: standalone devices each with their own accounts (home). <strong>Domain</strong>: central Active Directory credentials and policies, managed by IT; needs <strong>Pro or better</strong> (not Home). Join via Settings &gt; System &gt; About &gt; Domain or workgroup &gt; Change, with domain credentials.</li><li><strong>Share a printer</strong>: Printer properties &gt; Sharing tab &gt; Share this printer.</li></ul>
+<h4>Windows Defender Firewall</h4>
+<ul><li>Always on by default; turn off only temporarily for troubleshooting (needs elevation). Settings per profile: turn on/off, <strong>block all incoming connections</strong>, notify on blocked apps.</li><li>Allow an app through the firewall, or open <strong>Windows Defender Firewall with Advanced Security</strong>: inbound/outbound rules, connection security rules, monitoring. New rule types: Program, <strong>Port</strong>, Predefined, Custom. Example: block inbound TCP 80 on all profiles.</li></ul>
+<h4>IP Configuration</h4>
+<ul><li><strong>DHCP</strong> is the default. Without DHCP or a static address Windows falls back to <strong>APIPA 169.254.x.x</strong> (link-local only, no internet). Use an <strong>Alternate Configuration</strong> tab (set when "obtain automatically" is selected) to supply a fallback static address instead.</li><li>Static settings: <strong>IP address, subnet mask, default gateway</strong>, plus <strong>DNS</strong>. Or use a <strong>DHCP reservation</strong>. <strong>Loopback 127.0.0.1</strong> verifies the local IP stack.</li></ul>
+<h4>Network Connections</h4>
+<ul><li>Create via Network and Sharing Center or Settings &gt; Network &amp; Internet.</li><li><strong>VPN</strong>: encrypted tunnel from a client to a concentrator. Built-in client needs the server address; can add a smart card for MFA. Toggle from the system tray network icon.</li><li><strong>Wi-Fi</strong>: needs SSID, security type (WPA2/WPA3), encryption (AES, not old TKIP), and either <strong>PSK</strong> (personal) or <strong>802.1X</strong> enterprise authentication against a central server.</li><li><strong>Wired</strong>: usually fastest, so it is the default route. <strong>WWAN</strong>: cellular via built-in or USB modem, or phone tether/hotspot (may need vendor software).</li><li><strong>Proxy</strong>: intermediary that makes requests for you; set automatic or manual in Internet Options or Settings, with exceptions.</li><li><strong>Network profiles</strong>: <strong>private</strong> (trusted, sharing allowed) vs <strong>public</strong> (no sharing or inbound by default). <strong>Metered connection</strong> limits data use; set data limits.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-1.7"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A laptop shows 169.254.7.22 at the office. Likely cause?</p><ul class="chk__o"><li><span class="ok">a)</span> DHCP server unreachable</li><li><span class="ok">b)</span> DNS poisoning</li><li><span class="ok">c)</span> Bad driver</li><li><span class="ok">d)</span> Proxy</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> APIPA.</p></details></div><div class="chk"><p><strong>2.</strong> A user's Windows 11 Home PC can't join the corporate domain. Fix:</p><ul class="chk__o"><li><span class="ok">a)</span> Upgrade to Pro</li><li><span class="ok">b)</span> Add a $ to the share</li><li><span class="ok">c)</span> Disable firewall</li><li><span class="ok">d)</span> Use APIPA</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Home can't domain join.</p></details></div><div class="chk"><p><strong>3.</strong> Block unencrypted web traffic to a local web server:</p><ul class="chk__o"><li><span class="ok">a)</span> Inbound rule, TCP 80, block</li><li><span class="ok">b)</span> Outbound rule, UDP 53, allow</li><li><span class="ok">c)</span> Metered connection</li><li><span class="ok">d)</span> Alternate configuration</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Port 80 is HTTP.</p></details></div><div class="chk"><p><strong>4.</strong> At a coffee shop you should select which profile?</p><ul class="chk__o"><li><span class="ok">a)</span> Private</li><li><span class="ok">b)</span> Domain</li><li><span class="ok">c)</span> Public</li><li><span class="ok">d)</span> Workgroup</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Highest protection.</p></details></div>
+<h2>short lab: Fallback IP</h2><div class="prose lab"><p>Make a DHCP laptop use 10.1.10.102/24 (gateway 10.1.10.1) when DHCP is down. List the steps.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Network and Sharing Center &gt; Change adapter settings &gt; Properties of the adapter &gt; IPv4 Properties &gt; Obtain automatically &gt; Alternate Configuration &gt; User configured; enter IP, mask, gateway and DNS.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/networking-tcp-ip-dhcp-nat-subnets.html">networking tcp ip dhcp nat subnets</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/vpn-tailscale.html">vpn tailscale</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/active-directory.html">active directory</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.7" placeholder="# 1.7 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.6.html">&lt; 1.6</a><a href="1.8.html">1.8 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-1.7-0", "q": "How to hide a share?", "a": "Append $ to the share name."}, {"id": "aplus2-1.7-1", "q": "Command to map a drive?", "a": "net use H: \\\\server\\share."}, {"id": "aplus2-1.7-2", "q": "Share names with spaces?", "a": "Quote the whole path."}, {"id": "aplus2-1.7-3", "q": "Workgroup authentication?", "a": "Each device keeps its own accounts."}, {"id": "aplus2-1.7-4", "q": "Domain join requires edition?", "a": "Pro or better; not Home."}, {"id": "aplus2-1.7-5", "q": "Where to join a domain?", "a": "Settings > System > About > Domain or workgroup."}, {"id": "aplus2-1.7-6", "q": "Windows Firewall advanced console?", "a": "Windows Defender Firewall with Advanced Security."}, {"id": "aplus2-1.7-7", "q": "Rule types in the wizard?", "a": "Program, port, predefined, custom."}, {"id": "aplus2-1.7-8", "q": "Block-all-incoming option?", "a": "Blocks even explicitly allowed inbound connections."}, {"id": "aplus2-1.7-9", "q": "APIPA range?", "a": "169.254.1.0 to 169.254.254.255."}, {"id": "aplus2-1.7-10", "q": "What does APIPA mean for access?", "a": "Local network only, no internet."}, {"id": "aplus2-1.7-11", "q": "Alternate configuration use?", "a": "Fallback static settings when DHCP is unavailable."}, {"id": "aplus2-1.7-12", "q": "Three key static settings?", "a": "IP address, subnet mask, default gateway."}, {"id": "aplus2-1.7-13", "q": "Loopback address?", "a": "127.0.0.1."}, {"id": "aplus2-1.7-14", "q": "VPN purpose?", "a": "Encrypted tunnel across a public network."}, {"id": "aplus2-1.7-15", "q": "Wi-Fi settings to join an enterprise network?", "a": "SSID, WPA2/WPA3 Enterprise with 802.1X, AES."}, {"id": "aplus2-1.7-16", "q": "Which connection is default when several are active?", "a": "The fastest, usually wired Ethernet."}, {"id": "aplus2-1.7-17", "q": "WWAN?", "a": "Cellular wireless wide area network link."}, {"id": "aplus2-1.7-18", "q": "Private vs public profile?", "a": "Private allows sharing/discovery; public blocks them."}, {"id": "aplus2-1.7-19", "q": "Metered connection purpose?", "a": "Reduces data usage on costly networks."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

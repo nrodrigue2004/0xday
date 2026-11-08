@@ -68,7 +68,7 @@
    "status": "notes",
    "built": true,
    "role": "help desk, desktop support, field tech",
-   "exam": "Core 1: up to 90 questions (multiple choice and performance-based), 90 minutes, pass at 675 of 900. Core 2 notes not added yet",
+   "exam": "Core 1: up to 90 questions (multiple choice and performance-based), 90 minutes, pass at 675 of 900. Core 2 is the next entry",
    "domains": {
     "1": [
      "Mobile Devices",
@@ -89,6 +89,34 @@
     "5": [
      "Hardware and Network Troubleshooting",
      28
+    ]
+   }
+  },
+  {
+   "slug": "aplus2",
+   "name": "CompTIA A+ Core 2",
+   "code": "220-1202",
+   "file": "aplus2.txt",
+   "status": "notes",
+   "built": true,
+   "role": "help desk, desktop support, field tech",
+   "exam": "Core 2: up to 90 questions (multiple choice and performance-based), 90 minutes, pass at 700 of 900",
+   "domains": {
+    "1": [
+     "Operating Systems",
+     28
+    ],
+    "2": [
+     "Security",
+     28
+    ],
+    "3": [
+     "Software Troubleshooting",
+     23
+    ],
+    "4": [
+     "Operational Procedures",
+     21
     ]
    }
   }

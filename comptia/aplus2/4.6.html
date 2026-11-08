@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 4.6 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 4.6: Privacy and Policies">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 4.6 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 4.0 · Operational Procedures</span><span>4.6</span></div>
+<h1><span class="ok">4.6</span> Privacy and Policies</h1>
+<div class="obj" data-obj="aplus2-4.6">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Incident Response Basics</h4>
+<ul><li><strong>Chain of custody</strong>: document every person who handles evidence; use sealed bags and hashes/digital signatures for integrity.</li><li><strong>First response</strong>: identify the issue (logs, witnesses, monitoring), report through the proper channel (including law enforcement where needed), preserve and collect data.</li><li><strong>Imaging</strong>: make a <strong>bit-for-bit</strong> copy of the entire drive (includes deleted data still on disk), with a <strong>hardware write blocker</strong> or booted software imaging tool; analyze the copy, not the original. Verify with hashes.</li><li><strong>Document</strong> the event summary, step-by-step acquisition process, analysis findings and conclusions (may be used in court).</li><li><strong>Order of volatility</strong> (collect most volatile first): CPU registers/cache &gt; routing/ARP tables, process table, kernel statistics, memory &gt; temporary file systems &gt; disk &gt; remote logging and monitoring data &gt; physical configuration and network topology &gt; backup tapes.</li></ul>
+<h4>Licensing, Agreements, Regulations</h4>
+<ul><li><strong>Licenses</strong>: per-seat (one per user), <strong>concurrent</strong> (max simultaneous users), duration/subscription (expires), personal, <strong>perpetual</strong> (one-time cost), <strong>corporate/site</strong>. <strong>FOSS</strong> includes source you can modify; closed source does not.</li><li><strong>EULA</strong>: contract accepted at installation. <strong>NDA</strong>: confidentiality agreement, <strong>unilateral</strong> (one party) or <strong>bilateral</strong> (both).</li><li><strong>PCI DSS</strong>: credit card data. Six control objectives: secure network and systems, protect cardholder data, vulnerability management program, strong access control (MFA), regular monitoring and testing, information security policy.</li><li><strong>PII</strong> = data that identifies a person (breach example: OPM 2015, 21.5 million people). <strong>PHI</strong> = health data, regulated in the US by <strong>HIPAA</strong> (1996).</li><li><strong>Data retention</strong>: versioning, rollback period (e.g. 30 days) and legal retention (email, tax, financial records for years).</li><li><strong>AUP</strong> limits liability and defines acceptable use; <strong>splash screen / login banner</strong> informs or requires agreement ("as is" disclaimers, support hours).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-4.6"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Which is most volatile?</p><ul class="chk__o"><li><span class="ok">a)</span> CPU registers</li><li><span class="ok">b)</span> Backup tape</li><li><span class="ok">c)</span> Disk</li><li><span class="ok">d)</span> Network topology</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Changes constantly.</p></details></div><div class="chk"><p><strong>2.</strong> You seize a suspect laptop. First copy:</p><ul class="chk__o"><li><span class="ok">a)</span> Bit-for-bit image through a write blocker</li><li><span class="ok">b)</span> Drag documents to USB</li><li><span class="ok">c)</span> Boot it normally</li><li><span class="ok">d)</span> Delete temp files</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Preserve evidence.</p></details></div><div class="chk"><p><strong>3.</strong> 50 employees but only 20 use the app at once. Cheapest compliant license:</p><ul class="chk__o"><li><span class="ok">a)</span> 20 concurrent</li><li><span class="ok">b)</span> 50 per-seat</li><li><span class="ok">c)</span> Site license</li><li><span class="ok">d)</span> Perpetual personal</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Concurrent.</p></details></div><div class="chk"><p><strong>4.</strong> Law protecting patient records in the US:</p><ul class="chk__o"><li><span class="ok">a)</span> HIPAA</li><li><span class="ok">b)</span> PCI DSS</li><li><span class="ok">c)</span> EULA</li><li><span class="ok">d)</span> SLA</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Health privacy.</p></details></div>
+<h2>short lab: Seize a laptop</h2><div class="prose lab"><p>Outline how to collect evidence from a laptop suspected in a data leak.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Document scene, capture RAM if running, power handling per policy, image the drive through a write blocker with hashes, log chain of custody, analyze the copy, write findings.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/incident-response.html">incident response</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/digital-forensics.html">digital forensics</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 4.6" placeholder="# 4.6 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="4.5.html">&lt; 4.5</a><a href="4.7.html">4.7 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-4.6-0", "q": "Chain of custody?", "a": "Record of everyone who handled evidence."}, {"id": "aplus2-4.6-1", "q": "Evidence integrity tool for digital data?", "a": "Hashes and digital signatures."}, {"id": "aplus2-4.6-2", "q": "First incident response steps?", "a": "Identify, report to the right people, preserve data."}, {"id": "aplus2-4.6-3", "q": "Bit-for-bit copy captures?", "a": "Everything including deleted but unoverwritten data."}, {"id": "aplus2-4.6-4", "q": "Hardware write blocker purpose?", "a": "Prevent changes to the original evidence drive."}, {"id": "aplus2-4.6-5", "q": "What do you analyze?", "a": "The image copy, never the original."}, {"id": "aplus2-4.6-6", "q": "Most volatile data?", "a": "CPU registers and cache."}, {"id": "aplus2-4.6-7", "q": "Order of volatility start to end?", "a": "Registers, tables/process/memory, temp files, disk, remote logs, topology, backup tapes."}, {"id": "aplus2-4.6-8", "q": "Per-seat license?", "a": "One license per user."}, {"id": "aplus2-4.6-9", "q": "Concurrent license?", "a": "Limits simultaneous users."}, {"id": "aplus2-4.6-10", "q": "Perpetual license?", "a": "One-time purchase, no expiry."}, {"id": "aplus2-4.6-11", "q": "FOSS?", "a": "Free and open-source software with modifiable source."}, {"id": "aplus2-4.6-12", "q": "EULA?", "a": "End-user license agreement accepted at install."}, {"id": "aplus2-4.6-13", "q": "Unilateral vs bilateral NDA?", "a": "One party vs both parties keep secrets."}, {"id": "aplus2-4.6-14", "q": "PCI DSS covers?", "a": "Payment card data handling."}, {"id": "aplus2-4.6-15", "q": "PII vs PHI?", "a": "Personal identification vs protected health information."}, {"id": "aplus2-4.6-16", "q": "HIPAA?", "a": "US law protecting PHI (1996)."}, {"id": "aplus2-4.6-17", "q": "AUP signed to?", "a": "Define acceptable technology use and limit liability."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

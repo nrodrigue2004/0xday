@@ -38,7 +38,7 @@ The programming path. Chapters are `content/code/<slug>.txt` in the same format 
 
 ## ~/comptia
 
-Later/optional certs after Security+. `content/comptia/certs.json` lists them; each built cert has `content/comptia/<slug>.txt` (format in the `build_comptia.py` docstring: per objective `@notes`, `@cards`, `@check`, `@lab`, `@answer`). CySA+ (CS0-004) is built. Network+ and A+ are placeholders until Nate's notes arrive: add `netplus.txt` / `aplus.txt`, set `built: true` and a `domains` map in certs.json.
+Later/optional certs after Security+. `content/comptia/certs.json` lists them; each built cert has `content/comptia/<slug>.txt` (format in the `build_comptia.py` docstring: per objective `@notes`, `@cards`, `@check`, `@lab`, `@answer`). CySA+ (CS0-004) is built. Network+ (`netplus.txt`), A+ Core 1 (`aplus.txt`) and A+ Core 2 (`aplus2.txt`) are built from Nate's own notes; a new cert is a `.txt` file plus a certs.json entry with `built: true` and a `domains` map.
 
 ## ~/ai
 
