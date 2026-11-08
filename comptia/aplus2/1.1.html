@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 1.1 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 1.1: Operating Systems">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.1 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 1.0 · Operating Systems</span><span>1.1</span></div>
+<h1><span class="ok">1.1</span> Operating Systems</h1>
+<div class="obj" data-obj="aplus2-1.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Operating Systems Overview</h4>
+<ul><li>The OS sits between hardware and applications: it moves data between storage, memory and CPU, handles input and output, manages files, and ships its own maintenance utilities. Apps are written for one OS; a Windows executable will not run on Linux, though document formats (and web apps) move freely.</li><li><strong>Windows</strong>: biggest market share, huge hardware/software support, many editions (10, 11, Server). Downsides: the biggest malware target, and driver quality depends on each hardware vendor.</li><li><strong>Linux</strong>: free and open source, many distributions, runs on almost anything, community support only (no single vendor); newer hardware may lack drivers.</li><li><strong>macOS</strong>: Apple hardware only, polished, security-minded, tightly integrated; costs more and has less industry support.</li><li><strong>Chrome OS</strong>: Google, built on the Linux kernel, browser-centered, light, needs a network connection for most apps.</li><li><strong>iPadOS</strong>: a tablet version of iOS (Safari desktop browser, Sidecar second display, keyboard and multitasking). <strong>iOS</strong>: closed source, Apple hardware only; apps built with Apple's SDK on macOS and approved by Apple before the App Store. <strong>Android</strong>: open source, Linux-based, run by the Open Handset Alliance, many hardware makers, apps via Google Play and third-party stores.</li><li>Watch <strong>end of life</strong> (each vendor sets its own) and keep systems patched.</li></ul>
+<h4>File Systems</h4>
+<ul><li>Partitions must be formatted with a file system before data is stored.</li><li><strong>NTFS</strong>: Windows default; compression, encryption, quotas, permissions. Linux/macOS read it (modern ones write too). <strong>ReFS</strong>: resilient, self-repairing, huge volumes, server-oriented, not widely deployed.</li><li><strong>FAT32</strong>: old, max volume 2 TB and file size 4 GB. <strong>exFAT</strong>: for flash drives, files over 4 GB, works across Windows, macOS, Linux.</li><li><strong>ext4</strong>: Linux and Android standard. <strong>XFS</strong>: high-performance, large-volume Linux file system with journaling and low fragmentation. <strong>APFS</strong>: Apple, tuned for SSDs, built-in encryption and snapshots (iOS, iPadOS, macOS).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-1.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> You need a USB drive with a 10 GB file usable on Windows, macOS and Linux. Format?</p><ul class="chk__o"><li><span class="ok">a)</span> FAT32</li><li><span class="ok">b)</span> exFAT</li><li><span class="ok">c)</span> APFS</li><li><span class="ok">d)</span> ext4</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> exFAT has no 4 GB file limit and is cross-platform.</p></details></div><div class="chk"><p><strong>2.</strong> Which OS runs only on the vendor's own hardware and is closed source?</p><ul class="chk__o"><li><span class="ok">a)</span> Android</li><li><span class="ok">b)</span> Linux</li><li><span class="ok">c)</span> iOS</li><li><span class="ok">d)</span> Chrome OS</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> iOS.</p></details></div><div class="chk"><p><strong>3.</strong> Which file system is Windows' default?</p><ul class="chk__o"><li><span class="ok">a)</span> ext4</li><li><span class="ok">b)</span> NTFS</li><li><span class="ok">c)</span> XFS</li><li><span class="ok">d)</span> APFS</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> NTFS.</p></details></div>
+<h2>short lab: Pick the file system</h2><div class="prose lab"><p>Choose a file system: (1) Linux database server with huge volumes, (2) Windows 11 system drive, (3) MacBook SSD, (4) camera memory card shared across OSes.</p></div><details><summary>walkthrough</summary><div class="prose"><p>(1) XFS. (2) NTFS. (3) APFS. (4) exFAT.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/operating-systems.html">operating systems</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.1" placeholder="# 1.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><span></span><a href="1.2.html">1.2 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-1.1-0", "q": "Main job of an operating system?", "a": "Link hardware and applications and manage files, memory, input and output."}, {"id": "aplus2-1.1-1", "q": "Why is Windows the biggest malware target?", "a": "Largest market share."}, {"id": "aplus2-1.1-2", "q": "Linux cost and support model?", "a": "Free, open source, community support."}, {"id": "aplus2-1.1-3", "q": "macOS hardware limit?", "a": "Runs only on Apple hardware."}, {"id": "aplus2-1.1-4", "q": "Chrome OS design?", "a": "Linux-kernel based, browser-centered, needs network connectivity."}, {"id": "aplus2-1.1-5", "q": "iOS vs Android source?", "a": "iOS is closed source; Android is open source on Linux."}, {"id": "aplus2-1.1-6", "q": "Which stores approve iOS apps?", "a": "Apple's App Store, after Apple testing."}, {"id": "aplus2-1.1-7", "q": "Default Windows file system?", "a": "NTFS."}, {"id": "aplus2-1.1-8", "q": "ReFS purpose?", "a": "Resilient, self-repairing file system for huge server volumes."}, {"id": "aplus2-1.1-9", "q": "FAT32 limits?", "a": "2 TB volume and 4 GB file."}, {"id": "aplus2-1.1-10", "q": "Best file system for cross-platform flash drives?", "a": "exFAT."}, {"id": "aplus2-1.1-11", "q": "File system of Linux and Android?", "a": "ext4."}, {"id": "aplus2-1.1-12", "q": "High-performance Linux data center file system?", "a": "XFS."}, {"id": "aplus2-1.1-13", "q": "Apple's file system for SSDs?", "a": "APFS."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 1.4 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 1.4: The Windows OS">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.4 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 1.0 · Operating Systems</span><span>1.4</span></div>
+<h1><span class="ok">1.4</span> The Windows OS</h1>
+<div class="obj" data-obj="aplus2-1.4">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Task Manager</h4>
+<ul><li>Open with <strong>Ctrl+Shift+Esc</strong>, Ctrl+Alt+Del, or right-click the taskbar. Tabs: <strong>Processes</strong> (running apps and background processes with CPU, memory, disk, network, GPU columns you can sort), <strong>Performance</strong> (60-second graphs), <strong>Users</strong> (connected users, can disconnect), <strong>Startup</strong> (enable or disable boot-time apps; disable groups to find a culprit), <strong>Services</strong> (start, stop, restart).</li></ul>
+<h4>Microsoft Management Console (mmc.exe)</h4>
+<ul><li>MMC starts empty; add <strong>snap-ins</strong> (File &gt; Add/Remove Snap-in), save the console as a file, and reload it later.</li><li><strong>Event Viewer</strong> (<code>eventvwr.msc</code>): Application, Security, Setup, System logs; levels informational, warning, error, critical, audit success/failure; filter by level, source, user, computer.</li><li><strong>Disk Management</strong> (<code>diskmgmt.msc</code>): drives, partitions, file systems, drive letters; shrink, extend, mirror. Back up before changes; you can lose data.</li><li><strong>Task Scheduler</strong> (<code>taskschd.msc</code>): triggers, actions, conditions and settings; automate recurring jobs; folders for organization.</li><li><strong>Device Manager</strong> (<code>devmgmt.msc</code>): hardware by category; update, disable or uninstall drivers. Drivers are specific to the Windows version.</li><li><strong>Certificate Manager</strong> (<code>certmgr.msc</code>): view, add, remove certificates (trusted root CAs).</li><li><strong>Local Users and Groups</strong> (<code>lusrmgr.msc</code>): built-in Administrator and Guest, groups such as Administrators, Users, Backup Operators, Power Users.</li><li><strong>Performance Monitor</strong> (<code>perfmon.msc</code>): hundreds of counters over time, alerts, reports; lets you review a problem after it happened.</li><li><strong>Group Policy</strong>: <code>gpedit.msc</code> (local; computer configuration and user configuration, administrative templates) and <code>gpmc.msc</code> (domain).</li></ul>
+<h4>Additional Tools</h4>
+<ul><li><strong>System Information</strong> (<code>msinfo32.exe</code>): read-only summary of hardware resources, components, software environment; also shows Secure Boot state.</li><li><strong>Resource Monitor</strong> (<code>resmon.exe</code>): real-time CPU, memory, disk, network detail per process.</li><li><strong>System Configuration</strong> (<code>msconfig.exe</code>): General (normal, diagnostic, selective startup), Boot (safe boot, no GUI, boot log), Services, Startup (moved to Task Manager), Tools.</li><li><strong>Disk Cleanup</strong> (<code>cleanmgr.exe</code>): removes temp files, downloads, recycle bin.</li><li><strong>Defragment</strong> (<code>dfrgui</code>, <code>defrag</code>): needed for HDDs only; SSDs do not need it.</li><li><strong>Registry Editor</strong> (<code>regedit.exe</code>): hives start with HKEY (Classes Root, Current User, Local Machine, Users, Current Config). Back up (export) a key before editing; run the .reg file to restore.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-1.4"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> You want to see crashes that happened yesterday. Tool?</p><ul class="chk__o"><li><span class="ok">a)</span> Task Manager</li><li><span class="ok">b)</span> Event Viewer</li><li><span class="ok">c)</span> msconfig</li><li><span class="ok">d)</span> Disk Cleanup</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Logs keep history.</p></details></div><div class="chk"><p><strong>2.</strong> Which tool records CPU use for days with alerts?</p><ul class="chk__o"><li><span class="ok">a)</span> Resource Monitor</li><li><span class="ok">b)</span> Performance Monitor</li><li><span class="ok">c)</span> Task Manager</li><li><span class="ok">d)</span> msinfo32</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Perfmon.</p></details></div><div class="chk"><p><strong>3.</strong> Slow login: which first stop to disable startup apps?</p><ul class="chk__o"><li><span class="ok">a)</span> Task Manager Startup tab</li><li><span class="ok">b)</span> Disk Management</li><li><span class="ok">c)</span> Certificate Manager</li><li><span class="ok">d)</span> Defrag</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Startup tab.</p></details></div><div class="chk"><p><strong>4.</strong> Before editing the registry, you should:</p><ul class="chk__o"><li><span class="ok">a)</span> Export a backup</li><li><span class="ok">b)</span> Defrag</li><li><span class="ok">c)</span> Disable UAC permanently</li><li><span class="ok">d)</span> Reboot</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Export the key.</p></details></div>
+<h2>short lab: Map the tool</h2><div class="prose lab"><p>Which command opens: (1) services/startup selection at boot, (2) partitions, (3) driver list, (4) scheduled jobs, (5) read-only system summary?</p></div><details><summary>walkthrough</summary><div class="prose"><p>(1) msconfig. (2) diskmgmt.msc. (3) devmgmt.msc. (4) taskschd.msc. (5) msinfo32.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/windows-admin-powershell.html">windows admin powershell</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/log-analysis.html">log analysis</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.4" placeholder="# 1.4 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.3.html">&lt; 1.3</a><a href="1.5.html">1.5 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-1.4-0", "q": "Fastest Task Manager shortcut?", "a": "Ctrl+Shift+Esc."}, {"id": "aplus2-1.4-1", "q": "Task Manager tab to disable startup apps?", "a": "Startup."}, {"id": "aplus2-1.4-2", "q": "Task Manager tab to disconnect users?", "a": "Users."}, {"id": "aplus2-1.4-3", "q": "Command to open the MMC?", "a": "mmc.exe."}, {"id": "aplus2-1.4-4", "q": "What are snap-ins?", "a": "Tools you add to the MMC."}, {"id": "aplus2-1.4-5", "q": "Event Viewer command?", "a": "eventvwr.msc."}, {"id": "aplus2-1.4-6", "q": "Main Event Viewer logs?", "a": "Application, Security, Setup, System."}, {"id": "aplus2-1.4-7", "q": "Disk Management command?", "a": "diskmgmt.msc."}, {"id": "aplus2-1.4-8", "q": "Task Scheduler command?", "a": "taskschd.msc."}, {"id": "aplus2-1.4-9", "q": "Device Manager command?", "a": "devmgmt.msc."}, {"id": "aplus2-1.4-10", "q": "Certificate Manager command?", "a": "certmgr.msc."}, {"id": "aplus2-1.4-11", "q": "Local Users and Groups command?", "a": "lusrmgr.msc."}, {"id": "aplus2-1.4-12", "q": "Performance Monitor command?", "a": "perfmon.msc."}, {"id": "aplus2-1.4-13", "q": "Difference between Task Manager and Performance Monitor?", "a": "Task Manager is real-time; Performance Monitor records history and alerts."}, {"id": "aplus2-1.4-14", "q": "Command for System Information?", "a": "msinfo32.exe."}, {"id": "aplus2-1.4-15", "q": "Resource Monitor command?", "a": "resmon.exe."}, {"id": "aplus2-1.4-16", "q": "System Configuration command?", "a": "msconfig.exe."}, {"id": "aplus2-1.4-17", "q": "Disk Cleanup command?", "a": "cleanmgr.exe."}, {"id": "aplus2-1.4-18", "q": "Should SSDs be defragmented?", "a": "No."}, {"id": "aplus2-1.4-19", "q": "Registry editor?", "a": "regedit.exe; back up before changes."}, {"id": "aplus2-1.4-20", "q": "Registry root key names?", "a": "HKEY_CLASSES_ROOT, CURRENT_USER, LOCAL_MACHINE, USERS, CURRENT_CONFIG."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 4.3 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 4.3: Backup and Recovery">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 4.3 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 4.0 · Operational Procedures</span><span>4.3</span></div>
+<h1><span class="ok">4.3</span> Backup and Recovery</h1>
+<div class="obj" data-obj="aplus2-4.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Backup Types</h4>
+<ul><li>Plan around data size, backup type, media, location, software (for backup and restore) and frequency.</li><li><strong>Full</strong>: everything (OS, apps, documents); longest backup, biggest storage, simplest restore (one set).</li><li><strong>Differential</strong>: full first, then everything changed <strong>since the last full</strong>; grows daily. Restore = last full + <strong>last differential</strong> (two sets).</li><li><strong>Incremental</strong>: full first, then only changes <strong>since the last backup of any kind</strong>; smallest and fastest to take. Restore = full + <strong>every incremental</strong> in order (slowest restore).</li><li><strong>Synthetic full</strong>: assembles a full backup from the existing full and incremental/differential sets without re-transferring data; saves bandwidth and time; restores like a full.</li></ul>
+<div class="tbl"><table><thead><tr><th>Type</th><th>Backup time</th><th>Restore time</th><th>Sets for restore</th></tr></thead><tbody><tr><td>Full</td><td>High</td><td>Low</td><td>1</td></tr><tr><td>Differential</td><td>Moderate</td><td>Low-moderate</td><td>2</td></tr><tr><td>Incremental</td><td>Low</td><td>High</td><td>Full + all incrementals</td></tr><tr><td>Synthetic</td><td>Low</td><td>Low</td><td>1</td></tr></tbody></table></div>
+<h4>Testing, Restores, Locations</h4>
+<ul><li>A backup is only proven by <strong>recovery testing</strong>: restore a sample file and compare to the original; <strong>audit</strong> the backup process regularly.</li><li><strong>In-place restore</strong> overwrites the original location (re-imaging). <strong>Alternate location</strong> restore keeps existing files and avoids overwriting newer data.</li><li><strong>On-site</strong>: fast, local, cheap. <strong>Off-site</strong>: survives fire or flood, depends on bandwidth. Most use both.</li><li><strong>GFS (grandfather-father-son)</strong>: monthly full (grandfather), weekly (father), daily incremental/differential (son); intervals can shift (hourly/daily/weekly).</li><li><strong>3-2-1 rule</strong>: <strong>3</strong> copies of data, on <strong>2</strong> different media types (disk, tape, NAS), <strong>1</strong> copy off-site (storage facility or cloud).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-4.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Backups: full Monday, incremental Tue-Thu. Thursday afternoon you must restore. You need:</p><ul class="chk__o"><li><span class="ok">a)</span> Monday full plus Tue, Wed and Thu incrementals</li><li><span class="ok">b)</span> Thursday only</li><li><span class="ok">c)</span> Monday and Thursday only</li><li><span class="ok">d)</span> Tuesday only</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Every incremental.</p></details></div><div class="chk"><p><strong>2.</strong> Same schedule but differential. Restore needs:</p><ul class="chk__o"><li><span class="ok">a)</span> Monday full and Thursday differential</li><li><span class="ok">b)</span> All differentials</li><li><span class="ok">c)</span> Only Thursday</li><li><span class="ok">d)</span> Only Monday</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Two sets.</p></details></div><div class="chk"><p><strong>3.</strong> Which meets 3-2-1?</p><ul class="chk__o"><li><span class="ok">a)</span> Local disk, NAS and cloud copy</li><li><span class="ok">b)</span> Three folders on one disk</li><li><span class="ok">c)</span> Two USB drives</li><li><span class="ok">d)</span> One tape only</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> 3 copies, 2 media, 1 off-site.</p></details></div><div class="chk"><p><strong>4.</strong> You want a full restore point without a long backup window:</p><ul class="chk__o"><li><span class="ok">a)</span> Synthetic full</li><li><span class="ok">b)</span> Full daily</li><li><span class="ok">c)</span> Alternate location restore</li><li><span class="ok">d)</span> Quick format</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Combine existing sets.</p></details></div>
+<h2>short lab: Pick a schedule</h2><div class="prose lab"><p>A small office has 500 GB, a 6-hour overnight window and wants fast restores. Choose types for each weekday and justify.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Full on weekends, differential daily weeknights (two-set restore) or incremental if the window is tight; keep monthly off-site (GFS) and follow 3-2-1; test restores quarterly.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/log-analysis.html">log analysis</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/linux-server-admin-ubuntu.html">linux server admin ubuntu</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 4.3" placeholder="# 4.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="4.2.html">&lt; 4.2</a><a href="4.4.html">4.4 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-4.3-0", "q": "Full backup downside?", "a": "Long time and large storage."}, {"id": "aplus2-4.3-1", "q": "Differential contains?", "a": "Changes since the last full backup."}, {"id": "aplus2-4.3-2", "q": "Restore from differential needs?", "a": "Last full plus last differential."}, {"id": "aplus2-4.3-3", "q": "Incremental contains?", "a": "Changes since the last backup of any type."}, {"id": "aplus2-4.3-4", "q": "Restore from incremental needs?", "a": "Full plus every incremental since."}, {"id": "aplus2-4.3-5", "q": "Fastest backup to take?", "a": "Incremental."}, {"id": "aplus2-4.3-6", "q": "Synthetic backup?", "a": "A full backup built from existing backup sets without copying all the data again."}, {"id": "aplus2-4.3-7", "q": "How to prove a backup works?", "a": "Test restores and audit."}, {"id": "aplus2-4.3-8", "q": "In-place restore?", "a": "Overwrites files at their original location."}, {"id": "aplus2-4.3-9", "q": "Alternate location restore benefit?", "a": "Doesn't overwrite files that changed since the backup."}, {"id": "aplus2-4.3-10", "q": "Off-site backup protects against?", "a": "Site disasters like fire or flood."}, {"id": "aplus2-4.3-11", "q": "GFS stands for?", "a": "Grandfather-father-son rotation."}, {"id": "aplus2-4.3-12", "q": "Typical GFS tiers?", "a": "Monthly (grandfather), weekly (father), daily (son)."}, {"id": "aplus2-4.3-13", "q": "3-2-1 rule?", "a": "3 copies, 2 media types, 1 off-site."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

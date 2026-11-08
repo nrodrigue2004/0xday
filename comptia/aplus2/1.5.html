@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 1.5 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 1.5: The Windows Command Line">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.5 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 1.0 · Operating Systems</span><span>1.5</span></div>
+<h1><span class="ok">1.5</span> The Windows Command Line</h1>
+<div class="obj" data-obj="aplus2-1.5">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Command Prompt Basics</h4>
+<ul><li>Open with <code>cmd</code>; some commands need an <strong>elevated</strong> prompt (Run as administrator, or <strong>Ctrl+Shift+Enter</strong> from search; you must be in Administrators).</li><li>Help: <code>help</code>, <code>help dir</code>, or <code>dir /?</code>.</li><li>Navigation: <code>dir</code> lists files; <code>cd</code>/<code>chdir</code> changes directory; <code>cd ..</code> goes up one; <code>md</code>/<code>mkdir</code> creates; <code>rd</code>/<code>rmdir</code> removes. Paths use backslashes and a drive letter (<code>C:\Users\name</code>). Tab autocompletes.</li></ul>
+<h4>Disk and File Commands</h4>
+<ul><li>**<code>chkdsk /f</code><strong> fixes file-system index errors; </strong><code>chkdsk /r</code>** also scans every sector (slow; includes /f). Needs admin; a locked system volume is checked at the next restart.</li><li>**<code>format</code>**: initializes a partition with a file system (defaults to FAT32 if none given); erases the partition; admin only.</li><li>**<code>diskpart</code>**: partition tool (<code>list disk</code>, <code>list volume</code>, <code>list partition</code>, format, etc.); needs admin.</li><li>**<code>copy</code>**: <code>/v</code> verifies the copy, <code>/y</code> suppresses overwrite prompts (useful in batch files). **<code>robocopy</code>** (robust copy) has many more options: bandwidth throttling, retries after interruptions, subdirectories.</li><li>**<code>sfc /scannow</code>**: System File Checker detects and repairs changed or corrupt core Windows files; details in cbs.log.</li></ul>
+<h4>System and Identity Commands</h4>
+<ul><li><code>hostname</code>: the computer name (confirm you are on the right machine before a restart). <code>winver</code>: Windows version dialog. <code>whoami</code>: current user; <code>whoami /all</code> adds SID, groups and privileges.</li><li>**<code>gpupdate /force</code><strong> forces a group policy refresh; </strong><code>gpresult /r</code>** shows the resultant set of policies (RSoP) applied to the user and computer.</li></ul>
+<h4>Network Commands</h4>
+<ul><li>**<code>ipconfig</code>**: IP, mask, gateway; <code>/all</code> adds hostname, DNS servers, DHCP, MAC. Also <code>/release</code>, <code>/renew</code>, <code>/flushdns</code>.</li><li>**<code>ping</code>** (ICMP): tests reachability; reports replies, round-trip time, TTL, loss; default 4 packets. </li><li>**<code>netstat</code>**: connections and ports; <code>-a</code> all, <code>-b</code> shows executable (admin), <code>-n</code> numeric addresses. Columns: protocol, local address, foreign address, state (ESTABLISHED, CLOSE_WAIT...).</li><li>**<code>nslookup</code>**: DNS queries; name to IP and IP to name; uses the default DNS server.</li><li>**<code>net view \\server</code><strong> lists shares; </strong><code>net use H: \\server\share</code><strong> maps a drive; </strong><code>net user name /domain</code>** shows account details (active, password last set/expiry, groups).</li><li>**<code>tracert</code>**: maps routers by sending packets with TTL 1, 2, 3...; each router decrements TTL and replies "time exceeded" at 0. TTL in IPv4 counts hops, not seconds. Firewalls that block ICMP hide hops.</li><li>**<code>pathping</code>**: tracert first, then measures loss and round-trip time at every hop (takes minutes).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-1.5"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A script copies a file nightly and must not prompt on overwrite. Use:</p><ul class="chk__o"><li><span class="ok">a)</span> copy /v</li><li><span class="ok">b)</span> copy /y</li><li><span class="ok">c)</span> copy /?</li><li><span class="ok">d)</span> del</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> /y suppresses the prompt.</p></details></div><div class="chk"><p><strong>2.</strong> Which command finds which executable owns a connection?</p><ul class="chk__o"><li><span class="ok">a)</span> netstat -b</li><li><span class="ok">b)</span> nslookup</li><li><span class="ok">c)</span> ipconfig /all</li><li><span class="ok">d)</span> net use</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> -b shows the binary (admin).</p></details></div><div class="chk"><p><strong>3.</strong> Policy changed on the server but the PC hasn't applied it. Run:</p><ul class="chk__o"><li><span class="ok">a)</span> gpupdate /force</li><li><span class="ok">b)</span> sfc /scannow</li><li><span class="ok">c)</span> diskpart</li><li><span class="ok">d)</span> hostname</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Force refresh.</p></details></div><div class="chk"><p><strong>4.</strong> To find which router in the path drops packets, best:</p><ul class="chk__o"><li><span class="ok">a)</span> pathping</li><li><span class="ok">b)</span> ping</li><li><span class="ok">c)</span> hostname</li><li><span class="ok">d)</span> winver</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Per-hop statistics.</p></details></div><div class="chk"><p><strong>5.</strong> Core OS files are suspected corrupted by malware. Run:</p><ul class="chk__o"><li><span class="ok">a)</span> sfc /scannow</li><li><span class="ok">b)</span> chkdsk /f</li><li><span class="ok">c)</span> defrag</li><li><span class="ok">d)</span> netstat</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> System File Checker.</p></details></div>
+<h2>short lab: Troubleshoot a share</h2><div class="prose lab"><p>User can't open \\files01\docs. Give five commands in order and what each tells you.</p></div><details><summary>walkthrough</summary><div class="prose"><p>whoami (right user), ipconfig /all (IP, DNS, gateway), ping files01 (reachability and name resolution), nslookup files01 (DNS), net view \\files01 and net use to test share access; tracert/pathping if the path is suspect.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/windows-admin-powershell.html">windows admin powershell</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/networking-tcp-ip-dhcp-nat-subnets.html">networking tcp ip dhcp nat subnets</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.5" placeholder="# 1.5 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.4.html">&lt; 1.4</a><a href="1.6.html">1.6 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-1.5-0", "q": "How to open an elevated Command Prompt from search?", "a": "Ctrl+Shift+Enter or Run as administrator."}, {"id": "aplus2-1.5-1", "q": "Ways to get command help?", "a": "help command, or command /?."}, {"id": "aplus2-1.5-2", "q": "cd .. does what?", "a": "Moves up one directory."}, {"id": "aplus2-1.5-3", "q": "md / rd?", "a": "Make or remove a directory."}, {"id": "aplus2-1.5-4", "q": "chkdsk /f vs /r?", "a": "/f fixes file-system errors; /r also scans sectors for bad ones and recovers data."}, {"id": "aplus2-1.5-5", "q": "format default file system with no option?", "a": "FAT32."}, {"id": "aplus2-1.5-6", "q": "diskpart purpose?", "a": "Command-line partition and volume management."}, {"id": "aplus2-1.5-7", "q": "copy /v and /y?", "a": "/v verifies; /y suppresses overwrite prompt."}, {"id": "aplus2-1.5-8", "q": "robocopy advantages?", "a": "Retries, bandwidth throttling, subdirectories, robust copying."}, {"id": "aplus2-1.5-9", "q": "sfc /scannow?", "a": "Scans and repairs protected system files."}, {"id": "aplus2-1.5-10", "q": "Command for computer name?", "a": "hostname."}, {"id": "aplus2-1.5-11", "q": "Command for Windows version dialog?", "a": "winver."}, {"id": "aplus2-1.5-12", "q": "whoami /all shows?", "a": "User, SID, groups, privileges."}, {"id": "aplus2-1.5-13", "q": "Force a group policy refresh?", "a": "gpupdate /force."}, {"id": "aplus2-1.5-14", "q": "See applied policies?", "a": "gpresult /r."}, {"id": "aplus2-1.5-15", "q": "ipconfig /all adds?", "a": "DNS servers, DHCP info, MAC address, hostname."}, {"id": "aplus2-1.5-16", "q": "Protocol used by ping?", "a": "ICMP."}, {"id": "aplus2-1.5-17", "q": "netstat -b needs?", "a": "Elevated prompt; shows executable per connection."}, {"id": "aplus2-1.5-18", "q": "netstat -n?", "a": "Shows numeric addresses without name resolution."}, {"id": "aplus2-1.5-19", "q": "nslookup is for?", "a": "DNS name/IP lookups."}, {"id": "aplus2-1.5-20", "q": "net use H: \\\\srv\\share?", "a": "Maps a network drive."}, {"id": "aplus2-1.5-21", "q": "net view \\\\server?", "a": "Lists the server's shares."}, {"id": "aplus2-1.5-22", "q": "net user rmckay /domain?", "a": "Shows domain account properties."}, {"id": "aplus2-1.5-23", "q": "How does tracert work?", "a": "Increments TTL so each router returns time exceeded."}, {"id": "aplus2-1.5-24", "q": "pathping?", "a": "tracert plus per-hop loss and latency statistics."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

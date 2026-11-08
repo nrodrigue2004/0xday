@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 1.3 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 1.3: Microsoft Windows">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.3 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 1.0 · Operating Systems</span><span>1.3</span></div>
+<h1><span class="ok">1.3</span> Microsoft Windows</h1>
+<div class="obj" data-obj="aplus2-1.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Windows Editions</h4>
+<ul><li>Core 2 covers <strong>Windows 10 and Windows 11</strong> (all in-support versions are in scope). There is no Windows 9. Windows 10 support for Home and Pro ended <strong>14 Oct 2025</strong>, but it is still seen in production. Windows 11 (Oct 2021) is <strong>64-bit only</strong>, new Start menu and taskbar, snap layouts, Teams integration, touch improvements and Copilot.</li><li><strong>Home</strong>: consumer. Microsoft account/OneDrive, Defender, no domain join, no BitLocker (Win 11 Home has <strong>Device Encryption</strong>, recovery key stored in the Microsoft account), no group policy, Remote Desktop <strong>client only</strong>, 128 GB RAM max (64-bit).</li><li><strong>Pro</strong>: business. Domain join, BitLocker, Remote Desktop <strong>host and client</strong>, group policy, Hyper-V, 2 TB RAM max.</li><li><strong>Pro for Workstations</strong> (Win 10): up to four CPUs, 6 TB RAM, ReFS.</li><li><strong>Enterprise</strong>: volume licensing, up to 6 TB RAM, AppLocker, BranchCache, granular UX control; MDM/MAM management (Win 11), ReFS.</li><li>32-bit Windows (Win 10 only) caps at <strong>4 GB RAM</strong>.</li><li><strong>N editions</strong> (Europe) ship without media player and multimedia tools; add the Media Feature Pack from Settings &gt; Apps &gt; Optional features.</li></ul>
+<h4>Enterprise Features</h4>
+<ul><li><strong>Active Directory Domain Services (AD DS)</strong>: central, distributed database of users, computers, permissions; centralizes authentication. A <strong>workgroup</strong> manages each device separately (home). Domain-joined PCs get a standard locked-down desktop; at home you can customize freely.</li><li><strong>Remote Desktop</strong>: the RDP client runs on nearly any OS; the Remote Desktop service runs on Pro/Enterprise only.</li><li><strong>EFS</strong> encrypts chosen files/folders (part of NTFS); <strong>BitLocker</strong> is full-disk encryption (OS and data). Both help if a laptop is lost.</li><li><strong>Group policy</strong>: <code>gpedit.msc</code> for a single machine (local policy), <code>gpmc.msc</code> Group Policy Management Console for domains.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-1.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> An employee needs to RDP into their office PC. Minimum edition?</p><ul class="chk__o"><li><span class="ok">a)</span> Home</li><li><span class="ok">b)</span> Pro</li><li><span class="ok">c)</span> N</li><li><span class="ok">d)</span> Starter</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Home cannot host RDP.</p></details></div><div class="chk"><p><strong>2.</strong> Which provides full-disk encryption on Pro?</p><ul class="chk__o"><li><span class="ok">a)</span> EFS</li><li><span class="ok">b)</span> BitLocker</li><li><span class="ok">c)</span> AppLocker</li><li><span class="ok">d)</span> BranchCache</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> BitLocker.</p></details></div><div class="chk"><p><strong>3.</strong> An IT team manages 5,000 PCs centrally. Which database?</p><ul class="chk__o"><li><span class="ok">a)</span> Registry</li><li><span class="ok">b)</span> Active Directory Domain Services</li><li><span class="ok">c)</span> Workgroup</li><li><span class="ok">d)</span> MMC</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> AD DS.</p></details></div><div class="chk"><p><strong>4.</strong> A 32-bit Windows 10 PC shows 4 GB usable even with 16 GB installed. Why?</p><ul class="chk__o"><li><span class="ok">a)</span> Home edition</li><li><span class="ok">b)</span> 32-bit RAM cap</li><li><span class="ok">c)</span> Bad slot</li><li><span class="ok">d)</span> Device Encryption</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> 4 GB limit.</p></details></div>
+<h2>short lab: Choose the edition</h2><div class="prose lab"><p>Pick an edition: (1) kiosk at home with no domain, (2) 3,000-seat company with AppLocker and volume licensing, (3) small office needing BitLocker and domain join.</p></div><details><summary>walkthrough</summary><div class="prose"><p>(1) Home. (2) Enterprise. (3) Pro.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/operating-systems.html">operating systems</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/group-policy.html">group policy</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/active-directory.html">active directory</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.3" placeholder="# 1.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.2.html">&lt; 1.2</a><a href="1.4.html">1.4 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-1.3-0", "q": "Windows versions in Core 2 scope?", "a": "Windows 10 and Windows 11."}, {"id": "aplus2-1.3-1", "q": "Windows 11 CPU architecture?", "a": "64-bit only."}, {"id": "aplus2-1.3-2", "q": "Windows 10 Home/Pro end of support?", "a": "14 October 2025."}, {"id": "aplus2-1.3-3", "q": "Can Home join a domain?", "a": "No."}, {"id": "aplus2-1.3-4", "q": "Home RDP role?", "a": "Client only; no host."}, {"id": "aplus2-1.3-5", "q": "Max RAM Home / Pro / Enterprise (64-bit)?", "a": "128 GB / 2 TB / 6 TB."}, {"id": "aplus2-1.3-6", "q": "Max RAM in 32-bit Windows?", "a": "4 GB."}, {"id": "aplus2-1.3-7", "q": "Which editions have BitLocker?", "a": "Pro, Pro for Workstations, Enterprise."}, {"id": "aplus2-1.3-8", "q": "What is Win 11 Home Device Encryption?", "a": "BitLocker-like encryption with recovery key stored in the Microsoft account."}, {"id": "aplus2-1.3-9", "q": "AppLocker and BranchCache come with?", "a": "Enterprise."}, {"id": "aplus2-1.3-10", "q": "What does the N edition lack?", "a": "Media player and multimedia features."}, {"id": "aplus2-1.3-11", "q": "Workgroup vs domain?", "a": "Workgroup is decentralized per device; a domain uses central AD authentication."}, {"id": "aplus2-1.3-12", "q": "EFS vs BitLocker?", "a": "EFS encrypts files/folders; BitLocker encrypts the whole volume."}, {"id": "aplus2-1.3-13", "q": "Local vs domain group policy tools?", "a": "gpedit.msc vs gpmc.msc."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 1.10 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 1.10: Installing Applications">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.10 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 1.0 · Operating Systems</span><span>1.10</span></div>
+<h1><span class="ok">1.10</span> Installing Applications</h1>
+<div class="obj" data-obj="aplus2-1.10">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Requirements</h4>
+<ul><li><strong>32-bit vs 64-bit</strong>: 32-bit addresses about 4 GB of memory; 64-bit addresses vastly more (about 17 billion GB theoretical). Drivers must match the OS bit width. A <strong>64-bit OS runs 32-bit and 64-bit apps; a 32-bit OS cannot run 64-bit apps.</strong> Windows stores 64-bit apps in <code>Program Files</code> and 32-bit in <code>Program Files (x86)</code>. Check System &gt; About.</li><li><strong>Graphics</strong>: integrated (GPU in the CPU) vs a <strong>dedicated/discrete</strong> graphics card for 3D, video editing.</li><li><strong>RAM</strong>: requirement applies to the app alone, not the OS plus other apps; check Task Manager. <strong>CPU speed</strong> (GHz, cycles per second) and cores vary by workload. <strong>Storage</strong> space for the app and its data.</li><li><strong>Licensing</strong>: key, or a <strong>hardware token</strong> (USB dongle) for expensive niche software.</li></ul>
+<h4>Distribution</h4>
+<ul><li>Download from the <strong>developer or official store</strong>, not third-party sites. Physical media (USB, optical) for offline machines such as isolated data center systems. <strong>ISO files</strong> hold a full disk image with an ISO 9660 file system; mount to see contents.</li><li><strong>Disk images</strong> capture an OS plus patches, apps and settings for fast deployment, but hardware must match (VMs make this easy).</li></ul>
+<h4>Business Impact</h4>
+<ul><li>An installer runs with the <strong>user's permissions</strong>, so it can reach everything the user can. Untested apps can overwrite data, break other apps, slow systems, change the UI (retraining, workflow changes) or crash the machine. Test in a lab or <strong>sandbox</strong> first, and have a recovery plan.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-1.10"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A 32-bit app on 64-bit Windows installs where?</p><ul class="chk__o"><li><span class="ok">a)</span> Program Files (x86)</li><li><span class="ok">b)</span> System32</li><li><span class="ok">c)</span> Users</li><li><span class="ok">d)</span> Recovery</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> x86 folder.</p></details></div><div class="chk"><p><strong>2.</strong> A video editing app is slow with integrated graphics. Recommend:</p><ul class="chk__o"><li><span class="ok">a)</span> Discrete GPU</li><li><span class="ok">b)</span> Defrag</li><li><span class="ok">c)</span> More fonts</li><li><span class="ok">d)</span> Hibernate</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Dedicated graphics.</p></details></div><div class="chk"><p><strong>3.</strong> Before rolling out a new app to 2,000 PCs:</p><ul class="chk__o"><li><span class="ok">a)</span> Test in a sandbox</li><li><span class="ok">b)</span> Install on all at once</li><li><span class="ok">c)</span> Skip testing</li><li><span class="ok">d)</span> Disable AV</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Test first.</p></details></div>
+<h2>short lab: App rollout</h2><div class="prose lab"><p>List five pre-install checks for a new CAD application.</p></div><details><summary>walkthrough</summary><div class="prose"><p>OS and bit width, CPU speed/cores, RAM, GPU requirements, storage, license (key/token), and test in a sandbox with a rollback plan.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/windows-deployment-and-drivers.html">windows deployment and drivers</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/operating-systems.html">operating systems</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.10" placeholder="# 1.10 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.9.html">&lt; 1.9</a><a href="1.11.html">1.11 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-1.10-0", "q": "Memory limit of 32-bit OS?", "a": "About 4 GB."}, {"id": "aplus2-1.10-1", "q": "Can a 32-bit OS run 64-bit apps?", "a": "No."}, {"id": "aplus2-1.10-2", "q": "Can a 64-bit OS run 32-bit apps?", "a": "Yes."}, {"id": "aplus2-1.10-3", "q": "Where do 32-bit apps live on 64-bit Windows?", "a": "Program Files (x86)."}, {"id": "aplus2-1.10-4", "q": "Integrated vs dedicated graphics?", "a": "Integrated shares the CPU chip; dedicated is a separate GPU card."}, {"id": "aplus2-1.10-5", "q": "Hardware token licensing?", "a": "A USB dongle must be present for the app to run."}, {"id": "aplus2-1.10-6", "q": "Safest place to get software?", "a": "The developer or an official store."}, {"id": "aplus2-1.10-7", "q": "ISO file?", "a": "A disk image with an ISO 9660 file system."}, {"id": "aplus2-1.10-8", "q": "Image drawback?", "a": "Hardware-specific; drivers may not fit different hardware."}, {"id": "aplus2-1.10-9", "q": "Why test apps in a sandbox?", "a": "Installers run with user rights and could break things."}, {"id": "aplus2-1.10-10", "q": "Business risk of UI change after upgrade?", "a": "Workflow disruption and retraining."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

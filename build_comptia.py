@@ -168,7 +168,7 @@ def build(page, guides=None):
 <tr><td>SOC analyst</td><td>Security+ then CySA+ (Network+ in parallel if packets feel shaky)</td><td>Security+ gets the HR filter open. CySA+ is the analyst-level cert, and its exam is the day job: logs, indicators, vulnerability triage, incident response, reporting.</td></tr>
 <tr><td>Software / data</td><td>Security+ only, then stop</td><td>Certs matter little there. Projects and the dojo matter more. One security cert shows you can write code that does not leak.</td></tr>
 </tbody></table></div>
-<p class="callout">Nate's plan: Security+ first (Q1 2027). Nothing here moves ahead of it. Network+ and A+ are built from his own notes. A+ covers Core 1 only so far; Core 2 notes are still to come.</p>
+<p class="callout">Nate's plan: Security+ first (Q1 2027). Nothing here moves ahead of it. Network+ and A+ (Core 1 and Core 2) are built from his own notes.</p>
 <h2>how they overlap</h2>
 <ul class="arrow"><li>Network+ and Security+ share ports, protocols, VLANs, firewalls and VPNs. Learn them once.</li>
 <li>A+ and Security+ share OS hardening, malware removal, backups and data destruction.</li>

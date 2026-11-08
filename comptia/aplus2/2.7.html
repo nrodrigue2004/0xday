@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 2.7 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 2.7: Security Best Practices">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.7 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 2.0 · Security</span><span>2.7</span></div>
+<h1><span class="ok">2.7</span> Security Best Practices</h1>
+<div class="obj" data-obj="aplus2-2.7">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Encryption and Passwords</h4>
+<ul><li><strong>Full-disk encryption</strong> (BitLocker, data at rest), single file/folder encryption, encrypted USB drives. Keys come from the OS login or AD, so <strong>back up encryption keys</strong> too.</li><li><strong>Password strength</strong>: higher <strong>entropy</strong> (unpredictable): mix upper/lower case, numbers, symbols, avoid dictionary words; length 8+ and ideally long passphrases. <strong>Password age/expiration</strong> (30/60/90 days, shorter for critical systems) with <strong>password history</strong> to block reuse. <strong>Change default credentials</strong> (admin/admin on routers, firewalls).</li><li><strong>BIOS/UEFI passwords</strong>: <strong>supervisor/admin</strong> password blocks setting changes; <strong>user</strong> password is required to boot. Never blank.</li><li><strong>Screen locks</strong>: screensaver with password, auto-lock on inactivity (Personalization &gt; Lock screen, screen timeout). <strong>Cable locks</strong> for laptops. Shield <strong>PII</strong> from viewers; use <strong>privacy filters</strong> and face the monitor away from walkways.</li><li><strong>Password reuse</strong> lets attackers pivot across sites; use unique passwords stored in a <strong>password manager/vault</strong> (encrypted, synced, business versions exist).</li></ul>
+<h4>Accounts and Services</h4>
+<ul><li><strong>Least privilege</strong> via groups. <strong>Login time restrictions</strong>. <strong>Disable the guest account</strong> and disable interactive login for system accounts. <strong>Failed-attempt lockout thresholds</strong> stop online brute force (Windows machine lockout can reboot into BitLocker recovery). <strong>Account expiration</strong> for temp workers/contractors.</li><li><strong>Autorun</strong> (executes from removable media) was removed after Windows Vista; <strong>Autoplay</strong> only launches media (Settings &gt; Bluetooth &amp; devices &gt; Autoplay: no action, open folder, ask).</li><li><strong>Disable unneeded Windows services</strong>: every running executable is potential attack surface.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-2.7"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A contractor works for 30 days. Best account setting:</p><ul class="chk__o"><li><span class="ok">a)</span> Expiration date</li><li><span class="ok">b)</span> Domain admin</li><li><span class="ok">c)</span> Blank password</li><li><span class="ok">d)</span> Guest</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Auto-disable.</p></details></div><div class="chk"><p><strong>2.</strong> Users reuse one password everywhere. Mitigation:</p><ul class="chk__o"><li><span class="ok">a)</span> Password manager with unique passwords</li><li><span class="ok">b)</span> Longer expiry</li><li><span class="ok">c)</span> Disable lockout</li><li><span class="ok">d)</span> Blank BIOS password</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Unique per site.</p></details></div><div class="chk"><p><strong>3.</strong> A laptop user works on a plane. Add:</p><ul class="chk__o"><li><span class="ok">a)</span> Privacy filter</li><li><span class="ok">b)</span> Autorun</li><li><span class="ok">c)</span> Guest account</li><li><span class="ok">d)</span> Cable splitter</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Prevent shoulder surfing.</p></details></div>
+<h2>short lab: Harden a new router</h2><div class="prose lab"><p>List five hardening steps for a SOHO router and a new workstation.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Change default admin password, update firmware, disable guest/unused accounts and services, require lock screen and BIOS password, enable full-disk encryption.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/system-hardening-windows-linux.html">system hardening windows linux</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/group-policy.html">group policy</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.7" placeholder="# 2.7 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.6.html">&lt; 2.6</a><a href="2.8.html">2.8 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-2.7-0", "q": "FDE protects?", "a": "Data at rest on a drive."}, {"id": "aplus2-2.7-1", "q": "Why back up encryption keys?", "a": "Without them, encrypted data can't be recovered."}, {"id": "aplus2-2.7-2", "q": "Entropy?", "a": "How unpredictable a password is."}, {"id": "aplus2-2.7-3", "q": "Password history?", "a": "Prevents reusing old passwords."}, {"id": "aplus2-2.7-4", "q": "Default credentials action?", "a": "Change them immediately."}, {"id": "aplus2-2.7-5", "q": "BIOS supervisor password?", "a": "Prevents changing BIOS settings."}, {"id": "aplus2-2.7-6", "q": "BIOS user password?", "a": "Required to boot."}, {"id": "aplus2-2.7-7", "q": "Screen lock best practice?", "a": "Auto-lock with password after inactivity; lock manually when leaving."}, {"id": "aplus2-2.7-8", "q": "Privacy filter use?", "a": "Blocks side-angle viewing of a screen."}, {"id": "aplus2-2.7-9", "q": "Why use a password manager?", "a": "Unique strong passwords per site without memorizing."}, {"id": "aplus2-2.7-10", "q": "Account lockout threshold purpose?", "a": "Stops online brute force."}, {"id": "aplus2-2.7-11", "q": "Login time restriction example?", "a": "Block logons at 3 a.m. outside business hours."}, {"id": "aplus2-2.7-12", "q": "Autorun vs Autoplay?", "a": "Autorun ran executables (removed after Vista); Autoplay only handles media."}, {"id": "aplus2-2.7-13", "q": "Why disable unused services?", "a": "Reduces attack surface."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

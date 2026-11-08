@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 2.4 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 2.4: Malware">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.4 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 2.0 · Security</span><span>2.4</span></div>
+<h1><span class="ok">2.4</span> Malware</h1>
+<div class="obj" data-obj="aplus2-2.4">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Malware Types</h4>
+<ul><li><strong>Entry paths</strong>: vulnerabilities (then a <strong>backdoor</strong>), malicious links, pop-ups, <strong>drive-by downloads</strong>, worms (rare). Patch OS and apps.</li><li><strong>Trojan</strong>: looks useful, runs with your rights. <strong>Rootkit</strong>: embeds in the OS and hides from scanners and Task Manager; <strong>UEFI Secure Boot</strong> (checks signatures) largely stops them; use rootkit-specific removers. <strong>Virus</strong>: needs a human to run it; spreads via files or USB. <strong>Spyware</strong>: watches activity; <strong>keylogger</strong> records keystrokes (plus mouse, screenshots). <strong>Ransomware</strong>: encrypts files and demands payment (backups are the defense). <strong>Boot sector virus</strong>: infects the bootloader; Secure Boot checks it. <strong>Cryptominer</strong>: hijacks CPU (even via JavaScript on a web page). <strong>Stalkerware</strong>: spyware installed by someone you know to track location, camera, mic. <strong>Fileless malware</strong>: runs only in memory, abusing PowerShell and a vulnerability, may add a registry autostart. <strong>PUP (potentially unwanted program)</strong>: bundled adware, toolbars, fake backup tools, hijacked search.</li></ul>
+<h4>Anti-malware Tools</h4>
+<ul><li><strong>WinRE (Windows Recovery Environment)</strong>: boot from install media, or Shift+Restart, or Settings &gt; Recovery &gt; Advanced startup. Troubleshoot &gt; Advanced options &gt; Command Prompt, Startup Repair, UEFI firmware settings. Use it to remove malware, edit services, repair boot.</li><li><strong>EDR</strong> (endpoint detection and response): behavioral analysis and machine learning rather than signatures; root-cause data; can isolate, quarantine and roll back. <strong>MDR</strong> is EDR run by a third party, often an <strong>MSSP</strong>. <strong>XDR</strong> correlates endpoint, network and cloud data.</li><li>Real-time <strong>antivirus/anti-malware</strong> with behavior detection. <strong>Email gateway</strong> (on-prem or cloud) scans mail for malicious links/attachments. <strong>Software firewall</strong> on each endpoint blocks inbound and outbound traffic, including malware calling a <strong>command and control</strong> server.</li><li><strong>User training</strong>: phishing simulations, posters, message boards, login banners, intranet docs, one-on-one training.</li><li><strong>Remediation</strong>: the only way to be sure malware is gone is <strong>wipe and restore</strong> from a known good backup or <strong>image</strong>; manual rebuild is slowest; keeping user data on a network share speeds reimaging.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-2.4"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Antivirus finds nothing but the PC mines coins and CPU is 100%. Likely:</p><ul class="chk__o"><li><span class="ok">a)</span> Cryptominer</li><li><span class="ok">b)</span> Boot sector fix</li><li><span class="ok">c)</span> Stalkerware only</li><li><span class="ok">d)</span> Logic bomb</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> CPU abuse.</p></details></div><div class="chk"><p><strong>2.</strong> A rootkit keeps returning on old hardware. Preventive feature on new PCs:</p><ul class="chk__o"><li><span class="ok">a)</span> UEFI Secure Boot</li><li><span class="ok">b)</span> Defrag</li><li><span class="ok">c)</span> UAC off</li><li><span class="ok">d)</span> Metered connection</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Signature check at boot.</p></details></div><div class="chk"><p><strong>3.</strong> A PC will not boot after infection; you need to remove services offline. Use:</p><ul class="chk__o"><li><span class="ok">a)</span> WinRE command prompt</li><li><span class="ok">b)</span> Task Manager</li><li><span class="ok">c)</span> Disk Cleanup</li><li><span class="ok">d)</span> msinfo32</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Offline recovery.</p></details></div><div class="chk"><p><strong>4.</strong> A file-less attack leaves no files on disk. Best defense:</p><ul class="chk__o"><li><span class="ok">a)</span> EDR / real-time behavioral protection</li><li><span class="ok">b)</span> Disk defrag</li><li><span class="ok">c)</span> Full format</li><li><span class="ok">d)</span> Static signature only</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Monitor memory behavior.</p></details></div>
+<h2>short lab: Ransomware response</h2><div class="prose lab"><p>A workstation shows a ransom note. Give five steps.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Disconnect it from the network, preserve evidence/notify security, identify the strain, wipe and restore from a clean backup or image, and patch the entry point and train the user.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/malware-analysis.html">malware analysis</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/password-cracking-john.html">password cracking john</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.4" placeholder="# 2.4 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.3.html">&lt; 2.3</a><a href="2.5.html">2.5 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-2.4-0", "q": "Trojan?", "a": "Malware disguised as useful software."}, {"id": "aplus2-2.4-1", "q": "Rootkit?", "a": "Hides in the OS from scanners and users."}, {"id": "aplus2-2.4-2", "q": "What stops most rootkits and boot malware?", "a": "UEFI Secure Boot."}, {"id": "aplus2-2.4-3", "q": "Virus vs worm?", "a": "A virus needs a user action; a worm spreads on its own."}, {"id": "aplus2-2.4-4", "q": "Keylogger?", "a": "Records keystrokes and sends them to an attacker."}, {"id": "aplus2-2.4-5", "q": "Ransomware?", "a": "Encrypts files and demands payment."}, {"id": "aplus2-2.4-6", "q": "Cryptominer symptom?", "a": "High CPU usage."}, {"id": "aplus2-2.4-7", "q": "Stalkerware?", "a": "Spyware that tracks a person, often installed by someone they know."}, {"id": "aplus2-2.4-8", "q": "Fileless malware?", "a": "Runs in memory using tools like PowerShell, no file on disk."}, {"id": "aplus2-2.4-9", "q": "PUP?", "a": "Potentially unwanted program such as adware and toolbars."}, {"id": "aplus2-2.4-10", "q": "How to open WinRE?", "a": "Shift+Restart, Settings > Recovery > Advanced startup, or install media."}, {"id": "aplus2-2.4-11", "q": "Command prompt from WinRE path?", "a": "Troubleshoot > Advanced options > Command Prompt."}, {"id": "aplus2-2.4-12", "q": "EDR?", "a": "Behavioral endpoint detection and response with isolation and rollback."}, {"id": "aplus2-2.4-13", "q": "MDR?", "a": "EDR run as a managed service, often by an MSSP."}, {"id": "aplus2-2.4-14", "q": "XDR?", "a": "Extended detection and response correlating endpoint, network and cloud."}, {"id": "aplus2-2.4-15", "q": "Role of an email gateway?", "a": "Scan inbound mail for malware and phishing."}, {"id": "aplus2-2.4-16", "q": "Why enable a software firewall?", "a": "Block malware from calling out to C2 and block unwanted inbound traffic."}, {"id": "aplus2-2.4-17", "q": "Surest malware removal?", "a": "Wipe and restore from a known good image or backup."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

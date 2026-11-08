@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 1.2 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 1.2: Installing Operating Systems">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.2 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 1.0 · Operating Systems</span><span>1.2</span></div>
+<h1><span class="ok">1.2</span> Installing Operating Systems</h1>
+<div class="obj" data-obj="aplus2-1.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Boot Methods and Install Types</h4>
+<ul><li><strong>Boot sources</strong>: bootable USB, <strong>PXE</strong> (network boot from a server), internal/external drives, internet-based install (minimal Linux installers, macOS Recovery, Windows Update), optical media or an <strong>ISO image</strong> (a full disk image file, common with VMs). Multi-boot lets you choose between OSes at startup.</li><li><strong>Clean install</strong>: wipes the partition and starts fresh. <strong>In-place upgrade</strong>: keep apps, data and settings. <strong>Image deployment</strong>: build one reference system, capture the image, apply to many. <strong>Remote network install</strong> from a share. <strong>Recovery partition</strong>: hidden partition with install files. <strong>Repair installation</strong>: reinstalls OS files but keeps user files. <strong>Third-party drivers</strong>: load them from the installer prompt when storage or network hardware is not detected.</li><li><strong>Zero-touch deployment</strong>: automated install that also applies company settings (domain join, mail), so a user can turn on a new laptop and wait.</li></ul>
+<h4>Partitions and Formatting</h4>
+<ul><li>A <strong>partition</strong> is a logical section of a drive; a formatted partition is a <strong>volume</strong> (Microsoft's term).</li><li><strong>GPT</strong> (GUID Partition Table): needs UEFI, up to 128 partitions, huge drive support (Windows caps at 256 TB), all partitions equal. <strong>MBR</strong>: legacy, 2 TB maximum, 4 primary partitions (only primary can boot, one marked active) plus one extended partition holding non-bootable logical drives. BIOS compatibility mode disables Secure Boot.</li><li>Changing partitions can destroy data; back up first.</li><li><strong>Quick format</strong> only rebuilds the file table (fast, old data recoverable, default in Windows 10/11). <strong>Full format</strong> writes zeros across the disk (slow, more secure). diskpart can do full formats.</li></ul>
+<h4>Upgrading Windows</h4>
+<ul><li>Upgrade keeps applications, accounts and settings and is faster; a clean install removes everything. Neither is better, so choose per case and <strong>back up first</strong>. Start an upgrade from inside the running OS; start a clean install by booting the installation media.</li><li>Check requirements first: memory, disk space, driver and app compatibility, license keys. Windows 11 needs <strong>TPM 2.0</strong>, <strong>UEFI with Secure Boot</strong>, a supported CPU and enough RAM. Use <strong>PC Health Check</strong>; view TPM with <code>tpm.msc</code> and Secure Boot state in System Information.</li><li><strong>Life cycle</strong>: monthly quality updates, feature updates every six months to a year, support usually 18 to 36 months (Microsoft Modern Lifecycle Policy).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-1.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> 200 laptops need an identical OS and apps with no user prompts. Best approach?</p><ul class="chk__o"><li><span class="ok">a)</span> Manual install</li><li><span class="ok">b)</span> Zero-touch image deployment</li><li><span class="ok">c)</span> Repair install</li><li><span class="ok">d)</span> exFAT format</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Automated imaging.</p></details></div><div class="chk"><p><strong>2.</strong> A drive larger than 2 TB needs which partition style?</p><ul class="chk__o"><li><span class="ok">a)</span> MBR</li><li><span class="ok">b)</span> GPT</li><li><span class="ok">c)</span> FAT32</li><li><span class="ok">d)</span> Extended</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> GPT.</p></details></div><div class="chk"><p><strong>3.</strong> You want to keep all apps and data while moving to a newer Windows version.</p><ul class="chk__o"><li><span class="ok">a)</span> Clean install</li><li><span class="ok">b)</span> In-place upgrade</li><li><span class="ok">c)</span> Full format</li><li><span class="ok">d)</span> PXE boot</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Upgrade keeps everything.</p></details></div><div class="chk"><p><strong>4.</strong> A PC fails the Windows 11 check for Secure Boot and TPM. Cause is likely:</p><ul class="chk__o"><li><span class="ok">a)</span> Legacy BIOS or missing TPM 2.0</li><li><span class="ok">b)</span> Too many apps</li><li><span class="ok">c)</span> FAT32</li><li><span class="ok">d)</span> Wrong printer</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Both are hardware/firmware features.</p></details></div>
+<h2>short lab: Reimage plan</h2><div class="prose lab"><p>You must reimage a user's laptop that holds files. List five ordered steps.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Back up user data and settings, boot the installation media, delete or reformat partitions (choose full format if the disk is being reused securely), install the OS with needed drivers, then restore data and verify.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/windows-deployment-and-drivers.html">windows deployment and drivers</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/secure-data-sanitization.html">secure data sanitization</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.2" placeholder="# 1.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.1.html">&lt; 1.1</a><a href="1.3.html">1.3 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-1.2-0", "q": "What does PXE do?", "a": "Boots a computer over the network to an install server."}, {"id": "aplus2-1.2-1", "q": "ISO image?", "a": "A single-file copy of an optical disc, used to install or mount in VMs."}, {"id": "aplus2-1.2-2", "q": "Clean install vs in-place upgrade?", "a": "Clean wipes everything; upgrade keeps apps, data and settings."}, {"id": "aplus2-1.2-3", "q": "Image deployment?", "a": "Capture a configured reference system and apply it to many computers."}, {"id": "aplus2-1.2-4", "q": "Recovery partition?", "a": "Hidden partition containing OS reinstall files."}, {"id": "aplus2-1.2-5", "q": "Repair installation?", "a": "Replaces OS files but keeps user files."}, {"id": "aplus2-1.2-6", "q": "Zero-touch deployment?", "a": "Fully automated install including company configuration."}, {"id": "aplus2-1.2-7", "q": "GPT features?", "a": "UEFI, up to 128 partitions, very large drives."}, {"id": "aplus2-1.2-8", "q": "MBR limits?", "a": "2 TB, 4 primary partitions, one extended with logical drives."}, {"id": "aplus2-1.2-9", "q": "Only bootable MBR partition type?", "a": "Primary (one marked active)."}, {"id": "aplus2-1.2-10", "q": "Volume?", "a": "A formatted partition."}, {"id": "aplus2-1.2-11", "q": "Quick format vs full format?", "a": "Quick rebuilds the file table; full writes zeros across the disk."}, {"id": "aplus2-1.2-12", "q": "Windows 11 key requirements?", "a": "TPM 2.0, UEFI with Secure Boot, supported CPU and RAM."}, {"id": "aplus2-1.2-13", "q": "Tool to check Windows 11 readiness?", "a": "PC Health Check."}, {"id": "aplus2-1.2-14", "q": "Command to view TPM?", "a": "tpm.msc."}, {"id": "aplus2-1.2-15", "q": "Typical OS support length?", "a": "18 to 36 months."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

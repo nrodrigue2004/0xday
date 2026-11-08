@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 2.11 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 2.11: Browser Security">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.11 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 2.0 · Security</span><span>2.11</span></div>
+<h1><span class="ok">2.11</span> Browser Security</h1>
+<div class="obj" data-obj="aplus2-2.11">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Browser Security</h4>
+<ul><li>Download browsers only from the <strong>developer's official site</strong>; verify the file <strong>hash</strong> (e.g. SHA-256 sums on download pages; use a hash tool) against the posted value. Mismatch means a modified or corrupted file.</li><li>Keep the browser <strong>updated</strong> (auto update managers). <strong>Extensions</strong> have browser-level control: install from official stores (Chrome Web Store, Microsoft Store). Researchers found 24+ malicious Chrome extensions in March 2021 stealing credentials and keystrokes. Review the extension manager regularly.</li><li><strong>Password managers/vaults</strong>: encrypted, synchronized, unique logins per site so a leaked password can't be reused. Business vaults exist.</li><li><strong>Certificate errors</strong> ("connection not private"): expired certificate, wrong domain, <strong>untrusted root CA</strong> (try badssl.com), or wrong system date/time.</li><li><strong>Pop-up blocker</strong>: on by default; add exceptions per trusted site rather than disabling. </li><li><strong>Clear browsing data</strong> (history, passwords, downloads, cookies, cache): clearing the cache is a common troubleshooting step for corrupt or stale pages. <strong>Private/incognito mode</strong> keeps no local history or cache, useful for troubleshooting and public computers.</li><li><strong>Browser sync</strong> (favorites, history, extensions, settings) via cloud login: convenient but stores data in the cloud. <strong>Ad blockers</strong> and tracking controls vary and are not 100% reliable.</li><li><strong>Proxy</strong>: sits between users and the internet, makes requests on their behalf; URL filtering, authentication, caching, malware inspection. <strong>Explicit</strong> proxy needs configuration (auto-detect or manual host:port such as proxy.example.com:8080 plus credentials); <strong>transparent</strong> proxy needs none. Proxy misconfiguration blocks internet access.</li><li><strong>Secure DNS / DNS over HTTPS (DoH)</strong> encrypts DNS queries; enable in browser advanced settings if the resolver supports it.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-2.11"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A site shows "certificate invalid" and your PC clock is a year wrong. Fix:</p><ul class="chk__o"><li><span class="ok">a)</span> Correct the date and time</li><li><span class="ok">b)</span> Disable the cert check</li><li><span class="ok">c)</span> Reinstall the OS</li><li><span class="ok">d)</span> Disable firewall</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Dates matter for certificates.</p></details></div><div class="chk"><p><strong>2.</strong> A downloaded ISO's SHA-256 doesn't match the website. Action:</p><ul class="chk__o"><li><span class="ok">a)</span> Do not use it; redownload</li><li><span class="ok">b)</span> Install anyway</li><li><span class="ok">c)</span> Rename it</li><li><span class="ok">d)</span> Email it</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Possibly tampered.</p></details></div><div class="chk"><p><strong>3.</strong> A user can't browse the internet after moving networks; the browser has a stale proxy. Fix:</p><ul class="chk__o"><li><span class="ok">a)</span> Update proxy settings</li><li><span class="ok">b)</span> Replace the monitor</li><li><span class="ok">c)</span> Format the disk</li><li><span class="ok">d)</span> Disable the BIOS</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Proxy config.</p></details></div>
+<h2>short lab: Browser tune-up</h2><div class="prose lab"><p>List four steps to secure and troubleshoot a user's browser.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Update the browser, remove unknown extensions, clear cache/cookies for glitches, enable a password manager, and verify proxy/DoH settings.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/system-hardening-windows-linux.html">system hardening windows linux</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/vpn-tailscale.html">vpn tailscale</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.11" placeholder="# 2.11 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.10.html">&lt; 2.10</a><a href="3.1.html">3.1 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-2.11-0", "q": "How to verify a downloaded installer?", "a": "Compare its hash (SHA-256) with the published value."}, {"id": "aplus2-2.11-1", "q": "Where to get browsers?", "a": "Directly from the developer's site."}, {"id": "aplus2-2.11-2", "q": "Risk of browser extensions?", "a": "They can steal credentials and keystrokes."}, {"id": "aplus2-2.11-3", "q": "Cert error causes?", "a": "Expired, wrong name, untrusted CA, or wrong clock."}, {"id": "aplus2-2.11-4", "q": "Pop-up blocker best practice?", "a": "Allow exceptions only for trusted sites."}, {"id": "aplus2-2.11-5", "q": "Common first browser troubleshooting step?", "a": "Clear cache and cookies."}, {"id": "aplus2-2.11-6", "q": "Private browsing benefit?", "a": "No local history/cache; good for testing and public PCs."}, {"id": "aplus2-2.11-7", "q": "Explicit vs transparent proxy?", "a": "Explicit needs client settings; transparent does not."}, {"id": "aplus2-2.11-8", "q": "Typical proxy settings?", "a": "Host, port (e.g. 8080) and credentials."}, {"id": "aplus2-2.11-9", "q": "DoH?", "a": "DNS over HTTPS: encrypted DNS queries."}, {"id": "aplus2-2.11-10", "q": "Browser sync downside?", "a": "Settings and history stored in the cloud."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

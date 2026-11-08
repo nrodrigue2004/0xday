@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 3.1 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 3.1: Troubleshooting Windows">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.1 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 3.0 · Software Troubleshooting</span><span>3.1</span></div>
+<h1><span class="ok">3.1</span> Troubleshooting Windows</h1>
+<div class="obj" data-obj="aplus2-3.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Stop Errors and Performance</h4>
+<ul><li><strong>BSOD / stop error</strong>: the OS halts because of bad hardware, drivers or an app fault; reboot is required. Read the <strong>stop code</strong> (e.g. KERNEL_MODE_HEAP_CORRUPTION) or scan the QR code and look it up. If it won't reboot: <strong>last known good</strong>, <strong>System Restore</strong>, <strong>driver rollback</strong>, <strong>Safe Mode</strong>; reseat components and run <strong>hardware diagnostics</strong> (CPU, RAM).</li><li><strong>Slow system</strong>: Task Manager (per-app CPU/memory/disk/network; Performance tab shows the last 60 seconds). Then Windows Update (known bugs), free disk space, defrag (HDD only), laptop on battery throttles CPU/heat, malware scan after updating signatures.</li></ul>
+<h4>Boot Problems</h4>
+<ul><li>"<strong>Operating system not found / missing OS</strong>": a bootable disk with no OS is attached (remove it), or a dual-boot install replaced the bootloader.</li><li><strong>Startup Repair</strong> fixes common issues automatically (missing bootloader, moved Windows folder, boot looping into Safe Mode). <strong>BCD</strong> (Boot Configuration Database) replaced boot.ini; <code>bootrec /rebuildbcd</code> scans drives for Windows installs and re-adds them from the recovery command prompt.</li></ul>
+<h4>Services, Apps, Memory, USB</h4>
+<ul><li><strong>Device not working</strong>: Device Manager (disable, update, roll back, uninstall driver).</li><li>"<strong>One or more services failed to start</strong>": services.msc, start manually; check the logon account and <strong>dependencies</strong> (one must start first); run <strong>SFC</strong> for built-in services; reinstall app services as admin.</li><li><strong>App crash with no message</strong>: <strong>Event Viewer</strong> (filter by app); <strong>Reliability Monitor</strong> shows failures over time (one-off vs repeated). Last resort: uninstall/reinstall.</li><li><strong>Low memory</strong>: sort Task Manager by memory; <strong>virtual memory/page file</strong> (System &gt; About &gt; Advanced system settings &gt; Performance &gt; Advanced &gt; Virtual memory) swaps RAM to disk.</li><li><strong>USB controller resources exceeded</strong>: each device uses <strong>endpoints</strong> (controllers support a limited number, e.g. 96 or 254). Move the device to another port/controller; match USB 2 devices to USB 2 controllers and USB 3 to USB 3.</li><li><strong>Random failures with no message</strong>: run full hardware diagnostics (vendor tools or UEFI diagnostics), <strong>Windows Memory Diagnostic</strong> overnight, <code>sfc /scannow</code>, malware scan.</li><li><strong>Slow login with roaming profile</strong>: profile downloads from the domain controller; WAN congestion or a failing local DC is the usual cause (domain admin fixes it).</li><li><strong>Time drift</strong>: set time automatically (Settings &gt; Time &amp; language &gt; Date &amp; time), set time zone, <strong>Sync now</strong>; keeps Kerberos and certificates working.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-3.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Boot shows "missing operating system" after plugging in a USB drive. First action:</p><ul class="chk__o"><li><span class="ok">a)</span> Remove the USB and reboot</li><li><span class="ok">b)</span> Reinstall Windows</li><li><span class="ok">c)</span> Run sfc</li><li><span class="ok">d)</span> Rebuild the BCD from a USB</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Wrong boot media.</p></details></div><div class="chk"><p><strong>2.</strong> After a dual-boot install, Windows won't start. Use:</p><ul class="chk__o"><li><span class="ok">a)</span> bootrec /rebuildbcd</li><li><span class="ok">b)</span> chkdsk /f</li><li><span class="ok">c)</span> ipconfig /renew</li><li><span class="ok">d)</span> defrag</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Rebuild boot entries.</p></details></div><div class="chk"><p><strong>3.</strong> Service fails to start due to another service. Check:</p><ul class="chk__o"><li><span class="ok">a)</span> Dependencies</li><li><span class="ok">b)</span> Power plan</li><li><span class="ok">c)</span> Page file</li><li><span class="ok">d)</span> Wallpaper</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Service dependency list.</p></details></div><div class="chk"><p><strong>4.</strong> A new USB 3 camera gives "controller resources exceeded". Try:</p><ul class="chk__o"><li><span class="ok">a)</span> A port on a different controller</li><li><span class="ok">b)</span> Another cable</li><li><span class="ok">c)</span> Format C:</li><li><span class="ok">d)</span> Increase page file</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Endpoint limit.</p></details></div>
+<h2>short lab: Diagnose slow login</h2><div class="prose lab"><p>A domain user at a branch office takes 5 minutes to log in. List checks in order.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Check roaming profile size, WAN latency/congestion to the DC, local DC health, and consider folder redirection or a local DC replica.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/operating-systems.html">operating systems</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/windows-admin-powershell.html">windows admin powershell</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/hardware-diagnostics-and-repair.html">hardware diagnostics and repair</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.1" placeholder="# 3.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.11.html">&lt; 2.11</a><a href="3.2.html">3.2 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-3.1-0", "q": "BSOD cause examples?", "a": "Bad hardware, drivers or application faults."}, {"id": "aplus2-3.1-1", "q": "What to read on a stop screen?", "a": "The stop code and QR code for lookup."}, {"id": "aplus2-3.1-2", "q": "PC won't reboot after stop error: options?", "a": "Last known good, System Restore, driver rollback, Safe Mode."}, {"id": "aplus2-3.1-3", "q": "Task Manager Performance tab shows?", "a": "About the last 60 seconds of resource use."}, {"id": "aplus2-3.1-4", "q": "Laptop slow on battery?", "a": "Normal throttling to save power and heat."}, {"id": "aplus2-3.1-5", "q": "BCD replaced which file?", "a": "boot.ini."}, {"id": "aplus2-3.1-6", "q": "Command to rebuild BCD?", "a": "bootrec /rebuildbcd"}, {"id": "aplus2-3.1-7", "q": "Tool for missing bootloader?", "a": "Startup Repair."}, {"id": "aplus2-3.1-8", "q": "Where to fix a failing device driver?", "a": "Device Manager (roll back, update, uninstall)."}, {"id": "aplus2-3.1-9", "q": "Why might a service fail to start?", "a": "Bad driver, config, dependency, permissions or hardware."}, {"id": "aplus2-3.1-10", "q": "Where to see app crash history?", "a": "Reliability Monitor and Event Viewer."}, {"id": "aplus2-3.1-11", "q": "Virtual memory is?", "a": "Page file on disk used when RAM is full."}, {"id": "aplus2-3.1-12", "q": "USB error \"controller resources exceeded\" fix?", "a": "Move to a different port/controller; match USB version."}, {"id": "aplus2-3.1-13", "q": "Tool to test RAM?", "a": "Windows Memory Diagnostic."}, {"id": "aplus2-3.1-14", "q": "Slow login with roaming profiles?", "a": "Network latency to the domain controller."}, {"id": "aplus2-3.1-15", "q": "Fix clock drift?", "a": "Enable automatic time sync."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,2832 @@
+## 1.1 Operating Systems
+labs: operating-systems
+@notes
+### Operating Systems Overview
+- The OS sits between hardware and applications: it moves data between storage, memory and CPU, handles input and output, manages files, and ships its own maintenance utilities. Apps are written for one OS; a Windows executable will not run on Linux, though document formats (and web apps) move freely.
+- **Windows**: biggest market share, huge hardware/software support, many editions (10, 11, Server). Downsides: the biggest malware target, and driver quality depends on each hardware vendor.
+- **Linux**: free and open source, many distributions, runs on almost anything, community support only (no single vendor); newer hardware may lack drivers.
+- **macOS**: Apple hardware only, polished, security-minded, tightly integrated; costs more and has less industry support.
+- **Chrome OS**: Google, built on the Linux kernel, browser-centered, light, needs a network connection for most apps.
+- **iPadOS**: a tablet version of iOS (Safari desktop browser, Sidecar second display, keyboard and multitasking). **iOS**: closed source, Apple hardware only; apps built with Apple's SDK on macOS and approved by Apple before the App Store. **Android**: open source, Linux-based, run by the Open Handset Alliance, many hardware makers, apps via Google Play and third-party stores.
+- Watch **end of life** (each vendor sets its own) and keep systems patched.
+
+### File Systems
+- Partitions must be formatted with a file system before data is stored.
+- **NTFS**: Windows default; compression, encryption, quotas, permissions. Linux/macOS read it (modern ones write too). **ReFS**: resilient, self-repairing, huge volumes, server-oriented, not widely deployed.
+- **FAT32**: old, max volume 2 TB and file size 4 GB. **exFAT**: for flash drives, files over 4 GB, works across Windows, macOS, Linux.
+- **ext4**: Linux and Android standard. **XFS**: high-performance, large-volume Linux file system with journaling and low fragmentation. **APFS**: Apple, tuned for SSDs, built-in encryption and snapshots (iOS, iPadOS, macOS).
+@cards
+Q: Main job of an operating system?
+A: Link hardware and applications and manage files, memory, input and output.
+Q: Why is Windows the biggest malware target?
+A: Largest market share.
+Q: Linux cost and support model?
+A: Free, open source, community support.
+Q: macOS hardware limit?
+A: Runs only on Apple hardware.
+Q: Chrome OS design?
+A: Linux-kernel based, browser-centered, needs network connectivity.
+Q: iOS vs Android source?
+A: iOS is closed source; Android is open source on Linux.
+Q: Which stores approve iOS apps?
+A: Apple's App Store, after Apple testing.
+Q: Default Windows file system?
+A: NTFS.
+Q: ReFS purpose?
+A: Resilient, self-repairing file system for huge server volumes.
+Q: FAT32 limits?
+A: 2 TB volume and 4 GB file.
+Q: Best file system for cross-platform flash drives?
+A: exFAT.
+Q: File system of Linux and Android?
+A: ext4.
+Q: High-performance Linux data center file system?
+A: XFS.
+Q: Apple's file system for SSDs?
+A: APFS.
+@check
+? You need a USB drive with a 10 GB file usable on Windows, macOS and Linux. Format?
+a) FAT32
+b) exFAT
+c) APFS
+d) ext4
+= b | exFAT has no 4 GB file limit and is cross-platform.
+? Which OS runs only on the vendor's own hardware and is closed source?
+a) Android
+b) Linux
+c) iOS
+d) Chrome OS
+= c | iOS.
+? Which file system is Windows' default?
+a) ext4
+b) NTFS
+c) XFS
+d) APFS
+= b | NTFS.
+@lab
+Pick the file system
+Choose a file system: (1) Linux database server with huge volumes, (2) Windows 11 system drive, (3) MacBook SSD, (4) camera memory card shared across OSes.
+@answer
+(1) XFS. (2) NTFS. (3) APFS. (4) exFAT.
+
+## 1.2 Installing Operating Systems
+labs: windows-deployment-and-drivers, secure-data-sanitization
+@notes
+### Boot Methods and Install Types
+- **Boot sources**: bootable USB, **PXE** (network boot from a server), internal/external drives, internet-based install (minimal Linux installers, macOS Recovery, Windows Update), optical media or an **ISO image** (a full disk image file, common with VMs). Multi-boot lets you choose between OSes at startup.
+- **Clean install**: wipes the partition and starts fresh. **In-place upgrade**: keep apps, data and settings. **Image deployment**: build one reference system, capture the image, apply to many. **Remote network install** from a share. **Recovery partition**: hidden partition with install files. **Repair installation**: reinstalls OS files but keeps user files. **Third-party drivers**: load them from the installer prompt when storage or network hardware is not detected.
+- **Zero-touch deployment**: automated install that also applies company settings (domain join, mail), so a user can turn on a new laptop and wait.
+
+### Partitions and Formatting
+- A **partition** is a logical section of a drive; a formatted partition is a **volume** (Microsoft's term).
+- **GPT** (GUID Partition Table): needs UEFI, up to 128 partitions, huge drive support (Windows caps at 256 TB), all partitions equal. **MBR**: legacy, 2 TB maximum, 4 primary partitions (only primary can boot, one marked active) plus one extended partition holding non-bootable logical drives. BIOS compatibility mode disables Secure Boot.
+- Changing partitions can destroy data; back up first.
+- **Quick format** only rebuilds the file table (fast, old data recoverable, default in Windows 10/11). **Full format** writes zeros across the disk (slow, more secure). diskpart can do full formats.
+
+### Upgrading Windows
+- Upgrade keeps applications, accounts and settings and is faster; a clean install removes everything. Neither is better, so choose per case and **back up first**. Start an upgrade from inside the running OS; start a clean install by booting the installation media.
+- Check requirements first: memory, disk space, driver and app compatibility, license keys. Windows 11 needs **TPM 2.0**, **UEFI with Secure Boot**, a supported CPU and enough RAM. Use **PC Health Check**; view TPM with `tpm.msc` and Secure Boot state in System Information.
+- **Life cycle**: monthly quality updates, feature updates every six months to a year, support usually 18 to 36 months (Microsoft Modern Lifecycle Policy).
+@cards
+Q: What does PXE do?
+A: Boots a computer over the network to an install server.
+Q: ISO image?
+A: A single-file copy of an optical disc, used to install or mount in VMs.
+Q: Clean install vs in-place upgrade?
+A: Clean wipes everything; upgrade keeps apps, data and settings.
+Q: Image deployment?
+A: Capture a configured reference system and apply it to many computers.
+Q: Recovery partition?
+A: Hidden partition containing OS reinstall files.
+Q: Repair installation?
+A: Replaces OS files but keeps user files.
+Q: Zero-touch deployment?
+A: Fully automated install including company configuration.
+Q: GPT features?
+A: UEFI, up to 128 partitions, very large drives.
+Q: MBR limits?
+A: 2 TB, 4 primary partitions, one extended with logical drives.
+Q: Only bootable MBR partition type?
+A: Primary (one marked active).
+Q: Volume?
+A: A formatted partition.
+Q: Quick format vs full format?
+A: Quick rebuilds the file table; full writes zeros across the disk.
+Q: Windows 11 key requirements?
+A: TPM 2.0, UEFI with Secure Boot, supported CPU and RAM.
+Q: Tool to check Windows 11 readiness?
+A: PC Health Check.
+Q: Command to view TPM?
+A: tpm.msc.
+Q: Typical OS support length?
+A: 18 to 36 months.
+@check
+? 200 laptops need an identical OS and apps with no user prompts. Best approach?
+a) Manual install
+b) Zero-touch image deployment
+c) Repair install
+d) exFAT format
+= b | Automated imaging.
+? A drive larger than 2 TB needs which partition style?
+a) MBR
+b) GPT
+c) FAT32
+d) Extended
+= b | GPT.
+? You want to keep all apps and data while moving to a newer Windows version.
+a) Clean install
+b) In-place upgrade
+c) Full format
+d) PXE boot
+= b | Upgrade keeps everything.
+? A PC fails the Windows 11 check for Secure Boot and TPM. Cause is likely:
+a) Legacy BIOS or missing TPM 2.0
+b) Too many apps
+c) FAT32
+d) Wrong printer
+= a | Both are hardware/firmware features.
+@lab
+Reimage plan
+You must reimage a user's laptop that holds files. List five ordered steps.
+@answer
+Back up user data and settings, boot the installation media, delete or reformat partitions (choose full format if the disk is being reused securely), install the OS with needed drivers, then restore data and verify.
+
+## 1.3 Microsoft Windows
+labs: operating-systems, group-policy, active-directory
+@notes
+### Windows Editions
+- Core 2 covers **Windows 10 and Windows 11** (all in-support versions are in scope). There is no Windows 9. Windows 10 support for Home and Pro ended **14 Oct 2025**, but it is still seen in production. Windows 11 (Oct 2021) is **64-bit only**, new Start menu and taskbar, snap layouts, Teams integration, touch improvements and Copilot.
+- **Home**: consumer. Microsoft account/OneDrive, Defender, no domain join, no BitLocker (Win 11 Home has **Device Encryption**, recovery key stored in the Microsoft account), no group policy, Remote Desktop **client only**, 128 GB RAM max (64-bit).
+- **Pro**: business. Domain join, BitLocker, Remote Desktop **host and client**, group policy, Hyper-V, 2 TB RAM max.
+- **Pro for Workstations** (Win 10): up to four CPUs, 6 TB RAM, ReFS.
+- **Enterprise**: volume licensing, up to 6 TB RAM, AppLocker, BranchCache, granular UX control; MDM/MAM management (Win 11), ReFS.
+- 32-bit Windows (Win 10 only) caps at **4 GB RAM**.
+- **N editions** (Europe) ship without media player and multimedia tools; add the Media Feature Pack from Settings > Apps > Optional features.
+
+### Enterprise Features
+- **Active Directory Domain Services (AD DS)**: central, distributed database of users, computers, permissions; centralizes authentication. A **workgroup** manages each device separately (home). Domain-joined PCs get a standard locked-down desktop; at home you can customize freely.
+- **Remote Desktop**: the RDP client runs on nearly any OS; the Remote Desktop service runs on Pro/Enterprise only.
+- **EFS** encrypts chosen files/folders (part of NTFS); **BitLocker** is full-disk encryption (OS and data). Both help if a laptop is lost.
+- **Group policy**: `gpedit.msc` for a single machine (local policy), `gpmc.msc` Group Policy Management Console for domains.
+@cards
+Q: Windows versions in Core 2 scope?
+A: Windows 10 and Windows 11.
+Q: Windows 11 CPU architecture?
+A: 64-bit only.
+Q: Windows 10 Home/Pro end of support?
+A: 14 October 2025.
+Q: Can Home join a domain?
+A: No.
+Q: Home RDP role?
+A: Client only; no host.
+Q: Max RAM Home / Pro / Enterprise (64-bit)?
+A: 128 GB / 2 TB / 6 TB.
+Q: Max RAM in 32-bit Windows?
+A: 4 GB.
+Q: Which editions have BitLocker?
+A: Pro, Pro for Workstations, Enterprise.
+Q: What is Win 11 Home Device Encryption?
+A: BitLocker-like encryption with recovery key stored in the Microsoft account.
+Q: AppLocker and BranchCache come with?
+A: Enterprise.
+Q: What does the N edition lack?
+A: Media player and multimedia features.
+Q: Workgroup vs domain?
+A: Workgroup is decentralized per device; a domain uses central AD authentication.
+Q: EFS vs BitLocker?
+A: EFS encrypts files/folders; BitLocker encrypts the whole volume.
+Q: Local vs domain group policy tools?
+A: gpedit.msc vs gpmc.msc.
+@check
+? An employee needs to RDP into their office PC. Minimum edition?
+a) Home
+b) Pro
+c) N
+d) Starter
+= b | Home cannot host RDP.
+? Which provides full-disk encryption on Pro?
+a) EFS
+b) BitLocker
+c) AppLocker
+d) BranchCache
+= b | BitLocker.
+? An IT team manages 5,000 PCs centrally. Which database?
+a) Registry
+b) Active Directory Domain Services
+c) Workgroup
+d) MMC
+= b | AD DS.
+? A 32-bit Windows 10 PC shows 4 GB usable even with 16 GB installed. Why?
+a) Home edition
+b) 32-bit RAM cap
+c) Bad slot
+d) Device Encryption
+= b | 4 GB limit.
+@lab
+Choose the edition
+Pick an edition: (1) kiosk at home with no domain, (2) 3,000-seat company with AppLocker and volume licensing, (3) small office needing BitLocker and domain join.
+@answer
+(1) Home. (2) Enterprise. (3) Pro.
+
+## 1.4 The Windows OS
+labs: windows-admin-powershell, log-analysis
+@notes
+### Task Manager
+- Open with **Ctrl+Shift+Esc**, Ctrl+Alt+Del, or right-click the taskbar. Tabs: **Processes** (running apps and background processes with CPU, memory, disk, network, GPU columns you can sort), **Performance** (60-second graphs), **Users** (connected users, can disconnect), **Startup** (enable or disable boot-time apps; disable groups to find a culprit), **Services** (start, stop, restart).
+
+### Microsoft Management Console (mmc.exe)
+- MMC starts empty; add **snap-ins** (File > Add/Remove Snap-in), save the console as a file, and reload it later.
+- **Event Viewer** (`eventvwr.msc`): Application, Security, Setup, System logs; levels informational, warning, error, critical, audit success/failure; filter by level, source, user, computer.
+- **Disk Management** (`diskmgmt.msc`): drives, partitions, file systems, drive letters; shrink, extend, mirror. Back up before changes; you can lose data.
+- **Task Scheduler** (`taskschd.msc`): triggers, actions, conditions and settings; automate recurring jobs; folders for organization.
+- **Device Manager** (`devmgmt.msc`): hardware by category; update, disable or uninstall drivers. Drivers are specific to the Windows version.
+- **Certificate Manager** (`certmgr.msc`): view, add, remove certificates (trusted root CAs).
+- **Local Users and Groups** (`lusrmgr.msc`): built-in Administrator and Guest, groups such as Administrators, Users, Backup Operators, Power Users.
+- **Performance Monitor** (`perfmon.msc`): hundreds of counters over time, alerts, reports; lets you review a problem after it happened.
+- **Group Policy**: `gpedit.msc` (local; computer configuration and user configuration, administrative templates) and `gpmc.msc` (domain).
+
+### Additional Tools
+- **System Information** (`msinfo32.exe`): read-only summary of hardware resources, components, software environment; also shows Secure Boot state.
+- **Resource Monitor** (`resmon.exe`): real-time CPU, memory, disk, network detail per process.
+- **System Configuration** (`msconfig.exe`): General (normal, diagnostic, selective startup), Boot (safe boot, no GUI, boot log), Services, Startup (moved to Task Manager), Tools.
+- **Disk Cleanup** (`cleanmgr.exe`): removes temp files, downloads, recycle bin.
+- **Defragment** (`dfrgui`, `defrag`): needed for HDDs only; SSDs do not need it.
+- **Registry Editor** (`regedit.exe`): hives start with HKEY (Classes Root, Current User, Local Machine, Users, Current Config). Back up (export) a key before editing; run the .reg file to restore.
+@cards
+Q: Fastest Task Manager shortcut?
+A: Ctrl+Shift+Esc.
+Q: Task Manager tab to disable startup apps?
+A: Startup.
+Q: Task Manager tab to disconnect users?
+A: Users.
+Q: Command to open the MMC?
+A: mmc.exe.
+Q: What are snap-ins?
+A: Tools you add to the MMC.
+Q: Event Viewer command?
+A: eventvwr.msc.
+Q: Main Event Viewer logs?
+A: Application, Security, Setup, System.
+Q: Disk Management command?
+A: diskmgmt.msc.
+Q: Task Scheduler command?
+A: taskschd.msc.
+Q: Device Manager command?
+A: devmgmt.msc.
+Q: Certificate Manager command?
+A: certmgr.msc.
+Q: Local Users and Groups command?
+A: lusrmgr.msc.
+Q: Performance Monitor command?
+A: perfmon.msc.
+Q: Difference between Task Manager and Performance Monitor?
+A: Task Manager is real-time; Performance Monitor records history and alerts.
+Q: Command for System Information?
+A: msinfo32.exe.
+Q: Resource Monitor command?
+A: resmon.exe.
+Q: System Configuration command?
+A: msconfig.exe.
+Q: Disk Cleanup command?
+A: cleanmgr.exe.
+Q: Should SSDs be defragmented?
+A: No.
+Q: Registry editor?
+A: regedit.exe; back up before changes.
+Q: Registry root key names?
+A: HKEY_CLASSES_ROOT, CURRENT_USER, LOCAL_MACHINE, USERS, CURRENT_CONFIG.
+@check
+? You want to see crashes that happened yesterday. Tool?
+a) Task Manager
+b) Event Viewer
+c) msconfig
+d) Disk Cleanup
+= b | Logs keep history.
+? Which tool records CPU use for days with alerts?
+a) Resource Monitor
+b) Performance Monitor
+c) Task Manager
+d) msinfo32
+= b | Perfmon.
+? Slow login: which first stop to disable startup apps?
+a) Task Manager Startup tab
+b) Disk Management
+c) Certificate Manager
+d) Defrag
+= a | Startup tab.
+? Before editing the registry, you should:
+a) Export a backup
+b) Defrag
+c) Disable UAC permanently
+d) Reboot
+= a | Export the key.
+@lab
+Map the tool
+Which command opens: (1) services/startup selection at boot, (2) partitions, (3) driver list, (4) scheduled jobs, (5) read-only system summary?
+@answer
+(1) msconfig. (2) diskmgmt.msc. (3) devmgmt.msc. (4) taskschd.msc. (5) msinfo32.
+
+## 1.5 The Windows Command Line
+labs: windows-admin-powershell, networking-tcp-ip-dhcp-nat-subnets
+@notes
+### Command Prompt Basics
+- Open with `cmd`; some commands need an **elevated** prompt (Run as administrator, or **Ctrl+Shift+Enter** from search; you must be in Administrators).
+- Help: `help`, `help dir`, or `dir /?`.
+- Navigation: `dir` lists files; `cd`/`chdir` changes directory; `cd ..` goes up one; `md`/`mkdir` creates; `rd`/`rmdir` removes. Paths use backslashes and a drive letter (`C:\Users\name`). Tab autocompletes.
+
+### Disk and File Commands
+- **`chkdsk /f`** fixes file-system index errors; **`chkdsk /r`** also scans every sector (slow; includes /f). Needs admin; a locked system volume is checked at the next restart.
+- **`format`**: initializes a partition with a file system (defaults to FAT32 if none given); erases the partition; admin only.
+- **`diskpart`**: partition tool (`list disk`, `list volume`, `list partition`, format, etc.); needs admin.
+- **`copy`**: `/v` verifies the copy, `/y` suppresses overwrite prompts (useful in batch files). **`robocopy`** (robust copy) has many more options: bandwidth throttling, retries after interruptions, subdirectories.
+- **`sfc /scannow`**: System File Checker detects and repairs changed or corrupt core Windows files; details in cbs.log.
+
+### System and Identity Commands
+- `hostname`: the computer name (confirm you are on the right machine before a restart). `winver`: Windows version dialog. `whoami`: current user; `whoami /all` adds SID, groups and privileges.
+- **`gpupdate /force`** forces a group policy refresh; **`gpresult /r`** shows the resultant set of policies (RSoP) applied to the user and computer.
+
+### Network Commands
+- **`ipconfig`**: IP, mask, gateway; `/all` adds hostname, DNS servers, DHCP, MAC. Also `/release`, `/renew`, `/flushdns`.
+- **`ping`** (ICMP): tests reachability; reports replies, round-trip time, TTL, loss; default 4 packets. 
+- **`netstat`**: connections and ports; `-a` all, `-b` shows executable (admin), `-n` numeric addresses. Columns: protocol, local address, foreign address, state (ESTABLISHED, CLOSE_WAIT...).
+- **`nslookup`**: DNS queries; name to IP and IP to name; uses the default DNS server.
+- **`net view \\server`** lists shares; **`net use H: \\server\share`** maps a drive; **`net user name /domain`** shows account details (active, password last set/expiry, groups).
+- **`tracert`**: maps routers by sending packets with TTL 1, 2, 3...; each router decrements TTL and replies "time exceeded" at 0. TTL in IPv4 counts hops, not seconds. Firewalls that block ICMP hide hops.
+- **`pathping`**: tracert first, then measures loss and round-trip time at every hop (takes minutes).
+@cards
+Q: How to open an elevated Command Prompt from search?
+A: Ctrl+Shift+Enter or Run as administrator.
+Q: Ways to get command help?
+A: help command, or command /?.
+Q: cd .. does what?
+A: Moves up one directory.
+Q: md / rd?
+A: Make or remove a directory.
+Q: chkdsk /f vs /r?
+A: /f fixes file-system errors; /r also scans sectors for bad ones and recovers data.
+Q: format default file system with no option?
+A: FAT32.
+Q: diskpart purpose?
+A: Command-line partition and volume management.
+Q: copy /v and /y?
+A: /v verifies; /y suppresses overwrite prompt.
+Q: robocopy advantages?
+A: Retries, bandwidth throttling, subdirectories, robust copying.
+Q: sfc /scannow?
+A: Scans and repairs protected system files.
+Q: Command for computer name?
+A: hostname.
+Q: Command for Windows version dialog?
+A: winver.
+Q: whoami /all shows?
+A: User, SID, groups, privileges.
+Q: Force a group policy refresh?
+A: gpupdate /force.
+Q: See applied policies?
+A: gpresult /r.
+Q: ipconfig /all adds?
+A: DNS servers, DHCP info, MAC address, hostname.
+Q: Protocol used by ping?
+A: ICMP.
+Q: netstat -b needs?
+A: Elevated prompt; shows executable per connection.
+Q: netstat -n?
+A: Shows numeric addresses without name resolution.
+Q: nslookup is for?
+A: DNS name/IP lookups.
+Q: net use H: \\srv\share?
+A: Maps a network drive.
+Q: net view \\server?
+A: Lists the server's shares.
+Q: net user rmckay /domain?
+A: Shows domain account properties.
+Q: How does tracert work?
+A: Increments TTL so each router returns time exceeded.
+Q: pathping?
+A: tracert plus per-hop loss and latency statistics.
+@check
+? A script copies a file nightly and must not prompt on overwrite. Use:
+a) copy /v
+b) copy /y
+c) copy /?
+d) del
+= b | /y suppresses the prompt.
+? Which command finds which executable owns a connection?
+a) netstat -b
+b) nslookup
+c) ipconfig /all
+d) net use
+= a | -b shows the binary (admin).
+? Policy changed on the server but the PC hasn't applied it. Run:
+a) gpupdate /force
+b) sfc /scannow
+c) diskpart
+d) hostname
+= a | Force refresh.
+? To find which router in the path drops packets, best:
+a) pathping
+b) ping
+c) hostname
+d) winver
+= a | Per-hop statistics.
+? Core OS files are suspected corrupted by malware. Run:
+a) sfc /scannow
+b) chkdsk /f
+c) defrag
+d) netstat
+= a | System File Checker.
+@lab
+Troubleshoot a share
+User can't open \\files01\docs. Give five commands in order and what each tells you.
+@answer
+whoami (right user), ipconfig /all (IP, DNS, gateway), ping files01 (reachability and name resolution), nslookup files01 (DNS), net view \\files01 and net use to test share access; tracert/pathping if the path is suspect.
+
+## 1.6 Windows Settings
+labs: windows-admin-powershell
+@notes
+### Control Panel
+- Open by searching "control". Switch from Category to **large/small icons** to see every applet.
+- **Internet Options** tabs: General (history), Security (zones: internet, intranet, trusted, restricted), Privacy (cookies, pop-up blocker), Content (certificates, autocomplete), Connections (VPN/dial-up, **proxy** under LAN Settings: automatic or manual), Programs (add-ons, defaults), Advanced.
+- **Devices and Printers**: friendly front end for connected and network devices (printer properties) without Device Manager detail.
+- **Programs and Features**: installed apps, uninstall/repair, and **Turn Windows features on or off** (e.g. IIS, Hyper-V, media features).
+- **Network and Sharing Center**: connections, adapter status and properties, IPv4 properties (static, DHCP, DNS), "change adapter settings".
+- **System**: edition, version, CPU, RAM, domain/workgroup; **Advanced system settings** > Performance Settings (visual effects, **virtual memory/paging file**), System Protection.
+- **Windows Defender Firewall**: separate settings for domain, private and public/guest profiles; on by default.
+- **Mail** applet only appears when a client such as Outlook is installed (accounts, data files, profiles).
+- **Sound**: playback and recording devices, default device.
+- **User Accounts**: local accounts, standard vs administrator, password, UAC settings, file-encryption certificates.
+- **Device Manager**: add/remove devices; driver tabs General, Driver, Details, Events, Resources.
+- **Indexing Options**: controls what Windows Search indexes; include or exclude folders and file types.
+- **Administrative Tools / Windows Tools**: Computer Management, Task Scheduler, Registry Editor, etc.
+- **File Explorer Options**: General (click behavior, privacy), View (hidden files, extensions), Search (system dirs, zip contents, file names vs contents).
+- **Power Options**: plans; **Hibernate** saves memory to disk (no power needed); **Sleep/Standby** keeps state in RAM (low power draw); lid-close action, USB selective suspend, display timeout. **Fast Startup** is a hybrid hibernate, so Windows never fully shuts down; turn it off if you need a true shutdown.
+- **Ease of Access**: magnifier, narrator, on-screen keyboard, high contrast.
+
+### Settings App
+- Newer single interface. **Time & Language**: set time automatically, time zone, language and region (**correct time matters because Active Directory/Kerberos needs it**). **Windows Update**: automatic updates, active hours. **Personalization**: colors, background, lock screen. **Apps**: install, uninstall, optional features. **Privacy & Security**: antivirus, firewall, data sharing, speech. **Bluetooth & Devices**: audio, printers, mouse, pen. **Network & Internet**: Ethernet, Wi-Fi, VPN, proxy, IP and DNS. **Gaming**: Game Bar. **Accounts**: Microsoft and local accounts, email, sign-in options such as PIN and MFA.
+@cards
+Q: Easiest way to see all Control Panel applets?
+A: Switch to large or small icons view.
+Q: Internet Options > Connections holds?
+A: VPN and proxy (LAN settings).
+Q: Where to enable Windows optional features?
+A: Programs and Features > Turn Windows features on or off.
+Q: Where to change paging file size?
+A: System > Advanced system settings > Performance > Advanced > Virtual memory.
+Q: Firewall profiles?
+A: Domain, private, public (guest).
+Q: Why does the Mail applet appear?
+A: A supported mail client such as Outlook is installed.
+Q: Hibernate vs sleep?
+A: Hibernate saves state to disk; sleep keeps it in RAM using power.
+Q: Fast Startup caveat?
+A: Windows isn't fully shut down; disable for a complete shutdown.
+Q: Indexing Options affect?
+A: Search speed and what locations and file types are indexed.
+Q: Why does time zone matter in a domain?
+A: Active Directory authentication needs accurate time.
+Q: Where do MFA/PIN sign-in options live in Settings?
+A: Accounts > Sign-in options.
+Q: Where are proxy settings in Settings?
+A: Network & Internet > Proxy.
+Q: File Explorer Options > View used for?
+A: Showing hidden files and extensions.
+Q: Administrative Tools new name?
+A: Windows Tools.
+@check
+? A laptop must survive a dead battery while preserving open work. Use:
+a) Sleep
+b) Hibernate
+c) Lock
+d) Log off
+= b | Hibernate writes RAM to disk.
+? A user needs a proxy via Internet Options. Which tab?
+a) Security
+b) Privacy
+c) Connections
+d) Content
+= c | LAN settings.
+? The PC "shuts down" but keeps old state after reboot. Disable:
+a) Fast Startup
+b) Indexing
+c) UAC
+d) Hibernation off
+= a | Hybrid shutdown.
+? Where do you uninstall an app and enable Hyper-V?
+a) Programs and Features
+b) Sound
+c) Mail
+d) Fonts
+= a | Apps and features list.
+@lab
+Control Panel scavenger hunt
+Where do you: (1) change virtual memory, (2) add a printer share user view, (3) set the firewall for public networks, (4) stop a folder being indexed?
+@answer
+(1) System > Advanced system settings > Performance. (2) Devices and Printers. (3) Windows Defender Firewall (public profile). (4) Indexing Options > Modify.
+
+## 1.7 Windows Networking
+labs: networking-tcp-ip-dhcp-nat-subnets, vpn-tailscale, active-directory
+@notes
+### Shares, Workgroups and Domains
+- A **share** exposes a file, folder or printer on the network. Map a drive letter in File Explorer (Map network drive: `\\server\share`, reconnect at sign-in, different credentials) or with `net use H: "\\server\Share Name"` (quote names with spaces). A trailing **$** makes a share **hidden** (e.g. `ADMIN$`); it still works if you know the name. View shares in Computer Management > Shared Folders.
+- **Workgroup**: standalone devices each with their own accounts (home). **Domain**: central Active Directory credentials and policies, managed by IT; needs **Pro or better** (not Home). Join via Settings > System > About > Domain or workgroup > Change, with domain credentials.
+- **Share a printer**: Printer properties > Sharing tab > Share this printer.
+
+### Windows Defender Firewall
+- Always on by default; turn off only temporarily for troubleshooting (needs elevation). Settings per profile: turn on/off, **block all incoming connections**, notify on blocked apps.
+- Allow an app through the firewall, or open **Windows Defender Firewall with Advanced Security**: inbound/outbound rules, connection security rules, monitoring. New rule types: Program, **Port**, Predefined, Custom. Example: block inbound TCP 80 on all profiles.
+
+### IP Configuration
+- **DHCP** is the default. Without DHCP or a static address Windows falls back to **APIPA 169.254.x.x** (link-local only, no internet). Use an **Alternate Configuration** tab (set when "obtain automatically" is selected) to supply a fallback static address instead.
+- Static settings: **IP address, subnet mask, default gateway**, plus **DNS**. Or use a **DHCP reservation**. **Loopback 127.0.0.1** verifies the local IP stack.
+
+### Network Connections
+- Create via Network and Sharing Center or Settings > Network & Internet.
+- **VPN**: encrypted tunnel from a client to a concentrator. Built-in client needs the server address; can add a smart card for MFA. Toggle from the system tray network icon.
+- **Wi-Fi**: needs SSID, security type (WPA2/WPA3), encryption (AES, not old TKIP), and either **PSK** (personal) or **802.1X** enterprise authentication against a central server.
+- **Wired**: usually fastest, so it is the default route. **WWAN**: cellular via built-in or USB modem, or phone tether/hotspot (may need vendor software).
+- **Proxy**: intermediary that makes requests for you; set automatic or manual in Internet Options or Settings, with exceptions.
+- **Network profiles**: **private** (trusted, sharing allowed) vs **public** (no sharing or inbound by default). **Metered connection** limits data use; set data limits.
+@cards
+Q: How to hide a share?
+A: Append $ to the share name.
+Q: Command to map a drive?
+A: net use H: \\server\share.
+Q: Share names with spaces?
+A: Quote the whole path.
+Q: Workgroup authentication?
+A: Each device keeps its own accounts.
+Q: Domain join requires edition?
+A: Pro or better; not Home.
+Q: Where to join a domain?
+A: Settings > System > About > Domain or workgroup.
+Q: Windows Firewall advanced console?
+A: Windows Defender Firewall with Advanced Security.
+Q: Rule types in the wizard?
+A: Program, port, predefined, custom.
+Q: Block-all-incoming option?
+A: Blocks even explicitly allowed inbound connections.
+Q: APIPA range?
+A: 169.254.1.0 to 169.254.254.255.
+Q: What does APIPA mean for access?
+A: Local network only, no internet.
+Q: Alternate configuration use?
+A: Fallback static settings when DHCP is unavailable.
+Q: Three key static settings?
+A: IP address, subnet mask, default gateway.
+Q: Loopback address?
+A: 127.0.0.1.
+Q: VPN purpose?
+A: Encrypted tunnel across a public network.
+Q: Wi-Fi settings to join an enterprise network?
+A: SSID, WPA2/WPA3 Enterprise with 802.1X, AES.
+Q: Which connection is default when several are active?
+A: The fastest, usually wired Ethernet.
+Q: WWAN?
+A: Cellular wireless wide area network link.
+Q: Private vs public profile?
+A: Private allows sharing/discovery; public blocks them.
+Q: Metered connection purpose?
+A: Reduces data usage on costly networks.
+@check
+? A laptop shows 169.254.7.22 at the office. Likely cause?
+a) DHCP server unreachable
+b) DNS poisoning
+c) Bad driver
+d) Proxy
+= a | APIPA.
+? A user's Windows 11 Home PC can't join the corporate domain. Fix:
+a) Upgrade to Pro
+b) Add a $ to the share
+c) Disable firewall
+d) Use APIPA
+= a | Home can't domain join.
+? Block unencrypted web traffic to a local web server:
+a) Inbound rule, TCP 80, block
+b) Outbound rule, UDP 53, allow
+c) Metered connection
+d) Alternate configuration
+= a | Port 80 is HTTP.
+? At a coffee shop you should select which profile?
+a) Private
+b) Domain
+c) Public
+d) Workgroup
+= c | Highest protection.
+@lab
+Fallback IP
+Make a DHCP laptop use 10.1.10.102/24 (gateway 10.1.10.1) when DHCP is down. List the steps.
+@answer
+Network and Sharing Center > Change adapter settings > Properties of the adapter > IPv4 Properties > Obtain automatically > Alternate Configuration > User configured; enter IP, mask, gateway and DNS.
+
+## 1.8 macOS
+labs: operating-systems
+@notes
+### Files, Apps and Folders
+- **.dmg**: Apple disk image (like an ISO; mounts as a drive). **.pkg**: installer package that runs an install script. **.app**: application bundle (a folder of many files; Finder > right-click > Show Package Contents). macOS has no .exe.
+- **App Store**: central place for apps and updates (Updates tab; automatic or manual). **Uninstall** most apps by deleting the .app (drag to Trash); some bundle an uninstaller.app.
+- Folders: **/Applications** (like Program Files), **/Users** (home directories; your home is /Users/name), **/Library** (shared support files, fonts, scripts), **~/Library** (per-user, hidden by default), **/System** (core OS files, like \Windows).
+- **Apple ID** is personal. Businesses use a **Managed Apple ID** through Apple Business Manager, which integrates with Active Directory and an MDM.
+- **Time Machine**: automatic backups: hourly for 24 hours, daily for a month, weekly for older months; oldest are deleted when the volume fills. Configure in System Settings; local drive or network volume.
+- **Security**: some anti-malware built in, but no single AV console; third-party AV exists. Malware is mostly written for Windows but macOS is not immune. **Software Update** (System Settings > General) updates the OS itself, separate from App Store app updates; betas are optional and risky. **Rapid Security Response (RSR)** pushes urgent security fixes fast (on by default; also iOS/iPadOS; a letter after the version means an RSR was applied).
+
+### System Settings (System Preferences)
+- Windows Control Panel equivalent. **Displays** (arrangement, resolution, brightness, color), **Network** (wired/wireless, IPv4/IPv6, DNS, 802.1X, proxies), **Printers & Scanners** (share, queues, supply levels), **Privacy & Security** (per-app access to location, files, camera, microphone, photos), **Accessibility** (vision, hearing, Zoom, third-party app access), **Time Machine**.
+
+### macOS Features
+- **Mission Control** (Control+Up or three-finger swipe up) shows all windows; **Spaces** are multiple desktops.
+- **Keychain**: encrypted password/certificate/notes store unlocked by your login password.
+- **Spotlight**: search with Command+Space.
+- **iCloud**: syncs calendar, mail, photos, messages; iCloud Drive for files; built-in backups.
+- **Gestures**: customizable trackpad swipes and pinches.
+- **Finder**: file manager (like File Explorer), includes network and screen-sharing locations. **Dock**: quick launch; dots mark running apps.
+- **Continuity**: hand off tasks between Mac, iPhone and iPad, use iPhone as a webcam, AirDrop, text forwarding.
+- **Disk Utility**: partition, format, repair, create images. **FileVault**: full-disk encryption (like BitLocker) in Privacy & Security. **Terminal**: command line. **Force Quit**: Command+Option+Esc, or Option+right-click the Dock icon.
+@cards
+Q: .dmg?
+A: macOS disk image file.
+Q: .pkg?
+A: Installer package.
+Q: .app?
+A: Application bundle.
+Q: How to uninstall most macOS apps?
+A: Delete the .app from Applications.
+Q: macOS equivalent of Program Files?
+A: /Applications.
+Q: Hidden per-user support folder?
+A: ~/Library.
+Q: Where are OS files?
+A: /System.
+Q: Managed Apple ID tool?
+A: Apple Business Manager.
+Q: Time Machine retention?
+A: Hourly for a day, daily for a month, weekly for older; oldest deleted when full.
+Q: Where does macOS update the OS?
+A: System Settings > General > Software Update.
+Q: RSR?
+A: Rapid Security Response: urgent security patches pushed quickly.
+Q: Mission Control shortcut?
+A: Control+Up Arrow or three-finger swipe up.
+Q: What are Spaces?
+A: Multiple virtual desktops.
+Q: Keychain?
+A: Encrypted store for passwords, certificates and notes.
+Q: Spotlight shortcut?
+A: Command+Space.
+Q: Finder?
+A: macOS file manager.
+Q: Continuity?
+A: Seamless handoff between Apple devices.
+Q: macOS disk management tool?
+A: Disk Utility.
+Q: macOS full disk encryption?
+A: FileVault.
+Q: Force quit shortcut?
+A: Command+Option+Esc.
+@check
+? A user wants to remove a downloaded Mac app. Easiest:
+a) Run uninstall.exe
+b) Drag the .app to Trash
+c) Use msconfig
+d) Run regedit
+= b | Bundles delete cleanly.
+? Which feature encrypts the entire Mac drive?
+a) Keychain
+b) FileVault
+c) Spotlight
+d) Time Machine
+= b | FileVault.
+? Which app is hung; keyboard shortcut to kill it?
+a) Command+Space
+b) Command+Option+Esc
+c) Control+Up
+d) Command+Tab
+= b | Force Quit window.
+? Company-owned Macs need centralized Apple ID control. Use:
+a) Personal Apple ID
+b) Managed Apple ID with Apple Business Manager
+c) Keychain
+d) iCloud Drive
+= b | Managed IDs.
+@lab
+Mac backup plan
+Describe how to protect a Mac user's data from a failed SSD.
+@answer
+Enable Time Machine to an external or network volume, turn on iCloud Drive/Photos sync if allowed, and keep FileVault on; test a restore.
+
+## 1.9 Linux
+labs: linux-command-line, linux-server-admin-ubuntu
+@notes
+### Linux Basics and Boot
+- Linux is free, Unix-like, offered as many **distributions** (Ubuntu, Debian, Red Hat...). Community support; drivers for brand-new hardware can lag. A GUI is optional; most configuration is **text files**.
+- **Boot**: BIOS/UEFI picks the boot device from its boot order > the **bootloader** (UEFI reads EFI files from the **EFI System Partition**) > the **kernel** (core of the OS, runs in kernel space; apps run in user space) > **systemd** starts and manages background services called **daemons**. The administrator account is **root**.
+- Key files in `/etc`: **passwd** (users, UID, GID, home, shell; password field shows x), **shadow** (hashed passwords, readable only with elevated rights), **hosts** (name to IP; overrides DNS), **resolv.conf** (DNS servers), **fstab** (file system table of what mounts at boot).
+
+### File and Permission Commands
+- `ls` (list; `-l` details, `-a` hidden, `-la`), `pwd` (print working directory), `cd` (`cd ~` goes home), `man cmd` (manual page; q quits), pipe output to `more` to paginate.
+- `mv src dst` moves **or renames**; `cp src dst` copies; `rm file` deletes (`-r` removes directories and contents).
+- **chmod**: `r=4, w=2, x=1`. Three groups: **user (owner), group, others**. `chmod 744 file` = owner rwx, group r--, others r--. `ls -l` first column: type (`-` file, `d` directory) then rwx x3. Symbolic: `chmod u+x script.sh`, `chmod a-w first.txt` (u, g, o, a; `+` add, `-` remove).
+- **chown**: `sudo chown jack file`, `sudo chown professor:backup file` (owner:group); needs elevation.
+- **sudo** runs one command as superuser (preferred); **su** switches the whole session to root (`exit` to return).
+- **grep text file** searches for text in files. **find** locates files by name: `find . -name "third.*"`.
+- **fsck**: file system check (usually at boot, before mounting). **mount** lists mounts or mounts a device (like net use); pipe to grep to filter.
+- **Package managers**: `sudo apt install wireshark` (Debian/Ubuntu); **dnf** (Red Hat/RPM, successor of YUM).
+
+### Network and Diagnostics
+- **`ip address`** (interfaces, IPs, MACs), `ip route` (routing table); also configure and enable/disable interfaces. Old `ifconfig` replaced.
+- **`ping`**: Linux pings continuously until Ctrl+C (default 56 bytes), then prints a summary.
+- **`curl URL`**: fetch raw HTML/data from a URL for scripting. **`dig name`**: DNS query (like nslookup), shows question/answer sections. **`traceroute`**: like tracert, uses TTL, 3 probes per hop.
+- **`cat`**: show a file; `cat one two three > all.txt` concatenates. **`top`**: live processes and CPU/memory, plus load averages for 1, 5 and 15 minutes. **`ps`**: process snapshot (`ps -e` all processes; pipe to grep). **`df -h`**: free space per file system in human-readable units. **`du -h`**: space used by folders (find what is eating the disk). **`nano`**: simple terminal text editor (Ctrl+X to exit).
+@cards
+Q: Linux admin account?
+A: root.
+Q: Linux boot order of components?
+A: BIOS/UEFI, bootloader, kernel, systemd.
+Q: systemd manages?
+A: Services (daemons).
+Q: What does the kernel do?
+A: Core of the OS; manages hardware, processes and drivers.
+Q: /etc/passwd holds?
+A: User accounts, IDs, home and shell (no real passwords).
+Q: /etc/shadow holds?
+A: Hashed passwords, restricted access.
+Q: /etc/hosts?
+A: Local name-to-IP mapping that overrides DNS.
+Q: /etc/resolv.conf?
+A: DNS servers.
+Q: /etc/fstab?
+A: File systems to mount at boot.
+Q: ls -la shows?
+A: Permissions, owner, group, size and hidden files.
+Q: pwd?
+A: Print working directory.
+Q: How to rename in Linux?
+A: mv oldname newname.
+Q: rm -r?
+A: Removes a directory and its contents.
+Q: chmod numbers: r, w, x?
+A: 4, 2, 1.
+Q: chmod 744 meaning?
+A: Owner rwx, group r, others r.
+Q: chmod u+x script.sh?
+A: Adds execute for the owner.
+Q: chown user:group file?
+A: Changes owner and group (needs sudo).
+Q: sudo vs su?
+A: sudo runs one command elevated; su switches the session to root.
+Q: grep failed auth.log?
+A: Show lines containing "failed" in auth.log.
+Q: find command purpose?
+A: Locate files by name or pattern.
+Q: fsck?
+A: Checks and repairs the file system.
+Q: mount?
+A: Attach a file system to the tree; list mounts.
+Q: Debian/Ubuntu package command?
+A: apt (sudo apt install name).
+Q: Red Hat package command?
+A: dnf (YUM successor).
+Q: View IP config in Linux?
+A: ip address (also ip route).
+Q: Linux ping behavior?
+A: Runs continuously until Ctrl+C.
+Q: curl?
+A: Fetches data from a URL, such as raw HTML.
+Q: dig?
+A: DNS query tool like nslookup.
+Q: Linux traceroute equivalent of?
+A: tracert.
+Q: top shows?
+A: Live process CPU/memory and load averages.
+Q: ps -e?
+A: Lists all processes.
+Q: df -h vs du -h?
+A: df shows free space per file system; du shows usage per folder.
+Q: nano?
+A: Terminal text editor.
+@check
+? You need the world to only read a script owned by you, with you able to run it. chmod?
+a) 744
+b) 777
+c) 000
+d) 222
+= a | rwx for owner, r for others.
+? Which file lists DNS servers on Linux?
+a) /etc/hosts
+b) /etc/resolv.conf
+c) /etc/fstab
+d) /etc/passwd
+= b | resolv.conf.
+? A disk is full; find which folders are large:
+a) df -h
+b) du -h
+c) top
+d) ps
+= b | du shows folder usage.
+? Find lines containing "denied" in a log:
+a) cat
+b) grep denied logfile
+c) mv
+d) fsck
+= b | grep.
+? Install a package on Ubuntu:
+a) dnf install
+b) sudo apt install
+c) chmod
+d) mount
+= b | apt.
+? Which keeps the system root session separate and safer for single commands?
+a) su
+b) sudo
+c) chown
+d) pwd
+= b | sudo.
+@lab
+Permissions puzzle
+A file shows -rw-r----- jack staff. Who can do what, and what chmod gives the group write too?
+@answer
+Jack reads and writes; group staff can only read; others have no access. `chmod 660 file` (or `chmod g+w file`) gives the group write.
+
+## 1.10 Installing Applications
+labs: windows-deployment-and-drivers, operating-systems
+@notes
+### Requirements
+- **32-bit vs 64-bit**: 32-bit addresses about 4 GB of memory; 64-bit addresses vastly more (about 17 billion GB theoretical). Drivers must match the OS bit width. A **64-bit OS runs 32-bit and 64-bit apps; a 32-bit OS cannot run 64-bit apps.** Windows stores 64-bit apps in `Program Files` and 32-bit in `Program Files (x86)`. Check System > About.
+- **Graphics**: integrated (GPU in the CPU) vs a **dedicated/discrete** graphics card for 3D, video editing.
+- **RAM**: requirement applies to the app alone, not the OS plus other apps; check Task Manager. **CPU speed** (GHz, cycles per second) and cores vary by workload. **Storage** space for the app and its data.
+- **Licensing**: key, or a **hardware token** (USB dongle) for expensive niche software.
+
+### Distribution
+- Download from the **developer or official store**, not third-party sites. Physical media (USB, optical) for offline machines such as isolated data center systems. **ISO files** hold a full disk image with an ISO 9660 file system; mount to see contents.
+- **Disk images** capture an OS plus patches, apps and settings for fast deployment, but hardware must match (VMs make this easy).
+
+### Business Impact
+- An installer runs with the **user's permissions**, so it can reach everything the user can. Untested apps can overwrite data, break other apps, slow systems, change the UI (retraining, workflow changes) or crash the machine. Test in a lab or **sandbox** first, and have a recovery plan.
+@cards
+Q: Memory limit of 32-bit OS?
+A: About 4 GB.
+Q: Can a 32-bit OS run 64-bit apps?
+A: No.
+Q: Can a 64-bit OS run 32-bit apps?
+A: Yes.
+Q: Where do 32-bit apps live on 64-bit Windows?
+A: Program Files (x86).
+Q: Integrated vs dedicated graphics?
+A: Integrated shares the CPU chip; dedicated is a separate GPU card.
+Q: Hardware token licensing?
+A: A USB dongle must be present for the app to run.
+Q: Safest place to get software?
+A: The developer or an official store.
+Q: ISO file?
+A: A disk image with an ISO 9660 file system.
+Q: Image drawback?
+A: Hardware-specific; drivers may not fit different hardware.
+Q: Why test apps in a sandbox?
+A: Installers run with user rights and could break things.
+Q: Business risk of UI change after upgrade?
+A: Workflow disruption and retraining.
+@check
+? A 32-bit app on 64-bit Windows installs where?
+a) Program Files (x86)
+b) System32
+c) Users
+d) Recovery
+= a | x86 folder.
+? A video editing app is slow with integrated graphics. Recommend:
+a) Discrete GPU
+b) Defrag
+c) More fonts
+d) Hibernate
+= a | Dedicated graphics.
+? Before rolling out a new app to 2,000 PCs:
+a) Test in a sandbox
+b) Install on all at once
+c) Skip testing
+d) Disable AV
+= a | Test first.
+@lab
+App rollout
+List five pre-install checks for a new CAD application.
+@answer
+OS and bit width, CPU speed/cores, RAM, GPU requirements, storage, license (key/token), and test in a sandbox with a rollback plan.
+
+## 1.11 Cloud Productivity
+labs: virtualization-proxmox
+@notes
+### Cloud Productivity Tools
+- Many organizations run **email in the cloud** (Microsoft 365/Outlook, Google Workspace). Providers offer high-speed redundant connectivity, built-in backups, strong physical and logical security.
+- **Cloud storage** (Google Drive, OneDrive, iCloud Drive) with desktop clients that **synchronize** a local folder to the cloud and other devices; choose to mirror or store only online.
+- **Collaboration**: video meetings, shared and co-edited documents in real time, instant messaging, work from anywhere.
+- **Identity synchronization**: cloud identity providers (Microsoft Entra ID, Okta, Google Identity) keep user records synchronized across directories, so one change (add or remove a user) propagates everywhere.
+- **Cloud licensing**: manage and reassign license keys centrally; reclaim unused licenses to save money.
+@cards
+Q: Examples of cloud email?
+A: Microsoft 365 (Outlook), Google Workspace.
+Q: What does a sync client do?
+A: Mirrors local files to cloud and other devices.
+Q: Cloud collaboration features?
+A: Co-editing, video conferencing, messaging.
+Q: Identity providers?
+A: Microsoft Entra ID, Okta, Google Identity.
+Q: Benefit of identity sync?
+A: One change propagates to all directories.
+Q: Benefit of cloud license management?
+A: Central assignment and reclaiming of licenses.
+@check
+? Offboarding must remove access everywhere with one change. Use:
+a) Identity synchronization
+b) Local passwd edits
+c) Disk cleanup
+d) VPN
+= a | Synchronized IdP.
+? Edits on a laptop must appear on a phone. Use:
+a) Cloud sync client
+b) Floppy
+c) Defrag
+d) RDP
+= a | Sync.
+@lab
+Offboarding checklist
+Name three cloud steps when an employee leaves.
+@answer
+Disable the account in the identity provider, revoke/reassign licenses, and transfer or archive mailbox and cloud files.
+
+## 2.1 Security Measures
+labs: system-hardening-windows-linux, active-directory
+@notes
+### Physical Security
+- **Bollards/barricades**: stop vehicles while letting people walk through. **Access control vestibule** (mantrap): small room between outside and inside; only one door opens at a time; staff check ID. **Badge readers**: RFID/NFC (older magnetic stripe); badges can also clock in and log guard rounds.
+- **Video surveillance (CCTV)**: networked cameras to a central recorder; infrared at night; motion alerts; modern cameras read plates and recognize faces.
+- **Alarms and sensors**: circuit sensors on doors, windows, fences; motion detection; **duress button** under a desk.
+- **Locks**: conventional key and deadbolt; electronic PIN lock; token (RFID); biometric. Combine factors (badge + PIN + fingerprint). **Lock server racks and cabinets** (doors front and back, perforated for airflow).
+- **Guards and badges**: security guard at reception checks ID. ID badges with photo, visitor badges, pre-registered **access lists**, and logs that create an **audit trail**. **Fences** (tall, sturdy, razor wire) form a perimeter. **Lighting** deters intruders and improves camera images. **Magnetometers** (metal detectors) find metal only, not ceramic.
+
+### Physical Access Methods
+- **Key fob**: RFID tag on a keychain, used like a badge. **Smart card**: stores a signed **certificate**; use with PIN or biometric; reader built into laptop or external USB. **Mobile digital key**: key on your phone (cars, hotels, offices), protected by phone unlock. Keep **physical keys** as backup, in a cabinet with sign-out and ID collateral.
+- **Biometrics** store a mathematical template, not a picture: retina scan (very accurate; capillaries), fingerprint, palm scan, facial recognition (3D dot map, about 1-in-1-million false acceptance), voice recognition (weakest; changes with health; combine with other factors).
+
+### Logical Security
+- **Least privilege**: only the rights needed for the job. **Zero trust**: trust nothing by location; authenticate every user, device and app; internal MFA, encryption, segmentation, analytics.
+- **ACL (access control list)**: allow/deny rules based on source or destination IP, TCP/UDP ports, protocol; also seen as file permissions on Windows and Linux.
+- **MFA** factors: something you **know**, **have**, **are**, **somewhere you are**. Email confirmation links also act as a factor. **Authenticator apps and hardware tokens** generate codes. **SMS** codes are weak (SIM swap/number reassignment, social engineering of the carrier). **Voice-call** codes share the same flaw. **TOTP** (time-based one-time password) changes about every 30 seconds using a shared secret and synced clocks (Google Authenticator). **HOTP/OTP** codes are single-use from a list/counter.
+
+### Authentication and Access
+- **SAML**: open standard where the app redirects to an identity/authorization server; the client gets a signed token and presents it to the resource server. Fine for web, not designed for mobile apps. **SSO** (single sign-on) avoids repeated logins; sessions time out (often ~24 h) and the auth protocol must support it.
+- **Just-in-time access**: temporary (ephemeral) admin credentials issued from a password vault so a stolen standard account has no admin rights. **PAM (privileged access management)** vaults, automates and audits admin and root accounts.
+- **MDM (mobile device management)**: central control of company and BYOD phones/tablets: policies (lock screen, PIN), app control, separate company data partition, remote wipe of company data. **DLP (data loss prevention)**: detects and blocks sensitive data (SSNs, card numbers, medical records) leaving via endpoints, cloud, email, firewall. **IAM**: lifecycle, authentication, authorization and auditing of digital identities for people and devices. **Directory services** (Active Directory) are the single repository of users, groups, devices and permissions; help desks reset passwords there.
+@cards
+Q: Bollard purpose?
+A: Block vehicles but allow pedestrians.
+Q: Access control vestibule?
+A: Two-door entry area where one door opens at a time; ID is checked.
+Q: Common badge reader technologies?
+A: RFID and NFC.
+Q: What does CCTV mean?
+A: Closed-circuit television surveillance.
+Q: Duress button?
+A: Silent alarm for a threatened user.
+Q: Why use access lists and logs for visitors?
+A: Creates an audit trail.
+Q: What is a magnetometer?
+A: Metal detector; misses non-metal items.
+Q: Key fob?
+A: Keychain with an RFID tag used like a badge.
+Q: Smart card stores?
+A: A digital certificate, used with PIN or biometric.
+Q: Biometric template contains?
+A: A mathematical model, not an image.
+Q: Most accurate common biometric?
+A: Retina scan.
+Q: Weakest biometric listed?
+A: Voice recognition.
+Q: Least privilege?
+A: Give only the access required for the job.
+Q: Zero trust?
+A: Authenticate and verify every user and device regardless of location.
+Q: ACL?
+A: List of allow or deny rules (IP, port, protocol).
+Q: Four MFA factor types?
+A: Know, have, are, location.
+Q: Why is SMS MFA weak?
+A: SIM swapping and number reassignment.
+Q: TOTP?
+A: Time-based one-time password, changes about every 30 seconds.
+Q: SAML?
+A: Open standard for web authentication using tokens from an identity server.
+Q: SSO?
+A: One login for many resources.
+Q: Just-in-time access?
+A: Temporary admin credentials issued on request.
+Q: PAM?
+A: Privileged access management: vault, control and audit admin accounts.
+Q: MDM?
+A: Central management of mobile devices, policies and remote wipe.
+Q: DLP?
+A: Prevents sensitive data from leaving the organization.
+Q: IAM?
+A: Identity and access management of digital identities.
+Q: Directory services example?
+A: Active Directory.
+@check
+? A data center wants to ensure only one person enters at a time and IDs are checked. Use:
+a) Access control vestibule
+b) Bollard
+c) Fence
+d) Magnetometer
+= a | Mantrap.
+? Which MFA method is most vulnerable to number porting?
+a) TOTP app
+b) SMS code
+c) Hardware token
+d) Smart card
+= b | SIM swap.
+? A contractor needs admin access for two hours. Best approach?
+a) Share admin password
+b) Just-in-time ephemeral credentials from a vault
+c) Add to Domain Admins permanently
+d) Disable MFA
+= b | JIT/PAM.
+? Employees lose a personal phone with company data. Which tool wipes only company data?
+a) MDM
+b) DLP
+c) SAML
+d) CCTV
+= a | MDM on BYOD.
+? A fingerprint plus a PIN are:
+a) Two factors (are + know)
+b) One factor
+c) Zero trust
+d) SSO
+= a | Multifactor.
+@lab
+Secure the server room
+Design five layered controls (physical and logical) for a small server closet.
+@answer
+Locked door with badge reader and PIN, camera plus motion alarm, locked rack, visitor log with escort, least-privilege accounts with MFA for admin access.
+
+## 2.2 Windows Security
+labs: system-hardening-windows-linux, group-policy, windows-admin-powershell
+@notes
+### Defender Antivirus
+- Built in and on by default (Microsoft Defender Antivirus, in the **Windows Security** app > Virus & threat protection). Keep **real-time protection** on; only disable temporarily (UAC prompt appears). Settings include cloud-delivered protection, automatic sample submission, tamper protection, controlled folder access, exclusions. Update definitions via Protection updates > **Check for updates**.
+
+### Windows Firewall
+- Enable/disable per profile (domain, private, public) in Windows Security > Firewall & network protection (needs admin). **Block all incoming connections** overrides allowed-app rules (useful on public Wi-Fi). Configure firewall notifications; **Security providers** shows which AV/firewall is active (to spot third-party products).
+
+### Authentication Settings
+- **Local account** (on the PC), **Microsoft account** (cloud sync across devices), **domain account** (Active Directory). Default local accounts: Administrator, Guest (limited), Default; groups include Administrators, Backup Operators, Guests, Users, Power Users (legacy). Manage in Computer Management > Local Users and Groups.
+- Login options: password, **PIN**, biometrics, SSO. **Passwordless** methods (Windows Hello, facial recognition, security keys) avoid weak or written-down passwords; the first login may still use a password.
+
+### File Permissions
+- **NTFS permissions** (local file system) vs **share permissions** (network access). When both apply, the **most restrictive wins**, and an explicit **deny** overrides allows. NTFS permissions are inherited by child folders and new files. **Explicit** permissions override inherited ones. Moving a file within the same volume keeps its original permissions.
+- Example: NTFS Everyone full control but share Everyone read: a network user only gets read.
+
+### Elevation and Encryption
+- **Run as administrator** is explicit even for admins. **UAC (User Account Control)** prompts "Do you want to allow this app to make changes?" for admin tasks; levels range from always notify to never.
+- **BitLocker** (FDE) encrypts a whole volume; **BitLocker To Go** protects USB drives. **EFS** encrypts selected files/folders on NTFS (not in Home) using your credentials; if the password is administratively reset, encrypted data can be lost, so keep backups.
+
+### Active Directory
+- **AD** is a centralized database of users, computers, shares and printers that provides authentication and permissions. **Domain controllers** host and replicate it (distributed). Computers must be explicitly **joined** by an administrator (Settings > System > About > Domain or workgroup, or PowerShell), then rebooted and logged in with domain credentials.
+- **OUs (organizational units)** organize objects (by site, building, department) and are where policies attach. Manage with **Active Directory Users and Computers**: reset passwords, disable accounts, add to groups, **move** objects between OUs (which changes the policies they get).
+- **Group Policy Objects (GPOs)** are created and linked in Group Policy Management; edit under user or computer configuration (e.g. Administrative Templates > Desktop to hide the Recycle Bin). `gpupdate /force` refreshes; some settings need logoff/logon.
+- **Logon scripts** (User Configuration > Policies > Windows Settings > Scripts) can map drives (e.g. `net use G: \\server\share`). **Home folders** map a personal network drive (`\\server\home\%username%`). **Folder redirection** sends Documents, Desktop and Downloads to a server for backup, often paired with **offline files** for laptops.
+- **Groups** assign permissions at scale: add users to groups instead of setting rights per user (e.g. Remote Desktop Users).
+@cards
+Q: Where is Defender Antivirus managed?
+A: Windows Security app > Virus & threat protection.
+Q: Default Defender setting?
+A: Real-time protection on.
+Q: How to update definitions manually?
+A: Protection updates > Check for updates.
+Q: What does "block all incoming connections" do?
+A: Blocks everything inbound even apps on the allowed list.
+Q: Windows firewall profiles?
+A: Domain, private, public.
+Q: Security providers page shows?
+A: Which AV, firewall and web protection are active.
+Q: Local, Microsoft and domain accounts?
+A: Local on the PC; Microsoft in the cloud; domain in Active Directory.
+Q: Passwordless Windows options?
+A: Windows Hello face/fingerprint/PIN, security keys.
+Q: NTFS vs share permission conflict?
+A: The most restrictive applies; deny wins.
+Q: Do child folders inherit permissions?
+A: Yes, unless explicit permissions are set.
+Q: Move a file within the same volume?
+A: It keeps its original permissions.
+Q: UAC prompt?
+A: Asks to allow a program to make admin changes.
+Q: BitLocker To Go?
+A: Encrypts removable USB drives.
+Q: EFS limitation?
+A: Not in Home; tied to the user account, data lost if credentials are reset without a backup.
+Q: Domain controller?
+A: Server holding and replicating the AD database.
+Q: What is an OU?
+A: Organizational unit: container used to organize AD objects and apply GPOs.
+Q: Which tool resets domain passwords?
+A: Active Directory Users and Computers.
+Q: Effect of moving a user to a different OU?
+A: They receive that OU's policies.
+Q: Force group policy refresh?
+A: gpupdate /force.
+Q: Logon script purpose?
+A: Automatically maps drives or runs tasks at login.
+Q: Home folder?
+A: Personal network drive mapped per user.
+Q: Folder redirection?
+A: Stores Documents/Desktop on a server for backup.
+Q: Why assign permissions via groups?
+A: Scales and avoids per-user errors.
+@check
+? NTFS gives Everyone full control, share gives Everyone read. A remote user can:
+a) Read only
+b) Full control
+c) Nothing
+d) Delete
+= a | Most restrictive.
+? You must stop employees from losing data when laptops are stolen. Enable:
+a) BitLocker
+b) Fast Startup
+c) UAC off
+d) Guest account
+= a | Full-disk encryption.
+? Marketing needs a different desktop policy than accounting. Use:
+a) Separate OUs with GPOs
+b) Separate workgroups
+c) Local passwd
+d) Shares
+= a | Policies attach to OUs.
+? A user's Documents must be backed up centrally without user action:
+a) Folder redirection
+b) Defrag
+c) Hibernate
+d) EFS
+= a | Redirection.
+? Defender real-time protection is off. Risk?
+a) None
+b) Files not scanned as they are accessed
+c) Updates stop
+d) Disk fills
+= b | Real-time monitoring gone.
+@lab
+Onboard a user
+Describe steps to give a new hire a domain login, a mapped H: drive and access to the accounting share.
+@answer
+Create the user in AD in the right OU, set a home folder `\\server\home\%username%` mapped H:, add the user to the Accounting group that holds share/NTFS permissions, and have them log on to a domain-joined PC (gpupdate if needed).
+
+## 2.3 Wireless Security
+labs: network-traffic-analysis, firewalls-pfsense
+@notes
+### Wireless Encryption
+- Wireless traffic is in the air, so you need **authentication**, **encryption**, and a **Message Integrity Check (MIC)** to detect tampering. A wireless analyzer sees everything unencrypted.
+- **WEP** (Wired Equivalent Privacy): broken. **WPA** (2002): stopgap using **TKIP** on existing hardware. **WPA2** (2004): **AES** encryption, needed newer access points, still common. **WPA3** (2018): stronger AES, safer initial key exchange, and encryption even on **open networks**.
+- **Open system**: no password (coffee shop). **Personal mode**: WPA2/WPA3 with a **pre-shared key (PSK)** everyone uses. **Enterprise mode / 802.1X**: each user logs in with their own credentials checked against a central authentication database, so removing one user's account ends their wireless access.
+
+### Authentication Methods
+- Central auth servers (**AAA**: authentication, authorization, accounting) let VPN, switches, firewalls and Wi-Fi share the same credentials.
+- **RADIUS**: widely supported, used for VPN, wireless 802.1X, network devices. **TACACS+**: Cisco-associated, open standard, more detailed responses. **Kerberos**: Windows domain protocol; authenticate once, get tickets from a ticket-granting service; mutual authentication that resists on-path and replay attacks. Non-Windows systems may need smart cards or SAML for SSO.
+- Pick the one your infrastructure supports (VPN needs RADIUS, Cisco gear uses TACACS+, Windows uses Kerberos).
+- **MFA factors** also include **something you do** (a signature). Costs vary: hardware tokens cost more than phone apps.
+@cards
+Q: What is a MIC?
+A: Message Integrity Check that detects modified wireless frames.
+Q: WEP status?
+A: Obsolete and insecure.
+Q: WPA used which cipher?
+A: TKIP.
+Q: WPA2 uses?
+A: AES.
+Q: WPA3 new features?
+A: Stronger AES, better key exchange, encryption on open networks.
+Q: PSK?
+A: Shared password everyone uses in personal mode.
+Q: Enterprise Wi-Fi authentication mode?
+A: 802.1X with a central server.
+Q: What does AAA stand for?
+A: Authentication, authorization, accounting.
+Q: RADIUS use?
+A: Central auth for VPN, 802.1X Wi-Fi and network devices.
+Q: TACACS+ associated with?
+A: Cisco devices.
+Q: Kerberos feature?
+A: Tickets, SSO and mutual authentication in Windows domains.
+Q: Something you do factor?
+A: A signature or gesture.
+@check
+? A company wants individual logins for Wi-Fi and instant revocation when staff leave. Use:
+a) WPA2-PSK
+b) WPA2/WPA3 Enterprise with 802.1X
+c) WEP
+d) Open network
+= b | Per-user auth.
+? A coffee shop wants encryption without passwords. Choose:
+a) WPA3 (open network encryption)
+b) WEP
+c) TKIP
+d) SSID hiding
+= a | Opportunistic encryption.
+? Windows domain logon uses which protocol?
+a) Kerberos
+b) TACACS+
+c) RADIUS only
+d) WEP
+= a | Kerberos.
+@lab
+Pick the protocol
+Match: (1) VPN concentrator that speaks RADIUS, (2) Cisco switch logins, (3) Windows domain logon.
+@answer
+(1) RADIUS. (2) TACACS+. (3) Kerberos.
+
+## 2.4 Malware
+labs: malware-analysis, password-cracking-john
+@notes
+### Malware Types
+- **Entry paths**: vulnerabilities (then a **backdoor**), malicious links, pop-ups, **drive-by downloads**, worms (rare). Patch OS and apps.
+- **Trojan**: looks useful, runs with your rights. **Rootkit**: embeds in the OS and hides from scanners and Task Manager; **UEFI Secure Boot** (checks signatures) largely stops them; use rootkit-specific removers. **Virus**: needs a human to run it; spreads via files or USB. **Spyware**: watches activity; **keylogger** records keystrokes (plus mouse, screenshots). **Ransomware**: encrypts files and demands payment (backups are the defense). **Boot sector virus**: infects the bootloader; Secure Boot checks it. **Cryptominer**: hijacks CPU (even via JavaScript on a web page). **Stalkerware**: spyware installed by someone you know to track location, camera, mic. **Fileless malware**: runs only in memory, abusing PowerShell and a vulnerability, may add a registry autostart. **PUP (potentially unwanted program)**: bundled adware, toolbars, fake backup tools, hijacked search.
+
+### Anti-malware Tools
+- **WinRE (Windows Recovery Environment)**: boot from install media, or Shift+Restart, or Settings > Recovery > Advanced startup. Troubleshoot > Advanced options > Command Prompt, Startup Repair, UEFI firmware settings. Use it to remove malware, edit services, repair boot.
+- **EDR** (endpoint detection and response): behavioral analysis and machine learning rather than signatures; root-cause data; can isolate, quarantine and roll back. **MDR** is EDR run by a third party, often an **MSSP**. **XDR** correlates endpoint, network and cloud data.
+- Real-time **antivirus/anti-malware** with behavior detection. **Email gateway** (on-prem or cloud) scans mail for malicious links/attachments. **Software firewall** on each endpoint blocks inbound and outbound traffic, including malware calling a **command and control** server.
+- **User training**: phishing simulations, posters, message boards, login banners, intranet docs, one-on-one training.
+- **Remediation**: the only way to be sure malware is gone is **wipe and restore** from a known good backup or **image**; manual rebuild is slowest; keeping user data on a network share speeds reimaging.
+@cards
+Q: Trojan?
+A: Malware disguised as useful software.
+Q: Rootkit?
+A: Hides in the OS from scanners and users.
+Q: What stops most rootkits and boot malware?
+A: UEFI Secure Boot.
+Q: Virus vs worm?
+A: A virus needs a user action; a worm spreads on its own.
+Q: Keylogger?
+A: Records keystrokes and sends them to an attacker.
+Q: Ransomware?
+A: Encrypts files and demands payment.
+Q: Cryptominer symptom?
+A: High CPU usage.
+Q: Stalkerware?
+A: Spyware that tracks a person, often installed by someone they know.
+Q: Fileless malware?
+A: Runs in memory using tools like PowerShell, no file on disk.
+Q: PUP?
+A: Potentially unwanted program such as adware and toolbars.
+Q: How to open WinRE?
+A: Shift+Restart, Settings > Recovery > Advanced startup, or install media.
+Q: Command prompt from WinRE path?
+A: Troubleshoot > Advanced options > Command Prompt.
+Q: EDR?
+A: Behavioral endpoint detection and response with isolation and rollback.
+Q: MDR?
+A: EDR run as a managed service, often by an MSSP.
+Q: XDR?
+A: Extended detection and response correlating endpoint, network and cloud.
+Q: Role of an email gateway?
+A: Scan inbound mail for malware and phishing.
+Q: Why enable a software firewall?
+A: Block malware from calling out to C2 and block unwanted inbound traffic.
+Q: Surest malware removal?
+A: Wipe and restore from a known good image or backup.
+@check
+? Antivirus finds nothing but the PC mines coins and CPU is 100%. Likely:
+a) Cryptominer
+b) Boot sector fix
+c) Stalkerware only
+d) Logic bomb
+= a | CPU abuse.
+? A rootkit keeps returning on old hardware. Preventive feature on new PCs:
+a) UEFI Secure Boot
+b) Defrag
+c) UAC off
+d) Metered connection
+= a | Signature check at boot.
+? A PC will not boot after infection; you need to remove services offline. Use:
+a) WinRE command prompt
+b) Task Manager
+c) Disk Cleanup
+d) msinfo32
+= a | Offline recovery.
+? A file-less attack leaves no files on disk. Best defense:
+a) EDR / real-time behavioral protection
+b) Disk defrag
+c) Full format
+d) Static signature only
+= a | Monitor memory behavior.
+@lab
+Ransomware response
+A workstation shows a ransom note. Give five steps.
+@answer
+Disconnect it from the network, preserve evidence/notify security, identify the strain, wipe and restore from a clean backup or image, and patch the entry point and train the user.
+
+## 2.5 Social Engineering and Attacks
+labs: phishing-analysis, incident-response
+@notes
+### Social Engineering
+- Attackers exploit people: pose as bullying customers, use news events (fake funeral links), spoofing, or personal data from LinkedIn/trash.
+- **Phishing**: fake email linking to a spoofed login page; signs include unknown sender or domain, odd fonts, bad spelling, broken graphics, urgency. Never click email links; compare against the real site. **Vishing**: voice phishing (banks and police do not demand money by phone; hang up). **Smishing**: SMS phishing (fake tolls, "hi, how are you?"). **QR code phishing**: public QR codes can be swapped. **Spear phishing**: targeted at a group (e.g. executives, finance). **Whaling**: spear phishing aimed at the CEO or other top executives.
+- **Shoulder surfing**: watching a screen (trains, coffee shops, binoculars, webcam); use awareness and **privacy filters**. **Tailgating**: following an authorized person through a door without consent. **Piggybacking**: authorized person knowingly lets you in ("hands full of donuts"); use no-piggyback policies and badge each time. **Impersonation**: pretending to be someone else (VP, help desk, vendor), often with details from **dumpster diving** (searching trash for phone lists, emails). Policies on caller verification help.
+
+### Denial of Service
+- **DoS** makes a service unavailable: overwhelm the server, trigger a flaw, cut power. Unintentional DoS: a **switch loop** without spanning tree, a big download using all bandwidth, a water leak. **DDoS** uses many systems, often a **botnet** of infected "zombies". Mitigate with firewall filtering, ISP DDoS protection, or a reverse-proxy service such as Cloudflare.
+
+### On-Path Attacks
+- Attacker sits between two devices to watch or alter traffic. **ARP poisoning/spoofing**: unsolicited ARP reply maps the router's IP to the attacker's MAC in the victim's ARP cache (ARP has no security). **On-path browser attack**: malicious proxy software in the browser steals logins. **Evil twin**: rogue access point with the same SSID (maybe a fake captive portal). Defend with HTTPS and a VPN on public networks.
+
+### Zero-Day and Vulnerabilities
+- **Zero-day**: previously unknown vulnerability with no patch. Track with **CVE** (Common Vulnerabilities and Exposures). Example: Log4j (found Dec 2021, code from 2013).
+- **SOE (standard operating environment)**: tested, uniform, patched systems that are easier to secure; non-compliant devices are a risk (detect via AD policies, NGFW, scans). **Unpatched systems**: Microsoft **Patch Tuesday** is the second Tuesday of each month; a race between patching and exploit writers, so test and deploy fast and miss no devices. After troubleshooting, **re-enable** AV and firewall. **EOL** (end of life: no longer sold, still supported) vs **EOSL** (end of service life: no more patches); replace EOSL systems. **BYOD** needs MDM to separate corporate data and wipe it remotely.
+
+### Password and Application Attacks
+- Never store passwords in clear text. **Hashing** gives a fixed-length one-way fingerprint (SHA-256); tiny changes give very different hashes; it is not encryption. Linux hashes live in /etc/shadow.
+- **Brute force**: try all combinations; **online** attacks get locked out, so attackers prefer **offline** attacks on a stolen hash file. **Dictionary attack**: common words and mutations (a to @, o to 0). Weak passwords: password, dragon, letmein, football.
+- **Insider threat**: employees know where data is and bypass perimeter controls; can be bribed to plant ransomware. Use least privilege, monitoring, backups.
+- **SQL injection**: user input changes the database query, e.g. `' OR 1=1; --` returns every row. Fix with input validation and parameterized queries. Other injections: HTML, XML, LDAP.
+- **XSS (cross-site scripting)**: injected script (often JavaScript) runs in the victim's trusted session, can steal the session cookie. **Reflected** (via a link) vs **persistent/stored** (saved on a page for all visitors). Prevent: input validation, updates, avoid untrusted links.
+- **Business email compromise (BEC)**: spoofed or compromised business email requesting wire changes, gift cards, payroll redirection; builds trust, uses urgency; look-alike domains (a brand name with a letter dropped). Verify by phone through a known number.
+- **Supply chain attack**: compromise a vendor, hardware or software provider. Examples: Target breach via an HVAC vendor's VPN (flat network); counterfeit Cisco hardware; SolarWinds Orion malicious update signed and shipped to 18,000 customers. Defend with vendor audits, network segmentation, trusted suppliers, hardware verification, code signing.
+@cards
+Q: Phishing?
+A: Fraudulent messages that lure victims to give credentials or data.
+Q: Vishing / smishing?
+A: Phishing by voice call / by SMS.
+Q: Spear phishing vs whaling?
+A: Spear is targeted; whaling targets top executives.
+Q: Shoulder surfing defense?
+A: Awareness and privacy filters.
+Q: Tailgating vs piggybacking?
+A: Tailgating: slip in unnoticed; piggybacking: authorized person lets you in knowingly.
+Q: Dumpster diving?
+A: Searching trash for information.
+Q: DoS vs DDoS?
+A: Single source vs many distributed sources, often a botnet.
+Q: Switch loop effect?
+A: Network outage without spanning tree.
+Q: ARP poisoning result?
+A: Victim sends traffic to the attacker's MAC address.
+Q: Evil twin?
+A: Rogue access point imitating a legitimate SSID.
+Q: Best protection on public Wi-Fi?
+A: HTTPS and a VPN.
+Q: Zero-day?
+A: Unknown vulnerability without a patch.
+Q: CVE?
+A: Common Vulnerabilities and Exposures catalogue.
+Q: Patch Tuesday?
+A: Second Tuesday of each month.
+Q: EOL vs EOSL?
+A: EOL stops sales; EOSL stops support and patches.
+Q: Why do attackers prefer offline brute force?
+A: No lockouts, faster against stolen hashes.
+Q: Hash vs encryption?
+A: Hash is one-way; encryption is reversible with a key.
+Q: Dictionary attack?
+A: Tries common words and variations.
+Q: SQL injection payload example?
+A: ' OR 1=1 --
+Q: SQL injection defense?
+A: Input validation and parameterized queries.
+Q: XSS target?
+A: Browsers trusting a site; steals sessions via injected scripts.
+Q: Stored XSS?
+A: Script saved on a page that runs for every visitor.
+Q: BEC signs?
+A: Urgency, payment or gift card requests, look-alike domains.
+Q: Supply chain attack example?
+A: SolarWinds Orion, Target via HVAC vendor.
+Q: SOE?
+A: Standard operating environment: uniform, tested, patched systems.
+@check
+? Someone follows an employee through a badge door without being noticed. This is:
+a) Tailgating
+b) Piggybacking
+c) Whaling
+d) Vishing
+= a | Unauthorized, unnoticed entry.
+? An email from the "CEO" asks you to buy gift cards urgently. Best action:
+a) Buy them
+b) Verify by calling the CEO's office on a known number
+c) Reply with codes
+d) Forward to all
+= b | BEC verification.
+? An attacker forges ARP replies on a LAN. This is:
+a) On-path attack
+b) DDoS
+c) XSS
+d) Zero-day
+= a | ARP poisoning.
+? A web form returns all users when input is ' OR 1=1 --. Cause?
+a) SQL injection due to missing input validation
+b) XSS
+c) Rootkit
+d) Brute force
+= a | Unsanitized input.
+? A switch loop took down the network. This is:
+a) Unintentional DoS
+b) Insider
+c) Phishing
+d) Spyware
+= a | Accidental denial of service.
+? Software vendor update contained malware. This is:
+a) Supply chain attack
+b) Evil twin
+c) Smishing
+d) Shoulder surfing
+= a | Trusted update channel compromised.
+@lab
+Spot the attack
+Name: (1) text about unpaid tolls, (2) rogue "Airport_Free_WiFi", (3) database dumped by a quote in a login field, (4) vendor VPN used to reach POS terminals.
+@answer
+(1) Smishing. (2) Evil twin (on-path). (3) SQL injection. (4) Supply chain attack with weak segmentation.
+
+## 2.6 Malware Removal
+labs: incident-response, malware-analysis
+@notes
+### Malware Removal Process
+- Best practice is to **wipe and reimage or replace**; manual removal is only to get a sick system running long enough to **rescue important documents** (you can never be 100% sure all malware is gone).
+- **1. Identify symptoms**: AV alerts ("threats found"), slow boot, sluggishness, odd errors, pop-ups; research to confirm.
+- **2. Quarantine the infected system**: disconnect/disable network, stop USB/removable media sharing. Don't back up malware to restore it later.
+- **3. Disable System Restore** (temporarily): malware infects restore points; disabling deletes old restore points.
+- **4. Remediate**: update the AV **engine and signatures** (signature updates may be blocked by the malware; download on another PC, copy via USB, boot to recovery), run scans, remove or quarantine files. If boot is affected, use **Safe Mode**; if that fails use **WinPE/Windows Recovery** (create your own with the Windows ADK) and repair boot records.
+- **5. Reimage/reinstall** if needed using hardware-specific images; folder redirection keeps user data safe off the PC.
+- **6. Prevent recurrence**: enable real-time protection and periodic scans, schedule signature updates (Task Scheduler if no built-in scheduler), keep Windows Update on, **re-enable System Restore** and create a fresh restore point.
+- **7. Educate the user**: one-on-one training, posters, message boards, login message of the day, intranet page.
+@cards
+Q: Best way to deal with an infected PC?
+A: Wipe and reimage from a known good image.
+Q: Why remove malware manually at all?
+A: To recover important files from a PC that won't run well.
+Q: First removal step?
+A: Identify malware symptoms.
+Q: Second step?
+A: Quarantine the system from the network and removable media.
+Q: Why disable System Restore?
+A: Restore points may contain malware; disabling clears them.
+Q: What to update before scanning?
+A: AV engine and signatures.
+Q: If malware blocks AV updates?
+A: Download updates elsewhere and copy by USB; boot to recovery.
+Q: Boot is affected: first fallback?
+A: Safe Mode.
+Q: If Safe Mode fails?
+A: WinPE / Windows Recovery Environment.
+Q: Tool to build custom WinPE?
+A: Windows ADK.
+Q: After cleanup, what to re-enable?
+A: System Restore (and create a restore point), real-time AV, scheduled scans.
+Q: Last step?
+A: Educate the end user.
+@check
+? Right after confirming an infection, you should:
+a) Quarantine the PC from the network
+b) Back it up to the file server
+c) Enable System Restore
+d) Install new software
+= a | Stop spread first.
+? AV updates fail on an infected PC. Next:
+a) Download updates on a clean PC and move them by USB
+b) Ignore
+c) Format USB
+d) Uninstall Windows
+= a | Offline update.
+? System Restore should be disabled during cleanup because:
+a) Restore points can reinfect the system
+b) It uses too much RAM
+c) It encrypts files
+d) It blocks Safe Mode
+= a | Infected restore points.
+@lab
+Order the steps
+Order: reimage, quarantine, identify symptoms, disable System Restore, remediate with AV, re-enable restore and scans, user education.
+@answer
+Identify symptoms, quarantine, disable System Restore, remediate with updated AV (Safe Mode/WinPE if needed), reimage if required, re-enable restore points, scans and updates, educate the user.
+
+## 2.7 Security Best Practices
+labs: system-hardening-windows-linux, group-policy
+@notes
+### Encryption and Passwords
+- **Full-disk encryption** (BitLocker, data at rest), single file/folder encryption, encrypted USB drives. Keys come from the OS login or AD, so **back up encryption keys** too.
+- **Password strength**: higher **entropy** (unpredictable): mix upper/lower case, numbers, symbols, avoid dictionary words; length 8+ and ideally long passphrases. **Password age/expiration** (30/60/90 days, shorter for critical systems) with **password history** to block reuse. **Change default credentials** (admin/admin on routers, firewalls).
+- **BIOS/UEFI passwords**: **supervisor/admin** password blocks setting changes; **user** password is required to boot. Never blank.
+- **Screen locks**: screensaver with password, auto-lock on inactivity (Personalization > Lock screen, screen timeout). **Cable locks** for laptops. Shield **PII** from viewers; use **privacy filters** and face the monitor away from walkways.
+- **Password reuse** lets attackers pivot across sites; use unique passwords stored in a **password manager/vault** (encrypted, synced, business versions exist).
+
+### Accounts and Services
+- **Least privilege** via groups. **Login time restrictions**. **Disable the guest account** and disable interactive login for system accounts. **Failed-attempt lockout thresholds** stop online brute force (Windows machine lockout can reboot into BitLocker recovery). **Account expiration** for temp workers/contractors.
+- **Autorun** (executes from removable media) was removed after Windows Vista; **Autoplay** only launches media (Settings > Bluetooth & devices > Autoplay: no action, open folder, ask).
+- **Disable unneeded Windows services**: every running executable is potential attack surface.
+@cards
+Q: FDE protects?
+A: Data at rest on a drive.
+Q: Why back up encryption keys?
+A: Without them, encrypted data can't be recovered.
+Q: Entropy?
+A: How unpredictable a password is.
+Q: Password history?
+A: Prevents reusing old passwords.
+Q: Default credentials action?
+A: Change them immediately.
+Q: BIOS supervisor password?
+A: Prevents changing BIOS settings.
+Q: BIOS user password?
+A: Required to boot.
+Q: Screen lock best practice?
+A: Auto-lock with password after inactivity; lock manually when leaving.
+Q: Privacy filter use?
+A: Blocks side-angle viewing of a screen.
+Q: Why use a password manager?
+A: Unique strong passwords per site without memorizing.
+Q: Account lockout threshold purpose?
+A: Stops online brute force.
+Q: Login time restriction example?
+A: Block logons at 3 a.m. outside business hours.
+Q: Autorun vs Autoplay?
+A: Autorun ran executables (removed after Vista); Autoplay only handles media.
+Q: Why disable unused services?
+A: Reduces attack surface.
+@check
+? A contractor works for 30 days. Best account setting:
+a) Expiration date
+b) Domain admin
+c) Blank password
+d) Guest
+= a | Auto-disable.
+? Users reuse one password everywhere. Mitigation:
+a) Password manager with unique passwords
+b) Longer expiry
+c) Disable lockout
+d) Blank BIOS password
+= a | Unique per site.
+? A laptop user works on a plane. Add:
+a) Privacy filter
+b) Autorun
+c) Guest account
+d) Cable splitter
+= a | Prevent shoulder surfing.
+@lab
+Harden a new router
+List five hardening steps for a SOHO router and a new workstation.
+@answer
+Change default admin password, update firmware, disable guest/unused accounts and services, require lock screen and BIOS password, enable full-disk encryption.
+
+## 2.8 Mobile Device Security
+labs: system-hardening-windows-linux
+@notes
+### Mobile Security Controls
+- **Device encryption**: iOS/iPadOS encrypt data with the passcode as key; Android uses PIN/pattern/passcode and is usually on by default.
+- **Screen locks**: facial recognition, PIN, fingerprint, Android swipe pattern. **Failed-attempt protections**: iOS can erase after 10 failures (keep cloud backups); Android locks the device and requires Google login or wipe.
+- **MDM profiles**: standards (passcode complexity, lock screen, allowed apps, email/ActiveSync settings, VPN, certificates) in an XML profile built with Microsoft Intune or Apple Configurator and pushed to devices. Can enforce policy like no cameras in a secure building.
+- **Updates**: OS (patches and features) and app updates, usually automatic.
+- **Antimalware**: iOS is a closed ecosystem (App Store only), so malware needs an unpatched vulnerability. Android is more open (install from any site), so riskier. AV and content filtering exist for both.
+- **Locator apps**: GPS map of the device, play a sound, display a message, mark as **lost**, **remote wipe**.
+- **Backups**: cloud backup is continuous and works while mobile; restore by signing in on a new device.
+- **Firewalls**: usually no firewall apps (traffic is mostly outbound); enterprises use MDM controls instead.
+- **Policies/procedures**: company-owned and **BYOD** devices managed together from one MDM.
+@cards
+Q: iOS encryption key?
+A: The passcode.
+Q: iOS failed-passcode wipe?
+A: Erases data after 10 failed attempts if enabled.
+Q: Android lock options?
+A: PIN, pattern, passcode, fingerprint, face.
+Q: What is an MDM profile?
+A: XML configuration of security and settings pushed to devices.
+Q: Tools to build profiles?
+A: Microsoft Intune, Apple Configurator.
+Q: iOS app source?
+A: Apple App Store only.
+Q: Android malware risk reason?
+A: Apps can be installed from any website.
+Q: Mobile locator features?
+A: Map location, play sound, lost mode, remote wipe.
+Q: Mobile backups best method?
+A: Cloud backup.
+Q: BYOD?
+A: Employee-owned device used for work.
+Q: Why few mobile firewalls?
+A: Mostly outbound traffic; MDM controls instead.
+@check
+? A phone is lost. Fastest data protection:
+a) Remote wipe via MDM/locator
+b) Call the carrier
+c) Wait
+d) Ignore
+= a | Wipe.
+? A company bans cameras in the lab. Use:
+a) MDM profile restricting the camera
+b) Poster
+c) Autoplay
+d) Cable lock
+= a | Enforce by policy.
+? Which platform allows side-loaded apps from any website?
+a) Android
+b) iOS
+c) Both equally restricted
+d) Neither
+= a | Open ecosystem.
+@lab
+BYOD policy
+List four controls for employee phones accessing company email.
+@answer
+Enroll in MDM, require passcode and encryption, separate work data partition with remote wipe of work data, and enable VPN/updates.
+
+## 2.9 Data Destruction
+labs: secure-data-sanitization
+@notes
+### Data Destruction
+- **Physical destruction**: drill or hammer through platters, **shredder** (industrial), **degausser** (strong magnet; HDDs only, useless on SSD/flash), **incineration**.
+- **Reusable drives**: file-level overwrite (**sdelete** from Sysinternals) or whole-drive wipe (**DBAN**, Darik's Boot and Nuke), fine for HDD but unreliable on **SSDs** (data can exist outside the file system view).
+- **Formatting**: factory **low-level format** is not user-done. **Quick/standard format** rebuilds the file index and boot sector; data is recoverable. A **full/regular format** (overwrites every sector in Windows) leaves no recoverable data.
+- Regulated industries (finance, health) may be **legally required** to destroy drives. Third parties issue a **certificate of destruction** as evidence. In 2019 a study of 159 drives bought on eBay found 42% held data and 25 held PII.
+@cards
+Q: Degausser works on?
+A: Magnetic hard drives, not SSDs.
+Q: Industrial option for many drives?
+A: Shredder.
+Q: Tool for secure file deletion?
+A: sdelete (Sysinternals).
+Q: DBAN?
+A: Darik's Boot and Nuke: whole-drive wipe.
+Q: Why are overwrite tools unreliable on SSDs?
+A: Data can live outside the file system's reach.
+Q: Quick format effect on data?
+A: Clears the index only; data is recoverable.
+Q: Full format?
+A: Overwrites every sector.
+Q: Certificate of destruction?
+A: Document proving a vendor destroyed the media.
+Q: When is destruction mandatory?
+A: Legal or regulatory requirement for sensitive data.
+@check
+? Decommissioning thousands of SSDs containing PII. Best approach:
+a) Degauss them
+b) Shred via a vendor with certificate of destruction
+c) Quick format
+d) Delete files
+= b | Physical destruction with proof.
+? A quick format leaves the drive:
+a) Recoverable
+b) Wiped
+c) Encrypted
+d) Degaussed
+= a | Index only.
+@lab
+Reuse or destroy
+Choose method: (1) HDD going to another department, (2) retired HDD from a bank, (3) laptop SSD for resale.
+@answer
+(1) DBAN/overwrite. (2) Physical destruction (shred, degauss) with certificate. (3) Encrypt-erase / manufacturer secure erase, or destroy if sensitive; overwrite tools are unreliable.
+
+## 2.10 SOHO Networks
+labs: firewalls-pfsense, networking-tcp-ip-dhcp-nat-subnets
+@notes
+### Securing a SOHO Network
+- **Change default admin credentials** (lists like routerpasswords.com make them easy to find). Use a strong password and MFA if available.
+- **Filtering**: IP filtering and content filtering with an **allow list** (only listed traffic; most restrictive) or **deny list** (everything except listed). Content filters block URLs or categories (gambling, file sharing) and scan for malware.
+- **Update firmware** on routers, firewalls and switches.
+- **Placement**: all-in-one router/AP/switch/firewall near the ISP line; lock server gear in a secure room; mount APs high and central, but reachable.
+- **UPnP (Universal Plug and Play)** lets apps reconfigure the router; usually **disable** it.
+- **Screened subnet (DMZ)**: separate subnet for public-facing servers so the internal network stays protected.
+- **Remote management**: disable internet-facing admin; restrict by IP if needed.
+- **Wireless**: change default **SSID**; disabling SSID broadcast is only obscurity, not security. Use WPA2/WPA3 (Personal PSK at home, Enterprise 802.1X at work), let channels auto-select, use the **guest network** for visitors, IoT and labs. Always enable encryption.
+- **Wired**: disable unused switch ports or wall jacks; use **802.1X network access control**.
+- **Port forwarding** (destination/static NAT): public IP and port forwarded to a private server (e.g. 66.20.1.14 to 192.168.3.22), always on 24/7 and opens firewall holes; UPnP forwards are temporary.
+@cards
+Q: First SOHO router step?
+A: Change default username and password.
+Q: Allow list vs deny list?
+A: Allow list permits only listed items; deny list blocks only listed items.
+Q: Content filter blocks?
+A: URLs or categories of sites and malware in downloads.
+Q: UPnP risk?
+A: Applications can change router rules without admin action.
+Q: DMZ / screened subnet?
+A: Separate subnet for public servers.
+Q: Why disable remote management?
+A: Prevent internet-based admin access.
+Q: Does hiding SSID secure Wi-Fi?
+A: No, it's security through obscurity.
+Q: Guest network use?
+A: Visitors, IoT and lab devices separated from the main LAN.
+Q: Minimum Wi-Fi security today?
+A: WPA2, ideally WPA3.
+Q: Wall jack security?
+A: Disable unused ports or require 802.1X.
+Q: Port forward needs?
+A: Public port, private IP, private port.
+Q: Port forward vs UPnP lifetime?
+A: Static forward is always on; UPnP lasts while the app runs.
+@check
+? Employees' visitors need internet but not LAN access. Use:
+a) Guest network
+b) Port forward
+c) UPnP
+d) Open DMZ
+= a | Isolated guest SSID.
+? You host a public web server in a small office. Safest placement:
+a) Screened subnet
+b) Internal LAN
+c) Guest Wi-Fi
+d) Workstation VLAN
+= a | DMZ.
+? Hiding the SSID improves:
+a) No real security
+b) Encryption strength
+c) Authentication
+d) Firmware
+= a | Not a control.
+@lab
+Publish a web server
+Configure SOHO port forwarding: public IP 66.20.1.14 TCP 443 to internal 192.168.3.22. What are the risks?
+@answer
+Forward public TCP 443 to 192.168.3.22:443; risk: always-open firewall hole, so patch the server, place it in a DMZ if possible, and limit sources.
+
+## 2.11 Browser Security
+labs: system-hardening-windows-linux, vpn-tailscale
+@notes
+### Browser Security
+- Download browsers only from the **developer's official site**; verify the file **hash** (e.g. SHA-256 sums on download pages; use a hash tool) against the posted value. Mismatch means a modified or corrupted file.
+- Keep the browser **updated** (auto update managers). **Extensions** have browser-level control: install from official stores (Chrome Web Store, Microsoft Store). Researchers found 24+ malicious Chrome extensions in March 2021 stealing credentials and keystrokes. Review the extension manager regularly.
+- **Password managers/vaults**: encrypted, synchronized, unique logins per site so a leaked password can't be reused. Business vaults exist.
+- **Certificate errors** ("connection not private"): expired certificate, wrong domain, **untrusted root CA** (try badssl.com), or wrong system date/time.
+- **Pop-up blocker**: on by default; add exceptions per trusted site rather than disabling. 
+- **Clear browsing data** (history, passwords, downloads, cookies, cache): clearing the cache is a common troubleshooting step for corrupt or stale pages. **Private/incognito mode** keeps no local history or cache, useful for troubleshooting and public computers.
+- **Browser sync** (favorites, history, extensions, settings) via cloud login: convenient but stores data in the cloud. **Ad blockers** and tracking controls vary and are not 100% reliable.
+- **Proxy**: sits between users and the internet, makes requests on their behalf; URL filtering, authentication, caching, malware inspection. **Explicit** proxy needs configuration (auto-detect or manual host:port such as proxy.example.com:8080 plus credentials); **transparent** proxy needs none. Proxy misconfiguration blocks internet access.
+- **Secure DNS / DNS over HTTPS (DoH)** encrypts DNS queries; enable in browser advanced settings if the resolver supports it.
+@cards
+Q: How to verify a downloaded installer?
+A: Compare its hash (SHA-256) with the published value.
+Q: Where to get browsers?
+A: Directly from the developer's site.
+Q: Risk of browser extensions?
+A: They can steal credentials and keystrokes.
+Q: Cert error causes?
+A: Expired, wrong name, untrusted CA, or wrong clock.
+Q: Pop-up blocker best practice?
+A: Allow exceptions only for trusted sites.
+Q: Common first browser troubleshooting step?
+A: Clear cache and cookies.
+Q: Private browsing benefit?
+A: No local history/cache; good for testing and public PCs.
+Q: Explicit vs transparent proxy?
+A: Explicit needs client settings; transparent does not.
+Q: Typical proxy settings?
+A: Host, port (e.g. 8080) and credentials.
+Q: DoH?
+A: DNS over HTTPS: encrypted DNS queries.
+Q: Browser sync downside?
+A: Settings and history stored in the cloud.
+@check
+? A site shows "certificate invalid" and your PC clock is a year wrong. Fix:
+a) Correct the date and time
+b) Disable the cert check
+c) Reinstall the OS
+d) Disable firewall
+= a | Dates matter for certificates.
+? A downloaded ISO's SHA-256 doesn't match the website. Action:
+a) Do not use it; redownload
+b) Install anyway
+c) Rename it
+d) Email it
+= a | Possibly tampered.
+? A user can't browse the internet after moving networks; the browser has a stale proxy. Fix:
+a) Update proxy settings
+b) Replace the monitor
+c) Format the disk
+d) Disable the BIOS
+= a | Proxy config.
+@lab
+Browser tune-up
+List four steps to secure and troubleshoot a user's browser.
+@answer
+Update the browser, remove unknown extensions, clear cache/cookies for glitches, enable a password manager, and verify proxy/DoH settings.
+
+## 3.1 Troubleshooting Windows
+labs: operating-systems, windows-admin-powershell, hardware-diagnostics-and-repair
+@notes
+### Stop Errors and Performance
+- **BSOD / stop error**: the OS halts because of bad hardware, drivers or an app fault; reboot is required. Read the **stop code** (e.g. KERNEL_MODE_HEAP_CORRUPTION) or scan the QR code and look it up. If it won't reboot: **last known good**, **System Restore**, **driver rollback**, **Safe Mode**; reseat components and run **hardware diagnostics** (CPU, RAM).
+- **Slow system**: Task Manager (per-app CPU/memory/disk/network; Performance tab shows the last 60 seconds). Then Windows Update (known bugs), free disk space, defrag (HDD only), laptop on battery throttles CPU/heat, malware scan after updating signatures.
+
+### Boot Problems
+- "**Operating system not found / missing OS**": a bootable disk with no OS is attached (remove it), or a dual-boot install replaced the bootloader.
+- **Startup Repair** fixes common issues automatically (missing bootloader, moved Windows folder, boot looping into Safe Mode). **BCD** (Boot Configuration Database) replaced boot.ini; `bootrec /rebuildbcd` scans drives for Windows installs and re-adds them from the recovery command prompt.
+
+### Services, Apps, Memory, USB
+- **Device not working**: Device Manager (disable, update, roll back, uninstall driver).
+- "**One or more services failed to start**": services.msc, start manually; check the logon account and **dependencies** (one must start first); run **SFC** for built-in services; reinstall app services as admin.
+- **App crash with no message**: **Event Viewer** (filter by app); **Reliability Monitor** shows failures over time (one-off vs repeated). Last resort: uninstall/reinstall.
+- **Low memory**: sort Task Manager by memory; **virtual memory/page file** (System > About > Advanced system settings > Performance > Advanced > Virtual memory) swaps RAM to disk.
+- **USB controller resources exceeded**: each device uses **endpoints** (controllers support a limited number, e.g. 96 or 254). Move the device to another port/controller; match USB 2 devices to USB 2 controllers and USB 3 to USB 3.
+- **Random failures with no message**: run full hardware diagnostics (vendor tools or UEFI diagnostics), **Windows Memory Diagnostic** overnight, `sfc /scannow`, malware scan.
+- **Slow login with roaming profile**: profile downloads from the domain controller; WAN congestion or a failing local DC is the usual cause (domain admin fixes it).
+- **Time drift**: set time automatically (Settings > Time & language > Date & time), set time zone, **Sync now**; keeps Kerberos and certificates working.
+@cards
+Q: BSOD cause examples?
+A: Bad hardware, drivers or application faults.
+Q: What to read on a stop screen?
+A: The stop code and QR code for lookup.
+Q: PC won't reboot after stop error: options?
+A: Last known good, System Restore, driver rollback, Safe Mode.
+Q: Task Manager Performance tab shows?
+A: About the last 60 seconds of resource use.
+Q: Laptop slow on battery?
+A: Normal throttling to save power and heat.
+Q: BCD replaced which file?
+A: boot.ini.
+Q: Command to rebuild BCD?
+A: bootrec /rebuildbcd
+Q: Tool for missing bootloader?
+A: Startup Repair.
+Q: Where to fix a failing device driver?
+A: Device Manager (roll back, update, uninstall).
+Q: Why might a service fail to start?
+A: Bad driver, config, dependency, permissions or hardware.
+Q: Where to see app crash history?
+A: Reliability Monitor and Event Viewer.
+Q: Virtual memory is?
+A: Page file on disk used when RAM is full.
+Q: USB error "controller resources exceeded" fix?
+A: Move to a different port/controller; match USB version.
+Q: Tool to test RAM?
+A: Windows Memory Diagnostic.
+Q: Slow login with roaming profiles?
+A: Network latency to the domain controller.
+Q: Fix clock drift?
+A: Enable automatic time sync.
+@check
+? Boot shows "missing operating system" after plugging in a USB drive. First action:
+a) Remove the USB and reboot
+b) Reinstall Windows
+c) Run sfc
+d) Rebuild the BCD from a USB
+= a | Wrong boot media.
+? After a dual-boot install, Windows won't start. Use:
+a) bootrec /rebuildbcd
+b) chkdsk /f
+c) ipconfig /renew
+d) defrag
+= a | Rebuild boot entries.
+? Service fails to start due to another service. Check:
+a) Dependencies
+b) Power plan
+c) Page file
+d) Wallpaper
+= a | Service dependency list.
+? A new USB 3 camera gives "controller resources exceeded". Try:
+a) A port on a different controller
+b) Another cable
+c) Format C:
+d) Increase page file
+= a | Endpoint limit.
+@lab
+Diagnose slow login
+A domain user at a branch office takes 5 minutes to log in. List checks in order.
+@answer
+Check roaming profile size, WAN latency/congestion to the DC, local DC health, and consider folder redirection or a local DC replica.
+
+## 3.2 Troubleshooting Mobile Devices
+labs: operating-systems
+@notes
+### Apps and Updates
+- **App won't launch or is slow**: restart the device (clears RAM/cache), force close (iOS: swipe up from app switcher; Android: Settings > Apps > Force stop), update, reinstall.
+- **App won't update**: update manually/Update all; check **payment method** (valid card even for free apps), **storage**, internet connectivity, **MDM policy** blocking installs, app store maintenance, restart.
+- **OS update fails**: storage (OS updates are large), bandwidth, network filtering (try another network), restart.
+
+### Hardware and Radios
+- **Battery drain**: poor signal makes the radio keep searching (use airplane mode), aging battery (replace), disable unused Wi-Fi/Bluetooth/GPS, check Battery health and usage in Settings.
+- **Random reboots**: update OS and apps, check battery/hardware health; support reads crash logs. Often a hardware fault, replace.
+- **Wi-Fi**: be closer to AP or try another AP, confirm Wi-Fi is on, verify security key/settings, restart.
+- **Bluetooth**: confirm enabled, toggle off/on, re-pair, restart.
+- **NFC**: toggle, reset, check payment cards/wallet.
+- **AirDrop**: needs Wi-Fi and Bluetooth, proximity, and discoverability set to Contacts Only or Everyone (temporarily).
+- **Autorotate**: G-sensor/accelerometer; check rotation lock, restart app/device, else hardware support.
+@cards
+Q: Universal first step for a mobile app problem?
+A: Restart the device (and the app).
+Q: Android force close path?
+A: Settings > Apps > select app > Force stop.
+Q: Why might a free app fail to install?
+A: No valid payment method on file.
+Q: Where are managed app install blocks set?
+A: MDM policy.
+Q: OS update fails: three checks?
+A: Storage space, bandwidth, network filtering.
+Q: Battery drains with weak signal because?
+A: Radio keeps searching; use airplane mode.
+Q: How to check battery health?
+A: Settings > Battery.
+Q: Phone reboots randomly mid-call: checks?
+A: Updates, battery health, crash logs; likely hardware.
+Q: AirDrop uses?
+A: Wi-Fi and Bluetooth.
+Q: AirDrop invisible to others because?
+A: Discoverability disabled.
+Q: Autorotate hardware?
+A: Accelerometer / G-sensor.
+@check
+? A free app won't download, store shows an expired card. Fix:
+a) Update payment method
+b) Factory reset
+c) Replace battery
+d) Disable NFC
+= a | Store requires valid payment.
+? Phone dies by noon while stationary in a poor-coverage area. Best fix:
+a) Airplane mode / disable unused radios
+b) New case
+c) Disable updates
+d) Reset network
+= a | Radio search drains battery.
+? Employee cannot install an app on a corporate phone. Check:
+a) MDM policy
+b) Payment
+c) Screen rotation
+d) AirDrop
+= a | Policy block.
+@lab
+Phone won't update
+List five checks for an OS update that stalls at download.
+@answer
+Storage space, battery/power, Wi-Fi quality and bandwidth, network filtering (try another network), then restart and retry.
+
+## 3.3 Troubleshooting Mobile Device Security
+labs: malware-analysis, phishing-analysis
+@notes
+### App Sources and Device Integrity
+- Install from trusted stores. **Sideloading** (APK files on Android, any non-store source) lets malware in. iOS only allows the App Store unless the device is jailbroken.
+- **Developer mode** exposes USB debugging, memory stats and logs: iOS needs Xcode on a Mac; Android: Settings > About phone > tap **Build number 7 times**.
+- **Rooting** (Android) / **jailbreaking** (iOS) replaces firmware to gain root access: allows sideloading but bypasses security and MDM control. 
+- **Counterfeit/malicious apps** exist even in stores (Google removed 150 apps in 2021, one subscribed users to a $40/month SMS service). **Xcode Ghost**: tainted dev tool infected apps built with it. Always verify the source/developer.
+
+### Symptoms and Fixes
+- **High data usage** by one app can mean malware (C2 traffic or proxying). Review per-app usage; third-party tools; run a malware scan. Android has data warning and limit; iOS can restrict cellular data but has no native threshold alert.
+- **Slow performance**: restart, update OS/apps, close apps; **factory reset** if persistent.
+- **No network or no downloads**: malware may block AV downloads; toggle Wi-Fi or airplane mode, reboot, iOS Reset network settings, malware scan.
+- **Excess ads / fake ad blockers** (e.g. Fake Ads Block 2019): adware; scan and remove.
+- **Fake "security update" pop-ups**: closing is harmless; installing leads to wipe/removal. 
+- **App crashes, delay or battery use** are usually app bugs; update or contact the developer.
+- **Data leak/breach**: scan, factory reset and clean OS install if compromised; also change cloud passwords (iCloud, Google, OneDrive) and add MFA, since the leak may come from the cloud.
+@cards
+Q: Sideloading?
+A: Installing apps from outside the official store.
+Q: Android app package format?
+A: APK.
+Q: How to enable Android developer mode?
+A: Tap Build number 7 times in About phone.
+Q: iOS developer features need?
+A: Xcode on macOS.
+Q: Rooting vs jailbreaking?
+A: Rooting is Android, jailbreaking is iOS; both give root OS access.
+Q: Effect of jailbreaking on MDM?
+A: Device escapes MDM control.
+Q: Sign of mobile malware in settings?
+A: One app with unusually high data usage.
+Q: Android data tool?
+A: Data warning and limit.
+Q: iOS network fix?
+A: Reset network settings.
+Q: Pop-up says "install security update". Action?
+A: Close it; do not install.
+Q: Persistent slow phone with no hardware fault?
+A: Factory reset and restore.
+Q: After a phone data leak, also check?
+A: Cloud account passwords and add MFA.
+@check
+? An Android phone suddenly shows heavy data use from one unknown app. Next:
+a) Run a malware scan and review that app
+b) Disable GPS
+c) Enable developer mode
+d) Replace the SIM
+= a | Possible C2 traffic.
+? Which gives root-level control of iOS?
+a) Jailbreaking
+b) Sideloading
+c) Autorotate
+d) Airplane mode
+= a | Firmware modification.
+? A user installed an APK from a forum. Risk:
+a) Malware without store vetting
+b) Faster updates
+c) MDM enrollment
+d) Battery calibration
+= a | Sideload risk.
+@lab
+Suspicious phone
+A phone shows many ads, drains battery and has a "Fast Ads Cleaner" app that can't be uninstalled. Plan response.
+@answer
+Scan with anti-malware, remove admin rights/uninstall in safe mode if possible, otherwise back up data and factory reset; install apps only from the store, change cloud passwords.
+
+## 3.4 Troubleshooting Security
+labs: malware-analysis, phishing-analysis, incident-response
+@notes
+### Desktop Security Symptoms
+- **Network unreachable** due to malware: malware blocks access to AV sites; patch the exploited OS hole, malware cleaner, or wipe and restore from a **known good backup**.
+- **Browser notifications** from sites ("your AV expired") are scams; control notification permissions in browser settings; scan if installed.
+- **Fake antivirus** pop-ups with phone numbers are hoaxes (often just an executable displaying the message): delete it; never pay or call. Remove carefully or restore from backup.
+- **Altered files**: renamed system files, missing documents, changed permissions or access denied are signs of malware; clean or restore.
+- **Notification overload**: Settings > System > Notifications, control per app.
+- **Windows Update failing**: check internet, firewall/filtering, bandwidth limits, and the **Windows Update troubleshooter** (Settings > System > Troubleshoot > Other troubleshooters).
+- **Pop-ups** despite the blocker: likely malware.
+- **Certificate warnings**: click the padlock to view issuer/expiry; causes: wrong FQDN, untrusted CA, expired, wrong system clock.
+- **Browser redirection** (search results go elsewhere): malware or hijack; scan, restore.
+- **Slow browser**: update, close tabs, clear cache/cookies, check Task Manager (a site running a JavaScript crypto miner can peg the CPU), try a different browser.
+@cards
+Q: Malware blocks network access why?
+A: To stop you downloading anti-malware tools.
+Q: Best remediation if unsure of the infection?
+A: Wipe and restore from a known good backup.
+Q: Fake antivirus message goal?
+A: Scare you into calling or paying.
+Q: Unexplained renamed files or denied access?
+A: Likely malware.
+Q: Windows Update troubleshooter path?
+A: Settings > System > Troubleshoot > Other troubleshooters.
+Q: Pop-ups despite blocker?
+A: Possible malware.
+Q: Certificate mismatch causes?
+A: Wrong domain, untrusted CA, expired, wrong clock.
+Q: Search redirected to unrelated site?
+A: Browser hijack / malware.
+Q: Browser at 100% CPU on one site?
+A: Possible JavaScript crypto miner.
+Q: Where to see browser CPU usage?
+A: Task Manager.
+@check
+? A user sees a full-screen warning with a support number. Correct response:
+a) Close it and scan; do not call
+b) Call to resolve
+c) Pay the fee
+d) Reboot only
+= a | Scareware.
+? Windows Update fails; the firewall recently changed. Check:
+a) Whether Update traffic is blocked
+b) Wallpaper
+c) Pagefile
+d) Audio driver
+= a | Filtering.
+? Browser CPU at 100% on one page that has no video. Likely:
+a) Cryptominer script
+b) Dead battery
+c) Wrong DNS
+d) Missing driver
+= a | Mining in JS.
+@lab
+Redirected searches
+A user's Google searches land on an ad site. List four steps.
+@answer
+Check browser extensions and proxy/hosts file, update AV and scan, remove adware or hijack, clear cache and reset the browser; restore from backup if persistent.
+
+## 4.1 Documentation and Support Systems
+labs: help-desk-ticketing-osticket
+@notes
+### Ticketing Systems
+- The **help desk** takes calls, emails and texts, **triages** (priority, handle or hand off), assigns a ticket and monitors until resolved. Tickets document issues, assign them to teams (network, server), support reporting and resolution metrics.
+- **Capture at creation**: user and contact person (often integrated with Active Directory; confirm details), device/asset, request type, summary, detailed description (symptoms, screenshots, next steps, callback notes), **category** (change request, hardware, onboarding, account), **severity/priority** (low to critical, based on role/department/impact), and **escalation** to specialists.
+- Keep **progress notes** concise and time-stamped (who did what) and write **resolution details** so future techs can reuse them. **Link related tickets** to spot trends (e.g. 60 days of VPN errors justified an upgrade).
+
+### Asset Management
+- A central **inventory** lists mobile devices, laptops, desktops, network gear and modules with make, model, purchase date and owner. Used by support, finance (cost, depreciation, warranty), licensing (renewals) and audits.
+- **Asset tag**: label with organization name, barcode or QR code and unique number tied to the database record. The central database is the **CMDB** (Configuration Management Database).
+- **Procurement life cycle**: purchase request (budget, approvals) > purchasing negotiates with vendors (terms, maintenance, not only price) > **purchase order** > vendor ships > **invoice** > accounting pays.
+
+### Document Types
+- **Incident report**: what led up to, the incident, response; feeds the incident response plan and lessons learned.
+- **Standard operating procedures (SOPs)**: downtime, power loss, software installation, testing, change control, who to contact.
+- **Onboarding**: signed IT agreements/**AUP**, accounts, groups/permissions, equipment. **Offboarding**: collect hardware, handle data (backups, handoff, encryption keys), disable accounts.
+- **SLA** (service level agreement): minimum service terms (e.g. under 4 hours unscheduled downtime a year, credit/penalty, technician dispatch, spare equipment on site). Internal SLAs also exist.
+- **Knowledge base**: searchable technical articles (vendor like Microsoft or internal); integrates into help desk tickets.
+@cards
+Q: Help desk triage means?
+A: Prioritize issues and decide who handles them.
+Q: Four things on an initial ticket?
+A: User/contact, device, description, category and severity.
+Q: Why add progress notes?
+A: Multiple people work a ticket; shows what was done and by whom.
+Q: Why write resolution details?
+A: Future techs can reuse the fix.
+Q: Why link related tickets?
+A: Reveals trends and recurring problems.
+Q: Asset tag contains?
+A: Organization name, barcode/QR code, unique number.
+Q: CMDB?
+A: Configuration Management Database of assets and relationships.
+Q: Who else uses asset data besides IT?
+A: Finance (warranty, depreciation), licensing, audits.
+Q: Procurement order?
+A: Request > purchasing > purchase order > delivery > invoice > payment.
+Q: Purchase order is sent to?
+A: The chosen vendor.
+Q: Incident report covers?
+A: Events before, during and the response.
+Q: SOP purpose?
+A: Predefined steps for common situations.
+Q: AUP?
+A: Acceptable Use Policy signed on onboarding.
+Q: Offboarding data question?
+A: Is data backed up, handed off, and are encryption keys held?
+Q: SLA example metric?
+A: Maximum unscheduled downtime per year.
+Q: Knowledge base?
+A: Searchable library of technical articles.
+@check
+? A user's mouse and a core switch outage both come in. Triage decides:
+a) Priority by impact
+b) First come first served
+c) Alphabetical
+d) Ignore both
+= a | Severity from impact.
+? A tech finds the same fix used a year ago in old tickets. This shows value of:
+a) Resolution notes
+b) Asset tags
+c) SLAs
+d) Offboarding
+= a | Documentation reuse.
+? Which document defines an ISP's required uptime?
+a) SLA
+b) AUP
+c) SOP
+d) PO
+= a | Service level agreement.
+? A departing employee's encrypted laptop. Must be documented:
+a) Decryption keys and data handoff
+b) Their wallpaper
+c) Desk number
+d) Parking permit
+= a | Prevent data loss.
+@lab
+Write a ticket
+A user says "can't log into the intranet since this morning". Fill in: request type, summary, description, category, severity, escalation.
+@answer
+Request type account problem; summary "Intranet login failure"; description with error text, device, time, steps tried; category authentication; severity low/medium (higher if many users); escalate to identity team if account resets fail.
+
+## 4.2 Change Management
+labs: help-desk-ticketing-osticket, virtualization-proxmox
+@notes
+### Why and Process
+- Every change risks downtime. **Change management** standardizes frequency, duration, installation steps and **rollback**. Goals: avoid downtime, notify affected teams, prevent conflicting changes.
+- **Request form**: purpose (why: features, bug fixes, performance, security patches), **scope** (3 users vs the core switch), date/time, affected systems, impact, **risk analysis** (risk of making AND of not making the change), **rollback plan**, **backup plan**, approvals.
+- **Change control board** (all departments) approves, schedules or delays (e.g. retail change freeze Nov 15 to Jan 5). **Sponsor** funds it, **business customer** uses it, IT implements. **End-user acceptance** (users test and approve) closes the change; users are involved throughout.
+
+### Change Types and Timing
+- **Standard**: low risk, pre-approved, routine (replace a monitor). **Normal**: medium risk, full process (firewall rule, database upgrade, core switch replacement). **Emergency**: high risk, expedited (zero-day patch).
+- **Maintenance window** (e.g. Sunday 2:00 AM, skipped if no changes) or on-demand time. **Change freeze** blocks everything except emergency changes.
+
+### Plans and Testing
+- **Rollback plan**: return to the original config (VM snapshot is easy; firmware may be impossible, so swap in equipment with old firmware). Always keep a **backup**.
+- **Backup plan (plan B/C)**: alternate steps if the primary method fails, e.g. firewall update: download file beforehand, use USB, FTP or CLI console.
+- **Sandbox testing**: separate test environment; test the upgrade and the rollback there. Consult experts who have done the change.
+@cards
+Q: Main goal of change management?
+A: Avoid downtime and conflicts while changing systems safely.
+Q: Typical request form items?
+A: Purpose, scope, date, affected systems, impact, risk, rollback plan.
+Q: Scope example big vs small?
+A: Core switch vs software used by 3 people.
+Q: Two risks to analyze?
+A: Risk of making the change and risk of not making it.
+Q: Who approves?
+A: Change control board / change advisory board.
+Q: Standard change?
+A: Low risk, pre-approved, routine.
+Q: Normal change?
+A: Medium risk, goes through full process.
+Q: Emergency change?
+A: High-risk, expedited, e.g. zero-day patch.
+Q: Maintenance window?
+A: Pre-approved time slot for changes.
+Q: Change freeze?
+A: Period when only emergency changes are allowed.
+Q: Rollback plan example for VMs?
+A: Revert to a snapshot.
+Q: Why rollback may fail for firmware?
+A: Old firmware often can't be reinstalled; swap hardware.
+Q: Backup plan vs rollback plan?
+A: Backup (plan B) completes the change another way; rollback undoes it.
+Q: Sandbox use?
+A: Test the change and rollback without affecting production.
+Q: Who gives final sign-off?
+A: End users via acceptance testing.
+Q: Sponsor role?
+A: Provides budget or business ownership for the change.
+@check
+? Replacing a failed monitor, pre-approved and routine, is a:
+a) Standard change
+b) Normal change
+c) Emergency change
+d) Freeze
+= a | Pre-approved low risk.
+? A zero-day for the public web server is announced. Use:
+a) Emergency change
+b) Standard change
+c) Wait for the freeze to end
+d) Ignore
+= a | Expedited.
+? You must prove a firmware upgrade can be undone. Best test:
+a) Sandbox with a spare unit
+b) Production core switch
+c) Skip testing
+d) Documentation only
+= a | Test rollback safely.
+? Which comes last?
+a) End-user acceptance
+b) Request form
+c) CAB approval
+d) Risk analysis
+= a | Users confirm success.
+@lab
+Plan a firewall upgrade
+Write the scope, risk, rollback and one backup plan for a firewall firmware upgrade.
+@answer
+Scope all internet users; risk loss of connectivity; rollback restore config backup or spare unit with old firmware; backup plan: pre-download firmware, install via USB or CLI if the web UI fails.
+
+## 4.3 Backup and Recovery
+labs: log-analysis, linux-server-admin-ubuntu
+@notes
+### Backup Types
+- Plan around data size, backup type, media, location, software (for backup and restore) and frequency.
+- **Full**: everything (OS, apps, documents); longest backup, biggest storage, simplest restore (one set).
+- **Differential**: full first, then everything changed **since the last full**; grows daily. Restore = last full + **last differential** (two sets).
+- **Incremental**: full first, then only changes **since the last backup of any kind**; smallest and fastest to take. Restore = full + **every incremental** in order (slowest restore).
+- **Synthetic full**: assembles a full backup from the existing full and incremental/differential sets without re-transferring data; saves bandwidth and time; restores like a full.
+
+| Type | Backup time | Restore time | Sets for restore |
+|---|---|---|---|
+| Full | High | Low | 1 |
+| Differential | Moderate | Low-moderate | 2 |
+| Incremental | Low | High | Full + all incrementals |
+| Synthetic | Low | Low | 1 |
+
+### Testing, Restores, Locations
+- A backup is only proven by **recovery testing**: restore a sample file and compare to the original; **audit** the backup process regularly.
+- **In-place restore** overwrites the original location (re-imaging). **Alternate location** restore keeps existing files and avoids overwriting newer data.
+- **On-site**: fast, local, cheap. **Off-site**: survives fire or flood, depends on bandwidth. Most use both.
+- **GFS (grandfather-father-son)**: monthly full (grandfather), weekly (father), daily incremental/differential (son); intervals can shift (hourly/daily/weekly).
+- **3-2-1 rule**: **3** copies of data, on **2** different media types (disk, tape, NAS), **1** copy off-site (storage facility or cloud).
+@cards
+Q: Full backup downside?
+A: Long time and large storage.
+Q: Differential contains?
+A: Changes since the last full backup.
+Q: Restore from differential needs?
+A: Last full plus last differential.
+Q: Incremental contains?
+A: Changes since the last backup of any type.
+Q: Restore from incremental needs?
+A: Full plus every incremental since.
+Q: Fastest backup to take?
+A: Incremental.
+Q: Synthetic backup?
+A: A full backup built from existing backup sets without copying all the data again.
+Q: How to prove a backup works?
+A: Test restores and audit.
+Q: In-place restore?
+A: Overwrites files at their original location.
+Q: Alternate location restore benefit?
+A: Doesn't overwrite files that changed since the backup.
+Q: Off-site backup protects against?
+A: Site disasters like fire or flood.
+Q: GFS stands for?
+A: Grandfather-father-son rotation.
+Q: Typical GFS tiers?
+A: Monthly (grandfather), weekly (father), daily (son).
+Q: 3-2-1 rule?
+A: 3 copies, 2 media types, 1 off-site.
+@check
+? Backups: full Monday, incremental Tue-Thu. Thursday afternoon you must restore. You need:
+a) Monday full plus Tue, Wed and Thu incrementals
+b) Thursday only
+c) Monday and Thursday only
+d) Tuesday only
+= a | Every incremental.
+? Same schedule but differential. Restore needs:
+a) Monday full and Thursday differential
+b) All differentials
+c) Only Thursday
+d) Only Monday
+= a | Two sets.
+? Which meets 3-2-1?
+a) Local disk, NAS and cloud copy
+b) Three folders on one disk
+c) Two USB drives
+d) One tape only
+= a | 3 copies, 2 media, 1 off-site.
+? You want a full restore point without a long backup window:
+a) Synthetic full
+b) Full daily
+c) Alternate location restore
+d) Quick format
+= a | Combine existing sets.
+@lab
+Pick a schedule
+A small office has 500 GB, a 6-hour overnight window and wants fast restores. Choose types for each weekday and justify.
+@answer
+Full on weekends, differential daily weeknights (two-set restore) or incremental if the window is tight; keep monthly off-site (GFS) and follow 3-2-1; test restores quarterly.
+
+## 4.4 Safety
+labs: hardware-diagnostics-and-repair
+@notes
+### ESD (Electrostatic Discharge)
+- Static is harmless to people but not to silicon: you feel a discharge at about **3,500 V**, while components can be damaged by **100 V or less** (damage may not be noticed).
+- Prevention: **humidity over 60%** (impractical), **self-ground** by touching the metal chassis, **anti-static wrist strap** clipped to bare metal of the device (breakaway snap), **anti-static pad/mat**, **anti-static bags** for storage and transport, handle components by the **edges**.
+- **Unplug power** before opening (does not help with ESD but prevents shock). **Never connect yourself to a building's electrical ground** (it can be energized).
+- Storage: HVAC regulated, about **50-80 °F (10-27 °C)**, low humidity (silica gel packs), original box or bubble wrap.
+
+### Safety Procedures
+- Disconnect power before opening PCs, printers, anything with a cord. Do not touch unfamiliar parts: **capacitors** store charge. Power supplies, displays and laser printers can hold **residual power**; replace the PSU as a unit, do not open it.
+- **Grounding** sends fault current to ground; never remove ground pins; ground data center racks too.
+- **Cable management**: tape or cover floor cables (trip hazard), bundle with Velcro or ties.
+- **Lifting**: lift with your legs, not your back; use rack lifts.
+- **Fire**: no water or foam in data centers (**FM-200, CO2, dry chemical**). Remove burning equipment from power first.
+- **PPE**: safety goggles for chemicals and toner/battery work, **air filter mask** for toner dust.
+- Know **health and safety laws, building/fire codes and environmental disposal rules**.
+@cards
+Q: ESD voltage felt by a person?
+A: About 3,500 V.
+Q: Voltage that can damage components?
+A: 100 V or less.
+Q: Humidity that reduces ESD?
+A: Over 60% (impractical in offices).
+Q: Self-ground means?
+A: Touch the bare metal chassis of the device.
+Q: Anti-static strap attaches to?
+A: Your wrist and bare metal on the device, never building ground.
+Q: Why unplug power before opening a PC?
+A: Prevent electric shock.
+Q: Transport a removed card in?
+A: Anti-static bag.
+Q: Handle components by?
+A: The edges.
+Q: Storage temperature range?
+A: 50-80 °F (10-27 °C).
+Q: Silica gel pack purpose?
+A: Absorb humidity.
+Q: Why not open a power supply?
+A: Capacitors may hold dangerous charge.
+Q: Data center fire suppression agents?
+A: FM-200, CO2, dry chemical (no water).
+Q: PPE for toner?
+A: Goggles and an air filter mask.
+Q: Lifting rule?
+A: Use legs, not your back.
+Q: Cables across a walkway?
+A: Cover or tape them; bundle with ties.
+@check
+? Working on a desktop with a wrist strap. Clip it to:
+a) Bare metal of the chassis
+b) Wall outlet ground
+c) Power cord
+d) Monitor stand
+= a | Equalize potential, avoid wall ground.
+? A technician opens a laser printer. Hazard:
+a) Residual charge and hot fuser
+b) None
+c) Only toner
+d) Network traffic
+= a | Residual power.
+? Fire in a server room. Best suppression:
+a) FM-200 or CO2
+b) Water
+c) Foam
+d) Sand
+= a | Clean agents.
+? Safe storage of an RAM module:
+a) Anti-static bag
+b) Plastic grocery bag
+c) Loose in a drawer
+d) Foil only
+= a | Prevent ESD.
+@lab
+Safe repair bench
+List setup steps for a laptop repair at a new desk.
+@answer
+Anti-static pad and wrist strap clipped to bare metal, power disconnected and battery removed, edge handling, parts in anti-static bags, cables tidy, cool dry environment.
+
+## 4.5 Environmental Impacts
+labs: hardware-diagnostics-and-repair
+@notes
+### Disposal and Documentation
+- **MSDS / SDS** (Material Safety Data Sheet, US **OSHA** requirement) accompanies hazardous products (toner, ink, batteries): ingredients, hazards, first aid, firefighting, disposal. Consult it for disposal guidance.
+- **Batteries** (laptop, phone, UPS) and **toner cartridges** go to proper recycling or hazardous waste, never normal garbage. Many manufacturers include return labels; some stores give discounts.
+
+### Room Conditions
+- Control **temperature** (cooling for CPUs and RAM) and **humidity** (about 50% balance: higher reduces ESD, lower is comfortable and prevents condensation). **Ventilation** and dust: vacuum indoors; compressed air outdoors for very dusty equipment.
+
+### Power Protection
+- **UPS** provides backup power and protects against brownouts and surges; building UPS can fill a room. Types: **standby** (switches to battery after a small delay), **line interactive** (battery assists as voltage drops), **online** (always runs from battery/inverter, mains charges it). Features: auto shutdown, capacity (VA), outlet count, line suppression.
+- **Surge suppressor**: redirects excess voltage to ground and filters noise. Ratings: **joules** (200 good, 400 better, 600+ best), clamping **UL 1449** let-through rating (500/400/330 V; lower is better), amp rating, noise filtering in dB.
+@cards
+Q: MSDS/SDS issued by requirement of?
+A: OSHA (US).
+Q: MSDS/SDS contains?
+A: Hazard, composition, first aid, firefighting and disposal info.
+Q: Where do old batteries and toner go?
+A: Recycling or hazardous waste, not regular trash.
+Q: Target humidity?
+A: About 50%.
+Q: Dusty PC cleaning location?
+A: Outside with compressed air (vacuum if indoors).
+Q: Standby UPS behavior?
+A: Switches to battery after a brief delay.
+Q: Line interactive UPS?
+A: Battery boosts when line voltage drops.
+Q: Online UPS?
+A: Always powers from the battery/inverter; mains charges it.
+Q: Surge suppressor joule rating?
+A: Higher is better; 600+ is best.
+Q: UL 1449 let-through?
+A: Lower voltage rating (330 V) is better.
+Q: Surge suppressor vs UPS?
+A: Suppressor cleans power; UPS also supplies backup power.
+@check
+? You need to learn how to dispose of a toner cartridge safely. Consult:
+a) The MSDS/SDS
+b) The SLA
+c) The AUP
+d) The CMDB
+= a | Safety data sheet.
+? Needs zero transfer delay on power loss. Choose:
+a) Online UPS
+b) Standby UPS
+c) Surge strip
+d) Power strip
+= a | No switchover gap.
+? Better surge suppressor spec:
+a) 600 joules, 330 V let-through
+b) 200 joules, 500 V let-through
+c) 100 joules
+d) No rating
+= a | Higher J, lower V.
+@lab
+Server closet audit
+List environmental controls and power protections for a small closet.
+@answer
+Cooling and ventilation, humidity about 50%, rack UPS with auto shutdown, surge suppression, labeled battery/toner recycle bins, MSDS binder.
+
+## 4.6 Privacy and Policies
+labs: incident-response, digital-forensics
+@notes
+### Incident Response Basics
+- **Chain of custody**: document every person who handles evidence; use sealed bags and hashes/digital signatures for integrity.
+- **First response**: identify the issue (logs, witnesses, monitoring), report through the proper channel (including law enforcement where needed), preserve and collect data.
+- **Imaging**: make a **bit-for-bit** copy of the entire drive (includes deleted data still on disk), with a **hardware write blocker** or booted software imaging tool; analyze the copy, not the original. Verify with hashes.
+- **Document** the event summary, step-by-step acquisition process, analysis findings and conclusions (may be used in court).
+- **Order of volatility** (collect most volatile first): CPU registers/cache > routing/ARP tables, process table, kernel statistics, memory > temporary file systems > disk > remote logging and monitoring data > physical configuration and network topology > backup tapes.
+
+### Licensing, Agreements, Regulations
+- **Licenses**: per-seat (one per user), **concurrent** (max simultaneous users), duration/subscription (expires), personal, **perpetual** (one-time cost), **corporate/site**. **FOSS** includes source you can modify; closed source does not.
+- **EULA**: contract accepted at installation. **NDA**: confidentiality agreement, **unilateral** (one party) or **bilateral** (both).
+- **PCI DSS**: credit card data. Six control objectives: secure network and systems, protect cardholder data, vulnerability management program, strong access control (MFA), regular monitoring and testing, information security policy.
+- **PII** = data that identifies a person (breach example: OPM 2015, 21.5 million people). **PHI** = health data, regulated in the US by **HIPAA** (1996).
+- **Data retention**: versioning, rollback period (e.g. 30 days) and legal retention (email, tax, financial records for years).
+- **AUP** limits liability and defines acceptable use; **splash screen / login banner** informs or requires agreement ("as is" disclaimers, support hours).
+@cards
+Q: Chain of custody?
+A: Record of everyone who handled evidence.
+Q: Evidence integrity tool for digital data?
+A: Hashes and digital signatures.
+Q: First incident response steps?
+A: Identify, report to the right people, preserve data.
+Q: Bit-for-bit copy captures?
+A: Everything including deleted but unoverwritten data.
+Q: Hardware write blocker purpose?
+A: Prevent changes to the original evidence drive.
+Q: What do you analyze?
+A: The image copy, never the original.
+Q: Most volatile data?
+A: CPU registers and cache.
+Q: Order of volatility start to end?
+A: Registers, tables/process/memory, temp files, disk, remote logs, topology, backup tapes.
+Q: Per-seat license?
+A: One license per user.
+Q: Concurrent license?
+A: Limits simultaneous users.
+Q: Perpetual license?
+A: One-time purchase, no expiry.
+Q: FOSS?
+A: Free and open-source software with modifiable source.
+Q: EULA?
+A: End-user license agreement accepted at install.
+Q: Unilateral vs bilateral NDA?
+A: One party vs both parties keep secrets.
+Q: PCI DSS covers?
+A: Payment card data handling.
+Q: PII vs PHI?
+A: Personal identification vs protected health information.
+Q: HIPAA?
+A: US law protecting PHI (1996).
+Q: AUP signed to?
+A: Define acceptable technology use and limit liability.
+@check
+? Which is most volatile?
+a) CPU registers
+b) Backup tape
+c) Disk
+d) Network topology
+= a | Changes constantly.
+? You seize a suspect laptop. First copy:
+a) Bit-for-bit image through a write blocker
+b) Drag documents to USB
+c) Boot it normally
+d) Delete temp files
+= a | Preserve evidence.
+? 50 employees but only 20 use the app at once. Cheapest compliant license:
+a) 20 concurrent
+b) 50 per-seat
+c) Site license
+d) Perpetual personal
+= a | Concurrent.
+? Law protecting patient records in the US:
+a) HIPAA
+b) PCI DSS
+c) EULA
+d) SLA
+= a | Health privacy.
+@lab
+Seize a laptop
+Outline how to collect evidence from a laptop suspected in a data leak.
+@answer
+Document scene, capture RAM if running, power handling per policy, image the drive through a write blocker with hashes, log chain of custody, analyze the copy, write findings.
+
+## 4.7 Communication and Professionalism
+labs: help-desk-ticketing-osticket
+@notes
+### Professionalism
+- Match the **dress** expected by the workplace; use correct **titles** (e.g. "Dr."). Be a **teacher**, not judgmental; you will make mistakes too.
+- Be **on time**, avoid **distractions** (personal calls, texts, social media). If you must take an urgent call in front of a customer, ask permission and apologize. Work in a quiet area, no speakerphone with customers.
+- When emotions run high, **don't argue or get defensive**; be a partner, let people vent, and **follow up** during long issues. Keep business matters off public social media.
+- Treat **confidential information** (IT sees the most) as private. Treat others as you want to be treated.
+
+### Communication
+- **Avoid jargon, acronyms and slang** with customers; translate for non-technical people and managers.
+- Keep a **positive attitude** (offer options even for bad news such as an unrecoverable drive). Your attitude shapes the customer experience.
+- **Listen first, don't interrupt.** Ask **probing/clarifying questions**, take notes, **restate** what you heard to confirm. Use **active listening** on calls so people know they were heard.
+- **Set expectations**: explain options (repair vs replace) with pros and cons, give timeframes. Follow up phone calls with **email** to document. Set **weekly reminders** to update the customer during long waits (parts on order).
+- After closing a ticket, **follow up** to confirm satisfaction.
+@cards
+Q: Professional dress rule?
+A: Match the expectations of the workplace.
+Q: Customer is angry. You should?
+A: Listen, don't argue or become defensive, work toward a solution.
+Q: Should you take personal calls in front of customers?
+A: Avoid; if urgent, ask permission and apologize.
+Q: Speakerphone with a customer?
+A: Avoid it, and use a quiet area.
+Q: Why avoid jargon?
+A: Customers may not understand technical terms.
+Q: Active listening steps?
+A: Take notes, ask clarifying questions, restate what you heard.
+Q: Why not interrupt?
+A: You may miss the key point of the problem.
+Q: Set expectations by?
+A: Giving options, costs and timeframes.
+Q: Why follow up a call with an email?
+A: Documents what was agreed.
+Q: Long repair delays: best practice?
+A: Update the customer regularly even if nothing changed.
+Q: After closing a ticket?
+A: Follow up to confirm customer satisfaction.
+Q: Posting about customer issues on social media?
+A: Don't; keep business information private.
+@check
+? A customer is frustrated and rambling. Best response:
+a) Listen, take notes, restate their issue
+b) Interrupt with the fix
+c) Explain acronyms
+d) End the call
+= a | Active listening.
+? A repair needs a part with a three-week delay. You should:
+a) Update the customer weekly
+b) Wait for the part and say nothing
+c) Close the ticket
+d) Replace their PC
+= a | Keep them informed.
+? You are asked to explain a firewall outage to the CEO. Use:
+a) Plain business language
+b) Packet details
+c) Acronyms
+d) Slang
+= a | Translate.
+@lab
+Handle a tense call
+A manager says "your fix broke my spreadsheet again". Write your first three responses.
+@answer
+Acknowledge and apologize for the disruption, ask clarifying questions and restate the problem, then offer options with timeframes and follow up in writing.
+
+## 4.8 Scripting
+labs: bash-scripting, python, windows-admin-powershell
+@notes
+### Script Types
+| Language | Extension | Environment / notes |
+|---|---|---|
+| Batch | .bat | Windows command prompt, from DOS/OS/2 |
+| PowerShell | .ps1 | Windows admin automation, **cmdlets**, AD admin |
+| VBScript | .vbs | Windows scripting, Office macros |
+| Shell script | .sh | Linux/Unix, starts with **shebang** `#!/bin/sh` |
+| JavaScript | .js | Runs in browsers; unrelated to Java |
+| Python | .py | Cross-platform general purpose scripting |
+
+### Use Cases
+- Unattended and faster than humans; spot problems early; handle repetitive tasks.
+- **Restarts** after patches or to work around memory leaks; run overnight.
+- **Login scripts** map network drives. **Install/upgrade** scripts map the repository, install, disconnect, reboot. **Backup** scripts run at off-hours (e.g. 1 a.m.). **Monitoring** (CPU, memory, network via SNMP), automated **inventory**, **vulnerability scans** and update deployment.
+- Risks: scripted malware distribution if the source is infected, registry changes breaking other apps, **syntax errors** causing outages. Always **test first, back up and plan rollback**.
+@cards
+Q: Batch file extension?
+A: .bat
+Q: PowerShell extension?
+A: .ps1
+Q: VBScript extension?
+A: .vbs
+Q: Shell script extension?
+A: .sh
+Q: JavaScript extension?
+A: .js
+Q: Python extension?
+A: .py
+Q: Shebang?
+A: #! at the top naming the interpreter, e.g. #!/bin/sh.
+Q: PowerShell building blocks?
+A: Cmdlets.
+Q: JavaScript vs Java?
+A: Unrelated: JavaScript runs in browsers; Java builds applications.
+Q: Cross-platform scripting language?
+A: Python.
+Q: Login script purpose?
+A: Map drives and resources at logon.
+Q: Why run backups by script at night?
+A: Heavy network use; avoids daytime impact.
+Q: Scripting risk?
+A: Typos or bad code can cause outages or spread malware.
+Q: Best practice before running a script in production?
+A: Test it, back up, and have a rollback.
+@check
+? A file ending in .ps1 is a:
+a) PowerShell script
+b) Batch file
+c) Python script
+d) VBScript
+= a | PowerShell.
+? A script's first line is `#!/bin/bash`. It is a:
+a) Linux shell script
+b) Batch file
+c) JavaScript
+d) Registry file
+= a | Shebang.
+? Which language is best for one script across Windows, macOS and Linux?
+a) Python
+b) Batch
+c) VBScript
+d) PowerShell only
+= a | Cross-platform.
+? Before pushing an update script to 500 PCs:
+a) Test on a small group
+b) Run it everywhere
+c) Delete backups
+d) Disable logging
+= a | Staged testing.
+@lab
+Pick the script
+Map the task to a language: (1) Windows AD user creation, (2) Linux nightly backup, (3) page interactivity.
+@answer
+(1) PowerShell (.ps1), (2) Shell script (.sh), (3) JavaScript (.js).
+
+## 4.9 Remote Access
+labs: vpn-tailscale, linux-server-admin-ubuntu, windows-admin-powershell
+@notes
+### Remote Desktop and VPN
+- **RDP** (Microsoft Remote Desktop Protocol, **TCP 3389**) has clients on all platforms. **VNC** uses **RFB** (Remote Frame Buffer), open source. Open remote desktop ports with weak passwords are brute-force targets; add MFA. Scammers also use remote tools: verify who is asking.
+- **VPN**: encrypts traffic across public networks to a **VPN concentrator** (often in a next-gen firewall). Client software or OS built-in VPN. Use MFA at login.
+- **SSH**: encrypted terminal, **TCP 22**; Telnet (TCP 23) is cleartext. Harden with **key pairs**, disable root login, disable passwords (certificate only), IP allow lists.
+
+### Management Tools
+- **RMM** (Remote Monitoring and Management): MSP console to patch, remotely connect, monitor and inventory many customers; a high-value target, so protect with **MFA, tight access and auditing**.
+- **SPICE** (Simple Protocol for Independent Computing Environments): remote console for virtual machines with efficient graphics and shared clipboard/folders.
+- **WinRM** (Windows Remote Management): send a script to a Windows host (needs authentication), run it remotely and receive results with no interactive session (e.g. Get-WmiObject Win32_Service).
+- Third-party tools: screen sharing (GoToMyPC, TeamViewer), video conferencing (Zoom, WebEx), file sync (Dropbox, Box, Google Drive), endpoint management (Citrix Endpoint Management, ManageEngine Desktop Central). Always use MFA and limit to authorized users.
+@cards
+Q: RDP port?
+A: TCP 3389.
+Q: VNC protocol?
+A: RFB (Remote Frame Buffer).
+Q: Threat to open RDP?
+A: Brute-force attacks.
+Q: VPN does?
+A: Encrypts traffic to a concentrator over untrusted networks.
+Q: SSH port?
+A: TCP 22.
+Q: Telnet port?
+A: TCP 23 (cleartext).
+Q: SSH hardening?
+A: Key pairs, no root login, IP allow lists, no passwords.
+Q: RMM?
+A: Remote Monitoring and Management tool used by MSPs.
+Q: Why protect RMM consoles?
+A: One breach exposes many customer environments.
+Q: SPICE?
+A: Remote console protocol for virtual machines.
+Q: WinRM?
+A: Run scripts on remote Windows hosts without a remote desktop.
+Q: Screen-sharing tool examples?
+A: TeamViewer, GoToMyPC.
+Q: Required control across remote tools?
+A: Multi-factor authentication and least access.
+@check
+? An unexpected open TCP 3389 on a workstation indicates:
+a) Remote Desktop is running
+b) SSH
+c) DNS
+d) Telnet
+= a | RDP.
+? Secure remote CLI to a Linux server:
+a) SSH
+b) Telnet
+c) RDP
+d) VNC without password
+= a | Encrypted.
+? An MSP's RMM needs extra protection because:
+a) It controls many customers' endpoints
+b) It is slow
+c) It uses SPICE
+d) It uses Telnet
+= a | High-value target.
+? Run a PowerShell script on a remote server and get results back with no desktop session:
+a) WinRM
+b) RDP
+c) VNC
+d) SPICE
+= a | Windows Remote Management.
+@lab
+Secure remote support
+Design a remote support setup for a branch with 10 PCs and a Linux server.
+@answer
+VPN with MFA to the branch, RDP only through VPN (no internet exposure), SSH with keys and no root, restrict by IP, audit logs, vetted remote support tool.
+
+## 4.10 Artificial Intelligence
+labs: log-analysis, siem-security-onion
+@notes
+### Using AI
+- **AI** aims to learn, infer and reason like humans; **generative AI** creates text, images, audio and video from prompts. Integrated into search summaries, email summaries, image editors and translation.
+- **Appropriate uses**: analyzing huge data sets such as logs for security issues, scripting and automation decisions, healthcare (MRI review, spotting dangerous drug interactions), real-time translation.
+- **Inappropriate uses**: **fraud and deep fakes** (impersonating people), code nobody understands, claiming AI work as your own, **plagiarism** in school and uncited AI summaries.
+
+### Risks and Limits
+- **Bias**: models inherit bias from skewed or under-represented training data (Amazon dropped a resume AI that favored men). Review outputs.
+- **Hallucination**: confident but wrong output (Google's demo claim about the James Webb telescope). 2024 fact-checking tests found accuracy figures such as 72.3%, 64.9% and 58.6% across tools, so always **verify**.
+- **Public AI** (ChatGPT, Gemini): more data and maybe better accuracy, but anything entered may be retained or leaked (passwords, keys, PII). **Private AI**: built on the organization's own data, controlled model, limits breach scope but has less data.
+- **Policy**: do not enter sensitive data, passwords, keys or customer information into public AI; follow company AI policy; hold humans accountable for outputs.
+@cards
+Q: Generative AI?
+A: AI that creates new content from prompts.
+Q: Appropriate AI use in security?
+A: Analyzing huge log sets for hidden issues.
+Q: Deep fake?
+A: AI-generated media impersonating a real person.
+Q: Inappropriate AI uses?
+A: Fraud, plagiarism, uncited work, unreviewed code.
+Q: AI bias source?
+A: Skewed or under-represented training data and algorithms.
+Q: AI hallucination?
+A: Confident but false output.
+Q: Why verify AI answers?
+A: Accuracy is imperfect (tests show 60-70% in some fact checks).
+Q: Public AI risk?
+A: Entered data may be stored or exposed.
+Q: Private AI benefit?
+A: Organization controls data and model; breach scope is limited.
+Q: What should never go into a public AI?
+A: Passwords, keys, PII or confidential company data.
+Q: Public AI advantage?
+A: Much larger training data.
+Q: Human role?
+A: Review and remain accountable for AI output.
+@check
+? An employee pastes customer PII into a public chatbot. Violation of:
+a) Data protection / AI policy
+b) Change freeze
+c) Backup rule
+d) ESD rules
+= a | Sensitive data exposure.
+? An AI confidently states a nonexistent fact. This is:
+a) Hallucination
+b) Bias
+c) Deep fake
+d) Overfitting only
+= a | Wrong but confident.
+? A company needs AI on proprietary data with limited exposure:
+a) Private AI
+b) Public AI
+c) Browser sync
+d) Cloud storage
+= a | Controlled data.
+? Using AI to scan terabytes of logs is:
+a) An appropriate use
+b) Plagiarism
+c) Fraud
+d) Hallucination
+= a | Good fit.
+@lab
+Write an AI rule
+Draft three rules for staff using AI at a clinic.
+@answer
+No PHI or credentials in public AI, human review of all AI output before use, approved private tools only and disclosure of AI assistance where required.
+

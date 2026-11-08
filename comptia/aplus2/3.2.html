@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ Core 2 3.2 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ Core 2 220-1202 objective 3.2: Troubleshooting Mobile Devices">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=7e515d21" defer></script>
+<script src="../../site.js?v=7e515d21" defer></script>
+<script src="../../fx.js?v=7e515d21" defer></script>
+<script src="../../study.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.2 --exam 220-1202</p>
+<div class="manhead"><span>220-1202</span><span>domain 3.0 · Software Troubleshooting</span><span>3.2</span></div>
+<h1><span class="ok">3.2</span> Troubleshooting Mobile Devices</h1>
+<div class="obj" data-obj="aplus2-3.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Apps and Updates</h4>
+<ul><li><strong>App won't launch or is slow</strong>: restart the device (clears RAM/cache), force close (iOS: swipe up from app switcher; Android: Settings &gt; Apps &gt; Force stop), update, reinstall.</li><li><strong>App won't update</strong>: update manually/Update all; check <strong>payment method</strong> (valid card even for free apps), <strong>storage</strong>, internet connectivity, <strong>MDM policy</strong> blocking installs, app store maintenance, restart.</li><li><strong>OS update fails</strong>: storage (OS updates are large), bandwidth, network filtering (try another network), restart.</li></ul>
+<h4>Hardware and Radios</h4>
+<ul><li><strong>Battery drain</strong>: poor signal makes the radio keep searching (use airplane mode), aging battery (replace), disable unused Wi-Fi/Bluetooth/GPS, check Battery health and usage in Settings.</li><li><strong>Random reboots</strong>: update OS and apps, check battery/hardware health; support reads crash logs. Often a hardware fault, replace.</li><li><strong>Wi-Fi</strong>: be closer to AP or try another AP, confirm Wi-Fi is on, verify security key/settings, restart.</li><li><strong>Bluetooth</strong>: confirm enabled, toggle off/on, re-pair, restart.</li><li><strong>NFC</strong>: toggle, reset, check payment cards/wallet.</li><li><strong>AirDrop</strong>: needs Wi-Fi and Bluetooth, proximity, and discoverability set to Contacts Only or Everyone (temporarily).</li><li><strong>Autorotate</strong>: G-sensor/accelerometer; check rotation lock, restart app/device, else hardware support.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus2-3.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A free app won't download, store shows an expired card. Fix:</p><ul class="chk__o"><li><span class="ok">a)</span> Update payment method</li><li><span class="ok">b)</span> Factory reset</li><li><span class="ok">c)</span> Replace battery</li><li><span class="ok">d)</span> Disable NFC</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Store requires valid payment.</p></details></div><div class="chk"><p><strong>2.</strong> Phone dies by noon while stationary in a poor-coverage area. Best fix:</p><ul class="chk__o"><li><span class="ok">a)</span> Airplane mode / disable unused radios</li><li><span class="ok">b)</span> New case</li><li><span class="ok">c)</span> Disable updates</li><li><span class="ok">d)</span> Reset network</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Radio search drains battery.</p></details></div><div class="chk"><p><strong>3.</strong> Employee cannot install an app on a corporate phone. Check:</p><ul class="chk__o"><li><span class="ok">a)</span> MDM policy</li><li><span class="ok">b)</span> Payment</li><li><span class="ok">c)</span> Screen rotation</li><li><span class="ok">d)</span> AirDrop</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Policy block.</p></details></div>
+<h2>short lab: Phone won&#x27;t update</h2><div class="prose lab"><p>List five checks for an OS update that stalls at download.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Storage space, battery/power, Wi-Fi quality and bandwidth, network filtering (try another network), then restart and retry.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/operating-systems.html">operating systems</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.2" placeholder="# 3.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="3.1.html">&lt; 3.1</a><a href="3.3.html">3.3 &gt;</a></nav>
+<p><a href="../aplus2.html">cd ~/comptia/aplus2</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus2-3.2-0", "q": "Universal first step for a mobile app problem?", "a": "Restart the device (and the app)."}, {"id": "aplus2-3.2-1", "q": "Android force close path?", "a": "Settings > Apps > select app > Force stop."}, {"id": "aplus2-3.2-2", "q": "Why might a free app fail to install?", "a": "No valid payment method on file."}, {"id": "aplus2-3.2-3", "q": "Where are managed app install blocks set?", "a": "MDM policy."}, {"id": "aplus2-3.2-4", "q": "OS update fails: three checks?", "a": "Storage space, bandwidth, network filtering."}, {"id": "aplus2-3.2-5", "q": "Battery drains with weak signal because?", "a": "Radio keeps searching; use airplane mode."}, {"id": "aplus2-3.2-6", "q": "How to check battery health?", "a": "Settings > Battery."}, {"id": "aplus2-3.2-7", "q": "Phone reboots randomly mid-call: checks?", "a": "Updates, battery health, crash logs; likely hardware."}, {"id": "aplus2-3.2-8", "q": "AirDrop uses?", "a": "Wi-Fi and Bluetooth."}, {"id": "aplus2-3.2-9", "q": "AirDrop invisible to others because?", "a": "Discoverability disabled."}, {"id": "aplus2-3.2-10", "q": "Autorotate hardware?", "a": "Accelerometer / G-sensor."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
