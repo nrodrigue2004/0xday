@@ -1,0 +1,112 @@
+tagline: Most modern apps are a front end talking to an API. Learn REST, JSON, how requests are authenticated, and the one authorization mistake that shows up in almost every API review.
+:: simple
+An **API** (application programming interface) is a door a program uses to ask another program for something. On the web, most APIs are **HTTP APIs**: you send a request to a URL and get **JSON** back. Your phone app, the page you are looking at, and other companies' systems all use them.
+
+**JSON** (JavaScript Object Notation) is the text format. It has objects `{}`, arrays `[]`, strings, numbers, `true`/`false` and `null`:
+
+```
+{"id": 1001, "customer": "alice", "items": [{"sku": "CAB-7", "qty": 2}], "paid": true}
+```
+
+**REST** is a style of API design: URLs name **things** (nouns) and HTTP methods say what to do to them.
+
+| Request | Meaning |
+|---|---|
+| `GET /v1/orders` | list orders |
+| `GET /v1/orders/1001` | read one order |
+| `POST /v1/orders` | create an order (body is JSON) |
+| `PATCH /v1/orders/1001` | change part of it |
+| `DELETE /v1/orders/1001` | delete it |
+
+The reply uses a status code (see [HTTP and the web](http-and-the-web.html)): 200, 201 created, 400 you sent junk, 401 who are you, 403 not allowed, 404 not found, 429 slow down.
+
+> An API is just a website with the pretty part removed. Anything the page can do, an attacker with `curl` can try to do directly, so **the server has to enforce the rules**, not the front end.
+:: mid
+### Authentication: how the API knows who you are
+- **API key**: a long secret in a header (`X-API-Key`) or query string. Simple, identifies an *application*. Keep it out of URLs and public repos.
+- **Bearer token**: `Authorization: Bearer <token>`. You log in once, get a token, send it on every call. Anyone holding it is you, so treat it like a password.
+- **JWT** (JSON Web Token): a token with three base64url parts, `header.payload.signature`. The payload is **readable by anyone** (it is encoded, not encrypted), the signature proves it was not altered. Check `exp` (expiry), `iss`/`aud`, and pin the allowed algorithm on the server.
+- **OAuth 2.0 / OpenID Connect**: "log in with Google" style delegation. The app gets a limited token instead of your password. Scopes say what the token may do.
+- **Mutual TLS** and signed requests are used between services.
+
+### Authorization: what you are allowed to do
+Authentication is *who*. Authorization is *what they may touch*. The classic failure is **broken object level authorization** (also called **IDOR**, insecure direct object reference): the API checks you are logged in but never checks that order 1002 belongs to you.
+
+```
+GET /v1/orders/1001   (alice)  -> 200, her order
+GET /v1/orders/1002   (alice)  -> 200, bob's order   <- the bug
+```
+
+The fix is on the server: every object lookup also checks ownership or role (`WHERE id = ? AND owner_id = ?`), or returns 404. Unguessable ids help a little but are not a control.
+
+### Other API risks
+- **Excessive data exposure**: the API returns the whole database row (`password_hash`, `is_admin`, internal notes) and trusts the front end to hide it. Return only the fields needed.
+- **Mass assignment**: the server copies every JSON field you send onto the object, so `{"is_admin": true}` sneaks through. Allow-list the fields.
+- **No rate limiting**: credential stuffing, scraping, enumeration. Answer with 429 and `Retry-After`.
+- **Verbose errors**: stack traces and SQL errors help attackers. Log them, return a short generic message.
+- **Old versions**: `/v1` still runs with no auth fixes after `/v3` shipped. Keep an inventory (shadow and zombie APIs).
+
+### Working with APIs from the terminal
+```
+$ curl -s https://api.shop.example/v1/orders/1001 -H "Authorization: Bearer $TOKEN"
+$ curl -s -X POST https://api.shop.example/v1/orders -H "Content-Type: application/json" -d '{"sku":"CAB-7","qty":1}'
+$ curl -s URL | jq '.items[].sku'
+$ echo "$JWT" | cut -d. -f2 | base64 -d
+```
+`jq` filters JSON: `.field`, `.[0]`, `.items[]`, `select(.paid==true)`. In a browser, the **Network** tab shows every API call the page makes; "copy as cURL" turns one into a command.
+:: complex
+### Designing it so it holds up
+- **Deny by default.** A new endpoint is closed until someone writes the rule for it. Centralize checks in middleware so a developer cannot forget one.
+- **Schema validation** (OpenAPI/JSON Schema): reject unknown fields, wrong types, oversized bodies. It stops mass assignment and a lot of injection at the door.
+- **Least privilege tokens**: short expiry, narrow scopes, refresh tokens that can be revoked. Rotate keys. Never log tokens.
+- **Idempotency keys** on POSTs that move money, so a retry does not charge twice.
+- **Pagination caps**: `limit` has a maximum, otherwise `?limit=10000000` is a free denial of service.
+- **GraphQL** variant: one endpoint, the client picks the fields. Watch depth and cost limits, disable introspection in production, and still authorize every field and object.
+- **CORS** is a browser rule, not API security. Server-to-server calls ignore it entirely.
+
+### Testing an API you are authorized to test
+Use **Burp Suite** or **OWASP ZAP** as an intercepting proxy, and **Postman**/`curl` for hand-built calls. Methodology (OWASP API Security Top 10): map every endpoint, log in as two ordinary users and an admin, then replay user A's requests with user B's ids and tokens, try methods the docs do not list, and read what comes back, not just the status code. Only against systems you own, a signed scope, or a training app such as Juice Shop or crAPI.
+
+### Detecting trouble from the blue side
+In API logs, an IDOR sweep looks like one account walking sequential ids (`/orders/1001`, `1002`, `1003`...) with a run of 200s. Credential stuffing looks like many 401s across many usernames from few IPs. Alert on both, and add per-user and per-IP rate limits.
+:: lab
+host: analyst
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, training only):** the **Shopwell** API has an authorization bug. You have its access log and the order table (made-up data, `~/api`). Each log line shows which **user** made the call and which **order** they asked for. A user is only allowed to read their own orders.
+
+Find the **one user** who successfully (`200`) read an order that belongs to somebody else. Submit their **username**.
+:: answer
+mallory
+:: hint
+`orders.txt` maps each order id to its owner. Compare it with the `user=` and path in `access.log`.
+:: hint
+Failed calls (403, 404) do not count: the server refused them. Look for `200` lines where the order's owner differs from `user=`.
+:: solution
+`cat ~/api/orders.txt` shows 1001 and 1004 belong to alice, 1002 and 1005 to bob, 1003 and 1006 to carol. In the log, alice reads 1001 and 1004, bob reads 1002, carol reads 1003 and 1006: all theirs. **mallory** requests 1002 (200, bob's), 1003 (200, carol's) and 1005 (403). The 403 shows the server does check *some* paths, but the sequential pulls that returned 200 are the IDOR. Report it, fix the lookup to check ownership on every order endpoint, and review what mallory's token could read. This is exactly the pattern a log alert on sequential ids with 200s would catch.
+:: verify
+cat ~/api/orders.txt
+grep " 200 " ~/api/access.log
+:: file /home/analyst/api/README.txt
+Shopwell API (FICTIONAL training data).
+  orders.txt   order id -> owner
+  access.log   user, request, status
+Rule: a user may only read their own orders.
+:: file /home/analyst/api/orders.txt
+1001 alice
+1002 bob
+1003 carol
+1004 alice
+1005 bob
+1006 carol
+:: file /home/analyst/api/access.log
+2026-11-06 09:01:12 user=alice GET /v1/orders/1001 200
+2026-11-06 09:01:40 user=alice GET /v1/orders/1004 200
+2026-11-06 09:14:03 user=bob GET /v1/orders/1002 200
+2026-11-06 09:20:51 user=carol GET /v1/orders/1003 200
+2026-11-06 09:22:07 user=carol GET /v1/orders/1006 200
+2026-11-06 22:41:30 user=mallory GET /v1/orders/1002 200
+2026-11-06 22:41:31 user=mallory GET /v1/orders/1003 200
+2026-11-06 22:41:32 user=mallory GET /v1/orders/1005 403
+2026-11-06 22:41:33 user=mallory GET /v1/orders/9999 404

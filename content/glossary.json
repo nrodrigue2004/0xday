@@ -1271,6 +1271,80 @@
     "s:1.2",
     "s:3.1"
    ]
+  },
+  {
+   "t": "Cookie",
+   "d": "A small value the server asks the browser to store and send back on every request. Session cookies carry the login. The Secure, HttpOnly and SameSite flags limit where they travel and who can read them.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "Session",
+   "d": "The server's memory of a logged-in user between HTTP requests, found by a random id in a cookie or a signed token. Stealing the id is the same as stealing the login.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "REST API",
+   "d": "An HTTP API where URLs name things and methods (GET, POST, PUT, PATCH, DELETE) say what to do to them, usually exchanging JSON.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "JWT",
+   "d": "JSON Web Token: header.payload.signature. The payload is readable by anyone, the signature proves it was not changed. Check expiry, audience and the allowed algorithm.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "IDOR",
+   "d": "Insecure direct object reference, a form of broken access control: changing an id in a request returns another user's data because the server never checked ownership.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "SSRF",
+   "d": "Server-side request forgery: tricking a server into fetching a URL of the attacker's choice, such as internal services or cloud metadata. Fix with destination allow-lists and egress filtering.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "CORS",
+   "d": "Cross-origin resource sharing: how a server lets other origins read its responses in the browser. A browser rule, not a substitute for authentication.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "Parameterized query",
+   "d": "A SQL statement with placeholders where values are sent separately from the query text, so input can never change the query. The main defense against SQL injection.",
+   "c": "web",
+   "l": [
+    "m:rdbms",
+    "g:databases-and-sql"
+   ]
+  },
+  {
+   "t": "Primary key / foreign key",
+   "d": "A primary key uniquely identifies a row. A foreign key in another table points at it, which is how relational databases link records.",
+   "c": "web",
+   "l": [
+    "m:rdbms",
+    "g:databases-and-sql"
+   ]
   }
  ]
 }

@@ -1,0 +1,110 @@
+tagline: The common web vulnerability classes at concept level: what each one is, why it happens, how defenders spot it, and the fix. Studied for defense and for practice on systems you are authorized to test.
+:: simple
+> **Rules first.** Everything here is for understanding, defending and practicing on **systems you own, a signed scope, or intentionally vulnerable training apps** (OWASP Juice Shop, DVWA, WebGoat, PortSwigger Web Security Academy, TryHackMe rooms). Testing a real site without permission is illegal in most places (in the US, the CFAA), even if you "only looked". Labs on this site use fictional data and simulated systems.
+
+Almost every web vulnerability comes from one mistake: **the application trusts input or a request it should have checked.** The **OWASP Top 10** is the standard ranked list of the most common classes. The ones to know:
+
+| Class | One-line idea | Core fix |
+|---|---|---|
+| **Broken access control** (incl. IDOR) | you can reach things that aren't yours by changing an id or URL | server checks ownership/role on every request |
+| **Injection** (SQL, OS command, LDAP) | input is treated as code by an interpreter | parameterized queries, no shell-outs, input validation |
+| **XSS** (cross-site scripting) | input ends up in a page as script that runs in other users' browsers | output encoding, CSP, `HttpOnly` cookies |
+| **CSRF** (cross-site request forgery) | another site makes your logged-in browser send a request | anti-CSRF tokens, `SameSite` cookies |
+| **Broken authentication / sessions** | weak passwords, no lockout, guessable or stolen sessions | MFA, rate limits, good session handling |
+| **Security misconfiguration** | defaults, debug pages, open storage, verbose errors | hardening baselines, remove what you don't use |
+| **Vulnerable and outdated components** | a library or CMS with a known CVE | inventory, patching, dependency scanning |
+| **SSRF** (server-side request forgery) | you make the *server* fetch a URL it shouldn't (internal services, cloud metadata) | allow-list destinations, block internal ranges |
+| **Cryptographic failures** | plaintext transport/storage, weak hashing | TLS everywhere, strong password hashing |
+| **Logging and monitoring failures** | nobody noticed | log security events, alert, practice response |
+
+Ground rule that fixes a large share of these: **validate on the server, authorize on the server, encode on output, and keep secrets out of the client.** See [how web apps work](how-web-apps-work.html).
+:: mid
+### Injection (SQL injection as the model case)
+Vulnerable code builds a query by gluing text together:
+
+```code
+query = "SELECT * FROM users WHERE name = '" + name + "' AND pass = '" + pw + "'"
+```
+If `name` contains SQL syntax (a quote and a comment marker, the classic textbook example), the input changes the *structure* of the query, for example turning the password check into a condition that is always true. The result is login bypass, data theft, or modification. Secure version:
+
+```code
+cursor.execute("SELECT * FROM users WHERE name = ? AND pass_hash = ?", (name, hash))
+```
+Placeholders send the query and values separately, so the database never parses the input as SQL. Same idea for **OS command injection** (don't build shell strings from input; call APIs with argument lists) and **NoSQL/LDAP injection**. Detection: errors containing SQL fragments, requests with quotes, `UNION`, `--`, `SLEEP(` in parameters, and responses far larger than normal.
+
+### XSS
+The app echoes user input into a page without encoding. **Reflected** (in a link or search box), **stored** (saved, e.g. a comment, hits everyone who views it), **DOM-based** (client-side JS writes unsafe data into the page). Impact: script runs as the victim on your site, so it can read page data, act as them, or steal a session cookie that isn't `HttpOnly`. Fixes: **contextual output encoding** (HTML, attribute, JS, URL), frameworks that auto-escape (React, templates), **Content-Security-Policy**, sanitizing rich text with a vetted library.
+
+### CSRF
+Your browser attaches your cookies to any request to the site, including ones triggered by a hostile page. Example: a hidden form that posts "change email" to your bank while you're logged in. Fixes: a per-session **anti-CSRF token** the attacker can't know, `SameSite=Lax/Strict` cookies, checking `Origin`/`Referer`, requiring re-auth for sensitive actions, and never changing state with GET.
+
+### Broken access control and IDOR
+Changing `/orders/1002` or `?user_id=7` returns someone else's data because the server only checks "logged in". Also: forced browsing to `/admin`, privilege flags the client can set, missing function-level checks, directory listing. Fix: deny by default, one central authorization layer, check ownership on every object. See [APIs, REST and JSON](apis-rest-json.html).
+
+### SSRF
+A feature that fetches a URL for you (image import, webhook, PDF render) can be pointed at `http://localhost`, internal admin panels, or the cloud **metadata service** (`169.254.169.254`), which can hand out credentials. Fixes: allow-list hosts, resolve and block private/loopback/link-local addresses, enforce IMDSv2 on cloud hosts, egress filtering.
+
+### File upload, deserialization, open redirect
+- **Unrestricted upload**: a server-side script uploaded as an "image" and then executed. Check type by content, rename files, store outside the web root, serve from a separate domain, never execute uploads.
+- **Insecure deserialization**: untrusted serialized objects rebuilt by the server can run code. Don't deserialize untrusted data; use plain JSON with validation.
+- **Open redirect**: `?next=` sends users anywhere, which makes phishing links look legitimate. Allow-list redirect targets.
+:: complex
+### Defensive controls by layer
+| Control | Stops | Limit |
+|---|---|---|
+| Parameterized queries, ORM used correctly | SQL injection | raw-SQL escapes in the ORM still bite |
+| Output encoding + CSP | XSS | CSP needs tuning, encoding must match context |
+| Authz middleware, deny by default | broken access control | logic flaws need tests |
+| `SameSite` + CSRF tokens | CSRF | token must be validated, not just present |
+| WAF | known patterns, virtual patch while you fix | bypassable, noisy, not a fix |
+| Rate limits, lockout, MFA | brute force, credential stuffing | needs monitoring |
+| SAST / DAST / dependency scan in CI | many bugs before release | false positives, blind to logic |
+| Pen test / bug bounty | what automation misses | point in time |
+
+### Secure development habits
+Threat model a feature before building it (what can go wrong, who attacks it). Use framework defaults instead of rolling your own auth or crypto. Code review for authorization checks. Keep dependencies and base images updated. Write abuse-case tests (user A requests user B's object) next to your normal tests. Treat the OWASP Cheat Sheet Series and ASVS as your checklist.
+
+### Detecting attacks in logs
+Web access logs (combined format) and WAF logs are the sensor. Hunting patterns:
+- Many 404s for odd paths from one IP: scanning (`/.env`, `/wp-admin`, `/phpmyadmin`).
+- Requests with `'`, `%27`, `UNION`, `SELECT`, `<script`, `../`, `${jndi:` in parameters: probing for injection, XSS, traversal.
+- A run of 500s on one parameter, then a 200 with a huge `bytes` value: an injection that worked.
+- Sequential id access with many 200s from one account: IDOR sweep.
+- Same account from several countries or user agents in a short time: session theft.
+Map findings to **MITRE ATT&CK** (T1190 exploit public-facing application) and escalate per your IR process ([incident response](../learn/incident-response.html), [log analysis](../learn/log-analysis.html), [Security Onion / SIEM](../learn/siem-security-onion.html)).
+
+### Practicing legally
+Run an intentionally vulnerable app in your own lab (Docker on the [homelab](../homelab.html), isolated from your real network). Walk the OWASP list: find one instance, explain why it happens, write the fix, and write the detection (a Sigma or WAF rule). That loop (break, fix, detect) is what interviewers want to hear. For bounty programs, read the scope and rules of engagement first and stay inside them.
+:: lab
+host: soc01
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, training only):** your SOC watches the web server of **Shopwell**, a made-up store. The WAF flagged a burst of strange requests overnight. `~/web/access.log` is the combined-format access log (fictional addresses from documentation ranges).
+
+One IP sent **SQL injection-style input** (quotes and `UNION SELECT` in the `id` parameter) and then got a **200 response with an unusually large size**, which suggests it worked. Find that IP. Submit the **IP address**.
+:: answer
+203.0.113.77
+:: hint
+Search for injection tells: `grep -i "union\|%27\|' or" ~/web/access.log`. Several IPs probe, but not all of them got a normal-sized 200 back.
+:: hint
+Check the last two fields of each line: status and bytes. Compare the bytes of the successful attack with the 400 and 500 responses of the other probers and with ordinary page loads (a few hundred to a few thousand bytes).
+:: solution
+`grep -i "union" ~/web/access.log` shows two sources. **198.51.100.9** sent quote-based probes that got 500 and 400 responses (small, errors, the attack failed or was blocked). **203.0.113.77** sent a `UNION SELECT` against `/product.php?id=` and got **200 with 48213 bytes**, ten times a normal product page, i.e. it returned database content. Next steps for a real SOC: block the IP at the WAF, confirm in the application and database logs what was returned, assess whether customer data left, rotate the DB credentials, and have the developers replace the string-built query with a parameterized one. Detection to keep: alert on `union select` plus a large response from one IP.
+:: verify
+grep -i "union" ~/web/access.log
+:: file /home/analyst/web/README.txt
+Shopwell web logs (FICTIONAL training data, documentation IP ranges).
+  access.log   combined log format: ip - - [time] "request" status bytes "referer" "agent"
+Normal product pages are 1-4 KB.
+:: file /home/analyst/web/access.log
+192.0.2.10 - - [06/Nov/2026:21:58:01 +0000] "GET /product.php?id=7 HTTP/1.1" 200 2310 "-" "Mozilla/5.0"
+192.0.2.14 - - [06/Nov/2026:21:59:12 +0000] "GET /product.php?id=3 HTTP/1.1" 200 2188 "-" "Mozilla/5.0"
+198.51.100.9 - - [06/Nov/2026:22:30:04 +0000] "GET /product.php?id=7' HTTP/1.1" 500 312 "-" "sqlmap-like-scanner/1.0"
+198.51.100.9 - - [06/Nov/2026:22:30:06 +0000] "GET /product.php?id=7%27%20OR%20%271%27=%271 HTTP/1.1" 500 312 "-" "sqlmap-like-scanner/1.0"
+198.51.100.9 - - [06/Nov/2026:22:30:09 +0000] "GET /product.php?id=7%20UNION%20SELECT%20NULL HTTP/1.1" 400 198 "-" "sqlmap-like-scanner/1.0"
+192.0.2.22 - - [06/Nov/2026:22:41:55 +0000] "GET /index.php HTTP/1.1" 200 4012 "-" "Mozilla/5.0"
+203.0.113.77 - - [06/Nov/2026:23:02:11 +0000] "GET /product.php?id=7' HTTP/1.1" 500 312 "-" "curl/8.5.0"
+203.0.113.77 - - [06/Nov/2026:23:02:40 +0000] "GET /product.php?id=7%20ORDER%20BY%204-- HTTP/1.1" 200 2290 "-" "curl/8.5.0"
+203.0.113.77 - - [06/Nov/2026:23:03:02 +0000] "GET /product.php?id=-1%20UNION%20SELECT%20name,email,pass_hash,NULL%20FROM%20users-- HTTP/1.1" 200 48213 "-" "curl/8.5.0"
+192.0.2.10 - - [06/Nov/2026:23:15:30 +0000] "GET /cart.php HTTP/1.1" 200 1876 "-" "Mozilla/5.0"

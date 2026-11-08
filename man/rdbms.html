@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man rdbms :: 0xDay</title>
+<meta name="description" content="rdbms cheatsheet: SQL and relational database concepts: queries, joins, aggregates, keys, safety and the client commands">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=29aef6d8" defer></script>
+<script src="../site.js?v=29aef6d8" defer></script>
+<script src="../fx.js?v=29aef6d8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man rdbms</p>
+<div class="manhead"><span>RDBMS(1)</span><span>0xDay Field Manual</span><span>RDBMS(1)</span></div>
+<h1>rdbms <span class="muted">- SQL and relational database concepts: queries, joins, aggregates, keys, safety and the client commands</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-queries">queries</a> <a href="#g-joins-aggregates">joins &amp; aggregates</a> <a href="#g-schema-keys">schema &amp; keys</a> <a href="#g-client-commands">client commands</a> <a href="#g-safe-use-defense">safe use (defense)</a></p><h2 id="g-queries">queries</h2><dl class="man"><dt><code>SELECT col1, col2 FROM t WHERE x = 1 ORDER BY col1 DESC LIMIT 10;</code></dt><dd>read rows, filter, sort, cap</dd><dt><code>SELECT DISTINCT col FROM t;</code></dt><dd>unique values</dd><dt><code>WHERE a LIKE &#x27;ab%&#x27; AND b IN (1,2) AND c IS NOT NULL</code></dt><dd>pattern, list and NULL tests</dd><dt><code>INSERT INTO t (a,b) VALUES (1,&#x27;x&#x27;);</code></dt><dd>add a row</dd><dt><code>UPDATE t SET a = 2 WHERE id = 5;</code></dt><dd>change rows (no WHERE = every row)</dd><dt><code>DELETE FROM t WHERE id = 5;</code></dt><dd>remove rows (no WHERE = every row)</dd></dl><h2 id="g-joins-aggregates">joins &amp; aggregates</h2><dl class="man"><dt><code>FROM a JOIN b ON b.a_id = a.id</code></dt><dd>INNER JOIN: only rows that match in both</dd><dt><code>FROM a LEFT JOIN b ON b.a_id = a.id WHERE b.id IS NULL</code></dt><dd>rows in a with no partner in b (orphan check)</dd><dt><code>SELECT col, COUNT(*) FROM t GROUP BY col HAVING COUNT(*) &gt; 3;</code></dt><dd>count per group, keep big groups</dd><dt><code>SUM(x) · AVG(x) · MIN(x) · MAX(x)</code></dt><dd>aggregate functions</dd><dt><code>WHERE id IN (SELECT a_id FROM b)</code></dt><dd>subquery</dd></dl><h2 id="g-schema-keys">schema &amp; keys</h2><dl class="man"><dt><code>CREATE TABLE t (id INTEGER PRIMARY KEY, name TEXT NOT NULL, owner_id INTEGER REFERENCES u(id));</code></dt><dd>table with primary key and foreign key</dd><dt><code>CREATE INDEX idx_t_name ON t(name);</code></dt><dd>speed up lookups on name</dd><dt><code>PRIMARY KEY · FOREIGN KEY · UNIQUE · NOT NULL · CHECK</code></dt><dd>constraints the database enforces for you</dd><dt><code>BEGIN; ... COMMIT; / ROLLBACK;</code></dt><dd>group statements so they succeed or fail together</dd><dt><code>EXPLAIN SELECT ...</code></dt><dd>show the query plan (did it use an index?)</dd></dl><h2 id="g-client-commands">client commands</h2><dl class="man"><dt><code>sqlite3 db.sqlite  ·  .tables  ·  .schema t  ·  .quit</code></dt><dd>SQLite shell</dd><dt><code>mysql -u user -p -h host db  ·  SHOW TABLES;  ·  DESCRIBE t;  ·  SHOW GRANTS;</code></dt><dd>MySQL/MariaDB</dd><dt><code>psql -U user -h host db  ·  \dt  ·  \d t  ·  \du</code></dt><dd>PostgreSQL</dd><dt><code>default ports: 3306 MySQL · 5432 PostgreSQL · 1433 SQL Server · 1521 Oracle · 27017 MongoDB</code></dt><dd>keep these off the internet</dd></dl><h2 id="g-safe-use-defense">safe use (defense)</h2><dl class="man"><dt><code>cursor.execute(&quot;... WHERE email = ?&quot;, (email,))</code></dt><dd>parameterized query: the only real fix for SQL injection</dd><dt><code>GRANT SELECT, INSERT, UPDATE ON shop.* TO &#x27;app&#x27;@&#x27;10.0.0.%&#x27;;</code></dt><dd>least-privilege app account</dd><dt><code>store passwords with argon2id / bcrypt, never plaintext or fast hashes</code></dt><dd>password storage</dd><dt><code>enable audit logging; alert on mass SELECT, schema changes, new admins</code></dt><dd>detection</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
