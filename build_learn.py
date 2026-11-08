@@ -314,6 +314,7 @@ def build(page, SKILLS, LV, bar):
     ncards = len(allcards)
     page("secplus.html", "Security+ :: 0xDay", f'''<p class="cmd">study --exam SY0-701</p><h1>~/secplus</h1>
 <p>My CompTIA Security+ (SY0-701) study system: every exam objective with key ideas, notes, flashcards and links to hands-on labs. Progress is saved in your browser.</p>
+<p>Exam format: one exam, 90 minutes, up to 90 questions (a few performance-based ones may come first), scored 100 to 900 with 750 to pass. Domain weights: general concepts 12%, threats and mitigations 22%, architecture 18%, operations 28%, program management 20%.</p>
 <div class="stats" id="sp-stats"><div class="stat"><span class="stat__v" id="sp-overall">0%</span><span class="stat__k">weighted progress</span></div>
 <div class="stat"><span class="stat__v">{len(sp["objectives"])}</span><span class="stat__k">objectives</span></div>
 <div class="stat"><span class="stat__v" id="sp-mastered">0/{ncards}</span><span class="stat__k">cards mastered</span></div>
