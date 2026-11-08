@@ -23,6 +23,14 @@
      "topic": "other"
     },
     {
+     "id": "courses",
+     "t": "Skim ~/courses and try a placement exam",
+     "h": "courses.html",
+     "w": "Eleven courses wrap what is already on the site, each with module quizzes and an exam. Pass an exam at 80% and that course is tested out, which shortens the path below.",
+     "m": 20,
+     "topic": "other"
+    },
+    {
      "id": "cert-plan",
      "t": "Read the cert roadmap",
      "h": "certs.html",
@@ -51,7 +59,8 @@
      "h": "basics/osi-and-tcpip.html",
      "w": "Layers, encapsulation, what a packet is. Read it twice.",
      "m": 45,
-     "topic": "secplus"
+     "topic": "secplus",
+     "mod": "IT110.0"
     },
     {
      "id": "ports",
@@ -59,7 +68,8 @@
      "h": "basics/ports-and-protocols.html",
      "w": "Memorize the common ones. They show up on the exam and in every log.",
      "m": 45,
-     "topic": "secplus"
+     "topic": "secplus",
+     "mod": "IT110.1"
     },
     {
      "id": "cia",
@@ -75,7 +85,8 @@
      "h": "basics/linux-windows-basics.html",
      "w": "Filesystems, users, processes, services on both.",
      "m": 45,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "IT100.1"
     },
     {
      "id": "linux-cli",
@@ -83,7 +94,8 @@
      "h": "learn/linux-command-line.html",
      "w": "Do the lab in the sandbox, don't just read it.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "IT120.0"
     },
     {
      "id": "ip-subnets",
@@ -91,7 +103,8 @@
      "h": "learn/networking-tcp-ip-dhcp-nat-subnets.html",
      "w": "Subnet by hand until it stops hurting.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "IT110.2"
     },
     {
      "id": "os-concepts",
@@ -122,7 +135,8 @@
      "h": "learn/bash-scripting.html",
      "w": "Loops, pipes, small scripts that parse logs.",
      "m": 60,
-     "topic": "dojo"
+     "topic": "dojo",
+     "mod": "IT120.1"
     },
     {
      "id": "python",
@@ -154,7 +168,8 @@
      "h": "learn/windows-admin-powershell.html",
      "w": "Users, services and event logs from the shell.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "IT120.2"
     },
     {
      "id": "ad",
@@ -162,7 +177,8 @@
      "h": "learn/active-directory.html",
      "w": "OUs, groups, authentication. Most corporate networks are this.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "IT120.3"
     },
     {
      "id": "dojo-week",
@@ -185,7 +201,8 @@
      "h": "secplus/1.1.html",
      "w": "Controls, CIA, zero trust, crypto, PKI. Objectives 1.1 to 1.4.",
      "m": 240,
-     "topic": "secplus"
+     "topic": "secplus",
+     "mod": "SEC100.0"
     },
     {
      "id": "sp-d2",
@@ -193,7 +210,8 @@
      "h": "secplus/2.1.html",
      "w": "Threat actors, attacks, indicators, hardening. 2.1 to 2.5.",
      "m": 300,
-     "topic": "secplus"
+     "topic": "secplus",
+     "mod": "SEC100.1"
     },
     {
      "id": "sp-d3",
@@ -201,7 +219,8 @@
      "h": "secplus/3.1.html",
      "w": "Cloud, segmentation, resilience, data protection. 3.1 to 3.4.",
      "m": 240,
-     "topic": "secplus"
+     "topic": "secplus",
+     "mod": "SEC100.2"
     },
     {
      "id": "sp-d4",
@@ -209,7 +228,8 @@
      "h": "secplus/4.1.html",
      "w": "Biggest domain: monitoring, IR, identity, automation. 4.1 to 4.9.",
      "m": 420,
-     "topic": "secplus"
+     "topic": "secplus",
+     "mod": "SEC100.3"
     },
     {
      "id": "sp-d5",
@@ -217,7 +237,8 @@
      "h": "secplus/5.1.html",
      "w": "Policies, risk math, audits, awareness. 5.1 to 5.6.",
      "m": 240,
-     "topic": "secplus"
+     "topic": "secplus",
+     "mod": "SEC100.4"
     },
     {
      "id": "sp-acr",
@@ -272,7 +293,8 @@
      "h": "learn/log-analysis.html",
      "w": "Read logs, find the one line that matters.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU200.0"
     },
     {
      "id": "pipes",
@@ -280,7 +302,8 @@
      "h": "drills/parse-logs-with-pipes.html",
      "w": "grep, awk, sort, uniq until it's reflex.",
      "m": 45,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU200.1"
     },
     {
      "id": "regex",
@@ -288,7 +311,8 @@
      "h": "drills/regex-for-logs.html",
      "w": "Patterns for IPs, users, timestamps.",
      "m": 45,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU200.1"
     },
     {
      "id": "pcap",
@@ -296,7 +320,8 @@
      "h": "learn/network-traffic-analysis.html",
      "w": "Wireshark filters, following streams.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "NET300.3"
     },
     {
      "id": "pcap-drill",
@@ -304,7 +329,8 @@
      "h": "drills/read-a-packet-capture.html",
      "w": "Find the exfiltration in a real capture.",
      "m": 45,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "NET300.3"
     },
     {
      "id": "siem",
@@ -312,7 +338,8 @@
      "h": "learn/siem-security-onion.html",
      "w": "Alerts, dashboards, pivoting.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU200.2"
     },
     {
      "id": "ids",
@@ -320,7 +347,8 @@
      "h": "learn/ids-snort.html",
      "w": "Rules, what they catch, false positives.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "NET300.1"
     },
     {
      "id": "ir",
@@ -328,7 +356,8 @@
      "h": "learn/incident-response.html",
      "w": "The lifecycle, and what to write down.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU300.0"
     },
     {
      "id": "phish",
@@ -336,7 +365,8 @@
      "h": "learn/phishing-analysis.html",
      "w": "Headers, URLs, attachments. A daily SOC task.",
      "m": 45,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU300.3"
     },
     {
      "id": "dfir",
@@ -344,7 +374,8 @@
      "h": "learn/digital-forensics.html",
      "w": "Disk images, timelines, evidence handling.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU300.1"
     },
     {
      "id": "hardening",
@@ -352,7 +383,8 @@
      "h": "learn/system-hardening-windows-linux.html",
      "w": "Baselines on Windows and Linux.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "SYS300.2"
     },
     {
      "id": "fw",
@@ -360,7 +392,8 @@
      "h": "learn/firewalls-pfsense.html",
      "w": "Rules, NAT, segmentation.",
      "m": 60,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "NET300.0"
     }
    ]
   },
@@ -375,7 +408,8 @@
      "h": "homelab.html",
      "w": "Add one thing: a log source, a detection rule, a segment. Document it.",
      "m": 180,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "SYS300.1"
     },
     {
      "id": "lab-sec",
@@ -383,7 +417,8 @@
      "h": "drills/security-onion-intrusion-hunt.html",
      "w": "End-to-end hunt, then write the report.",
      "m": 90,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "BLU200.3"
     },
     {
      "id": "ctf",
@@ -438,7 +473,8 @@
      "h": "learn/c-x86-assembly.html",
      "w": "Prerequisite for reversing.",
      "m": 90,
-     "topic": "dojo"
+     "topic": "dojo",
+     "mod": "MAL300.0"
     },
     {
      "id": "re",
@@ -446,7 +482,8 @@
      "h": "learn/reverse-engineering.html",
      "w": "Ghidra and IDA basics.",
      "m": 90,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "MAL300.2"
     },
     {
      "id": "mal",
@@ -454,7 +491,8 @@
      "h": "learn/malware-analysis.html",
      "w": "Static first, then dynamic, in an isolated VM.",
      "m": 90,
-     "topic": "homelab"
+     "topic": "homelab",
+     "mod": "MAL300.3"
     },
     {
      "id": "bin",
@@ -479,7 +517,8 @@
      "w": "IAM, storage, networking and logging in a cloud provider.",
      "m": 90,
      "topic": "other",
-     "if": "cloud.html"
+     "if": "cloud.html",
+     "mod": "CLD300.0"
     },
     {
      "id": "prog",

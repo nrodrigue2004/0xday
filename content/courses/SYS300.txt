@@ -1,0 +1,115 @@
+## 0
+Q: Where does a type 1 hypervisor such as Proxmox VE run?
+* Directly on the hardware (bare metal)
+- As an app inside Windows
+- Inside a container
+- Inside a web browser
+? A type 2 hypervisor, such as VirtualBox, runs on top of a host OS.
+
+Q: Which technologies does Proxmox VE use for virtual machines and for containers?
+* KVM for VMs and LXC for containers
+- Hyper-V for VMs and Docker for containers
+- Xen for both
+- VMware for VMs and Podman for containers
+? Both are managed from the same web interface.
+
+Q: What is a VM snapshot?
+* A saved point-in-time state you can roll back to
+- A full off-site backup
+- A copy of the host's BIOS
+- A network capture
+? Snapshots live with the VM's storage, so they are not a substitute for backups.
+
+Q: How do containers differ from VMs?
+* Containers share the host kernel, VMs run their own
+- Containers run their own kernel, VMs share the host's
+- Containers need a hypervisor, VMs do not
+- There is no difference
+? That is why containers start fast but isolate less strongly.
+
+## 1
+Q: Why put a deliberately vulnerable VM on its own isolated network?
+* So a compromise cannot spread to the rest of the lab or the home network
+- So it runs faster
+- So it gets a public IP
+- So it can see all other machines
+? Treat intentionally weak targets as hostile.
+
+Q: What network mode suits a malware analysis VM?
+* A host-only or internal network with no route to the internet
+- Bridged to the home network
+- NAT with port forwards
+- Bridged to the guest Wi-Fi
+? Some labs use a fake internet service, but never the real one.
+
+Q: What does the 3-2-1 backup rule say?
+* 3 copies, on 2 kinds of media, with 1 off-site
+- 3 backups per year, 2 per month, 1 per day
+- 3 servers, 2 sites, 1 admin
+- 3 passwords, 2 factors, 1 token
+? Snapshots on the same disk do not count as a backup.
+
+Q: A lab VM is reused for another project. What is the best way to start clean?
+* Roll back to a clean snapshot or clone from a template
+- Delete the browser history
+- Reboot twice
+- Run the antivirus
+? Templates and snapshots make labs repeatable.
+
+## 2
+Q: What does system hardening mean?
+* Reducing the attack surface by removing unneeded services, patching and tightening configuration
+- Buying faster hardware
+- Encrypting only the boot disk
+- Installing more security software
+? Fewer things running means fewer things to exploit.
+
+Q: What are CIS Benchmarks?
+* Consensus-based secure configuration guides for specific systems
+- A paid antivirus rating
+- Government laws
+- Vendor sales documents
+? They give specific settings and a rationale for each.
+
+Q: Which SSH settings improve security the most?
+* Key-based login, with root login and password authentication disabled
+- Changing the port only
+- Using a short passphrase
+- Allowing root with a long password
+? Changing the port reduces log noise but is not real protection.
+
+Q: What is the best default policy for a firewall?
+* Deny by default, allow only what is needed
+- Allow by default, block known bad
+- Log only
+- Allow outbound and inbound by default
+? Default deny turns every opening into a decision.
+
+## 3
+Q: Which command shows whether the nginx service is running on a systemd Linux host?
+* systemctl status nginx
+- service list nginx
+- ps nginx -status
+- nginx --running
+? systemctl start, stop, enable and status are the daily commands.
+
+Q: Which command reads the systemd journal logs?
+* journalctl
+- logread
+- dmesg -j
+- syslogctl
+? journalctl -u nginx limits it to one unit.
+
+Q: On Debian or Ubuntu, what is the difference between apt update and apt upgrade?
+* update refreshes the package lists, upgrade installs newer versions
+- update installs, upgrade refreshes
+- They are the same
+- upgrade changes the distribution release
+? Run update first, otherwise upgrade does not know what is new.
+
+Q: What does the cron schedule */5 * * * * mean?
+* Run every five minutes
+- Run at minute 5 of every hour
+- Run on the fifth day of the month
+- Run five times a day
+? The first field is minutes and */5 means every fifth.

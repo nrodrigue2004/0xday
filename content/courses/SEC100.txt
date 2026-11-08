@@ -1,0 +1,144 @@
+## 0
+Q: What do the letters in the CIA triad stand for?
+* Confidentiality, integrity, availability
+- Control, inspection, authorization
+- Confidentiality, identity, authentication
+- Compliance, integrity, auditing
+? Every control can be mapped to protecting one or more of the three.
+
+Q: A weekly review of firewall logs is which control type?
+* Detective
+- Preventive
+- Corrective
+- Deterrent
+? It finds problems after the fact. Preventive controls stop them, corrective controls fix them.
+
+Q: What is the core idea of zero trust?
+* Never trust by network location, verify every request
+- Trust everything inside the firewall
+- Trust anything signed by a certificate
+- Block all external traffic
+? Zero trust assumes the network is already hostile.
+
+Q: Which property does a digital signature provide that a plain hash does not?
+* Non-repudiation, tying the message to the signer's private key
+- Confidentiality
+- Compression
+- Faster verification
+? Anyone can compute a hash. Only the key holder can sign.
+
+## 1
+Q: Phishing carried out over a phone call is called what?
+* Vishing
+- Smishing
+- Pharming
+- Whaling
+? Smishing is SMS and whaling targets executives.
+
+Q: What is the best primary defense against SQL injection?
+* Parameterized queries (prepared statements)
+- A longer password
+- Hiding the login page
+- Blocking port 3306
+? The query structure is fixed, so user input can only ever be data.
+
+Q: What does ransomware do?
+* Encrypts the victim's files and demands payment for the key
+- Silently records keystrokes
+- Floods a server with requests
+- Redirects DNS lookups
+? Offline backups are the main recovery defense.
+
+Q: An attacker saves a script in a comment field and it runs in other users' browsers. What is this?
+* Stored cross-site scripting (XSS)
+- SQL injection
+- Cross-site request forgery
+- Buffer overflow
+? The payload persists on the server, which makes it stored rather than reflected.
+
+## 2
+Q: Which statement about hashing is correct?
+* A hash is a one-way function: you cannot recover the input from the output
+- A hash can be decrypted with the right key
+- A hash always has the same length as the input
+- Two different inputs can never share a hash
+? Collisions exist but are hard to find in a good algorithm.
+
+Q: With asymmetric encryption, what is used to sign a message?
+* The sender's private key
+- The sender's public key
+- The recipient's private key
+- A shared secret
+? Anyone then verifies the signature with the sender's public key.
+
+Q: Where would you place a web server that must be reachable from the internet but isolated from the internal network?
+* In a DMZ (screened subnet)
+- On the same VLAN as the domain controllers
+- Behind the VPN concentrator only
+- On a guest Wi-Fi VLAN
+? If the server is compromised the attacker still faces another firewall.
+
+Q: Which of these is a symmetric cipher?
+* AES
+- RSA
+- ECC
+- Diffie-Hellman
+? Symmetric uses the same key to encrypt and decrypt.
+
+## 3
+Q: An incident has just been confirmed. What is the next phase?
+* Containment
+- Lessons learned
+- Preparation
+- Eradication of backups
+? Detection and analysis lead to containment, then eradication and recovery.
+
+Q: Which tool collects logs from many sources and correlates them to raise alerts?
+* SIEM
+- WAF
+- NAC
+- DLP
+? A SIEM normalizes and correlates. A WAF protects web apps.
+
+Q: What is the key difference between a vulnerability scan and a penetration test?
+* A scan identifies weaknesses, a pen test actively tries to exploit them
+- A scan exploits, a pen test only reports
+- They are the same activity
+- A pen test is always automated
+? A pen test needs written authorization and a defined scope.
+
+Q: What does RTO stand for and mean?
+* Recovery time objective: the maximum acceptable time to restore service
+- Recovery tolerance order: the priority of systems
+- Risk transfer option: buying insurance
+- Remote terminal output: logged commands
+? RPO is the matching term for how much data loss is acceptable.
+
+## 4
+Q: How is quantitative risk usually described?
+* Likelihood multiplied by impact
+- Impact minus mitigation
+- Number of vulnerabilities divided by hosts
+- Cost of a control divided by revenue
+? In dollar terms: ALE = SLE x ARO.
+
+Q: Buying cyber insurance is which risk response?
+* Transfer
+- Accept
+- Avoid
+- Mitigate
+? The risk still exists but the financial impact is moved to a third party.
+
+Q: Single loss expectancy is 10 000 dollars and the annual rate of occurrence is 0.5. What is the ALE?
+* 5 000 dollars
+- 20 000 dollars
+- 10 000 dollars
+- 500 dollars
+? ALE = SLE x ARO = 10 000 x 0.5.
+
+Q: What does the principle of least privilege require?
+* Giving users only the access they need for their job
+- Giving admins access to everything for convenience
+- Rotating every password monthly
+- Denying all access by default and never granting any
+? It limits the damage from a stolen account.

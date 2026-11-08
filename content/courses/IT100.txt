@@ -1,0 +1,115 @@
+## 0
+Q: What is the 8-bit value 1011 0110 written in hexadecimal?
+* 0xB6
+- 0xA6
+- 0xB9
+- 0x6B
+? Each nibble converts on its own: 1011 is B and 0110 is 6.
+
+Q: What is decimal 200 in binary?
+* 11001000
+- 11000100
+- 10011000
+- 11010000
+? 200 = 128 + 64 + 8, so bits 7, 6 and 3 are set.
+
+Q: How many distinct values can one byte hold?
+* 256
+- 255
+- 128
+- 512
+? 8 bits give 2^8 = 256 patterns (0 to 255 unsigned). 255 is the largest value, not the count.
+
+Q: In 8-bit two's complement, what does 1111 1111 represent?
+* -1
+- 255
+- -127
+- 127
+? In two's complement the top bit is the sign and all ones is -1. It is 255 only when read as unsigned.
+
+## 1
+Q: Which component holds the programs and data currently running and loses them when power is cut?
+* RAM
+- SSD
+- UEFI firmware
+- The GPU's BIOS chip
+? RAM is volatile. SSDs and firmware chips keep their contents without power.
+
+Q: What runs first when a PC powers on, initializing hardware before the OS loads?
+* UEFI (or legacy BIOS) firmware
+- The kernel
+- The login screen
+- The hypervisor
+? Firmware does the power-on self test and hands off to a bootloader, which loads the kernel.
+
+Q: Which part of the operating system manages processes, memory and access to devices?
+* The kernel
+- The shell
+- The bootloader
+- The file manager
+? The shell and file manager are user programs. The kernel is the privileged core.
+
+Q: A program wants to read a file from disk. How does it normally get the data?
+* It makes a system call and the kernel does the read
+- It talks to the disk controller directly
+- It asks the UEFI firmware
+- It edits the file table itself
+? User programs are not allowed to touch hardware directly. System calls are the controlled doorway into the kernel.
+
+## 2
+Q: A 5 V supply is across a 100 ohm resistor. By Ohm's law, how much current flows?
+* 0.05 A (50 mA)
+- 20 A
+- 0.5 A
+- 500 mA
+? I = V / R = 5 / 100 = 0.05 A.
+
+Q: A device draws 2 A from a 12 V supply. How much power does it use?
+* 24 W
+- 6 W
+- 10 W
+- 14 W
+? P = V x I = 12 x 2.
+
+Q: Two resistors of 100 ohm and 220 ohm are wired in series. What is the total resistance?
+* 320 ohm
+- 69 ohm
+- 120 ohm
+- 22 000 ohm
+? Series resistances add. (69 ohm would be the parallel value.)
+
+Q: Why does an LED on a 5 V pin need a series resistor?
+* Without one nothing limits the current and the LED burns out
+- LEDs only work on alternating current
+- The resistor raises the voltage to the LED
+- The resistor makes the LED brighter
+? An LED has very little resistance of its own once it conducts, so the resistor sets the current.
+
+## 3
+Q: Which component did the transistor replace in early computers?
+* The vacuum tube
+- Punch cards
+- Magnetic tape
+- The capacitor
+? Transistors were smaller, cooler, cheaper and more reliable than tubes.
+
+Q: What does Moore's observation say?
+* The number of transistors on a chip roughly doubles about every two years
+- CPU clock speed doubles every year
+- Storage prices halve every month
+- RAM size doubles every decade
+? It was an observation about transistor counts, and it has slowed in recent years.
+
+Q: The design where program code and data share one memory is named after whom?
+* Von Neumann
+- Harvard
+- Babbage
+- Turing machine tape
+? Harvard architecture is the contrasting design with separate instruction and data memory.
+
+Q: What does a CPU cache do?
+* Keeps recently used data close to the core to avoid slow trips to RAM
+- Stores the operating system permanently
+- Encrypts data on its way to disk
+- Doubles the clock speed under load
+? Cache is small and fast. It works because programs reuse data they just touched.

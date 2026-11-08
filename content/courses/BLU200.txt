@@ -1,0 +1,115 @@
+## 0
+Q: Where are failed SSH logins recorded on Debian or Ubuntu?
+* /var/log/auth.log
+- /var/log/boot.log
+- /etc/shadow
+- /var/log/dpkg.log
+? On RHEL-family systems the file is /var/log/secure.
+
+Q: Which Windows Security event ID records a failed logon?
+* 4625
+- 4624
+- 4720
+- 4688
+? 4624 is a successful logon, 4720 is account created and 4688 is process creation.
+
+Q: Which Windows Security event ID records a new user account being created?
+* 4720
+- 4625
+- 4624
+- 4672
+? Unexpected 4720 events are worth an immediate look.
+
+Q: What is log normalization?
+* Converting different log formats into a common set of fields
+- Deleting old logs
+- Encrypting logs
+- Compressing logs
+? It lets one query work across firewalls, servers and applications.
+
+## 1
+Q: What does cut -d' ' -f1 access.log | sort | uniq -c | sort -rn | head show?
+* The most frequent client addresses with request counts
+- The largest files
+- The newest log lines
+- The slowest requests
+? It extracts the first field, counts duplicates and ranks them.
+
+Q: Why must input be sorted before uniq?
+* uniq only collapses adjacent duplicate lines
+- uniq cannot read unsorted data at all
+- sort encrypts the data
+- uniq requires numbers
+? Without sort, the same value in separate places is counted separately.
+
+Q: What does grep -c do?
+* Counts matching lines instead of printing them
+- Compares two files
+- Colors the output
+- Copies matches to a file
+? Handy for a quick count of failed logins.
+
+Q: Which regular expression matches something shaped like an IPv4 address?
+* \d{1,3}(\.\d{1,3}){3}
+- [a-z]+@[a-z]+
+- \w{4}-\w{4}
+- ^\s*$
+? It does not check that each number is at most 255, so it matches the shape only.
+
+## 2
+Q: What does a SIEM do?
+* Collects, normalizes and correlates logs, then raises alerts
+- Blocks packets inline
+- Patches servers
+- Encrypts disks
+? It is the analyst's central console.
+
+Q: Which is a good correlation rule?
+* Several failed logins followed by a success from the same address
+- Any login at all
+- Any DNS query
+- Any file write
+? Each event alone is normal. The sequence is what looks like password guessing.
+
+Q: Which two sensors does Security Onion commonly use for network detection?
+* Suricata for signature alerts and Zeek for connection metadata
+- Nmap and Nessus
+- Snort and Wireshark GUI
+- Metasploit and Burp
+? Together they give alerts and a searchable record of what talked to what.
+
+Q: What is alert fatigue?
+* Analysts ignoring alerts because too many are low value
+- A SIEM running out of storage
+- Alerts delayed by the network
+- Alerts sent twice
+? Tuning rules to cut noise is part of the job.
+
+## 3
+Q: What is threat hunting?
+* Proactively searching for threats using a hypothesis, before an alert fires
+- Waiting for the SIEM to alert
+- Running a vulnerability scan
+- Blocking an IP list
+? A hunt starts with a question, such as "could something be beaconing out?"
+
+Q: What is beaconing?
+* A compromised host contacting its controller at regular intervals
+- A host broadcasting its name
+- A switch sending keepalives
+- A user logging in daily
+? Regular timing is a sign even when the destination looks harmless.
+
+Q: What should you do first when an alert fires?
+* Triage it: decide whether it is a true or false positive
+- Wipe the host
+- Close the ticket
+- Block the whole subnet
+? Evidence first, action second.
+
+Q: Which of these is an indicator of compromise (IOC)?
+* A known-bad file hash, domain or IP address
+- A user's job title
+- A scheduled backup
+- A patch Tuesday update
+? IOCs are observable artifacts that suggest compromise.

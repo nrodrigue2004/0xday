@@ -1,0 +1,115 @@
+## 0
+Q: Which x86-64 register is the stack pointer?
+* RSP
+- RAX
+- RIP
+- RBX
+? RIP is the instruction pointer, RAX the usual return value register.
+
+Q: What does the call instruction do?
+* Pushes the return address and jumps to the target
+- Compares two values
+- Returns from a function
+- Copies memory
+? ret later pops that address.
+
+Q: How is the 32-bit value 0x12345678 stored in memory on a little-endian CPU?
+* 78 56 34 12
+- 12 34 56 78
+- 87 65 43 21
+- 21 43 65 87
+? The least significant byte sits at the lowest address.
+
+Q: What does xor eax, eax do?
+* Sets eax to zero
+- Doubles eax
+- Compares eax with itself and jumps
+- Loads the address of eax
+? Compilers use it because it is shorter than mov eax, 0.
+
+## 1
+Q: Which PE section normally holds executable code?
+* .text
+- .data
+- .rsrc
+- .reloc
+? .data holds initialized globals and .rsrc holds resources.
+
+Q: What does a PE's import table tell an analyst?
+* Which library functions the program uses, hinting at its capabilities
+- The author's name
+- The compile date only
+- The program's source code
+? Imports like network or process-injection APIs raise questions.
+
+Q: What does a section with very high entropy suggest?
+* The data is packed or encrypted
+- The file is empty
+- The file is a text document
+- The file is signed
+? Packers hide the real code until runtime.
+
+Q: Which two bytes begin the header of a PE file?
+* MZ
+- PE
+- ELF
+- PK
+? "PE" appears later at the PE header offset, and ELF is Linux.
+
+## 2
+Q: What is the difference between static and dynamic analysis?
+* Static examines the file without running it, dynamic runs it and observes
+- Static runs it, dynamic does not
+- Static is for Linux, dynamic for Windows
+- They are the same
+? Static is safer. Dynamic shows behavior the code hides.
+
+Q: What does a decompiler such as Ghidra's produce?
+* Pseudo-C approximating the original logic
+- The exact original source
+- A network capture
+- A list of vulnerabilities
+? Names and types are guesses until you rename and retype them.
+
+Q: What does the strings tool help you find?
+* Readable text in a binary, such as URLs, paths and messages
+- Encrypted keys
+- The CPU architecture
+- Hidden processes
+? A quick first look before opening a disassembler.
+
+Q: What does a breakpoint do in a debugger?
+* Pauses execution at a chosen address
+- Deletes a function
+- Hides a process
+- Encrypts memory
+? It lets you inspect registers and memory at that point.
+
+## 3
+Q: Where should unknown malware be run?
+* In an isolated VM with a clean snapshot and no real network
+- On your daily laptop
+- On a USB stick
+- On a work server
+? Revert to the snapshot after every run.
+
+Q: Which is a common Windows persistence mechanism?
+* A Run registry key or scheduled task
+- Lowering the screen brightness
+- Editing the hosts banner
+- Changing the wallpaper
+? Autoruns shows most of these.
+
+Q: What is a dropper?
+* A program that delivers or installs another payload
+- A tool that deletes malware
+- A network scanner
+- A kind of firewall
+? Stage one often does little except fetch stage two.
+
+Q: How might malware try to evade a sandbox?
+* By checking for VM artifacts or sleeping until the analysis times out
+- By turning off its own code
+- By emailing the analyst
+- By running faster
+? Analysts patch the checks or speed up the clock.

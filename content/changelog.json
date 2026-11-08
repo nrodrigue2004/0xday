@@ -2,6 +2,11 @@
   {
     "date": "2026-11-08",
     "type": "feat",
+    "msg": "add ~/courses: 11 self-study courses wrapping the existing guides, drills and cert notes, with a quiz per module (176 questions) and a placement exam per course (80% tests out). New ~/transcript rolls up progress with export and import, and ~/start steps now tick the matching course modules. Progress stays in the browser"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "feat",
     "msg": "eight new skill guides for the tools on the resume that had no guide: memory forensics (Volatility), disk forensics (Autopsy / FTK Imager), PE format (PE-bear), Ghidra and IDA Pro, vulnerable lab targets (DVWA / WebGoat), MongoDB, REST APIs and Spring Boot, React Native with Expo. Each has three tiers, a hands-on lab and a reference tab"
   },
   {

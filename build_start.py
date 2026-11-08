@@ -118,7 +118,7 @@ def build(page, esc):
     blocks = []
     for st in stages:
         rows = "".join(
-            f'<li class="st__step" data-id="{esc(s["id"])}" data-m="{s["m"]}" data-topic="{esc(s["topic"])}">'
+            f'<li class="st__step" data-id="{esc(s["id"])}" data-m="{s["m"]}" data-topic="{esc(s["topic"])}"{f' data-mod="{esc(s["mod"])}"' if s.get("mod") else ""}>'
             f'<label class="st__chk"><input type="checkbox" aria-label="done: {esc(s["t"])}"><span class="st__box" aria-hidden="true"></span></label>'
             f'<div><a class="st__t" href="{esc(s["h"])}">{esc(s["t"])}</a> <span class="muted small">~{s["m"] if s["m"] < 120 else round(s["m"]/60,1)}{"m" if s["m"] < 120 else "h"}</span>'
             f'<p class="st__w">{esc(s["w"])}</p></div></li>' for s in st["steps"])
@@ -134,7 +134,7 @@ def build(page, esc):
 <p class="st__tools"><button class="btn" id="st-hide" type="button" aria-pressed="false">[ hide done ]</button> <button class="btn" id="st-export" type="button">[ export ]</button> <button class="btn" id="st-import" type="button">[ import ]</button> <button class="btn" id="st-reset" type="button">[ reset ]</button> <input type="file" id="st-file" accept="application/json" hidden> <span class="muted small" id="st-msg" role="status"></span></p>
 {"".join(blocks)}
 </div>
-<p class="muted small">Companions: <a href="log.html">~/log</a> · <a href="jobs.html">~/jobs</a> · <a href="bullets.html">~/bullets</a> · <a href="careers.html">~/careers</a> · <a href="secplus.html">~/secplus</a></p>'''
+<p class="muted small">Companions: <a href="log.html">~/log</a> · <a href="jobs.html">~/jobs</a> · <a href="bullets.html">~/bullets</a> · <a href="careers.html">~/careers</a> · <a href="secplus.html">~/secplus</a> · <a href="courses.html">~/courses</a> · <a href="transcript.html">~/transcript</a></p>'''
     page("start.html", "start :: 0xDay", body, cur="start", head=head, desc="Ordered study roadmap across the whole site, with progress tracking in your browser.")
 
     # ---------- ~/jobs ----------

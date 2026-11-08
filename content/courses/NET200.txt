@@ -1,0 +1,144 @@
+## 0
+Q: What can a Layer 3 switch do that a Layer 2 switch cannot?
+* Route traffic between VLANs
+- Convert analog to digital
+- Provide wireless coverage
+- Assign public IP addresses
+? It combines switching with IP routing.
+
+Q: In a spine-leaf design, how is each leaf switch connected?
+* To every spine switch
+- Only to the leaf next to it
+- Only to one spine
+- In a ring with other leaves
+? That gives every server pair the same number of hops, which suits east-west traffic.
+
+Q: What does a DNS AAAA record hold?
+* An IPv6 address
+- A mail server
+- An alias to another name
+- A text note
+? A is IPv4, CNAME is an alias, MX is mail, TXT is text.
+
+Q: What does the 802.1Q standard define?
+* VLAN tagging on Ethernet frames
+- Wireless authentication
+- Spanning tree
+- Link aggregation
+? 802.1X is port authentication and 802.1D is spanning tree.
+
+## 1
+Q: What problem does Spanning Tree Protocol prevent?
+* Layer 2 switching loops
+- IP address conflicts
+- DNS poisoning
+- Wireless interference
+? Loops cause broadcast storms. STP blocks redundant paths.
+
+Q: Which Wi-Fi standard name matches 802.11ax?
+* Wi-Fi 6
+- Wi-Fi 4
+- Wi-Fi 5
+- Wi-Fi 7
+? 802.11n is Wi-Fi 4 and 802.11ac is Wi-Fi 5.
+
+Q: What does Power over Ethernet provide?
+* Electric power to a device over the same cable as data
+- Faster Ethernet speeds
+- A backup internet link
+- Encryption for the cable run
+? Typical for access points, phones and cameras.
+
+Q: What kind of routing protocol is OSPF?
+* A link-state interior gateway protocol
+- A path-vector exterior protocol
+- A distance-vector protocol using hop count
+- A layer 2 protocol
+? BGP is the exterior path-vector protocol and RIP is distance-vector.
+
+## 2
+Q: What is SNMP used for?
+* Monitoring and managing network devices
+- Sending email
+- Transferring files
+- Assigning IP addresses
+? Version 3 adds authentication and encryption.
+
+Q: Which transport and port does syslog use by default?
+* UDP 514
+- TCP 25
+- UDP 161
+- TCP 443
+? 161 is SNMP polling.
+
+Q: Which disaster-recovery site is fully equipped and has current data, ready almost immediately?
+* Hot site
+- Warm site
+- Cold site
+- Mobile site
+? Hot is the fastest and the most expensive.
+
+Q: What does NetFlow record?
+* Metadata about traffic flows: addresses, ports and byte counts
+- The full contents of every packet
+- Only DNS queries
+- Wireless signal strength
+? It shows who talked to whom, not what was said.
+
+## 3
+Q: What does 802.1X provide?
+* Port-based network access control, usually with a RADIUS server
+- VLAN trunking
+- Link aggregation
+- Wireless roaming
+? A device must authenticate before the port or SSID lets it onto the network.
+
+Q: Which switch feature defends against ARP spoofing?
+* Dynamic ARP inspection
+- Port mirroring
+- Spanning tree
+- Jumbo frames
+? It validates ARP replies against the DHCP snooping table.
+
+Q: What did WPA3 change about the handshake?
+* It uses SAE, which resists offline dictionary attacks
+- It removed encryption on guest networks
+- It uses a shorter key
+- It requires a RADIUS server
+? WPA2 PSK handshakes could be captured and cracked offline.
+
+Q: What is the implicit last rule of most ACLs?
+* Deny all
+- Permit all
+- Log all
+- Reset connection
+? Anything not explicitly permitted is dropped.
+
+## 4
+Q: A user can ping a server by IP but not by name. What is the most likely cause?
+* A DNS problem
+- A bad cable
+- A VLAN mismatch
+- A duplex mismatch
+? Reaching the IP proves routing works, so name resolution is the layer to check.
+
+Q: What does nslookup do?
+* Queries DNS servers for records
+- Scans open ports
+- Captures packets
+- Tests cable continuity
+? dig is the Linux alternative.
+
+Q: What is the first step of the standard troubleshooting methodology?
+* Identify the problem and gather information
+- Replace the suspect hardware
+- Document the findings
+- Test a theory
+? Identify, theorize, test, plan, implement, verify, document.
+
+Q: Which tool shows where along a path packets stop?
+* traceroute
+- nmap -sV
+- netstat
+- ipconfig
+? Each hop reveals itself using increasing TTL values.

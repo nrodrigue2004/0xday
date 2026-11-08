@@ -12,6 +12,21 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const pad = n => String(n).padStart(2, "0");
   const iso = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  // two-way link with ~/courses (key oxday-courses): a step with data-mod ticks that module once every step for it is done
+  const CK = "oxday-courses";
+  const cload = () => { try { const v = JSON.parse(localStorage.getItem(CK)); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; } catch (e) { return {}; } };
+  function pull() { // courses -> start (adds only)
+    const mods = (cload().mods) || {}; let ch = false;
+    steps.forEach(s => { const k = s.dataset.mod; if (k && mods[k] && !done[s.dataset.id]) { done[s.dataset.id] = String(mods[k]).slice(0, 10); ch = true; } });
+    if (ch) save();
+  }
+  function push(s) { // start -> courses, for the changed step's module only
+    const k = s && s.dataset.mod; if (!k) return;
+    const all = steps.filter(x => x.dataset.mod === k).every(x => done[x.dataset.id]);
+    const c = cload(); if (!c.mods || typeof c.mods !== "object") c.mods = {};
+    if (all && !c.mods[k]) c.mods[k] = iso(new Date()); else if (!all) delete c.mods[k]; else return;
+    try { localStorage.setItem(CK, JSON.stringify(c)); } catch (e) {}
+  }
   let hide = false; try { hide = localStorage.getItem(KEY + "-hide") === "1"; } catch (e) {}
 
   function weekMinutes() {
@@ -50,8 +65,8 @@
       const q = "log.html?topic=" + encodeURIComponent(topic) + "&min=" + encodeURIComponent(Math.min(+m, 120)) + "&what=" + encodeURIComponent(t.textContent);
       box.innerHTML = `<span class="k">// next up</span><h2><a href="${esc(t.getAttribute("href"))}">${esc(t.textContent)}</a></h2><p>${esc(next.querySelector(".st__w").textContent)}</p>` +
         `<button class="btn" type="button" id="st-done">[ mark done ]</button> <a class="btn" id="st-donelog" href="${esc(q)}">[ done + log it ]</a>`;
-      $("st-done").onclick = () => { done[next.dataset.id] = iso(new Date()); save(); render(); };
-      $("st-donelog").onclick = () => { done[next.dataset.id] = iso(new Date()); save(); };
+      $("st-done").onclick = () => { done[next.dataset.id] = iso(new Date()); save(); push(next); render(); };
+      $("st-donelog").onclick = () => { done[next.dataset.id] = iso(new Date()); save(); push(next); };
     } else {
       box.innerHTML = '<span class="k">// done</span><h2>every step checked</h2><p>Keep the application count up and the log going. Come back when new sections land.</p>';
     }
@@ -62,7 +77,7 @@
   root.addEventListener("change", ev => {
     const s = ev.target.closest(".st__step"); if (!s) return;
     if (ev.target.checked) done[s.dataset.id] = iso(new Date()); else delete done[s.dataset.id];
-    save(); render();
+    save(); push(s); render();
   });
   $("st-hide").onclick = () => { hide = !hide; try { localStorage.setItem(KEY + "-hide", hide ? "1" : "0"); } catch (e) {} render(); };
   let armed = 0;
@@ -81,8 +96,9 @@
     f.text().then(t => {
       const v = JSON.parse(t); let k = 0;
       Object.keys(v).forEach(id => { if (ids.has(id)) { done[id] = String(v[id]).slice(0, 10); k++; } });
-      save(); $("st-msg").textContent = "imported " + k + " steps."; render();
+      steps.forEach(push); save(); $("st-msg").textContent = "imported " + k + " steps."; render();
     }).catch(() => { $("st-msg").textContent = "that file is not a valid progress export."; });
   };
+  pull();
   render();
 })();
