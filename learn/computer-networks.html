@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -35,7 +35,8 @@
 <nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
 <div class="learn" data-skill="computer-networks">
 <div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>network</strong> is devices agreeing on rules (<strong>protocols</strong>) to send data to each other. The idea everything else builds on is <strong>layers</strong>: each layer does one job and hands off to the next.</p>
-<p>The <strong>OSI model</strong> has 7 layers. Remember them bottom-up with "<strong>P</strong>lease <strong>D</strong>o <strong>N</strong>ot <strong>T</strong>hrow <strong>S</strong>ausage <strong>P</strong>izza <strong>A</strong>way": 1. <strong>Physical</strong>: cables, radio, bits 2. <strong>Data link</strong>: MAC addresses, switches, Ethernet, Wi-Fi frames 3. <strong>Network</strong>: IP addresses, routers 4. <strong>Transport</strong>: TCP (reliable) and UDP (fast), ports 5. <strong>Session</strong>, 6. <strong>Presentation</strong>, 7. <strong>Application</strong>: HTTP, DNS, SSH, SMTP</p>
+<p>The <strong>OSI model</strong> has 7 layers. Remember them bottom-up with "<strong>P</strong>lease <strong>D</strong>o <strong>N</strong>ot <strong>T</strong>hrow <strong>S</strong>ausage <strong>P</strong>izza <strong>A</strong>way":</p>
+<ol><li><strong>Physical</strong>: cables, radio, bits</li><li><strong>Data link</strong>: MAC addresses, switches, Ethernet, Wi-Fi frames</li><li><strong>Network</strong>: IP addresses, routers</li><li><strong>Transport</strong>: TCP (reliable) and UDP (fast), ports</li><li><strong>Session</strong>, 6. <strong>Presentation</strong>, 7. <strong>Application</strong>: HTTP, DNS, SSH, SMTP</li></ol>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/notes/ports.txt</span><button class="run" type="button" data-cmd="cat ~/notes/ports.txt" title="run in the sandbox">▶ run</button>
 <span class="ps">$</span> <span class="c">grep -w 53 ~/notes/ports.txt</span><button class="run" type="button" data-cmd="grep -w 53 ~/notes/ports.txt" title="run in the sandbox">▶ run</button></code></pre>
 <p class="callout">When something "doesn't work", troubleshoot bottom-up: link light, IP address, gateway ping, DNS, then the app.</p>

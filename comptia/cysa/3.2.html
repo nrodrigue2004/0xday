@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
 <link rel="stylesheet" href="../../comptia.css">
-<script src="../../data.js?v=29aef6d8" defer></script>
-<script src="../../site.js?v=29aef6d8" defer></script>
-<script src="../../fx.js?v=29aef6d8" defer></script>
-<script src="../../study.js?v=29aef6d8" defer></script>
+<script src="../../data.js?v=94855e1f" defer></script>
+<script src="../../site.js?v=94855e1f" defer></script>
+<script src="../../fx.js?v=94855e1f" defer></script>
+<script src="../../study.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -39,7 +39,8 @@
 <li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
 </ul>
 <h2>study notes</h2>
-<div class="prose notes"><p>The phases in order: 1. <strong>Preparation</strong>: plan, team, tools, contacts, logging, backups, training. Nothing else works without it. 2. <strong>Detection</strong>: alerts, user reports, threat intel. 3. <strong>Analysis</strong>: confirm it's real, scope, severity, what systems and data, timeline. 4. <strong>Containment</strong>: stop the spread. Short-term (isolate host, disable account, block IP) then long-term (rebuild segments, temporary fixes). Preserve evidence first when you can, and weigh business impact. 5. <strong>Eradication</strong>: remove the cause: malware, persistence, bad accounts, patch the hole, reset credentials. 6. <strong>Recovery</strong>: restore from clean backups, rebuild, monitor closely, return to production in stages. 7. <strong>Post-incident</strong>: lessons learned meeting, after-action report, update plans and detections.</p>
+<div class="prose notes"><p>The phases in order:</p>
+<ol><li><strong>Preparation</strong>: plan, team, tools, contacts, logging, backups, training. Nothing else works without it.</li><li><strong>Detection</strong>: alerts, user reports, threat intel.</li><li><strong>Analysis</strong>: confirm it's real, scope, severity, what systems and data, timeline.</li><li><strong>Containment</strong>: stop the spread. Short-term (isolate host, disable account, block IP) then long-term (rebuild segments, temporary fixes). Preserve evidence first when you can, and weigh business impact.</li><li><strong>Eradication</strong>: remove the cause: malware, persistence, bad accounts, patch the hole, reset credentials.</li><li><strong>Recovery</strong>: restore from clean backups, rebuild, monitor closely, return to production in stages.</li><li><strong>Post-incident</strong>: lessons learned meeting, after-action report, update plans and detections.</li></ol>
 <p>Traps: pulling the plug on a running host loses memory evidence. Eradicating before scoping tips off the attacker and misses persistence. Recovering before eradication re-infects. Order of volatility for evidence: CPU registers/cache, RAM, network state and processes, disk, remote logs, backups.</p></div>
 <h2>flashcards</h2>
 <div class="deck" data-deck="cysa-3.2"></div>

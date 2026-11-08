@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -49,7 +49,7 @@
 <p>The <code>google-services.json</code> / <code>firebaseOptions</code> API key is meant to be public: it identifies the project, it doesn't authorize anything. Real secrets (a payment provider's secret key, an admin SDK service account) must never be in the app, because anyone can unpack an APK and read every string.</p>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">grep -n &quot;apiKey\|sk_live&quot; ~/review/lib/*.dart</span><button class="run" type="button" data-cmd="grep -n &quot;apiKey\|sk_live&quot; ~/review/lib/*.dart" title="run in the sandbox">▶ run</button></code></pre>
 <h4>A typical flow</h4>
-<p>1. Sign in with Firebase Auth (email, Google, Apple). 2. Read the signed-in user's ID (<code>FirebaseAuth.instance.currentUser!.uid</code>). 3. Read and write documents under that user, for example <code>users/{uid}/notes</code>. 4. Listen for live updates with <code>snapshots()</code> and rebuild the UI from the stream. 5. Handle offline, loading and error states (every network call has all three).</p>
+<ol><li>Sign in with Firebase Auth (email, Google, Apple).</li><li>Read the signed-in user's ID (<code>FirebaseAuth.instance.currentUser!.uid</code>).</li><li>Read and write documents under that user, for example <code>users/{uid}/notes</code>.</li><li>Listen for live updates with <code>snapshots()</code> and rebuild the UI from the stream.</li><li>Handle offline, loading and error states (every network call has all three).</li></ol>
 <h4>Dart quick tour</h4>
 <p>Null safety is built in (<code>String?</code> can be null, <code>String</code> cannot). <code>async</code>/<code>await</code> with <code>Future</code>, collections (<code>List</code>, <code>Map</code>, <code>Set</code>), string interpolation <code>&#x27;Hello $name&#x27;</code>, and <code>final</code> and <code>const</code> for values that do not change. <code>pubspec.yaml</code> lists dependencies; <code>flutter pub get</code> installs them.</p>
 <h4>Build and release</h4>

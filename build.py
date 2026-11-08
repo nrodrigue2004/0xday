@@ -10,7 +10,7 @@ NAME = "Nathan"; FULL_NAME = "Nathan Rodrigue"  # last name only on the resume
 USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
-NAV = [("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("ai", "ai.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
+NAV = [("start", "start.html"), ("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("ai", "ai.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
 SITE = "https://nrodrigue2004.github.io/0xday/"
 POSTS = json.load(open("content/posts.json"))
 PROJECTS = json.load(open("content/projects.json"))
@@ -106,6 +106,7 @@ home = f'''<section class="term" aria-label="Intro">
   </div>
 </section>
 <section class="quick">
+  <a class="tile" href="start.html"><span class="tile__k">./start</span><span class="tile__v">what to study next</span></a>
   <a class="tile" href="projects.html"><span class="tile__k">./projects</span><span class="tile__v">{len(PROJECTS)} builds, labs &amp; challenges</span></a>
   <a class="tile" href="posts.html"><span class="tile__k">./blog</span><span class="tile__v">{len(POSTS)} writeups</span></a>
   <button class="tile ghost-open" type="button"><span class="tile__k">./ghost</span><span class="tile__v">ask my terminal assistant</span></button>
@@ -501,6 +502,8 @@ HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports,
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content
+HUB.insert(0, ("start", "start.html", "ordered roadmap with progress", "start here"))
+HUB += [("jobs", "jobs.html", "application tracker, follow-ups", "browser-only"), ("bullets", "bullets.html", "resume bullets + posting matcher", "from resume.json")]
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
 
@@ -516,6 +519,9 @@ page("htop.html", "htop :: 0xDay", '<p class="cmd">htop --homelab</p><h1 class="
      scripts=("htop.js",), desc="htop-style dashboard of Nathan's homelab.")
 page("desktop.html", "i3 :: 0xDay", '<div id="i3" class="i3" aria-label="tiling desktop"></div><noscript><p>The desktop needs JavaScript. <a href="index.html">Back</a>.</p></noscript>',
      htmlcls="i3-page", scripts=("desktop.js",), desc="0xDay as an i3 tiling desktop.")
+
+import build_start
+START = build_start.build(page, esc)  # last: its "if" hooks look for pages the other builders wrote
 
 # ---------- data for the ghost assistant ----------
 data = {"name": NAME, "gh": GH, "li": LI,

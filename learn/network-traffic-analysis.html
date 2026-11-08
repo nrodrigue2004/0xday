@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -42,7 +42,7 @@
 <h4>What a packet capture is</h4>
 <p>A <strong>PCAP</strong> is a recording of network traffic. Each packet has headers (who is talking to whom, which protocol) and a payload (the content, unreadable if encrypted). You can capture on your own machine with Wireshark or <code>tcpdump</code>, or at a mirror port (SPAN) or TAP on a switch. Only capture traffic you are allowed to see.</p>
 <h4>The first three questions</h4>
-<p>1. <strong>Who is talking?</strong> Statistics → Conversations, ordered by bytes. 2. <strong>Using what?</strong> Statistics → Protocol Hierarchy. 3. <strong>When did it start going wrong?</strong> Look at the timeline, then filter around that time.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Conversations and protocols</h4>
+<ol><li><strong>Who is talking?</strong> Statistics → Conversations, ordered by bytes.</li><li><strong>Using what?</strong> Statistics → Protocol Hierarchy.</li><li><strong>When did it start going wrong?</strong> Look at the timeline, then filter around that time.</li></ol><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Conversations and protocols</h4>
 <p>The fastest overview is <strong>who talks to whom</strong>. Pull the source and destination columns and count them, the text version of Wireshark's *Statistics &gt; Conversations*:</p>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">awk &#x27;{print $2, $4}&#x27; ~/captures/tcp.txt | sort | uniq -c | sort -rn | head</span><button class="run" type="button" data-cmd="awk &#x27;{print $2, $4}&#x27; ~/captures/tcp.txt | sort | uniq -c | sort -rn | head" title="run in the sandbox">▶ run</button></code></pre>
 <h4>Spotting a port scan</h4>

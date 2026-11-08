@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -36,7 +36,7 @@
 <div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Real logs are messy. One file mixes login events, mail events and errors, and each line has a different shape. The skill is to <strong>narrow, extract, count</strong>.</p>
 <pre class="ex"><code><span class="o">2026-11-07T03:12:44Z svc=auth user=jlee src=10.1.2.3 action=login result=fail</span></code></pre>
 <p>This is a <strong>key=value</strong> log: <code>user=jlee</code>, <code>src=10.1.2.3</code>. It is easy to read and easy to search.</p>
-<p>1. <strong>Narrow</strong> to the lines you care about: <code>grep &quot;svc=auth&quot; file</code>. 2. <strong>Extract</strong> the one field: <code>grep -oE &quot;src=[0-9.]+&quot;</code>. 3. <strong>Count</strong> or <strong>compare</strong>: <code>sort | uniq -c | sort -rn</code>.</p>
+<ol><li><strong>Narrow</strong> to the lines you care about: <code>grep &quot;svc=auth&quot; file</code>.</li><li><strong>Extract</strong> the one field: <code>grep -oE &quot;src=[0-9.]+&quot;</code>.</li><li><strong>Count</strong> or <strong>compare</strong>: <code>sort | uniq -c | sort -rn</code>.</li></ol>
 <p>Chain them with the pipe <code>|</code>, one small step at a time, and check the output after each step. If a step gives surprising output, you found the bug.</p>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">grep &quot;result=fail&quot; ~/logs/app.log | grep -oE &quot;src=[0-9.]+&quot; | sort | uniq -c | sort -rn | head</span><button class="run" type="button" data-cmd="grep &quot;result=fail&quot; ~/logs/app.log | grep -oE &quot;src=[0-9.]+&quot; | sort | uniq -c | sort -rn | head" title="run in the sandbox">▶ run</button></code></pre><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Chaining conditions</h4>
 <p>Keep the filters in separate <code>grep</code>s. Each one is easy to read and easy to change:</p>
@@ -50,7 +50,7 @@
 <pre class="ex"><code><span class="ps">$</span> <span class="c">grep -oE &quot;src=[^ ]+&quot; ~/logs/app.log | cut -d= -f2 | sort -u</span><button class="run" type="button" data-cmd="grep -oE &quot;src=[^ ]+&quot; ~/logs/app.log | cut -d= -f2 | sort -u" title="run in the sandbox">▶ run</button></code></pre>
 <h4>Answering "who, from where, when"</h4>
 <p>A useful sequence for an account compromise:</p>
-<p>1. All events for the account: <code>grep &quot;user=admin&quot;</code>. 2. The successful ones: <code>grep &quot;result=ok&quot;</code>. 3. The sources that are not normal: <code>grep -v &quot;src=10\.&quot;</code>. 4. The time: field 1 of the line. Then look at what happened just <strong>before</strong> it (failures from the same or nearby addresses means guessing) and just <strong>after</strong> (what did they do with the access?).</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Failures followed by a success</h4>
+<ol><li>All events for the account: <code>grep &quot;user=admin&quot;</code>.</li><li>The successful ones: <code>grep &quot;result=ok&quot;</code>.</li><li>The sources that are not normal: <code>grep -v &quot;src=10\.&quot;</code>.</li><li>The time: field 1 of the line. Then look at what happened just <strong>before</strong> it (failures from the same or nearby addresses means guessing) and just <strong>after</strong> (what did they do with the access?).</li></ol><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Failures followed by a success</h4>
 <p>The signature of password guessing that worked: many <code>fail</code> for an account, then an <code>ok</code> from the same source or just after. Look at the sequence rather than counting lines:</p>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">grep &quot;user=admin&quot; ~/logs/app.log | grep -E &quot;result=(fail|ok)&quot;</span><button class="run" type="button" data-cmd="grep &quot;user=admin&quot; ~/logs/app.log | grep -E &quot;result=(fail|ok)&quot;" title="run in the sandbox">▶ run</button></code></pre>
 <p>Read the timestamps. Several failures in a minute from <code>203.0.113.77</code>, then a success from a *different* external address, is also a pattern: a botnet where the guessing node and the logging-in node differ.</p>
