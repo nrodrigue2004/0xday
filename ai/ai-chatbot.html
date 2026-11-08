@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>the chatbot :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, the chatbot: How ~/ai/chat works: search over this site, optional local model, and why it can still be wrong.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter ai-chatbot</p>
+<h1>~/ai/ai-chatbot</h1>
+<p>How the chatbot on this site works: search first, then optionally a small model running on your own machine. Why it can still be wrong.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ai-chatbot">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>The chatbot at <a href="chat.html">~/ai/chat</a> does not call any server. Everything runs in your browser tab.</p>
+<p>It has two modes:</p>
+<ul><li><strong>Search mode (default).</strong> Your question is matched against the text of this site: the guides, the Security+ notes, the glossary, the cheatsheets and the AI chapters. You get the best-matching passages back, each with a link to the page it came from. Nothing is generated, so nothing is invented. If the site doesn't cover it, it says so.</li><li><strong>Local model mode (optional).</strong> You can download a small language model into your browser. It then writes an answer in sentences, using the passages from search mode as its source material. It is slower, needs a recent Chrome or Edge with WebGPU, and is much weaker than the big hosted chatbots.</li></ul>
+<p>Why not just plug in a famous model? A website can't hold a secret. Anything in the page's JavaScript is visible to every visitor, so an API key placed there would be copied and used on someone else's bill within hours. A hosted model needs a small server in the middle that holds the key. This site is static files, so it has no middle.</p>
+<p>Rules for any chatbot, including this one:</p>
+<ul><li><strong>It can be wrong, and it sounds sure either way.</strong> Check anything that matters against the cited page or official docs.</li><li><strong>Citations are the point.</strong> An answer with no source you can open is a guess.</li><li><strong>Never paste secrets</strong> into a chat box, local or hosted.</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The pattern: retrieval-augmented generation (RAG)</h4>
+<p>A language model only knows what was in its training data, and it can't look things up. RAG fixes that in three steps:</p>
+<ol><li><strong>Retrieve.</strong> Search your own documents for passages relevant to the question.</li><li><strong>Augment.</strong> Paste those passages into the prompt: "Answer using only this text. Cite it."</li><li><strong>Generate.</strong> The model writes the answer from the pasted text instead of from memory.</li></ol>
+<pre class="ex ex--code"><code>question  -&gt;  search the site index  -&gt;  top 4 passages
+          -&gt;  prompt = rules + passages + question
+          -&gt;  model writes the answer, citing [1] [2]</code></pre>
+<h4>How the search works here</h4>
+<p>At build time a script reads every built page, splits it into chunks at each heading, and writes one JSON index. In the browser the chat loads that file and scores each chunk with <strong>BM25</strong>, a classic ranking formula:</p>
+<ul><li>words that are <strong>rare</strong> across the site count more than common ones ("kerberos" beats "the")</li><li>a word that <strong>repeats</strong> in a chunk helps, with diminishing returns</li><li><strong>short</strong> chunks are not punished or favored unfairly (length normalization)</li><li>matches in a chunk's <strong>title</strong> get a boost</li></ul>
+<p>That is keyword search, not meaning search. It finds "kerberos" when you type "kerberos". It can miss "how do tickets work in AD" if those words never appear together. Embedding-based search fixes that at the cost of a model and more data.</p>
+<h4>What a small local model is and isn't</h4>
+<p>The optional model is a few hundred million to about 1.5 billion parameters, <strong>quantized</strong> (weights stored in 4 bits instead of 16 or 32) so it fits in GPU memory. It runs through <strong>WebGPU</strong>, the browser's access to your graphics card. The weights are downloaded once and cached by the browser. They are not sent anywhere, and neither is your question.</p>
+<p>Expect: fine at rephrasing the retrieved passages, poor at multi-step reasoning, prone to confident mistakes. Frontier models are hundreds of times larger.</p>
+<ul><li><strong>Search mode:</strong> runs in your browser, no setup, never invents facts, no prose of its own (it quotes the site).</li><li><strong>Local model:</strong> runs on your GPU, 200 MB to 1.5 GB download, sometimes invents facts, basic prose.</li><li><strong>Hosted model (API):</strong> runs in a data center, needs a server to hold the key, sometimes invents facts but less often, best prose.</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Hallucination, precisely</h4>
+<p>A language model predicts a plausible next token. Plausible is not the same as true. When retrieval returns nothing useful, a model still produces fluent text, and that text is a <strong>hallucination</strong>. RAG reduces this but doesn't remove it:</p>
+<ul><li>retrieval can return the <strong>wrong passage</strong>, and the model faithfully summarizes it</li><li>the model can <strong>ignore</strong> the passage and answer from memory</li><li>the model can <strong>blend</strong> two passages into a claim neither makes</li></ul>
+<p>Mitigations used here and in real products: instruct the model to answer only from the context and say "not covered" otherwise, number the sources so claims can be traced, show the sources next to the answer, and keep the generated text visibly separate from the quoted text.</p>
+<h4>Security angles</h4>
+<ul><li><strong>Prompt injection.</strong> Retrieved text goes into the prompt, so the model can't tell your instructions from instructions hidden in a document. A RAG system that indexes untrusted content (web pages, tickets, email) can be steered by that content. This site only indexes its own pages, which is why a local model here is low risk. See <a href="attacking-ai.html">attacking AI</a>.</li><li><strong>Data leakage.</strong> A RAG index returns whatever it holds, to anyone who can ask. Per-user access control has to happen at retrieval time, not in the prompt.</li><li><strong>Key exposure.</strong> Client-side API keys are public keys. The standard fix is a thin proxy that holds the key, authenticates the caller, rate limits, and logs. Without those limits, an exposed proxy is an open bill.</li><li><strong>Supply chain.</strong> The local mode loads a JavaScript library from a CDN and weights from a model host. Pin versions, and know that you are running third-party code and data. Model files can be tampered with the same way packages can.</li></ul>
+<h4>Tuning knobs in a RAG system</h4>
+<ul><li><strong>Chunk size.</strong> Too small loses context, too large dilutes the match. Splitting at headings, as done here, keeps each chunk about one idea.</li><li><strong>Top-k.</strong> More passages give more coverage and more distraction. Small models do worse with long prompts, so this site passes four.</li><li><strong>Hybrid search.</strong> Combine keyword scores (BM25) with embedding similarity. Keyword search nails exact terms like port numbers and CVE ids, embeddings catch paraphrases.</li><li><strong>Evaluation.</strong> Keep a list of questions with known source pages and measure how often the right page lands in the top results. Without that, "it seems better" is the only evidence.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="how-ai-works.html">&lt; how it works</a><a href="ai-for-defense.html">AI for defense &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

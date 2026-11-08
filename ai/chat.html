@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>chat :: ~/ai :: 0xDay</title>
+<meta name="description" content="A browser-only study assistant for 0xDay: searches the site and cites its sources, with an optional local AI model.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../chat.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chat</p>
+<h1>~/ai/chat</h1>
+<p>A study assistant for this site. It searches the guides, Security+ notes, flashcards, glossary and cheatsheets, and answers with links to the pages it used. It runs in your browser: no server, no API key, no tracking.</p>
+<p class="callout"><strong>Read this first.</strong> Search mode quotes the site and never invents anything, but it matches words, not meaning, so it can pull the wrong passage. Local model mode writes sentences and <strong>can be wrong and sound sure</strong>. Verify anything that matters against the linked page or official docs. How it works: <a href="ai-chatbot.html">~/ai/ai-chatbot</a>.</p>
+<div id="chat" class="chat" data-index="chat-index.json">
+  <div class="term chat__term">
+    <div class="term__bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term__title">ghost-ai@0xday <span id="chat-mode" class="chat__mode">[search]</span></span></div>
+    <div id="chat-log" class="chat__log" role="log" aria-live="polite"></div>
+    <div id="chat-chips" class="chat__chips"></div>
+    <form id="chat-form" class="chat__form" autocomplete="off"><label for="chat-in">guest@0xday:~$</label><input id="chat-in" spellcheck="false" autocapitalize="off" placeholder="ask about the site's topics, e.g. what is kerberos"><button class="btn" type="submit">[ ask ]</button></form>
+  </div>
+  <details class="chat__llm" id="chat-llm">
+    <summary>advanced: local model <span class="muted small">(off, optional download)</span></summary>
+    <div class="chat__llmbody">
+      <p>Runs a small language model <strong>on your own graphics card</strong> through WebGPU and uses the passages found by search as its source. Your questions never leave the tab. Requires a recent Chrome or Edge on desktop. It loads a library from jsDelivr and the weights from Hugging Face, which are third-party hosts, and it caches the weights in your browser storage. Small models are weak: expect basic rewording of the search results, not deep reasoning.</p>
+      <p id="chat-gpu" class="muted small"></p>
+      <label for="chat-model">model</label>
+      <select id="chat-model">
+        <option value="SmolLM2-360M-Instruct-q4f16_1-MLC">SmolLM2 360M: about 250 MB download, 0.4 GB GPU memory, fastest, weakest</option>
+        <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B: about 1 GB download, 1.7 GB GPU memory, slower, better</option>
+      </select>
+      <p><button id="chat-load" class="btn" type="button">[ download + enable ]</button> <button id="chat-off" class="btn" type="button" hidden>[ back to search mode ]</button> <button id="chat-purge" class="btn" type="button">[ delete cached model ]</button></p>
+      <div id="chat-prog" class="chat__prog" hidden><div id="chat-bar" class="chat__bar"></div><span id="chat-ptxt" class="muted small"></span></div>
+    </div>
+  </details>
+  <p class="muted small">Why no hosted model like Claude or GPT? A static site can't keep an API key secret; anything in the page is public. A hosted model needs a small server in the middle to hold the key. See <a href="ai-chatbot.html">how it works</a>.</p>
+</div>
+<noscript><p>The chat needs JavaScript.</p></noscript>
+<p><a href="../ai.html">cd ~/ai</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

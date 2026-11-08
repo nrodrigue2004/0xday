@@ -106,6 +106,7 @@
     help: () => HELP, "?": () => HELP,
     whoami: () => `<b>${esc(D.name)}</b>\nCS student at LSU, concentrating in cybersecurity.\nInto homelabs, malware analysis, digital forensics and breaking things to see how they work.\n\n<span class="sys">try: projects, posts, skills</span>`,
     about: (a, log) => go(ROOT + "about.html", log),
+    chat: (a, log) => go(ROOT + "ai/chat.html", log),
     posts: listPosts, ls: (a) => (a[0] && /proj/.test(a[0]) ? listProjects() : `${/a/.test(a[0] || "") ? ".secret  robots.txt  " : ""}posts/  projects/  certs/  now  about.txt\n\n` + listPosts()),
     read: (a, log) => { const p = findPost(a.join(" ")); if (!a.length) return "usage: read &lt;n|topic&gt;"; if (!p) return `<span class="err">read: no post matches "${esc(a.join(" "))}"</span>`; return go(postUrl(p), log); },
     cat: (a, log) => (/^\.secret/.test(a[0] || "") ? `there are ${Object.keys(D.flags || {}).length} flags hidden on 0xDay. format: 0xDAY{...}\nsubmit them here with <b>submit</b> &lt;flag&gt;. type <b>flags</b> for hints.` : /robots/.test(a[0] || "") ? `User-agent: *\nAllow: /\nDisallow: /0xday/s3cr3t/` : /about/.test(a[0] || "") ? CMDS.whoami() : CMDS.read(a.map(x => x.replace(/\.md$|^.*\//g, "")), log)),

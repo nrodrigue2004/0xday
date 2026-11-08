@@ -80,3 +80,7 @@ node scripts/check_dojo.js        # or: node scripts/check_dojo.js c python
 ## ~/history and ~/cases
 
 `content/history/<slug>.txt` (tech history from Lovelace to quantum, hacking timeline, future) and `content/cases/<slug>.txt` (real exploit and malware case studies) use the learn-guide format; order and blurbs are in `HISTORY` and `CASES` in `build_history.py`. A header `sources:` line is printed as a sources section; `sheet: history|cases` publishes the `:: ref` as a man page. Case studies explain public bugs for defenders: abridged excerpts of the public vulnerable source with the fix, never working exploits or malware. Labs are fictional toy programs with the same bug class (debug style stepper, or sandbox files).
+
+## ~/ai/chat
+
+Browser-only study assistant (`chat.js`, page from `build_chat.py`). `build_chat.index()` runs last in `build.py`: it reads the finished HTML of guides, Security+ notes, cheatsheets, drills, basics, cloud, code, careers, interview and ai pages, plus the glossary and Security+ flashcards, and writes `ai/chat-index.json` (about 1.4 MB). The browser ranks chunks with BM25 and quotes the best ones with links. The optional local model mode loads WebLLM from jsDelivr (version pinned in `chat.js`) and runs a small model on the visitor's GPU; it is off by default. There is no API key anywhere and there must never be one: a hosted model would need a small proxy server to hold the key.

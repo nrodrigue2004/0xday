@@ -260,6 +260,8 @@ import build_comptia
 COMPTIA = build_comptia.build(page)
 import build_ai
 AI = build_ai.build(page)
+import build_chat
+build_chat.build(page)
 import build_careers
 CAREERS = build_careers.build(page, esc)
 import build_interview, build_log
@@ -532,6 +534,10 @@ page("desktop.html", "i3 :: 0xDay", '<div id="i3" class="i3" aria-label="tiling 
 
 import build_start
 START = build_start.build(page, esc)  # last: its "if" hooks look for pages the other builders wrote
+
+# ---------- search index for ~/ai/chat (reads the finished pages, so it runs last) ----------
+CHAT_N, CHAT_BYTES = build_chat.index()
+print("chat index:", CHAT_N, "chunks,", CHAT_BYTES // 1024, "KB")
 
 # ---------- data for the ghost assistant ----------
 data = {"name": NAME, "gh": GH, "li": LI,
