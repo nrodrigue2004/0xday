@@ -1,0 +1,78 @@
+slug: data-analyst
+title: Data / SQL Analyst
+family: dev
+tagline: You turn messy data into answers people can act on. SQL is the core skill, and the job rewards clear thinking and clear communication more than fancy math.
+titles: Data Analyst, SQL Analyst, Business Intelligence Analyst, Reporting Analyst, Junior Data Engineer
+:: about
+Data analysts pull data (mostly with **SQL**), clean it, summarize it and present findings through dashboards and short write-ups. A good analyst asks what decision the numbers are for, checks data quality before trusting it, and explains caveats plainly.
+
+It is a strong fit for someone who likes databases and logic, and it overlaps with security work (log analysis is data analysis) and with software development.
+:: ladder
+- Junior / reporting analyst | recurring reports, SQL queries, dashboards
+- Data analyst | owns analyses and metrics for a team
+- Senior analyst / analytics engineer | modeling, pipelines, definitions, mentoring
+- Specializations | data engineer, data scientist, BI developer, security analytics
+:: day
+- Clarify the question with the person asking before writing any code
+- Write SQL to pull and join data from several tables
+- Clean the data (nulls, duplicates, wrong types) and check totals against another source
+- Build charts and dashboards in Power BI, Tableau or Excel
+- Present the result with the main point first, then caveats
+:: certs
+- Microsoft PL-300 (Power BI Data Analyst) | the most recognized BI certification
+- Google Data Analytics Certificate | structured intro on Coursera
+- Tableau Desktop Specialist | if the employer uses Tableau
+- Microsoft DP-900 or AWS Cloud Practitioner | cloud data fundamentals
+- Certifications help less than a portfolio of real analyses
+:: courses
+- SQLBolt and Mode SQL Tutorial | free interactive SQL | https://sqlbolt.com
+- Kaggle Learn: Pandas, SQL and Data Visualization | free short courses | https://www.kaggle.com/learn
+- Google Data Analytics Certificate | Coursera | https://www.coursera.org/professional-certificates/google-data-analytics
+- Microsoft Learn: Power BI | free | https://learn.microsoft.com/training
+- Storytelling with Data (book) | clear charts and communication
+:: skills
+- SQL | selects, joins, aggregates, window functions | sql | normal
+- Databases | schemas, keys, indexes, normalization | databases-and-sql | normal
+- Python | pandas for cleaning and analysis | python | normal
+- Data structures and algorithms | think about data shape and cost | data-structures-and-algorithms | normal
+- Log analysis | the same skills applied to security data | log-analysis | easy
+- Git and GitHub | version your queries and notebooks | git-github | easy
+- Bash scripting | process files and automate pulls | bash-scripting | easy
+- Linux command line | work with big text files | linux-command-line | easy
+:: projects
+- [easy] SQL practice set | Solve 50 SQL problems and keep your queries in a repository with a note on what each teaches.
+- [easy] Spreadsheet analysis | Take a public dataset, clean it in Excel or Sheets, and build one chart that answers a question.
+- [normal] Dashboard | Build a Power BI or Tableau dashboard from a public dataset with filters and a short note on what it shows and its limits.
+- [normal] Pandas report | Write a notebook that cleans a messy CSV, joins two sources and ends with three findings plus caveats.
+- [hard] Database design | Design a normalized schema for a small business (tables, keys, indexes), load sample data, and write 10 realistic queries including window functions.
+- [hard] Security analytics | Load web or firewall logs into a database and answer questions like top talkers, failed-login spikes and unusual hours, with charts.
+:: resume
+- Put the question and the result: "analyzed 2M rows of sales data; found the discount that cut margin by 8%."
+- List SQL dialects, BI tools, Python libraries, and the size of the data.
+- Link a portfolio of 3 analyses with code and a README.
+- Show communication: dashboards used by others, presentations delivered.
+:: basic
+- [e] Why data analysis? => You like finding the answer inside the numbers and explaining it. Describe a project where you asked a question, found an answer, and what happened next.
+- [e] How do you explain results to non-technical people? => Lead with the answer, use one clear chart, skip jargon, say how confident you are and what could change the conclusion, and finish with a recommendation.
+- [e] What do you do when the stakeholder's question is vague? => Ask what decision it informs, who will use it, and what "good" looks like. Restate the question in writing and agree on definitions before analysis.
+:: technical
+- [e] What is the difference between WHERE and HAVING? => WHERE filters rows before grouping. HAVING filters groups after aggregation.
+- [e] What is the difference between INNER, LEFT, RIGHT and FULL JOIN? => INNER: only matches. LEFT: all left rows plus matches. RIGHT: all right rows plus matches. FULL: all rows from both with NULLs where no match.
+- [e] What is a primary key vs. a foreign key? => A primary key uniquely identifies a row. A foreign key references another table's primary key and enforces relationships.
+- [e] What does GROUP BY do? => Collapses rows into groups so you can use aggregates such as COUNT, SUM and AVG per group. Every selected column must be grouped or aggregated.
+- [e] What is the difference between COUNT(*), COUNT(column) and COUNT(DISTINCT column)? => COUNT(*) counts all rows. COUNT(column) counts non-NULL values. COUNT(DISTINCT column) counts unique non-NULL values.
+- [n] How do you find duplicate rows? => `SELECT col, COUNT(*) FROM t GROUP BY col HAVING COUNT(*) > 1;` Decide which row to keep (for example with `ROW_NUMBER()` partitioned by the key) before deleting.
+- [n] Explain window functions and give an example. => Functions that compute across related rows without collapsing them. `ROW_NUMBER()`, `RANK()`, `LAG()` and running totals with `SUM(x) OVER (PARTITION BY a ORDER BY b)`. Example: top sale per customer.
+- [n] How do you get the second highest salary? => `SELECT MAX(salary) FROM emp WHERE salary < (SELECT MAX(salary) FROM emp);` or use `DENSE_RANK()` and pick rank 2, which also handles ties.
+- [n] What is normalization and why do it? => Organizing tables to reduce redundancy and update anomalies (1NF, 2NF, 3NF). Denormalizing is a deliberate trade-off for read speed in reporting.
+- [n] How do you handle NULLs in analysis? => Understand why they exist (unknown, not applicable, missing). Use `COALESCE`, `IS NULL`, and be careful that comparisons with NULL are unknown and that aggregates ignore them. Document the choice.
+- [n] What is an index and what is the cost? => A data structure (often a B-tree) that speeds up lookups and sorts. The cost is extra storage and slower writes. Index columns used in filters and joins.
+- [n] How do you validate your numbers? => Reconcile with an independent source, check row counts after each join (watch for fan-out), spot-check samples by hand, compare totals over time and test boundary dates.
+- [n] When would you pick a bar chart over a line chart? => Bars compare categories. Lines show change over time. Avoid pie charts with many slices and 3D effects, and always label axes.
+- [h] Why might a join increase the row count unexpectedly? => The join key isn't unique on one side, so each match multiplies rows (fan-out). Check key uniqueness, aggregate before joining, or use `DISTINCT` carefully.
+- [h] Explain correlation versus causation with an example. => Two metrics moving together doesn't mean one causes the other. Ice cream sales and sunburns both rise in summer. Establish causation with experiments (A/B tests) or careful controls.
+- [h] How does an A/B test work, and what can go wrong? => Randomly assign users to control and variant, pick one primary metric in advance, run for a pre-planned sample size, then test significance. Pitfalls: peeking early, multiple comparisons, uneven groups and novelty effects.
+- [h] How would you optimize a slow query? => Read the execution plan, add or fix indexes, filter early, select only needed columns, avoid functions on indexed columns in WHERE, reduce row explosion in joins, and consider pre-aggregated tables.
+:: scenario
+- [n] A dashboard number doesn't match finance's report. => Compare definitions (time zone, refunds, status filters), reconcile row-level samples, find the first point where they diverge, document the difference, and agree on one definition.
+- [h] A manager asks you to "make the numbers look better" for a presentation. => Offer to show the real numbers clearly, with context and a path to improvement. Don't misrepresent data. If pressed, escalate; your credibility is the asset.

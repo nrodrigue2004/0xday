@@ -75,6 +75,15 @@ def md(src):
             i += 1; continue
         if l.startswith("### "):
             o.append(f"<h4>{inline(l[4:])}</h4>"); i += 1; continue
+        if l.startswith("|"):
+            rows = []
+            while i < len(L) and L[i].startswith("|"):
+                cells = [c.strip() for c in L[i].strip().strip("|").split("|")]
+                if not all(re.fullmatch(r":?-+:?", c) for c in cells): rows.append(cells)
+                i += 1
+            head, body = rows[0], rows[1:]
+            o.append('<div class="tbl"><table><thead><tr>' + "".join(f"<th>{inline(c)}</th>" for c in head) + "</tr></thead><tbody>"
+                     + "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in body) + "</tbody></table></div>"); continue
         if l.startswith("- "):
             items = []
             while i < len(L) and L[i].startswith("- "):
@@ -88,7 +97,7 @@ def md(src):
                 buf.append(L[i][2:]); i += 1
             o.append(f'<p class="callout">{inline(" ".join(buf))}</p>'); continue
         buf = []
-        while i < len(L) and L[i].strip() and not L[i].startswith(("```", "- ", "> ", "### ")):
+        while i < len(L) and L[i].strip() and not L[i].startswith(("```", "- ", "> ", "### ", "|")):
             buf.append(L[i]); i += 1
         o.append(f"<p>{inline(' '.join(buf))}</p>")
     return "\n".join(o)

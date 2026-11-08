@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ports and protocols :: ~/basics :: 0xDay</title>
+<meta name="description" content="Fundamentals, ports and protocols: The ports and protocols you are expected to know cold, with DNS and DHCP in depth.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=0214a3c8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=0214a3c8" defer></script>
+<script src="../site.js?v=0214a3c8" defer></script>
+<script src="../fx.js?v=0214a3c8" defer></script>
+<script src="../learn.js?v=0214a3c8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">basics --chapter ports-and-protocols</p>
+<h1>~/basics/ports-and-protocols</h1>
+<p>The ports and protocols that show up in every exam, log and scan, grouped by job, with the secure replacement for each insecure one. DNS and DHCP get a closer look.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a></nav>
+<div class="learn" data-skill="ports-and-protocols">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>A <strong>port</strong> is a number (0-65535) that picks which program on a host receives the traffic. An IP address finds the machine; the port finds the program. <strong>Well-known ports</strong> are 0-1023, <strong>registered</strong> 1024-49151, <strong>ephemeral</strong> 49152-65535 (the random source port your client uses).</p>
+<div class="tbl"><table><thead><tr><th>Port</th><th>Protocol</th><th>Use</th><th>Note</th></tr></thead><tbody><tr><td>20/21</td><td>FTP</td><td>file transfer</td><td>cleartext. Use SFTP or FTPS</td></tr><tr><td>22</td><td>SSH / SFTP / SCP</td><td>remote shell, secure copy</td><td>the secure default</td></tr><tr><td>23</td><td>Telnet</td><td>remote shell</td><td>cleartext, replace with SSH</td></tr><tr><td>25</td><td>SMTP</td><td>mail between servers</td><td>cleartext unless STARTTLS</td></tr><tr><td>53</td><td>DNS</td><td>names to IPs</td><td>UDP normally, TCP for big answers and zone transfers</td></tr><tr><td>67/68</td><td>DHCP</td><td>automatic IP config</td><td>UDP, server 67, client 68</td></tr><tr><td>69</td><td>TFTP</td><td>trivial file transfer</td><td>no authentication</td></tr><tr><td>80</td><td>HTTP</td><td>web</td><td>cleartext</td></tr><tr><td>110</td><td>POP3</td><td>fetch mail</td><td>cleartext</td></tr><tr><td>123</td><td>NTP</td><td>time sync</td><td>UDP</td></tr><tr><td>143</td><td>IMAP</td><td>mail sync</td><td>cleartext</td></tr><tr><td>161/162</td><td>SNMP</td><td>device monitoring</td><td>v1/v2c cleartext, use v3</td></tr><tr><td>389</td><td>LDAP</td><td>directory lookups</td><td>cleartext</td></tr><tr><td>443</td><td>HTTPS</td><td>web over TLS</td><td>the secure default</td></tr><tr><td>445</td><td>SMB</td><td>Windows file shares</td><td>never expose to the internet</td></tr><tr><td>465/587</td><td>SMTPS / submission</td><td>send mail securely</td><td>clients submit on 587</td></tr><tr><td>514</td><td>Syslog</td><td>log forwarding</td><td>UDP, no delivery guarantee</td></tr><tr><td>636</td><td>LDAPS</td><td>LDAP over TLS</td><td>secure</td></tr><tr><td>993/995</td><td>IMAPS / POP3S</td><td>mail over TLS</td><td>secure</td></tr><tr><td>1433</td><td>MS SQL</td><td>database</td><td></td></tr><tr><td>3306</td><td>MySQL</td><td>database</td><td></td></tr><tr><td>3389</td><td>RDP</td><td>Windows remote desktop</td><td>frequent ransomware entry point</td></tr><tr><td>5432</td><td>PostgreSQL</td><td>database</td><td></td></tr></tbody></table></div>
+<p class="callout">Pattern: the secure version is usually the same protocol wrapped in TLS on a different port (HTTP 80 to HTTPS 443, LDAP 389 to LDAPS 636, IMAP 143 to IMAPS 993).</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>TCP vs UDP</h4>
+<ul><li><strong>TCP</strong>: connection first (handshake), ordered, retransmits loss, slower. Web, mail, SSH, databases.</li><li><strong>UDP</strong>: no connection, no guarantee, low overhead. DNS queries, DHCP, NTP, VoIP, streaming, syslog.</li></ul>
+<h4>DNS: the phone book</h4>
+<p>You type <code>example.com</code>; your <strong>stub resolver</strong> asks a <strong>recursive resolver</strong> (ISP, 1.1.1.1, 8.8.8.8, or the corporate DNS server), which walks the tree: root servers, then <code>.com</code> servers, then the domain's <strong>authoritative</strong> server, and caches the answer for the record's <strong>TTL</strong>.</p>
+<p>Record types:</p>
+<ul><li><strong>A</strong> name to IPv4, <strong>AAAA</strong> name to IPv6</li><li><strong>CNAME</strong> alias to another name</li><li><strong>MX</strong> mail servers (with priority)</li><li><strong>NS</strong> authoritative servers for the zone</li><li><strong>TXT</strong> free text, used for SPF, DKIM, DMARC and domain verification</li><li><strong>PTR</strong> reverse lookup, IP to name</li><li><strong>SOA</strong> zone metadata, <strong>SRV</strong> service locations (AD uses these heavily)</li></ul>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">dig example.com A</span><button class="run" type="button" data-cmd="dig example.com A" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">dig example.com MX +short</span><button class="run" type="button" data-cmd="dig example.com MX +short" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">dig -x 8.8.8.8</span><button class="run" type="button" data-cmd="dig -x 8.8.8.8" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">nslookup example.com</span><button class="run" type="button" data-cmd="nslookup example.com" title="run in the sandbox">▶ run</button></code></pre>
+<h4>DHCP: automatic addressing</h4>
+<p>The <strong>DORA</strong> exchange, all broadcast at first: <strong>D</strong>iscover (client shouts), <strong>O</strong>ffer (server proposes an address), <strong>R</strong>equest (client accepts), <strong>A</strong>cknowledge (server confirms the <strong>lease</strong>). The lease also carries the subnet mask, default gateway, DNS servers and lease time. Renewal starts at 50% of the lease. Servers can hand out <strong>reservations</strong> (same IP for a given MAC) so servers and printers stay put.</p>
+<ul><li><strong>APIPA</strong>: no DHCP answer means a Windows host self-assigns 169.254.x.x. Seeing this means DHCP is unreachable.</li><li><strong>DHCP relay</strong> (IP helper) forwards broadcasts across routers so one server can serve many VLANs.</li></ul>
+<h4>Other protocols to place</h4>
+<ul><li><strong>ARP</strong>: IP to MAC on a local network (L2/3). <strong>ICMP</strong>: ping and error messages. <strong>NAT/PAT</strong>: rewrite private addresses to a public one.</li><li><strong>Kerberos</strong> 88 and <strong>LDAP</strong> 389: Active Directory authentication and lookups. <strong>RADIUS</strong> 1812: network login (Wi-Fi, VPN). <strong>TACACS+</strong> 49: admin login to network gear.</li><li><strong>IPsec</strong> (IKE 500/4500) and <strong>OpenVPN</strong> (1194) and <strong>WireGuard</strong> (51820): VPNs.</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>DNS security</h4>
+<ul><li><strong>Cache poisoning</strong>: an attacker gets a resolver to store a forged answer. Defenses: random source ports and query IDs, <strong>DNSSEC</strong> (signed records).</li><li><strong>Zone transfer (AXFR)</strong>: copies a whole zone. Should be limited to secondary servers; an open AXFR hands an attacker the entire host list.</li><li><strong>DNS tunneling</strong>: data smuggled in long subdomain names or TXT answers. Look for very long or high-entropy query names and one host sending huge volumes of queries.</li><li><strong>DNS hijacking</strong>: changing a domain's registrar records or a router's DNS setting. Defenses: registrar lock, MFA, monitor records.</li><li><strong>Typosquatting</strong> and <strong>lookalike domains</strong>: <code>paypa1.com</code>. Defense: user training, email filtering, DNS filtering.</li><li><strong>DNS over HTTPS/TLS</strong> (DoH, DoT) hides queries from the local network, which protects privacy but also blinds a corporate DNS filter.</li></ul>
+<h4>DHCP security</h4>
+<ul><li><strong>Rogue DHCP server</strong> hands out a malicious gateway or DNS. Defense: <strong>DHCP snooping</strong> on the switch (only trusted ports may answer).</li><li><strong>DHCP starvation</strong>: flood Discovers to exhaust the pool. Defense: port security, rate limits.</li><li>Reading logs: a lease log ties an IP and time to a MAC, which is often the only way to map an alert's IP to a real device.</li></ul>
+<h4>Reading ports on a host</h4>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">ss -tulnp          # Linux: listening TCP/UDP with process</span><button class="run" type="button" data-cmd="ss -tulnp          # Linux: listening TCP/UDP with process" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">netstat -ano       # Windows: all connections with PID</span><button class="run" type="button" data-cmd="netstat -ano       # Windows: all connections with PID" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">nmap -sV -p- 10.0.0.5</span><button class="run" type="button" data-cmd="nmap -sV -p- 10.0.0.5" title="run in the sandbox">▶ run</button></code></pre>
+<p>Anything listening that you can't explain is a finding. States to know: LISTEN, ESTABLISHED, TIME_WAIT, SYN_SENT (many in a row means outbound scanning or a blocked destination), SYN_RECV (many means a SYN flood).</p>
+<h4>Scan results decoded</h4>
+<ul><li><strong>open</strong>: service answered. <strong>closed</strong>: host answered with RST, nothing listening. <strong>filtered</strong>: no answer, a firewall is dropping.</li><li>The most common internet-facing risks: 3389 RDP, 445 SMB, 23 Telnet, 21 FTP, 1433/3306 databases, 161 SNMP with the default <code>public</code> community.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><nav class="pager"><a href="osi-and-tcpip.html">&lt; OSI and TCP/IP</a><a href="osint.html">OSINT &gt;</a></nav><p><a href="../basics.html">cd ~/basics</a></p></div>
+
+</div>
+
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

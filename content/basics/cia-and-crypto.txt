@@ -1,0 +1,66 @@
+tagline: The three goals of security and the handful of cryptographic tools that deliver them: hashing, symmetric and asymmetric encryption, signatures and TLS.
+:: simple
+The **CIA triad** is the checklist for what security protects:
+- **Confidentiality**: only authorized people can read it. Tools: encryption, access control, MFA. Breach example: a leaked customer database.
+- **Integrity**: it hasn't been changed without authorization. Tools: hashing, digital signatures, file permissions, version control. Breach example: tampered financial records.
+- **Availability**: it works when needed. Tools: backups, redundancy, patching, DDoS protection. Breach example: ransomware locks the files.
+
+Extras: **non-repudiation** (you can't deny what you did; signatures and logs), and **AAA**: authentication (who are you), authorization (what may you do), accounting (what did you do).
+
+Encryption in one paragraph: **plaintext** goes through an **algorithm** with a **key** and becomes **ciphertext**. Strong systems stay secure even if everyone knows the algorithm; only the key is secret.
+
+| Tool | Keys | Speed | Goal | Examples |
+|---|---|---|---|---|
+| Hash | none | fast | integrity | SHA-256, SHA-3 |
+| Symmetric | one shared key | fast | confidentiality | AES-128/256 |
+| Asymmetric | public + private pair | slow | key exchange, signatures | RSA, ECC |
+:: mid
+### Hashing
+A hash turns any input into a fixed-size fingerprint. One-way (can't reverse), deterministic, and a tiny change flips the whole output. Used for **file integrity** (`sha256sum`), storing passwords (with a unique **salt** and a slow function like bcrypt, scrypt or Argon2), and inside signatures. **MD5** and **SHA-1** are broken for security (collisions); use SHA-256 or better. A **collision** means two inputs share a hash.
+```
+$ echo -n hello | sha256sum
+$ sha256sum file.iso
+```
+
+### Symmetric encryption
+Same key encrypts and decrypts. **AES** is the standard (128, 192, 256 bit). Block modes matter: ECB leaks patterns, so use **GCM** (also checks integrity) or CBC with a random IV. The hard problem is **sharing the key** safely.
+
+### Asymmetric encryption
+Two linked keys: what one encrypts only the other decrypts. Anyone can have the **public** key; only the owner holds the **private** key.
+- To send a secret: encrypt with the **recipient's public key**.
+- To sign: sign with **your private key**, others verify with your public key (proves origin and integrity, gives non-repudiation).
+**RSA** (2048+ bit) and **ECC** (smaller keys, same strength) are the main families. **Diffie-Hellman** lets two parties agree on a shared secret over an open line.
+
+### Putting it together: TLS (HTTPS)
+1. Client says hello with supported ciphers; server sends its **certificate** (public key plus identity, signed by a **certificate authority**).
+2. Client checks the signature chain, the hostname and the dates.
+3. Both sides derive a shared **session key** using key exchange (ephemeral Diffie-Hellman gives **forward secrecy**).
+4. Everything after that is fast **symmetric** encryption (AES-GCM).
+So asymmetric crypto is used briefly to agree on keys, then symmetric does the work.
+
+### PKI vocabulary
+**CA** issues certificates; **CSR** is the request; **CRL** and **OCSP** report revoked certificates; **root of trust** is the CA certificates preinstalled on your device; **self-signed** means no outside CA vouches for it.
+:: complex
+### Attacks and failures
+- **Brute force / dictionary / rainbow table**: guess keys or passwords; salts defeat rainbow tables, long random keys defeat brute force.
+- **Birthday attack**: finds hash collisions faster than expected, which is why short hashes are weak.
+- **Downgrade / SSL strip**: force a weaker protocol or plain HTTP. Defense: HSTS, disable old TLS (SSL, TLS 1.0/1.1).
+- **Man-in-the-middle**: defeated by certificate validation, so never click through certificate warnings.
+- **Key management failures** are the most common real break: keys in code repos, reused keys, no rotation. Use an HSM or a secrets manager, and rotate.
+- **Weak randomness** breaks everything; use the OS cryptographic random source.
+- **Side channels** leak keys through timing or power use.
+- **Quantum**: a large quantum computer would break RSA and ECC (Shor's algorithm) and weaken symmetric keys (Grover), so AES-256 stays fine. NIST has standardized post-quantum algorithms (ML-KEM, ML-DSA); "harvest now, decrypt later" is why migration planning has started.
+
+### Data states and where encryption fits
+- **At rest**: disks and databases (BitLocker, LUKS, TDE).
+- **In transit**: TLS, VPN (IPsec, WireGuard), SSH.
+- **In use**: confidential computing and enclaves; the hard one, because data must be decrypted to be processed.
+
+### Beyond confidentiality
+- **Obfuscation** (hiding), **encoding** (Base64: format only, no secrecy) and **encryption** are three different things. Base64 is not security.
+- **Steganography** hides data inside other files; **tokenization** and **masking** replace sensitive values.
+- **Digital signature flow**: hash the document, encrypt the hash with the private key; the verifier hashes the document and compares it with the decrypted signature.
+- **MAC / HMAC** gives integrity and authenticity with a shared key; **AEAD** modes like AES-GCM combine encryption and authentication.
+
+### Choosing quickly
+Password storage: salted slow hash. File integrity: SHA-256. Bulk data: AES-256-GCM. Key exchange or identity: ECC or RSA 2048+ inside TLS 1.2/1.3. Never invent your own algorithm.

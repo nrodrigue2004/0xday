@@ -1,0 +1,48 @@
+# port | proto | service | one-line note (what it is / why a defender cares)
+20 | tcp | FTP data | Active-mode FTP data channel. FTP is cleartext.
+21 | tcp | FTP control | File transfer commands and logins in cleartext. Use SFTP or FTPS.
+22 | tcp | SSH | Encrypted remote shell, also SFTP and SCP. Key auth beats passwords.
+23 | tcp | Telnet | Cleartext remote shell. Replace with SSH.
+25 | tcp | SMTP | Server-to-server mail. Open relays get abused for spam.
+49 | tcp | TACACS+ | AAA for network devices. Encrypts the whole payload, unlike RADIUS.
+53 | udp | DNS | Name lookups. Zone transfers and large replies use TCP 53.
+67 | udp | DHCP server | Hands out addresses. Rogue DHCP servers are a classic on-path trick.
+69 | udp | TFTP | Unauthenticated file transfer, used for PXE and router configs.
+80 | tcp | HTTP | Cleartext web. Redirect to HTTPS.
+88 | tcp | Kerberos | Windows domain authentication tickets.
+110 | tcp | POP3 | Cleartext mail download. POP3S is 995.
+123 | udp | NTP | Time sync. Kerberos breaks if clocks drift.
+135 | tcp | MS RPC | Windows RPC endpoint mapper. Lateral movement favorite.
+137 | udp | NetBIOS name | Legacy Windows name service. Disable if unused.
+139 | tcp | NetBIOS session | Legacy SMB transport.
+143 | tcp | IMAP | Cleartext mail sync. IMAPS is 993.
+161 | udp | SNMP | Device monitoring. v1 and v2c use cleartext community strings.
+162 | udp | SNMP trap | Devices push alerts to the manager here.
+389 | tcp | LDAP | Directory queries in cleartext. LDAPS is 636.
+443 | tcp | HTTPS | HTTP over TLS.
+445 | tcp | SMB | Windows file sharing. Ransomware and EternalBlue territory, never expose it.
+465 | tcp | SMTPS | SMTP over implicit TLS.
+500 | udp | IKE / IPsec | Key exchange for IPsec VPNs.
+514 | udp | Syslog | Log forwarding. UDP has no delivery guarantee.
+587 | tcp | SMTP submission | Clients send mail here with STARTTLS and auth.
+636 | tcp | LDAPS | LDAP over TLS.
+993 | tcp | IMAPS | IMAP over TLS.
+995 | tcp | POP3S | POP3 over TLS.
+1433 | tcp | MS SQL | Microsoft SQL Server. Keep it off the internet.
+1521 | tcp | Oracle DB | Oracle database listener.
+1645 | udp | RADIUS (legacy) | Old RADIUS auth port. Newer is 1812 and 1813.
+1812 | udp | RADIUS auth | Network access authentication, such as 802.1X and VPN.
+1813 | udp | RADIUS accounting | RADIUS session accounting.
+3306 | tcp | MySQL | MySQL and MariaDB. Not for the open internet.
+3389 | tcp | RDP | Windows remote desktop. Brute-force and ransomware entry point.
+5060 | udp | SIP | VoIP signaling. 5061 is SIP over TLS.
+5432 | tcp | PostgreSQL | PostgreSQL database.
+5900 | tcp | VNC | Remote desktop that is often weakly protected.
+8080 | tcp | HTTP alternate | Proxies and dev web servers.
+8443 | tcp | HTTPS alternate | Management consoles and alternate TLS web.
+1194 | udp | OpenVPN | Default OpenVPN port.
+1701 | udp | L2TP | Tunnel layer, usually paired with IPsec.
+1723 | tcp | PPTP | Old VPN protocol. Broken, avoid.
+3268 | tcp | LDAP global catalog | Active Directory forest-wide search.
+5985 | tcp | WinRM (HTTP) | PowerShell remoting. 5986 is HTTPS.
+9200 | tcp | Elasticsearch | Search/log store. Exposed instances leak data often.

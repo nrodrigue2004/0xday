@@ -603,3 +603,9 @@ pre.ex--code code{color:#b6f5c9}
 @media (max-width:1100px){.sb.sb--open .tk,.sb.sb--open .dbg{display:grid}.sb .tk,.sb .dbg{display:none}.sb.sb--open .tk{display:block}.dbg{height:30vh}.sb.sb--open .sb__out{height:28vh}}
 .res li{margin:.5rem 0}.res .warn{color:var(--amber,#e6b450);font-size:.85em;display:block}
 .lvl--ref{border-left-color:var(--border)}.lvl--ref h3{color:var(--strong);margin:1.2rem 0 .2rem;font-size:.95rem}
+
+/* tables in learn/basics guides */
+.tbl{overflow-x:auto;margin:1em 0}
+.tbl table{border-collapse:collapse;width:100%;font-size:.88em}
+.tbl th,.tbl td{border:1px solid var(--border-2);padding:.35em .6em;text-align:left;vertical-align:top}
+.tbl th{color:var(--green);background:var(--panel)}
