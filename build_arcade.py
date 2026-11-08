@@ -113,7 +113,7 @@ def build(page, esc):
   <div class="prt-msg" id="prt-msg" aria-live="polite"></div>
   <div class="ar-over" id="prt-over" hidden></div>
 </div>
-<p class="muted small">keys: <kbd>1</kbd>-<kbd>4</kbd> answer · <kbd>Enter</kbd> next card. Tap works too. Pairs with the <a href="../iptables.html">iptables</a> game. <a href="../arcade.html">cd ..</a></p>'''
+<p class="muted small">keys: <kbd>1</kbd>-<kbd>4</kbd> answer · <kbd>Enter</kbd> next card. Tap works too. Pairs with the <a href="../iptables.html">iptables</a> game. Secure replacements and exam drills: <a href="../secplus/pairs.html">~/secplus/pairs</a>. <a href="../arcade.html">cd ..</a></p>'''
     page("arcade/ports.html", "ports :: arcade :: 0xDay", prt, depth=1, cur="lab", head=head("../", {"game": "ports", "cards": _ports()}),
          desc="Ports and protocols flashcard drill for Security+ with spaced repetition of missed cards.")
 

@@ -1,0 +1,21 @@
+# insecure | its port | secure replacement | its port | why it matters
+Telnet | 23/tcp | SSH | 22/tcp | Telnet sends logins in cleartext; SSH encrypts the session and supports keys
+HTTP | 80/tcp | HTTPS | 443/tcp | HTTPS is HTTP inside TLS, adding encryption and server authentication
+FTP | 21/tcp | SFTP | 22/tcp | SFTP runs over SSH on one port; plain FTP exposes credentials and data
+FTP | 21/tcp | FTPS | 990/tcp | FTPS wraps FTP in TLS (implicit mode on 990, explicit mode upgrades on 21)
+TFTP | 69/udp | SFTP | 22/tcp | TFTP has no authentication or encryption, only fine on isolated boot networks
+SMTP | 25/tcp | SMTPS | 465/tcp | SMTPS is SMTP inside TLS from the start; 587 submission uses STARTTLS
+POP3 | 110/tcp | POP3S | 995/tcp | Mail download over TLS instead of cleartext
+IMAP | 143/tcp | IMAPS | 993/tcp | Mail access over TLS instead of cleartext
+LDAP | 389/tcp | LDAPS | 636/tcp | Directory queries over TLS; binds no longer expose passwords
+SNMP v1/v2c | 161/udp | SNMPv3 | 161/udp | v3 adds authentication and encryption; v1 and v2c use cleartext community strings
+Syslog | 514/udp | Syslog over TLS | 6514/tcp | Log forwarding that cannot be read or forged on the wire
+SIP | 5060/udp | SIP over TLS | 5061/tcp | Protects VoIP call signaling
+RTP | dynamic/udp | SRTP | dynamic/udp | Encrypts the voice and video stream itself
+DNS | 53/udp | DNS over TLS | 853/tcp | Hides lookups from on-path observers (DoH uses 443)
+NTP | 123/udp | NTS | 4460/tcp | Network Time Security authenticates time sources
+rlogin / rsh | 513 and 514/tcp | SSH | 22/tcp | The r-commands trust by hostname and send everything in cleartext
+VNC | 5900/tcp | VNC through SSH or VPN | 22/tcp | Basic VNC has weak or no encryption, so tunnel it
+RDP without NLA | 3389/tcp | RDP with NLA and a VPN or gateway | 3389/tcp | NLA authenticates before a session starts and shrinks exposure
+PPTP | 1723/tcp | IPSec or TLS VPN | 500/udp | PPTP uses broken MS-CHAP and RC4
+WEP | n/a | WPA3 | n/a | WEP's RC4 and IV reuse fall in minutes
