@@ -1,0 +1,114 @@
+tagline: Few-shot examples, roles, and structured output (JSON you can parse). Lab: find the one model answer that breaks the schema.
+:: simple
+Three habits turn a decent prompt into a dependable one.
+
+### 1. Show, don't only tell (few-shot)
+Instead of describing the answer, show two or three. This is called **few-shot** prompting; zero examples is "zero-shot".
+
+```
+Label each message as PHISH or OK.
+
+"Your mailbox is full, click here to keep it": PHISH
+"Lunch at noon?": OK
+"Urgent: confirm your payroll login": 
+```
+
+The model copies the pattern, including the label spelling and the layout.
+
+### 2. Give it a role
+"You are a careful SOC analyst reviewing an alert" nudges vocabulary, depth and caution. It helps with tone and focus. It does **not** add knowledge the model lacks, and it is not a security control.
+
+### 3. Ask for a shape
+If a script will read the answer, say exactly what shape: "Reply with JSON only: {\"verdict\": \"benign|suspicious|malicious\", \"reason\": \"...\"}". Free-form prose is for people; structure is for programs.
+
+> Examples are the strongest single lever for format and style. A role is the weakest. Reach for examples first.
+:: mid
+### Choosing good examples
+- Cover the **edge cases**, not only the easy ones: one clear positive, one clear negative, one borderline.
+- Keep the label set identical across all examples. If one says `PHISH` and another says `phishing`, expect both back.
+- Vary the surface text so the model learns the rule, not the wording.
+- Watch for ordering bias: if three examples in a row are OK, the next guess leans OK. Mix the order.
+- Two to five examples is the usual range. More costs tokens and rarely helps.
+
+### Roles that earn their keep
+Useful: audience ("explain to a new hire"), perspective ("review as an attacker would, to find gaps") and standards ("follow the style of the NIST incident guide"). Weak: "you are the world's best expert". Flattery changes little.
+
+### Structured output
+```
+Reply with JSON only. No prose, no code fences.
+Schema:
+{"severity": "low|medium|high", "ioc": ["string"], "summary": "string, max 20 words"}
+If a field is unknown use null.
+```
+Then **validate in code**: parse the JSON, check the enum values, check lengths, and retry once with the error message if it fails. Many APIs also offer a strict JSON mode or schema-constrained output; use it where you can, and still validate.
+
+### Delimiters again
+Wrap variable data in tags (`<alert>...</alert>`) and refer to it by name ("the text inside <alert>"). It reduces mix-ups between your instructions and the data, and it is the first step toward handling untrusted text safely.
+
+### Tiny example of a full prompt
+```
+You are a tier-1 SOC analyst. Classify the alert in <alert>.
+Reply with JSON only: {"severity": "low|medium|high", "reason": "max 15 words"}
+Examples:
+<alert>5 failed logins, then success, same IP, 2 minutes</alert> {"severity":"high","reason":"possible brute force with success"}
+<alert>Scheduled backup job finished</alert> {"severity":"low","reason":"routine job"}
+<alert>...new alert here...</alert>
+```
+:: complex
+### Few-shot is in-context learning, not training
+The model's weights do not change. The examples only steer one response, and they vanish with the context. For a task you run constantly, compare few-shot against a fine-tuned or smaller dedicated model: sometimes a classifier is cheaper, faster and easier to test.
+
+### Dynamic example selection
+Instead of fixed examples, retrieve the three most similar past cases from a labeled store and put those in the prompt. This is retrieval-augmented few-shot, and it handles diverse inputs better than a static set. Keep the labeled store reviewed: wrong labels get copied.
+
+### Enforcing structure properly
+- Prefer schema-constrained decoding or tool-call arguments when the provider offers them, so invalid JSON cannot be produced at all.
+- Keep schemas **flat and small**; deeply nested or optional-heavy ones fail more often.
+- Use enums for anything you will branch on, and treat an unexpected value as a failure, not a new category.
+- Put a `confidence` or `evidence` field in and spot-check it. Self-reported confidence is poorly calibrated, so do not threshold on it blindly.
+- Log the raw output next to the parsed result so you can debug disagreements.
+
+### Roles and system prompts
+A system message sets standing behavior; the user message carries the task. The split helps organization, but both are just text the model reads, and neither is an enforcement boundary. Anything that must never happen has to be enforced outside the model (see [prompt security](pe-security.html)).
+
+### Failure patterns
+- **Label drift:** the model invents a fourth label. Fix with enum validation and an explicit "no other values".
+- **Format leakage:** an apologetic sentence before the JSON. Fix with "JSON only", a parser that extracts the first object, or constrained output.
+- **Example copying:** the output echoes an example's reason word for word. Fix by varying examples.
+:: lab
+style: shell
+host: promptlab
+user: analyst
+cwd: /home/analyst/triage
+:: brief
+A triage prompt asks the model for JSON with a `severity` that must be exactly `low`, `medium` or `high`. The pipeline ran 8 alerts overnight and one downstream job crashed on a bad record.
+
+In `~/triage`, read `schema.txt` and `outputs.jsonl` and find the record whose output **breaks the schema**.
+
+Submit that record's **id**.
+:: answer
+r6
+:: hint
+`cat schema.txt`, then look at the `severity` field in every line of `outputs.jsonl`.
+:: hint
+`grep -v -E '"severity": ?"(low|medium|high)"' outputs.jsonl` prints only the lines that are not one of the allowed values.
+:: hint
+One line has a severity word that sounds reasonable but is not in the enum, and another line has valid severity but a long summary. Only the enum is a hard schema rule here.
+:: solution
+Record **r6** has `"severity": "urgent"`, which is not in the enum, so the downstream `switch` had no branch for it. r3 has a long reason but it is still valid under the schema (the reason limit is advisory in this pipeline). The lesson: validate every field against the schema in code, treat unknown values as an error to retry, and add an explicit "no other values" line to the prompt. Better still, use schema-constrained output so `urgent` cannot be produced.
+:: verify
+grep -v -E '"severity": ?"(low|medium|high)"' ~/triage/outputs.jsonl
+:: file /home/analyst/triage/schema.txt
+Reply with JSON only.
+{"id": "string", "severity": "low|medium|high", "reason": "string"}
+severity MUST be exactly one of: low, medium, high.
+reason should be short (advisory, not enforced).
+:: file /home/analyst/triage/outputs.jsonl
+{"id": "r1", "severity": "low", "reason": "scheduled backup finished"}
+{"id": "r2", "severity": "high", "reason": "five failed logins then a success from one IP"}
+{"id": "r3", "severity": "medium", "reason": "a user logged in from a new country shortly after a password reset request that was approved by the helpdesk"}
+{"id": "r4", "severity": "low", "reason": "patch window reboot"}
+{"id": "r5", "severity": "high", "reason": "service account used interactively"}
+{"id": "r6", "severity": "urgent", "reason": "admin group changed outside change window"}
+{"id": "r7", "severity": "low", "reason": "known scanner from the vuln-mgmt subnet"}
+{"id": "r8", "severity": "medium", "reason": "new autorun entry on one workstation"}

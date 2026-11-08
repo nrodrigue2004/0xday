@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man prompts :: 0xDay</title>
+<meta name="description" content="prompts cheatsheet: Prompt engineering: the five parts, patterns, testing and security checks">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man prompts</p>
+<div class="manhead"><span>PROMPTS(7)</span><span>0xDay Field Manual</span><span>PROMPTS(7)</span></div>
+<h1>prompts <span class="muted">- Prompt engineering: the five parts, patterns, testing and security checks</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-structure">structure</a> <a href="#g-patterns">patterns</a> <a href="#g-testing">testing</a> <a href="#g-common-failures">common failures</a> <a href="#g-security-checks">security checks</a></p><h2 id="g-structure">structure</h2><dl class="man"><dt><code>task: one verb + object</code></dt><dd>summarize, classify, rewrite, compare; one task per prompt</dd><dt><code>context: audience + data</code></dt><dd>who reads it, what the input is, what you already know</dd><dt><code>constraints: limits + exit</code></dt><dd>length, tone, &#x27;if unsure reply NOT ENOUGH DATA&#x27;</dd><dt><code>format: exact shape</code></dt><dd>bullets, table, or JSON with named keys</dd><dt><code>example: one good answer</code></dt><dd>strongest lever for style and format</dd><dt><code>&lt;data&gt;...&lt;/data&gt;</code></dt><dd>delimiters separate your instructions from the material</dd></dl><h2 id="g-patterns">patterns</h2><dl class="man"><dt><code>zero-shot</code></dt><dd>instructions only, no examples</dd><dt><code>few-shot</code></dt><dd>2 to 5 examples; cover edge cases; keep labels identical</dd><dt><code>role / audience</code></dt><dd>&#x27;you are a tier-1 SOC analyst&#x27;; changes tone, adds no knowledge</dd><dt><code>JSON only + schema</code></dt><dd>&#x27;Reply with JSON only&#x27;, list keys and enum values, validate in code</dd><dt><code>step by step</code></dt><dd>ask for steps, then &#x27;ANSWER:&#x27; on the last line</dd><dt><code>evidence quotes</code></dt><dd>require line numbers or quoted text per claim, then check them</dd></dl><h2 id="g-testing">testing</h2><dl class="man"><dt><code>eval set</code></dt><dd>10 to 30 inputs with expected results, incl. edge and &#x27;cannot tell&#x27; cases</dd><dt><code>one change at a time</code></dt><dd>version prompts v1, v2; log what changed and the score</dd><dt><code>hold-out cases</code></dt><dd>keep a few cases untouched until the end</dd><dt><code>run twice</code></dt><dd>sampling is random; lower temperature for checks</dd><dt><code>validate output in code</code></dt><dd>parse JSON, check enums and lengths, retry once on failure</dd></dl><h2 id="g-common-failures">common failures</h2><dl class="man"><dt><code>invented facts</code></dt><dd>add the source text, allow &#x27;unknown&#x27;, require quotes</dd><dt><code>ignores a rule</code></dt><dd>move it, shorten the prompt, remove conflicting lines</dd><dt><code>chatty or too long</code></dt><dd>state a limit and exact format</dd><dt><code>label drift</code></dt><dd>enum + &#x27;no other values&#x27; + validation</dd><dt><code>fine in tests, bad live</code></dt><dd>add messy real inputs to the eval set</dd></dl><h2 id="g-security-checks">security checks</h2><dl class="man"><dt><code>secret in prompt?</code></dt><dd>remove it; enforce in code, the model can leak it</dd><dt><code>untrusted input + private data + outbound path</code></dt><dd>remove at least one of the three</dd><dt><code>tool allow-lists</code></dt><dd>destinations, paths and recipients checked in code</dd><dt><code>human approval</code></dt><dd>for send, delete, pay, run; show the real action</dd><dt><code>treat output as untrusted</code></dt><dd>escape before HTML, shell or SQL</dd><dt><code>per-user retrieval</code></dt><dd>enforce access in the query, not the prompt</dd><dt><code>injection regression set</code></dt><dd>fictional documents with planted instructions; judge the action log</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

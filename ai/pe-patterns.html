@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>prompts: patterns :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, prompts: patterns: Few-shot examples, roles and structured output. Lab: find the answer that breaks the schema.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter pe-patterns</p>
+<h1>~/ai/pe-patterns</h1>
+<p>Few-shot examples, roles, and structured output (JSON you can parse). Lab: find the one model answer that breaks the schema.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="pe-patterns">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Three habits turn a decent prompt into a dependable one.</p>
+<h4>1. Show, don't only tell (few-shot)</h4>
+<p>Instead of describing the answer, show two or three. This is called <strong>few-shot</strong> prompting; zero examples is "zero-shot".</p>
+<pre class="ex"><code><span class="o">Label each message as PHISH or OK.</span>
+<span class="o"></span>
+<span class="o">&quot;Your mailbox is full, click here to keep it&quot;: PHISH</span>
+<span class="o">&quot;Lunch at noon?&quot;: OK</span>
+<span class="o">&quot;Urgent: confirm your payroll login&quot;: </span></code></pre>
+<p>The model copies the pattern, including the label spelling and the layout.</p>
+<h4>2. Give it a role</h4>
+<p>"You are a careful SOC analyst reviewing an alert" nudges vocabulary, depth and caution. It helps with tone and focus. It does <strong>not</strong> add knowledge the model lacks, and it is not a security control.</p>
+<h4>3. Ask for a shape</h4>
+<p>If a script will read the answer, say exactly what shape: "Reply with JSON only: {\"verdict\": \"benign|suspicious|malicious\", \"reason\": \"...\"}". Free-form prose is for people; structure is for programs.</p>
+<p class="callout">Examples are the strongest single lever for format and style. A role is the weakest. Reach for examples first.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Choosing good examples</h4>
+<ul><li>Cover the <strong>edge cases</strong>, not only the easy ones: one clear positive, one clear negative, one borderline.</li><li>Keep the label set identical across all examples. If one says <code>PHISH</code> and another says <code>phishing</code>, expect both back.</li><li>Vary the surface text so the model learns the rule, not the wording.</li><li>Watch for ordering bias: if three examples in a row are OK, the next guess leans OK. Mix the order.</li><li>Two to five examples is the usual range. More costs tokens and rarely helps.</li></ul>
+<h4>Roles that earn their keep</h4>
+<p>Useful: audience ("explain to a new hire"), perspective ("review as an attacker would, to find gaps") and standards ("follow the style of the NIST incident guide"). Weak: "you are the world's best expert". Flattery changes little.</p>
+<h4>Structured output</h4>
+<pre class="ex"><code><span class="o">Reply with JSON only. No prose, no code fences.</span>
+<span class="o">Schema:</span>
+<span class="o">{&quot;severity&quot;: &quot;low|medium|high&quot;, &quot;ioc&quot;: [&quot;string&quot;], &quot;summary&quot;: &quot;string, max 20 words&quot;}</span>
+<span class="o">If a field is unknown use null.</span></code></pre>
+<p>Then <strong>validate in code</strong>: parse the JSON, check the enum values, check lengths, and retry once with the error message if it fails. Many APIs also offer a strict JSON mode or schema-constrained output; use it where you can, and still validate.</p>
+<h4>Delimiters again</h4>
+<p>Wrap variable data in tags (<code>&lt;alert&gt;...&lt;/alert&gt;</code>) and refer to it by name ("the text inside &lt;alert&gt;"). It reduces mix-ups between your instructions and the data, and it is the first step toward handling untrusted text safely.</p>
+<h4>Tiny example of a full prompt</h4>
+<pre class="ex"><code><span class="o">You are a tier-1 SOC analyst. Classify the alert in &lt;alert&gt;.</span>
+<span class="o">Reply with JSON only: {&quot;severity&quot;: &quot;low|medium|high&quot;, &quot;reason&quot;: &quot;max 15 words&quot;}</span>
+<span class="o">Examples:</span>
+<span class="o">&lt;alert&gt;5 failed logins, then success, same IP, 2 minutes&lt;/alert&gt; {&quot;severity&quot;:&quot;high&quot;,&quot;reason&quot;:&quot;possible brute force with success&quot;}</span>
+<span class="o">&lt;alert&gt;Scheduled backup job finished&lt;/alert&gt; {&quot;severity&quot;:&quot;low&quot;,&quot;reason&quot;:&quot;routine job&quot;}</span>
+<span class="o">&lt;alert&gt;...new alert here...&lt;/alert&gt;</span></code></pre><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Few-shot is in-context learning, not training</h4>
+<p>The model's weights do not change. The examples only steer one response, and they vanish with the context. For a task you run constantly, compare few-shot against a fine-tuned or smaller dedicated model: sometimes a classifier is cheaper, faster and easier to test.</p>
+<h4>Dynamic example selection</h4>
+<p>Instead of fixed examples, retrieve the three most similar past cases from a labeled store and put those in the prompt. This is retrieval-augmented few-shot, and it handles diverse inputs better than a static set. Keep the labeled store reviewed: wrong labels get copied.</p>
+<h4>Enforcing structure properly</h4>
+<ul><li>Prefer schema-constrained decoding or tool-call arguments when the provider offers them, so invalid JSON cannot be produced at all.</li><li>Keep schemas <strong>flat and small</strong>; deeply nested or optional-heavy ones fail more often.</li><li>Use enums for anything you will branch on, and treat an unexpected value as a failure, not a new category.</li><li>Put a <code>confidence</code> or <code>evidence</code> field in and spot-check it. Self-reported confidence is poorly calibrated, so do not threshold on it blindly.</li><li>Log the raw output next to the parsed result so you can debug disagreements.</li></ul>
+<h4>Roles and system prompts</h4>
+<p>A system message sets standing behavior; the user message carries the task. The split helps organization, but both are just text the model reads, and neither is an enforcement boundary. Anything that must never happen has to be enforced outside the model (see <a href="pe-security.html">prompt security</a>).</p>
+<h4>Failure patterns</h4>
+<ul><li><strong>Label drift:</strong> the model invents a fourth label. Fix with enum validation and an explicit "no other values".</li><li><strong>Format leakage:</strong> an apologetic sentence before the JSON. Fix with "JSON only", a parser that extracts the first object, or constrained output.</li><li><strong>Example copying:</strong> the output echoes an example's reason word for word. Fix by varying examples.</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>A triage prompt asks the model for JSON with a <code>severity</code> that must be exactly <code>low</code>, <code>medium</code> or <code>high</code>. The pipeline ran 8 alerts overnight and one downstream job crashed on a bad record.</p>
+<p>In <code>~/triage</code>, read <code>schema.txt</code> and <code>outputs.jsonl</code> and find the record whose output <strong>breaks the schema</strong>.</p>
+<p>Submit that record's <strong>id</strong>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="pe-basics.html">&lt; prompts: basics</a><a href="pe-reasoning.html">prompts: reasoning and testing &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "pe-patterns", "title": "prompts: patterns", "user": "analyst", "host": "promptlab", "brief": "A triage prompt asks the model for JSON with a <code>severity<\/code> that must be exactly <code>low<\/code>, <code>medium<\/code> or <code>high<\/code>. The pipeline ran 8 alerts overnight and one downstream job crashed on a bad record.\n\nIn <code>~/triage<\/code>, read <code>schema.txt<\/code> and <code>outputs.jsonl<\/code> and find the record whose output <strong>breaks the schema<\/strong>.\n\nSubmit that record's <strong>id<\/strong>.", "hints": ["<code>cat schema.txt<\/code>, then look at the <code>severity<\/code> field in every line of <code>outputs.jsonl<\/code>.", "<code>grep -v -E &#x27;&quot;severity&quot;: ?&quot;(low|medium|high)&quot;&#x27; outputs.jsonl<\/code> prints only the lines that are not one of the allowed values.", "One line has a severity word that sounds reasonable but is not in the enum, and another line has valid severity but a long summary. Only the enum is a hard schema rule here."], "answers": ["25f1c790f16f423d2f942b70378ed075972ab0affbf3f35f12e015c13f29406f"], "solution": "UmVjb3JkIDxzdHJvbmc+cjY8L3N0cm9uZz4gaGFzIDxjb2RlPiZxdW90O3NldmVyaXR5JnF1b3Q7OiAmcXVvdDt1cmdlbnQmcXVvdDs8L2NvZGU+LCB3aGljaCBpcyBub3QgaW4gdGhlIGVudW0sIHNvIHRoZSBkb3duc3RyZWFtIDxjb2RlPnN3aXRjaDwvY29kZT4gaGFkIG5vIGJyYW5jaCBmb3IgaXQuIHIzIGhhcyBhIGxvbmcgcmVhc29uIGJ1dCBpdCBpcyBzdGlsbCB2YWxpZCB1bmRlciB0aGUgc2NoZW1hICh0aGUgcmVhc29uIGxpbWl0IGlzIGFkdmlzb3J5IGluIHRoaXMgcGlwZWxpbmUpLiBUaGUgbGVzc29uOiB2YWxpZGF0ZSBldmVyeSBmaWVsZCBhZ2FpbnN0IHRoZSBzY2hlbWEgaW4gY29kZSwgdHJlYXQgdW5rbm93biB2YWx1ZXMgYXMgYW4gZXJyb3IgdG8gcmV0cnksIGFuZCBhZGQgYW4gZXhwbGljaXQgIm5vIG90aGVyIHZhbHVlcyIgbGluZSB0byB0aGUgcHJvbXB0LiBCZXR0ZXIgc3RpbGwsIHVzZSBzY2hlbWEtY29uc3RyYWluZWQgb3V0cHV0IHNvIDxjb2RlPnVyZ2VudDwvY29kZT4gY2Fubm90IGJlIHByb2R1Y2VkLgo=", "fs": {"/home/analyst/triage/schema.txt": "Reply with JSON only.\n{\"id\": \"string\", \"severity\": \"low|medium|high\", \"reason\": \"string\"}\nseverity MUST be exactly one of: low, medium, high.\nreason should be short (advisory, not enforced).\n", "/home/analyst/triage/outputs.jsonl": "{\"id\": \"r1\", \"severity\": \"low\", \"reason\": \"scheduled backup finished\"}\n{\"id\": \"r2\", \"severity\": \"high\", \"reason\": \"five failed logins then a success from one IP\"}\n{\"id\": \"r3\", \"severity\": \"medium\", \"reason\": \"a user logged in from a new country shortly after a password reset request that was approved by the helpdesk\"}\n{\"id\": \"r4\", \"severity\": \"low\", \"reason\": \"patch window reboot\"}\n{\"id\": \"r5\", \"severity\": \"high\", \"reason\": \"service account used interactively\"}\n{\"id\": \"r6\", \"severity\": \"urgent\", \"reason\": \"admin group changed outside change window\"}\n{\"id\": \"r7\", \"severity\": \"low\", \"reason\": \"known scanner from the vuln-mgmt subnet\"}\n{\"id\": \"r8\", \"severity\": \"medium\", \"reason\": \"new autorun entry on one workstation\"}\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst/triage", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

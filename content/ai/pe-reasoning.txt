@@ -1,0 +1,113 @@
+tagline: Step-by-step reasoning, iterating on a prompt like code, building a small test set, and the failures you will see again and again. Lab: grade two prompt versions against the same cases.
+:: simple
+### Ask for the steps
+On anything with several parts (math, logic, "does this chain of events add up"), a model answers better when it works through the steps before giving the final answer. That is **chain-of-thought**. The simplest version is a line in the prompt: "Work through it step by step, then give the final answer on the last line as `ANSWER: ...`".
+
+Modern reasoning models do some of this on their own. You may not need the phrase, and you should not ask them to reveal their private reasoning. What still helps is breaking the **task** into steps you can check: "1) list the events, 2) put them in time order, 3) say which one is the earliest sign of compromise."
+
+### Iterate, don't guess
+A first prompt is a draft. Run it on a few real inputs, read the output, change **one thing**, run again. Keep the old version so you can go back.
+
+### Look at the failures, not the average
+If 9 of 10 answers look good, the interesting prompt work is the tenth.
+
+### Why a model can still be wrong
+It predicts plausible text. It can state a false thing in a confident voice (**hallucination**), miss a detail in a long input, or follow the wrong instruction. A good prompt lowers the rate; it never makes the rate zero. Check anything that matters.
+:: mid
+### A prompt needs a test set
+Before you change a prompt, collect 10 to 30 representative inputs with the answer you expect (or a rule for a good answer). This is your **eval set**. Include:
+- typical cases,
+- edge cases (empty input, very long input, another language),
+- cases where the right answer is "I cannot tell",
+- a few that failed before.
+
+Run every prompt version against the whole set and record pass or fail per case. Now "this feels better" becomes "v2 passes 17 of 20, v1 passed 14, and v2 broke case 7 which v1 had right".
+
+### Change one thing at a time
+Adding an example, rewording a constraint and switching models in one go tells you nothing. Version them: `triage_v1`, `triage_v2`. Write one line on what changed and what the score did.
+
+### Grade without fooling yourself
+- Prefer **checkable** criteria: valid JSON, contains the required key, cites a line number that exists in the input.
+- For open-ended output, write a short rubric (accuracy, completeness, tone, 0 to 2 each) and grade blind, without looking at which version produced it.
+- Do not tune on your whole eval set and then trust the same set. Hold a few cases back and test on them last, the same train/test idea as in [regression](ml-regression.html).
+- Sampling is random. Run important cases more than once, or set the temperature low, before declaring a change an improvement.
+
+### Common failures and the usual fix
+| Symptom | Likely cause | Try |
+|---|---|---|
+| Invents facts or IDs | Not enough in the prompt, no exit | Add the source text; allow "unknown"; require quotes |
+| Ignores a rule | Rule is buried or contradicted | Move it, shorten the prompt, remove conflicts |
+| Too long or chatty | No length or format constraint | State a limit and the exact format |
+| Different answer each run | High temperature, ambiguous task | Lower temperature; tighten the task |
+| Great on your tests, bad in production | Eval set too tidy | Add real, messy inputs |
+| Misses details in long input | Too much context | Chunk it, or quote the relevant part first |
+:: complex
+### Eval-driven prompt development
+Treat prompts like code: a repository, a test suite that runs on every change, and a log of scores over time. A tiny harness is enough: a file of cases, a script that calls the model with each prompt version, and a table of pass or fail. Fail the build when the score drops. Prompts also drift when the **model** changes underneath you (a provider update, a switch to a cheaper model), so rerun the suite then too.
+
+### LLM as grader, with care
+Another model can grade open-ended output against a rubric. It scales, but it has biases: it prefers longer answers, prefers its own style, and is sensitive to the order of options. Calibrate it: grade a sample by hand, measure agreement, and keep a human check on the cases that matter. Never let the grader see the answer key in a way the generator could also see.
+
+### Decomposition and verification
+- **Split** a hard job into stages with a checkable output each (extract facts, then judge, then write).
+- **Verify** with a second pass: "Here is the answer and the source. List any claim not supported by the source."
+- **Self-consistency:** sample several answers and take the majority for tasks with a single right answer. It costs more calls and helps on reasoning tasks.
+- Use code for anything exact (counts, regex, hashes), and feed the result back in.
+
+### Reasoning models and hidden thinking
+Models trained to think before answering often do better with a clear goal and fewer hand-written steps; over-prescribing the method can hurt. Test both. Do not rely on the visible explanation as proof of how the answer was reached: it is a generated narrative and can be wrong even when the answer is right.
+
+### Know when a prompt is the wrong tool
+If the task needs fresh facts, give it retrieval or search results. If it needs exact data, query a database. If it needs a fixed decision boundary you can measure, a classifier from [CS330](../courses/CS330.html) may beat any prompt. If the cost of a wrong answer is high, keep a human in the loop.
+
+Next: [prompt security](pe-security.html).
+:: lab
+style: shell
+host: promptlab
+user: analyst
+cwd: /home/analyst/evals
+:: brief
+You are tuning a prompt that decides whether a login event needs escalation. You ran two versions of it against the same 8 test cases. `results_v1.txt` and `results_v2.txt` list each case as `PASS` or `FAIL`; `cases.txt` says what each case tests.
+
+v2 is better overall, but one case fails in **both** versions. That case needs a different fix, not just a tweak.
+
+Find the case that fails in both and submit its **id**.
+:: answer
+case07
+:: hint
+`grep FAIL results_v1.txt` and `grep FAIL results_v2.txt`. You want the case that appears in both lists.
+:: hint
+`grep FAIL results_v1.txt results_v2.txt` prints both lists together; the id that appears under both files is your answer.
+:: hint
+Then `grep case0N cases.txt` for that id to see what it tests.
+:: solution
+`case07` fails in both versions. Per `cases.txt` it is the "input is empty" edge case: the prompt has no instruction for what to do when there is nothing to judge, so both versions make something up. Fix: add an explicit exit ("if the event field is empty, reply NOT ENOUGH DATA") and add two more empty or malformed cases to the set. v1 also failed case02 and case05; v2 fixed those and failed case07 only, so v2 passes 7 of 8 versus 5 of 8.
+:: verify
+grep FAIL ~/evals/results_v2.txt
+:: file /home/analyst/evals/cases.txt
+case01 typical: admin login from the office network at 09:00
+case02 typical: 40 failed logins then success from one IP
+case03 edge: login from a new country, MFA passed
+case04 edge: service account interactive logon
+case05 edge: user in a different timezone logs in at 03:00 local
+case06 negative: scheduled backup account at its usual time
+case07 edge: the event field is empty
+case08 negative: helpdesk password reset approved in the ticket
+:: file /home/analyst/evals/results_v1.txt
+case01 PASS
+case02 FAIL
+case03 PASS
+case04 PASS
+case05 FAIL
+case06 PASS
+case07 FAIL
+case08 PASS
+:: file /home/analyst/evals/results_v2.txt
+case01 PASS
+case02 PASS
+case03 PASS
+case04 PASS
+case05 PASS
+case06 PASS
+case07 FAIL
+case08 PASS
