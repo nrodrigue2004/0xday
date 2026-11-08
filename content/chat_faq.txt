@@ -1,0 +1,1079 @@
+# Curated answers for ~/ai/chat: careers, certs, study plans, troubleshooting, commands, lists, safety and scenarios.
+# ## id, then  q: phrasing | phrasing   a: answer   links: prefix:slug ...
+# The chat matches a question to the closest phrasing by shared words, so list 3 to 6 ways people ask it.
+# Answers are short, plain and honest. Facts about exams and prices change: say "check the official site".
+
+## career-soc-analyst
+q: how do i become a soc analyst | how to get a soc analyst job | what do i need to be a soc analyst | soc analyst career path | how to start a career as a security analyst
+a: A common route: learn networking and Linux/Windows basics, earn Security+ (CySA+ later), practice with a SIEM (Splunk, Security Onion, Wazuh) in a homelab, do TryHackMe SOC paths, and apply to help desk, IT support or Tier 1 SOC roles. Show projects such as log analysis write-ups. Many analysts start in help desk or sysadmin.
+links: u:careers/soc-analyst u:roadmap u:start
+
+## career-pentester
+q: how do i become a pentester | how to become a penetration tester | how to get into pentesting | ethical hacker career path | how do i become an ethical hacker
+a: Build fundamentals first (networking, Linux, Windows and AD, web basics, a scripting language). Practice on TryHackMe and Hack The Box, write up what you solve, then consider PenTest+ or OSCP. Very few people start as a pentester: most come from sysadmin, SOC, or development jobs.
+links: u:careers/pentester u:pentest/pentest-methodology
+
+## career-first-it-job
+q: how do i get my first it job | how to get an it job with no experience | entry level it jobs | how to get into it with no experience | what jobs can i get with no experience
+a: Target help desk, desktop support, junior sysadmin or IT technician roles. A+ or Security+ helps, a homelab and a few written-up projects count as experience, and so do school labs and volunteer IT. Apply widely, tailor the resume to each posting and practice the interview.
+links: u:jobs u:careers/it-help-desk u:interview
+
+## career-entry-cyber
+q: entry level cybersecurity jobs | what is an entry level cyber job | can i get a cybersecurity job right out of college | is cybersecurity entry level | what cyber jobs can i get with a degree
+a: Real entry points are SOC analyst (Tier 1), IT help desk or sysadmin moving toward security, junior GRC or compliance analyst, vulnerability analyst, and sometimes IT support with security duties. "Entry-level" security jobs often ask for 1-2 years, so help desk and internships are valid steps.
+links: u:careers u:jobs
+
+## career-what-learn-first
+q: what should i learn first in cybersecurity | where do i start with cyber security | how do i start learning cybersecurity | cybersecurity for beginners | beginner roadmap for cyber
+a: In order: how computers and networks work (TCP/IP, DNS, HTTP, the OSI model), Linux command line, Windows and Active Directory basics, then one scripting language (Python), then security concepts (Security+). Practice by doing: TryHackMe, a homelab, and small projects.
+links: u:start u:roadmap u:basics
+
+## career-degree-needed
+q: do i need a degree for cybersecurity | do i need a college degree to work in cyber | can i get into security without a degree | is a degree required for it jobs
+a: Not always. Many employers prefer a degree, some require it, and others accept certs plus experience. A degree helps most with HR filters and government jobs. Without one, stack Security+, a homelab, write-ups and a work history in IT.
+links: u:certs u:roadmap
+
+## cert-first
+q: which cert should i get first | what certification should i start with | first it certification | best entry level security certification | should i get a+ first
+a: If you are new to IT: A+. If you know the basics and want security: Security+ (the most requested). Network+ is for weak networking. After that CySA+ for SOC work or PenTest+ for pentesting. Employers care more about Security+ than the order.
+links: u:certs u:comptia
+
+## secplus-exam-info
+q: how many questions are on the security+ exam | security+ exam format | security+ passing score | how long is the security+ exam | what is on the security+ exam | sy0-701 exam details
+a: SY0-701: up to 90 questions in 90 minutes, a mix of multiple choice and performance-based questions (PBQs), passing score 750 on a 100-900 scale. Domains: General Security Concepts 12%, Threats, Vulnerabilities and Mitigations 22%, Security Architecture 18%, Security Operations 28%, Security Program Management and Oversight 20%. Confirm details on CompTIA's site, because they change.
+links: u:secplus u:secplus/pbq
+
+## secplus-how-to-study
+q: how do i study for security+ | how to pass security+ | security+ study plan | how long to study for security+ | best way to prepare for the security+ exam
+a: Plan 6 to 10 weeks if you have some IT background. Read one objective at a time (this site's ~/secplus notes), do the flashcards daily, drill acronyms and ports, practice performance-based questions, then take timed practice exams and review every wrong answer. Aim for 85% or better on practice tests before booking.
+links: u:secplus u:secplus/train u:secplus/drill
+
+## secplus-cost
+q: how much does the security+ exam cost | security+ voucher price | how much is security+ | security+ cost
+a: Roughly $400 USD for the exam voucher, but CompTIA changes the price, and students may find discounts or bundles. Check CompTIA's site and your school or employer for vouchers.
+links: u:secplus
+
+## secplus-resources
+q: best free resources for security+ | what are good security+ study materials | professor messer security+ | free security+ course | security+ practice exams
+a: Professor Messer's free videos and notes, this site's ~/secplus notes and flashcards, the official exam objectives PDF, and a reputable practice exam set. Verify your notes against the official SY0-701 objectives.
+links: u:secplus u:resources
+
+## secplus-weak-areas
+q: what should i study more for security+ | how do i find my weak areas | what topics are hard on security+ | what is the hardest part of security+
+a: Most people struggle with port numbers and protocols, cryptography details, and scenario questions that ask for the best answer among similar choices. Use the weak-spot drill to find your gaps, and review comparisons like symmetric vs asymmetric and IDS vs IPS.
+links: u:secplus/weak u:secplus/scenarios
+
+## certs-network-plus
+q: is network+ worth it | do i need network+ | should i take network+ before security+ | network+ or ccna
+a: Network+ is worth it if networking is your weak spot or the jobs you want list it. It is not required for Security+. CCNA is deeper and more hands-on if you want a networking career.
+links: u:comptia/netplus u:certs
+
+## certs-cissp
+q: should i get cissp | when can i take cissp | cissp requirements | is cissp worth it
+a: CISSP needs five years of paid security experience (or you become an Associate of ISC2 after passing). It's for experienced professionals and managers, so Security+ and CySA+ come first.
+links: u:certs
+
+## certs-oscp
+q: should i get oscp | is oscp worth it | what is the oscp exam | oscp requirements
+a: OSCP is a respected hands-on pentesting certification with a 24-hour practical exam. It is hard and expensive, and best after you can solve medium machines on Hack The Box or Proving Grounds. Build skills first.
+links: u:certs u:pentest
+
+## study-how-learn-networking
+q: how do i learn networking | how to learn computer networking | best way to understand networking | where to learn tcp/ip | networking for beginners
+a: Learn the OSI/TCP-IP layers, IP addressing and subnetting, DNS, DHCP, NAT, TCP vs UDP and common ports. Then practice: capture traffic in Wireshark, build a small lab, and do subnetting drills until they are automatic. Network+ objectives make a good checklist.
+links: u:basics/osi-and-tcpip g:networking-tcp-ip-dhcp-nat-subnets u:comptia/netplus
+
+## study-how-learn-linux
+q: how do i learn linux | how to learn the linux command line | linux for beginners | which linux distro should i use | what is the best linux for beginners
+a: Install Ubuntu in a VM (or WSL), then use the terminal daily: navigation, files, permissions, processes, package management, users, services and logs. Kali is for security tools, not a daily OS. Try the Linux drills and OverTheWire Bandit.
+links: g:linux-command-line d:linux-permissions g:linux-server-admin-ubuntu
+
+## study-how-learn-python
+q: how do i learn python | how to learn programming for security | what programming language should i learn for cybersecurity | python for beginners
+a: Python is the best first language for security: automation, parsing logs, quick tools. Learn variables, loops, functions, files, dictionaries, then write small scripts that solve real problems (parse a log, scan ports, hash files). Later add Bash and PowerShell, and C if you want exploit or malware work.
+links: g:python u:code/python-automation u:dojo
+
+## study-how-learn-windows
+q: how do i learn windows administration | how to learn active directory | how to learn active directory for beginners | how do i get better at windows server
+a: Build an AD lab: a Windows Server domain controller and a Windows client in VMs. Practice users, groups, OUs, Group Policy, DNS and file shares, then attack and defend it (Kerberoasting, BloodHound).
+links: g:active-directory g:group-policy g:windows-admin-powershell
+
+## study-how-learn-cloud
+q: how do i learn cloud | how to learn aws | how to start with cloud computing | how to learn azure | free cloud labs
+a: Start with the concepts (IaaS/PaaS/SaaS, shared responsibility, IAM), then use the free tier of AWS or Azure for hands-on labs. Set a budget alert first so you don't get billed. AWS Cloud Practitioner or AZ-900 are good first certs.
+links: u:cloud/cloud-basics u:cloud/cloud-free-labs u:cloud/cloud-iam
+
+## study-how-learn-sql
+q: how do i learn sql | how to learn databases | sql for beginners | how to practice sql
+a: Install SQLite or MySQL, load a sample database and write queries: SELECT, WHERE, ORDER BY, GROUP BY, JOIN. Then learn how SQL injection works and how parameterized queries prevent it.
+links: g:databases-and-sql u:code/sql-for-analysts
+
+## study-how-learn-ai
+q: how do i learn machine learning | how to get into ai | how to learn ai | how do i start with machine learning
+a: Get comfortable with Python, basic statistics and linear algebra. Then learn the ML basics (supervised vs unsupervised, training vs test, overfitting, metrics) with small scikit-learn projects. For language models, learn prompting and how they fail.
+links: a:ml-intro a:how-ai-works a:ml-lab
+
+## study-how-learn-reverse-engineering
+q: how do i learn reverse engineering | how to get into malware analysis | how to learn assembly | how to start with reverse engineering
+a: Learn C and x86 assembly basics, then practice with crackmes in Ghidra, and study how programs look in a debugger. Move on to malware samples in a safe VM lab after that. Never run malware on your main machine.
+links: g:reverse-engineering g:c-x86-assembly u:rev/re-crackme
+
+## study-how-learn-forensics
+q: how do i learn digital forensics | how to get into forensics | how to become a forensic analyst
+a: Learn file systems, Windows artifacts, memory and disk imaging. Practice on public forensic images (DFIR challenges), with Autopsy and Volatility. Keep a clear evidence process: image first, work on copies, hash everything.
+links: g:digital-forensics g:memory-forensics-volatility g:disk-forensics-autopsy-ftk-imager
+
+## study-how-learn-regex
+q: how do i learn regex | regex for beginners | how to write a regular expression | how do i practice regular expressions
+a: Learn literals, character classes, quantifiers (*, +, ?, {n}), anchors (^, $) and groups. Practice on real log lines at regex101 and with the regex-for-logs drill. Start simple and build up.
+links: d:regex-for-logs
+
+## study-homelab
+q: how do i build a homelab | what do i need for a homelab | homelab ideas | what can i do with a homelab | how to start a home lab
+a: Start with free software on the PC you have: VirtualBox or Proxmox, a Windows Server with Active Directory, a Linux box, and a Kali VM, on an isolated network. Then add pfSense, a SIEM (Wazuh or Security Onion), and attack-and-detect exercises. Write up each project.
+links: u:homelab g:virtualization-proxmox g:firewalls-pfsense
+
+## study-ctf
+q: how do i start ctf | what is a ctf and how do i start | how to get into ctfs | ctf for beginners
+a: A CTF (capture the flag) is a security puzzle contest. Start with picoCTF or TryHackMe rooms, learn the common categories (web, crypto, forensics, reversing, pwn) and read other people's write-ups. Then try live events.
+links: u:ctf u:resources
+
+## study-bug-bounty
+q: how do i start bug bounty | how to get into bug bounty hunting | bug bounty for beginners | how to start bug bounties
+a: Learn web basics and the OWASP Top 10 first, practice on PortSwigger Web Security Academy and intentionally vulnerable apps, read disclosed reports, and only test programs inside their stated scope. Expect duplicates and long gaps before a first payout.
+links: w:bug-bounty w:owasp-top-10 w:burp-workflow
+
+## study-projects
+q: what projects should i put on my resume | project ideas for cybersecurity | portfolio ideas for security | what projects can i build for a cyber portfolio | home projects for it
+a: Good ones: a homelab with AD and a SIEM and write-up of detections, a Python log or port scanner, a phishing email analysis, a vulnerability scan report, a CTF or TryHackMe write-up blog, and a small web app with secure coding notes. Publish them on GitHub with a clear README.
+links: u:projects u:bullets u:capstones
+
+## study-portfolio-resume
+q: how do i write a resume with no experience | what do i put on my resume with no experience | resume tips for it jobs | how to write a cybersecurity resume | resume bullet points
+a: Lead with skills and projects, then education, then any job. Use bullets that start with a verb and show a result: what you did, with what tool, and the outcome. Mirror keywords in the posting. One page, plain format, no photo or graphics.
+links: u:bullets u:resume u:jobs
+
+## study-interview
+q: how do i prepare for an it interview | how to prepare for a cybersecurity interview | common interview questions for soc analyst | tell me about yourself interview | how to answer interview questions
+a: Expect: walk me through a time you solved a problem (use STAR: situation, task, action, result), basic technical questions (what happens when you type a URL, difference between TCP and UDP, how would you triage a phishing email), and questions about your projects. Practice out loud.
+links: u:interview u:interview/technical u:interview/work
+
+## study-pay
+q: how much do cybersecurity jobs pay | what is the salary for a soc analyst | how much do help desk jobs make | entry level cybersecurity salary
+a: It varies a lot by city, employer and experience. Check current postings and sources like the US Bureau of Labor Statistics rather than trusting one number. Help desk pays least, security roles typically pay more with a couple of years of experience.
+links: u:jobs
+
+## study-too-late-hard
+q: is cybersecurity hard | is it too late to start in cybersecurity | can i learn cybersecurity on my own | is cybersecurity a good career | is cybersecurity worth it
+a: It is broad rather than impossible: you need fundamentals and steady practice. Plenty of people switch in later in life, and self-study works if you build hands-on proof. The entry-level market is competitive, so expect some effort to get the first job.
+links: u:roadmap u:start
+
+## study-laptop
+q: what laptop should i get for cybersecurity | what computer do i need for cyber | what pc specs for virtual machines | what hardware do i need for a homelab
+a: Any recent laptop works. For VMs, 16 GB RAM (32 is better), an SSD of 500 GB or more, and a CPU with virtualization support. You don't need Kali on bare metal; run it in a VM.
+links: u:homelab
+
+## study-what-next
+q: what should i study next | what should i learn next | i finished security+ what next | what is the next step after security+ | what to do after security+
+a: After Security+: get hands-on (labs, a homelab, TryHackMe), start applying, and pick a direction: CySA+ and a SIEM for SOC, PenTest+ and Hack The Box for offensive, or cloud (AWS or Azure fundamentals). Apply while you study.
+links: u:roadmap u:certs
+
+## study-ethical-hacking
+q: what is ethical hacking | is hacking legal | is it legal to learn hacking | can i practice hacking legally | where can i legally practice hacking
+a: Ethical hacking is testing systems with the owner's written permission. Testing anything else is illegal in most places, even if you mean well. Practice legally on your own lab, TryHackMe, Hack The Box, CTFs and intentionally vulnerable apps like DVWA.
+links: u:grc/ethics-and-disclosure g:vulnerable-lab-targets-dvwa-webgoat
+
+## safety-hack-account
+q: how do i hack someones instagram | how to hack a facebook account | how do i hack my ex | how to hack someone's wifi | how can i hack into a phone | hack into someone's account | hack my ex's instagram | how to hack my girlfriend's phone | break into my neighbor's wifi | how to get into someone else's account
+a: I won't help with getting into accounts or networks that aren't yours. It's illegal and harms real people. If you've lost access to your own account, use the provider's recovery process. If you want to learn the skills, practice legally on a home lab, TryHackMe or CTFs.
+links: u:grc/ethics-and-disclosure u:resources
+
+## safety-write-malware
+q: write me malware | write ransomware | create a virus | make a keylogger for me | write an exploit for me
+a: I don't write working malware or exploits. I can point you to how they work: the malware analysis, reverse engineering and exploitation notes cover mechanisms from the defender's side, and labs on isolated VMs let you study them safely.
+links: g:malware-analysis g:binary-exploitation
+
+## chat-write-code
+q: write me a python script | can you write code for me | write a program | write a script that scans ports | can you code this for me
+a: I'm a search assistant for the site's notes, not a code generator, so I can't write custom programs. The ~/code pages have working examples and patterns you can adapt, and the cheatsheets list the commands.
+links: u:code u:dojo
+
+## chat-quiz
+q: quiz me | quiz me on security+ | quiz me on networking | give me practice questions | test me on security+ | i want to practice | give me a quiz
+a: Use the training tools: flashcards for each Security+ objective, timed drills, performance-based question practice, and the weak-spot trainer. They track what you miss.
+links: u:secplus/train u:secplus/drill u:secplus/weak u:drills
+
+## trouble-no-internet
+q: wifi connected but no internet | my internet is not working | cannot connect to the internet | no internet connection troubleshooting | why do i have no internet
+a: Work from the bottom up. Check the cable or Wi-Fi link, then your IP (ipconfig or ip a; 169.254.x.x means DHCP failed), then ping the default gateway, then ping 8.8.8.8 (tests IP routing), then ping a name like example.com (tests DNS). The first step that fails is the problem. Rebooting the router fixes many ISP-side issues.
+links: g:computer-networks u:comptia/netplus
+
+## trouble-dns
+q: why is my dns not resolving | dns not working | cannot resolve hostname | website not loading but ping by ip works | dns resolution failing
+a: If ping 8.8.8.8 works but names fail, DNS is the problem. Check which resolver the machine uses (ipconfig /all or resolvectl status), test with nslookup or dig against another resolver (8.8.8.8 or 1.1.1.1), flush the cache (ipconfig /flushdns), check for a bad hosts file entry, and make sure the DNS server is up.
+links: g:networking-tcp-ip-dhcp-nat-subnets m:networking-tcp-ip-dhcp-nat-subnets
+
+## trouble-cannot-ping
+q: why cant i ping a host | ping request timed out | ping not working | destination host unreachable | cannot ping server
+a: Request timed out usually means the packet was dropped (firewall blocking ICMP, host down, wrong route). Destination host unreachable means no route or no ARP answer on the local network. Check IP and subnet, the default gateway, the target's firewall, and try a port test (nc -vz host 22). A failed ping alone doesn't prove the host is down.
+links: g:computer-networks
+
+## trouble-slow-network
+q: why is my network slow | internet is slow troubleshooting | how to find the cause of a slow connection | network latency high | wifi is slow
+a: Separate the causes: run a speed test on wired vs Wi-Fi, ping the gateway and an outside host for latency and loss, traceroute to find where delay starts, and check what is using bandwidth. Common causes are Wi-Fi interference, a congested link, a bad cable, DNS delay and a heavy download or backup.
+links: g:network-traffic-analysis
+
+## trouble-ip-conflict
+q: ip address conflict | duplicate ip address on network | what does 169.254 mean | got a 169.254 address | pc has apipa address
+a: A 169.254.x.x address means the machine couldn't reach a DHCP server and gave itself one. Check the cable or Wi-Fi, the DHCP server and scope. An IP conflict means two devices share one address: find it with arp -a, then fix the static assignment or DHCP reservation.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## trouble-ssh-refused
+q: ssh connection refused | ssh connection timed out | cannot ssh into server | ssh permission denied publickey | why cant i ssh
+a: Connection refused: the host answered but nothing listens on that port (sshd not running or wrong port). Timed out: packets are dropped (firewall, wrong IP, host down). Permission denied (publickey): the server rejected your key or user: check the key path, file permissions (chmod 600), the user, and authorized_keys. Use ssh -v for detail.
+links: m:linux g:linux-server-admin-ubuntu
+
+## trouble-connection-refused-vs-timeout
+q: connection refused vs connection timed out | what is the difference between refused and timed out | what does connection refused mean | what does connection timed out mean
+a: Refused means the target actively rejected the connection (no service on that port, or a reset). Timed out means no reply at all, so something is dropping the packets (firewall, routing, host off). The difference tells you where to look.
+links: g:computer-networks
+
+## trouble-rdp
+q: cannot remote desktop to a computer | rdp not working | rdp connection failed | cannot connect via remote desktop | remote desktop cant connect
+a: Check that the target is on and reachable (ping, test port 3389 with Test-NetConnection), that Remote Desktop is enabled, the Windows firewall allows it, your account is in Remote Desktop Users, and NLA or credentials aren't failing. Over the internet, use a VPN rather than exposing 3389.
+links: g:windows-admin-powershell
+
+## trouble-share-access
+q: cannot access shared folder | access denied to network share | cannot open file share | smb share access denied | map network drive not working
+a: There are two layers: share permissions and NTFS permissions, and the more restrictive wins. Check the user's group membership, the share and NTFS ACLs, that the server name resolves, and that port 445 is reachable. Test with net use or Test-NetConnection.
+links: d:windows-permissions u:posts/finance-share-access-denied
+
+## trouble-locked-out
+q: user account locked out | my account keeps getting locked | how to unlock an active directory account | account lockout troubleshooting | forgot my password at work
+a: In Active Directory, unlock it in Active Directory Users and Computers or with Unlock-ADAccount. Then find the source of the bad passwords: stale cached credentials on a phone, mapped drive or service, shown by the lockout source in Event ID 4740 on the domain controller. Forgotten passwords go through the helpdesk's identity verification.
+links: g:active-directory
+
+## trouble-forgot-windows-password
+q: forgot windows password | locked out of my own computer | how to reset a windows password | reset password on a local account
+a: For your own machine, use the Microsoft account reset page, a password reset disk, or another admin account. For a work computer, ask IT. Resetting a password you aren't authorized for is unauthorized access.
+links: g:windows-admin-powershell
+
+## trouble-wont-boot
+q: computer wont boot | pc will not turn on | computer does not start | no display on boot | troubleshooting a pc that wont power on
+a: No power: check the outlet, PSU switch and cables. Power but no display: reseat RAM, check the monitor cable and try the GPU outputs. Beeps or error codes: the BIOS tells you what's failing. Boot errors: try safe mode or startup repair, and check the drive. Work from the simplest cause up.
+links: g:hardware-diagnostics-and-repair u:comptia/aplus
+
+## trouble-bsod
+q: blue screen of death | what causes a blue screen | bsod troubleshooting | windows crashes with a stop code | windows keeps crashing
+a: A blue screen is the Windows kernel stopping after a fatal error. Read the stop code, check recent driver or update changes, run sfc /scannow and DISM, test RAM and the disk, and read the minidump with WinDbg or BlueScreenView. Faulty drivers and bad RAM are the usual culprits.
+links: g:hardware-diagnostics-and-repair
+
+## trouble-slow-computer
+q: why is my computer slow | computer running slow troubleshooting | how to speed up a slow pc | high cpu usage | why is my cpu at 100
+a: Open Task Manager (or top/htop) to see what is using CPU, memory and disk. Typical causes are too little RAM, a nearly full or failing disk, too many startup programs, malware or a runaway process. Check storage health and consider an SSD.
+links: g:hardware-diagnostics-and-repair g:operating-systems
+
+## trouble-disk-full
+q: disk is full | no space left on device | how to find what is using disk space | linux disk space full | how to free up disk space
+a: On Linux, check df -h for the full file system, then du -sh /* (or ncdu) to find large directories, and clear logs, caches and old packages. Also check inodes with df -i. On Windows, use Storage settings or WinDirStat.
+links: g:linux-command-line m:linux
+
+## trouble-service-wont-start
+q: service wont start | linux service failed to start | systemctl status failed | how to troubleshoot a service that wont start
+a: Run systemctl status name and journalctl -u name -xe to read the error, check the config file for syntax errors, ports already in use (ss -tulpn), permissions and missing dependencies. Fix, then systemctl restart name.
+links: g:linux-server-admin-ubuntu
+
+## trouble-command-not-found
+q: command not found | bash command not found | why does it say command not found | not recognized as an internal or external command
+a: The program isn't installed, or isn't in your PATH, or is misspelled. Check with which name, echo $PATH, and install with your package manager. A script in the current folder needs ./script.sh.
+links: g:linux-command-line
+
+## trouble-permission-denied
+q: permission denied linux | why do i get permission denied | bash permission denied error | access is denied windows | how to fix permission denied
+a: Your user lacks the right on that file or directory. Check ls -l and the owner and mode, use chmod or chown, or sudo if the action really needs it. Scripts need the execute bit (chmod +x). On Windows, check the ACL and run as administrator only if required.
+links: d:linux-permissions d:windows-permissions
+
+## trouble-http-codes
+q: what does 404 mean | 403 forbidden vs 401 unauthorized | what does 500 error mean | http status codes | what is a 502 bad gateway
+a: 200 OK; 301/302 redirect; 400 bad request; 401 unauthorized (not authenticated); 403 forbidden (authenticated but not allowed); 404 not found; 429 too many requests; 500 server error; 502 bad gateway (a proxy got a bad answer upstream); 503 service unavailable; 504 gateway timeout.
+links: m:http b:http-and-the-web
+
+## trouble-cert-error
+q: website certificate error | your connection is not private | ssl certificate expired | certificate name mismatch | why does the browser say not secure
+a: Typical causes: expired certificate, hostname not matching the certificate, an untrusted or self-signed issuer, a missing intermediate certificate, or a wrong system clock. Check the details in the browser's certificate viewer, or with openssl s_client -connect host:443.
+links: m:openssl u:crypto/tls-pki
+
+## trouble-vpn
+q: vpn wont connect | vpn keeps disconnecting | cannot connect to vpn | vpn connected but no access
+a: Check basic internet first, then credentials and MFA, the VPN server address and port (blocked by a firewall?), the client version, and the clock. If connected but nothing works, check routes, DNS settings and split tunneling.
+links: g:vpn-tailscale b:vpns-and-tunnels
+
+## trouble-dhcp
+q: dhcp not giving addresses | clients not getting ip addresses | dhcp server not working | no dhcp response
+a: Check that the DHCP service is running with free addresses in its scope, the client is on the right VLAN, a relay (IP helper) is set when the server is on another network, and no rogue DHCP server competes. Capture DORA (Discover, Offer, Request, Ack) in Wireshark.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## trouble-email-spam
+q: why are my emails going to spam | email goes to junk | spf dkim dmarc failing | how to stop emails going to spam | email authentication
+a: Check SPF (which servers may send), DKIM (signature) and DMARC (policy and alignment) records for the sending domain, a clean sending IP and reputation, and content. Test with a header analyzer.
+links: u:comptia/cysa
+
+## trouble-printer
+q: printer not printing | printer offline | why wont my printer print | printer troubleshooting
+a: Check power, paper and ink, then the connection (USB, network IP, Wi-Fi), the driver, the print queue (clear stuck jobs and restart the Print Spooler service), and that it's set as the default. Print a test page.
+links: u:comptia/aplus
+
+## trouble-usb-audio-display
+q: usb device not recognized | no sound on my computer | monitor shows no signal | second monitor not detected | audio not working
+a: Try another port or cable first, then check Device Manager for warnings, update or reinstall the driver, and verify it works on another computer. For displays, check the input source and cable; for audio check the output device and mute.
+links: g:hardware-diagnostics-and-repair
+
+## trouble-site-down
+q: how do i check if a website is down | website is not loading | is the server down | how do i check if a server is up | web server not responding
+a: Test from the outside: ping, curl -I https://site, and a port test. Separate DNS (nslookup), network (traceroute) and application (HTTP status) problems. If your own connection works for other sites, the issue is on the server's side.
+links: m:http
+
+## trouble-port-open-no-connect
+q: port is open but cannot connect | how do i test if a port is open | check if a port is open | test connectivity to a port | is port 443 open
+a: Test with nc -zv host port, Test-NetConnection host -Port 443 (PowerShell) or nmap -p 443 host. Open means a service answered. Filtered means a firewall dropped it. Closed means the host replied that nothing listens.
+links: m:nmap
+
+## trouble-time-sync
+q: clock is wrong | time out of sync | kerberos clock skew too great | ntp not working
+a: Kerberos fails when clocks differ by more than 5 minutes, certificates look expired and logs mislead. Make sure the machine syncs with a trusted NTP source (domain controllers for domain members) and the time zone is right.
+links: g:active-directory
+
+## trouble-high-load
+q: why is my linux server slow | high load average | how to find what is using cpu on linux | server is slow troubleshooting
+a: Run top or htop, check load average against CPU count, memory and swap (free -h), disk IO (iostat, iotop), and network use. Look at logs for errors and for runaway processes, then trace to the cause.
+links: g:linux-command-line g:linux-server-admin-ubuntu
+
+## sec-clicked-phishing
+q: i clicked a phishing link what do i do | what to do if i clicked a suspicious link | i entered my password on a phishing site | i opened a malicious attachment
+a: Disconnect from the network if you opened an attachment, change the password from a clean device and any account that reuses it, turn on MFA, report it to IT or the provider, and check for odd logins or forwarding rules. Scan the machine, and watch your accounts and cards for a few weeks.
+links: g:phishing-analysis g:incident-response
+
+## sec-is-phishing
+q: how can i tell if an email is phishing | is this email a scam | how do i spot a phishing email | what are signs of phishing | how to analyze a suspicious email
+a: Check the real sender address and reply-to, urgency or threats, mismatched link destinations (hover, don't click), unexpected attachments, and generic greetings. For analysis, read the headers (SPF, DKIM, DMARC results), detonate links and files in a sandbox, and check URLs and hashes on VirusTotal.
+links: g:phishing-analysis
+
+## sec-hacked
+q: how do i know if i have been hacked | is my computer infected | signs of malware on my computer | my account was hacked what do i do | how to check for malware
+a: Signs: unknown logins or password-reset emails, slow performance, odd processes or network connections, disabled security tools, unfamiliar software or browser extensions. Steps: change passwords from a clean device, enable MFA, run a full scan, review startup items and connections (netstat, Autoruns), and restore from a known good backup if needed.
+links: g:incident-response g:malware-analysis
+
+## sec-ransomware-response
+q: what do i do if i get ransomware | ransomware attack response | computer infected with ransomware | how to respond to ransomware
+a: Isolate the machine and network segment immediately (unplug, don't power off if you need memory), tell IT or the response team, identify the strain, protect backups, and restore from clean backups after eradicating the cause. Don't pay without legal and law-enforcement advice.
+links: g:incident-response s:4.8
+
+## sec-suspicious-login
+q: suspicious login alert what do i do | impossible travel alert | unknown login to my account | analyst triage of a suspicious sign-in
+a: Confirm the source IP, location, device, time, and success or failure. Check whether the user was traveling or on a VPN, look for other activity from the same IP, reset credentials and kill sessions if it's not legitimate, and check for mailbox rules or new MFA devices.
+links: u:careers/soc-analyst
+
+## sec-secure-home-network
+q: how do i secure my home network | how to secure my router | home network security checklist | how can i make my wifi safe
+a: Change the router's admin password, update its firmware, use WPA2/WPA3 with a long passphrase, turn off WPS and remote admin, change default names, put IoT devices and guests on a separate network, and keep devices patched.
+links: g:system-hardening-windows-linux
+
+## sec-strong-password
+q: how do i make a strong password | what makes a good password | password best practices | how long should a password be
+a: Length beats complexity: use a long passphrase (14+ characters) or let a password manager generate random ones. Never reuse passwords. Turn on MFA everywhere, preferably an authenticator app or security key, not SMS.
+links: d:password-hygiene-audit
+
+## sec-password-manager
+q: should i use a password manager | what is the best password manager | are password managers safe
+a: Yes. A password manager lets you use a unique strong password everywhere. Protect it with a long master passphrase and MFA. The risk of one vault is much smaller than reusing passwords.
+links: d:password-hygiene-audit
+
+## sec-public-wifi-vpn
+q: is public wifi safe | do i need a vpn | should i use a vpn on public wifi | is a vpn worth it | does a vpn make me anonymous
+a: HTTPS protects most traffic on public Wi-Fi now. A VPN hides your traffic from the local network and your IP from sites but moves the trust to the VPN provider. It doesn't make you anonymous, and it won't stop phishing or malware. Use it for untrusted networks or to reach a work network.
+links: b:vpns-and-tunnels
+
+## sec-antivirus
+q: what is the best antivirus | do i need antivirus | is windows defender enough | should i buy antivirus
+a: Microsoft Defender is adequate for most home users when updates and safe habits are in place. Extra tools add features rather than much more protection. Backups, patching, MFA and caution with links and attachments matter more.
+links: g:system-hardening-windows-linux
+
+## sec-enable-mfa
+q: how do i enable mfa | how to set up two factor authentication | should i use sms for 2fa | what is the best mfa method
+a: Turn it on in each account's security settings. Best to worst: hardware security key (FIDO2) or passkey, authenticator app, push approval, SMS code. SMS is better than nothing but can be SIM-swapped.
+links: s:4.6
+
+## sec-after-breach
+q: what to do after a data breach | my data was in a breach | how to check if my email was breached | have i been pwned
+a: Change the password on the breached site and anywhere you reused it, turn on MFA, watch accounts and credit, consider a credit freeze if sensitive data leaked, and beware of follow-up phishing. haveibeenpwned.com shows whether an email appears in known breaches.
+links: g:incident-response
+
+## list-osi-layers
+q: what are the osi layers | list the layers of the osi model | osi model layers in order | seven layers of the osi model
+a: Layer 7 Application, 6 Presentation, 5 Session, 4 Transport, 3 Network, 2 Data link, 1 Physical. Mnemonic from the bottom: Please Do Not Throw Sausage Pizza Away. Data is called segment at layer 4, packet at 3, frame at 2, bits at 1.
+links: b:osi-and-tcpip g:computer-networks
+
+## list-cia-triad
+q: what is the cia triad | cia triad components | confidentiality integrity availability | what does cia stand for in security
+a: Confidentiality (only authorized people can see data), Integrity (data is accurate and unchanged), Availability (data and systems can be used when needed). Controls: encryption for C, hashing and signatures for I, redundancy and backups for A.
+links: b:cia-and-crypto s:1.2
+
+## list-ir-phases
+q: what are the phases of incident response | steps of incident response | incident response lifecycle | nist incident response steps | list the incident response steps
+a: NIST 800-61: preparation; detection and analysis; containment, eradication and recovery; post-incident activity (lessons learned). The Security+ list: preparation, detection, analysis, containment, eradication, recovery, lessons learned.
+links: g:incident-response s:4.8
+
+## list-kill-chain
+q: what are the steps of the cyber kill chain | cyber kill chain stages | lockheed martin kill chain phases | what is the attack lifecycle
+a: Lockheed Martin kill chain: reconnaissance, weaponization, delivery, exploitation, installation, command and control, actions on objectives. MITRE ATT&CK describes similar behavior as tactics, from reconnaissance to impact.
+links: u:attack-chain u:detect/attack-mapping
+
+## list-attack-tactics
+q: what are the mitre attack tactics | list the att&ck tactics | mitre attack matrix tactics | enterprise attack tactics
+a: Reconnaissance, resource development, initial access, execution, persistence, privilege escalation, defense evasion, credential access, discovery, lateral movement, collection, command and control, exfiltration, impact.
+links: u:detect/attack-mapping
+
+## list-owasp-top10
+q: what are common web vulnerabilities | most common web application attacks | what is the owasp top 10 | list the owasp top 10 | owasp top ten 2021 | top web vulnerabilities
+a: OWASP Top 10 (2021): A01 Broken access control, A02 Cryptographic failures, A03 Injection, A04 Insecure design, A05 Security misconfiguration, A06 Vulnerable and outdated components, A07 Identification and authentication failures, A08 Software and data integrity failures, A09 Security logging and monitoring failures, A10 Server-side request forgery.
+links: w:owasp-top-10
+
+## list-common-ports
+q: what are the common port numbers | list of important ports | which ports should i memorize | security+ ports list | common ports cheat sheet
+a: 20/21 FTP, 22 SSH/SFTP, 23 Telnet, 25 SMTP, 53 DNS, 67/68 DHCP, 69 TFTP, 80 HTTP, 88 Kerberos, 110 POP3, 123 NTP, 135 RPC, 137-139 NetBIOS, 143 IMAP, 161/162 SNMP, 389 LDAP, 443 HTTPS, 445 SMB, 465/587 SMTP over TLS, 514 Syslog, 636 LDAPS, 993 IMAPS, 995 POP3S, 1433 MSSQL, 3306 MySQL, 3389 RDP, 5432 PostgreSQL.
+links: b:ports-and-protocols u:secplus/pairs u:arcade/ports
+
+## list-private-ip
+q: what are the private ip ranges | rfc 1918 addresses | private ip address ranges | which ip addresses are private
+a: 10.0.0.0/8, 172.16.0.0/12 (172.16.x.x to 172.31.x.x) and 192.168.0.0/16. Also 127.0.0.0/8 is loopback and 169.254.0.0/16 is link-local.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## list-subnet-cheat
+q: how do i calculate a subnet | subnetting cheat sheet | how many hosts in a /24 | cidr cheat sheet | subnet mask for /24
+a: Hosts per subnet = 2^(32 - prefix) - 2. /24 = 255.255.255.0 = 254 hosts; /25 = .128 mask = 126; /26 = .192 = 62; /27 = .224 = 30; /28 = .240 = 14; /30 = .252 = 2. Block size = 256 minus the interesting octet of the mask.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## list-malware-types
+q: what are the types of malware | list the kinds of malware | different types of malware | malware categories
+a: Virus, worm, trojan, ransomware, spyware, adware, keylogger, rootkit, backdoor, RAT, botnet, logic bomb, fileless malware, cryptominer, wiper and dropper. See the glossary for each.
+links: g:malware-analysis s:2.4
+
+## list-social-engineering
+q: what are the types of social engineering | social engineering techniques | list social engineering attacks
+a: Phishing, spear phishing, whaling, smishing (SMS), vishing (voice), pretexting, baiting, tailgating, shoulder surfing, dumpster diving, impersonation, quid pro quo, watering hole attacks, business email compromise.
+links: s:2.2
+
+## list-auth-factors
+q: what are the authentication factors | types of mfa | multifactor authentication factors | something you know have are
+a: Something you know (password, PIN), something you have (token, phone, smart card), something you are (biometrics), plus somewhere you are (location) and something you do (behavior). MFA means two or more different categories, not two passwords.
+links: s:4.6
+
+## list-raid-levels
+q: what are the raid levels | raid 0 1 5 6 10 explained | difference between raid levels | which raid should i use
+a: RAID 0 stripes for speed, no redundancy. RAID 1 mirrors two disks. RAID 5 stripes with one disk of parity (survives 1 failure, needs 3+ disks). RAID 6 two parity (survives 2). RAID 10 mirrors then stripes: fast and redundant, needs 4+ disks. RAID is not a backup.
+links: g:hardware-diagnostics-and-repair s:3.4
+
+## list-cloud-models
+q: what are the cloud service models | cloud deployment models | types of cloud computing
+a: Service models: IaaS, PaaS, SaaS. Deployment models: public, private, hybrid, community, and multi-cloud for using several providers.
+links: u:cloud/cloud-basics
+
+## list-pentest-phases
+q: what are the phases of a penetration test | steps of a pentest | pentesting methodology | penetration testing process
+a: Planning and scoping (rules of engagement), reconnaissance, scanning and enumeration, gaining access (exploitation), privilege escalation and lateral movement, post-exploitation, cleanup, and reporting.
+links: u:pentest/pentest-methodology u:pentest/pentest-reporting
+
+## list-nist-csf
+q: what are the nist csf functions | nist cybersecurity framework functions | list the five functions of nist csf
+a: Identify, Protect, Detect, Respond, Recover. Version 2.0 adds a sixth, Govern.
+links: u:grc/grc-frameworks
+
+## list-aaa
+q: what is aaa in security | authentication authorization accounting | what does aaa stand for
+a: Authentication (who are you), Authorization (what may you do), Accounting (what did you do). RADIUS and TACACS+ are the common AAA protocols.
+links: s:4.6
+
+## list-event-ids
+q: important windows event ids | windows security event ids to know | what is event id 4624 | event id 4625 failed logon | windows event id list for soc
+a: 4624 successful logon; 4625 failed logon; 4634/4647 logoff; 4648 logon with explicit credentials; 4672 special privileges assigned; 4688 process created; 4720 user created; 4726 user deleted; 4732 member added to a local group; 4740 account locked out; 1102 audit log cleared; 7045 service installed. Logon types: 2 interactive, 3 network, 10 remote interactive (RDP).
+links: g:log-analysis m:windows-ir
+
+## list-linux-logs
+q: where are the linux log files | linux log file locations | what is in var log | where is the auth log
+a: /var/log/auth.log (Debian/Ubuntu; secure on RHEL) for logins and sudo, /var/log/syslog or messages for general system messages, /var/log/kern.log for the kernel, /var/log/apache2 or nginx for web servers, and journalctl for the systemd journal.
+links: g:log-analysis m:linux
+
+## list-linux-dirs
+q: linux directory structure | what are the linux folders | what is in the etc directory | linux file system hierarchy
+a: / root of the tree; /bin and /usr/bin programs; /etc configuration; /home user files; /root root's home; /var logs and changing data; /tmp temporary files; /dev devices; /proc and /sys kernel info; /opt add-on software; /mnt and /media mounts.
+links: g:linux-command-line
+
+## list-types-firewall
+q: types of firewalls | what are the kinds of firewall | packet filtering vs stateful vs application firewall
+a: Packet filter (rules on IP and port), stateful (tracks connections), proxy/application gateway (understands the application), NGFW (adds app awareness, IPS, user identity), WAF (web apps), host-based vs network-based.
+links: g:firewalls-pfsense
+
+## list-hardening
+q: how do i harden a server | system hardening checklist | steps to harden linux | how to harden windows | server hardening steps
+a: Patch everything, remove unused software and services, close unused ports, use least privilege and strong authentication (MFA, SSH keys), turn on host firewalls, encrypt disks, enable logging and forward logs, remove default accounts and passwords, and follow a benchmark (CIS, STIG).
+links: g:system-hardening-windows-linux
+
+## list-sqli-prevention
+q: how do i prevent sql injection | sql injection prevention | how to stop sql injection | how to prevent xss | how do i prevent xss attacks
+a: SQL injection: use parameterized queries (prepared statements), least-privilege database accounts and input validation; never build queries by concatenating strings. XSS: encode output for the context, use a Content Security Policy, set HttpOnly on cookies, and validate input.
+links: w:injection-and-xss
+
+## list-ccna-subnet-binary
+q: how do i convert binary to decimal | convert decimal to binary | how to convert hex to decimal | how does binary work
+a: Binary place values from the right are 1, 2, 4, 8, 16, 32, 64, 128. Add the values where there is a 1: 1101 = 8+4+1 = 13. For decimal to binary, subtract the largest power of two that fits and write a 1 there. Hex digits each equal four bits: 0xFF = 1111 1111 = 255.
+links: u:basics/number-systems
+
+## cmd-nmap-scan
+q: nmap command to scan ports | how do i scan ports with nmap | nmap scan all ports | basic nmap commands | how to use nmap
+a: Quick: nmap -sV target (service versions). All ports: nmap -p- target. Default scripts and OS: nmap -sC -sV -O target. Fast: nmap -F target. Ping sweep: nmap -sn 192.168.1.0/24. Only scan systems you own or have permission to test.
+links: m:nmap g:recon-nmap-metasploit
+
+## cmd-listening-ports
+q: how to see listening ports | command to list open ports on my machine | how to check what ports are open locally | netstat command | ss command
+a: Linux: ss -tulpn (or netstat -tulpn). Windows: netstat -ano, then tasklist /fi "pid eq N" to name the process; or Get-NetTCPConnection in PowerShell.
+links: m:linux m:cmd
+
+## cmd-find-ip
+q: how do i find my ip address | command to see ip address | ipconfig command | ip a command | what is my ip address
+a: Windows: ipconfig (add /all for DNS and MAC). Linux: ip a (or ip addr). macOS: ifconfig or networksetup. Your public IP is what outside sites see, for example curl ifconfig.me.
+links: m:cmd m:linux
+
+## cmd-dns-lookup
+q: how do i look up a dns record | nslookup command | dig command | how to check dns records | flush dns cache
+a: nslookup example.com or dig example.com. Specific record: dig example.com MX or nslookup -type=mx example.com. Choose a resolver: dig @8.8.8.8 example.com. Flush the cache: ipconfig /flushdns (Windows), resolvectl flush-caches (systemd).
+links: m:cmd m:linux
+
+## cmd-traceroute
+q: traceroute command | how to trace a route | tracert command | how do i see the path to a host
+a: Windows: tracert example.com. Linux and macOS: traceroute example.com (or mtr for a live view). Each line is a hop; stars mean that hop didn't answer, which is often just a filter.
+links: m:cmd
+
+## cmd-packet-capture
+q: tcpdump command | how do i capture packets | capture traffic on linux | wireshark capture filter | how to use tcpdump
+a: tcpdump -i eth0 -w capture.pcap (write a file); add a filter like port 53 or host 10.0.0.5. Open the pcap in Wireshark. Display filters: ip.addr == 10.0.0.5, tcp.port == 443, dns, http.request. Only capture on networks you're authorized to monitor.
+links: m:tcpdump m:wireshark d:read-a-packet-capture
+
+## cmd-disk-usage
+q: command to check disk space | df and du commands | how to check disk usage linux | find large files linux
+a: df -h shows free space per file system. du -sh * shows sizes in the current folder. Find big files: find / -type f -size +500M 2>/dev/null. ncdu gives an interactive view.
+links: m:linux
+
+## cmd-grep-search
+q: how to search for text in files | grep command examples | find a string in files linux | how do i find a file
+a: grep -ri "text" /path (recursive, ignore case). Count: grep -c. Find files: find / -name "*.conf" 2>/dev/null. Combine with pipes: cat log | grep Failed | sort | uniq -c | sort -rn.
+links: m:linux d:parse-logs-with-pipes
+
+## cmd-processes
+q: how to see running processes | how to kill a process | ps command | tasklist command | how do i stop a program from the command line
+a: Linux: ps aux, top or htop; kill PID (or kill -9 PID if it ignores you); pkill name. Windows: tasklist and taskkill /PID n /F, or Get-Process and Stop-Process in PowerShell.
+links: m:linux m:powershell
+
+## cmd-users-permissions
+q: how to add a user in linux | useradd command | how do i change file permissions | chmod 755 meaning | how to give sudo to a user
+a: sudo adduser name; add to sudo: sudo usermod -aG sudo name. Permissions: chmod 755 file means owner rwx, group r-x, others r-x (r=4, w=2, x=1). Change owner: chown user:group file.
+links: d:linux-permissions m:linux
+
+## cmd-ssh-keys
+q: how to generate an ssh key | ssh keygen command | how to copy files with scp | how to ssh into a server | ssh command example
+a: ssh-keygen -t ed25519 makes a key pair. ssh-copy-id user@host installs your public key. Connect: ssh user@host. Copy: scp file user@host:/path. Tunnel: ssh -L 8080:localhost:80 user@host.
+links: m:linux
+
+## cmd-curl
+q: how to use curl | curl command examples | how do i make an http request from the command line | how to send a post request with curl
+a: curl -I https://site (headers only); curl -s url (quiet); curl -X POST -d "a=1" url; curl -H "Authorization: Bearer TOKEN" url; curl -k skips certificate checks (testing only); curl -L follows redirects.
+links: m:http
+
+## cmd-test-connectivity-powershell
+q: test network connection powershell | test-netconnection | how to test a port in windows | powershell ping a port
+a: Test-NetConnection host -Port 443 tests TCP reachability. Add -TraceRoute for a trace. Plain Test-Connection host is the PowerShell ping.
+links: m:powershell
+
+## cmd-event-logs-powershell
+q: how to read windows event logs from powershell | get-winevent examples | powershell failed logons | how to find failed logins in windows
+a: Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625} -MaxEvents 50 lists failed logons. Add StartTime to limit the range. On Linux, grep "Failed password" /var/log/auth.log does the same job.
+links: m:powershell m:windows-ir
+
+## cmd-ad-powershell
+q: how to list active directory users in powershell | get-aduser command | how to reset a password in active directory powershell | powershell active directory commands
+a: Get-ADUser -Filter * -Properties LastLogonDate lists users. Get-ADUser name -Properties *. Reset: Set-ADAccountPassword name -Reset. Unlock: Unlock-ADAccount name. Groups: Get-ADGroupMember "Domain Admins". Needs the ActiveDirectory module (RSAT).
+links: m:ad-powershell
+
+## cmd-hash-file
+q: how do i hash a file | sha256sum command | get-filehash powershell | how to check a file checksum | verify a download hash
+a: Linux: sha256sum file. macOS: shasum -a 256 file. Windows: Get-FileHash file (SHA256 by default) or certutil -hashfile file SHA256. Compare it with the publisher's hash.
+links: m:openssl
+
+## cmd-file-analysis
+q: how to identify an unknown file | file command | strings command | how to check what a file is | xxd hex dump
+a: file name identifies the type from its magic bytes. strings name pulls readable text. xxd name | head or hexdump -C show raw bytes. sha256sum name gives a hash to look up. Do this in a VM for unknown samples.
+links: g:malware-analysis
+
+## cmd-hashcat-john
+q: how to crack a password hash | hashcat command | john the ripper command | how to crack hashes
+a: Identify the hash type first (hashid or the format), then run hashcat -m MODE hash.txt wordlist.txt or john --wordlist=rockyou.txt hash.txt. Only crack hashes from systems you're authorized to test, such as your lab or CTF.
+links: g:password-cracking-john
+
+## cmd-git
+q: basic git commands | how do i use git | git commands for beginners | how to push to github | how to undo a git commit
+a: git init, git clone url, git status, git add file, git commit -m "msg", git push, git pull, git branch name, git checkout name, git log --oneline. Undo the last commit but keep changes: git reset --soft HEAD~1. Never force-push shared branches.
+links: g:git-github u:code/git-for-scripts
+
+## cmd-docker
+q: basic docker commands | how to run a docker container | docker run example | docker commands cheat sheet
+a: docker run -d -p 8080:80 nginx starts a container. docker ps lists them, docker logs name reads output, docker exec -it name sh opens a shell, docker stop name, docker images, docker build -t name . Dockerfiles define images.
+links: g:virtualization-proxmox
+
+## cmd-python-env
+q: how to create a python virtual environment | python venv | pip install command | how to run a python script
+a: python3 -m venv .venv, then source .venv/bin/activate (Windows: .venv\Scripts\activate). pip install package. Run: python3 script.py. Save packages: pip freeze > requirements.txt.
+links: g:python u:code/python-automation
+
+## cmd-static-ip
+q: how to set a static ip | configure static ip address | how to assign a static ip in windows | netplan static ip
+a: Windows: Settings, Network adapter, IPv4 properties (or New-NetIPAddress). Ubuntu: edit /etc/netplan/*.yaml with addresses, routes and nameservers, then sudo netplan apply. Better for servers: a DHCP reservation.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## cmd-sql-basics
+q: basic sql queries | sql select example | sql join example | how to write a sql query
+a: SELECT name, age FROM users WHERE age > 18 ORDER BY name; INSERT INTO users (name) VALUES ('a'); UPDATE users SET age = 20 WHERE id = 1; DELETE FROM users WHERE id = 1; JOIN: SELECT o.id, u.name FROM orders o JOIN users u ON o.user_id = u.id. Always include WHERE on UPDATE and DELETE.
+links: m:sql g:databases-and-sql
+
+## cmd-regex-examples
+q: regex for ip address | regex examples | regular expression for email | regex for log lines
+a: IPv4 (rough): \b(?:\d{1,3}\.){3}\d{1,3}\b. Digits: \d+. Word: \w+. Start/end: ^ and $. Any chars: .* (greedy), .*? (lazy). Test patterns on a sample line before using them in a hunt.
+links: d:regex-for-logs
+
+## concept-what-happens-url
+q: what happens when you type a url in a browser | what happens when i visit a website | how does a web request work | what happens when you type google.com
+a: The browser checks its cache, DNS resolves the name to an IP, it opens a TCP connection (three-way handshake), starts a TLS handshake for HTTPS, sends an HTTP request, the server returns a response, and the browser renders HTML and fetches more resources.
+links: b:how-web-apps-work b:http-and-the-web
+
+## concept-how-https
+q: how does https work | how does tls work | what happens in a tls handshake | how does ssl work
+a: The client and server agree on a TLS version and cipher, the server proves its identity with a certificate signed by a trusted CA, they exchange keys (ephemeral Diffie-Hellman), and then all data is encrypted with a fast symmetric key.
+links: u:crypto/tls-pki
+
+## concept-tcp-handshake
+q: how does the tcp handshake work | three way handshake explained | what is syn ack | how does tcp connect
+a: Client sends SYN, server replies SYN-ACK, client sends ACK. After that the connection is open and data flows. A connection ends with FIN and ACK exchanges, or RST to reset.
+links: b:osi-and-tcpip g:computer-networks
+
+## concept-how-dns
+q: how does dns work | how does dns resolution work | how does a dns lookup work | dns explained
+a: A client asks its resolver for a name. If it isn't cached, the resolver asks a root server, then the TLD server (.com), then the domain's authoritative server, and gets the IP back. The answer is cached for the record's TTL.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## concept-how-dhcp
+q: how does dhcp work | dhcp process explained | what is dora in dhcp
+a: DORA: the client broadcasts Discover, a server sends Offer, the client sends Request, the server sends Acknowledge. The client gets an IP, mask, gateway, DNS and a lease time.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## concept-how-nat
+q: how does nat work | what is nat for | how does my router share one ip | port address translation
+a: NAT (usually PAT) rewrites private source addresses and ports to the router's public address and remembers the mapping, so replies find the right device. It also conserves IPv4 addresses, and gives accidental hiding, but it is not a firewall.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## concept-how-kerberos
+q: how does kerberos work | kerberos authentication process | explain kerberos tickets | how does kerberos login work
+a: You authenticate to the KDC and get a ticket-granting ticket (TGT). To use a service you present the TGT and get a service ticket, then show that to the service. No password crosses the network after login. Attacks: Kerberoasting, golden ticket, pass the ticket.
+links: g:active-directory u:pentest/ad-attacks
+
+## concept-how-passwords-stored
+q: how are passwords stored | how should passwords be stored | how does password hashing work | why are passwords salted
+a: Properly: as a salted hash made with a slow function (bcrypt, scrypt, Argon2), never plain text or fast hashes. A salt is a random value added per password so identical passwords hash differently and rainbow tables fail.
+links: b:cia-and-crypto
+
+## concept-how-vpn
+q: how does a vpn work | how does vpn encryption work | explain vpn tunneling
+a: A VPN client encrypts packets and wraps them inside new packets sent to the VPN server (tunneling). The server decrypts and forwards them, so the local network only sees encrypted traffic to the VPN. Protocols: WireGuard, OpenVPN, IPsec.
+links: b:vpns-and-tunnels g:vpn-tailscale
+
+## concept-how-firewall
+q: how does a firewall work | how do firewall rules work | what does a firewall do | firewall rule order
+a: A firewall compares traffic to ordered rules (source, destination, port, protocol, action) and takes the first match, with an implicit deny at the end. Stateful firewalls track connections so replies are allowed back automatically.
+links: g:firewalls-pfsense
+
+## concept-how-ids
+q: how does an ids detect attacks | signature vs anomaly detection | how does intrusion detection work
+a: Signature-based IDS compares traffic to known attack patterns. Anomaly-based IDS learns normal behavior and flags deviations. Signatures are accurate for known attacks but miss new ones. Anomaly detection can find new ones but produces more false positives.
+links: g:ids-snort
+
+## concept-how-ransomware
+q: how does ransomware work | how does ransomware spread | what does ransomware do
+a: It gets in (phishing, exposed RDP, a vulnerability), gains privileges, spreads, often steals data, deletes backups, then encrypts files and demands payment. Defenses: patching, MFA, offline immutable backups, segmentation and EDR.
+links: g:malware-analysis s:2.4
+
+## concept-how-sqli
+q: how does sql injection work | what is an example of sql injection | explain sql injection | how does sqli happen
+a: When an app builds a query from user input, input like ' OR '1'='1 changes the query's logic. SELECT * FROM users WHERE name = '' OR '1'='1' returns every user. Parameterized queries stop this because input is never treated as SQL.
+links: w:injection-and-xss
+
+## concept-how-xss
+q: how does xss work | what is an example of xss | explain cross site scripting | how does a stored xss attack work
+a: An app puts user input into a page without encoding it, so an attacker's script runs in the victim's browser with the site's privileges: stealing sessions, acting as the user, or changing the page. Fix with context-aware output encoding and CSP.
+links: w:injection-and-xss
+
+## concept-how-buffer-overflow
+q: how does a buffer overflow work | explain buffer overflow | what is a stack overflow attack | how does stack smashing work
+a: A program copies more data into a fixed-size buffer than it holds. The extra bytes overwrite neighboring memory, such as the saved return address, so an attacker can redirect execution. Mitigations: canaries, ASLR, DEP, and safe functions.
+links: g:binary-exploitation u:rev/mitigations
+
+## concept-how-llm
+q: how does chatgpt work | how do language models work | how does an llm work | how does ai generate text
+a: A language model is trained on huge text to predict the next token. It turns text into tokens, then embeddings, runs them through a transformer, and picks the next token from a probability distribution, over and over. It has no built-in fact-checker, so it can hallucinate.
+links: a:how-ai-works a:ai-use-it-well
+
+## concept-how-this-chat
+q: how does this chatbot work | how do you work | how does the ai chat on this site work | are you chatgpt
+a: This assistant searches the site's own pages, glossary, flashcards, comparisons and curated answers in your browser and quotes the best matches with links. It doesn't write new text or send your questions anywhere. Its weakness is wording: it matches words, not meaning.
+links: a:ai-chatbot
+
+## concept-why-patch
+q: why is patching important | why should i update my software | why do we need patch management | why install updates
+a: Most attacks exploit known flaws that already have patches. Patching closes those holes. Test first on important systems, patch critical and exploited vulnerabilities fast, and keep an inventory so nothing gets missed.
+links: s:4.3
+
+## concept-why-mfa
+q: why is mfa important | why use multi factor authentication | does mfa stop phishing
+a: Passwords get stolen, guessed or reused, so a second factor blocks most account takeovers. MFA isn't perfect: push fatigue and real-time phishing proxies can bypass weaker kinds. FIDO2 keys and passkeys resist phishing.
+links: s:4.6
+
+## concept-why-https-matters
+q: why is https important | why not use http | why does encryption matter
+a: HTTP traffic can be read and changed by anyone on the path. HTTPS gives confidentiality, integrity and server authentication, and is needed for logins, payments and modern browser features.
+links: b:http-and-the-web
+
+## concept-why-backups
+q: why are backups important | what is the 3-2-1 backup rule | how should i back up my data
+a: Backups are the way back from ransomware, failure, deletion and disasters. 3-2-1: three copies, on two kinds of media, one off-site (ideally offline or immutable). Test restores regularly, because an untested backup is a guess.
+links: s:3.4
+
+## concept-why-least-privilege
+q: why is least privilege important | why limit user permissions | what is the principle of least privilege
+a: If an account or program only has the access it needs, a compromise or mistake does less damage. Use separate admin accounts, role-based access and regular access reviews.
+links: s:4.6
+
+## concept-ports-closed-open-filtered
+q: what is the difference between open closed and filtered ports | nmap open closed filtered | what does filtered mean in nmap
+a: Open: a service accepted the probe. Closed: the host replied that nothing listens there. Filtered: no reply, so a firewall is probably dropping the packets and nmap can't tell.
+links: m:nmap
+
+## concept-how-subnet-gateway
+q: what is a default gateway for | why do i need a gateway | what is the gateway address
+a: The gateway is the router a device sends traffic to when the destination is outside its own subnet. Without it, a computer can talk to its local network but not the internet.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## concept-scenario-employee-usb
+q: employee found a usb drive in the parking lot | what should i do with a found usb drive | usb drop attack | unknown usb in the office
+a: Don't plug it in. A USB drive may be a drop attack (malware or a BadUSB device that acts like a keyboard). Report it to security, who can examine it in an isolated lab.
+links: s:2.2
+
+## concept-scenario-ceo-email
+q: urgent email from the ceo asking for gift cards | email from the boss asking for a wire transfer | fake invoice email | business email compromise example
+a: Classic business email compromise: a spoofed or hijacked executive account asks for urgent payments or gift cards. Verify through a second channel (phone number you already know), don't act on the email alone, and report it.
+links: g:phishing-analysis
+
+## concept-scenario-slow-after-update
+q: users report slow logins after a change | what do i do when a change breaks things | how to roll back a change | change broke production
+a: Check the change record for what was altered, compare against logs and monitoring from before, and roll back if you have a tested rollback plan. Afterward, add the lesson to the change process.
+links: s:1.3
+
+## concept-scenario-unknown-process
+q: found an unknown process running | suspicious process on my server | strange outbound connection | how to investigate a suspicious process
+a: Record its name, PID, parent, path, user, and hash. Check network connections (ss -tp, netstat -ano), the file's signature and reputation (VirusTotal hash lookup), and when it started. Preserve evidence before killing it, and isolate the host if it looks malicious.
+links: g:incident-response m:windows-ir
+
+## concept-scenario-open-s3
+q: public s3 bucket found | cloud storage exposed to the internet | storage bucket misconfiguration | exposed database on the internet
+a: Block public access immediately, check access logs to see whether the data was read, rotate any keys stored in it, assess what was exposed (breach notification may apply), and add guardrails (CSPM, policies, default deny).
+links: u:cloud/cloud-security
+
+## concept-best-language-os
+q: what is the best programming language | which operating system is best | best os for hacking | what is the best language for security
+a: There is no single best: pick by the job. For security work, Python for scripting, C for low-level understanding, and Linux plus Windows both matter. Ask a specific comparison, like python vs java or linux vs windows.
+links: u:glossary
+
+## career-degree-vs-certs
+q: is it worth getting a degree if i already have certs | degree or certifications for a cyber job | do certs replace a degree | should i finish my degree or just get certs
+a: Certs show a specific skill, a degree shows breadth and gets you past HR filters and into government and some large employers. For most people, finishing the degree and adding a cert or two is the strongest combination. If a degree isn't realistic, certs plus hands-on proof can still work.
+links: u:certs u:roadmap
+
+## career-timeline
+q: how long will it take to get job ready | how long does it take to get a cybersecurity job | how many months to learn cyber | how long to get into it
+a: It depends on where you start and how many hours you put in. With a steady 10 to 15 hours a week and some IT background, 6 to 12 months to a first IT or SOC-adjacent job is realistic; from zero, a year or more is common. The job search itself often takes months, so apply while you study.
+links: u:roadmap u:start
+
+## career-thm-enough
+q: is tryhackme enough to get a job | can i get hired with just tryhackme | is hack the box enough to get a job | are ctfs enough for a resume
+a: Alone, usually not. Practice platforms prove effort and skill, but employers also look for fundamentals, a cert or degree, and evidence of real work. Combine them: write up your rooms, build a homelab project, earn a cert such as Security+, and get any IT experience you can.
+links: u:resources u:projects
+
+## career-better-hacker
+q: how do i become a better hacker | how to get better at hacking | how to improve my pentesting skills | how do i level up in cybersecurity
+a: Strengthen fundamentals (networking, Linux, Windows, web), then practice deliberately: finish machines without walkthroughs, write up what you learned, learn why each technique works, and take part in CTFs. Read other people's write-ups after you try.
+links: u:pentest/pentest-methodology u:ctf
+
+## study-better-linux
+q: how do i get better at linux | how to improve my linux skills | how can i get comfortable with the command line | linux practice ideas
+a: Use it daily: run a Linux VM or WSL, do your file work in the terminal, write small Bash scripts, set up a web server or SSH access, and break and fix things. OverTheWire Bandit is a good free game for command-line practice.
+links: g:linux-command-line d:linux-permissions g:bash-scripting
+
+## trouble-bsod-short
+q: my pc is blue screening | pc keeps blue screening | windows blue screen error code
+a: Note the stop code on the blue screen, then check recent driver or Windows updates, run sfc /scannow and DISM /Online /Cleanup-Image /RestoreHealth, test RAM (Windows Memory Diagnostic) and the disk, and analyze the minidump with WinDbg or BlueScreenView.
+links: g:hardware-diagnostics-and-repair
+
+## trouble-wifi-dropping
+q: wifi keeps dropping | wifi keeps disconnecting | wireless connection unstable | wifi disconnects randomly
+a: Check signal strength and distance, interference (change the channel or band), the router firmware, the adapter driver, power-saving settings on the adapter, and whether other devices drop too. If all devices drop, suspect the router or ISP.
+links: g:computer-networks u:comptia/netplus
+
+## trouble-cannot-login-work
+q: i cant log into my computer at work | cannot sign in to my work account | work login not working | domain login failed
+a: Check Caps Lock and the keyboard layout, whether the password expired or the account is locked out, that the machine can reach the domain controller (network or VPN), and that the clock is correct. If those fail, contact your IT help desk, which can unlock or reset the account.
+links: g:active-directory u:careers/it-help-desk
+
+## sec-pay-ransom
+q: should i pay the ransom | should companies pay ransomware | is paying a ransomware demand a good idea
+a: Authorities generally advise against it: payment doesn't guarantee decryption, funds criminals and can mark you as a target. First isolate systems, check backups, involve incident response, legal counsel and law enforcement. Restoring from clean, tested backups is the goal. Some regulations also restrict payments.
+links: g:incident-response s:4.8
+
+## concept-after-access
+q: what do hackers do after they get in | what happens after an attacker gains access | what do attackers do once inside a network | post exploitation steps
+a: Typically: discovery (what is this machine and network), privilege escalation, credential theft, persistence so they can return, lateral movement to other systems, collecting data, then exfiltration or impact such as ransomware. Defenders hunt for each step in logs and EDR telemetry.
+links: u:pentest/windows-privesc u:detect/attack-mapping
+
+## list-common-attacks
+q: what are the common cyber attacks | types of cyber attacks | list the common cybersecurity attacks | what are the main types of attacks
+a: Phishing and social engineering, malware (including ransomware), password attacks (brute force, spraying, stuffing), man-in-the-middle, denial of service, injection (SQL, command), cross-site scripting, drive-by downloads, supply chain attacks, insider threats and zero-day exploits.
+links: s:2.4 w:owasp-top-10
+
+## safety-port-scanning-legal
+q: is port scanning illegal | is it legal to scan ports | is nmap legal | can i scan someone elses network
+a: Scanning your own systems is fine. Scanning systems you don't own may break the law or terms of service in many places, even if it seems harmless. Get written permission before scanning anything that isn't yours; use your lab or deliberately open targets such as scanme.nmap.org.
+links: m:nmap u:grc/ethics-and-disclosure
+
+## safety-kali-tor-legal
+q: is kali linux illegal | is using tor illegal | is it illegal to download hacking tools | are hacking tools legal
+a: The tools are legal to own and use on systems you're authorized to test. Kali and Tor are legal in most countries; what you do with them can be illegal. Check your local laws.
+links: g:kali-linux u:grc/ethics-and-disclosure
+
+## sec-firewall-home
+q: do i need a firewall at home | is my router firewall enough | do i need a personal firewall
+a: Your home router's NAT and built-in firewall block unsolicited inbound traffic, and the Windows or macOS firewall protects each machine. For most homes, that plus updates is enough. A dedicated firewall like pfSense adds control for a lab.
+links: g:firewalls-pfsense
+
+## sec-change-password-often
+q: how often should i change my password | do i need to change passwords regularly | should passwords expire
+a: Current guidance (NIST) says don't force regular changes. Use long unique passwords and change one only after a breach, suspected compromise or reuse. Forced rotation encourages weak, predictable passwords.
+links: d:password-hygiene-audit
+
+## sec-check-file-malicious
+q: how do i check if a file is malicious | is this file safe | how to scan a suspicious file | how do i check a file for a virus
+a: Take its hash (sha256sum or Get-FileHash) and look it up on VirusTotal, then scan it with antivirus. For unknown files, detonate in an isolated VM or online sandbox and watch behavior. Don't open suspicious files on your main machine.
+links: g:malware-analysis
+
+## sec-test-website-legal
+q: how do i check a website for vulnerabilities | scan my website for security issues | can i pentest any website | test a site for sql injection
+a: Only test sites you own or have written permission to test. Use OWASP ZAP or Nikto on your own site, or deliberately vulnerable apps like DVWA and Juice Shop. Bug bounty programs publish scopes you may test within.
+links: w:bug-bounty g:vulnerable-lab-targets-dvwa-webgoat
+
+## study-stay-updated
+q: how do i stay up to date with security news | best cybersecurity news sources | what security blogs should i read | how to follow cyber news
+a: Good sources: BleepingComputer, Krebs on Security, The Hacker News, SANS Internet Storm Center, CISA alerts, and vendor threat blogs. Follow the CVE and KEV lists for vulnerabilities, and write down what you learn.
+links: u:weekly
+
+## study-soc-day
+q: what is a day in the life of a soc analyst | what does a soc analyst do all day | what is soc work like
+a: Monitoring a queue of alerts, triaging each (real or false positive), investigating logs and endpoints, escalating real incidents to senior staff, documenting in tickets, tuning noisy rules, and handing over at shift change. Much of it is pattern recognition and writing clearly.
+links: u:careers/soc-analyst
+
+## study-pentester-day
+q: what does a penetration tester do all day | what is a pentester's job like | day in the life of a pentester
+a: Mostly scoping, scanning and enumeration, testing for weaknesses, validating findings, and writing reports; real exploitation is a smaller share. A good report clearly explains the risk and the fix.
+links: u:careers/pentester u:pentest/pentest-reporting
+
+## study-remote-jobs
+q: can i work remotely in cybersecurity | are there remote entry level cyber jobs | remote soc analyst jobs | is cybersecurity remote friendly
+a: Many roles can be remote or hybrid, but entry-level jobs are more often on site, in shifts, or require a clearance. Remote positions usually ask for experience. Start with local or hybrid roles and move remote later.
+links: u:jobs
+
+## study-math
+q: what math do i need for cybersecurity | is math required for cyber | do i need to be good at math for it
+a: Not much for most jobs: binary and hex, subnetting, basic logic and probability. Cryptography and machine learning use more math, and reverse engineering benefits from bit-level thinking.
+links: u:basics/number-systems
+
+## study-coding-needed
+q: do i need to know how to code to work in cyber | is programming required for cybersecurity | can i work in security without coding
+a: You can start without it, but scripting (Python, Bash, PowerShell) makes you far more effective and is expected for most analyst and engineering roles. Reverse engineering and exploit work need C and assembly.
+links: g:python u:code
+
+## study-free
+q: can i learn cyber for free | free cybersecurity resources | how to learn it for free | free it training
+a: Yes, much of it: Professor Messer, TryHackMe free rooms, OverTheWire, picoCTF, PortSwigger Web Security Academy, free cloud tiers, and this site. Paid items are mostly exam vouchers and premium lab time.
+links: u:resources
+
+## study-ctf-where
+q: where can i practice ctf | best ctf sites for beginners | where to find ctf challenges | online ctf practice
+a: picoCTF, TryHackMe, Hack The Box, OverTheWire, CTFtime (for live events), and PortSwigger labs for web. Start with picoCTF or TryHackMe.
+links: u:ctf u:resources
+
+## study-remember-ports
+q: best way to remember ports | how do i memorize port numbers | tips to remember common ports
+a: Group them by purpose, quiz yourself daily with flashcards (the ports arcade and Security+ pairs drill), and tie each to a story: 22 SSH is the secure replacement for 23 Telnet. Seeing them in Wireshark or nmap output also helps.
+links: u:arcade/ports u:secplus/pairs
+
+## cmd-vim-exit
+q: how do i exit vim | how to quit vim | vim help i am stuck | how to save and exit vim
+a: Press Esc first, then type :q! and Enter to quit without saving, or :wq to save and quit. Press i to start typing again. nano is easier: Ctrl+O saves, Ctrl+X exits.
+links: g:linux-command-line
+
+## cmd-who-logged-in
+q: how do i see who is logged in | who is logged in linux | linux login history | show last logins
+a: Linux: who, w for current sessions, last for history, lastb for failed attempts. Windows: query user, and the Security log (4624, 4625).
+links: m:linux
+
+## cmd-kill-port
+q: how do i find what is using a port | which process is using port 80 | kill the process using a port | address already in use
+a: Linux: sudo ss -tulpn | grep :80 or sudo lsof -i :80, then kill PID. Windows: netstat -ano | findstr :80, then taskkill /PID n /F.
+links: m:linux m:cmd
+
+## cmd-cron
+q: how do i schedule a task in linux | crontab syntax | how to use cron | schedule a script to run every day
+a: Edit with crontab -e. Format: minute hour day-of-month month day-of-week command. 30 2 * * * /path/script.sh runs daily at 02:30. Windows uses Task Scheduler or schtasks.
+links: m:linux g:bash-scripting
+
+## cmd-archives
+q: how do i extract a tar file | tar command examples | how to zip a folder in linux | unzip a file in linux
+a: Create: tar -czf out.tar.gz folder. Extract: tar -xzf out.tar.gz. Zip: zip -r out.zip folder; unzip out.zip. List contents: tar -tzf file.
+links: m:linux
+
+## cmd-download-file
+q: how do i download a file from the command line | wget command | download a file with curl | invoke-webrequest download
+a: Linux: wget URL or curl -O URL. PowerShell: Invoke-WebRequest -Uri URL -OutFile file. Verify the hash of anything you download.
+links: m:http m:powershell
+
+## cmd-system-info
+q: how do i check memory usage | how to check cpu info linux | how do i see my windows version | check system information command
+a: Linux: free -h (memory), lscpu (CPU), uname -a (kernel), cat /etc/os-release (distro). Windows: systeminfo, winver, or Get-ComputerInfo.
+links: m:linux m:cmd
+
+## cmd-firewall-block
+q: how do i block an ip address | ufw deny command | block an ip in the firewall | iptables block ip
+a: Ubuntu: sudo ufw deny from 203.0.113.5. iptables: sudo iptables -A INPUT -s 203.0.113.5 -j DROP. Windows: New-NetFirewallRule -DisplayName "Block" -Direction Inbound -RemoteAddress 203.0.113.5 -Action Block.
+links: g:firewalls-pfsense
+
+## cmd-encrypt-file
+q: how do i encrypt a file | encrypt a file with gpg | openssl encrypt a file | how to password protect a file
+a: gpg -c file asks for a passphrase and writes file.gpg (decrypt with gpg file.gpg). OpenSSL: openssl enc -aes-256-cbc -pbkdf2 -in file -out file.enc. Use a long passphrase. For whole drives use BitLocker or LUKS.
+links: m:openssl
+
+## cmd-install-kali
+q: how do i install kali linux | how to set up kali in a vm | install kali on virtualbox
+a: Download the prebuilt Kali VM image for VirtualBox or VMware from kali.org and verify its checksum, import it, change the default password, and snapshot it. Use a host-only or NAT network, not a bridged one, until you know what you are doing.
+links: g:kali-linux g:virtualization-proxmox
+
+## cmd-bootable-usb
+q: how do i make a bootable usb | create a bootable usb drive | how to flash an iso to usb
+a: Use Rufus (Windows), balenaEtcher (any OS) or Ventoy to write the ISO to a USB drive, or dd on Linux. Verify the ISO hash first. Writing wipes the drive.
+links: u:comptia/aplus
+
+## cmd-reboot
+q: how do i restart from the command line | shutdown command | reboot a server remotely
+a: Linux: sudo reboot or shutdown -r now. Windows: shutdown /r /t 0, or Restart-Computer. Use the schedule option (shutdown -r +5) to warn users.
+links: m:linux m:cmd
+
+## study-note-taking
+q: what is the best way to take notes while studying | how should i take notes for security+ | how to study effectively for certs | study tips for technical exams | how to remember what i study
+a: Write notes in your own words, make flashcards for facts (ports, acronyms, definitions), review them with spaced repetition (Anki or the flashcards here), and do labs so ideas stick. Test yourself instead of rereading: active recall beats highlighting.
+links: u:secplus/train u:secplus
+
+## study-communities
+q: what are good cybersecurity communities to join | where can i meet people in cybersecurity | cybersecurity discord servers | local security meetups | how to network in infosec
+a: Look for local BSides events, ISSA, OWASP and ISC2 chapters, 2600 or DEF CON groups, and Discord communities around TryHackMe and Hack The Box. Join online, ask specific questions, share write-ups, and go to a local meetup if one exists.
+links: u:resources
+
+## study-mentor
+q: how do i find a cybersecurity mentor | how to find a mentor in it | who can help me get into cyber | how to get career advice in security
+a: Join local chapters and meetups, be active in communities, ask professors and alumni, and message people with specific questions after you've tried yourself. A short, respectful message with a clear question gets better answers.
+links: u:resources
+
+## trouble-overheating
+q: my laptop is overheating | computer overheating what do i do | pc running hot | laptop fan loud and hot | cpu temperature too high
+a: Check temperatures with a monitoring tool, clean dust from vents and fans with compressed air, make sure vents are not blocked, use a hard surface or cooling pad, close heavy background programs, update BIOS and drivers, and replace thermal paste if it is old.
+links: g:hardware-diagnostics-and-repair u:comptia/aplus
+
+## trouble-reset-router
+q: how do i reset a router | how to factory reset a router | router not working reset | forgot router password
+a: A restart (power off 30 seconds) fixes many problems without losing settings. A factory reset: hold the recessed Reset button for about 10 seconds until lights blink; this wipes your settings and Wi-Fi password, so note them first. Afterwards set a new admin password and Wi-Fi password, then update the firmware.
+links: g:computer-networks
+
+## trouble-slow-shared-internet
+q: why is my internet slow when many people are connected | why does the internet get slow in the evening | internet slow when others use it | shared wifi slow
+a: Bandwidth is shared: streaming, downloads, backups and updates compete. Check what is using it, use wired connections for heavy devices, enable QoS on the router, reduce Wi-Fi channel congestion, or upgrade the plan.
+links: g:network-traffic-analysis
+
+## trouble-cert-expired
+q: what happens if a certificate expires | expired ssl certificate impact | certificate expired website | how to renew an ssl certificate
+a: Browsers show a full-page warning and many clients and APIs refuse to connect, so it often looks like an outage. Renew before expiry (Let's Encrypt automates it), install the new cert and any intermediates, and set expiry monitoring.
+links: u:crypto/tls-pki m:openssl
+
+## sec-first-breach-step
+q: what is the first thing to do when you suspect a breach | suspect a security breach what now | we think we were hacked what do we do | first steps in a security incident
+a: Don't panic and don't wipe anything. Contain it (isolate affected hosts, disable compromised accounts), preserve evidence (logs, memory, disk images), notify the incident response team and management, document each action with times, and follow your incident response plan.
+links: g:incident-response s:4.8
+
+## sec-remove-malware
+q: how do i remove malware from my computer | my computer has a virus how do i remove it | how to clean an infected pc | remove a virus from windows
+a: Disconnect from the network, boot in safe mode, run a full scan with an up-to-date antivirus or an offline scanner, remove unknown programs and startup items, then change passwords from a clean device. If it persists or the data is sensitive, back up files and reinstall the OS.
+links: g:malware-analysis g:incident-response
+
+## sec-password-reuse
+q: is it okay to use the same password everywhere | can i reuse passwords | why not reuse passwords | is it bad to reuse a password
+a: No. When one site is breached, attackers try the same email and password everywhere (credential stuffing). Use a unique password per account in a password manager, plus MFA.
+links: d:password-hygiene-audit
+
+## sec-insider-threat-detect
+q: how do security teams detect insider threats | how to detect an insider threat | insider threat indicators
+a: Look for unusual access times or volumes, large downloads, use of personal cloud or USB, access outside job role, and policy changes. Tools: DLP, UEBA, access logging and reviews, plus HR and management signals.
+links: s:2.2
+
+## sec-ransomware-protect
+q: how can i protect myself from ransomware | how to prevent ransomware | ransomware protection tips | how do i defend against ransomware
+a: Keep offline or immutable backups and test restores, patch quickly, use MFA, limit admin rights, filter email and block macros, segment the network, and run EDR. Don't expose RDP to the internet.
+links: s:3.4 g:system-hardening-windows-linux
+
+## sec-found-vuln
+q: what do i do if i find a vulnerability in a website | i found a security bug what now | how to report a vulnerability | responsible disclosure how to
+a: Stop testing, don't access or share data, and report it to the owner through their security contact, security.txt, or bug bounty program. Include steps to reproduce and impact, and give them time to fix it before any disclosure.
+links: w:bug-bounty u:grc/ethics-and-disclosure
+
+## study-mac-cyber
+q: can i use a mac for cybersecurity | is a macbook good for cybersecurity | can i do pentesting on a mac | mac or pc for cyber
+a: Yes. Macs run most tools natively, and VMs (UTM, Parallels, VMware Fusion) cover the rest. Apple silicon runs ARM Kali and Linux VMs well, but some Windows and x86-only tools are awkward, so a spare PC or cloud lab helps for AD labs.
+links: u:homelab
+
+## study-cheap-homelab
+q: what is the cheapest way to build a homelab | homelab on a budget | can i build a homelab for free | cheap homelab ideas
+a: Use what you have: VirtualBox on your current PC, free OS images (Ubuntu, Kali, Windows evaluation ISOs), and an isolated virtual network. A used mini PC or laptop with 16 GB RAM running Proxmox is a good low-cost upgrade.
+links: u:homelab g:virtualization-proxmox
+
+## study-sysadmin-certs
+q: what certifications are good for sysadmins | sysadmin certification path | what certs for system administrators | certifications for linux admins
+a: A+ and Network+ for basics, then Microsoft (Azure Administrator, formerly MCSA paths) or Linux (RHCSA, LPIC, Linux+), plus Security+. Hands-on experience matters more than the order.
+links: u:careers/sysadmin u:certs
+
+## study-wazuh-setup
+q: how do i set up a wazuh server | how to install wazuh | wazuh homelab setup | how to set up a siem at home
+a: Run the Wazuh all-in-one installer on an Ubuntu VM with enough RAM (4 GB or more), open the dashboard, enroll agents on a Windows and a Linux VM, then generate test events and write detections. Security Onion is an alternative for network monitoring.
+links: g:siem-security-onion u:homelab
+
+## study-ad-start
+q: how do i get started with active directory | active directory lab setup | how to build an active directory lab | install a domain controller
+a: Create a Windows Server VM, add the Active Directory Domain Services role, promote it to a domain controller, join a Windows client to the domain, then practice with users, groups, OUs and Group Policy. Add attacks (Kerberoasting, BloodHound) once the basics are solid.
+links: g:active-directory u:pentest/ad-attacks

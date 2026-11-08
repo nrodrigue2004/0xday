@@ -1,0 +1,824 @@
+# Curated side-by-side comparisons for ~/ai/chat. Parsed by chatdata.py.
+# Header:  ## A | B | C        (2 to 4 items; the question can name any 2+ of them)
+# Rows:    Aspect: value A | value B | value C   (one value per item)
+# Also:    alias: other name = A, other name = B     pick: advice sentence     links: prefix:slug ...
+# Every link is checked at build time. Keep values short and plain; no grades, no hype.
+
+## TCP | UDP
+Connection: Connection-oriented. A three-way handshake sets it up first. | Connectionless. It just sends datagrams.
+Reliability: Acknowledges data, retransmits losses, delivers in order. | No delivery guarantee, no ordering, no retransmission.
+Speed and overhead: Slower, with more header and state to track. | Faster and lighter, with a small fixed header.
+Typical uses: Web (HTTP/HTTPS), SSH, email, file transfer. | DNS lookups, VoIP, video streaming, games, DHCP.
+pick: Use TCP when every byte must arrive correct and in order. Use UDP when speed matters more than perfect delivery, or the application handles loss itself.
+links: b:osi-and-tcpip u:basics/ports-and-protocols
+
+## IPv4 | IPv6
+Address size: 32 bits, written as four decimal numbers like 192.168.1.10. | 128 bits, written as hex groups like 2001:db8::1.
+Number of addresses: About 4.3 billion, which ran out. | About 3.4 x 10^38, effectively unlimited.
+NAT: Usually needed, because public addresses are scarce. | Not needed for address supply; every device can have a global address.
+Notation and config: Manual, DHCP. | Manual, DHCPv6 or SLAAC (devices build their own address).
+Security: IPsec is optional. | IPsec was designed in, but is still optional in practice. Firewalls still matter.
+pick: Most networks run both (dual stack) today. IPv4 is not going away soon, but anything new should support IPv6.
+links: g:networking-tcp-ip-dhcp-nat-subnets b:osi-and-tcpip
+
+## Symmetric encryption | Asymmetric encryption
+Keys: One shared secret key encrypts and decrypts. | A key pair: the public key encrypts, the private key decrypts (or signs).
+Speed: Fast, fine for bulk data. | Slow, used for small things like key exchange and signatures.
+Main problem: Getting the shared key to the other side safely. | Slower, and key management and trust (certificates) are the hard part.
+Examples: AES, ChaCha20. | RSA, ECC, Diffie-Hellman.
+pick: In practice they work together. Asymmetric crypto agrees on or protects a session key, then symmetric crypto encrypts the actual data (this is what TLS does).
+alias: public key encryption = Asymmetric encryption, private key encryption = Symmetric encryption, secret key = Symmetric encryption
+links: u:crypto/symmetric-modes u:crypto/public-key b:cia-and-crypto
+
+## Hub | Switch | Router
+OSI layer: Layer 1 (physical). | Layer 2 (data link), some are layer 3. | Layer 3 (network).
+What it does: Repeats every signal out of every other port. | Learns MAC addresses and sends frames only to the right port. | Forwards packets between different networks using IP addresses.
+Collision and traffic: One shared collision domain, so it is noisy and slow. | Each port is its own collision domain. | Separates broadcast domains and connects LANs to the internet.
+Where you see it: Almost never now. | Inside a LAN, connecting devices. | At the edge of a network, home or office.
+pick: A hub is obsolete. A switch connects devices inside one network. A router connects networks to each other (your home router also bundles a switch, Wi-Fi and NAT).
+links: g:computer-networks b:osi-and-tcpip
+
+## Virus | Worm | Trojan
+How it spreads: Attaches to a file or program and needs a user to run it. | Spreads on its own across networks, no user action needed. | Does not self-spread. It pretends to be something useful.
+Needs a host: Yes, it infects files. | No, it is standalone. | No, it relies on you installing it.
+Typical damage: Corrupts or infects files. | Consumes bandwidth, carries payloads, spreads fast. | Opens a backdoor, steals data, drops other malware.
+pick: The difference is how it gets in and moves: a virus rides a file, a worm moves by itself, a trojan tricks you into running it.
+links: g:malware-analysis s:2.4
+
+## SIEM | SOAR
+Purpose: Collects and correlates logs, raises alerts, supports search and investigation. | Automates the response with playbooks and ties tools together.
+Input and output: Logs in, alerts and dashboards out. | Alerts in, automated actions out (block IP, disable account, open a ticket).
+Who uses it: SOC analysts, for detection and triage. | SOC and IR teams, to cut repetitive work.
+Examples: Splunk, Elastic, Wazuh, Microsoft Sentinel. | Cortex XSOAR, Splunk SOAR, Shuffle, Tines.
+pick: SIEM finds and shows the problem; SOAR does the repetitive steps after the alert fires. Many products now bundle both.
+links: g:siem-security-onion s:4.4 s:4.7
+
+## IDS | IPS
+Action: Detects and alerts only. | Detects and blocks the traffic inline.
+Placement: Out of band, on a copy of traffic (TAP or SPAN port). | Inline, so traffic passes through it.
+Risk: Misses nothing it can't see, but it won't stop anything by itself. | A false positive can block real traffic or break a service.
+Examples: Snort and Suricata in IDS mode, Zeek. | Snort and Suricata in IPS mode.
+pick: IDS watches and tells you. IPS watches and acts. Same detection engine, different placement and response.
+alias: intrusion detection system = IDS, intrusion prevention system = IPS
+links: g:ids-snort s:3.2
+
+## Authentication | Authorization
+Question answered: Who are you? | What are you allowed to do?
+How it works: Passwords, MFA, certificates, biometrics. | Permissions, roles, ACLs, policies.
+Order: Happens first. | Happens after you are authenticated.
+Example: Logging in to a server with a key. | That account can read /var/log but not edit /etc.
+pick: Authentication proves identity. Authorization decides access. Accounting (the third A) records what you did.
+alias: authn = Authentication, authz = Authorization, authentification = Authentication, authorisation = Authorization
+links: s:4.6 b:cia-and-crypto
+
+## Encryption | Hashing | Encoding
+Reversible: Yes, with the key. | No, it is one-way. | Yes, by anyone, no key.
+Purpose: Keep data secret (confidentiality). | Check data wasn't changed (integrity) and store passwords. | Convert data to a format another system can handle.
+Key needed: Yes. | No (but a salt helps for passwords). | No.
+Examples: AES, RSA. | SHA-256, bcrypt. | Base64, URL encoding, ASCII.
+pick: Encoding is not security. Hashing proves or stores without being reversible. Encryption hides data that you need to read back later.
+links: b:cia-and-crypto g:cryptography-applied
+
+## HTTP | HTTPS
+Encryption: None. Anyone on the path can read and change it. | TLS encrypts the traffic and authenticates the server.
+Port: 80 | 443
+Certificate: None. | Needs a certificate from a trusted CA.
+Use today: Only for redirects or internal testing. | The default for everything on the web.
+pick: Always use HTTPS. HTTPS is HTTP carried inside TLS.
+links: b:http-and-the-web u:crypto/tls-pki
+
+## Vulnerability | Threat | Risk
+Meaning: A weakness in a system, process or person. | Anything that could exploit a weakness and cause harm. | The likelihood and impact of a threat exploiting a vulnerability.
+Example: An unpatched server. | An attacker or malware. | A breach of that server costing money and data.
+You control it by: Patching, hardening, configuring. | Mostly you can't; you reduce exposure. | Mitigate, transfer, accept or avoid.
+pick: Risk = threat x vulnerability x impact, roughly. No weakness, or no one to exploit it, means little risk.
+links: u:grc/risk-management s:5.2
+
+## Red team | Blue team | Purple team
+Role: Attacks, simulating a real adversary. | Defends, detects and responds. | Coordinates both so findings improve defenses.
+Goal: Find gaps and test detection. | Prevent, detect and contain attacks. | Share techniques, tune detections, close gaps faster.
+Typical work: Pentests, phishing, C2, privilege escalation. | SOC monitoring, hardening, incident response. | Run an attack, check what was seen, write the missing detection.
+pick: Red breaks, blue defends, purple makes them work together.
+links: u:careers/pentester u:careers/soc-analyst
+
+## Firewall | WAF
+Layer: Network and transport (IPs, ports), some inspect more. | Application layer (HTTP requests).
+Protects against: Unwanted connections, port scans. | SQL injection, XSS, bad bots against a web app.
+Placement: At the network edge or on the host. | In front of a web application.
+pick: A firewall decides who may connect to what. A WAF reads the web requests and blocks malicious ones. Use both.
+links: g:firewalls-pfsense s:3.2
+
+## VPN | Proxy
+What it covers: All traffic from the device (or chosen networks), encrypted in a tunnel. | Usually one application or protocol (often web).
+Encryption: Yes, between you and the VPN endpoint. | Not by itself.
+Hides your IP: From the sites you visit, yes. | Yes for the proxied traffic.
+Typical use: Remote access to a company network, privacy on public Wi-Fi. | Content filtering, caching, web access control.
+pick: A VPN secures a connection to a network. A proxy relays requests for you. A VPN gives encryption; a plain proxy does not.
+links: b:vpns-and-tunnels g:vpn-tailscale
+
+## Proxy | Reverse proxy
+Sits in front of: Clients. | Servers.
+Who it serves: Users going out to the internet. | The internet coming in to your servers.
+Used for: Filtering, caching, anonymity. | Load balancing, TLS termination, hiding backends, WAF.
+Examples: Squid, corporate web proxy. | Nginx, HAProxy, Cloudflare.
+pick: A forward proxy represents the clients. A reverse proxy represents the servers.
+alias: forward proxy = Proxy
+
+## Virtual machine | Container
+What it virtualizes: A whole computer with its own OS kernel. | Just the app and its dependencies, sharing the host kernel.
+Size and start time: GBs, minutes. | MBs, seconds.
+Isolation: Stronger, down to the hardware. | Weaker, since the kernel is shared.
+Examples: VirtualBox, VMware, Proxmox, Hyper-V. | Docker, Podman, Kubernetes pods.
+pick: Use a VM when you need a separate OS or strong isolation. Use a container for fast, lightweight, repeatable app deployment.
+alias: vm = Virtual machine, vms = Virtual machine, docker = Container, containers = Container
+links: g:virtualization-proxmox
+
+## Type 1 hypervisor | Type 2 hypervisor
+Runs on: Directly on the hardware (bare metal). | On top of a normal OS as an app.
+Performance: Better. | Lower, because of the extra OS layer.
+Examples: ESXi, Proxmox, Hyper-V, Xen. | VirtualBox, VMware Workstation, Parallels.
+Used for: Servers and data centers. | Desktops and labs.
+alias: bare metal hypervisor = Type 1 hypervisor, hosted hypervisor = Type 2 hypervisor
+links: g:virtualization-proxmox
+
+## DoS | DDoS
+Source: One attacking system. | Many systems, often a botnet.
+Blocking: Block the one source. | Hard: traffic comes from thousands of addresses.
+Scale: Limited by one machine. | Can reach hundreds of Gbps.
+pick: Same goal (make the service unavailable). DDoS is just distributed, which makes it harder to stop.
+alias: denial of service = DoS, distributed denial of service = DDoS
+links: s:2.4
+
+## Phishing | Spear phishing | Whaling
+Target: Mass, anyone. | A specific person or group, researched. | Senior executives.
+Message: Generic ("your account is locked"). | Personalised with names, projects, colleagues. | Business-specific, like wire transfers or legal notices.
+Success rate: Low per message, high in volume. | Much higher. | High value if it works.
+pick: Same technique, increasing precision and payoff. Smishing is by text and vishing is by phone.
+alias: whale phishing = Whaling, ceo fraud = Whaling
+
+## Static analysis | Dynamic analysis
+Runs the code: No. | Yes, in a safe sandbox.
+Looks at: File structure, strings, imports, disassembly. | Behavior: processes, files, registry, network.
+Weak spot: Packed or obfuscated code hides it. | Malware may detect the sandbox or wait.
+pick: Start with static to learn what the sample is, then run it dynamically to see what it does. Use both.
+links: g:malware-analysis u:rev/dynamic-analysis
+
+## Vulnerability scan | Penetration test
+Method: Automated tool checks for known weaknesses. | A human tries to actually exploit them and chain them together.
+Output: A list of potential issues, with false positives. | Proven attack paths and impact, in a report.
+Frequency and cost: Frequent, cheap. | Occasional, more expensive.
+Exploits: No. | Yes (within the agreed scope).
+pick: A scan finds what might be wrong; a pentest shows what an attacker could actually do.
+alias: vuln scan = Vulnerability scan, pentest = Penetration test, vulnerability assessment = Vulnerability scan
+links: u:pentest/pentest-methodology s:4.3
+
+## IaaS | PaaS | SaaS
+You manage: OS, runtime, apps, data. | Your app and data. | Just your users and settings.
+Provider manages: Hardware, network, virtualization. | Plus OS and runtime. | Everything else.
+Examples: AWS EC2, Azure VMs. | Heroku, Azure App Service, Google App Engine. | Microsoft 365, Gmail, Salesforce.
+pick: Moving from IaaS to SaaS, the provider handles more and you handle less (and control less). See the shared responsibility model.
+links: u:cloud/cloud-basics
+
+## SQL | NoSQL
+Structure: Tables with fixed schemas and relations. | Flexible: documents, key-value, graph or wide-column.
+Query language: SQL. | Varies by product.
+Strength: Consistency, joins, complex queries. | Scale-out, flexible data shapes.
+Examples: MySQL, PostgreSQL, SQL Server. | MongoDB, Redis, Cassandra.
+pick: Use SQL for structured, related data. Use NoSQL when the data shape is flexible or you need horizontal scale. NoSQL is not immune to injection.
+links: g:databases-and-sql g:mongodb-and-nosql
+
+## Primary key | Foreign key
+Purpose: Uniquely identifies each row in its own table. | Points to a primary key in another table.
+Duplicates: Not allowed. | Allowed (many rows can point to one).
+Nulls: Not allowed. | Can be allowed.
+pick: The primary key names the row; the foreign key links to another table's row.
+links: b:relational-databases
+
+## Stack | Heap
+Allocation: Automatic, last in first out. | Manual or garbage collected, any order.
+Speed: Very fast. | Slower.
+Size and lifetime: Small, ends when the function returns. | Large, lives until freed.
+Security angle: Stack buffer overflows overwrite return addresses. | Heap bugs: use after free, heap overflow.
+links: g:binary-exploitation
+
+## Stack | Queue
+Order: Last in, first out (LIFO). | First in, first out (FIFO).
+Operations: push, pop. | enqueue, dequeue.
+Use: Undo, call stack, DFS. | Task scheduling, BFS, buffers.
+
+## Compiler | Interpreter
+Translation: Converts the whole program to machine code ahead of time. | Executes the code line by line at run time.
+Speed: Faster at run time. | Slower, but quick to start and test.
+Examples: C, C++, Rust, Go. | Python, JavaScript (JIT-compiled in practice), Bash.
+Errors: Reported before running. | Reported when that line runs.
+pick: Many languages mix both (Java compiles to bytecode, then a VM runs it).
+links: u:langs/compiler-pipeline
+
+## Process | Thread
+Memory: Own memory space. | Shares memory with other threads in the same process.
+Cost: Heavier to create and switch. | Lighter.
+Isolation: Strong; one crash doesn't take others down. | Weak; a bad thread can crash the process.
+links: g:operating-systems
+
+## RAM | SSD / HDD
+Role: Working memory for running programs. | Long-term storage for files and the OS.
+Persistence: Volatile, lost at power off. | Persistent.
+Speed: Fastest. | Slower (SSD is far faster than HDD).
+Forensics: Capture memory first, because it vanishes. | Image the disk.
+alias: memory = RAM, storage = SSD / HDD, disk = SSD / HDD
+
+## SSD | HDD
+Technology: Flash memory, no moving parts. | Spinning magnetic platters.
+Speed: Much faster, almost instant access. | Slower, seek time.
+Cost per GB: Higher. | Lower.
+Failure: Wears out writes; fails suddenly. | Mechanical failure, often with warning.
+Secure wipe: Overwriting is unreliable. Use ATA secure erase or crypto erase. | Overwriting works.
+pick: SSD for the OS and anything you want fast, HDD for cheap bulk storage and backups.
+links: g:secure-data-sanitization
+
+## BIOS | UEFI
+Age: Legacy, from the 1980s. | Modern replacement.
+Disk limit: MBR, 2 TB boot disks. | GPT, huge disks.
+Security: None built in. | Secure Boot, signed bootloaders.
+Interface: Text menus, keyboard. | Graphical, mouse support.
+pick: Use UEFI with Secure Boot on anything modern.
+alias: legacy boot = BIOS
+
+## CPU | GPU
+Design: A few powerful cores for varied tasks. | Thousands of small cores for parallel work.
+Good at: General computing, branching logic, running the OS. | Graphics, machine learning, password cracking.
+links: b:linux-windows-basics
+
+## Linux | Windows
+Source: Open source, many distros. | Proprietary, Microsoft.
+Shell: Bash and others, command line is central. | PowerShell and cmd, GUI is central.
+Admin account: root. | Administrator.
+File system: ext4, XFS, one tree from /. | NTFS, drive letters.
+Use in security: Servers, tools, Kali, most of the internet. | Desktops, Active Directory, most business environments.
+pick: Learn both. Security jobs expect Windows and Active Directory knowledge as well as Linux command line.
+links: b:linux-windows-basics g:linux-command-line g:windows-admin-powershell
+
+## Python | Java
+Typing and speed: Dynamic, slower. | Static, faster, compiled to bytecode.
+Syntax: Short and readable. | Verbose, strict.
+Strength: Scripting, automation, data, ML, security tooling. | Large business systems, Android, enterprise.
+Learning curve: Gentler. | Steeper but teaches OOP well.
+pick: Start with Python for scripting and security work. Learn Java for software engineering jobs and OOP.
+links: g:python g:java
+
+## Python | JavaScript
+Runs on: Anywhere with an interpreter, mostly servers and scripts. | Browsers first, servers via Node.js.
+Best for: Automation, data science, security tools. | Websites and web apps.
+pick: Pick Python for scripting and data; JavaScript if you want to build for the web.
+links: g:python g:typescript-javascript
+
+## C | C++
+Style: Procedural, minimal. | Adds objects, templates, a large standard library.
+Memory: Manual. | Manual, plus RAII and smart pointers.
+Why security people care: Classic buffer overflows live here. | Same class of bugs, plus object lifetime issues.
+links: g:c-x86-assembly
+
+## Git | GitHub
+What it is: Version control software on your machine. | A website that hosts Git repositories and adds collaboration.
+Works offline: Yes. | No, it's a hosted service.
+Alternatives: Mercurial, SVN. | GitLab, Bitbucket.
+pick: Git is the tool, GitHub is a place to put your repos and work with others.
+links: g:git-github
+
+## Frontend | Backend
+Runs in: The browser. | The server.
+Concerns: Layout, interactivity, user experience. | Data, logic, authentication, APIs.
+Languages: HTML, CSS, JavaScript. | Python, Java, Node, Go, and a database.
+Security: Never trust it; users can change anything. | Where checks must happen.
+
+## RBAC | ABAC
+Decides by: A user's role. | Attributes of user, resource and context (time, location, device).
+Flexibility: Simple, coarse. | Fine-grained, more complex.
+Example: Analysts can read logs. | Analysts can read logs only from managed laptops during shifts.
+links: s:4.6
+
+## OAuth | SAML
+Purpose: Delegated authorization (let an app access your data). | Single sign-on for enterprise (authentication).
+Format: JSON, tokens. | XML assertions.
+Typical use: Sign in with Google, API access. | Corporate SSO to SaaS apps.
+pick: OAuth answers "may this app do this for me". SAML answers "who is this user" across companies. OpenID Connect adds authentication on top of OAuth.
+links: s:4.6
+
+## Kerberos | NTLM
+Mechanism: Ticket-based, with a trusted KDC. | Challenge-response using the password hash.
+Security: Stronger, mutual authentication. | Weak: pass the hash, relay attacks.
+Used in: Active Directory domains by default. | Fallback, workgroups, legacy.
+pick: Kerberos is the default in AD and NTLM is the legacy fallback you try to disable.
+links: g:active-directory
+
+## DNS | DHCP
+Job: Turns names into IP addresses. | Gives devices IP addresses and settings automatically.
+Port: 53 | 67 and 68 (UDP).
+Direction: Client asks "where is example.com". | Client asks "who am I and what's my gateway".
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## Public IP address | Private IP address
+Routable on the internet: Yes. | No, only inside local networks.
+Ranges: Everything else. | 10/8, 172.16/12, 192.168/16.
+How it's used: Assigned by your ISP or cloud provider. | Assigned by your router with DHCP; NAT translates it.
+alias: public ip = Public IP address, private ip = Private IP address
+
+## LAN | WAN
+Area: A building or campus. | Across cities or countries.
+Owned by: You. | Carriers and ISPs.
+Speed: Fast, cheap. | Slower, expensive.
+Example: Your home network. | The internet.
+
+## WPA2 | WPA3
+Handshake: 4-way PSK handshake, vulnerable to offline guessing. | SAE, which resists offline password guessing.
+Forward secrecy: No. | Yes.
+Open networks: No protection. | Enhanced Open encrypts without a password.
+pick: Use WPA3 if everything supports it; WPA2 with AES (not TKIP) and a long passphrase otherwise. Never WEP.
+
+## FTP | SFTP | FTPS
+Encryption: None. Credentials are in cleartext. | Yes, inside SSH. | Yes, FTP inside TLS.
+Port: 21 | 22 | 990 (implicit) or 21 (explicit)
+Built on: Its own protocol. | SSH. | FTP plus TLS.
+pick: Use SFTP in new setups. Avoid plain FTP.
+links: s:pairs
+
+## SSH | Telnet
+Encryption: Yes. | None.
+Port: 22 | 23
+Authentication: Passwords and keys. | Passwords in cleartext.
+pick: Use SSH. Telnet is only left for old gear and CTFs.
+links: s:pairs
+
+## SSH | RDP
+Remote access to: A command line (and tunnels). | A full Windows desktop.
+Port: 22 | 3389
+Typical OS: Linux and network gear. | Windows.
+Risk: Weak passwords, exposed keys. | Heavily brute-forced and exploited when exposed to the internet.
+pick: Never expose RDP directly to the internet. Put either behind a VPN.
+
+## SMB | NFS
+Typical OS: Windows file sharing (Samba on Linux). | Linux and Unix.
+Port: 445 | 2049
+Attack notes: Relay, EternalBlue, null sessions. | Misconfigured exports, no auth in old versions.
+
+## POP3 | IMAP
+Mail location: Downloads mail to one device, usually deleting it from the server. | Mail stays on the server, synced to every device.
+Port (TLS): 995 | 993
+pick: IMAP for use on more than one device. POP3 is mainly for old setups.
+
+## Full backup | Incremental backup | Differential backup
+Copies: Everything. | Only changes since the last backup of any kind. | Everything changed since the last full backup.
+Backup speed: Slowest. | Fastest. | In between, and grows each day.
+Restore: Fastest: one set. | Slowest: full plus every incremental in order. | Fast: full plus the latest differential.
+links: s:3.4
+
+## RTO | RPO
+Question: How quickly must we be running again? | How much data can we afford to lose?
+Measured in: Time to recover. | Time between the last good backup and the failure.
+Drives: Choice of recovery site and failover. | Backup frequency and replication.
+links: s:3.4
+
+## Hot site | Warm site | Cold site
+State: Fully equipped and running with live data. | Hardware ready, data needs restoring. | Empty space with power and connectivity only.
+Recovery time: Minutes. | Hours to days. | Days to weeks.
+Cost: Highest. | Medium. | Lowest.
+links: s:3.4
+
+## Black box | Gray box | White box
+Tester knows: Nothing. | Some details, like a normal user account. | Everything: source, diagrams, credentials.
+Realism: Closest to an outside attacker. | Typical for focused tests. | Most thorough, least realistic.
+alias: unknown environment = Black box, partially known environment = Gray box, known environment = White box, black box testing = Black box, white box testing = White box
+links: u:pentest/pentest-methodology
+
+## SAST | DAST
+Examines: Source code, without running it. | The running application from outside.
+When: Early, while coding. | Late, on a deployed test build.
+Finds: Insecure code patterns, hardcoded secrets. | Runtime issues like injection and misconfiguration.
+Misses: Runtime and config problems. | Code paths it can't reach.
+links: u:sdl/sast-dast
+
+## Qualitative risk | Quantitative risk
+Output: High, medium, low ratings. | Dollar figures (SLE, ALE).
+Needs: Judgment, workshops. | Data on asset value and loss frequency.
+Speed: Fast. | Slower, more precise.
+alias: qualitative = Qualitative risk, quantitative = Quantitative risk, qualitative risk assessment = Qualitative risk, quantitative risk assessment = Quantitative risk
+links: u:grc/risk-management s:5.2
+
+## Risk mitigation | Risk transference | Risk acceptance | Risk avoidance
+Action: Reduce the likelihood or impact with controls. | Move the cost to someone else (insurance, contract). | Knowingly live with it. | Stop doing the risky thing.
+Example: Patch and add MFA. | Cyber insurance. | A low-risk legacy server with sign-off. | Don't collect the data at all.
+alias: risk transfer = Risk transference, risk mitigate = Risk mitigation, risk avoid = Risk avoidance, risk accept = Risk acceptance
+links: s:5.2
+
+## False positive | False negative
+Meaning: An alert fired but nothing bad happened. | Something bad happened and nothing alerted.
+Cost: Wasted analyst time, alert fatigue. | A missed attack.
+Which is worse: Usually annoying. | Usually dangerous.
+links: g:siem-security-onion
+
+## IOC | IOA
+Stands for: Indicator of compromise. | Indicator of attack.
+Describes: Evidence of something that already happened: a hash, IP, domain, file name. | Behavior in progress: process injection, odd logins, lateral movement.
+Detection style: Reactive, signature-like. | Proactive, behavior-based.
+alias: indicator of compromise = IOC, indicator of attack = IOA
+links: u:detect/threat-hunting
+
+## Antivirus | EDR
+Detection: Mostly signatures and some heuristics. | Behavior monitoring, telemetry, and response.
+Response: Quarantine files. | Isolate hosts, kill processes, investigate and hunt.
+Visibility: The file. | Everything the endpoint does.
+alias: av = Antivirus, anti-virus = Antivirus
+
+## EDR | XDR
+Scope: Endpoints. | Endpoints plus email, network, identity and cloud.
+Data: Endpoint telemetry. | Correlated across many sources.
+alias: extended detection and response = XDR, endpoint detection and response = EDR
+
+## Stream cipher | Block cipher
+Works on: One bit or byte at a time. | Fixed-size blocks (AES uses 128 bits).
+Examples: ChaCha20, RC4. | AES, DES.
+Needs: A never-repeated keystream. | A mode of operation (GCM, CBC).
+links: u:crypto/symmetric-modes
+
+## AES | RSA
+Type: Symmetric block cipher. | Asymmetric.
+Key size: 128, 192, 256 bits. | 2048 bits or more.
+Used for: Encrypting data. | Key exchange, signatures.
+
+## MD5 | SHA-1 | SHA-256
+Output size: 128 bits. | 160 bits. | 256 bits.
+Status: Broken, collisions are easy. | Broken for signatures. | Currently fine.
+Use: Only non-security checksums. | Legacy only. | Integrity, signatures, blockchains.
+pick: For passwords use bcrypt, scrypt or Argon2, not a fast hash like these.
+alias: md5 hash = MD5, sha256 = SHA-256, sha1 = SHA-1, sha-2 = SHA-256
+
+## Encryption at rest | Encryption in transit
+Protects: Stored data (disks, databases, backups). | Data moving across a network.
+Examples: BitLocker, LUKS, database TDE. | TLS, SSH, IPsec.
+Protects against: A stolen disk or laptop. | Eavesdropping and tampering on the wire.
+pick: You need both. Neither protects data while it's being processed in memory.
+alias: data at rest = Encryption at rest, data in transit = Encryption in transit, at rest = Encryption at rest, in transit = Encryption in transit
+links: s:3.3
+
+## CVE | CVSS
+What it is: An ID for a specific known vulnerability, like CVE-2021-44228. | A 0 to 10 score for how severe a vulnerability is.
+Run by: MITRE, with NVD adding detail. | FIRST.
+Use: Look up and track a flaw. | Prioritize which to fix first.
+links: s:4.3
+
+## NIST CSF | ISO 27001
+Type: Voluntary framework with functions (Identify, Protect, Detect, Respond, Recover). | A certifiable standard for an information security management system.
+Certification: No certificate. | Yes, via an accredited audit.
+Origin: US (NIST). | International (ISO/IEC).
+links: u:grc/grc-frameworks s:5.1
+
+## GDPR | HIPAA | PCI DSS
+Covers: Personal data of people in the EU. | US health information. | Payment card data.
+Type: Law. | Law. | Industry standard, enforced by contract.
+Applies to: Anyone handling EU residents' data. | Healthcare providers, insurers, their partners. | Anyone who stores, processes or transmits card data.
+links: u:grc/privacy-law s:5.4
+
+## Policy | Standard | Procedure | Guideline
+Role: High-level rules and intent set by management. | Specific mandatory requirements. | Step-by-step instructions. | Recommended advice, optional.
+Example: Protect company data. | Passwords must be 14 characters. | How to reset a password. | Use a password manager.
+Mandatory: Yes. | Yes. | Yes. | No.
+links: u:grc/policy-writing s:5.1
+
+## Threat hunting | Incident response
+Trigger: Proactive: no alert required. | Reactive: an alert or report starts it.
+Goal: Find hidden attackers. | Contain and recover from a known incident.
+Based on: Hypotheses and threat intel. | Playbooks and procedures.
+links: u:detect/threat-hunting g:incident-response
+
+## Machine learning | Deep learning | AI
+Scope: A way for programs to learn patterns from data. | ML using many-layered neural networks. | The broad field of machines doing tasks that need intelligence.
+Relationship: A subset of AI. | A subset of ML. | The umbrella.
+Examples: Spam filters, regression. | Image recognition, LLMs. | All of the above, plus rule-based systems.
+alias: ml = Machine learning, artificial intelligence = AI, neural networks = Deep learning
+links: a:ml-intro a:how-ai-works
+
+## Supervised learning | Unsupervised learning
+Data: Labeled examples. | No labels.
+Goal: Predict a label or number. | Find structure: clusters, anomalies.
+Examples: Spam detection, price prediction. | Customer grouping, anomaly detection.
+links: a:ml-intro a:ml-classifiers
+
+## Overfitting | Underfitting
+Meaning: Learns the training data too well, including noise. | Too simple to capture the pattern.
+Symptom: Great on training data, poor on new data. | Poor on both.
+Fix: More data, regularization, simpler model. | More features, a more capable model.
+links: a:ml-evaluation
+
+## Security+ | Network+ | A+
+Focus: Security concepts and operations. | Networking. | PC hardware, OS and support basics.
+Level: Intermediate, most job postings ask for it. | Intermediate. | Entry.
+Jobs: SOC, security analyst, DoD roles (8570). | Network tech, sysadmin. | Help desk, desktop support.
+pick: Order for most people: A+ if you're new to IT, Network+ if networking is weak, then Security+. If you already have the fundamentals, go straight to Security+.
+alias: a plus = A+, network plus = Network+, security plus = Security+, comptia security+ = Security+, comptia network+ = Network+, comptia a+ = A+
+links: u:comptia u:certs u:roadmap
+
+## Security+ | CySA+ | PenTest+
+Focus: Broad security fundamentals. | Defensive analysis: SOC, detection, response. | Offensive testing.
+Level: Entry to intermediate. | Intermediate. | Intermediate.
+Best for: Everyone starting in security. | SOC analyst path. | Pentester path.
+pick: Take Security+ first. CySA+ if you're going toward SOC work, PenTest+ for pentesting.
+alias: cysa plus = CySA+, pentest plus = PenTest+
+links: u:comptia/cysa u:certs
+
+## Security+ | CISSP
+Level: Entry to intermediate. | Senior, management-oriented.
+Experience: None required. | Five years of paid experience (or a path to Associate).
+Content: Technical basics. | Eight broad domains, more governance.
+Cost: About a few hundred dollars. | Higher exam fee.
+pick: Security+ now; CISSP years later once you have the experience.
+alias: cissp certification = CISSP
+
+## Network+ | CCNA
+Vendor: CompTIA, vendor-neutral. | Cisco.
+Depth: Broad, shallow. | Deeper, more configuration (routing, switching).
+Best for: Networking basics and general IT. | Network engineering careers.
+alias: cisco ccna = CCNA, ccna certification = CCNA
+
+## Security+ | CEH
+Style: Concepts and operations. | Attack tools and techniques, multiple choice.
+Recognition: Widely required, DoD approved. | Known but mixed reputation among practitioners.
+pick: Security+ first. For hands-on offensive skill, practice labs (TryHackMe, Hack The Box) or a practical exam like OSCP, not just CEH.
+
+## SOC analyst | Penetration tester | Incident responder
+Work: Monitors alerts and triages. | Attacks systems with permission and reports. | Contains and investigates confirmed incidents.
+Hours: Shifts, often 24/7. | Project based. | On call, bursts of intense work.
+Entry level: Yes, the most common starting job. | Rare as a first job. | Usually after SOC or sysadmin.
+Skills: SIEM, logs, networking, triage. | Exploitation, web, AD, reporting. | Forensics, malware triage, scripting.
+alias: soc = SOC analyst, pentester = Penetration tester, ir = Incident responder
+links: u:careers/soc-analyst u:careers/pentester u:careers/incident-responder
+
+## Help desk | Sysadmin | Network engineer
+Focus: Users and tickets. | Servers, accounts, patching. | Routers, switches, firewalls.
+Entry level: Yes. | Mid. | Mid.
+Next step: Sysadmin or SOC. | Cloud, security engineering. | Network security.
+alias: it support = Help desk, tech support = Help desk, system administrator = Sysadmin
+links: u:careers/it-help-desk u:careers/sysadmin
+
+## Computer science | Information technology | Cybersecurity
+Focus: Theory, algorithms, building software. | Running and supporting systems and networks. | Protecting systems and data.
+Math: Heavy. | Light. | Moderate.
+Jobs: Software engineer, researcher. | Help desk, sysadmin, network admin. | SOC, pentest, GRC.
+pick: A CS degree with a security concentration keeps both doors open. For security roles, labs and certs show practical skill.
+alias: cs = Computer science, it = Information technology, cyber = Cybersecurity, cyber security = Cybersecurity, infosec = Cybersecurity
+
+## College degree | Certifications
+Shows: Broad foundation and commitment. | A specific skill checked by an exam.
+Cost and time: Years, expensive. | Weeks to months, lower.
+Hiring: HR filters often require it. | Helps get past filters for entry roles, and DoD jobs need them.
+pick: A degree plus one or two certs and some hands-on projects is a strong entry package. Certs alone work if you also show labs.
+alias: degree = College degree, cert = Certifications, certs = Certifications
+
+## TryHackMe | Hack The Box
+Style: Guided rooms with explanations. | Less guidance, more realistic and harder.
+Best for: Beginners and learning paths. | After the basics, for practice and CTF skill.
+Cost: Free tier plus subscription. | Free tier plus subscription.
+pick: Start on TryHackMe, move to Hack The Box when you can finish easy machines without a walkthrough.
+alias: thm = TryHackMe, htb = Hack The Box, hackthebox = Hack The Box
+links: u:resources
+
+## Wireshark | tcpdump
+Interface: GUI with filters and protocol decoders. | Command line.
+Best for: Analysis and learning. | Capturing on servers over SSH.
+Output: Live view or pcap. | Writes pcap, readable text.
+pick: Capture with tcpdump on remote boxes, analyze the pcap in Wireshark.
+links: m:wireshark m:tcpdump
+
+## Nmap | Metasploit
+Purpose: Discovers hosts, ports and services. | Exploitation framework with payloads and modules.
+Stage: Reconnaissance and scanning. | Exploitation and post-exploitation.
+links: m:nmap g:recon-nmap-metasploit
+
+## Bash | PowerShell
+Passes around: Text. | Objects.
+Platform: Linux and macOS (also Windows via WSL). | Windows, also cross-platform in PowerShell 7.
+Style: Short commands, text tools (grep, awk). | Verb-Noun cmdlets (Get-Process).
+links: g:bash-scripting m:powershell
+
+## Active reconnaissance | Passive reconnaissance
+Touches the target: Yes, sends packets to it. | No, uses public sources.
+Examples: Nmap scans, banner grabbing. | WHOIS, search engines, Shodan, certificate logs.
+Detectable: Yes. | No.
+Permission: Needed. | Not needed (but stay within the law).
+alias: active recon = Active reconnaissance, passive recon = Passive reconnaissance, active scanning = Active reconnaissance, osint = Passive reconnaissance
+
+## Bind shell | Reverse shell
+Who connects: The attacker connects to the target. | The target connects out to the attacker.
+Firewall problem: Blocked by inbound rules. | Passes outbound rules, so more common.
+alias: reverse shells = Reverse shell, bind shells = Bind shell
+links: g:binary-exploitation
+
+## XSS | CSRF
+Attack: Injects script into a page that runs in the victim's browser. | Tricks a logged-in browser into sending an unwanted request.
+Abuses: The user's trust in the site. | The site's trust in the user's browser.
+Fix: Output encoding, CSP. | Anti-CSRF tokens, SameSite cookies.
+alias: cross-site scripting = XSS, cross site request forgery = CSRF
+links: w:injection-and-xss w:auth-and-sessions
+
+## SQL injection | XSS
+Target: The database. | Other users' browsers.
+Cause: User input in a query. | User input in a page.
+Fix: Parameterized queries. | Output encoding and CSP.
+alias: sqli = SQL injection
+links: w:injection-and-xss
+
+## Cookie | Session | JWT
+Stored where: In the browser. | On the server (the browser holds an ID). | Entirely in the token, held by the client.
+Holds: Small data, often a session ID. | The real user state. | Signed claims.
+Revocation: Easy; delete it. | Easy; destroy session. | Hard unless you track them.
+alias: session cookie = Cookie, jwt token = JWT, json web token = JWT
+links: w:auth-and-sessions
+
+## REST | SOAP
+Format: JSON usually, over HTTP. | XML only, with strict envelopes.
+Weight: Light and simple. | Heavier, more built-in standards.
+Common now: Yes. | Mostly in older enterprise systems.
+alias: rest api = REST
+links: b:apis-rest-json
+
+## TLS | SSL
+Status: Current. | Deprecated, all versions are broken or retired.
+Versions: 1.2 and 1.3 are in use. | SSL 2.0 and 3.0 are dead.
+Name in use: Still called "SSL" by habit. | Historic name.
+pick: People say SSL but mean TLS. Use TLS 1.2 or 1.3.
+alias: ssl/tls = TLS
+links: u:crypto/tls-pki
+
+## Public key | Private key
+Shared: Yes, with anyone. | Never; kept secret.
+Does: Encrypts data for you, verifies your signatures. | Decrypts data, creates signatures.
+alias: public key = Public key, private key = Private key
+links: u:crypto/public-key
+
+## Certificate | Digital signature
+What it is: A document binding a public key to an identity, signed by a CA. | A value that proves who signed data and that it wasn't changed.
+Issued by: A certificate authority. | Whoever holds the private key.
+links: u:crypto/tls-pki
+
+## Workgroup | Domain
+Management: Each computer manages its own accounts. | Central accounts on a domain controller.
+Scale: A few machines. | Thousands.
+Policies: Local only. | Group Policy across the domain.
+links: g:active-directory
+
+## Docker | Kubernetes
+Role: Builds and runs containers. | Orchestrates many containers across many machines.
+Scale: One host. | A cluster.
+links: g:virtualization-proxmox
+
+## Agile | Waterfall
+Process: Short iterations, constant feedback. | Fixed sequential phases.
+Change: Welcomed. | Expensive late.
+links: u:cs/agile
+
+## Array | Linked list
+Access by index: Fast, O(1). | Slow, O(n).
+Insert in the middle: Slow, shifts elements. | Fast once you are at the node.
+Memory: Contiguous. | Scattered nodes with pointers.
+links: g:data-structures-and-algorithms
+
+## BFS | DFS
+Order: Level by level. | Goes deep first, then backtracks.
+Uses: Shortest path in unweighted graphs. | Cycle detection, topological sort, maze solving.
+Data structure: Queue. | Stack or recursion.
+alias: breadth first search = BFS, depth first search = DFS, breadth-first = BFS, depth-first = DFS
+links: u:cs/graphs
+
+## Merge sort | Quick sort
+Average time: O(n log n). | O(n log n).
+Worst case: O(n log n). | O(n^2) with bad pivots.
+Extra memory: O(n). | O(log n) stack.
+Stable: Yes. | No.
+links: u:cs/sorting
+
+## Latency | Bandwidth | Throughput
+Meaning: Time for one piece of data to arrive. | Maximum capacity of the link. | Data actually delivered per second.
+Unit: Milliseconds. | Mbps or Gbps. | Mbps or Gbps.
+Analogy: Time a car takes on the road. | Number of lanes. | Cars actually passing per hour.
+links: g:computer-networks
+
+## 32-bit | 64-bit
+Memory addressable: 4 GB. | Terabytes in practice.
+Registers: 32 bits wide (eax, ebx). | 64 bits wide (rax, rbx).
+Where it matters: Old systems and shellcode. | Modern systems.
+links: g:c-x86-assembly
+
+## Little endian | Big endian
+Byte order: Least significant byte first. | Most significant byte first.
+Used by: x86, most ARM. | Network byte order, some older CPUs.
+links: u:basics/number-systems
+
+## White hat | Black hat | Gray hat
+Authorised: Yes. | No. | Not always, but means well.
+Motivation: Defence, a job. | Money, harm, ego. | Curiosity, ethics unclear.
+Legal: Legal. | Illegal. | Often illegal.
+pick: The line is permission. If you don't own it or have written authorisation, don't test it.
+
+## Phishing | Smishing | Vishing
+Channel: Email. | Text messages (SMS). | Voice calls.
+alias: smishing = Smishing, vishing = Vishing
+
+## Internal audit | External audit
+Done by: Your own staff. | An independent third party.
+Purpose: Check readiness and find issues early. | Certification, regulators, customers.
+
+## Preventive control | Detective control | Corrective control
+Goal: Stop it from happening. | Notice it happened. | Fix it after.
+Examples: Firewall, MFA, locks. | Logs, IDS, CCTV. | Restore from backup, patching.
+alias: preventive controls = Preventive control, detective controls = Detective control, corrective controls = Corrective control
+links: s:1.1
+
+## Technical control | Managerial control | Operational control | Physical control
+Implemented by: Technology: firewalls, encryption. | Policy and oversight: risk assessments. | People and processes: training, guards. | Barriers: locks, fences.
+links: s:1.1
+
+## Confidentiality | Integrity | Availability
+Question: Can only the right people see it? | Is it accurate and unchanged? | Can it be used when needed?
+Threat: Data breach. | Tampering. | Ransomware, DoS.
+Control: Encryption, access control. | Hashing, signatures. | Backups, redundancy.
+alias: cia triad = Confidentiality, cia = Confidentiality
+
+## Something you know | Something you have | Something you are
+Examples: Password, PIN. | Phone, token, smart card. | Fingerprint, face.
+Weakness: Guessed, phished. | Stolen. | Cannot be changed if leaked.
+alias: knowledge factor = Something you know, possession factor = Something you have, inherence factor = Something you are, authentication factors = Something you know
+links: s:4.6
+
+## Least privilege | Separation of duties
+Idea: Give only the access needed. | No one person controls a whole critical process.
+Stops: Over-powered accounts. | Fraud and single points of failure.
+Example: Interns can't change firewall rules. | One person requests payment, another approves.
+
+## Defense in depth | Zero trust
+Idea: Layer controls so no single failure is fatal. | Never trust by location; verify every request.
+Assumes: The perimeter plus inner layers. | The network is already hostile.
+alias: layered security = Defense in depth
+links: s:1.2
+
+## Static IP | DHCP
+Address: Set by hand and stays fixed. | Assigned automatically from a pool, can change.
+Used for: Servers, printers, gateways. | Laptops, phones, most clients.
+Risk: Typos and conflicts. | Rogue DHCP servers.
+
+## Ping | Traceroute
+Tells you: Whether a host answers and how fast. | The path through each router hop.
+Protocol: ICMP echo. | ICMP or UDP with increasing TTL.
+Windows name: ping | tracert
+links: g:computer-networks
+
+## nslookup | dig
+Platform: Windows and Linux. | Linux and macOS (also installable elsewhere).
+Output: Simple answer. | Detailed, scriptable.
+
+## netstat | ss
+Status: Older, deprecated on Linux. | Modern replacement, faster.
+Shows: Connections and listening ports. | Same, with more detail.
+
+## Symbolic link | Hard link
+Points to: A path (name). | The same data on disk.
+If target is deleted: The link breaks. | Data stays until all links are gone.
+alias: symlink = Symbolic link, soft link = Symbolic link
+
+## sudo | su
+Runs: One command as root. | A whole shell as another user.
+Password: Your own. | The target user's.
+Auditing: Logged per command. | Less granular.
+
+## Ubuntu | Kali Linux
+Made for: General use and servers. | Penetration testing and security work.
+Tools: Install what you want. | Hundreds preinstalled.
+Daily use: Yes. | Not recommended as a main OS.
+links: g:kali-linux g:linux-server-admin-ubuntu
+
+## 2.4 GHz | 5 GHz
+Range: Longer, passes walls better. | Shorter.
+Speed: Lower. | Higher.
+Congestion: Crowded. | Cleaner.
+
+## Ethernet | Wi-Fi
+Medium: Cable. | Radio.
+Speed and latency: Faster, steadier. | Slower, variable.
+Security: Needs physical access. | Anyone in range can try; encryption essential.
+
+## Router | Access point
+Job: Routes between networks, usually with NAT and DHCP. | Provides Wi-Fi connection to a wired network.
+Alone: Can connect networks. | Needs a router behind it.
+
+## Modem | Router
+Job: Converts the ISP signal to Ethernet. | Shares that connection among devices.
+Layer: Physical/link. | Network.
+
+## VLAN | Subnet
+Level: Layer 2 segmentation. | Layer 3 addressing.
+Purpose: Separate broadcast domains on a switch. | Separate IP ranges.
+Usually: One VLAN per subnet. | Mapped to a VLAN.
+links: g:networking-tcp-ip-dhcp-nat-subnets
+
+## OSPF | BGP
+Used: Inside an organization (interior). | Between organizations (the internet).
+Metric: Link cost. | Policies and path attributes.
+alias: ospf routing = OSPF, bgp routing = BGP

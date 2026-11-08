@@ -1,0 +1,135 @@
+# Wild set: written after the engine was built, in the way a learner would actually phrase things. Not tuned against.
+w-def | whats the point of a subnet mask ==> network|host
+w-def | ok so what even is a hypervisor ==> virtual
+w-def | can someone explain what a proxy server does ==> request|client|relay|intermediar
+w-def | im new, what is a packet ==> data|header|network
+w-def | what is latency ==> delay|time
+w-def | what's a cron job ==> schedule
+w-def | what is the difference between a bit and a byte ==> 8
+w-def | what is a zero day exploit ==> vendor|patch|unknown
+w-def | explain public key cryptography ==> public|private
+w-def | what is a dmz in networking ==> screened|exposed|between
+w-def | what is a mac address ==> hardware|unique|layer 2|device
+w-def | what are ports ==> service|number|65535|connection
+w-def | what is ssl ==> tls|encrypt|certificate|secure sockets
+w-def | what is https ==> tls|encrypt
+w-def | what is a sandbox in malware analysis ==> isolated|safe|run
+w-def | what is endpoint security ==> endpoint|device|protect
+w-def | what is a cvss score ==> severity|0
+w-def | what's an ioc ==> indicator|compromise
+w-def | what is ping used for ==> reach|echo|icmp|test
+w-def | what is a gateway ==> router|network|outside
+w-def | what is a threat actor ==> attacker|person|group
+w-def | what does root mean in linux ==> admin|superuser|all-powerful|uid
+w-def | what is a daemon ==> background
+w-def | what is a vpn used for ==> tunnel|encrypt|remote
+w-def | what is gpo ==> group policy
+w-def | what is a cipher ==> encrypt|algorithm
+w-def | what is a salt in hashing ==> random|rainbow
+w-def | what is a man in the middle attack ==> intercept|between
+w-def | what is a playbook in a soc ==> steps|response|procedure
+w-def | what are logs ==> record|events
+w-def | what is mttr ==> mean time|respond|recover
+w-cmp | what's the difference between a switch and a hub ==> mac|layer 2|collision
+w-cmp | should i learn python or java first ==> python
+w-cmp | linux or windows for a cybersecurity career ==> both|learn
+w-cmp | which is better security+ or ceh ==> security\+|ceh
+w-cmp | is an ids better than a firewall ==> detect|block|alert
+w-cmp | difference between white hat and black hat hackers ==> permission|authoris|legal
+w-cmp | what is the difference between tcp and ip ==> tcp|ip
+w-cmp | difference between an exploit and a vulnerability ==> weakness|exploit
+w-cmp | what's the difference between a hash and a checksum ==> hash|checksum|integrity
+w-cmp | difference between a firewall and an antivirus ==> firewall|antivirus
+w-cmp | is a vpn the same as a firewall ==> vpn|firewall
+w-cmp | what is the difference between a ping and a traceroute ==> hop|echo
+w-cmp | difference between virus and malware ==> malware|virus
+w-cmp | what separates a soc analyst from a pentester ==> alert|attack|test
+w-cmp | which is harder oscp or cissp ==> hands-on|experience
+w-cmp | cloud vs on-premises ==> cloud|premises
+w-cmp | what is the difference between a vulnerability and an exploit ==> weakness|exploit
+w-cmp | difference between spoofing and phishing ==> spoof|phish
+w-cmp | difference between a port and a protocol ==> port|protocol
+w-cmp | what is the difference between ram and rom ==> ram|rom
+w-faq | i have no experience how do i get a cyber job ==> help desk|projects|homelab|certs
+w-faq | what should i study for the security+ ==> objective|domain|flashcards|practice
+w-faq | is it worth getting a degree if i already have certs ==> degree|certs
+w-faq | how do i get better at linux ==> command line|practice|vm|daily
+w-faq | i want to work in a soc what do i need ==> siem|security\+|networking
+w-faq | what's a good first project for my resume ==> homelab|write-up|github|project
+w-faq | how long will it take to get job ready ==> months|weeks|depends|study
+w-faq | what tools should a soc analyst know ==> siem|splunk|wireshark
+w-faq | my pc is blue screening what do i do ==> stop code|driver|sfc|minidump
+w-faq | wifi keeps dropping ==> interference|driver|router|signal|channel|check
+w-faq | website says connection not private ==> certificate|expired|clock
+w-faq | i cant log into my computer at work ==> account|locked|password|ad|domain|it
+w-faq | how do i know if an email is fake ==> sender|link|header|urgen
+w-faq | should i pay the ransom ==> law|backup|don't|restore|not
+w-faq | what do hackers do after they get in ==> persist|escalat|lateral|credential|exfil
+w-faq | what does a penetration tester do all day ==> test|report|scan|exploit
+w-faq | best way to remember ports ==> flashcards|drill|memor|ports|arcade
+w-faq | how do i read a log file ==> grep|timestamp|log|pipe|journalctl|event
+w-faq | how do i know what is using my bandwidth ==> task manager|netstat|bandwidth|traffic|monitor|top|wireshark|ss
+w-faq | what are the common cyber attacks ==> phishing|malware|ransomware|injection|ddos
+w-faq | what is the first thing to do when you find malware ==> isolate|disconnect|contain|report
+w-faq | how can i practice sql injection legally ==> dvwa|juice|lab|portswigger|webgoat
+w-faq | do i need to know how to code to work in cyber ==> python|script|code|automation
+w-faq | what math do i need for cybersecurity ==> binary|subnet|crypto|logic|math|statistic
+w-faq | how do i become a better hacker ==> practice|labs|ctf|tryhackme|fundamentals
+w-faq | what should my homelab have ==> proxmox|virtual|pfsense|ad|siem|active directory
+w-faq | is tryhackme enough to get a job ==> projects|certs|not|experience|alone|portfolio
+w-faq | can i learn cyber for free ==> free|tryhackme|messer|resources|youtube|labs
+w-faq | where can i practice ctf ==> picoctf|tryhackme|hack the box|ctf
+w-ask | how does ransomware encrypt files ==> encrypt|key|aes|rsa|files
+w-ask | explain how a phishing attack works ==> email|link|credential|trick|social
+w-ask | what happens during a ddos attack ==> traffic|flood|overwhelm|botnet|unavailable
+w-ask | how do passwords get cracked ==> hash|wordlist|brute|dictionary|hashcat|john
+w-ask | how can i tell if my network is being scanned ==> log|port|ids|firewall|syn|connection
+w-ask | why do hackers use vpns and tor ==> anonym|hide|ip|trace
+w-ask | how does a firewall decide what to block ==> rule|port|ip|allow|deny
+w-ask | how do cookies work ==> browser|session|server|small|store|header
+w-ask | why is http not secure ==> cleartext|encrypt|read|plain
+w-ask | what makes a password strong ==> long|unique|passphrase|length
+w-ask | how does wifi hacking work ==> handshake|wpa|capture|crack|deauth|aircrack
+w-ask | how do i set up a vm ==> virtualbox|vmware|proxmox|iso|install|hypervisor
+w-ask | how do i use burp suite ==> proxy|intercept|request|repeater
+w-ask | what are the stages of a cyber attack ==> recon|deliver|exploit|kill chain|persist|command
+w-ask | how does an antivirus detect malware ==> signature|heuristic|behavior|hash
+w-ask | what is the cia triad used for ==> confidential|integrity|availability|security
+w-ask | how are hashes used in forensics ==> integrity|hash|image|verify|match
+w-ask | what do i do in the identification phase of incident response ==> detect|identif|alert|analy
+w-ask | how does sso work ==> single sign|token|identity provider|saml|one login|once
+w-ask | what is a good way to learn wireshark ==> capture|filter|packet|practice|pcap
+w-ask | how does git work ==> commit|branch|repository|version|history|snapshot
+w-ask | how do apis work ==> request|response|endpoint|json|http
+w-ask | can you explain big o notation simply ==> growth|input|time|complexity|steps
+w-ask | what is the osi model used for ==> layers|troubleshoot|model|network
+w-typo | wahts the differnce between virus and worm ==> self|own|host
+w-typo | how do i beocme a soc anlayst ==> siem|security\+|learn
+w-typo | expalin ransomware ==> encrypt|ransom
+w-typo | whats a firewal ==> traffic|rules|firewall
+w-typo | what is an ipv6 adress ==> 128|ipv6
+w-typo | sql injecton ==> query|input
+w-typo | what is the diffrence between http and https ==> tls|encrypt|443
+w-typo | tcp vs udp wich is faster ==> udp|faster|speed
+w-typo | kali linx vs ubuntu ==> penetration|security|tools
+w-typo | how to prevnt phishing ==> train|mfa|filter|awareness|email
+w-multi | what is dns and how does it work ==> dns.*(resolver|ip|name)
+w-multi | what is encryption and why does it matter ==> encrypt
+w-multi | explain tcp and udp ==> tcp.*udp|udp.*tcp
+w-multi | what is mfa and should i use it ==> mfa.*(factor|authenticator|key)|factor.*mfa
+w-multi | tell me what a firewall is and how it differs from an ids ==> firewall.*ids|ids.*firewall
+w-neg | what is the best pizza topping
+w-neg | how do i train my dog
+w-neg | who is taylor swift
+w-neg | what's 2+2
+w-neg | what is the airspeed velocity of an unladen swallow
+w-neg | blorp zonk frimble
+w-neg | can you book me a flight
+w-neg | what is bitcoin trading strategy
+w-neg | explain the theory of relativity
+w-neg | what is the best guitar for beginners
+w-chat | hello
+w-chat | thanks
+w-chat | who are you
+w-chat | what can you do
+w-chat | lol
