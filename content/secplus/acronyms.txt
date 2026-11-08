@@ -1,0 +1,274 @@
+# Security+ SY0-701 acronyms for the timed trainer (my own grouping by domain).
+# Format: ACRONYM | expansion | domain (1-5) | optional one-line hint
+# 1 General Security Concepts, 2 Threats/Vulns/Mitigations, 3 Architecture, 4 Operations, 5 Governance/Risk/Compliance
+AAA | Authentication, Authorization and Accounting | 1 | Prove who, what you may do, log what you did
+ABAC | Attribute-Based Access Control | 1 | Decisions from attributes: role, time, location, device
+ACL | Access Control List | 1 | Ordered permit/deny rules on a resource or interface
+AES | Advanced Encryption Standard | 1 | Symmetric block cipher, 128-bit blocks
+3DES | Triple Data Encryption Standard | 1 | DES run three times; legacy
+DES | Data Encryption Standard | 1 | 56-bit key, broken by brute force
+RSA | Rivest Shamir Adleman | 1 | Asymmetric, factoring-based
+ECC | Elliptic Curve Cryptography | 1 | Small keys, strong security
+ECDSA | Elliptic Curve Digital Signature Algorithm | 1 | Signatures using ECC
+ECDHE | Elliptic Curve Diffie-Hellman Ephemeral | 1 | Key exchange with forward secrecy
+DH | Diffie-Hellman | 1 | Agree a shared secret over an open channel
+DHE | Diffie-Hellman Ephemeral | 1 | New DH keys per session
+PFS | Perfect Forward Secrecy | 1 | Past sessions stay safe if the long-term key leaks
+DSA | Digital Signature Algorithm | 1 | Signing only
+SHA | Secure Hash Algorithm | 1 | Hash family; SHA-1 is broken
+MD5 | Message Digest 5 | 1 | 128-bit hash with practical collisions
+HMAC | Hashed Message Authentication Code | 1 | Hash plus a shared key for integrity and authenticity
+KDF | Key Derivation Function | 1 | Stretches a password into a key (PBKDF2, bcrypt)
+PBKDF2 | Password-Based Key Derivation Function 2 | 1 | Salted, many iterations
+CBC | Cipher Block Chaining | 1 | Each block XORed with the previous ciphertext
+ECB | Electronic Code Book | 1 | Same plaintext gives same ciphertext; patterns leak
+GCM | Galois/Counter Mode | 1 | Authenticated encryption mode
+CTR | Counter Mode | 1 | Block cipher turned into a stream cipher
+IV | Initialization Vector | 1 | Random starting value so repeats do not match
+PKI | Public Key Infrastructure | 1 | CAs, certs, keys and the rules around them
+CA | Certificate Authority | 1 | Signs certificates
+RA | Registration Authority | 1 | Verifies identity for the CA
+CRL | Certificate Revocation List | 1 | Downloaded list of dead certs
+OCSP | Online Certificate Status Protocol | 1 | Ask the CA about one cert in real time
+CSR | Certificate Signing Request | 1 | What you send a CA to get a cert
+SAN-cert | Subject Alternative Name | 1 | Extra hostnames a certificate covers
+CN | Common Name | 1 | Older certificate subject field
+PEM | Privacy Enhanced Mail | 1 | Base64 text certificate format
+DER | Distinguished Encoding Rules | 1 | Binary certificate format
+P12 | PKCS #12 | 1 | Bundle holding a cert and private key
+HSM | Hardware Security Module | 1 | Tamper-resistant key vault appliance
+TPM | Trusted Platform Module | 1 | Chip that stores keys and attests boot state
+SED | Self-Encrypting Drive | 1 | Drive encrypts in hardware
+FDE | Full Disk Encryption | 1 | Whole volume encrypted
+TLS | Transport Layer Security | 1 | Encrypts data in transit
+SSL | Secure Sockets Layer | 1 | Predecessor to TLS, deprecated
+SSH | Secure Shell | 1 | Encrypted remote login
+PGP | Pretty Good Privacy | 1 | Web-of-trust email encryption
+GPG | GNU Privacy Guard | 1 | Open implementation of PGP
+S/MIME | Secure/Multipurpose Internet Mail Extensions | 1 | Certificate-based email signing and encryption
+OTP | One-Time Password | 1 | Valid for a single use
+TOTP | Time-based One-Time Password | 1 | Code that rotates every 30 seconds
+HOTP | HMAC-based One-Time Password | 1 | Counter-based code
+MFA | Multifactor Authentication | 1 | Two or more different factor types
+2FA | Two-Factor Authentication | 1 | Exactly two factors
+SSO | Single Sign-On | 1 | One login for many apps
+SAML | Security Assertion Markup Language | 1 | XML federation for SSO
+OIDC | OpenID Connect | 1 | Authentication layer on OAuth 2
+OAuth | Open Authorization | 1 | Delegated access tokens, not authentication
+FIDO | Fast Identity Online | 1 | Passwordless hardware key standard
+IAM | Identity and Access Management | 1 | Who exists and what they can reach
+PAM | Privileged Access Management | 1 | Vaults and time-boxes admin accounts
+RBAC | Role-Based Access Control | 1 | Permissions follow job role
+MAC | Mandatory Access Control | 1 | Labels set by the system, not the owner
+DAC | Discretionary Access Control | 1 | Owner decides who gets access
+CAC | Common Access Card | 1 | US DoD smart card
+PIV | Personal Identity Verification | 1 | US federal smart card
+EAP | Extensible Authentication Protocol | 1 | Framework for network login methods
+PEAP | Protected Extensible Authentication Protocol | 1 | EAP inside a TLS tunnel
+RADIUS | Remote Authentication Dial-In User Service | 1 | AAA for network access, UDP, hashes only the password
+TACACS+ | Terminal Access Controller Access-Control System Plus | 1 | Cisco AAA, TCP 49, encrypts everything
+LDAP | Lightweight Directory Access Protocol | 1 | Query a directory like AD
+LDAPS | Lightweight Directory Access Protocol Secure | 1 | LDAP over TLS, port 636
+KDC | Key Distribution Center | 1 | Kerberos ticket issuer
+TGT | Ticket Granting Ticket | 1 | Kerberos proof you already logged in
+NTLM | NT LAN Manager | 1 | Legacy Windows challenge-response auth
+CHAP | Challenge-Handshake Authentication Protocol | 1 | Periodic challenge, no password on the wire
+PAP | Password Authentication Protocol | 1 | Sends the password in cleartext
+ZTA | Zero Trust Architecture | 1 | Never trust, always verify
+CIA | Confidentiality, Integrity and Availability | 1 | The three core goals
+PBQ | Performance-Based Question | 1 | Exam task you perform
+APT | Advanced Persistent Threat | 2 | Well-funded, long-running attacker
+BEC | Business Email Compromise | 2 | Fraudulent invoice or CEO email
+C2 | Command and Control | 2 | Channel malware uses to take orders
+RAT | Remote Access Trojan | 2 | Malware that gives remote control
+DoS | Denial of Service | 2 | One source exhausts a service
+DDoS | Distributed Denial of Service | 2 | Many sources exhaust a service
+XSS | Cross-Site Scripting | 2 | Attacker script runs in a victim browser
+CSRF | Cross-Site Request Forgery | 2 | Browser tricked into an authenticated request
+XSRF | Cross-Site Request Forgery | 2 | Another abbreviation for CSRF
+SQLi | SQL Injection | 2 | Input becomes part of a query
+RCE | Remote Code Execution | 2 | Attacker runs code on your server
+XXE | XML External Entity | 2 | Parser fetches attacker-controlled entities
+SSRF | Server-Side Request Forgery | 2 | Server fetches URLs for the attacker
+LFI | Local File Inclusion | 2 | Read local files through a vulnerable param
+RFI | Remote File Inclusion | 2 | Load attacker code from another host
+DOM | Document Object Model | 2 | Browser page tree; DOM-based XSS lives here
+CVE | Common Vulnerabilities and Exposures | 2 | ID for a public flaw
+CVSS | Common Vulnerability Scoring System | 2 | Severity score 0 to 10
+CWE | Common Weakness Enumeration | 2 | Catalog of software weakness types
+EOL | End of Life | 2 | No more patches
+EOSL | End of Service Life | 2 | Vendor support has ended
+IOC | Indicator of Compromise | 2 | Evidence of a breach, like a hash or IP
+IOA | Indicator of Attack | 2 | Behavior that signals an attack underway
+TTP | Tactics, Techniques and Procedures | 2 | How an adversary operates
+OSINT | Open-Source Intelligence | 2 | Information from public sources
+MITM | Man-in-the-Middle | 2 | Attacker sits between two parties
+ARP | Address Resolution Protocol | 2 | Maps IPs to MACs; poisoning enables on-path attacks
+DNS | Domain Name System | 2 | Names to IPs
+NXDOMAIN | Non-Existent Domain | 2 | DNS says the name does not exist
+BGP | Border Gateway Protocol | 2 | Routes between networks; hijacks redirect traffic
+VLAN | Virtual Local Area Network | 3 | Logical segmentation of a switch
+CAM | Content Addressable Memory | 2 | Switch table filled by MAC flooding
+SPF | Sender Policy Framework | 2 | DNS list of mail servers allowed to send
+DKIM | DomainKeys Identified Mail | 2 | Signed headers prove the mail was not altered
+DMARC | Domain-based Message Authentication, Reporting and Conformance | 2 | Policy tying SPF and DKIM together
+BYOD | Bring Your Own Device | 2 | Personal phones on the corporate network
+IoT | Internet of Things | 3 | Small networked devices, often weakly secured
+ICS | Industrial Control System | 3 | Runs physical processes
+SCADA | Supervisory Control and Data Acquisition | 3 | Supervises industrial plants
+PLC | Programmable Logic Controller | 3 | Industrial controller
+RTOS | Real-Time Operating System | 3 | Predictable timing for embedded systems
+SoC | System on a Chip | 3 | CPU, memory and I/O on one chip
+NFC | Near-Field Communication | 2 | Short-range contactless; skimming risk
+RFID | Radio Frequency Identification | 2 | Tags read by radio; cloning risk
+USB | Universal Serial Bus | 2 | Malicious drives and cables
+UAV | Unmanned Aerial Vehicle | 2 | Drone; used for recon
+VM | Virtual Machine | 3 | Guest OS on a hypervisor
+VDI | Virtual Desktop Infrastructure | 3 | Desktops hosted in the data center
+IaaS | Infrastructure as a Service | 3 | Rent VMs and networks
+PaaS | Platform as a Service | 3 | Rent a runtime to deploy code
+SaaS | Software as a Service | 3 | Rent a finished app
+XaaS | Anything as a Service | 3 | Umbrella for cloud service models
+IaC | Infrastructure as Code | 3 | Environments defined in files
+CASB | Cloud Access Security Broker | 3 | Enforces policy between users and cloud apps
+SASE | Secure Access Service Edge | 3 | Network and security delivered from the cloud
+SD-WAN | Software-Defined Wide Area Network | 3 | Policy-routed WAN links
+SDN | Software-Defined Networking | 3 | Control plane separated from data plane
+VPC | Virtual Private Cloud | 3 | Isolated network inside a cloud
+VPN | Virtual Private Network | 3 | Encrypted tunnel over an untrusted network
+IPSec | Internet Protocol Security | 3 | Encrypts IP packets; AH and ESP
+AH | Authentication Header | 3 | IPSec integrity, no encryption
+ESP | Encapsulating Security Payload | 3 | IPSec encryption plus integrity
+IKE | Internet Key Exchange | 3 | Sets up IPSec keys
+L2TP | Layer 2 Tunneling Protocol | 3 | Tunnel, usually paired with IPSec
+GRE | Generic Routing Encapsulation | 3 | Simple tunnel, no encryption
+API | Application Programming Interface | 3 | How software talks to software
+CDN | Content Delivery Network | 3 | Edge caches that also absorb DDoS
+DMZ | Demilitarized Zone | 3 | Screened subnet for public servers
+NAT | Network Address Translation | 3 | Rewrites addresses at the edge
+PAT | Port Address Translation | 3 | Many hosts share one public IP via ports
+WAF | Web Application Firewall | 3 | Filters HTTP attacks like SQLi and XSS
+NGFW | Next-Generation Firewall | 3 | Firewall with app awareness and IPS
+UTM | Unified Threat Management | 3 | All-in-one security appliance
+IDS | Intrusion Detection System | 3 | Alerts only
+IPS | Intrusion Prevention System | 3 | Inline, can block
+NIDS | Network-Based Intrusion Detection System | 3 | Watches network traffic
+HIDS | Host-Based Intrusion Detection System | 3 | Watches one host
+HIPS | Host-Based Intrusion Prevention System | 3 | Blocks on the host
+NAC | Network Access Control | 3 | Checks device posture before access
+DLP | Data Loss Prevention | 3 | Stops sensitive data leaving
+EDR | Endpoint Detection and Response | 3 | Endpoint telemetry plus response actions
+XDR | Extended Detection and Response | 3 | EDR across email, network and cloud
+MDR | Managed Detection and Response | 3 | Outsourced detection and response team
+WPA | Wi-Fi Protected Access | 3 | Wireless security standard
+WPS | Wi-Fi Protected Setup | 3 | PIN-based pairing, brute-forceable
+WAP | Wireless Access Point | 3 | Radio that bridges clients to the LAN
+SSID | Service Set Identifier | 3 | Wi-Fi network name
+SAE | Simultaneous Authentication of Equals | 3 | WPA3 handshake replacing PSK
+PSK | Pre-Shared Key | 3 | Shared Wi-Fi password
+CCMP | Counter Mode with Cipher Block Chaining Message Authentication Code Protocol | 3 | AES-based WPA2 encryption
+TKIP | Temporal Key Integrity Protocol | 3 | Old WPA stopgap, deprecated
+SRTP | Secure Real-time Transport Protocol | 3 | Encrypted voice and video
+SIP | Session Initiation Protocol | 3 | VoIP call setup
+VoIP | Voice over IP | 3 | Phone calls on a data network
+SFTP | SSH File Transfer Protocol | 3 | File transfer over SSH, port 22
+FTPS | File Transfer Protocol Secure | 3 | FTP wrapped in TLS
+FTP | File Transfer Protocol | 3 | Cleartext transfer, ports 20 and 21
+TFTP | Trivial File Transfer Protocol | 3 | No authentication, UDP 69
+SMTP | Simple Mail Transfer Protocol | 3 | Sends mail, port 25
+IMAP | Internet Message Access Protocol | 3 | Mail access, port 143
+POP3 | Post Office Protocol version 3 | 3 | Mail download, port 110
+HTTP | Hypertext Transfer Protocol | 3 | Cleartext web, port 80
+HTTPS | Hypertext Transfer Protocol Secure | 3 | HTTP over TLS, port 443
+SNMP | Simple Network Management Protocol | 3 | Device monitoring; use v3
+RDP | Remote Desktop Protocol | 3 | Windows remote GUI, TCP 3389
+VNC | Virtual Network Computing | 3 | Remote desktop, often weak
+DHCP | Dynamic Host Configuration Protocol | 3 | Hands out IP settings
+DNSSEC | Domain Name System Security Extensions | 3 | Signs DNS records
+DoH | DNS over HTTPS | 3 | DNS inside HTTPS
+DoT | DNS over TLS | 3 | DNS on port 853
+NTP | Network Time Protocol | 3 | Clock sync, UDP 123
+ICMP | Internet Control Message Protocol | 3 | Ping and error messages
+TCP | Transmission Control Protocol | 3 | Reliable, handshake
+UDP | User Datagram Protocol | 3 | Connectionless
+SMB | Server Message Block | 3 | Windows file sharing, TCP 445
+RAID | Redundant Array of Independent Disks | 3 | Disk redundancy or speed
+NAS | Network-Attached Storage | 3 | File storage on the LAN
+HA | High Availability | 3 | Designed to stay up
+UPS | Uninterruptible Power Supply | 3 | Battery bridge for outages
+PDU | Power Distribution Unit | 3 | Power strip for racks
+HVAC | Heating, Ventilation and Air Conditioning | 3 | Datacenter climate control
+UEFI | Unified Extensible Firmware Interface | 3 | Modern BIOS, supports Secure Boot
+BIOS | Basic Input/Output System | 3 | Legacy firmware
+TOC | Time of Check | 3 | Race condition's first half
+TOU | Time of Use | 3 | Race condition's second half
+SIEM | Security Information and Event Management | 4 | Collects and correlates logs
+SOAR | Security Orchestration, Automation and Response | 4 | Playbooks that automate response
+SOC | Security Operations Center | 4 | Team that watches and responds
+UEBA | User and Entity Behavior Analytics | 4 | Flags abnormal behavior
+MDM | Mobile Device Management | 4 | Enforces policy on phones
+MAM | Mobile Application Management | 4 | Controls apps and data on devices
+COPE | Corporate-Owned, Personally Enabled | 4 | Company phone, personal use allowed
+CYOD | Choose Your Own Device | 4 | Pick from an approved list
+SCAP | Security Content Automation Protocol | 4 | Standards for automated compliance checks
+OVAL | Open Vulnerability and Assessment Language | 4 | Machine-readable checks
+XCCDF | Extensible Configuration Checklist Description Format | 4 | Checklist format in SCAP
+STIX | Structured Threat Information Expression | 4 | Threat intel data format
+TAXII | Trusted Automated Exchange of Intelligence Information | 4 | Transport for STIX
+ISAC | Information Sharing and Analysis Center | 4 | Industry threat-sharing group
+FIM | File Integrity Monitoring | 4 | Alerts when files change
+SAST | Static Application Security Testing | 4 | Scan source code
+DAST | Dynamic Application Security Testing | 4 | Test a running app
+SCA | Software Composition Analysis | 4 | Find vulnerable dependencies
+CI/CD | Continuous Integration/Continuous Delivery | 4 | Automated build and release pipeline
+SBOM | Software Bill of Materials | 4 | List of components in software
+IR | Incident Response | 4 | Handling a security event
+IRP | Incident Response Plan | 4 | The written process
+CSIRT | Computer Security Incident Response Team | 4 | Team that handles incidents
+DFIR | Digital Forensics and Incident Response | 4 | Investigation plus response
+SPAN | Switched Port Analyzer | 4 | Mirror port for sniffing
+TAP | Test Access Point | 4 | Hardware tap for traffic copy
+NetFlow | Network Flow | 4 | Metadata about conversations
+IPFIX | IP Flow Information Export | 4 | Standard flow export
+SOP | Standard Operating Procedure | 4 | Step-by-step routine
+PoC | Proof of Concept | 4 | Demonstrates a flaw works
+SLA | Service Level Agreement | 5 | Promised service levels
+MOU | Memorandum of Understanding | 5 | Non-binding agreement
+MOA | Memorandum of Agreement | 5 | More formal than an MOU
+MSA | Master Service Agreement | 5 | Umbrella contract
+SOW | Statement of Work | 5 | Deliverables for one project
+NDA | Non-Disclosure Agreement | 5 | Keep secrets
+BPA | Business Partnership Agreement | 5 | How partners share profit and duties
+AUP | Acceptable Use Policy | 5 | What users may do with systems
+BIA | Business Impact Analysis | 5 | What an outage costs
+BCP | Business Continuity Plan | 5 | Keep the business running
+DRP | Disaster Recovery Plan | 5 | Restore IT after a disaster
+COOP | Continuity of Operations Planning | 5 | Government version of BCP
+RTO | Recovery Time Objective | 5 | How fast to be back
+RPO | Recovery Point Objective | 5 | How much data loss is OK
+MTTR | Mean Time to Repair | 5 | Average fix time
+MTBF | Mean Time Between Failures | 5 | Average uptime between breakdowns
+MTD | Maximum Tolerable Downtime | 5 | Longest outage the business survives
+ALE | Annualized Loss Expectancy | 5 | SLE times ARO
+SLE | Single Loss Expectancy | 5 | Cost of one incident
+ARO | Annualized Rate of Occurrence | 5 | Incidents per year
+TPRM | Third-Party Risk Management | 5 | Vet your vendors
+GRC | Governance, Risk and Compliance | 5 | The management discipline
+PII | Personally Identifiable Information | 5 | Data that identifies a person
+PHI | Protected Health Information | 5 | Health data covered by HIPAA
+DPO | Data Protection Officer | 5 | GDPR privacy lead
+GDPR | General Data Protection Regulation | 5 | EU privacy law
+HIPAA | Health Insurance Portability and Accountability Act | 5 | US health data law
+PCI DSS | Payment Card Industry Data Security Standard | 5 | Card data rules
+SOX | Sarbanes-Oxley Act | 5 | Financial reporting controls
+GLBA | Gramm-Leach-Bliley Act | 5 | Financial customer privacy
+FERPA | Family Educational Rights and Privacy Act | 5 | Student record privacy
+CCPA | California Consumer Privacy Act | 5 | California privacy law
+NIST | National Institute of Standards and Technology | 5 | Publishes the CSF and RMF
+CSF | Cybersecurity Framework | 5 | NIST framework: identify, protect, detect, respond, recover
+RMF | Risk Management Framework | 5 | NIST process for federal systems
+ISO | International Organization for Standardization | 5 | 27001 and 27002 are security standards
+CIS | Center for Internet Security | 5 | Benchmarks and controls
+OWASP | Open Worldwide Application Security Project | 5 | Top 10 web risks
+SSAE | Statement on Standards for Attestation Engagements | 5 | Basis for SOC reports
+CSA | Cloud Security Alliance | 5 | Cloud controls matrix

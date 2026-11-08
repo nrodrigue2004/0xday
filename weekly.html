@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>weekly homelab routine :: 0xDay</title>
+<meta name="description" content="A weekly checklist for actually using a homelab: patching, alert triage, one attack and one detection, a write-up.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=29aef6d8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="hlops.css?v=5f9a6316">
+<script src="hlops.js?v=5f9a6316" defer></script>
+<script id="ho-data" type="application/json">{"kind": "weekly", "data": {"_help": "Weekly homelab routine. min is a rough time estimate. focus rotates by ISO week number.", "focus": ["Detection", "Hardening", "Active Directory", "Web and apps", "Network and firewall", "Incident response"], "tasks": [{"id": "patch", "t": "Patch day", "min": 20, "d": "Run updates on Proxmox first, then each VM. Take a snapshot before any kernel or domain controller update.", "link": "harden.html"}, {"id": "alerts", "t": "Triage this week's Security Onion alerts", "min": 30, "d": "Open Alerts, sort by severity, close the noise with a note, and write down one thing you do not understand yet.", "link": "drills/security-onion-intrusion-hunt.html"}, {"id": "testalert", "t": "Fire one test alert", "min": 10, "d": "Generate a known alert from a lab VM and confirm it appears. If it does not, fix the pipeline before anything else.", "link": "homelab.html"}, {"id": "backup", "t": "Check backups ran", "min": 10, "d": "Open the Proxmox backup log. Once a month, restore one VM to a new ID and boot it.", "link": "harden.html"}, {"id": "harden", "t": "Harden one system and update its score", "min": 45, "d": "Pick the lowest score on the checklist and fix two or three items.", "link": "harden.html"}, {"id": "attack", "t": "One attack from Kali, one detection from Security Onion", "min": 60, "d": "Run a single technique against a lab target, then find what it left in the logs. Write the result as a note.", "link": "attack-chain.html"}, {"id": "report", "t": "Write up one thing", "min": 30, "d": "Turn the week's notes into a short incident-style report. Writing is the skill employers see.", "link": "report.html"}, {"id": "cred", "t": "Move one credential into the password manager", "min": 15, "d": "Rotate one reused password to a generated one. Turn on MFA where it is missing.", "link": "drills/password-hygiene-audit.html"}, {"id": "study", "t": "One Security+ objective on the site", "min": 30, "d": "Read the notes, do the cards, then tie it to something in the lab.", "link": "secplus.html"}]}}</script>
+<script src="data.js?v=29aef6d8" defer></script>
+<script src="site.js?v=29aef6d8" defer></script>
+<script src="fx.js?v=29aef6d8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html" aria-current="page">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">crontab -l  # weekly</p>
+<h1>~/weekly</h1>
+<p>A short routine for using the homelab every week, so it stops being something I built once. Pick what fits the time you have. Ticks reset each week and live in this browser only.</p>
+<div id="ho-weekly" class="ho-app" aria-live="polite"></div>
+<noscript><p>The routine needs JavaScript.</p></noscript>
+<p><a href="harden.html">./harden</a> · <a href="report.html">./report</a> · <a href="drills.html">./drills</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

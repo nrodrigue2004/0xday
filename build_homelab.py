@@ -48,7 +48,7 @@ def _map(page, esc, v):
   <div id="hl-panel" class="hl-panel" aria-live="polite"></div>
 </div>
 <noscript><p>The map needs JavaScript. The same machines are described in the <a href="deep-dives.html#homelab">homelab deep-dive</a>.</p></noscript>
-<p><a href="attack-chain.html">./attack-chain</a> <span class="muted">// watch one host get owned, stage by stage</span></p>'''
+<p><a href="attack-chain.html">./attack-chain</a> <span class="muted">// watch one host get owned, stage by stage</span><br><a href="weekly.html">./weekly</a> <span class="muted">// what to do in the lab this week</span> · <a href="harden.html">./harden</a> <span class="muted">// checklist with a score</span> · <a href="drills/security-onion-intrusion-hunt.html">./hunt</a> <span class="muted">// log-hunt lab</span></p>'''
     page("homelab.html", "homelab map :: 0xDay", body, cur="lab",
          head=_head(v, {"kind": "map", "data": H}),
          desc="Interactive terminal map of Nathan's seven-VM Proxmox homelab, with a traceroute mode.")

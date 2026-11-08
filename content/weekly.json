@@ -1,0 +1,76 @@
+{
+ "_help": "Weekly homelab routine. min is a rough time estimate. focus rotates by ISO week number.",
+ "focus": [
+  "Detection",
+  "Hardening",
+  "Active Directory",
+  "Web and apps",
+  "Network and firewall",
+  "Incident response"
+ ],
+ "tasks": [
+  {
+   "id": "patch",
+   "t": "Patch day",
+   "min": 20,
+   "d": "Run updates on Proxmox first, then each VM. Take a snapshot before any kernel or domain controller update.",
+   "link": "harden.html"
+  },
+  {
+   "id": "alerts",
+   "t": "Triage this week's Security Onion alerts",
+   "min": 30,
+   "d": "Open Alerts, sort by severity, close the noise with a note, and write down one thing you do not understand yet.",
+   "link": "drills/security-onion-intrusion-hunt.html"
+  },
+  {
+   "id": "testalert",
+   "t": "Fire one test alert",
+   "min": 10,
+   "d": "Generate a known alert from a lab VM and confirm it appears. If it does not, fix the pipeline before anything else.",
+   "link": "homelab.html"
+  },
+  {
+   "id": "backup",
+   "t": "Check backups ran",
+   "min": 10,
+   "d": "Open the Proxmox backup log. Once a month, restore one VM to a new ID and boot it.",
+   "link": "harden.html"
+  },
+  {
+   "id": "harden",
+   "t": "Harden one system and update its score",
+   "min": 45,
+   "d": "Pick the lowest score on the checklist and fix two or three items.",
+   "link": "harden.html"
+  },
+  {
+   "id": "attack",
+   "t": "One attack from Kali, one detection from Security Onion",
+   "min": 60,
+   "d": "Run a single technique against a lab target, then find what it left in the logs. Write the result as a note.",
+   "link": "attack-chain.html"
+  },
+  {
+   "id": "report",
+   "t": "Write up one thing",
+   "min": 30,
+   "d": "Turn the week's notes into a short incident-style report. Writing is the skill employers see.",
+   "link": "report.html"
+  },
+  {
+   "id": "cred",
+   "t": "Move one credential into the password manager",
+   "min": 15,
+   "d": "Rotate one reused password to a generated one. Turn on MFA where it is missing.",
+   "link": "drills/password-hygiene-audit.html"
+  },
+  {
+   "id": "study",
+   "t": "One Security+ objective on the site",
+   "min": 30,
+   "d": "Read the notes, do the cards, then tie it to something in the lab.",
+   "link": "secplus.html"
+  }
+ ]
+}

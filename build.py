@@ -23,7 +23,7 @@ FLAGS = {"source": "0xDAY{v13w_s0urc3_4lw4ys}", "console": "0xDAY{c0ns0l3_c0wb0y
 for p in POSTS:
     p["body"] = open(f"content/posts/{p['slug']}.html").read()
 esc = html.escape
-V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "resume.js", "glossary.js")).encode()).hexdigest()[:8]  # cache-buster
+V = hashlib.sha1("".join(open(f).read() for f in ("style.css", "site.js", "fx.js", "tty.js", "htop.js", "desktop.js", "sandbox.js", "learn.js", "study.js", "train.js", "train.css", "resume.js", "glossary.js")).encode()).hexdigest()[:8]  # cache-buster
 
 def short(d):
     import datetime
@@ -491,6 +491,8 @@ DRILLS = build_drills.build(page)
 GLOSS = build_glossary.build(page)
 HUB.insert(1, ("drills", "drills.html", "packets, permissions, regex, log labs", f"{len(DRILLS)} drills"))
 HUB.insert(2, ("glossary", "glossary.html", "terms linked to guides", f"{len(GLOSS)} terms"))
+import build_hlops
+HUB += build_hlops.build(page, esc)
 import build_arcade
 HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))

@@ -319,6 +319,7 @@ def build(page, SKILLS, LV, bar):
 <div class="stat"><span class="stat__v" id="sp-mastered">0/{ncards}</span><span class="stat__k">cards mastered</span></div>
 <div class="stat"><span class="stat__v" id="sp-due">{ncards}</span><span class="stat__k">cards due</span></div></div>
 <p><a class="btn" href="secplus/drill.html">[ drill due cards ]</a> <span class="muted small">spaced repetition across all domains</span></p>
+<p><a class="btn" href="secplus/weak.html">[ weak spots ]</a> <a class="btn" href="secplus/train.html">[ train: acronyms, PBQs, scenarios, pairs ]</a></p>
 {doms}
 <p class="muted small">Progress lives in this browser's localStorage. The official domain bars on <a href="certs.html">~/certs</a> are updated by hand.</p>
 <script type="application/json" id="sp-data">{json.dumps({"domains": sp["domains"], "objectives": [o["id"] for o in sp["objectives"]], "cards": {o["id"]: len(o["cards"]) for o in sp["objectives"]}})}</script>''',
@@ -330,6 +331,9 @@ def build(page, SKILLS, LV, bar):
 <div class="deck deck--drill" data-deck="all"></div>
 <p><a href="../secplus.html">cd ~/secplus</a></p>
 <script type="application/json" id="cards-data">{json.dumps(allcards).replace("</", "<\\/")}</script>''', depth=1, cur="learn", scripts=("study.js",))
+
+    import build_train
+    build_train.build(page, sp, allcards)
 
     # ---------- learn hub ----------
     gl = ""

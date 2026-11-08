@@ -1,0 +1,243 @@
+# Scenario cards. "@ objective | title" then S: scene, Q: question, + correct, - wrong, W: why.
+@ 1.1 | The unpatchable controller
+S: A factory PLC runs firmware the vendor will never patch. It has a known remote flaw. Production cannot stop.
+Q: What do you deploy?
++ Isolate it on its own VLAN behind a firewall allowing only the engineering station (a compensating control)
+- Add a warning banner to the login screen
+- Reboot it nightly to clear any malware
+- Replace the firewall logs with a shorter retention period
+W: When the ideal fix (patching) is impossible, a compensating control reduces the risk another way. A banner is directive, a reboot does not fix the flaw.
+
+@ 1.2 | Who did that?
+S: An admin says they never deleted a customer database, but the delete came from their account. Logs show only the account name, and the password was shared among the team.
+Q: Which concept is missing?
++ Non-repudiation, via unique accounts and signed or tamper-evident logs
+- Confidentiality, via stronger disk encryption
+- Availability, via a second database server
+- Obscurity, via renaming the database
+W: Shared credentials make it impossible to prove who acted. Unique IDs plus protected logs give accountability and non-repudiation.
+
+@ 1.3 | Change on a Friday
+S: A developer wants to push a firewall rule change to production at 4:45 pm Friday. There is no rollback plan.
+Q: What does a sound change management process require first?
++ Documented impact analysis, approval, a test, and a backout plan
+- Only verbal approval from the team lead
+- Waiting until the change fails to see if anyone notices
+- Disabling the monitoring to avoid false alarms
+W: Change management covers approval, testing, scheduling, and a backout plan so a bad change can be reversed fast.
+
+@ 1.4 | Storing hashed passwords
+S: A breach exposes a table of user passwords hashed with unsalted MD5. Attackers crack most of them within hours using precomputed tables.
+Q: What should the app have used?
++ A slow salted hash such as bcrypt, scrypt, or PBKDF2
+- AES-128 with the key stored beside the table
+- Base64 encoding with a longer string
+- SHA-1 with no salt for speed
+W: Salts defeat rainbow tables and slow hashing makes brute force costly. Encoding is not protection, and encryption with a nearby key is little better.
+
+@ 2.1 | The CEO wire request
+S: Finance gets an email from the CEO's lookalike domain demanding an urgent wire to a new vendor. The CEO is traveling and unreachable by email.
+Q: What kind of attack is this and what is the best control?
++ Business email compromise; require out-of-band verification (call back on a known number) for payment changes
+- Ransomware; restore from backup
+- Watering hole; block the vendor site
+- Tailgating; add a mantrap
+W: BEC relies on impersonation and urgency. A callback process on a trusted number breaks it, since the attacker controls only the email channel.
+
+@ 2.2 | Everyone gets the same page
+S: Visitors to a trade-association site start downloading a fake browser update. The association's site was compromised, but only visitors from certain industries are served the payload.
+Q: Which attack is this?
++ Watering hole
+- Smishing
+- Pharming against the visitors' DNS
+- Bluejacking
+W: A watering hole compromises a site that a target group already visits. Targeting by industry is a hint.
+
+@ 2.3 | Prices set by the URL
+S: A shopping site shows a price in the page URL (?price=49.99). A tester changes it to 0.01 and checks out successfully.
+Q: What is the root problem?
++ The server trusts client-supplied data instead of validating it server-side
+- The site uses HTTPS
+- The tester used a VPN
+- The database is not encrypted at rest
+W: Never trust client input. Price and authorization checks must happen on the server. HTTPS only protects the transit, not the logic.
+
+@ 2.4 | Spike of failed logins
+S: Logs show 2,000 failed logins in an hour spread across 1,900 different accounts, each tried once or twice with the same common password.
+Q: What attack is it, and what helps most?
++ Password spraying; MFA, plus alerting on one source or password hitting many accounts
+- Brute force on one account; lock that account
+- Rainbow table; add a salt
+- Dictionary attack on the hash file; use bcrypt
+W: Spraying avoids lockouts by trying few passwords across many accounts. MFA blunts it, and detection should correlate across accounts.
+
+@ 2.5 | Plug in the stranger
+S: A parking lot has 10 branded USB drives marked "Payroll 2026". Two are later seen in office computers, and an EDR alert fires.
+Q: What control best prevents a repeat?
++ Block removable media by policy and train staff, with EDR or application allowlisting on top
+- Remove the parking lot
+- Encrypt every USB drive
+- Rotate the Wi-Fi password
+W: Baiting works by curiosity. Technical blocks plus awareness cover the human and the machine.
+
+@ 3.1 | Customer data in a new cloud
+S: A team puts a customer database in a cloud storage bucket and a scanner finds it publicly readable.
+Q: Who is responsible for that misconfiguration?
++ The customer; under shared responsibility, access settings of your own data are yours
+- The cloud provider, always
+- Nobody, the default is safe
+- The ISP
+W: The provider secures the underlying infrastructure; the customer secures configuration, identities, and data in IaaS, PaaS, and SaaS to varying degrees.
+
+@ 3.2 | Where does the web server go?
+S: You must expose a public web server but keep the internal HR database unreachable from the internet.
+Q: What is the sound layout?
++ Put the web server in a DMZ (screened subnet) and the database on an internal network, allowing only the web server to reach it on the DB port
+- Place both on the same flat network behind NAT
+- Put the database in the DMZ too for speed
+- Open the database port to the internet with a strong password
+W: A screened subnet limits the blast radius if the exposed host is compromised. Allow only the needed flow inward.
+
+@ 3.3 | Phones that leave the building
+S: An employee's laptop with customer data is stolen from a car.
+Q: Which control would have made the theft a non-event?
++ Full-disk encryption with the key protected by TPM and a PIN
+- A BIOS password only
+- A screen saver timeout
+- A cable lock at the office
+W: With FDE the data is unreadable without the key. A BIOS password can be bypassed by removing the drive.
+
+@ 3.4 | Recovery targets
+S: The business can tolerate 4 hours of downtime and can afford to lose at most 15 minutes of data.
+Q: What are the RTO and RPO?
++ RTO 4 hours, RPO 15 minutes
+- RTO 15 minutes, RPO 4 hours
+- Both 4 hours
+- MTBF 4 hours, MTTR 15 minutes
+W: RTO is how long to be back. RPO is how much data (time) you may lose, which sets backup frequency.
+
+@ 4.1 | Hardening a new server
+S: A fresh server arrives with default accounts, all ports open, and unneeded services enabled.
+Q: What is the first hardening step?
++ Remove or disable unused accounts and services, close unneeded ports, apply a secure baseline
+- Install a second antivirus
+- Take it straight to production with monitoring
+- Rename the server
+W: Reduce the attack surface first, then patch and baseline. Default credentials are a classic hole.
+
+@ 4.2 | Critical CVE, no patch yet
+S: A scan finds a critical CVE on an internet-facing system. The vendor patch is two weeks out.
+Q: What is the best interim action?
++ Apply a mitigation: virtual patch with WAF/IPS, restrict access, or disable the vulnerable feature, then track the patch
+- Ignore it until the patch ships
+- Delete the scan results
+- Lower the CVSS score
+W: Risk-based vulnerability management uses compensating mitigations while waiting. Exposure and exploitability set priority.
+
+@ 4.3 | The odd outbound beacon
+S: The SIEM shows a workstation sending small encrypted packets to the same external IP every 60 seconds for days.
+Q: What does that pattern suggest?
++ Command-and-control beaconing from malware
+- Normal NTP sync
+- A DHCP lease renewal
+- A backup job
+W: Regular fixed-interval small outbound connections are a classic beacon. Investigate and isolate the host.
+
+@ 4.4 | Alert fatigue
+S: The SOC drowns in thousands of low-value alerts per day and analysts miss real incidents.
+Q: What improves the situation most?
++ Tune detection rules and use SOAR playbooks to triage and enrich low-risk alerts
+- Turn off the SIEM
+- Hire a second intern to read every alert
+- Raise every alert to critical
+W: Tuning cuts false positives, and automation handles repetitive triage so analysts focus on real events.
+
+@ 4.5 | Ransomware on the file server
+S: Ransomware is encrypting a file server. Backups exist and appear intact.
+Q: What do you do first?
++ Contain: isolate the host from the network, preserve evidence, then proceed to eradication and recovery
+- Pay the ransom immediately
+- Reformat the server before taking any images
+- Notify the press
+W: Containment stops the spread. Preserve evidence before wiping. Decisions about payment go through leadership and legal.
+
+@ 4.6 | Disk image for the lawyers
+S: You must collect evidence from a laptop for an investigation that may go to court.
+Q: What preserves admissibility?
++ Make a forensic bit-for-bit copy with a hash, use a write blocker, and keep the chain of custody
+- Copy the user folder by drag and drop
+- Boot it and browse the files
+- Ask the user to email you the files
+W: Hashing proves the copy matches, a write blocker prevents changes, and chain of custody documents who held it.
+
+@ 4.7 | Alert says leaver took data
+S: DLP flags a departing employee uploading 4 GB of customer files to a personal cloud drive.
+Q: What is the best response?
++ Preserve logs and evidence, involve HR and legal, and revoke access per policy
+- Confront the employee in the hallway
+- Delete the cloud drive account
+- Ignore it as normal activity
+W: Insider cases need legal and HR coordination plus preserved evidence. Do not tip off or tamper.
+
+@ 4.8 | Account takeover
+S: A user's mailbox forwards everything to an unknown address and they log in from two continents within an hour.
+Q: Which are the best response steps?
++ Reset credentials, revoke sessions and tokens, remove forwarding rules, enable MFA, and review the scope
+- Only change the user's display name
+- Disable email for the whole company
+- Wait for a second login
+W: Reset plus revoking active sessions and tokens ensures the attacker is kicked out. Look for persistence like inbox rules.
+
+@ 5.1 | The vendor with the keys
+S: A small HVAC vendor with remote access to your network is breached, and attackers pivot into your environment.
+Q: Which control best limits this?
++ Third-party risk management: least-privilege, segmented, monitored vendor access with MFA and contract security requirements
+- Give the vendor a shared admin account
+- Avoid contracts to reduce paperwork
+- Trust their word
+W: Supplier access is a major risk. TPRM, least privilege, segmentation, and audit rights reduce it.
+
+@ 5.2 | Risk math
+S: A server has an asset value of $200,000. One flood would destroy 50% of it. Floods occur about once every five years.
+Q: What is the ALE?
++ $20,000 (SLE $100,000 x ARO 0.2)
+- $100,000
+- $200,000
+- $50,000
+W: SLE = asset value x exposure factor = $100,000. ARO = 0.2. ALE = SLE x ARO = $20,000.
+
+@ 5.3 | Accept, avoid, transfer, mitigate
+S: Leadership buys cyber insurance for ransomware losses instead of adding more controls.
+Q: Which risk strategy is that?
++ Transfer
+- Accept
+- Avoid
+- Mitigate
+W: Insurance moves the financial impact to a third party but does not remove the risk.
+
+@ 5.4 | Who gets the breach notice?
+S: A company holding EU residents' personal data discovers a breach.
+Q: Which regulation sets a 72-hour deadline to notify the supervisory authority?
++ GDPR
+- SOX
+- PCI DSS
+- FERPA
+W: GDPR requires notifying the authority within 72 hours of becoming aware of a reportable breach.
+
+@ 5.5 | Prove it to the auditor
+S: A customer wants evidence your controls work over a period of time, from an independent party.
+Q: Which report fits best?
++ SOC 2 Type II
+- Internal memo
+- A self-assessment checklist
+- SOC 2 Type I
+W: Type II tests operating effectiveness over a period by an independent auditor. Type I is a point-in-time design review.
+
+@ 5.6 | Teaching the humans
+S: Phishing simulations show 30% of staff click. Leadership asks for a fix.
+Q: Which program is most effective?
++ Recurring role-based awareness training, simulated phishing with feedback, and an easy way to report
+- One annual slide deck
+- Punishing everyone who clicks
+- Blocking all email
+W: Ongoing training and an easy reporting path build a culture. Punishment discourages reporting.
