@@ -484,7 +484,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
        ("code", "code.html", "programming path: Python, Bash, PowerShell, SQL, git", f'{len(CODE)} chapters'),
-       ("basics", "basics.html", "OSI, ports, OSINT, crypto, OS, web, APIs, databases", f'{len(BASICS)} chapters'),
+       ("basics", "basics.html", "OSI, binary and hex, ports, OSINT, crypto, OS, web, APIs, databases", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("cloud", "cloud.html", "AWS + Azure basics, cloud security, labs", f'{len(CLOUD)} chapters'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
@@ -504,7 +504,7 @@ HUB.insert(2, ("glossary", "glossary.html", "terms linked to guides", f"{len(GLO
 import build_hlops
 HUB += build_hlops.build(page, esc)
 import build_arcade
-HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet", f"{build_arcade.build(page, esc)} games"))
+HUB.insert(1, ("arcade", "arcade.html", "terminal games: iptables, crack, ports, subnet, bits", f"{build_arcade.build(page, esc)} games"))
 HUB.insert(1, ("bigo", "bigo.html", "Big-O: visualizer + drill", f"{BIGO} questions"))
 HUB += [("homelab", "homelab.html", "interactive network map", "7 nodes"), ("attack-chain", "attack-chain.html", "recon to detection", "6 stages"),
         ("htop", "htop.html", "homelab as htop", "7 VMs"), ("tty", "tty.html", "the whole site as a shell", "tty1"), ("desktop", "desktop.html", "i3 tiling desktop", "startx")]  # hide sections until they have content

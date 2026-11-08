@@ -1,0 +1,235 @@
+tagline: Binary, decimal, hex and octal, converting between them both ways, plus the bit tricks behind IP masks, ASCII, bitwise operators and two's complement. Practice here, then run the drill in the arcade.
+:: simple
+Computers store everything as **bits**: a bit is a 0 or a 1. A **byte** is 8 bits, so one byte holds 256 values (0-255). A **number system** (a **base**) is just a way to write a number using a fixed set of digits. Same quantity, different spelling.
+
+| Name | Base | Digits | Example for 202 |
+|---|---|---|---|
+| Binary | 2 | 0 1 | `11001010` |
+| Octal | 8 | 0-7 | `312` |
+| Decimal | 10 | 0-9 | `202` |
+| Hexadecimal | 16 | 0-9 A-F | `CA` (written `0xCA`) |
+
+> Try it live: the converter and the drill are on [arcade/bits](../arcade/bits.html). Type a number in any box and the others update.
+
+### Place value is the whole trick
+In decimal each place is worth 10 times the one to its right: 1, 10, 100, 1000. In binary each place is worth **2** times the one to its right. Memorize the powers of two, because you will use them forever:
+
+| 2^7 | 2^6 | 2^5 | 2^4 | 2^3 | 2^2 | 2^1 | 2^0 |
+|---|---|---|---|---|---|---|---|
+| 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 |
+
+Bigger ones worth knowing: 2^8 = 256, 2^10 = 1024 (1 KiB), 2^16 = 65,536 (the number of ports), 2^20 = 1,048,576 (1 MiB), 2^32 = 4,294,967,296 (the number of IPv4 addresses).
+
+### Binary to decimal: add up the places that are 1
+Write the value under the place-value row and add the columns with a 1.
+
+```
+128 64 32 16  8  4  2  1
+  1   1   0   0  1  0  1  0
+```
+128 + 64 + 8 + 2 = **202**. Another one: `00101101` = 32 + 8 + 4 + 1 = **45**.
+
+### Decimal to binary: subtract the biggest place that fits
+Convert 77. Walk down the row, and at each place ask "does it fit?" If yes write 1 and subtract, otherwise write 0.
+
+- 128 fits in 77? No: **0**
+- 64 fits? Yes: **1**, 77 - 64 = 13
+- 32? No: **0**. 16? No: **0**
+- 8? Yes: **1**, 13 - 8 = 5
+- 4? Yes: **1**, 5 - 4 = 1
+- 2? No: **0**. 1? Yes: **1**
+
+Result: `01001101`. Check: 64 + 8 + 4 + 1 = 77.
+
+### Hex in one paragraph
+Hex has 16 digits: 0-9 then A=10, B=11, C=12, D=13, E=14, F=15. One hex digit is exactly **4 bits** (a **nibble**), so a byte is always two hex digits. That is why hex is everywhere: MAC addresses, colors (`#FF8800`), memory dumps, hashes, IPv6.
+
+| Dec | Bin | Hex | | Dec | Bin | Hex |
+|---|---|---|---|---|---|---|
+| 0 | 0000 | 0 | | 8 | 1000 | 8 |
+| 1 | 0001 | 1 | | 9 | 1001 | 9 |
+| 2 | 0010 | 2 | | 10 | 1010 | A |
+| 3 | 0011 | 3 | | 11 | 1011 | B |
+| 4 | 0100 | 4 | | 12 | 1100 | C |
+| 5 | 0101 | 5 | | 13 | 1101 | D |
+| 6 | 0110 | 6 | | 14 | 1110 | E |
+| 7 | 0111 | 7 | | 15 | 1111 | F |
+
+### Binary to hex: group by four
+Split the bits into groups of four from the right and swap each group for its hex digit. `1100 1010` is `C` and `A`, so **0xCA**. Going back is the same table in reverse: `0x3F` is `0011 1111`.
+
+### Bits and bytes
+- 1 byte = 8 bits. An IPv4 address is 4 bytes (32 bits). A MAC address is 6 bytes (48 bits). An IPv6 address is 16 bytes (128 bits).
+- **Network speeds** are in bits (1 Gbps = 1 gigabit per second). **File sizes** are in bytes. Divide by 8 to compare: 1 Gbps moves at most about 125 MB per second.
+:: mid
+### Hex to decimal and back
+Hex place values are powers of 16: 1, 16, 256, 4096. So `0x2F` = 2 x 16 + 15 = **47**. And `0xC0` = 12 x 16 = **192** (which is why 192 is the first octet of 192.168.x.x).
+
+Decimal to hex: divide by 16. The quotient is the first digit, the remainder is the second. 202 / 16 = 12 remainder 10, so C and A: **0xCA**. For anything over 255, keep dividing the quotient by 16 and read the remainders from the last one back to the first.
+
+Fast route for a byte: convert to binary first, then group in fours. 202 = `1100 1010` = `CA`. Most people find that more reliable than dividing.
+
+### Octal, because Linux permissions
+Octal digits are 3 bits each. That is the whole reason `chmod 754` works: each digit is a `rwx` triple.
+
+| Digit | Bits | Permission |
+|---|---|---|
+| 7 | 111 | rwx |
+| 6 | 110 | rw- |
+| 5 | 101 | r-x |
+| 4 | 100 | r-- |
+| 0 | 000 | --- |
+
+So `754` = `rwx r-x r--`. `chmod 600` on a private key = `rw-` for the owner and nothing for anyone else. Convert a decimal by dividing by 8, same as the hex method but with 8.
+
+### The doubling shortcut for binary to decimal
+Read the bits left to right. Start at 0. For each bit, double the running total and add the bit. For `1101`: 0 -> 1 -> 3 -> 6 -> 13. It needs no table and works on any length.
+
+### Binary to dotted decimal (IPv4)
+An IPv4 address is 32 bits written as 4 bytes in decimal, separated by dots. Convert each byte on its own.
+
+```
+11000000.10101000.00000001.00001010
+   192  .  168   .   1    .   10
+```
+`11000000` = 128 + 64 = 192. `10101000` = 128 + 32 + 8 = 168. So this is **192.168.1.10**.
+
+### Subnet masks are runs of ones
+A mask is some 1s followed by all 0s. Only nine byte values can appear in a mask octet. Memorize the pattern:
+
+| Ones in the octet | Binary | Decimal |
+|---|---|---|
+| 0 | 00000000 | 0 |
+| 1 | 10000000 | 128 |
+| 2 | 11000000 | 192 |
+| 3 | 11100000 | 224 |
+| 4 | 11110000 | 240 |
+| 5 | 11111000 | 248 |
+| 6 | 11111100 | 252 |
+| 7 | 11111110 | 254 |
+| 8 | 11111111 | 255 |
+
+`/22` is 22 ones: three full octets would be 24, so it is 8 + 8 + 6 = `255.255.252.0`. The **host bits** are the zeros, and a subnet holds 2^(host bits) addresses. `/22` has 10 host bits, so 1024 addresses and 1022 usable. Practice that in the [subnet drill](../arcade/subnet.html) and in the [subnetting guide](../learn/networking-tcp-ip-dhcp-nat-subnets.html).
+
+### ASCII: letters are numbers
+**ASCII** maps characters to numbers 0-127, one byte each. The ones worth knowing:
+
+| Char | Dec | Hex | Binary |
+|---|---|---|---|
+| `0` | 48 | 0x30 | 00110000 |
+| `A` | 65 | 0x41 | 01000001 |
+| `a` | 97 | 0x61 | 01100001 |
+| space | 32 | 0x20 | 00100000 |
+| newline | 10 | 0x0A | 00001010 |
+
+Digits start at 0x30, so `'7'` is 0x37. Upper and lower case differ by exactly **32** (one bit, 0x20): `A` is 0x41 and `a` is 0x61. That is why a hex dump of `Hello` reads `48 65 6c 6c 6f`. Learn to spot readable text in a dump: bytes `20` to `7E` are printable.
+
+### Bitwise operators
+These work on each bit position independently.
+
+| Op | Rule | 1100 vs 1010 |
+|---|---|---|
+| AND | 1 only if both are 1 | `1000` |
+| OR | 1 if either is 1 | `1110` |
+| XOR | 1 if they differ | `0110` |
+| NOT | flip every bit | NOT `1100` = `0011` |
+
+Uses you will meet:
+- **AND with a mask** finds the network: `192.168.1.77 AND 255.255.255.0 = 192.168.1.0`. This is how a router decides if a host is local.
+- **OR** sets bits (turn on a flag). **AND with the inverse** clears them.
+- **XOR** flips bits and is its own inverse: `x XOR k XOR k = x`. Malware and simple ciphers use a single-byte XOR key for exactly this reason, and it is trivial to brute force (only 256 keys).
+- Shifts: `x << 1` doubles a number, `x >> 1` halves it. `1 << 4` is 16.
+
+### Worked example: network, broadcast, hosts
+`172.16.37.200/21`. The mask is 21 ones = `255.255.248.0`. Only the third octet matters: 37 = `00100101`, mask 248 = `11111000`, AND = `00100000` = 32. Network **172.16.32.0**. The host bits in that octet are the last 3, so the block runs 32 to 39 and the broadcast is **172.16.39.255**.
+:: complex
+### Signed numbers and two's complement
+A byte can hold 0-255 (**unsigned**) or -128 to 127 (**signed**). Computers store negatives in **two's complement**: the top bit counts as -128 instead of +128.
+
+- `00000101` = 5
+- `11111011` = -128 + 64 + 32 + 16 + 8 + 2 + 1 = **-5**
+
+To negate: **flip all the bits, then add 1**. 5 = `00000101`, flipped `11111010`, plus 1 = `11111011` = -5. Do it again and you are back at 5.
+
+| Bits | Unsigned | Signed |
+|---|---|---|
+| 00000000 | 0 | 0 |
+| 01111111 | 127 | 127 |
+| 10000000 | 128 | -128 |
+| 11111111 | 255 | -1 |
+
+Range for n bits: unsigned 0 to 2^n - 1, signed -2^(n-1) to 2^(n-1) - 1. For 16 bits that is 0-65535 or -32768 to 32767.
+
+### Why this matters for security: overflow
+Add 1 to the largest value and it wraps. A signed byte at 127 plus 1 becomes -128. An unsigned byte at 255 plus 1 becomes 0. **Integer overflow** bugs happen when code multiplies or adds a length and the result wraps small, so a buffer is allocated too short and a copy then overruns it. Also a **signed/unsigned mismatch**: a length of -1 compares as "less than the max" as signed, then is treated as 4 billion once converted to unsigned. This is classic material for the binary exploitation guide.
+
+### Endianness
+A multi-byte value has to be laid out in memory in some byte order. **Big-endian** puts the most significant byte first (how network protocols do it, "network byte order"). **Little-endian** puts the least significant byte first (x86 and most ARM). The 32-bit value `0x0A0B0C0D` in memory:
+
+```
+big-endian:    0A 0B 0C 0D
+little-endian: 0D 0C 0B 0A
+```
+In a debugger or hex dump on x86, an address like 0x00401000 appears as `00 10 40 00`. Reading it backwards is the first thing every reverse engineer learns.
+
+### Reading a hex dump
+```
+$ echo -n "Hi!" | xxd
+00000000: 4869 21                                  Hi!
+```
+Left: offset in hex. Middle: bytes in hex, pairs grouped. Right: ASCII view with `.` for non-printable. A file's first bytes are its **magic number**: `4D 5A` ("MZ") is a Windows executable, `7F 45 4C 46` ("\x7fELF") is Linux, `50 4B` ("PK") is a zip or Office file, `89 50 4E 47` is PNG, `25 50 44 46` ("%PDF") is a PDF. Forensics uses these to spot a renamed file.
+
+### Related encodings
+- **Base64** packs 3 bytes (24 bits) into 4 characters of 6 bits each, using A-Z a-z 0-9 + /. It is an **encoding** for text-safe transport, not encryption. Output length is always a multiple of 4 (padding with `=`).
+- **Hex encoding** is 2 characters per byte, so it doubles the size.
+- **URL encoding** writes unsafe bytes as `%` plus hex: space is `%20`, `<` is `%3C`, `'` is `%27`. You will see this in every web log attack.
+- **IPv6** is 128 bits written as 8 groups of 4 hex digits. Leading zeros can drop and one run of zero groups can become `::`, so `2001:0db8:0000:0000:0000:0000:0000:0001` is `2001:db8::1`.
+- **MAC addresses** are 48 bits, 6 hex pairs. The first 3 bytes are the vendor (OUI).
+
+### Commands that do the conversion
+```
+$ echo $((2#11001010))
+202
+$ echo $((16#CA))
+202
+$ printf '%d\n' 0xCA
+202
+$ printf '%x\n' 202
+ca
+$ printf '%o\n' 202
+312
+$ echo "obase=2; 202" | bc
+11001010
+$ echo "ibase=2; 11001010" | bc
+202
+$ python3 -c 'print(bin(202), hex(202), oct(202))'
+0b11001010 0xca 0o312
+$ python3 -c 'print(int("11001010", 2), int("CA", 16))'
+202 202
+```
+Careful with `bc`: set `obase` first when going out, and with `ibase` set, the next number you type is read in that base (so to change `ibase` back to 10 you must type `ibase=A`).
+
+Byte tricks in Python: `bytes.fromhex("48656c6c6f")` gives `b'Hello'`, `"Hello".encode().hex()` gives `48656c6c6f`, `ord("A")` is 65, `chr(65)` is `A`, `0xC0A8010A & 0xFFFFFF00` is the network, `x ^ 0x41` is a one-byte XOR, `~x & 0xFF` is a byte NOT.
+:: lab
+host: analyst01
+user: analyst
+cwd: /home/analyst
+:: brief
+**Scenario (fictional, training only):** an analyst on your team left two notes. `~/notes/mask.txt` has a subnet mask in binary. `~/notes/capture.hex` has a short plaintext message pulled from a packet, written as hex bytes. The message ends with a code word you need.
+
+Decode the hex into text with `xxd -r -p ~/notes/capture.hex`, read the message, and submit the **code word** it names.
+:: answer
+b1tw1se
+:: hint
+`xxd -r -p` turns plain hex pairs back into bytes, and the sandbox prints them as text. Try `xxd -r -p ~/notes/capture.hex`.
+:: hint
+Hex `41` is `A`, `62` is `b`. The code word is the last word of the decoded message. For the mask note, count the ones: 22 ones is `255.255.252.0`.
+:: solution
+`xxd -r -p ~/notes/capture.hex` prints `code word: b1tw1se`. Each pair of hex digits is one ASCII byte (`63` is `c`, `6f` is `o`, and so on), which is why you can read a hex dump straight off the right-hand column. The mask note, 11111111.11111111.11111100.00000000, has 8 + 8 + 6 = 22 ones, so it is `/22` = `255.255.252.0`, with 10 host bits (1024 addresses).
+:: verify
+xxd -r -p ~/notes/capture.hex
+:: file /home/analyst/notes/mask.txt
+mask (binary): 11111111.11111111.11111100.00000000
+what is it as dotted decimal and as a prefix length?
+:: file /home/analyst/notes/capture.hex
+636f646520776f72643a2062317477317365

@@ -14,6 +14,7 @@ GAMES = [
     ("crack", "crack the hash: guess the Security+ acronym in six tries", "daily + endless"),
     ("ports", "ports and protocols flashcards: 20-card rounds, missed cards come back", "drill"),
     ("subnet", "subnet sprint: masks, hosts, network and broadcast in 60 seconds", "timed"),
+    ("bits", "binary, hex and decimal converter plus a 60-second conversion sprint (easy, normal, hard)", "timed + tool"),
 ]
 
 
@@ -128,7 +129,33 @@ def build(page, esc):
   <div class="sn-msg" id="sn-msg" aria-live="polite"></div>
   <div class="ar-over" id="sn-over" hidden></div>
 </div>
-<p class="muted small">keys: <kbd>1</kbd>-<kbd>4</kbd> answer (<kbd>1</kbd>/<kbd>2</kbd> for yes/no) · <kbd>Enter</kbd> restart after time. Trick: block size = 256 &minus; the interesting mask octet; network = round the address down to a multiple of the block size. <a href="../arcade.html">cd ..</a></p>'''
+<p class="muted small">keys: <kbd>1</kbd>-<kbd>4</kbd> answer (<kbd>1</kbd>/<kbd>2</kbd> for yes/no) · <kbd>Enter</kbd> restart after time. Binary feeling rusty? Drill it in <a href="bits.html">bits</a>. Trick: block size = 256 &minus; the interesting mask octet; network = round the address down to a multiple of the block size. <a href="../arcade.html">cd ..</a></p>'''
     page("arcade/subnet.html", "subnet :: arcade :: 0xDay", sn, depth=1, cur="lab", head=head("../", {"game": "subnet"}),
          desc="Timed subnetting sprint: masks, usable hosts, network and broadcast addresses.")
+    bt = '''<p class="cmd">./bits --convert</p>
+<h1>bits</h1>
+<p>Binary, octal, decimal and hex, in two parts. The <b>converter</b> is a scratchpad: type in any box, or tap bits, and the rest update. The <b>sprint</b> is 60 seconds of conversions. Pick a level: <b>easy</b> is 4-bit and 5-bit values, powers of two and hex digits; <b>normal</b> is full bytes, hex, ASCII, IP octets and masks; <b>hard</b> adds two's complement, AND/OR/XOR, shifts, subnet math and endianness. A wrong answer costs 3 seconds and shows the working.</p>
+<div class="ar-game cv" id="cv">
+  <div class="ar-hud"><span>converter</span><label class="muted">width <select id="cv-w" aria-label="bit width"><option value="8">8-bit</option><option value="16">16-bit</option><option value="32">32-bit</option></select></label><button class="btn btn--sm" type="button" id="cv-clr">[ clear ]</button></div>
+  <div class="cv-fields">
+    <label>binary <input id="cv-bin" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="binary"></label>
+    <label>octal <input id="cv-oct" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="octal"></label>
+    <label>decimal <input id="cv-dec" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="decimal"></label>
+    <label>hex <input id="cv-hex" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="hexadecimal"></label>
+  </div>
+  <div id="cv-pw" class="cv-pwwrap" aria-hidden="true"></div>
+  <div id="cv-bits" class="cv-bits" role="group" aria-label="bits, tap to flip"></div>
+  <p class="cv-info" id="cv-info" aria-live="polite"></p>
+</div>
+<div class="ar-game sn" id="bt">
+  <div class="ar-hud"><span id="bt-modes" role="group" aria-label="level"><button class="btn btn--sm" type="button" data-tier="easy" aria-pressed="true">easy</button> <button class="btn btn--sm" type="button" data-tier="normal" aria-pressed="false">normal</button> <button class="btn btn--sm" type="button" data-tier="hard" aria-pressed="false">hard</button></span><span>time <b id="bt-t">60s</b></span><span>score <b id="bt-score">0</b></span><span>streak <b id="bt-streak">0</b></span><span>hi <b data-hi="bits">---</b></span></div>
+  <div class="sn-barwrap"><div class="sn-bar" id="bt-bar"></div></div>
+  <div class="sn-q" id="bt-q" aria-live="polite"></div>
+  <div class="sn-opts" id="bt-opts"></div>
+  <div class="sn-msg" id="bt-msg" aria-live="polite"></div>
+  <div class="ar-over" id="bt-over" hidden></div>
+</div>
+<p class="muted small">keys: <kbd>1</kbd>-<kbd>4</kbd> answer · <kbd>Enter</kbd> restart after time. Tap works too. Method and worked examples: <a href="../basics/number-systems.html">~/basics/number-systems</a>. Pairs with the <a href="subnet.html">subnet</a> sprint. <a href="../arcade.html">cd ..</a></p>'''
+    page("arcade/bits.html", "bits :: arcade :: 0xDay", bt, depth=1, cur="lab", head=head("../", {"game": "bits"}),
+         desc="Binary, decimal, hex and octal converter plus a timed conversion drill with easy, normal and hard levels.")
     return len(GAMES)

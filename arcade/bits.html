@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bits :: arcade :: 0xDay</title>
+<meta name="description" content="Binary, decimal, hex and octal converter plus a timed conversion drill with easy, normal and hard levels.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../arcade.css?v=1eb09b7b">
+<script src="../arcade.js?v=1eb09b7b" defer></script>
+<script id="ar-data" type="application/json">{"game": "bits"}</script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">./bits --convert</p>
+<h1>bits</h1>
+<p>Binary, octal, decimal and hex, in two parts. The <b>converter</b> is a scratchpad: type in any box, or tap bits, and the rest update. The <b>sprint</b> is 60 seconds of conversions. Pick a level: <b>easy</b> is 4-bit and 5-bit values, powers of two and hex digits; <b>normal</b> is full bytes, hex, ASCII, IP octets and masks; <b>hard</b> adds two's complement, AND/OR/XOR, shifts, subnet math and endianness. A wrong answer costs 3 seconds and shows the working.</p>
+<div class="ar-game cv" id="cv">
+  <div class="ar-hud"><span>converter</span><label class="muted">width <select id="cv-w" aria-label="bit width"><option value="8">8-bit</option><option value="16">16-bit</option><option value="32">32-bit</option></select></label><button class="btn btn--sm" type="button" id="cv-clr">[ clear ]</button></div>
+  <div class="cv-fields">
+    <label>binary <input id="cv-bin" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="binary"></label>
+    <label>octal <input id="cv-oct" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="octal"></label>
+    <label>decimal <input id="cv-dec" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="decimal"></label>
+    <label>hex <input id="cv-hex" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="hexadecimal"></label>
+  </div>
+  <div id="cv-pw" class="cv-pwwrap" aria-hidden="true"></div>
+  <div id="cv-bits" class="cv-bits" role="group" aria-label="bits, tap to flip"></div>
+  <p class="cv-info" id="cv-info" aria-live="polite"></p>
+</div>
+<div class="ar-game sn" id="bt">
+  <div class="ar-hud"><span id="bt-modes" role="group" aria-label="level"><button class="btn btn--sm" type="button" data-tier="easy" aria-pressed="true">easy</button> <button class="btn btn--sm" type="button" data-tier="normal" aria-pressed="false">normal</button> <button class="btn btn--sm" type="button" data-tier="hard" aria-pressed="false">hard</button></span><span>time <b id="bt-t">60s</b></span><span>score <b id="bt-score">0</b></span><span>streak <b id="bt-streak">0</b></span><span>hi <b data-hi="bits">---</b></span></div>
+  <div class="sn-barwrap"><div class="sn-bar" id="bt-bar"></div></div>
+  <div class="sn-q" id="bt-q" aria-live="polite"></div>
+  <div class="sn-opts" id="bt-opts"></div>
+  <div class="sn-msg" id="bt-msg" aria-live="polite"></div>
+  <div class="ar-over" id="bt-over" hidden></div>
+</div>
+<p class="muted small">keys: <kbd>1</kbd>-<kbd>4</kbd> answer · <kbd>Enter</kbd> restart after time. Tap works too. Method and worked examples: <a href="../basics/number-systems.html">~/basics/number-systems</a>. Pairs with the <a href="subnet.html">subnet</a> sprint. <a href="../arcade.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
