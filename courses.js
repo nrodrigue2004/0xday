@@ -9,7 +9,7 @@
   const byCode = {}; META.courses.forEach(c => { byCode[c.code] = c; });
   const pad = n => String(n).padStart(2, "0");
   const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
-  const clean = v => { const o = v && typeof v === "object" && !Array.isArray(v) ? v : {}; ["mods", "quiz", "exam"].forEach(k => { if (!o[k] || typeof o[k] !== "object" || Array.isArray(o[k])) o[k] = {}; }); return o; };
+  const clean = v => { const o = v && typeof v === "object" && !Array.isArray(v) ? v : {}; ["mods", "quiz", "exam", "cap"].forEach(k => { if (!o[k] || typeof o[k] !== "object" || Array.isArray(o[k])) o[k] = {}; }); return o; };
   const load = () => { try { return clean(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return clean(null); } };
   let S = load();
   const save = msgEl => { try { localStorage.setItem(KEY, JSON.stringify(S)); return true; } catch (e) { if (msgEl) msgEl.textContent = "could not save (storage blocked?)"; return false; } };
@@ -22,7 +22,14 @@
     if (md || Object.keys(S.quiz).some(k => k.indexOf(code + ".") === 0) || ex) return { k: "in progress", cls: "go" };
     return { k: "not started", cls: "" };
   }
-  const complete = code => !!(S.exam[code] && S.exam[code].pass);
+  const capBy = {}; (META.caps || []).forEach(c => { capBy[c.code] = c; });
+  const capDone = code => { const c = capBy[code]; if (!c) return 0; let n = 0; for (let i = 0; i < c.n; i++) if (S.cap[code + "." + i]) n++; return n; };
+  const complete = code => capBy[code] ? capDone(code) === capBy[code].n : !!(S.exam[code] && S.exam[code].pass);
+  function capStatus(code) {
+    const n = capDone(code), t = capBy[code].n;
+    if (n === t) return { k: "finished", cls: "ok" };
+    return n ? { k: n + "/" + t + " done", cls: "go" } : { k: "not started", cls: "" };
+  }
   const hrs = m => (m / 60).toFixed(1).replace(/\.0$/, "");
 
   /* ---------- catalog ---------- */
@@ -30,16 +37,18 @@
     const render = () => {
       let done = 0;
       document.querySelectorAll(".cl__card").forEach(el => {
-        const code = el.dataset.code, st = status(code);
+        const code = el.dataset.code || el.dataset.cap, isCap = !!el.dataset.cap;
+        const st = isCap ? capStatus(code) : status(code);
         const b = el.querySelector("[data-st]"); b.textContent = st.k; b.className = "cl__st " + st.cls;
         if (complete(code)) done++;
-        const miss = byCode[code].pre.filter(p => !complete(p));
+        const miss = (isCap ? capBy[code] : byCode[code]).pre.filter(p => !complete(p));
         const lk = el.querySelector("[data-lock]");
         lk.hidden = !miss.length || complete(code);
         lk.textContent = miss.length ? "soft lock: finish " + miss.join(", ") + " first (or test out)" : "";
         el.classList.toggle("is-locked", miss.length > 0 && !complete(code));
       });
-      $("cl-sum").textContent = done + " of " + META.courses.length + " courses complete";
+      const total = document.querySelectorAll(".cl__card").length;
+      $("cl-sum").textContent = done + " of " + total + (document.querySelector("[data-cap]") ? " capstones finished" : " courses complete");
     };
     render();
   }
@@ -52,14 +61,19 @@
         const st = status(c.code), ex = S.exam[c.code], md = modsDone(c.code);
         return `<tr><td><a href="courses/${c.code}.html">${c.code}</a> ${c.name.replace(/[&<>"]/g, "")}</td><td class="${st.cls ? "tr__" + st.cls : ""}">${st.k}</td><td>${md}/${c.mods}</td><td>${ex ? "best " + ex.best + "%, " + ex.n + " tr" + (ex.n === 1 ? "y" : "ies") : "–"}</td><td>${ex && ex.pass ? ex.date : "–"}</td></tr>`;
       });
+      (META.caps || []).forEach(c => {
+        const st = capStatus(c.code);
+        rows.push(`<tr><td><a href="capstones/${c.code}.html">${c.code}</a> ${c.name.replace(/[&<>"]/g, "")}</td><td class="${st.cls ? "tr__" + st.cls : ""}">${st.k}</td><td>${capDone(c.code)}/${c.n} items</td><td>–</td><td>${st.k === "finished" ? (S.cap[c.code + ".done"] || "–") : "–"}</td></tr>`);
+      });
       $("tr-body").innerHTML = rows.join("");
       let done = 0, mins = 0;
       META.courses.forEach(c => { if (complete(c.code)) done++; for (let i = 0; i < c.mods; i++) if (S.mods[c.code + "." + i]) mins += c.min / c.mods; });
       $("tr-sum").textContent = done + " of " + META.courses.length + " courses complete · ~" + hrs(mins) + " h of modules ticked";
       document.querySelectorAll(".tr__tier").forEach(el => {
-        const t = META.tiers.find(x => x.key === el.dataset.tier), n = t.need.filter(complete).length;
-        el.querySelector("[data-tier-st]").textContent = n === t.need.length ? "[ reached ]" : n + "/" + t.need.length;
-        el.classList.toggle("done", n === t.need.length);
+        const t = META.tiers.find(x => x.key === el.dataset.tier), pk = t.pick || { n: 0, from: [] };
+        const n = t.need.filter(complete).length + Math.min(pk.n, pk.from.filter(complete).length), tot = t.need.length + pk.n;
+        el.querySelector("[data-tier-st]").textContent = n === tot ? "[ reached ]" : n + "/" + tot;
+        el.classList.toggle("done", n === tot);
       });
     };
     $("tr-export").onclick = () => {
@@ -74,7 +88,7 @@
         const v = clean(JSON.parse(t)); let k = 0;
         ["mods", "quiz", "exam"].forEach(sec => Object.keys(v[sec]).forEach(key => {
           const code = key.split(".")[0];
-          if (byCode[code]) { S[sec][key] = v[sec][key]; k++; }
+          if (byCode[code] || capBy[code]) { S[sec][key] = v[sec][key]; k++; }
         }));
         save(msg); msg.textContent = "imported " + k + " records."; render();
       }).catch(() => { msg.textContent = "that file is not a valid export."; });
@@ -85,6 +99,26 @@
       armed = 0; $("tr-reset").textContent = "[ reset ]"; S = clean(null); save(msg); render();
     };
     render();
+  }
+
+  /* ---------- capstone page ---------- */
+  const capEl = $("cap");
+  if (capEl) {
+    const code = capEl.dataset.code, N = +capEl.dataset.n;
+    const items = [].slice.call(capEl.querySelectorAll(".cp__mod"));
+    const refresh = () => {
+      items.forEach(li => { const on = !!S.cap[code + "." + li.dataset.i]; li.classList.toggle("done", on); li.querySelector("input").checked = on; });
+      const n = capDone(code);
+      $("cap-count").textContent = n + " of " + N + " items done";
+      $("cp-status").textContent = capStatus(code).k;
+    };
+    items.forEach(li => li.querySelector("input").addEventListener("change", ev => {
+      const key = code + "." + li.dataset.i;
+      if (ev.target.checked) S.cap[key] = today(); else delete S.cap[key];
+      if (capDone(code) === N) { if (!S.cap[code + ".done"]) S.cap[code + ".done"] = today(); } else delete S.cap[code + ".done"];
+      save(); refresh();
+    }));
+    refresh();
   }
 
   /* ---------- course page + quiz engine ---------- */

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAP400 case file :: 0xDay</title>
+<meta name="description" content="Evidence for the CAP400 blue capstone: a simulated breach with email, endpoint, auth, DNS and firewall logs.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">cat ~/capstones/cap400-case-file</p><h1>CAP400 case file: INC-2026-0312</h1>
+<p>Fictional incident at a fictional company. All names, domains and addresses are invented; the domains use reserved example names and the IPs are from documentation ranges. Work the evidence, build your timeline, write the report, <em>then</em> open the answer key.</p>
+<p class="muted small"><a href="CAP400.html">&lt; back to the CAP400 checklist</a></p>
+<h2># ticket</h2><pre>INC-2026-0312  Priority: High  Opened: 2026-03-12 12:09 UTC
+Reporter: SOC (automated)  Status: host isolated, investigation open
+Summary: EDR flagged &quot;vssadmin delete shadows&quot; on FS-01 (file server) at 12:05 UTC. SOC isolated FS-01 at 12:09. No ransom note seen. Find out how this started, what was accessed and what left the network.
+Environment: Brightwater Logistics (fictional). Workstation subnet 10.20.5.0/24, servers 10.20.1.0/24. All times are UTC.</pre><h2># asset list</h2><pre>WS-FIN-07   10.20.5.17  Finance workstation, user dana.pierce
+WS-OPS-02   10.20.5.31  Operations workstation, user ravi.shah
+FS-01       10.20.1.10  File server (finance and ops shares)
+DC-01       10.20.1.5   Domain controller
+svc-backup  service account used by the backup agent, member of Backup Operators</pre><h2># email gateway log</h2><pre class="cap__log">09:12:41 DELIVER from=accounts@brightwater-invoices.example.net to=dana.pierce@brightwater.example subject=&quot;Overdue invoice 88213&quot; attach=Invoice_88213.docm size=71842 spf=fail dkim=none dmarc=fail
+09:12:44 DELIVER from=accounts@brightwater-invoices.example.net to=ravi.shah@brightwater.example subject=&quot;Overdue invoice 88213&quot; attach=Invoice_88213.docm size=71842 spf=fail dkim=none dmarc=fail
+09:12:58 DELIVER from=hr@brightwater.example to=all-staff@brightwater.example subject=&quot;Benefits enrollment reminder&quot; attach=none spf=pass dkim=pass dmarc=pass</pre><h2># endpoint log (sysmon) ws-fin-07</h2><pre class="cap__log">09:13:52 EID1  Image=C:\Windows\System32\cmd.exe Parent=C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE User=BW\dana.pierce CmdLine=cmd.exe /c powershell -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0AT...
+09:13:53 EID1  Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe Parent=cmd.exe User=BW\dana.pierce
+09:14:08 EID11 Image=powershell.exe TargetFilename=C:\Users\dana.pierce\AppData\Local\Temp\p.dll
+09:14:11 EID1  Image=C:\Windows\System32\rundll32.exe Parent=powershell.exe CmdLine=rundll32.exe C:\Users\dana.pierce\AppData\Local\Temp\p.dll,Start
+09:14:31 EID3  Image=rundll32.exe Src=10.20.5.17 Dst=203.0.113.45:443 (outbound)
+09:15:31 EID3  Image=rundll32.exe Src=10.20.5.17 Dst=203.0.113.45:443 (outbound)
+09:16:30 EID3  Image=rundll32.exe Src=10.20.5.17 Dst=203.0.113.45:443 (outbound)
+(same connection pattern continues about once a minute until isolation of the host at 12:31)
+09:41:18 EID10 SourceImage=rundll32.exe TargetImage=C:\Windows\System32\lsass.exe GrantedAccess=0x1010
+09:41:40 EID11 Image=rundll32.exe TargetFilename=C:\Users\dana.pierce\AppData\Local\Temp\d.dmp</pre><h2># web proxy log</h2><pre class="cap__log">09:14:07 10.20.5.17 dana.pierce GET http://cdn-update.example.net/s/p.bin 200 184320 UA=&quot;WindowsPowerShell/5.1&quot;
+09:14:31 10.20.5.17 dana.pierce CONNECT 203.0.113.45:443 200 - UA=&quot;-&quot;
+09:15:31 10.20.5.17 dana.pierce CONNECT 203.0.113.45:443 200 - UA=&quot;-&quot;
+10:03:12 10.20.5.17 dana.pierce POST http://cdn-update.example.net/u 200 4096 UA=&quot;Mozilla/5.0&quot;</pre><h2># dns log</h2><pre class="cap__log">09:14:06 client=10.20.5.17 query=cdn-update.example.net A answer=203.0.113.45
+09:14:06 note: first time this domain has been queried by any Brightwater host; domain registered 4 days earlier
+11:48:02 client=10.20.1.10 query=files-share.example.org A answer=198.51.100.77</pre><h2># windows security log (domain controller and file server)</h2><pre class="cap__log">09:55:20 DC-01 EID4768 Kerberos TGT requested account=svc-backup client=10.20.5.17
+10:02:33 FS-01 EID4624 LogonType=3 account=BW\svc-backup src=10.20.5.17 auth=NTLM
+10:02:33 FS-01 EID4672 special privileges assigned to BW\svc-backup
+10:05:10 FS-01 EID4688 NewProcess=cmd.exe Parent=services.exe Account=BW\svc-backup CmdLine=cmd.exe /c net group &quot;Domain Admins&quot; /domain &amp; whoami /groups
+10:19:57 FS-01 EID7045 service installed: name=WinUpdSvc image=C:\Windows\Temp\wu.exe starttype=auto account=LocalSystem
+10:20:04 FS-01 EID4688 NewProcess=C:\Windows\Temp\wu.exe Parent=services.exe
+12:05:03 FS-01 EID4688 NewProcess=vssadmin.exe Account=NT AUTHORITY\SYSTEM CmdLine=vssadmin delete shadows /all /quiet Parent=wu.exe</pre><h2># authentication note</h2><pre>svc-backup normally logs on only from the backup server 10.20.1.30 between 01:00 and 03:00. The 10.20.5.17 logons at 09:55 and 10:02 are new.</pre><h2># firewall flows (fs-01)</h2><pre class="cap__log">10:48:16 10.20.1.10 -&gt; 198.51.100.77:443 TCP bytes_out=812204113
+11:02:40 10.20.1.10 -&gt; 198.51.100.77:443 TCP bytes_out=655120987
+11:16:09 10.20.1.10 -&gt; 198.51.100.77:443 TCP bytes_out=701884330
+11:29:51 10.20.1.10 -&gt; 198.51.100.77:443 TCP bytes_out=640007112
+11:48:05 10.20.1.10 -&gt; 198.51.100.77:443 TCP bytes_out=702771845
+12:00:27 10.20.1.10 -&gt; 198.51.100.77:443 TCP bytes_out=698330291
+Baseline: FS-01 normally sends under 50 MB a day to the internet, mostly OS updates.</pre><h2># response notes</h2><pre>12:05 EDR alert on FS-01 (vssadmin delete shadows)
+12:09 SOC isolated FS-01 from the network
+12:31 WS-FIN-07 isolated after analyst noticed the beacon pattern
+WS-OPS-02 has not been inspected yet. ravi.shah says he did not open the invoice.</pre>
+<h2># answer key</h2>
+<details class="cap__key"><summary>Show the answer key (finish your report first)</summary><h3>How did the attacker get in?</h3><p>A phishing email with a macro-enabled document (Invoice_88213.docm) from a lookalike domain (brightwater-invoices.example.net) failed SPF, DKIM and DMARC yet was delivered. Dana opened it and Word spawned cmd.exe then hidden, encoded PowerShell at 09:13:52. T1566.001 and T1059.001.</p><h3>Who is patient zero?</h3><p>WS-FIN-07 and BW\dana.pierce. A second recipient (ravi.shah, WS-OPS-02) received the same email. No evidence he ran it, but his machine was never inspected, so call it unconfirmed and recommend checking it.</p><h3>What is the command and control?</h3><p>Payload fetched from cdn-update.example.net (resolves to 203.0.113.45), then HTTPS beacons from rundll32.exe to 203.0.113.45:443 about every 60 seconds. The domain was registered 4 days earlier and first seen at 09:14:06. T1105, T1071.001, T1218.011 for the rundll32 DLL load.</p><h3>How were credentials stolen?</h3><p>At 09:41:18 rundll32.exe opened lsass.exe with access mask 0x1010 and wrote d.dmp 22 seconds later. That is credential dumping. The svc-backup account was then used. T1003.001.</p><h3>How did the attacker move laterally?</h3><p>At 09:55 a Kerberos TGT for svc-backup was requested from the workstation, then at 10:02 svc-backup logged on to FS-01 over the network (type 3, NTLM) from 10.20.5.17. This account normally only logs on from 10.20.1.30 at night, so both the source and the time are anomalies. T1078 and T1021.002 (SMB/admin shares).</p><h3>What did they do on FS-01?</h3><p>Discovery commands (net group &quot;Domain Admins&quot;, whoami /groups) at 10:05, then installed a service WinUpdSvc running C:\Windows\Temp\wu.exe as SYSTEM at 10:19. That is persistence and privilege escalation. T1087, T1543.003.</p><h3>What data left and how much?</h3><p>Six HTTPS flows from FS-01 to 198.51.100.77 (files-share.example.org) between 10:48 and 12:00 totalling about 4.2 GB (812+655+702+640+703+698 MB), against a baseline under 50 MB per day. Treat as confirmed bulk exfiltration of file-share data. T1567 and T1048. Also a small POST of 4 KB to the C2 domain at 10:03 from the workstation, likely staging or check-in data.</p><h3>What was the attempted impact?</h3><p>vssadmin delete shadows /all /quiet at 12:05 launched by wu.exe: removal of recovery points ahead of encryption. Ransomware not confirmed. T1490.</p><h3>What was the dwell time and where were the detection gaps?</h3><p>09:13 initial execution to 12:09 containment is about 2 hours 55 minutes (roughly 3 hours). Gaps: the email gateway delivered a message that failed all three authentication checks; an executable Office macro was allowed; the first-seen C2 domain and the lsass access did not alert; svc-backup logons from an unusual host did not alert; 4.2 GB egress did not alert for over an hour; WS-FIN-07 stayed connected for 22 minutes after FS-01 was isolated.</p><h3>What should happen next?</h3><p>Contain and eradicate: reset svc-backup and dana.pierce credentials, and treat other credentials on WS-FIN-07 and FS-01 as exposed (reset krbtgt twice if Domain Admin exposure cannot be ruled out), remove WinUpdSvc and wu.exe, rebuild FS-01 from known-good media, block 203.0.113.45, 198.51.100.77, cdn-update.example.net and files-share.example.org, search mail and DNS logs for other recipients and other hosts that queried the domains, and inspect WS-OPS-02. Notify legal and privacy about the exfiltrated shares according to policy.</p><h3>What should change long term?</h3><p>Block or sign macros from the internet, reject mail failing DMARC, put the backup account on a restricted logon policy (allowed source host only), alert on first-seen domains and on lsass access, enable credential protections such as LSA protection, add egress volume alerts per server, and rehearse the response. Do not claim any single control would have been enough.</p></details>
+<p class="muted small"><a href="CAP400.html">&lt; CAP400 checklist</a> · <a href="../report.html">~/report</a> · <a href="../capstones.html">~/capstones</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
