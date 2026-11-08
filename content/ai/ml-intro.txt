@@ -1,0 +1,155 @@
+tagline: Start here if you have never studied machine learning. What it is, how a spam filter learns, training versus prediction, features and labels, overfitting, and how to read a confusion matrix, in plain English.
+:: simple
+### What machine learning is
+Normally you write the rules yourself: "if the subject says URGENT and the sender is unknown, send it to spam." That works until the attackers change the wording, and then you are rewriting rules forever.
+
+**Machine learning (ML)** flips this. You give a program thousands of examples that are already sorted ("these 5,000 emails are spam, these 5,000 are fine") and it works out the rules from the examples. The result is a **model**: a formula with many adjustable numbers, tuned until it sorts the examples well. Then you hand it an email it has never seen and it makes a guess.
+
+That is the whole idea. Everything else in the field (neural networks, ChatGPT, malware classifiers) is a variation on it.
+> A model is not a mind. It is a formula whose numbers were adjusted until it matched your examples. If the examples are bad, the model is bad.
+
+### The words you need
+- **Feature**: one measurable fact about an example. For an email: number of links, whether the word "urgent" appears, whether the sender is new.
+- **Label**: the right answer for an example ("spam" or "fine"). Examples with labels are what the model learns from.
+- **Training**: the learning phase. The model looks at labeled examples and adjusts its numbers to get more of them right. It happens once (or on a schedule), usually on a big machine.
+- **Prediction** (also called **inference**): using the finished model on a new example. It is fast and cheap, and no learning happens during it.
+- **Supervised learning**: learning from labeled examples, like the spam filter. **Unsupervised learning**: no labels, the model looks for structure or for things that look odd.
+
+### The spam filter, start to finish
+1. Collect 10,000 emails and label each one spam or not spam.
+2. Turn each email into features: which words it contains, how many links, the sender's domain age.
+3. **Train**: the model notices that "urgent", "verify" and "wire" show up much more often in spam than in normal mail, and gives those features high spam weight. "Meeting" and "ticket" get low spam weight.
+4. **Predict**: a new email arrives. The model adds up the evidence and says "93 percent likely spam."
+5. A person (or a rule) decides what to do with that number: block above 90 percent, warn between 50 and 90.
+
+### Overfitting, the main way things go wrong
+Imagine a student who memorizes last year's exam answers word for word. Perfect score on last year's exam, lost on a new one. A model can do the same: it memorizes the training examples, including their noise and quirks, instead of the pattern. That is **overfitting**.
+
+The defense is simple. Before training, set some examples aside and never show them to the model (the **test set**). After training, score the model on those. If it gets 99 percent on the training data but 70 percent on the test set, it memorized.
+
+### Reading a confusion matrix
+When a model sorts things into two groups, count every outcome in one of four boxes. Say "malicious" is the thing we are looking for:
+
+| | model says malicious | model says fine |
+|---|---|---|
+| **really malicious** | **TP** true positive: caught | **FN** false negative: missed |
+| **really fine** | **FP** false positive: false alarm | **TN** true negative: correctly ignored |
+
+Two questions to ask every detector:
+- **Precision** = TP / (TP + FP). When it raises an alarm, how often is it right?
+- **Recall** = TP / (TP + FN). Of all the real attacks, how many did it catch?
+
+Do not trust "accuracy" alone. If only 1 file in 100 is malware, a model that always says "fine" is 99 percent accurate and catches nothing.
+:: mid
+### Worked example 1: a spam filter made of counting
+This is the idea behind naive Bayes, the classic spam filter, and you can do it by hand. Training data: 100 emails, 40 spam and 60 fine. You count how many emails of each kind contain each word:
+
+| word | in spam (of 40) | in fine mail (of 60) |
+|---|---|---|
+| urgent | 20 | 2 |
+| meeting | 1 | 30 |
+
+A new email says "urgent meeting". Score each class by multiplying its starting share by the chance of each word given that class:
+- spam: 0.4 x (20/40) x (1/40) = 0.4 x 0.5 x 0.025 = **0.005**
+- fine: 0.6 x (2/60) x (30/60) = 0.6 x 0.0333 x 0.5 = **0.010**
+
+Fine wins, and the spam probability is 0.005 / (0.005 + 0.010), about **33 percent**. "Urgent" pushed toward spam and "meeting" pushed harder toward fine. That "training" step was only counting; the "prediction" step was only multiplying. A word never seen in spam would give a zero and wipe out everything, so real implementations add a small amount to every count (**smoothing**).
+
+### Worked example 2: confusion matrix for a malware classifier
+A classifier scans 1,000 files. 50 are really malware. It flags 60 files, and 40 of those flags are right.
+- TP = 40, FP = 60 - 40 = 20, FN = 50 - 40 = 10, TN = 1,000 - 40 - 20 - 10 = 930.
+- Precision = 40 / 60 = **67 percent**. One in three alerts is wasted analyst time.
+- Recall = 40 / 50 = **80 percent**. One in five malware files gets through.
+- Accuracy = (40 + 930) / 1,000 = **97 percent**.
+
+Sounds great at 97, but a model that flags nothing scores 950 / 1,000 = 95 percent. The accuracy number barely moved from the do-nothing baseline; precision and recall tell the real story. Always ask what the dumb baseline scores.
+
+### Worked example 3: spotting overfitting
+You train three models and score each on its training data and on held-out test data:
+
+| model | training score | test score |
+|---|---|---|
+| tiny (3 questions) | 78 percent | 77 percent |
+| medium | 91 percent | 89 percent |
+| huge (memorizes) | 100 percent | 71 percent |
+
+The gap between train and test is the signal. Tiny is **underfit** (too simple, bad on both). Huge is **overfit** (perfect on training, much worse on test). Medium is the one to ship. Never choose by the training score.
+
+### Kinds of learning
+- **Classification**: pick a category (spam or not, which malware family). **Regression**: predict a number (hours to contain an incident).
+- **Clustering**: group similar items with no labels (group 10,000 alerts into 12 piles of lookalikes).
+- **Anomaly detection**: learn what normal looks like and flag what does not fit (a user logging in from a new country at 3 a.m.).
+- **Large language models** are trained to predict the next word, at huge scale. Same idea: examples in, adjustable numbers out. See [how AI works](how-ai-works.html).
+
+### Where ML is used in security
+- **Spam and phishing filters**: features from the text, links and headers.
+- **Malware classification**: features from a file (imported functions, section sizes, byte entropy, strings), or from how it behaves in a sandbox. Models sort files into malware or benign, or into families.
+- **Anomaly detection**: baseline each user's logins, data volumes or process launches, and flag departures. Good at "something is different", weak at "this is bad".
+- **Alert triage**: score alerts so analysts see the most likely real ones first.
+- **Fraud and bot detection**: the same idea on transactions and web traffic.
+:: complex
+### Why security is a harder ML problem than most
+- **Attackers adapt.** A cat photo does not change to fool your classifier; malware does. This is **evasion**: padding a file, renaming strings, or adding benign content to cross the boundary. Your test set is old news the moment the attacker sees your model's behavior.
+- **Attacks are rare.** With 1 malicious event in 1,000, even a model with a 1 percent false positive rate buries analysts: of 1,098 alerts only 99 are real, which is under 10 percent precision. Compute precision at the real base rate (see [evaluating models](ml-evaluation.html)).
+- **Labels are expensive and biased.** Someone has to confirm each sample. You mostly learn the truth about alerts that the old system already flagged, so the model inherits its blind spots.
+- **Drift.** The world changes (new software, new attacker tooling, a company merger) and a model that scored 95 percent last spring slides without any code change. Monitor input distributions and the rate of confirmed alerts, and retrain on a schedule.
+- **Poisoning.** If attackers can influence training data, they can slip in crafted or mislabeled samples. See [attacking AI](attacking-ai.html).
+
+### Anomaly detection in practice
+An unsupervised detector needs a definition of normal. Typical approach: pick features per entity (per user per day: login count, distinct hosts, bytes uploaded), learn their usual range, and score each new day by distance from usual (a z-score, an isolation forest, or an autoencoder's reconstruction error). Then a human sets the alert threshold.
+
+Known weak points: the baseline might already contain an attacker; legitimate changes (a new project, quarter-end) look anomalous; and "anomalous" is not "malicious", so expect many false alarms. Treat the output as a lead for an analyst, not a verdict.
+
+### Malware classification pipeline
+1. **Collect** samples from many families and clean software, with trustworthy labels. Duplicates and one family dominating the data will distort scores.
+2. **Extract features**: static (PE header fields, imports, section entropy, strings, byte histograms) and dynamic (API call sequences, network connections, file writes from a sandbox run).
+3. **Split by time or family**, not randomly. If the same family sits in both train and test, the score is inflated.
+4. **Train** a few models, starting with the simplest (logistic regression, a forest) as a baseline.
+5. **Evaluate** at the real base rate with precision, recall and the threshold you will use. Look at the misses by hand.
+6. **Deploy and monitor.** Log the score and the final human verdict so you can retrain, and keep a red-team set of evasion attempts.
+
+### When not to use ML
+If a simple rule works ("block executables from the downloads folder"), use the rule: it is explainable, testable and cannot be silently wrong. Use ML when the pattern is too fuzzy or changes too fast to write by hand, you have enough trustworthy labeled data, you can tolerate mistakes, and you can measure how it does. Beware vendor claims such as "AI-powered" with no numbers: ask what data, what base rate, what precision and recall, and what happens when an attacker adapts.
+
+### Where to go next
+The chapters that follow build this up properly: [ML math refresher](ml-math.html), [regression](ml-regression.html), [classifiers](ml-classifiers.html), [evaluating models](ml-evaluation.html), and the [ML playground](ml-lab.html) where you train a model in the browser.
+:: lab
+style: shell
+host: soc-ml
+user: analyst
+cwd: /home/analyst
+:: brief
+A teammate wants to build a tiny spam filter from 20 labeled messages in `~/spam/train.txt` (format: `label,message`). The first step of "training" is counting, so count.
+
+Of the three words **free**, **meeting** and **urgent**, which one appears in spam messages and **never** in normal ("ham") messages? Answer with the word. Along the way, notice that a word appearing in one ham message (a "free" in `are you free to talk`) is exactly why models give probabilities, not certainties.
+:: answer
+urgent
+:: hint
+`grep -c "^spam,.*urgent" ~/spam/train.txt` counts spam lines containing a word. Swap `spam` for `ham` to count the other side.
+:: hint
+Do it for each word and both labels: you want a word with a nonzero spam count and a ham count of 0. Try `grep -c "^ham,.*free" ~/spam/train.txt`.
+:: solution
+`urgent` appears in 7 spam messages and 0 ham messages. `free` appears in 4 spam and 1 ham (the "are you free to talk" message), so it is evidence but not proof. `meeting` appears in 0 spam and 3 ham, so it points toward normal mail. A real filter does this counting for every word and combines the evidence, as in worked example 1.
+:: verify
+grep -c "^ham,.*urgent" ~/spam/train.txt
+:: file /home/analyst/spam/train.txt
+spam,urgent verify your account now
+spam,free gift card urgent reply
+spam,you won free prize claim now
+spam,urgent payment overdue click here
+spam,act now urgent password expires
+spam,free trial limited offer
+spam,claim your refund urgent
+spam,invoice attached urgent wire needed
+spam,final notice urgent account locked
+spam,cheap pills free shipping
+ham,team meeting moved to 3pm
+ham,lunch tomorrow
+ham,are you free to talk at 3
+ham,notes from the meeting attached
+ham,ticket 4521 resolved
+ham,patch window is saturday night
+ham,reminder meeting agenda
+ham,can you review my pull request
+ham,backup job finished ok
+ham,welcome to the team

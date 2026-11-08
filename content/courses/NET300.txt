@@ -85,6 +85,20 @@ Q: Which is the safest way to reach a homelab from outside?
 - Putting the lab in a DMZ
 ? Exposed management ports are scanned within minutes.
 
+Q: A VPN client config has AllowedIPs = 10.0.0.0/16. Is this a full tunnel or a split tunnel?
+* Split tunnel: only traffic for 10.0.0.0/16 goes through the VPN
+- Full tunnel: all traffic goes through the VPN
+- Neither, it only sets the DNS server
+- It is a site-to-site VPN
+? A full tunnel in WireGuard uses 0.0.0.0/0.
+
+Q: Many failed VPN logins, each for a different username, all from one IP. What is this?
+* Password spraying
+- A typo by one user
+- A normal reconnect
+- A VPN misconfiguration
+? Spraying tries one or two passwords across many accounts to stay under lockout limits. Use MFA and alert on distinct usernames per source.
+
 ## 3
 Q: Which expression is a Wireshark display filter showing HTTP traffic involving 10.0.0.5?
 * ip.addr == 10.0.0.5 && http

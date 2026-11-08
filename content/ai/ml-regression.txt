@@ -32,6 +32,14 @@ Time-ordered data (logs, incidents) must be split **by time** (train on the past
 
 ### Overfitting and underfitting
 A line too simple for the data **underfits** (high error everywhere). A model with too many knobs (a degree-15 polynomial, a huge tree) can pass through every training point and **overfit**: low training error, high test error, because it learned the noise. The fix menu: more data, fewer or simpler features, **regularization** (penalize large weights so the model stays simple), early stopping, and cross-validation to measure honestly.
+### Worked example: gradient descent by hand
+Fit `y = w * x` (no intercept, to keep it small) to three points: (1, 2), (2, 4), (3, 6). The true answer is `w = 2`. Start at `w = 0` with learning rate 0.05. The gradient of the mean squared error is `2 * mean((w*x - y) * x)`.
+- Step 1: errors `w*x - y` are -2, -4, -6; times x: -2, -8, -18; mean = -9.33; gradient = -18.67. New `w = 0 - 0.05 * (-18.67)` = **0.93**.
+- Step 2: errors are -1.07, -2.13, -3.2; times x: -1.07, -4.27, -9.6; mean = -4.98; gradient = -9.96. New `w` = 0.93 + 0.498 = **1.43**.
+- Each step moves closer to 2 and the steps shrink, because the slope flattens near the bottom.
+
+### Worked example: choosing model complexity
+You fit polynomials of increasing degree to 30 incident records (hosts affected versus hours to contain) and score each on held-out data. Degree 1 is a straight line: it misses the curve (underfit). Degree 9 wiggles through every training point and fails on new ones (overfit). The best test error is somewhere in between. You pick the **degree with the lowest test error**, never the lowest training error, which only ever gets better as the model gets bigger.
 :: complex
 ### Regularization, in one equation
 Ridge (L2) adds `lambda * sum(w^2)` to the loss, which shrinks weights toward zero and is stable when features are correlated. Lasso (L1) adds `lambda * sum(|w|)` and tends to push some weights exactly to zero, acting as feature selection. `lambda` is a **hyperparameter**: you set it, you do not learn it, and you tune it on the validation set.
@@ -48,3 +56,28 @@ Expected test error splits into **bias** (the model family is too simple, system
 
 ### Security uses
 Forecasting capacity and log volume, estimating time-to-contain, scoring risk, baselining normal traffic per host so that big deviations stand out. For anomalies, a regression baseline plus a threshold on the residual is a cheap first detector.
+:: lab
+style: shell
+host: soc-ml
+user: analyst
+cwd: /home/analyst
+:: brief
+You fitted five polynomial models of different degrees to predict hours-to-contain from incident size. The results are in `~/model/fits.csv`, one row per model, in the format `degree,train_error,test_error` (lower is better).
+
+Which **degree** should you ship? Answer with the number.
+:: answer
+3
+:: hint
+The honest score is the test error, not the training error. Sort by the third column: `sort -t, -k3 -n ~/model/fits.csv`.
+:: hint
+The first line of that output has the smallest test error. Read its first field.
+:: solution
+Training error keeps falling as the degree grows (9.1 down to 0.1), which only means the bigger models memorize better. Test error is lowest at degree 3 (2.6) and then climbs: degree 5 scores 3.9 and degree 9 scores 14.7, which is a textbook overfit (near-perfect on training, bad on new data). Ship degree 3.
+:: verify
+sort -t, -k3 -n ~/model/fits.csv
+:: file /home/analyst/model/fits.csv
+1,9.1,9.8
+2,4.2,4.9
+3,2.1,2.6
+5,1.0,3.9
+9,0.1,14.7

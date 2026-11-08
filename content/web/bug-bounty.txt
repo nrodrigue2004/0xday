@@ -1,0 +1,100 @@
+tagline: How bug bounty works, how to start with zero experience and zero risk, reading scope, a safe first-hunt routine, writing a report that gets paid, and the legal lines you must not cross.
+:: simple
+### What a bug bounty is
+Companies cannot find every flaw in their own software. A **bug bounty program** is a public offer: "find a security flaw in these systems, report it to us properly, and we will pay you (or at least credit you)." Platforms such as **HackerOne** and **Bugcrowd** host programs for hundreds of companies, and some companies run their own. The rules of each program are written in its **policy**.
+
+You do not need a degree or a job to take part. You do need skill, patience and a willingness to read rules carefully. Most reports are rejected as duplicates, out of scope or low impact, especially at the start. Treat the first year as training that sometimes pays, not as income.
+
+### The rule that matters most: scope
+Every program lists what you may test (**in scope**) and what you may not (**out of scope**). It also lists forbidden actions, such as denial of service, social engineering of staff, or touching other users' data beyond proving the bug exists. Many programs give a **safe harbor** promise not to pursue legal action if you follow the rules.
+> If it is not clearly in scope, do not test it. "I could reach it" is not permission. Out-of-scope testing can be illegal, and it gets you banned from platforms.
+
+### How to start with no risk
+1. Learn the basics in places built to be attacked: [OWASP Top 10](owasp-top-10.html), PortSwigger Web Security Academy, Hacker101 and your own copies of Juice Shop or DVWA. All free, see the [resources page](../resources.html) under "bug bounty and web hacking".
+2. Learn how the web works: [HTTP](../basics/http-and-the-web.html), [how web apps work](../basics/how-web-apps-work.html), [APIs](../basics/apis-rest-json.html), and a proxy such as Burp ([Burp workflow](burp-workflow.html)).
+3. Practice on labs and CTFs until you can find and explain the main bug classes: injection, XSS, access control (IDOR), SSRF, authentication flaws.
+4. Only then pick a beginner-friendly public program, read its policy twice, and start small.
+
+### What you will usually find
+The commonly paid classes are the ones in the OWASP Top 10, mainly **broken access control** (seeing or changing another user's data), **injection**, **XSS**, **SSRF**, and weak **authentication** or session handling. Misconfigurations such as exposed admin panels, public storage buckets and leaked keys also pay.
+:: mid
+### A safe first-hunt routine
+1. **Pick a program and read it end to end**: scope, out-of-scope list, rules, rewards, what counts as a duplicate, and how to contact them. Save a copy of the policy as it was on the day you started.
+2. **Recon, passively first**: subdomains in scope, technologies in use, public JavaScript files, API endpoints. Use only methods the policy allows. Respect rate limits; never hammer a production site.
+3. **Use the app like a user**, with a proxy on. Create two test accounts of your own so you can check whether account A can see account B's data. Never use another person's account or data.
+4. **Test one bug class at a time** against a feature: change an ID in a request (IDOR), alter a price, change a role, try a harmless XSS payload in a field that is echoed back.
+5. **Stop at proof.** Once you can show that the bug is real (for example that your account A fetched your account B's record), stop. Do not download everything, do not pivot, do not keep going "to see what else".
+6. **Write the report** the same day, while it is fresh.
+
+### Worked example: scope check
+A program says: in scope `*.example.com`; out of scope `legacy.example.com`, `payments.example.com` and anything on partner domains; no denial of service; no testing of other users' accounts.
+You discover these hosts: `app.example.com`, `api.example.com`, `legacy.example.com`, `payments.example.com`, `blog.example.org`, `cdn.partner.com`, `staging.example.com`, `admin.example.com`.
+In scope: `app`, `api`, `staging`, `admin` (all under `example.com` and not excluded). Out: `legacy` and `payments` (excluded by name), `blog.example.org` (different domain, not covered by the wildcard) and `cdn.partner.com` (partner domain). That is **4 of 8**. Note that `admin.example.com` is in scope but still requires you to stay within the rules: finding a login page is not permission to guess passwords if the policy forbids brute force.
+
+### What makes a good report
+A triager reads dozens of reports a day. Make theirs easy:
+- **Title** that states the bug and where: "IDOR in /api/orders/{id} exposes other users' orders".
+- **Summary** in two sentences: what is wrong and what an attacker gains.
+- **Steps to reproduce**, numbered, so someone who has never seen it can follow them. Include the exact request.
+- **Impact**: what data or action is exposed, to whom, how easily. Be honest; do not inflate.
+- **Evidence**: a screenshot or a short capture with your own test data. Redact any real personal data you happened to see.
+- **Suggested fix** in a line or two.
+Be polite, patient and respond quickly if they ask a question. Reputation on a platform is worth more than one payout.
+
+### Duplicates, severity and money
+Only the first valid report of a bug is paid; later ones are **duplicates**. Severity is usually scored with **CVSS** or the program's own table, so a missing security header pays nothing while remote code execution pays a lot. Common non-qualifying reports: missing headers with no impact, self-XSS, clickjacking on a page with nothing sensitive, rate-limit complaints without an exploit, and automated scanner output pasted in.
+:: complex
+### Legal and ethical lines
+- **Authorization**: the policy is your permission, and only for what it names. No policy, no permission.
+- **Data**: stop as soon as you can prove access. Do not copy, keep or share other people's data. If you accidentally see sensitive data, report it and delete your copy.
+- **Never extort**: demanding payment under threat of disclosure is a crime, whatever you call it. Use the program's process.
+- **Disclosure**: do not publish details until the owner has fixed the bug and the program allows it. See [ethics and disclosure](../grc/ethics-and-disclosure.html).
+- **Laws** such as the US Computer Fraud and Abuse Act and equivalents elsewhere do not care about your intent. Safe harbor language helps but is not a law.
+
+### Doing it better over time
+- **Specialize**: one bug class (access control, SSRF) or one technology (GraphQL, OAuth, mobile APIs) until you notice what developers get wrong.
+- **Read disclosed reports** on the platforms' public feeds and on write-up sites; they show exactly what a paid report looks like.
+- **Automate the boring parts** (subdomain lists, change monitoring, simple scans) within the program's rate limits, and spend your own time on logic flaws, which scanners miss.
+- **Work where fewer people look**: new programs, new features, mobile apps, APIs, acquisitions.
+- **Keep notes** for each target: what you tried, what was fixed, what you plan to test.
+
+### Beyond bounties
+Bug bounty practice builds skills that map to jobs: web application security, penetration testing, application security engineering, and detection engineering (you learn what attacks look like). Put sanitized, permitted write-ups on your site and mention platform rankings only if they are real. For paid work in the same area, see [pentest methodology](../pentest/pentest-methodology.html) and [reporting](../pentest/pentest-reporting.html).
+
+### Defender's view
+If you run a program rather than hunt in one: write a clear scope and safe harbor, respond fast, pay fairly, fix quickly, and give credit. A good program is as much about process (triage, deduplication, fix tracking) as about money.
+:: lab
+style: shell
+host: kali
+user: hunter
+cwd: /home/hunter
+:: brief
+You found these eight hostnames while doing passive recon, and the program's rules are in `~/bounty/scope.txt`. Read the rules and `~/bounty/hosts.txt`.
+
+How many of the eight hosts are **in scope** and allowed to be tested? Answer with the number.
+:: answer
+4
+:: hint
+`cat ~/bounty/scope.txt` first. A wildcard covers only that domain. Exclusions beat wildcards.
+:: hint
+Go down `~/bounty/hosts.txt` one line at a time: is it under example.com, and is it on the out-of-scope list?
+:: solution
+In scope: `app.example.com`, `api.example.com`, `staging.example.com`, `admin.example.com` (4). Out of scope: `legacy.example.com` and `payments.example.com` (named exclusions), `blog.example.org` (a different domain than the wildcard) and `cdn.partner.com` (partner domains are excluded). Checking scope before sending a single request is the habit that keeps hunters out of trouble.
+:: verify
+cat ~/bounty/scope.txt ~/bounty/hosts.txt
+:: file /home/hunter/bounty/scope.txt
+PROGRAM: Example Corp Vulnerability Disclosure
+IN SCOPE:    *.example.com
+OUT OF SCOPE: legacy.example.com
+OUT OF SCOPE: payments.example.com
+OUT OF SCOPE: anything on partner domains (*.partner.com)
+RULES: no denial of service, no social engineering, no access to other users' real data. Stop once you have proof.
+:: file /home/hunter/bounty/hosts.txt
+app.example.com
+api.example.com
+legacy.example.com
+payments.example.com
+blog.example.org
+cdn.partner.com
+staging.example.com
+admin.example.com

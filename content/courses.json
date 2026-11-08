@@ -899,14 +899,24 @@
           "pre": [
             "IT100"
           ],
-          "blurb": "A short linear algebra refresher, regression, classifiers and honest evaluation, with a model you train in the browser. Security examples throughout.",
+          "blurb": "Starts from zero: what machine learning is, in plain English. Then a short linear algebra refresher, regression, classifiers and honest evaluation, with a lab per chapter and a model you train in the browser. Security examples throughout.",
           "modules": [
+            {
+              "t": "What is machine learning?",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/ai: what is ML (lab: count words for a spam filter)",
+                  "h": "ai/ml-intro.html"
+                }
+              ]
+            },
             {
               "t": "Math refresher",
               "m": 60,
               "links": [
                 {
-                  "t": "~/ai: ML math refresher",
+                  "t": "~/ai: ML math refresher (with lab)",
                   "h": "ai/ml-math.html"
                 },
                 {
@@ -920,7 +930,7 @@
               "m": 90,
               "links": [
                 {
-                  "t": "~/ai: regression",
+                  "t": "~/ai: regression (with lab)",
                   "h": "ai/ml-regression.html"
                 },
                 {
@@ -934,7 +944,7 @@
               "m": 90,
               "links": [
                 {
-                  "t": "~/ai: classifiers",
+                  "t": "~/ai: classifiers (with lab)",
                   "h": "ai/ml-classifiers.html"
                 }
               ]
@@ -1259,6 +1269,10 @@
               "t": "VPNs",
               "m": 60,
               "links": [
+                {
+                  "t": "~/basics: VPNs and tunnels (lab: spot password spraying)",
+                  "h": "basics/vpns-and-tunnels.html"
+                },
                 {
                   "t": "~/learn: VPN and Tailscale",
                   "h": "learn/vpn-tailscale.html"
@@ -2093,6 +2107,24 @@
                 {
                   "t": "~/web: API security",
                   "h": "web/api-security.html"
+                }
+              ]
+            },
+            {
+              "t": "Bug bounty",
+              "m": 60,
+              "links": [
+                {
+                  "t": "~/web: bug bounty (lab: decide what is in scope)",
+                  "h": "web/bug-bounty.html"
+                },
+                {
+                  "t": "PortSwigger Web Security Academy",
+                  "h": "https://portswigger.net/web-security"
+                },
+                {
+                  "t": "Hacker101",
+                  "h": "https://www.hacker101.com/"
                 }
               ]
             }

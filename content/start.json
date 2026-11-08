@@ -107,6 +107,15 @@
      "mod": "IT110.2"
     },
     {
+     "id": "vpns",
+     "t": "VPNs and tunnels",
+     "h": "basics/vpns-and-tunnels.html",
+     "w": "What a VPN is and is not, IPsec versus WireGuard, split tunnels, and how portals get sprayed.",
+     "m": 45,
+     "topic": "reading",
+     "mod": "NET300.2"
+    },
+    {
      "id": "os-concepts",
      "t": "Operating systems",
      "h": "learn/operating-systems.html",
@@ -121,6 +130,15 @@
      "w": "Terms are linked to guides. Look up anything unfamiliar as it appears.",
      "m": 15,
      "topic": "reading"
+    },
+    {
+     "id": "ml-intro",
+     "t": "What is machine learning?",
+     "h": "ai/ml-intro.html",
+     "w": "Plain English: spam filters, training versus prediction, overfitting, the confusion matrix. No math needed.",
+     "m": 45,
+     "topic": "reading",
+     "mod": "CS330.0"
     }
    ]
   },
@@ -537,6 +555,14 @@
      "m": 90,
      "topic": "other",
      "if": "web.html"
+    },
+    {
+     "id": "bounty",
+     "t": "Bug bounty basics",
+     "h": "web/bug-bounty.html",
+     "w": "Scope first, safe practice, writing a report. Legal lines included.",
+     "m": 60,
+     "topic": "other"
     }
    ]
   },

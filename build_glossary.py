@@ -5,7 +5,7 @@ import json, os, html
 
 esc = html.escape
 KINDS = {"g": ("learn/{}.html", "guide"), "s": ("secplus/{}.html", "Security+ "), "m": ("man/{}.html", "man "),
-         "d": ("drills/{}.html", "drill"), "a": ("ai/{}.html", "ai")}
+         "d": ("drills/{}.html", "drill"), "a": ("ai/{}.html", "ai"), "b": ("basics/{}.html", "basics"), "w": ("web/{}.html", "web")}
 
 
 def check(kind, slug):
@@ -14,7 +14,7 @@ def check(kind, slug):
 
 
 def label(kind, slug):
-    return {"g": "guide: " + slug, "s": "Security+ " + slug, "m": "man " + slug, "d": "drill: " + slug, "a": "ai: " + slug}[kind]
+    return {"g": "guide: " + slug, "s": "Security+ " + slug, "m": "man " + slug, "d": "drill: " + slug, "a": "ai: " + slug, "b": "basics: " + slug, "w": "web: " + slug}[kind]
 
 
 def build(page):

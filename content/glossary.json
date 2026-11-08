@@ -1,5 +1,5 @@
 {
- "_help": "term, definition, category, links. Links are prefix:slug: g=learn guide, s=Security+ objective id, m=cheatsheet (man page), d=drill, a=ai chapter. build.py checks every link exists.",
+ "_help": "term, definition, category, links. Links are prefix:slug: g=learn guide, s=Security+ objective id, m=cheatsheet (man page), d=drill, a=ai chapter, b=basics chapter, w=web chapter. Optional \"a\" is a list of aliases the ~/ai/chat assistant also matches. build.py checks every link exists.",
  "terms": [
   {
    "t": "ACL",
@@ -21,6 +21,20 @@
    ]
   },
   {
+   "t": "Active scanning",
+   "d": "Sending packets to a target to learn about it, such as a port scan. It can be detected and needs permission.",
+   "c": "recon",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ]
+  },
+  {
+   "t": "Adware",
+   "d": "Software that shows unwanted ads, sometimes tracking you as well.",
+   "c": "malware",
+   "l": []
+  },
+  {
    "t": "AES",
    "d": "Advanced Encryption Standard. The standard symmetric cipher; fast, used with 128 or 256-bit keys.",
    "c": "crypto",
@@ -35,6 +49,46 @@
    "c": "windows",
    "l": [
     "d:windows-permissions"
+   ]
+  },
+  {
+   "t": "Alert fatigue",
+   "d": "Analysts getting so many alerts, many false, that real ones are missed.",
+   "c": "soc",
+   "l": []
+  },
+  {
+   "t": "Algorithm",
+   "d": "A step-by-step procedure for solving a problem, such as sorting a list.",
+   "c": "concepts",
+   "l": [
+    "g:data-structures-and-algorithms"
+   ],
+   "a": [
+    "algorithms"
+   ]
+  },
+  {
+   "t": "Anomaly detection",
+   "d": "Learning what normal looks like and flagging what does not fit. Finds the unusual, which is not always the malicious.",
+   "c": "soc",
+   "l": [
+    "a:ml-intro"
+   ],
+   "a": [
+    "anomaly detection"
+   ]
+  },
+  {
+   "t": "API",
+   "d": "A defined way for one program to ask another to do something, such as a web service that returns data when you send it a request.",
+   "c": "web",
+   "l": [
+    "g:rest-apis-and-spring-boot"
+   ],
+   "a": [
+    "apis",
+    "application programming interface"
    ]
   },
   {
@@ -63,11 +117,35 @@
    ]
   },
   {
+   "t": "Artificial intelligence (AI)",
+   "d": "Software that does tasks we associate with human intelligence. Today it mostly means machine learning models, including language models.",
+   "c": "concepts",
+   "l": [
+    "a:how-ai-works"
+   ],
+   "a": [
+    "ai",
+    "artificial intelligence"
+   ]
+  },
+  {
    "t": "ASCII",
    "d": "American Standard Code for Information Interchange: the table that maps characters to numbers 0-127, one byte each ('A' is 65 or 0x41, 'a' is 97 or 0x61, '0' is 48 or 0x30).",
    "c": "data",
    "l": [
     "m:numbers"
+   ]
+  },
+  {
+   "t": "Assembly language",
+   "d": "Human-readable machine instructions, one per CPU operation. Needed for reverse engineering and exploit work.",
+   "c": "concepts",
+   "l": [
+    "g:c-x86-assembly"
+   ],
+   "a": [
+    "assembly",
+    "asm"
    ]
   },
   {
@@ -113,6 +191,24 @@
    ]
   },
   {
+   "t": "AWS",
+   "d": "Amazon's cloud platform and the largest. Core pieces: EC2 (servers), S3 (storage), IAM (permissions), VPC (networks).",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "amazon web services"
+   ]
+  },
+  {
+   "t": "Azure",
+   "d": "Microsoft's cloud platform. Entra ID (formerly Azure AD) handles identity.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "microsoft azure"
+   ]
+  },
+  {
    "t": "Backdoor",
    "d": "A hidden way back into a system that bypasses normal login.",
    "c": "malware",
@@ -121,11 +217,35 @@
    ]
   },
   {
+   "t": "Backup",
+   "d": "A separate copy of data for recovery. Test restores; a backup you have never restored is a guess.",
+   "c": "resilience",
+   "l": [],
+   "a": [
+    "backups",
+    "3-2-1"
+   ]
+  },
+  {
    "t": "Backup (3-2-1)",
    "d": "Keep 3 copies of data, on 2 kinds of media, with 1 offsite or offline. Offline copies survive ransomware.",
    "c": "resilience",
    "l": [
     "s:3.4"
+   ]
+  },
+  {
+   "t": "Bandwidth",
+   "d": "The maximum amount of data a link can carry per second. Latency is the delay; throughput is what you actually get.",
+   "c": "network",
+   "l": []
+  },
+  {
+   "t": "Bash",
+   "d": "The most common Linux shell and its scripting language: pipes, loops and variables for automating work at the command line.",
+   "c": "linux",
+   "l": [
+    "g:bash-scripting"
    ]
   },
   {
@@ -138,6 +258,17 @@
    ]
   },
   {
+   "t": "BGP",
+   "d": "The routing protocol of the internet: networks (autonomous systems) tell each other which IP ranges they can reach. A mistake or hijack can send traffic the wrong way.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ],
+   "a": [
+    "border gateway protocol"
+   ]
+  },
+  {
    "t": "BIA",
    "d": "Business impact analysis: working out which systems matter most, and what an outage costs per hour.",
    "c": "governance",
@@ -147,11 +278,32 @@
    ]
   },
   {
+   "t": "Big O notation",
+   "d": "A way to describe how running time or memory grows as the input grows: O(n) grows in line with the input, O(n^2) much faster.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "big o",
+    "time complexity",
+    "big-o"
+   ]
+  },
+  {
    "t": "Binary",
    "d": "Base 2: numbers written with only 0 and 1, where each place is worth double the one to its right (128 64 32 16 8 4 2 1 for a byte).",
    "c": "concepts",
    "l": [
     "m:numbers"
+   ]
+  },
+  {
+   "t": "BIOS / UEFI",
+   "d": "The first code that runs at power-on, which starts the operating system. UEFI is the modern replacement for BIOS.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "bios",
+    "uefi"
    ]
   },
   {
@@ -171,6 +323,12 @@
    ]
   },
   {
+   "t": "Bluetooth",
+   "d": "Short-range wireless for headphones, keyboards and similar devices. Old pairing methods and open discovery have led to attacks.",
+   "c": "network",
+   "l": []
+  },
+  {
    "t": "Botnet",
    "d": "A network of infected machines controlled remotely, used for DDoS, spam and credential stuffing.",
    "c": "threats",
@@ -188,6 +346,12 @@
    ]
   },
   {
+   "t": "Brute force attack",
+   "d": "Trying every possible value until one works. Slowed down by rate limits, lockouts and long passwords.",
+   "c": "attacks",
+   "l": []
+  },
+  {
    "t": "Buffer overflow",
    "d": "Writing past the end of a memory buffer so you can overwrite adjacent data, including a return address.",
    "c": "vulns",
@@ -198,9 +362,38 @@
   },
   {
    "t": "Bug bounty",
-   "d": "A program where a company pays researchers for valid vulnerabilities, within a published scope and rules.",
+   "d": "A company's public offer to pay people who find and responsibly report security flaws, within a stated scope. HackerOne and Bugcrowd host many. See the bug bounty chapter for how to start safely.",
    "c": "concepts",
-   "l": []
+   "l": [
+    "w:bug-bounty"
+   ],
+   "a": [
+    "bug bounties",
+    "bounty hunting",
+    "bounty hunter",
+    "bug bounty"
+   ]
+  },
+  {
+   "t": "Burp Suite",
+   "d": "An intercepting proxy for testing web apps: it sits between browser and site so you can read, edit and replay requests.",
+   "c": "tools",
+   "l": [
+    "w:burp-workflow"
+   ],
+   "a": [
+    "burp",
+    "burp suite"
+   ]
+  },
+  {
+   "t": "Business email compromise (BEC)",
+   "d": "A scam where an attacker poses as an executive or vendor by email to get a payment or data. Often no malware at all.",
+   "c": "attacks",
+   "l": [],
+   "a": [
+    "bec"
+   ]
   },
   {
    "t": "C2 (command and control)",
@@ -216,6 +409,60 @@
    "c": "crypto",
    "l": [
     "s:1.4"
+   ]
+  },
+  {
+   "t": "Cache",
+   "d": "A fast, temporary copy of data kept close to where it is used so repeated requests are quicker.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "caching"
+   ]
+  },
+  {
+   "t": "Capture the flag (CTF)",
+   "d": "A security game: you attack deliberately vulnerable targets or solve puzzles to find hidden flag strings. Good practice and sometimes a hiring signal.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "ctf"
+   ]
+  },
+  {
+   "t": "CDN (content delivery network)",
+   "d": "A network of servers around the world that cache a site's static files close to users, making pages faster and absorbing traffic floods. Cloudflare and Akamai are examples.",
+   "c": "network",
+   "l": [],
+   "a": [
+    "cdn",
+    "content delivery network"
+   ]
+  },
+  {
+   "t": "Certificate",
+   "d": "A signed document tying a public key to a name, such as a website. Your browser trusts it if a trusted CA signed it.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ],
+   "a": [
+    "digital certificate",
+    "ssl certificate",
+    "tls certificate",
+    "x509"
+   ]
+  },
+  {
+   "t": "CI/CD",
+   "d": "Automation that builds and tests every code change (continuous integration) and ships it to production (continuous delivery). A compromised pipeline is a supply chain risk.",
+   "c": "tools",
+   "l": [],
+   "a": [
+    "ci",
+    "cd",
+    "continuous integration",
+    "continuous delivery"
    ]
   },
   {
@@ -257,6 +504,93 @@
    "l": [
     "g:network-traffic-analysis"
    ]
+  },
+  {
+   "t": "Cloud computing",
+   "d": "Renting computing (servers, storage, databases) from a provider such as AWS, Azure or Google Cloud instead of owning hardware. You pay for what you use.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "cloud"
+   ]
+  },
+  {
+   "t": "Command injection",
+   "d": "An attacker's input is passed to a system shell and runs as a command on the server.",
+   "c": "vulns",
+   "l": [],
+   "a": [
+    "os command injection"
+   ]
+  },
+  {
+   "t": "Compiler",
+   "d": "A program that translates source code into machine code (or bytecode) that a computer can run.",
+   "c": "concepts",
+   "l": []
+  },
+  {
+   "t": "Compliance",
+   "d": "Meeting a rule set such as PCI DSS, HIPAA or GDPR, with evidence to show it.",
+   "c": "governance",
+   "l": []
+  },
+  {
+   "t": "Confusion matrix",
+   "d": "A table counting a classifier's four outcomes: true positives, false positives, false negatives, true negatives. Precision and recall come from it.",
+   "c": "concepts",
+   "l": [
+    "a:ml-evaluation"
+   ],
+   "a": [
+    "precision",
+    "recall",
+    "true positive",
+    "false negative"
+   ]
+  },
+  {
+   "t": "Container",
+   "d": "An isolated process (or group of processes) with its own filesystem view, network and limits, sharing the host kernel. Starts in seconds and uses less memory than a virtual machine, but isolation is weaker.",
+   "c": "virtualization",
+   "l": [
+    "g:virtualization-proxmox"
+   ],
+   "a": [
+    "containerization",
+    "containers"
+   ]
+  },
+  {
+   "t": "Cookie",
+   "d": "A small value the server asks the browser to store and send back on every request. Session cookies carry the login. The Secure, HttpOnly and SameSite flags limit where they travel and who can read them.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "CORS",
+   "d": "Cross-origin resource sharing: how a server lets other origins read its responses in the browser. A browser rule, not a substitute for authentication.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "CPU",
+   "d": "The chip that runs program instructions.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "processor"
+   ]
+  },
+  {
+   "t": "Credential stuffing",
+   "d": "Replaying username and password pairs from old breaches against other sites, betting on reuse.",
+   "c": "attacks",
+   "l": []
   },
   {
    "t": "Cron",
@@ -306,6 +640,38 @@
    "l": []
   },
   {
+   "t": "Data breach",
+   "d": "Unauthorized access to or disclosure of data, whether by an attack or a mistake.",
+   "c": "data",
+   "l": [],
+   "a": [
+    "breach"
+   ]
+  },
+  {
+   "t": "Data structure",
+   "d": "A way to organize data in memory for certain operations: arrays, hash tables, trees, graphs.",
+   "c": "concepts",
+   "l": [
+    "g:data-structures-and-algorithms"
+   ],
+   "a": [
+    "data structures"
+   ]
+  },
+  {
+   "t": "Database",
+   "d": "An organized store of data that programs query. Relational databases use tables and SQL; NoSQL stores use other shapes such as documents.",
+   "c": "data",
+   "l": [
+    "g:databases-and-sql"
+   ],
+   "a": [
+    "databases",
+    "db"
+   ]
+  },
+  {
    "t": "DDoS",
    "d": "Distributed denial of service: many machines flood a target so real users cannot reach it.",
    "c": "attacks",
@@ -323,6 +689,30 @@
    ]
   },
   {
+   "t": "Denial of service (DoS)",
+   "d": "Making a service unavailable by overwhelming it or crashing it. A DDoS uses many machines.",
+   "c": "attacks",
+   "l": [],
+   "a": [
+    "dos"
+   ]
+  },
+  {
+   "t": "Deserialization",
+   "d": "Turning received data back into objects. Untrusted data can run attacker code if the format allows it.",
+   "c": "vulns",
+   "l": [],
+   "a": [
+    "insecure deserialization"
+   ]
+  },
+  {
+   "t": "DevOps",
+   "d": "A way of working that joins development and operations: automate building, testing and deploying so releases are small and frequent.",
+   "c": "concepts",
+   "l": []
+  },
+  {
    "t": "DHCP",
    "d": "Dynamic Host Configuration Protocol: hands out IP address, gateway and DNS to devices when they join.",
    "c": "network",
@@ -337,6 +727,32 @@
    "l": [
     "g:digital-forensics",
     "s:4.9"
+   ]
+  },
+  {
+   "t": "Digital signature",
+   "d": "A value made with a private key that proves who created data and that it was not altered. Anyone can check it with the public key.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ],
+   "a": [
+    "signature",
+    "signing"
+   ]
+  },
+  {
+   "t": "Disassembler / decompiler",
+   "d": "Tools that turn compiled machine code back into assembly (disassembler) or approximate C (decompiler). Ghidra and IDA are the standard ones.",
+   "c": "tools",
+   "l": [
+    "g:ghidra-and-ida-pro"
+   ],
+   "a": [
+    "disassembler",
+    "decompiler",
+    "ghidra",
+    "ida"
    ]
   },
   {
@@ -391,6 +807,20 @@
    ]
   },
   {
+   "t": "Docker",
+   "d": "A tool for packaging an app and everything it needs into a container image, then running that image as an isolated process. Lighter than a VM because containers share the host's kernel.",
+   "c": "virtualization",
+   "l": [
+    "g:virtualization-proxmox"
+   ],
+   "a": [
+    "container",
+    "containers",
+    "docker container",
+    "dockerfile"
+   ]
+  },
+  {
    "t": "Domain controller",
    "d": "A Windows server that holds the Active Directory database and authenticates domain logins.",
    "c": "windows",
@@ -399,8 +829,26 @@
    ]
   },
   {
+   "t": "Driver",
+   "d": "Software that lets the operating system talk to a piece of hardware.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "drivers",
+    "device driver"
+   ]
+  },
+  {
    "t": "Dropper",
    "d": "Malware whose job is to download or unpack the real payload.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "Dynamic analysis",
+   "d": "Running a sample in a safe sandbox to watch what it does: files, registry, network.",
    "c": "malware",
    "l": [
     "g:malware-analysis"
@@ -421,6 +869,19 @@
    "c": "crypto",
    "l": [
     "d:regex-for-logs"
+   ]
+  },
+  {
+   "t": "Encryption",
+   "d": "Scrambling data with a key so only someone with the right key can read it. Two kinds: symmetric (one shared key) and asymmetric (a key pair).",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ],
+   "a": [
+    "encrypt",
+    "decrypt",
+    "decryption"
    ]
   },
   {
@@ -465,6 +926,12 @@
    ]
   },
   {
+   "t": "Fileless malware",
+   "d": "Malware that runs in memory or through built-in tools (PowerShell, WMI) and leaves little on disk.",
+   "c": "malware",
+   "l": []
+  },
+  {
    "t": "Firewall",
    "d": "Allows or blocks traffic by rules on address, port and protocol. Stateful firewalls track connections.",
    "c": "network",
@@ -474,11 +941,31 @@
    ]
   },
   {
+   "t": "Firmware",
+   "d": "Software stored in a hardware device that makes it work (BIOS/UEFI, router firmware).",
+   "c": "concepts",
+   "l": []
+  },
+  {
    "t": "Forensic image",
    "d": "A bit-for-bit copy of a drive, hashed to prove it was not altered.",
    "c": "dfir",
    "l": [
     "g:digital-forensics"
+   ]
+  },
+  {
+   "t": "Frontend / backend",
+   "d": "The frontend is what runs in the browser (HTML, CSS, JavaScript). The backend runs on the server and handles data, logic and security.",
+   "c": "web",
+   "l": [
+    "g:full-stack-web-typescript-react-mongodb"
+   ],
+   "a": [
+    "front end",
+    "back end",
+    "frontend",
+    "backend"
    ]
   },
   {
@@ -498,12 +985,67 @@
    ]
   },
   {
+   "t": "Gateway",
+   "d": "The router a host sends traffic to when the destination is outside its own subnet.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ],
+   "a": [
+    "default gateway"
+   ]
+  },
+  {
+   "t": "GDPR",
+   "d": "The European Union's data protection law: rights over personal data, breach notification, big fines.",
+   "c": "governance",
+   "l": []
+  },
+  {
+   "t": "Git",
+   "d": "A version control system: it records every change to a project as a commit, so you can see history, undo mistakes and work in parallel on branches. GitHub is a website that hosts Git repositories.",
+   "c": "tools",
+   "l": [
+    "g:git-github"
+   ],
+   "a": [
+    "version control",
+    "source control"
+   ]
+  },
+  {
+   "t": "GitHub",
+   "d": "A website that hosts Git repositories and adds pull requests, issues and automation on top. Not the same thing as Git itself.",
+   "c": "tools",
+   "l": [
+    "g:git-github"
+   ],
+   "a": [
+    "github"
+   ]
+  },
+  {
    "t": "GPO",
    "d": "Group Policy Object: a bundle of Windows settings pushed to users and computers by Active Directory.",
    "c": "windows",
    "l": [
     "g:group-policy"
    ]
+  },
+  {
+   "t": "GPU",
+   "d": "A chip with many small cores, built for graphics and now widely used for machine learning.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "graphics card"
+   ]
+  },
+  {
+   "t": "Hacktivist",
+   "d": "An attacker motivated by a political or social cause.",
+   "c": "threats",
+   "l": []
   },
   {
    "t": "Hardening",
@@ -524,6 +1066,28 @@
    ]
   },
   {
+   "t": "Hashing",
+   "d": "A one-way function that turns any input into a fixed-size fingerprint. Used to check integrity and store passwords. It cannot be reversed.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ],
+   "a": [
+    "hash function",
+    "hashes"
+   ]
+  },
+  {
+   "t": "Help desk",
+   "d": "The first line of IT support, handling tickets for password resets, software problems and access.",
+   "c": "it",
+   "l": [],
+   "a": [
+    "helpdesk",
+    "service desk"
+   ]
+  },
+  {
    "t": "Hexadecimal",
    "d": "Base 16, digits 0-9 and A-F. One hex digit is 4 bits, so a byte is two hex digits (0xCA = 1100 1010 = 202). Used in dumps, MAC addresses, hashes and IPv6.",
    "c": "concepts",
@@ -532,12 +1096,24 @@
    ]
   },
   {
+   "t": "HIPAA",
+   "d": "The US law protecting health information.",
+   "c": "governance",
+   "l": []
+  },
+  {
    "t": "Honeypot",
    "d": "A decoy system built to be attacked so you can observe the attacker.",
    "c": "tools",
    "l": [
     "s:1.2"
    ]
+  },
+  {
+   "t": "HTML",
+   "d": "The markup language that describes the content of a web page.",
+   "c": "web",
+   "l": []
   },
   {
    "t": "HTTP status codes",
@@ -564,6 +1140,17 @@
    ]
   },
   {
+   "t": "IaaS / PaaS / SaaS",
+   "d": "The three cloud service levels. IaaS rents raw servers and networks, PaaS rents a platform to run your code, SaaS is a finished app (Gmail, Microsoft 365). The lower the level, the more you manage.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "iaas",
+    "paas",
+    "saas"
+   ]
+  },
+  {
    "t": "IAM",
    "d": "Identity and access management: how accounts, authentication, permissions and lifecycle are managed.",
    "c": "access",
@@ -577,6 +1164,14 @@
    "c": "network",
    "l": [
     "g:computer-networks"
+   ]
+  },
+  {
+   "t": "IDOR",
+   "d": "Insecure direct object reference, a form of broken access control: changing an id in a request returns another user's data because the server never checked ownership.",
+   "c": "web",
+   "l": [
+    "m:http"
    ]
   },
   {
@@ -598,12 +1193,40 @@
    ]
   },
   {
+   "t": "Index (database)",
+   "d": "A lookup structure that makes queries on a column fast, like a book index.",
+   "c": "data",
+   "l": [
+    "g:databases-and-sql"
+   ],
+   "a": [
+    "database index"
+   ]
+  },
+  {
    "t": "Indicator of compromise (IOC)",
    "d": "A clue that a system was breached: a hash, IP, domain, file name, registry key.",
    "c": "soc",
    "l": [
     "s:2.4"
    ]
+  },
+  {
+   "t": "Infrastructure as code (IaC)",
+   "d": "Describing servers and networks in files that tools like Terraform or Ansible apply, so setups are repeatable and reviewable.",
+   "c": "tools",
+   "l": [],
+   "a": [
+    "iac",
+    "terraform",
+    "ansible"
+   ]
+  },
+  {
+   "t": "Insider threat",
+   "d": "Risk from someone with legitimate access, whether malicious or careless.",
+   "c": "threats",
+   "l": []
   },
   {
    "t": "Integer overflow",
@@ -622,11 +1245,56 @@
    ]
   },
   {
+   "t": "IoT",
+   "d": "Internet-connected devices such as cameras, thermostats and sensors. Often poorly updated, so a common attack target.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "internet of things"
+   ]
+  },
+  {
    "t": "IP address",
    "d": "A number identifying a device on a network. IPv4 like 10.0.5.23; IPv6 is much longer.",
    "c": "network",
    "l": [
     "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "IPsec",
+   "d": "A standard suite for encrypting IP traffic, widely used for site-to-site VPNs. It has two parts: a key exchange (IKE) and the encrypted packets (ESP).",
+   "c": "network",
+   "l": [
+    "b:vpns-and-tunnels"
+   ],
+   "a": [
+    "ipsec"
+   ]
+  },
+  {
+   "t": "IPv4",
+   "d": "The classic 32-bit IP address format, like 192.168.1.10. About 4.3 billion addresses, which ran out, hence NAT and IPv6.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "IPv6",
+   "d": "The newer 128-bit IP address format, written in hex like 2001:db8::1. Enough addresses for every device.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "ISO 27001",
+   "d": "An international standard for running an information security management system.",
+   "c": "governance",
+   "l": [],
+   "a": [
+    "iso27001"
    ]
   },
   {
@@ -639,6 +1307,44 @@
    ]
   },
   {
+   "t": "JavaScript",
+   "d": "The programming language of web browsers, also used on servers through Node.js.",
+   "c": "web",
+   "l": [
+    "g:typescript-javascript"
+   ],
+   "a": [
+    "js"
+   ]
+  },
+  {
+   "t": "JSON",
+   "d": "A simple text format for structured data, used by most web APIs: {\"name\": \"value\"}.",
+   "c": "web",
+   "l": [
+    "g:rest-apis-and-spring-boot"
+   ]
+  },
+  {
+   "t": "JWT",
+   "d": "JSON Web Token: header.payload.signature. The payload is readable by anyone, the signature proves it was not changed. Check expiry, audience and the allowed algorithm.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "Kali Linux",
+   "d": "A Linux distribution that comes with hundreds of security testing tools installed.",
+   "c": "tools",
+   "l": [
+    "g:kali-linux"
+   ],
+   "a": [
+    "kali"
+   ]
+  },
+  {
    "t": "Kerberos",
    "d": "The ticket-based authentication system in Active Directory. Attacks include Kerberoasting and golden tickets.",
    "c": "windows",
@@ -647,11 +1353,54 @@
    ]
   },
   {
+   "t": "Kernel",
+   "d": "The core of an operating system. It manages memory, CPU time, devices and processes, and sits between programs and the hardware.",
+   "c": "concepts",
+   "l": [
+    "g:operating-systems"
+   ]
+  },
+  {
+   "t": "Keylogger",
+   "d": "Software or hardware that records what you type, to steal passwords and messages.",
+   "c": "malware",
+   "l": []
+  },
+  {
    "t": "Kill chain",
    "d": "A model of an attack as steps: recon, weaponize, deliver, exploit, install, command and control, actions.",
    "c": "threats",
    "l": [
     "s:2.4"
+   ]
+  },
+  {
+   "t": "Kubernetes",
+   "d": "A system that runs and manages many containers across many machines: it restarts failed ones, scales them up and down and wires up networking. Often shortened to k8s.",
+   "c": "virtualization",
+   "l": [],
+   "a": [
+    "k8s"
+   ]
+  },
+  {
+   "t": "LAN",
+   "d": "A local network in one place (a home, an office floor), usually behind one router.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ],
+   "a": [
+    "local area network"
+   ]
+  },
+  {
+   "t": "Latency",
+   "d": "The time a packet takes to get from one end to the other. Low latency matters for calls, games and anything interactive.",
+   "c": "network",
+   "l": [],
+   "a": [
+    "ping time"
    ]
   },
   {
@@ -681,12 +1430,60 @@
    ]
   },
   {
+   "t": "Linux",
+   "d": "A free, open-source operating system kernel, and by extension the family of systems built on it (Ubuntu, Debian, Kali, Red Hat). It runs most servers, phones (Android), routers and cloud machines.",
+   "c": "linux",
+   "l": [
+    "g:linux-command-line"
+   ],
+   "a": [
+    "gnu/linux"
+   ]
+  },
+  {
    "t": "Living off the land",
    "d": "Attacking with tools already on the system (PowerShell, certutil, wmic) so there is no malware file to find.",
    "c": "threats",
    "l": [
     "m:cmd",
     "m:powershell"
+   ]
+  },
+  {
+   "t": "LLM (large language model)",
+   "d": "A neural network trained on huge amounts of text to predict the next word, which lets it write, summarize and answer questions. It can sound sure and be wrong.",
+   "c": "concepts",
+   "l": [
+    "a:how-ai-works"
+   ],
+   "a": [
+    "llm",
+    "large language model",
+    "chatgpt",
+    "gpt"
+   ]
+  },
+  {
+   "t": "Load balancer",
+   "d": "A device or service that spreads incoming requests over several servers so no single one is overwhelmed and a failed one can be skipped.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ],
+   "a": [
+    "load balancing"
+   ]
+  },
+  {
+   "t": "Localhost",
+   "d": "The address of your own machine (127.0.0.1). Traffic to it never leaves the computer.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ],
+   "a": [
+    "loopback",
+    "127.0.0.1"
    ]
   },
   {
@@ -704,6 +1501,18 @@
    "c": "network",
    "l": [
     "g:computer-networks"
+   ]
+  },
+  {
+   "t": "Machine learning (ML)",
+   "d": "Building a model from examples instead of writing rules by hand. See the plain-English ML starter.",
+   "c": "concepts",
+   "l": [
+    "a:ml-intro"
+   ],
+   "a": [
+    "ml",
+    "machine learning"
    ]
   },
   {
@@ -731,11 +1540,32 @@
    ]
   },
   {
+   "t": "Metasploit",
+   "d": "A framework of exploits, payloads and helper modules used in penetration tests.",
+   "c": "tools",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ],
+   "a": [
+    "msfconsole"
+   ]
+  },
+  {
    "t": "MFA",
    "d": "Multi-factor authentication: two or more of something you know, have or are. Phishing-resistant forms (FIDO2 keys) beat SMS codes.",
    "c": "access",
    "l": [
     "s:4.6"
+   ]
+  },
+  {
+   "t": "Misconfiguration",
+   "d": "Insecure settings: default passwords, open storage, debug mode on, unnecessary services. One of the most common real-world weaknesses.",
+   "c": "vulns",
+   "l": [],
+   "a": [
+    "security misconfiguration",
+    "misconfig"
    ]
   },
   {
@@ -748,11 +1578,33 @@
    ]
   },
   {
+   "t": "Model (ML)",
+   "d": "The result of training: a formula with many adjustable numbers that maps inputs to a prediction.",
+   "c": "concepts",
+   "l": [
+    "a:ml-intro"
+   ],
+   "a": [
+    "ml model",
+    "trained model"
+   ]
+  },
+  {
    "t": "NAT",
    "d": "Network address translation: many private addresses share one public address.",
    "c": "network",
    "l": [
     "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "Nation-state actor",
+   "d": "A government-backed attacker with large resources and patience, associated with APTs.",
+   "c": "threats",
+   "l": [],
+   "a": [
+    "nation state",
+    "apt group"
    ]
   },
   {
@@ -764,11 +1616,40 @@
    ]
   },
   {
+   "t": "NIST",
+   "d": "The US standards body behind the Cybersecurity Framework and SP 800 guidance such as 800-61 for incident response.",
+   "c": "governance",
+   "l": []
+  },
+  {
    "t": "NIST CSF",
    "d": "NIST Cybersecurity Framework: Identify, Protect, Detect, Respond, Recover (and Govern in version 2).",
    "c": "governance",
    "l": [
     "s:5.1"
+   ]
+  },
+  {
+   "t": "Nmap",
+   "d": "A network scanner that finds live hosts, open ports and service versions.",
+   "c": "tools",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ],
+   "a": [
+    "nmap"
+   ]
+  },
+  {
+   "t": "NoSQL",
+   "d": "Databases that do not use fixed tables, such as document stores (MongoDB) and key-value stores (Redis).",
+   "c": "data",
+   "l": [
+    "g:mongodb-and-nosql"
+   ],
+   "a": [
+    "mongodb",
+    "document database"
    ]
   },
   {
@@ -788,6 +1669,70 @@
    ]
   },
   {
+   "t": "Obfuscation",
+   "d": "Making code hard to read or detect: scrambled strings, packing, junk code. Common in malware and in malicious scripts.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ],
+   "a": [
+    "obfuscated",
+    "packing",
+    "packer"
+   ]
+  },
+  {
+   "t": "Object-oriented programming (OOP)",
+   "d": "Organizing code as objects that bundle data with the functions that work on it, built from classes.",
+   "c": "concepts",
+   "l": [
+    "g:object-oriented-programming-java"
+   ],
+   "a": [
+    "oop",
+    "object oriented",
+    "classes"
+   ]
+  },
+  {
+   "t": "Open redirect",
+   "d": "A site that sends users to any URL given in a parameter, useful for phishing links that look legitimate.",
+   "c": "vulns",
+   "l": []
+  },
+  {
+   "t": "Open source",
+   "d": "Software whose source code is public and usable under a license. Linux and Firefox are examples.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "foss"
+   ]
+  },
+  {
+   "t": "OpenVPN",
+   "d": "A widely used open-source VPN that runs over TLS, on UDP or TCP. Flexible, older and heavier than WireGuard.",
+   "c": "network",
+   "l": [
+    "b:vpns-and-tunnels"
+   ],
+   "a": [
+    "openvpn"
+   ]
+  },
+  {
+   "t": "Operating system (OS)",
+   "d": "The software that manages the hardware and lets programs run: Windows, macOS, Linux, Android, iOS.",
+   "c": "concepts",
+   "l": [
+    "g:operating-systems"
+   ],
+   "a": [
+    "os",
+    "operating system"
+   ]
+  },
+  {
    "t": "OSI model",
    "d": "Seven layers for thinking about networks: physical, data link, network, transport, session, presentation, application.",
    "c": "network",
@@ -801,6 +1746,26 @@
    "c": "recon",
    "l": [
     "g:recon-nmap-metasploit"
+   ]
+  },
+  {
+   "t": "OSPF",
+   "d": "A routing protocol used inside one organization: routers share link information and each works out the shortest path.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ]
+  },
+  {
+   "t": "Overfitting",
+   "d": "A model that memorized its training data, including noise, so it does well on that data and poorly on new data.",
+   "c": "concepts",
+   "l": [
+    "a:ml-intro"
+   ],
+   "a": [
+    "overfit",
+    "overfitted"
    ]
   },
   {
@@ -830,12 +1795,36 @@
    ]
   },
   {
+   "t": "Parameterized query",
+   "d": "A SQL statement with placeholders where values are sent separately from the query text, so input can never change the query. The main defense against SQL injection.",
+   "c": "web",
+   "l": [
+    "m:rdbms",
+    "g:databases-and-sql"
+   ]
+  },
+  {
    "t": "Passkey / FIDO2",
    "d": "A phishing-resistant login that uses a key pair stored on your device or a security key.",
    "c": "access",
    "l": [
     "s:4.6"
    ]
+  },
+  {
+   "t": "Password manager",
+   "d": "An app that stores a unique strong password per site behind one master password. Far safer than reusing passwords.",
+   "c": "access",
+   "l": [],
+   "a": [
+    "password managers"
+   ]
+  },
+  {
+   "t": "Password spraying",
+   "d": "Trying one or two common passwords against many accounts to stay under lockout limits.",
+   "c": "attacks",
+   "l": []
   },
   {
    "t": "Patch",
@@ -846,11 +1835,39 @@
    ]
   },
   {
+   "t": "Patch management",
+   "d": "The routine of finding, testing and applying software updates on a schedule, prioritized by risk.",
+   "c": "hardening",
+   "l": [],
+   "a": [
+    "patching"
+   ]
+  },
+  {
+   "t": "Path traversal",
+   "d": "Using ../ in a file path to read files outside the intended folder.",
+   "c": "vulns",
+   "l": [],
+   "a": [
+    "directory traversal",
+    "../"
+   ]
+  },
+  {
    "t": "Payload",
    "d": "The part of an attack that does the damage once it lands; also, the data portion of a packet.",
    "c": "malware",
    "l": [
     "g:recon-nmap-metasploit"
+   ]
+  },
+  {
+   "t": "PCI DSS",
+   "d": "The rule set for organizations that handle payment card data.",
+   "c": "governance",
+   "l": [],
+   "a": [
+    "pci"
    ]
   },
   {
@@ -888,6 +1905,24 @@
    ]
   },
   {
+   "t": "PII",
+   "d": "Information that can identify a person: name, ID number, address, biometric data.",
+   "c": "data",
+   "l": [],
+   "a": [
+    "personally identifiable information",
+    "personal data"
+   ]
+  },
+  {
+   "t": "Ping",
+   "d": "A tool that sends ICMP echo requests to test whether a host is reachable and how long a round trip takes.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ]
+  },
+  {
    "t": "PKI",
    "d": "Public key infrastructure: the CAs, certificates and rules that make public-key trust work.",
    "c": "crypto",
@@ -914,12 +1949,75 @@
    ]
   },
   {
+   "t": "PowerShell",
+   "d": "The Windows shell and scripting language. Commands (cmdlets) pass objects, not text, down the pipeline.",
+   "c": "windows",
+   "l": [
+    "g:windows-admin-powershell"
+   ],
+   "a": [
+    "powershell"
+   ]
+  },
+  {
+   "t": "Primary key / foreign key",
+   "d": "A primary key uniquely identifies a row. A foreign key in another table points at it, which is how relational databases link records.",
+   "c": "web",
+   "l": [
+    "m:rdbms",
+    "g:databases-and-sql"
+   ]
+  },
+  {
+   "t": "Private IP address",
+   "d": "An address range not routed on the internet: 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16. Home and office networks use these behind NAT.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ],
+   "a": [
+    "private ip",
+    "rfc 1918",
+    "rfc1918"
+   ]
+  },
+  {
    "t": "Privilege escalation",
    "d": "Going from a low-privilege account to a higher one, such as root or SYSTEM.",
    "c": "attacks",
    "l": [
     "d:linux-permissions",
     "s:2.4"
+   ]
+  },
+  {
+   "t": "Process",
+   "d": "A running program: its code plus its memory and open files. One program can have many processes.",
+   "c": "concepts",
+   "l": [
+    "g:operating-systems"
+   ],
+   "a": [
+    "processes"
+   ]
+  },
+  {
+   "t": "Prompt injection",
+   "d": "Text hidden in content that an AI assistant reads and treats as instructions, steering it to leak data or take actions.",
+   "c": "attacks",
+   "l": [
+    "a:attacking-ai"
+   ]
+  },
+  {
+   "t": "Proof of concept (PoC)",
+   "d": "The smallest demonstration that a vulnerability is real, such as a request that shows another user's data. In a bounty report, keep it harmless.",
+   "c": "vulns",
+   "l": [
+    "w:bug-bounty"
+   ],
+   "a": [
+    "poc"
    ]
   },
   {
@@ -931,10 +2029,69 @@
    ]
   },
   {
+   "t": "Proxy",
+   "d": "A server that sits between clients and the internet and makes requests on their behalf. Used for filtering, caching and logging. A reverse proxy sits in front of servers instead.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ],
+   "a": [
+    "forward proxy",
+    "web proxy"
+   ]
+  },
+  {
+   "t": "Public key / private key",
+   "d": "The two halves of asymmetric crypto. The public key is shared; the private key stays secret. What one locks, the other unlocks.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ],
+   "a": [
+    "public key",
+    "private key",
+    "key pair"
+   ]
+  },
+  {
    "t": "Purple team",
    "d": "Red and blue working together so each attack teaches a detection.",
    "c": "concepts",
    "l": []
+  },
+  {
+   "t": "Python",
+   "d": "A readable general-purpose language, the default for security scripting, automation and data work.",
+   "c": "tools",
+   "l": [
+    "g:python"
+   ]
+  },
+  {
+   "t": "Race condition",
+   "d": "A bug where the result depends on the timing of events, such as two requests checked and used out of order.",
+   "c": "vulns",
+   "l": [
+    "g:operating-systems"
+   ],
+   "a": [
+    "race conditions"
+   ]
+  },
+  {
+   "t": "RAID",
+   "d": "Combining several disks for speed or redundancy. It protects against a disk failing, not against deletion or ransomware.",
+   "c": "it",
+   "l": []
+  },
+  {
+   "t": "RAM",
+   "d": "Fast, temporary memory that holds what the computer is working on now. Lost when power is cut.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "memory"
+   ]
   },
   {
    "t": "Ransomware",
@@ -962,6 +2119,26 @@
    ]
   },
   {
+   "t": "Recon",
+   "d": "Collecting information about a target before testing it: subdomains, technologies, endpoints, people. Passive recon uses public sources only.",
+   "c": "recon",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ],
+   "a": [
+    "reconnaissance",
+    "enumeration"
+   ]
+  },
+  {
+   "t": "Recursion",
+   "d": "A function that calls itself on a smaller version of the problem until it reaches a base case.",
+   "c": "concepts",
+   "l": [
+    "g:data-structures-and-algorithms"
+   ]
+  },
+  {
    "t": "Red team",
    "d": "The attackers in an exercise: they emulate real threats to test the defenders.",
    "c": "concepts",
@@ -977,11 +2154,61 @@
    ]
   },
   {
+   "t": "Registry (Windows)",
+   "d": "A database of settings for Windows and its programs, including auto-start entries that malware likes to use.",
+   "c": "windows",
+   "l": [
+    "g:windows-admin-powershell"
+   ],
+   "a": [
+    "windows registry"
+   ]
+  },
+  {
+   "t": "Regular expression",
+   "d": "A compact pattern for matching text, widely used in log searches and detection rules.",
+   "c": "tools",
+   "l": [
+    "g:log-analysis"
+   ],
+   "a": [
+    "regular expressions"
+   ]
+  },
+  {
+   "t": "Responsible disclosure",
+   "d": "Reporting a security flaw privately to the owner and giving them time to fix it before anyone publishes details.",
+   "c": "concepts",
+   "l": [
+    "w:bug-bounty"
+   ],
+   "a": [
+    "coordinated disclosure",
+    "vulnerability disclosure"
+   ]
+  },
+  {
+   "t": "REST API",
+   "d": "An HTTP API where URLs name things and methods (GET, POST, PUT, PATCH, DELETE) say what to do to them, usually exchanging JSON.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
    "t": "Reverse engineering",
    "d": "Taking a compiled program apart to learn what it does.",
    "c": "malware",
    "l": [
     "g:reverse-engineering"
+   ]
+  },
+  {
+   "t": "Reverse proxy",
+   "d": "A server in front of one or more web servers that receives client requests and forwards them, adding TLS, caching, load balancing or filtering. Nginx and HAProxy do this.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
    ]
   },
   {
@@ -1001,12 +2228,49 @@
    ]
   },
   {
+   "t": "Risk assessment",
+   "d": "Identifying assets, threats and weaknesses, then estimating likelihood and impact to decide what to fix first.",
+   "c": "governance",
+   "l": []
+  },
+  {
    "t": "Rootkit",
    "d": "Malware that hides itself and other malware at a low level, often in the kernel.",
    "c": "malware",
    "l": [
     "g:malware-analysis",
     "m:volatility"
+   ]
+  },
+  {
+   "t": "Router",
+   "d": "A device that forwards packets between networks using a routing table. Your home router connects your LAN to the internet.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ],
+   "a": [
+    "routers"
+   ]
+  },
+  {
+   "t": "RTO / RPO",
+   "d": "Recovery time objective is how long you can be down. Recovery point objective is how much data loss you can accept.",
+   "c": "resilience",
+   "l": [],
+   "a": [
+    "rto",
+    "rpo"
+   ]
+  },
+  {
+   "t": "S3 bucket",
+   "d": "Object storage in AWS. A bucket set to public by mistake is one of the most common causes of data leaks.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "s3",
+    "bucket"
    ]
   },
   {
@@ -1019,11 +2283,103 @@
    ]
   },
   {
+   "t": "SAML",
+   "d": "An XML standard for sign-on between a company's identity provider and web apps.",
+   "c": "access",
+   "l": []
+  },
+  {
    "t": "Sandbox",
    "d": "An isolated environment where untrusted code runs safely so you can watch it.",
    "c": "malware",
    "l": [
     "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "SCADA / ICS",
+   "d": "Industrial control systems that run factories and utilities. Availability and safety come first, and many are old.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "scada",
+    "ics",
+    "ot"
+   ]
+  },
+  {
+   "t": "Scope (testing)",
+   "d": "The written list of systems and actions you are allowed to test in a bug bounty or pentest. Anything outside it is not allowed, even if you can reach it.",
+   "c": "concepts",
+   "l": [
+    "w:bug-bounty"
+   ],
+   "a": [
+    "scope",
+    "rules of engagement",
+    "roe",
+    "safe harbor"
+   ]
+  },
+  {
+   "t": "Script kiddie",
+   "d": "A low-skill attacker who runs tools made by others without understanding them.",
+   "c": "threats",
+   "l": []
+  },
+  {
+   "t": "Serverless",
+   "d": "Running code as small functions that the cloud starts on demand, so you manage no servers. You pay per run.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "lambda",
+    "functions as a service",
+    "faas"
+   ]
+  },
+  {
+   "t": "Session",
+   "d": "The server's memory of a logged-in user between HTTP requests, found by a random id in a cookie or a signed token. Stealing the id is the same as stealing the login.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "Session hijacking",
+   "d": "Stealing a valid session cookie or token to act as the logged-in user without knowing the password.",
+   "c": "attacks",
+   "l": [],
+   "a": [
+    "session hijack",
+    "cookie theft"
+   ]
+  },
+  {
+   "t": "Shadow IT",
+   "d": "Technology that staff use without approval from IT, which no one is securing.",
+   "c": "governance",
+   "l": []
+  },
+  {
+   "t": "Shared responsibility model",
+   "d": "In the cloud the provider secures the infrastructure and you secure what you put on it: your data, accounts, configuration and access.",
+   "c": "governance",
+   "l": []
+  },
+  {
+   "t": "Shell",
+   "d": "A program that reads typed commands and runs them. Bash, zsh and PowerShell are shells; the terminal is the window that hosts one.",
+   "c": "linux",
+   "l": [
+    "g:linux-command-line"
+   ],
+   "a": [
+    "command line",
+    "cli",
+    "terminal",
+    "command-line interface"
    ]
   },
   {
@@ -1042,6 +2398,34 @@
    "c": "soc",
    "l": [
     "s:4.4"
+   ]
+  },
+  {
+   "t": "Single sign-on (SSO)",
+   "d": "Logging in once to reach many apps, handled by a central identity provider (SAML, OpenID Connect).",
+   "c": "access",
+   "l": [],
+   "a": [
+    "sso"
+   ]
+  },
+  {
+   "t": "SLA",
+   "d": "An agreement that states what service level to expect, such as 99.9 percent uptime or a four-hour response.",
+   "c": "governance",
+   "l": [],
+   "a": [
+    "service level agreement"
+   ]
+  },
+  {
+   "t": "Smishing / vishing",
+   "d": "Phishing by text message (smishing) or by phone call (vishing).",
+   "c": "attacks",
+   "l": [],
+   "a": [
+    "smishing",
+    "vishing"
    ]
   },
   {
@@ -1070,6 +2454,15 @@
    ]
   },
   {
+   "t": "Spear phishing",
+   "d": "Phishing aimed at a specific person, using details about them to look real.",
+   "c": "attacks",
+   "l": [],
+   "a": [
+    "spearphishing"
+   ]
+  },
+  {
    "t": "SPF",
    "d": "Sender Policy Framework: a DNS record listing which servers may send mail for a domain.",
    "c": "email",
@@ -1086,12 +2479,58 @@
    ]
   },
   {
+   "t": "Split tunnel",
+   "d": "A VPN setting where only traffic for the company network goes through the tunnel; the rest goes straight to the internet. A full tunnel sends everything through the VPN.",
+   "c": "network",
+   "l": [
+    "b:vpns-and-tunnels"
+   ],
+   "a": [
+    "split tunneling",
+    "full tunnel"
+   ]
+  },
+  {
+   "t": "Spoofing",
+   "d": "Pretending to be something else: a forged sender address, IP address, MAC address or website.",
+   "c": "attacks",
+   "l": []
+  },
+  {
+   "t": "Spyware",
+   "d": "Malware that secretly gathers information about a user and sends it out.",
+   "c": "malware",
+   "l": []
+  },
+  {
+   "t": "SQL",
+   "d": "The language for asking relational databases for data (SELECT), changing it (INSERT, UPDATE) and defining it.",
+   "c": "data",
+   "l": [
+    "g:sql"
+   ],
+   "a": [
+    "structured query language"
+   ]
+  },
+  {
    "t": "SQL injection",
    "d": "Putting SQL into an input so the database runs it. Fixed with parameterized queries.",
    "c": "vulns",
    "l": [
     "g:databases-and-sql",
     "s:2.3"
+   ]
+  },
+  {
+   "t": "SSD / HDD",
+   "d": "Storage devices. An SSD uses flash memory with no moving parts and is much faster than a hard disk drive.",
+   "c": "concepts",
+   "l": [],
+   "a": [
+    "ssd",
+    "hdd",
+    "hard drive"
    ]
   },
   {
@@ -1104,11 +2543,64 @@
    ]
   },
   {
+   "t": "SSL VPN",
+   "d": "A VPN that runs over TLS (port 443), usually from a browser or small client. Easy to get through firewalls.",
+   "c": "network",
+   "l": [
+    "b:vpns-and-tunnels"
+   ],
+   "a": [
+    "ssl vpn",
+    "tls vpn"
+   ]
+  },
+  {
    "t": "SSL/TLS handshake",
    "d": "The opening exchange where client and server agree on keys and the server proves its identity.",
    "c": "crypto",
    "l": [
     "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "SSRF",
+   "d": "Server-side request forgery: tricking a server into fetching a URL of the attacker's choice, such as internal services or cloud metadata. Fix with destination allow-lists and egress filtering.",
+   "c": "web",
+   "l": [
+    "m:http"
+   ]
+  },
+  {
+   "t": "Stack and heap",
+   "d": "Two regions of program memory. The stack holds function calls and local variables; the heap holds data allocated while running. Overflow bugs target both.",
+   "c": "concepts",
+   "l": [
+    "g:binary-exploitation"
+   ],
+   "a": [
+    "the stack",
+    "the heap",
+    "stack"
+   ]
+  },
+  {
+   "t": "Static analysis",
+   "d": "Examining a file without running it: strings, headers, imports, disassembly.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "Subdomain",
+   "d": "A name under a domain, such as mail.example.com. Forgotten subdomains are common weak spots.",
+   "c": "web",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ],
+   "a": [
+    "subdomains",
+    "subdomain enumeration"
    ]
   },
   {
@@ -1135,6 +2627,17 @@
    "l": [
     "s:2.2",
     "s:5.3"
+   ]
+  },
+  {
+   "t": "Switch",
+   "d": "A device that connects hosts on one LAN and forwards frames to the right port using MAC addresses.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ],
+   "a": [
+    "network switch"
    ]
   },
   {
@@ -1180,6 +2683,35 @@
    ]
   },
   {
+   "t": "Thread",
+   "d": "A line of execution inside a process. Threads in one process share memory, which makes them quick and also easy to get wrong (race conditions).",
+   "c": "concepts",
+   "l": [
+    "g:operating-systems"
+   ],
+   "a": [
+    "threads",
+    "multithreading"
+   ]
+  },
+  {
+   "t": "Threat actor",
+   "d": "Anyone or any group behind an attack: criminals, nation-states, hacktivists, insiders.",
+   "c": "threats",
+   "l": [],
+   "a": [
+    "threat actors",
+    "attacker",
+    "adversary"
+   ]
+  },
+  {
+   "t": "Threat hunting",
+   "d": "Proactively searching a network for attackers who got past automated alerts, starting from a hypothesis.",
+   "c": "soc",
+   "l": []
+  },
+  {
    "t": "Threat intelligence",
    "d": "Information about attackers and their methods that you use to prioritize defenses.",
    "c": "soc",
@@ -1196,11 +2728,53 @@
    ]
   },
   {
+   "t": "Ticketing system",
+   "d": "Software that tracks each support request from open to resolved.",
+   "c": "it",
+   "l": [],
+   "a": [
+    "ticket",
+    "tickets"
+   ]
+  },
+  {
+   "t": "Tier 1 / Tier 2 analyst",
+   "d": "Tier 1 triages incoming alerts; tier 2 investigates the real incidents more deeply.",
+   "c": "soc",
+   "l": [],
+   "a": [
+    "tier 1",
+    "tier 2",
+    "soc analyst"
+   ]
+  },
+  {
    "t": "Tokenization",
    "d": "Replacing sensitive data (a card number) with a meaningless token and keeping the real value elsewhere.",
    "c": "data",
    "l": [
     "s:3.3"
+   ]
+  },
+  {
+   "t": "Tor",
+   "d": "A network that relays traffic through several volunteer nodes so the destination cannot see who you are. Used for privacy; also used to reach the dark web.",
+   "c": "network",
+   "l": [],
+   "a": [
+    "the onion router",
+    "onion routing"
+   ]
+  },
+  {
+   "t": "Traceroute",
+   "d": "A tool that shows each router (hop) along the path to a destination, to find where traffic slows or stops.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ],
+   "a": [
+    "tracert"
    ]
   },
   {
@@ -1218,6 +2792,12 @@
    "l": [
     "m:numbers"
    ]
+  },
+  {
+   "t": "Typosquatting",
+   "d": "Registering a domain or package name that is a typo of a real one, hoping people mistype it.",
+   "c": "attacks",
+   "l": []
   },
   {
    "t": "UDP",
@@ -1244,6 +2824,30 @@
    ]
   },
   {
+   "t": "Use after free",
+   "d": "A memory bug: a program keeps using memory after releasing it, which an attacker may take over.",
+   "c": "vulns",
+   "l": [
+    "g:binary-exploitation"
+   ],
+   "a": [
+    "uaf"
+   ]
+  },
+  {
+   "t": "Virtual machine (VM)",
+   "d": "A whole computer simulated in software, with its own virtual CPU, disk and OS, running on a hypervisor. Strong isolation, heavier than a container.",
+   "c": "virtualization",
+   "l": [
+    "g:virtualization-proxmox"
+   ],
+   "a": [
+    "vm",
+    "virtual machine",
+    "vms"
+   ]
+  },
+  {
    "t": "VLAN",
    "d": "A virtual LAN: splits one physical switch into separate network segments.",
    "c": "network",
@@ -1254,10 +2858,16 @@
   },
   {
    "t": "VPN",
-   "d": "An encrypted tunnel across an untrusted network. WireGuard, OpenVPN and Tailscale are examples.",
+   "d": "Virtual private network: an encrypted tunnel across an untrusted network such as the internet, so remote users or sites can reach a private network safely. WireGuard, OpenVPN, IPsec and Tailscale are examples.",
    "c": "network",
    "l": [
+    "b:vpns-and-tunnels",
     "g:vpn-tailscale"
+   ],
+   "a": [
+    "virtual private network",
+    "vpns",
+    "vpn"
    ]
   },
   {
@@ -1286,11 +2896,50 @@
    ]
   },
   {
+   "t": "WAN",
+   "d": "A network that links distant sites or reaches the internet. The router's internet-facing side is its WAN port.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ],
+   "a": [
+    "wide area network"
+   ]
+  },
+  {
+   "t": "Watering hole",
+   "d": "Compromising a site that the target group visits, to infect them there.",
+   "c": "attacks",
+   "l": []
+  },
+  {
    "t": "Wazuh",
    "d": "An open source host-based monitoring and SIEM platform.",
    "c": "tools",
    "l": [
     "g:siem-security-onion"
+   ]
+  },
+  {
+   "t": "Wi-Fi",
+   "d": "Wireless LAN technology (the IEEE 802.11 standards). Secure it with WPA2 or WPA3, never open or WEP.",
+   "c": "network",
+   "l": [],
+   "a": [
+    "wifi",
+    "wireless",
+    "wlan"
+   ]
+  },
+  {
+   "t": "WireGuard",
+   "d": "A modern VPN protocol with a small codebase, fast and simple to configure: each peer has a key pair and a list of allowed IPs. Tailscale is built on it.",
+   "c": "network",
+   "l": [
+    "b:vpns-and-tunnels"
+   ],
+   "a": [
+    "wireguard"
    ]
   },
   {
@@ -1308,6 +2957,26 @@
    "c": "malware",
    "l": [
     "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "WPA2 / WPA3",
+   "d": "Wi-Fi security standards. WPA3 is newer and fixes weaknesses in WPA2's key exchange. WEP is obsolete and trivially broken.",
+   "c": "network",
+   "l": [],
+   "a": [
+    "wpa2",
+    "wpa3",
+    "wpa"
+   ]
+  },
+  {
+   "t": "XXE",
+   "d": "A flaw in XML parsing where external entities let an attacker read files or make the server request URLs.",
+   "c": "vulns",
+   "l": [],
+   "a": [
+    "xml external entity"
    ]
   },
   {
@@ -1334,80 +3003,6 @@
    "l": [
     "s:1.2",
     "s:3.1"
-   ]
-  },
-  {
-   "t": "Cookie",
-   "d": "A small value the server asks the browser to store and send back on every request. Session cookies carry the login. The Secure, HttpOnly and SameSite flags limit where they travel and who can read them.",
-   "c": "web",
-   "l": [
-    "m:http"
-   ]
-  },
-  {
-   "t": "Session",
-   "d": "The server's memory of a logged-in user between HTTP requests, found by a random id in a cookie or a signed token. Stealing the id is the same as stealing the login.",
-   "c": "web",
-   "l": [
-    "m:http"
-   ]
-  },
-  {
-   "t": "REST API",
-   "d": "An HTTP API where URLs name things and methods (GET, POST, PUT, PATCH, DELETE) say what to do to them, usually exchanging JSON.",
-   "c": "web",
-   "l": [
-    "m:http"
-   ]
-  },
-  {
-   "t": "JWT",
-   "d": "JSON Web Token: header.payload.signature. The payload is readable by anyone, the signature proves it was not changed. Check expiry, audience and the allowed algorithm.",
-   "c": "web",
-   "l": [
-    "m:http"
-   ]
-  },
-  {
-   "t": "IDOR",
-   "d": "Insecure direct object reference, a form of broken access control: changing an id in a request returns another user's data because the server never checked ownership.",
-   "c": "web",
-   "l": [
-    "m:http"
-   ]
-  },
-  {
-   "t": "SSRF",
-   "d": "Server-side request forgery: tricking a server into fetching a URL of the attacker's choice, such as internal services or cloud metadata. Fix with destination allow-lists and egress filtering.",
-   "c": "web",
-   "l": [
-    "m:http"
-   ]
-  },
-  {
-   "t": "CORS",
-   "d": "Cross-origin resource sharing: how a server lets other origins read its responses in the browser. A browser rule, not a substitute for authentication.",
-   "c": "web",
-   "l": [
-    "m:http"
-   ]
-  },
-  {
-   "t": "Parameterized query",
-   "d": "A SQL statement with placeholders where values are sent separately from the query text, so input can never change the query. The main defense against SQL injection.",
-   "c": "web",
-   "l": [
-    "m:rdbms",
-    "g:databases-and-sql"
-   ]
-  },
-  {
-   "t": "Primary key / foreign key",
-   "d": "A primary key uniquely identifies a row. A foreign key in another table points at it, which is how relational databases link records.",
-   "c": "web",
-   "l": [
-    "m:rdbms",
-    "g:databases-and-sql"
    ]
   }
  ]

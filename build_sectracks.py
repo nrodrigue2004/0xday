@@ -20,6 +20,7 @@ SECTIONS = [
          ("auth-and-sessions", "authentication and sessions", "Password storage, MFA, cookies, session fixation and JWT mistakes. Lab: decode a weak token"),
          ("access-control-and-ssrf", "access control, CSRF and SSRF", "IDOR, privilege escalation, CSRF tokens and server-side request forgery. Lab: find the broken authorization in an access log"),
          ("api-security", "API security", "The OWASP API Top 10, mass assignment, rate limits and GraphQL pitfalls. Lab: triage an API gateway ticket"),
+         ("bug-bounty", "bug bounty", "How programs work, reading scope, a safe first-hunt routine, writing a report and the legal lines. Lab: decide which hosts are in scope"),
      ]},
     {"dir": "pentest", "title": "penetration testing", "course": "PEN300", "sheet": ("pentest", "Pentest quick reference: methodology, enumeration, privesc, AD, tunnels"),
      "intro": "How a professional test runs: scope and rules first, then enumeration, privilege escalation on Linux and Windows, Active Directory attack paths, pivoting and the report. Concepts and defenses come first, and every lab uses a fictional network.",

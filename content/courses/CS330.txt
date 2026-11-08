@@ -1,4 +1,75 @@
 ## 0
+Q: Which sentence best describes a machine learning model?
+* A formula with adjustable numbers, tuned on examples until it sorts them well
+- A program with every rule written by hand
+- A database of all past attacks
+- A system that understands what it reads
+? The model does not understand anything; it fits numbers to the examples you gave it.
+
+Q: In a spam filter, what is a label?
+* The right answer for an example, such as spam or not spam
+- The number of links in the email
+- The model's confidence score
+- The name of the algorithm
+? Features are the inputs; the label is the answer you want the model to learn.
+
+Q: Which is a feature of an email?
+* The number of links it contains
+- Whether a human marked it as spam
+- The accuracy of the filter
+- The training date
+? A feature is a measurable fact about the example, available at prediction time.
+
+Q: What is the difference between training and prediction?
+* Training adjusts the model's numbers using labeled examples; prediction uses the finished model on new data
+- Training is fast and prediction is slow
+- Prediction needs labels and training does not
+- They are the same step
+? Learning happens in training only. Prediction is a cheap calculation with the numbers frozen.
+
+Q: A model scores 100 percent on its training data and 70 percent on held-out test data. What happened?
+* It overfit: it memorized the training examples instead of the pattern
+- It underfit: it is too simple
+- The test set is too easy
+- Nothing, a drop is normal and always acceptable
+? A large gap between train and test is the overfitting signal. Choose models by the test score.
+
+Q: 1,000 files, 50 are malware. A model flags 60, and 40 of those are malware. What is its precision?
+* About 67 percent (40 of 60)
+- 80 percent
+- 97 percent
+- 40 percent
+? Precision = TP / (TP + FP) = 40 / 60. Recall would be 40 / 50 = 80 percent.
+
+Q: In the same example, what is the recall?
+* 80 percent (40 of the 50 real malware files)
+- 67 percent
+- 97 percent
+- 20 percent
+? Recall = TP / (TP + FN) = 40 / 50.
+
+Q: Why is accuracy a poor headline number for malware detection?
+* Malware is rare, so a model that flags nothing still scores very high
+- Accuracy cannot be calculated for two classes
+- Accuracy ignores true positives
+- It only works with regression
+? Always compare against the do-nothing baseline and look at precision and recall.
+
+Q: What does anomaly detection do?
+* Learns what normal looks like and flags what does not fit
+- Sorts files into labeled families using examples
+- Predicts a number from other numbers
+- Writes detection rules from a vendor feed
+? It works without labels but flags "unusual", not "malicious", so expect false alarms.
+
+Q: Why do attackers make ML security tools harder to build than a cat-photo classifier?
+* Attackers adapt on purpose to evade the model, and real attacks are rare
+- Security data has fewer features
+- Models cannot read file data
+- Cat photos need more training data
+? Evasion, rare positives, biased labels and drift are the recurring problems.
+
+## 1
 Q: What does the dot product of a weight vector and a feature vector give you in a model?
 * A weighted sum of the evidence: the score
 - The distance between two points
@@ -34,7 +105,14 @@ Q: Why scale features before gradient descent or nearest neighbors?
 - It reduces the number of rows
 ? A count in the thousands next to a 0/1 flag distorts distance and slows descent.
 
-## 1
+Q: A login risk scorer has weights [2, 3, -4] and values [5, 1, 1]. What is the score w . x?
+* 9
+- 2
+- 15
+- 3
+? 2*5 + 3*1 + (-4)*1 = 10 + 3 - 4 = 9.
+
+## 2
 Q: What loss does ordinary linear regression minimize?
 * Mean squared error
 - Accuracy
@@ -70,7 +148,14 @@ Q: What does L2 (ridge) regularization do?
 - Changes the labels
 ? Lambda is a hyperparameter you tune on validation data.
 
-## 2
+Q: Which model do you ship after these results: degree 1 test error 9.8, degree 3 test error 2.6, degree 9 test error 14.7 (training error 0.1)?
+* Degree 3, the lowest test error
+- Degree 9, the lowest training error
+- Degree 1, the simplest
+- Any, they are equivalent
+? Training error always falls as the model grows; only test error is honest.
+
+## 3
 Q: What does the sigmoid function do in logistic regression?
 * Squeezes the weighted sum into a probability between 0 and 1
 - Scales the features
@@ -106,7 +191,14 @@ Q: For a feature that helps spot domains made by a generator, which is a good ch
 - The number of nameservers in a country
 ? Random-looking names have higher entropy than human-chosen ones.
 
-## 3
+Q: With k = 3 nearest neighbors, the closest labels are benign, malicious, malicious. What is the prediction?
+* Malicious (2 to 1 vote)
+- Benign, because the nearest one wins
+- It cannot be decided
+- Both
+? With k = 1 it would say benign; that fragility is why k is tuned on validation data.
+
+## 4
 Q: Attacks are 0.1 percent of events. A model that always says benign scores 99.9 percent accuracy. What does it show?
 * Accuracy is misleading on rare classes
 - The model is excellent
@@ -142,7 +234,7 @@ Q: Which is a data leakage example?
 - Scaling after splitting
 ? Ask of every feature: will I know this at prediction time?
 
-## 4
+## 5
 Q: In the ML playground, what happens when you train logistic regression on the rings dataset?
 * It stays poor, because a straight line cannot separate the rings
 - It reaches 100 percent

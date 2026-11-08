@@ -145,9 +145,14 @@ def index():
     # glossary
     for t in json.load(open("content/glossary.json"))["terms"]:
         link = t["l"][0].split(":", 1) if t.get("l") else None
-        base = {"g": "learn/", "s": "secplus/", "m": "man/", "d": "drills/", "a": "ai/"}
+        base = {"g": "learn/", "s": "secplus/", "m": "man/", "d": "drills/", "a": "ai/", "b": "basics/", "w": "web/"}
         url = f"{base[link[0]]}{link[1]}.html" if link else "glossary.html"
-        recs.append([url, "glossary", t["t"], "glossary", f'{t["t"]}: {t["d"]}'])
+        recs.append([url, "glossary", t["t"], "glossary", f'{t["t"]}: {t["d"]}', " | ".join(t.get("a", []))])
+    # curated outside resources (free courses, labs, programs): shown with the link out
+    for sec in json.load(open("content/resources.json")).get("groups", []):
+        for it in sec.get("items", []):
+            text = f'{it["n"]}: {it["w"]}' + (f' ({it["c"]})' if it.get("c") else "") + f' [{sec["h"]}]'
+            recs.append(["resources.html", "resources", it["n"], "resource", text, it["u"]])
     # Security+ flashcards (one record per card, linked to its objective page)
     for fn in sorted(os.listdir("secplus")):
         if not SECPLUS.match(fn):

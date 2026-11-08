@@ -11,6 +11,7 @@ CHAPTERS = [
     ("osi-and-tcpip", "OSI and TCP/IP", "The seven layers, the four-layer model, encapsulation, and what attacks live where"),
     ("number-systems", "binary, hex and number systems", "Binary, decimal, hex and octal both ways, powers of two, IP masks, ASCII, bitwise ops, two's complement. Live converter and drill in the arcade. Lab: decode a hex capture"),
     ("ports-and-protocols", "ports and protocols", "The ports and protocols you are expected to know cold, with DNS and DHCP in depth"),
+    ("vpns-and-tunnels", "VPNs and tunnels", "Remote-access and site-to-site VPNs, IPsec, WireGuard, OpenVPN, split tunnels and how VPNs get attacked. Lab: spot password spraying in a VPN log"),
     ("osint", "OSINT", "Open-source intelligence: methods, tools, and the legal and ethical limits. Lab: profile a fictional company"),
     ("cia-and-crypto", "CIA and crypto basics", "Confidentiality, integrity, availability, hashing, symmetric, asymmetric, TLS"),
     ("linux-windows-basics", "Linux and Windows basics", "File systems, permissions, processes, services, logs and the commands for each"),

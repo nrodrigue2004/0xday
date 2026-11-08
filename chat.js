@@ -41,7 +41,7 @@
     if (IDX) return Promise.resolve(IDX);
     if (loading) return loading;
     loading = fetch(root.dataset.index).then((r) => { if (!r.ok) throw new Error("index " + r.status); return r.json(); }).then((d) => {
-      const docs = d.recs.map((r) => ({ url: r[0], page: r[1], head: r[2], kind: r[3], text: r[4] }));
+      const docs = d.recs.map((r) => ({ url: r[0], page: r[1], head: r[2], kind: r[3], text: r[4], extra: r[5] || "" }));
       const inv = new Map(); let total = 0;
       docs.forEach((doc, i) => {
         const tf = new Map();
@@ -97,6 +97,59 @@
 
   const confident = (res) => res.hits.length && res.hits[0].cov >= 0.6 && res.hits[0].score >= 3.5;
 
+  /* ---------------- term lookup (definitions) ---------------- */
+  const compact = (x) => String(x).toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
+  function lev(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return max + 1;
+    let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [i]; let best = i;
+      for (let j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if (cur[j] < best) best = cur[j];
+      }
+      if (best > max) return max + 1;
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+  let TERMS = null;
+  function termMap() {
+    if (TERMS) return TERMS;
+    TERMS = new Map();
+    const put = (k, d) => { k = compact(k); if (k.length >= 2 && !TERMS.has(k)) TERMS.set(k, d); };
+    for (const d of IDX.docs) {
+      if (d.kind !== "glossary") continue;
+      put(d.head, d);
+      const par = d.head.match(/\(([^)]+)\)/); if (par) put(par[1], d);
+      put(d.head.replace(/\([^)]*\)/g, ""), d);
+      for (const part of d.head.split(/\s*\/\s*/)) put(part.replace(/\([^)]*\)/g, ""), d);
+      for (const al of d.extra.split(" | ")) if (al) put(al, d);
+    }
+    return TERMS;
+  }
+  function findTerm(raw) {
+    const M = termMap();
+    let w = raw.toLowerCase().replace(/[?!.]+$/g, "").replace(/^(an?|the|some)\s+/, "").trim();
+    for (const k of [compact(w), compact(w.replace(/ies$/, "y")), compact(w.replace(/es$/, "")), compact(w.replace(/s$/, ""))]) if (M.has(k)) return { d: M.get(k), fuzzy: false };
+    const c = compact(w);
+    if (c.length >= 5) {
+      const max = c.length >= 10 ? 2 : 1; let best = null, bd = max + 1;
+      for (const [k, d] of M) { if (k.length < 5) continue; const x = lev(c, k, max); if (x < bd) { bd = x; best = d; } }
+      if (best) return { d: best, fuzzy: true };
+    }
+    return null;
+  }
+  // "what is a vpn", "what does tls stand for", "define xss", "explain docker", "tell me about ransomware", or just "kerberos"
+  function termQuestion(q) {
+    const c = q.toLowerCase().trim().replace(/\s+/g, " ").replace(/[?!.]+$/g, "");
+    let m = c.match(/^(?:what(?:'s| is| are| was| were)|whats|define|definition of|explain|describe|tell me about|meaning of|what does|what do you know about|who is)\s+(.+?)(?:\s+(?:mean|means|stand for|stands for|do|used for|for))?$/);
+    if (m) return { term: m[1], asked: true };
+    m = c.match(/^(?:difference between|diff between)\s+/); if (m) return null;
+    if (c.split(" ").length <= 3 && !/^(help|clear|search|about)$/.test(c)) return { term: c, asked: false };
+    return null;
+  }
+
   /* ---------------- rendering ---------------- */
   function line(html, cls) {
     const el = document.createElement("div");
@@ -138,6 +191,7 @@
     let body;
     if (d.kind === "card") body = `<b>${esc(d.head)}</b><br>${esc(d.text.slice(d.head.length).trim())}`;
     else if (d.kind === "glossary") body = esc(d.text);
+    else if (d.kind === "resource") body = esc(d.text) + ` <a href="${esc(d.extra)}" rel="noopener" target="_blank">open the resource (new tab)</a>`;
     else body = bestSentences(d.text, res.terms, 3).map((s) => esc(clip(s, 320))).join("<br>");
     let h = `<span class="chat__bot">ghost-ai</span> From <a href="${esc(ROOT + d.url)}">${esc(d.page)}${d.head ? " &gt; " + esc(d.head) : ""}</a>:<blockquote class="chat__q">${body}</blockquote>`;
     h += `<div class="muted small">sources (best match first). These are quotes from the site, not generated text.</div>` + sourcesHtml(res.hits, res.terms);
@@ -221,11 +275,32 @@
     try { await load(); } catch (e) { wait.remove(); return line(`<span class="err">couldn't load the search index (${esc(e.message)}). Reload the page.</span>`); }
     wait.remove();
     const res = search(q, 5);
-    // "what is X": prefer an exact glossary hit
-    const m = c.match(/^(?:what(?:'s| is| are)|define|explain)\s+(?:an?\s+|the\s+)?(.+?)\??$/);
-    if (m) {
-      const g = IDX.docs.find((d) => d.kind === "glossary" && d.head.toLowerCase() === m[1].trim());
-      if (g) { res.hits = [{ d: g, score: 99, cov: 1 }, ...res.hits.filter((h) => h.d !== g)].slice(0, 5); res.terms = res.terms || tokens(m[1], true); }
+    const tq = termQuestion(q);
+    if (tq) {
+      const f = findTerm(tq.term);
+      if (f) {
+        const g = f.d;
+        res.hits = [{ d: g, score: 99, cov: 1 }, ...res.hits.filter((h) => h.d !== g)].slice(0, 5); res.terms = res.terms || tokens(tq.term, true);
+        if (f.fuzzy) line(`<span class="sys">no exact match for "${esc(tq.term)}", showing "${esc(g.head)}".</span>`);
+      } else if (tq.asked) {
+        // a definition question with no glossary entry: only trust a passage whose heading names the term
+        const tt = tokens(tq.term, true);
+        const named = res.hits.filter((h) => tt.length && tt.every((t) => h.d.hset.has(t)));
+        if (!named.length) {
+          const near = res.hits.slice(0, 3);
+          let h = `<span class="chat__bot">ghost-ai</span> I don't have a definition of <b>${esc(tq.term)}</b> on the site yet, and I won't guess. Check the <a href="${ROOT}glossary.html">glossary</a>, or <a href="${ROOT}resources.html">resources</a> for outside material.`;
+          if (near.length) h += `<div class="muted small">pages that merely mention it (probably not a definition):</div>` + sourcesHtml(near, res.terms);
+          return line(h);
+        }
+        res.hits = [...named, ...res.hits.filter((h) => !named.includes(h))].slice(0, 5);
+        res.hits[0].cov = 1; res.hits[0].score = Math.max(res.hits[0].score, 4);
+      }
+    }
+    // "resources for X", "how do I start X", "free courses for X": surface outside resources first
+    if (/\b(resources?|where (?:can|do|should) i (?:learn|start)|how (?:do|can|should) i (?:start|learn|get into|begin)|free (?:course|training|lab|class)|practice|tutorial|get started|beginner)/.test(c)) {
+      const wide = search(q, 14), r2 = wide.hits.filter((h) => h.d.kind === "resource" && h.cov >= 0.5).slice(0, 4);
+      const guides = wide.hits.filter((h) => h.d.kind !== "resource" && h.d.kind !== "card").slice(0, 2);
+      if (r2.length) { res.hits = [...r2, ...guides].slice(0, 6); res.terms = wide.terms; res.hits[0].cov = 1; res.hits[0].score = Math.max(res.hits[0].score, 4); }
     }
     if (engine && confident(res)) return answerLLM(q, res);
     if (engine) line(`<span class="sys">nothing relevant enough to give the model, so no generated answer.</span>`);
@@ -237,7 +312,7 @@
     if (e.key === "ArrowUp" && hist.length) { hi = Math.max(0, hi - 1); input.value = hist[hi]; e.preventDefault(); }
     else if (e.key === "ArrowDown" && hist.length) { hi = Math.min(hist.length, hi + 1); input.value = hist[hi] || ""; e.preventDefault(); }
   });
-  ["what is kerberoasting", "port 3389", "difference between tcp and udp", "what is prompt injection", "nmap scan types", "mfa types security+"].forEach((q) => {
+  ["what is a vpn", "bug bounty resources", "what is kerberoasting", "port 3389", "difference between tcp and udp", "what is prompt injection", "nmap scan types", "mfa types security+"].forEach((q) => {
     const b = document.createElement("button"); b.type = "button"; b.textContent = q; b.addEventListener("click", () => { if (!llmBusy) ask(q); }); chips.appendChild(b);
   });
   setMode("search"); gpuCheck();
