@@ -229,7 +229,7 @@ page("certs.html", "certs :: 0xDay", f"""<p class="cmd">apt list --installed | g
 <ul class="pkgs">{cert_rows}</ul>
 <h2>security+ tracker</h2>
 <p class="cmd">./progress --exam SY0-701</p>
-<p>Studying with my own system: <a href="secplus.html">~/secplus</a> (objectives, notes, flashcards, labs).</p>
+<p>Studying with my own system: <a href="secplus.html">~/secplus</a> (objectives, notes, flashcards, labs). Later and optional: <a href="comptia.html">~/comptia</a> (CySA+, Network+, A+).</p>
 <p>Overall, weighted by exam domain: <strong class="ok">{overall}%</strong></p>
 <ul class="doms">{dom_rows}</ul>
 <h3>practice exams</h3>{chart}
@@ -255,6 +255,8 @@ page("skills.html", "skills :: 0xDay", f"""<p class="cmd">skills --matrix</p><h1
 <p>Self-rated, and every rating links to the work behind it. Each <strong>learn</strong> link opens a guide (simple, mid, complex) with a hands-on sandbox lab. <span class="muted">1 aware · 2 familiar · 3 working · 4 strong · 5 expert</span></p>
 {groups_html}""", cur="skills")
 GUIDES, SP, NCARDS = build_learn.build(page, SKILLS, LV, bar)
+import build_comptia
+COMPTIA = build_comptia.build(page)
 import build_ai
 AI = build_ai.build(page)
 import build_careers
@@ -482,6 +484,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("interview", "interview.html", "pitches + questions for each resume project", f'{INTERVIEW["questions"]} questions'),
        ("log", "log.html", "weekly study log + streak", "saved in browser"),
        ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
+       ("comptia", "comptia.html", "CySA+, Network+, A+ (after Security+)", f'{len(COMPTIA)} certs'),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
        ("skills", "skills.html", "skills matrix", f'{sum(len(g["skills"]) for g in SKILLS["groups"])} skills')]
 HUB = [x for x in HUB if x[3] != "coming soon"]

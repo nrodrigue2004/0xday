@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA CySA+ 3.3 :: 0xDay</title>
+<meta name="description" content="CompTIA CySA+ CS0-004 objective 3.3: Given a scenario, implement incident response techniques">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=29aef6d8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=29aef6d8" defer></script>
+<script src="../../site.js?v=29aef6d8" defer></script>
+<script src="../../fx.js?v=29aef6d8" defer></script>
+<script src="../../study.js?v=29aef6d8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.3 --exam CS0-004</p>
+<div class="manhead"><span>CS0-004</span><span>domain 3.0 · Incident Response and Management</span><span>3.3</span></div>
+<h1><span class="ok">3.3</span> Given a scenario, implement incident response techniques</h1>
+<div class="obj" data-obj="cysa-3.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Prepare</h4>
+<ul><li><strong>IR plan</strong> (policy, roles, severity definitions, escalation) and <strong>communication plan</strong> (who is told what, when, by whom, out-of-band channels in case email is compromised). <strong>Playbooks</strong> per scenario. <strong>Roles</strong>: incident commander, analysts, comms/legal/PR, system owners. <strong>Training</strong>: <strong>tabletop</strong> (talk through a scenario) and <strong>simulation</strong> (hands-on exercise).</li></ul>
+<h4>Investigate</h4>
+<ul><li><strong>Log collection</strong>, <strong>correlation</strong> (join events across sources), <strong>augmentation and enrichment</strong> (add reputation, asset owner, user). <strong>Alerts and notifications</strong> feed <strong>triage</strong>: is it real, how urgent.</li><li>Build the <strong>timeline</strong> (first malicious event to now) and determine <strong>severity and impact</strong> (data types, systems, users, business function). <strong>Prioritize</strong> by impact and spread.</li></ul>
+<h4>Evidence</h4>
+<ul><li><strong>Chain of custody</strong>: who held the evidence, when, where, with signatures. <strong>Integrity validation</strong>: hash (SHA-256) before and after copying. <strong>Preservation</strong>: write blockers, forensic images, store securely. <strong>Legal hold</strong>: suspend deletion of data that might be needed in litigation.</li></ul>
+<h4>Act</h4>
+<ul><li><strong>Isolate</strong> affected targets (EDR network contain, VLAN, disable port). <strong>Escalate</strong> per severity. <strong>Remediate and verify</strong> (patch, rebuild, rescan, monitor). <strong>Release from isolation</strong> only after verification. <strong>Restore</strong> from known-good backups.</li><li><strong>Root cause analysis</strong> asks how it got in and why defenses missed it; <strong>corrective actions</strong> assign owners and deadlines.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="cysa-3.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> You image a disk for investigation. What proves the copy matches the original?</p><ul class="chk__o"><li><span class="ok">a)</span> File size</li><li><span class="ok">b)</span> Matching SHA-256 hashes</li><li><span class="ok">c)</span> Same filename</li><li><span class="ok">d)</span> Timestamps</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Cryptographic hashes verify integrity.</p></details></div><div class="chk"><p><strong>2.</strong> Legal says a lawsuit is likely. IT's 30-day mailbox purge should?</p><ul class="chk__o"><li><span class="ok">a)</span> Continue</li><li><span class="ok">b)</span> Be suspended for relevant data under a legal hold</li><li><span class="ok">c)</span> Be accelerated</li><li><span class="ok">d)</span> Be ignored by IR</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Legal hold overrides routine deletion.</p></details></div>
+<h2>short lab: Evidence checklist</h2><div class="prose lab"><p>A workstation shows signs of data theft. List what you collect in order, and how you document it.</p></div><details><summary>walkthrough</summary><div class="prose"><p>RAM image first (volatile), then running processes/network connections, then a disk image via write blocker, plus relevant remote logs (proxy, DNS, EDR, authentication). Hash everything with SHA-256, record in chain-of-custody forms (who, when, where, why), store in locked evidence storage and work only on copies.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/incident-response.html">incident response</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/digital-forensics.html">digital forensics</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/log-analysis.html">log analysis</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.3" placeholder="# 3.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="3.2.html">&lt; 3.2</a><a href="4.1.html">4.1 &gt;</a></nav>
+<p><a href="../cysa.html">cd ~/comptia/cysa</a></p>
+<script type="application/json" id="cards-data">[{"id": "cysa-3.3-0", "q": "Tabletop versus simulation?", "a": "Tabletop is a discussion walk-through; simulation is hands-on practice."}, {"id": "cysa-3.3-1", "q": "Purpose of chain of custody?", "a": "Document who handled evidence to prove it wasn't altered, for legal use."}, {"id": "cysa-3.3-2", "q": "How do you prove a disk image is unchanged?", "a": "Compare cryptographic hashes of the original and the copy."}, {"id": "cysa-3.3-3", "q": "What is a legal hold?", "a": "Orders retention of potentially relevant data, overriding normal deletion."}, {"id": "cysa-3.3-4", "q": "Log enrichment example?", "a": "Adding IP reputation or the asset owner to a raw alert."}, {"id": "cysa-3.3-5", "q": "Why use out-of-band comms in IR?", "a": "Primary channels like email may be compromised."}, {"id": "cysa-3.3-6", "q": "What does RCA produce?", "a": "Understanding of the cause and corrective actions to prevent recurrence."}, {"id": "cysa-3.3-7", "q": "When is a host released from isolation?", "a": "After remediation is verified and monitoring is in place."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

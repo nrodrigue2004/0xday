@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA CySA+ 4.2 :: 0xDay</title>
+<meta name="description" content="CompTIA CySA+ CS0-004 objective 4.2: Explain the importance of security operations and incident response reporting and communication">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=29aef6d8">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=29aef6d8" defer></script>
+<script src="../../site.js?v=29aef6d8" defer></script>
+<script src="../../fx.js?v=29aef6d8" defer></script>
+<script src="../../study.js?v=29aef6d8" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 4.2 --exam CS0-004</p>
+<div class="manhead"><span>CS0-004</span><span>domain 4.0 · Reporting and Communication</span><span>4.2</span></div>
+<h1><span class="ok">4.2</span> Explain the importance of security operations and incident response reporting and communication</h1>
+<div class="obj" data-obj="cysa-4.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><ul><li><strong>Declaration and escalation</strong>: define who can declare an incident, on what criteria, and who gets notified at each severity.</li><li><strong>Executive summary</strong>: one page: what happened, impact, current status, decisions needed. No jargon.</li><li><strong>Communication plan</strong>: stakeholders include <strong>legal</strong> (privilege, breach laws), <strong>PR</strong> (public statements), <strong>regulators</strong> (GDPR 72 hours, HIPAA, SEC and others), <strong>law enforcement</strong>, <strong>customers</strong>, employees. One spokesperson, no speculation, no blame. Use secure channels and know your role.</li><li><strong>Operational awareness</strong>: choose channels (ticket, chat, phone, out-of-band) and keep sensitive details to the need-to-know group.</li><li><strong>Post-incident</strong>: <strong>after-action report</strong> (timeline, actions, what worked), <strong>lessons learned</strong> (meeting soon after, blameless), <strong>RCA</strong>.</li><li><strong>Handover</strong>: shift notes: open incidents, pending actions, key contacts, so nothing is dropped.</li><li><strong>Internal threat intel report</strong>: tailored to your environment and adversaries.</li><li><strong>Metrics</strong>: alert volume, <strong>false-positive rate</strong>, <strong>true-positive rate</strong>, <strong>MTTD</strong> (detect), <strong>MTTR</strong> (respond or remediate), mean time to close, <strong>phishing click rate</strong>.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="cysa-4.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Who should speak to the press during an incident?</p><ul class="chk__o"><li><span class="ok">a)</span> Any analyst</li><li><span class="ok">b)</span> Designated spokesperson via PR/legal</li><li><span class="ok">c)</span> The attacker</li><li><span class="ok">d)</span> Helpdesk</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> A single approved voice avoids leaks and contradictions.</p></details></div><div class="chk"><p><strong>2.</strong> Which metric would drop if phishing training works?</p><ul class="chk__o"><li><span class="ok">a)</span> MTTD</li><li><span class="ok">b)</span> Phishing click rate</li><li><span class="ok">c)</span> Alert volume</li><li><span class="ok">d)</span> CPU usage</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Fewer users clicking simulated phish.</p></details></div>
+<h2>short lab: Handover note</h2><div class="prose lab"><p>Write a 5-line shift handover for an open phishing incident.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Include: incident ID and severity; current status (e.g., 12 mailboxes purged, 2 users pending); pending actions with owners; key contacts and approvals; next checkpoint time.</p></div></details>
+
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 4.2" placeholder="# 4.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="4.1.html">&lt; 4.1</a><span></span></nav>
+<p><a href="../cysa.html">cd ~/comptia/cysa</a></p>
+<script type="application/json" id="cards-data">[{"id": "cysa-4.2-0", "q": "Who must you consider notifying in a breach?", "a": "Legal, PR, regulators, law enforcement, customers, and internal stakeholders per plan."}, {"id": "cysa-4.2-1", "q": "What goes in an executive summary?", "a": "Plain-language impact, status, and decisions needed."}, {"id": "cysa-4.2-2", "q": "What is MTTD?", "a": "Mean time to detect."}, {"id": "cysa-4.2-3", "q": "Purpose of lessons learned?", "a": "Improve plan, detections and process; blameless."}, {"id": "cysa-4.2-4", "q": "Why a shift handover document?", "a": "To keep continuity: open incidents, actions, contacts."}, {"id": "cysa-4.2-5", "q": "Which metric shows detection quality?", "a": "True-positive and false-positive rates."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
