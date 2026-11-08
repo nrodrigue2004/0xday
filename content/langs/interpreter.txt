@@ -1,0 +1,203 @@
+tagline: An interpreter walks the tree and does what each node says. Environments hold variables, a loop is a node that evaluates its body repeatedly. Finish the evaluator of a small calculator language and run a program in it.
+sheet: langs
+sources: [Crafting Interpreters: Evaluating Expressions](https://craftinginterpreters.com/evaluating-expressions.html) · [Crafting Interpreters: Statements and State](https://craftinginterpreters.com/statements-and-state.html) · [PLAI](https://www.plai.org/)
+:: simple
+Once the parser has built a tree, an **interpreter** runs it. The idea is a single function that looks at a node and decides what to do:
+
+- a **number** node: the value is the number
+- an **add** node: evaluate the left child, evaluate the right child, add the results
+- a **variable** node: look the name up in a table of variables
+- an **assignment** node: evaluate the right side, store it under the name
+- a **while** node: while the condition is true, run the body
+
+That table of variables is the **environment**. Evaluate from the leaves up and the whole program runs.
+
+```code
+def evaluate(node, env):
+    kind = node[0]
+    if kind == "num":
+        return node[1]
+    if kind == "name":
+        return env[node[1]]
+    if kind == "bin":
+        _, op, left, right = node
+        a, b = evaluate(left, env), evaluate(right, env)
+        return a + b if op == "+" else a * b      # (abridged)
+```
+
+> This design is called an **AST-walking interpreter**. It is slow compared to compiled code, and it is the easiest one to write, read and sandbox. Most "little languages" in tools you use started as one.
+:: mid
+### Statements vs expressions
+An **expression** produces a value (`n * 2`). A **statement** does something (`total = total + n`, `print total`, `while ...`). Statements run in order, and they change the environment. Assignment is the only way the environment changes in this language, which is why the evaluator takes `env` as a parameter and mutates it.
+
+### Environments
+`env` here is a plain dict from name to value. Reading an unknown name is an error, and you should say so clearly: `NameError: total is not defined`. Real languages chain environments (a local dict whose parent is the enclosing one) to get [scope and closures](scope.html): a function value stores the environment where it was defined.
+
+### Short example: a while loop
+```code
+if kind == "while":
+    _, cond, body = node
+    while evaluate(cond, env):      # re-evaluate the condition each time
+        for stmt in body:
+            evaluate(stmt, env)
+```
+The loop is just the host language's loop running over the tree. The interpreter's `while` is Python's `while`; that borrowing is why an interpreter is short, and why a language with **no way to stop** (a `while 1`) hangs the host unless you add a step limit.
+
+### Errors at run time
+Division by zero, an undefined name, a wrong type: the interpreter raises an error that carries the node (and ideally the source line). Decide which errors are the language's and which are the host's; never let a stack trace from the host leak to a user of your language.
+
+### Adding features
+Each new feature is a new node kind plus a few lines in the parser and the evaluator: `if`, comparison, `print`, functions (a node that stores parameters and a body, a call node that makes a new environment), lists. Try adding `if` after the lab.
+:: complex
+### From tree-walker to bytecode
+Walking a tree repeats a lot of dispatch work. A **bytecode virtual machine** compiles the tree once into a flat list of simple instructions (`PUSH 3`, `ADD`, `STORE n`, `JUMP_IF_FALSE 12`) and runs them in a loop over a stack. CPython, the JVM, .NET and Lua all work this way. You can see Python's with the `dis` module: `import dis; dis.dis(f)`. The step from the VM to a JIT is compiling the hot bytecode to machine code.
+
+### Closures and calls
+A function call evaluates the arguments, creates a **new environment whose parent is the function's defining environment**, binds the parameters, runs the body, and returns. Recursion works because each call gets its own environment; the host language's call stack holds them, which is also why deep recursion in your language can crash the host.
+
+### Sandboxing an interpreter
+Running code you did not write (a rule language, a template, a plug-in script) means the interpreter decides what the code can reach. A good small interpreter is a security feature: no `open`, no `import`, no `eval` of host strings, a step counter to stop infinite loops, and a memory cap. Contrast this with `eval()` on a Python string, which hands the attacker the entire host language. Template engines that allow attribute walking (`{{ ''.__class__.__mro__ }}`) are server-side template injection: the "little language" was too powerful.
+
+### Malware and interpreters
+Interpreted malware (PowerShell, JavaScript, VBA macros, Python) is source-level reverse engineering: obfuscation is string tricks and `eval`/`Invoke-Expression`, and **deobfuscating** often means writing a tiny evaluator for the obfuscator's constant-folding. Some packers ship a custom bytecode VM; analysing one means writing a disassembler for its instruction set, which is the exact skill in this chapter.
+
+### Where to go next
+Work through the free book *Crafting Interpreters* (first half, in Python or Java). It builds the whole thing step by step. Then look at [source to machine code](compiler-pipeline.html) to see what changes when the target is a CPU.
+:: ref
+### interpreter terms
+environment | table mapping names to values
+AST-walking interpreter | evaluates the tree directly
+bytecode VM | compiles to simple instructions, runs them in a loop
+expression | produces a value
+statement | does something, usually changes state
+call stack | frames for active function calls
+step limit | counter that stops runaway programs
+### python introspection
+import dis; dis.dis(f) | show the bytecode of a function
+ast.parse(src) | build Python's own AST
+ast.dump(tree) | print an AST
+compile(src, "f", "exec") | compile source to a code object
+eval / exec | run Python text (never on untrusted input)
+:: lab
+host: dev
+user: student
+cwd: /home/student/calc
+py: yes
+:: brief
+`calc.py` is a complete lexer and parser for a small language with numbers, names, `+ - * /`, `>`, assignment, `print`, and `while`. The **evaluator** is missing three node types: `name`, `assign` and `while`.
+
+Fill in the `TODO`s, then run `python3 calc.py prog.calc`. The program in `prog.calc` sums the squares of 1 to 10 and prints the answer. Submit the **number it prints**.
+:: answer
+385
+:: hint
+Run `python3 calc.py prog.calc` first. It fails on the first assignment because `assign` is not handled.
+:: hint
+`name`: `return env[node[1]]`. `assign`: `env[node[1]] = evaluate(node[2], env)`.
+:: hint
+`while`: `while evaluate(node[1], env): for s in node[2]: evaluate(s, env)`.
+:: solution
+Three small cases finish the interpreter. The result is **385**, the sum of the squares of 1 through 10. The shape is the whole lesson: the evaluator is one function with one branch per node kind, an environment dict carries the state, and `while` is the host loop re-evaluating the condition node.
+:: verify
+python3 - <<'PY'
+s = open("calc.py").read()
+s = s.replace("    # TODO name: look the variable up in env", "    if k == 'name':\n        return env[node[1]]")
+s = s.replace("    # TODO assign: evaluate the right side and store it in env", "    if k == 'assign':\n        env[node[1]] = evaluate(node[2], env)\n        return None")
+s = s.replace("    # TODO while: repeat the body while the condition is true", "    if k == 'while':\n        while evaluate(node[1], env):\n            for st in node[2]:\n                evaluate(st, env)\n        return None")
+open("calc.py", "w").write(s)
+PY
+python3 calc.py prog.calc
+:: file /home/student/calc/prog.calc
+n = 10; total = 0;
+while n > 0 { total = total + n * n; n = n - 1 };
+print total
+:: file /home/student/calc/calc.py
+import re, sys
+
+# ---------- lexer ----------
+def tokenize(src):
+    return re.findall(r"\d+|[A-Za-z_]\w*|[+\-*/=<>;{}()]", src)
+
+# ---------- parser (given) ----------
+class Parser:
+    def __init__(self, toks):
+        self.t, self.i = toks, 0
+    def peek(self):
+        return self.t[self.i] if self.i < len(self.t) else None
+    def eat(self, want=None):
+        tok = self.peek()
+        if tok is None or (want and tok != want):
+            raise SyntaxError(f"expected {want!r}, got {tok!r}")
+        self.i += 1
+        return tok
+    def program(self, end=None):
+        stmts = []
+        while self.peek() is not None and self.peek() != end:
+            stmts.append(self.stmt())
+            if self.peek() == ";":
+                self.eat(";")
+        return stmts
+    def stmt(self):
+        if self.peek() == "print":
+            self.eat()
+            return ("print", self.expr())
+        if self.peek() == "while":
+            self.eat()
+            cond = self.expr()
+            self.eat("{")
+            body = self.program(end="}")
+            self.eat("}")
+            return ("while", cond, body)
+        name = self.eat()
+        self.eat("=")
+        return ("assign", name, self.expr())
+    def expr(self):
+        left = self.sum()
+        if self.peek() in (">", "<"):
+            op = self.eat()
+            left = ("bin", op, left, self.sum())
+        return left
+    def sum(self):
+        node = self.term()
+        while self.peek() in ("+", "-"):
+            op = self.eat()
+            node = ("bin", op, node, self.term())
+        return node
+    def term(self):
+        node = self.factor()
+        while self.peek() in ("*", "/"):
+            op = self.eat()
+            node = ("bin", op, node, self.factor())
+        return node
+    def factor(self):
+        t = self.eat()
+        if t.isdigit():
+            return ("num", int(t))
+        if t == "(":
+            node = self.expr()
+            self.eat(")")
+            return node
+        if re.fullmatch(r"[A-Za-z_]\w*", t):
+            return ("name", t)
+        raise SyntaxError(f"unexpected {t!r}")
+
+# ---------- evaluator (yours) ----------
+OPS = {"+": lambda a, b: a + b, "-": lambda a, b: a - b, "*": lambda a, b: a * b,
+       "/": lambda a, b: a / b, ">": lambda a, b: a > b, "<": lambda a, b: a < b}
+
+def evaluate(node, env):
+    k = node[0]
+    if k == "num":
+        return node[1]
+    # TODO name: look the variable up in env
+    # TODO assign: evaluate the right side and store it in env
+    # TODO while: repeat the body while the condition is true
+    if k == "bin":
+        return OPS[node[1]](evaluate(node[2], env), evaluate(node[3], env))
+    if k == "print":
+        print(format(evaluate(node[1], env), "g"))
+        return None
+    raise NotImplementedError(k)
+
+env = {}
+for stmt in Parser(tokenize(open(sys.argv[1]).read())).program():
+    evaluate(stmt, env)

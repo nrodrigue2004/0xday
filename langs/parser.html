@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>grammars and the parser :: ~/langs :: 0xDay</title>
+<meta name="description" content="langs, grammars and the parser: recursive descent, precedence and the abstract syntax tree. Simple, mid and complex levels plus a hands-on lab.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../sandbox.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">langs --chapter parser</p>
+<h1>~/langs/parser</h1>
+<p class="learn__meta"><span class="muted">CS310 Compilers</span></p>
+<p>The parser turns a flat list of tokens into a tree that shows what belongs to what. Learn grammars, recursive descent and operator precedence, then fix a calculator that thinks 2 + 3 * 4 is 20.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="parser">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Tokens are a flat line. Programs are not: <code>2 + 3 * 4</code> means "3 times 4 first, then add 2". The <strong>parser</strong> builds a <strong>tree</strong> that records this nesting, the <strong>abstract syntax tree (AST)</strong>:</p>
+<pre class="ex ex--code"><code>      +
+     / \
+    2   *
+       / \
+      3   4</code></pre>
+<p>To evaluate a tree you evaluate the leaves first and work up, so <code>3 * 4</code> happens before the <code>+</code> simply because it is lower in the tree. No special rule is needed once the tree is right.</p>
+<p>The rules for what is allowed are written as a <strong>grammar</strong>: a short list of "a thing is made of these parts".</p>
+<pre class="ex ex--code"><code>expr   := term   ((&quot;+&quot; | &quot;-&quot;) term)*
+term   := factor ((&quot;*&quot; | &quot;/&quot;) factor)*
+factor := NUMBER | &quot;(&quot; expr &quot;)&quot;</code></pre>
+<p>Read it as: an expression is one or more terms joined by <code>+</code> or <code>-</code>; a term is one or more factors joined by <code>*</code> or <code>/</code>; a factor is a number or a parenthesized expression. Because <code>*</code> lives *deeper* in the grammar than <code>+</code>, it binds tighter. <strong>Precedence is a grammar structure</strong>, not a table you check later.</p>
+<p class="callout">A syntax error is the parser saying "no rule in the grammar lets this token appear here".</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Recursive descent</h4>
+<p>The simplest way to write a parser: <strong>one function per grammar rule</strong>, each calling the ones below it. The grammar above becomes:</p>
+<pre class="ex ex--code"><code>def parse_expr():
+    node = parse_term()
+    while peek() in (&quot;+&quot;, &quot;-&quot;):
+        op = next()
+        node = (&quot;bin&quot;, op, node, parse_term())    # builds left-associative tree
+    return node
+
+def parse_term():
+    node = parse_factor()
+    while peek() in (&quot;*&quot;, &quot;/&quot;):
+        op = next()
+        node = (&quot;bin&quot;, op, node, parse_factor())
+    return node
+
+def parse_factor():
+    t = next()
+    if t.isdigit(): return (&quot;num&quot;, int(t))
+    if t == &quot;(&quot;:
+        node = parse_expr()
+        expect(&quot;)&quot;)
+        return node
+    raise SyntaxError(f&quot;unexpected {t!r}&quot;)</code></pre>
+<p>Parentheses work because <code>parse_factor</code> calls <code>parse_expr</code> again: the recursion in the code mirrors the recursion in the grammar.</p>
+<h4>Associativity</h4>
+<p><code>10 - 4 - 3</code> must be <code>(10 - 4) - 3 = 3</code>, not <code>10 - (4 - 3) = 9</code>. The <code>while</code> loop above builds a left-leaning tree. Exponentiation is the usual exception: <code>2 ** 3 ** 2</code> is right-associative, built by recursing instead of looping.</p>
+<h4>The common bug</h4>
+<p>Treating all operators as one level: a single loop for <code>+ - * /</code> evaluates left to right and gives <code>2 + 3 * 4 = 20</code>. Splitting into <code>expr</code> and <code>term</code> functions is the fix, and it is exactly the structure of the grammar.</p>
+<h4>Error recovery and messages</h4>
+<p>Report the token and position where the parse failed and what was expected. In a real compiler the parser tries to resynchronize (skip to the next <code>;</code>) and keep going to report several errors at once.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Context-free grammars</h4>
+<p>A grammar like the one above is <strong>context-free</strong>: each rule rewrites one name regardless of its neighbors. Context-free grammars are strictly more powerful than regular expressions (they can match nested, balanced structure; see <a href="computability.html">grammars and limits</a>). Notation: BNF and EBNF; <code>*</code> means repeat, <code>|</code> means choose.</p>
+<h4>Parser families</h4>
+<ul><li><strong>Recursive descent / LL</strong>: top-down, predicts the rule from the next token. Hand-written parsers (GCC's C front end, many language servers) use it. Cannot handle left-recursive rules directly (<code>expr := expr &quot;+&quot; term</code> loops forever), hence the <code>while</code> loop trick</li><li><strong>Pratt / precedence climbing</strong>: one function and a table of binding powers, very compact for expressions</li><li><strong>LR / LALR (yacc, bison)</strong>: bottom-up, generated from a grammar, handles more grammars</li><li><strong>Parser combinators and PEG</strong>: grammars as code; ordered choice makes them unambiguous</li><li><strong>GLR / Earley</strong>: handle ambiguous grammars when you must</li></ul>
+<h4>Ambiguity</h4>
+<p>A grammar is <strong>ambiguous</strong> if one string has two trees. The dangling <code>else</code> (<code>if a if b x else y</code>: which <code>if</code> owns the else?) is the textbook case; languages resolve it by rule. Ambiguity is a parser bug waiting for an attacker: two components that disagree about the tree are two different programs.</p>
+<h4>ASTs and everything after</h4>
+<p>Later stages walk the AST: type checkers, optimizers, code generators, linters, formatters, refactoring tools, and security scanners (SAST tools match patterns on the tree, not on text, which is why they find a <code>eval(user_input)</code> even when it is split across lines). The AST drops punctuation; a <strong>concrete syntax tree</strong> keeps it, which formatters need.</p>
+<h4>Parsers and vulnerabilities</h4>
+<p>Parsers are the front door for untrusted input (files, packets, JSON, fonts, PDFs), so parser bugs are a major source of memory-corruption CVEs. The hardening playbook is <strong>LangSec</strong>: define the input language formally, parse it fully with a generated or memory-safe parser *before* acting on any of it, and reject anything outside the grammar. Fuzzers feed a parser random mutations of valid input to find the cases the author did not imagine.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>calc.py</code> evaluates the expression in <code>expr.txt</code>, but its parser treats <code>+ - * /</code> as one level, so it reads left to right and ignores precedence.</p>
+<p>Split <code>parse_expr</code> into two levels (<code>+ -</code> on top, <code>* /</code> below it, as in the grammar above), rerun <code>python3 calc.py</code>, and submit the <strong>correct value</strong> of the expression.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/langs.html">cheatsheet</a></span></h2><h3>grammar notation</h3><dl class="man"><dt><code>rule := a b | c</code></dt><dd>symbols after := define the rule on the left</dd><dt><code>a | b</code></dt><dd>choose a or b</dd><dt><code>a*</code></dt><dd>zero or more a</dd><dt><code>a+</code></dt><dd>one or more a</dd><dt><code>a?</code></dt><dd>optional a</dd><dt><code>&quot;+&quot;</code></dt><dd>a literal token</dd></dl><h3>parser terms</h3><dl class="man"><dt><code>AST</code></dt><dd>tree of the program's structure</dd><dt><code>recursive descent</code></dt><dd>one function per grammar rule</dd><dt><code>precedence</code></dt><dd>which operator binds tighter</dd><dt><code>associativity</code></dt><dd>grouping of equal operators: (a-b)-c is left</dd><dt><code>left recursion</code></dt><dd>rule that starts with itself, loops in LL parsers</dd><dt><code>ambiguous grammar</code></dt><dd>one string, two trees</dd><dt><code>fuzzing</code></dt><dd>feeding a parser mutated input to find crashes</dd></dl></section><section class="lvl" id="sources"><h2><span class="lvl__n">src</span> further reading <span class="muted">// read these, not just me</span></h2><p><a href="https://craftinginterpreters.com/parsing-expressions.html">Crafting Interpreters: Parsing Expressions</a> · <a href="https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html">Pratt parsing, explained</a></p></section><nav class="pager"><a href="lexer.html">&lt; the lexer</a><a href="interpreter.html">a tiny interpreter &gt;</a></nav><p><a href="../langs.html">cd ~/langs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "parser", "title": "grammars and the parser", "user": "student", "host": "dev", "brief": "<code>calc.py<\/code> evaluates the expression in <code>expr.txt<\/code>, but its parser treats <code>+ - * /<\/code> as one level, so it reads left to right and ignores precedence.\n\nSplit <code>parse_expr<\/code> into two levels (<code>+ -<\/code> on top, <code>* /<\/code> below it, as in the grammar above), rerun <code>python3 calc.py<\/code>, and submit the <strong>correct value<\/strong> of the expression.", "hints": ["Run <code>python3 calc.py<\/code> first. The expression is <code>2 + 3 * 4 - 10 / (1 + 4) * 3<\/code>.", "Create <code>parse_term<\/code> that loops over <code>* /<\/code> calling <code>parse_factor<\/code>, and make <code>parse_expr<\/code> loop over <code>+ -<\/code> calling <code>parse_term<\/code>.", "By hand: 3*4 = 12, 10/5*3 = 6, so 2 + 12 - 6."], "answers": ["2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3"], "solution": "V2l0aCBwcmVjZWRlbmNlIGluIHRoZSBncmFtbWFyIHRoZSB0cmVlIGlzIDxjb2RlPigyICsgKDMqNCkpIC0gKCgxMCAvICgxKzQpKSAqIDMpPC9jb2RlPiA9IDE0IC0gNiA9IDxzdHJvbmc+ODwvc3Ryb25nPi4gVGhlIGZsYXQgcGFyc2VyIGNvbXB1dGVkICgoKCgyKzMpKjQpLTEwKS81KSozID0gNiwgd2hpY2ggaXMgYSBwbGF1c2libGUtbG9va2luZyB3cm9uZyBhbnN3ZXI7IG5vdGhpbmcgY3Jhc2hlZCwgd2hpY2ggaXMgd2h5IHBhcnNlciB0ZXN0cyBuZWVkIGV4cGVjdGVkIHZhbHVlcy4K", "fs": {"/home/student/parser/expr.txt": "2 + 3 * 4 - 10 / (1 + 4) * 3\n", "/home/student/parser/calc.py": "import re\n\ndef tokenize(src):\n    return re.findall(r\"\\d+|[()+\\-*/]\", src)\n\ntoks = tokenize(open(\"expr.txt\").read())\npos = 0\n\ndef peek():\n    return toks[pos] if pos < len(toks) else None\n\ndef next_tok():\n    global pos\n    t = toks[pos]; pos += 1\n    return t\n\n# BUG: one level for all four operators, so there is no precedence\ndef parse_expr():\n    node = parse_factor()\n    while peek() in (\"+\", \"-\", \"*\", \"/\"):\n        op = next_tok()\n        node = (\"bin\", op, node, parse_factor())\n    return node\n\ndef parse_factor():\n    t = next_tok()\n    if t.isdigit():\n        return (\"num\", int(t))\n    if t == \"(\":\n        node = parse_expr()\n        next_tok()                      # the closing )\n        return node\n    raise SyntaxError(f\"unexpected {t!r}\")\n\ndef evaluate(n):\n    if n[0] == \"num\":\n        return n[1]\n    _, op, a, b = n\n    a, b = evaluate(a), evaluate(b)\n    return {\"+\": a + b, \"-\": a - b, \"*\": a * b, \"/\": a / b}[op]\n\ntree = parse_expr()\nprint(\"tree:\", tree)\nprint(\"value:\", format(evaluate(tree), \"g\"))\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/parser", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

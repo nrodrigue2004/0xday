@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>scope and closures :: ~/langs :: 0xDay</title>
+<meta name="description" content="langs, scope and closures: names, binding, lifetimes and why a closure remembers. Simple, mid and complex levels plus a hands-on lab.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../sandbox.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">langs --chapter scope</p>
+<h1>~/langs/scope</h1>
+<p class="learn__meta"><span class="muted">CS340 Programming languages</span></p>
+<p>A name only means something inside the part of the program where it is visible. Learn scope, binding and closures, then fix the classic bug where every rule in a list secretly uses the same variable.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="scope">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>Scope</strong> is the region of a program where a name can be used. A variable made inside a function is <strong>local</strong>: the outside cannot see it, and it disappears when the function returns. A variable made at the top of the file is <strong>global</strong>: every function can see it.</p>
+<pre class="ex ex--code"><code>limit = 5                 # global
+
+def check(count):
+    msg = &quot;too many&quot;      # local to check()
+    return count &gt; limit  # reads the global
+
+print(msg)                # NameError: msg is not defined here</code></pre>
+<p>Why bother with scope? It keeps pieces of a program from stepping on each other. If every variable were global, any function could change any value, and a bug anywhere would be a bug everywhere.</p>
+<p>A <strong>closure</strong> is a function that remembers the variables of the place where it was created, even after that place is gone:</p>
+<pre class="ex ex--code"><code>def make_counter():
+    n = 0
+    def tick():
+        nonlocal n
+        n += 1
+        return n
+    return tick
+
+c = make_counter()
+print(c(), c(), c())      # 1 2 3</code></pre>
+<p><code>tick</code> carries <code>n</code> with it. Each call to <code>make_counter()</code> makes a new <code>n</code> and a new <code>tick</code>.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Python's lookup rule: LEGB</h4>
+<p>When Python meets a name it searches in order: <strong>L</strong>ocal, <strong>E</strong>nclosing functions, <strong>G</strong>lobal, <strong>B</strong>uilt-in. Assigning to a name inside a function makes it local for the *whole* function, which causes this:</p>
+<pre class="ex ex--code"><code>count = 0
+def bump():
+    count += 1    # UnboundLocalError: count is local here, but has no value yet</code></pre>
+<p>Fix with <code>global count</code>, or better, pass the value in and return the new one.</p>
+<h4>Binding: names point at things</h4>
+<p>A name is a label on a value, not a box that holds one. <code>a = [1]; b = a; b.append(2)</code> changes what <code>a</code> sees as well, because both labels are on the same list. Default arguments are evaluated <strong>once</strong>, when the function is defined:</p>
+<pre class="ex ex--code"><code>def add(item, seen=[]):       # one shared list for every call
+    seen.append(item)
+    return seen</code></pre>
+<p>Use <code>seen=None</code> and create the list inside.</p>
+<h4>Late binding in closures</h4>
+<p>A closure captures the <strong>variable</strong>, not its value at the time. Functions made in a loop all share the loop variable and see its final value:</p>
+<pre class="ex ex--code"><code>rules = [lambda p: p == port for port in (22, 80, 443)]
+[r(22) for r in rules]        # [False, False, False]: every rule now means 443</code></pre>
+<p>Freeze the value with a default argument, <code>lambda p, port=port: p == port</code>, or build the function in a helper that takes <code>port</code> as a parameter.</p>
+<h4>Lexical vs dynamic scope</h4>
+<p>Python, JavaScript, C and Java use <strong>lexical</strong> scope: what a name means is decided by where the code is written. A few shells and old Lisps use <strong>dynamic</strong> scope: it is decided by who called you. Lexical scope is why you can read a function and know what its names mean.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Environments and the call stack</h4>
+<p>An interpreter keeps an <strong>environment</strong>, a table of names to values, per scope, chained to its parent. Looking up a name walks the chain until it finds it. Entering a function creates a new table linked to the one where the function was *defined* (lexical) and the closure stores that link. That is all a closure is: <strong>code plus an environment pointer</strong>. You will build exactly this in <a href="interpreter.html">the interpreter chapter</a>.</p>
+<p>On the machine, locals live in a <strong>stack frame</strong>, one per call. When the function returns, the frame is gone. So a closure that outlives its frame cannot point into the stack: variables that escape are moved to the <strong>heap</strong> (Python does this with cells). The same fact explains a classic C bug: returning a pointer to a local array hands back memory that is about to be reused. This is how <a href="../learn/binary-exploitation.html">stack frames work in binary exploitation</a>.</p>
+<h4>Lifetime is not scope</h4>
+<p>Scope is where a name is *visible* (compile time). <strong>Lifetime</strong> is how long the value exists (runtime). They differ: a <code>static</code> local in C is visible only inside its function but lives for the whole program, and a heap object can outlive every name that once pointed at it.</p>
+<ul><li>Garbage-collected languages (Python, Java, Go) free a value when nothing can reach it</li><li>C/C++ require you to free it, and a pointer used after free is a <strong>use-after-free</strong></li><li>Rust encodes lifetimes in the type system so the compiler rejects the dangling use</li></ul>
+<h4>Shadowing and hygiene</h4>
+<p>An inner name hiding an outer one is <strong>shadowing</strong>. It is legal and often a bug (<code>list = [...]</code> hides the built-in). Linters warn. In macro systems, <strong>hygiene</strong> means a macro's temporary names cannot capture yours. C macros are not hygienic, which is why a <code>#define</code> can behave differently depending on the variable names around it.</p>
+<h4>Security angle</h4>
+<ul><li>Globals holding secrets or state shared across requests have caused data leaking between users</li><li>Closures capturing a loop variable have produced access-control checks that all test the *last* item</li><li>Leaked variable names in minified JavaScript are why obfuscators rename scopes</li></ul><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>rules.py</code> builds one check per allowed port from a list, then counts how many sample packets the rule set allows. The allowed ports are 22, 80 and 443 and the packets are 22, 80, 443, 8080 and 22, so a correct run should allow most of them.</p>
+<p>Run <code>python3 rules.py</code> and look at the count. It is wrong: <strong>closure late binding</strong>. Fix the bug, rerun it, and submit the <strong>number of allowed packets</strong> the corrected script prints.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/langs.html">cheatsheet</a></span></h2><h3>scope terms</h3><dl class="man"><dt><code>local</code></dt><dd>visible only inside its function</dd><dt><code>global</code></dt><dd>visible everywhere in the file</dd><dt><code>LEGB</code></dt><dd>Python lookup order: Local, Enclosing, Global, Built-in</dd><dt><code>closure</code></dt><dd>a function plus the variables it captured</dd><dt><code>nonlocal x</code></dt><dd>assign to a variable of the enclosing function</dd><dt><code>global x</code></dt><dd>assign to a module-level variable</dd><dt><code>late binding</code></dt><dd>closures see a variable's latest value, not its value when made</dd><dt><code>shadowing</code></dt><dd>an inner name hides an outer one</dd><dt><code>lexical scope</code></dt><dd>meaning decided by where code is written</dd><dt><code>lifetime</code></dt><dd>how long a value exists (not the same as where its name is visible)</dd></dl></section><nav class="pager"><a href="types.html">&lt; types</a><a href="functional.html">functional programming &gt;</a></nav><p><a href="../langs.html">cd ~/langs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "scope", "title": "scope and closures", "user": "student", "host": "dev", "brief": "<code>rules.py<\/code> builds one check per allowed port from a list, then counts how many sample packets the rule set allows. The allowed ports are 22, 80 and 443 and the packets are 22, 80, 443, 8080 and 22, so a correct run should allow most of them.\n\nRun <code>python3 rules.py<\/code> and look at the count. It is wrong: <strong>closure late binding<\/strong>. Fix the bug, rerun it, and submit the <strong>number of allowed packets<\/strong> the corrected script prints.", "hints": ["Run <code>python3 rules.py<\/code>. Only one packet is allowed, but 22, 80 and 443 are all on the list.", "Each lambda uses the loop variable <code>port<\/code>, which is shared. Every check ends up comparing against the last port.", "Change <code>lambda p: p == port<\/code> to <code>lambda p, port=port: p == port<\/code>."], "answers": ["4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"], "solution": "VGhlIGRlZmF1bHQgYXJndW1lbnQgPGNvZGU+cG9ydD1wb3J0PC9jb2RlPiBjb3BpZXMgdGhlIGN1cnJlbnQgdmFsdWUgaW50byBlYWNoIGxhbWJkYSB3aGVuIGl0IGlzIGNyZWF0ZWQsIHNvIGVhY2ggY2hlY2sga2VlcHMgaXRzIG93biBwb3J0LiBUaGUgY29ycmVjdGVkIGNvdW50IGlzIDxzdHJvbmc+NDwvc3Ryb25nPjogcGFja2V0cyAyMiwgODAsIDQ0MyBhbmQgdGhlIHNlY29uZCAyMiBhcmUgYWxsb3dlZDsgODA4MCBpcyBub3QuIFRoZSBidWdneSB2ZXJzaW9uIGFsbG93ZWQgb25seSA0NDMgKG9uZSBwYWNrZXQpIGJlY2F1c2UgYWxsIHRocmVlIHJ1bGVzIGNvbXBhcmVkIGFnYWluc3QgdGhlIGZpbmFsIHZhbHVlIG9mIHRoZSBsb29wIHZhcmlhYmxlLgo=", "fs": {"/home/student/rules/rules.py": "ALLOWED = [22, 80, 443]\nPACKETS = [22, 80, 443, 8080, 22]\n\nrules = [lambda p: p == port for port in ALLOWED]\n\ndef allowed(pkt):\n    return any(rule(pkt) for rule in rules)\n\nn = sum(1 for p in PACKETS if allowed(p))\nprint(\"allowed packets:\", n)\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/rules", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

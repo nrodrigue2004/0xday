@@ -1,0 +1,115 @@
+## 0
+Q: In what order do the stages of a typical compiler run?
+* Lexer, parser, semantic analysis, optimizer, code generator, linker
+- Parser, lexer, linker, optimizer
+- Linker, lexer, parser, code generator
+- Optimizer, lexer, parser, linker
+? Each stage hands a simpler form to the next.
+
+Q: The linker reports undefined reference to 'parse_header'. What went wrong?
+* The function was declared and called but not defined in any object file
+- A missing semicolon
+- A type mismatch in main.c
+- The lexer rejected a character
+? The earlier stages passed, so every file compiled.
+
+Q: Why can the same C source produce very different-looking assembly at -O0 and -O2?
+* The optimizer inlines functions, removes dead code and keeps values in registers
+- The preprocessor rewrites comments
+- -O2 adds debug symbols
+- The linker reorders strings
+? This is also why decompiled output rarely matches the original source.
+
+Q: What is the point of the Thompson "trusting trust" attack?
+* A compromised compiler can insert a backdoor into everything it builds, including itself
+- Compilers are always slow
+- Source code cannot be read
+- Linkers delete symbols
+? Reproducible builds and diverse double-compiling are the defenses.
+
+## 1
+Q: What does a lexer produce?
+* A stream of tokens
+- A syntax tree
+- Machine code
+- A symbol table
+? The parser builds the tree from the tokens.
+
+Q: Why does a lexer take the longest possible match?
+* So that <= is one token and iffy is a name, not the keyword if
+- To use less memory
+- To avoid regexes
+- To skip whitespace
+? This is called maximal munch.
+
+Q: Why put a catch-all BAD pattern last in a regex lexer?
+* So any unexpected character is reported instead of silently skipped
+- To speed up matching
+- To match whitespace
+- To define keywords
+? Without it, junk characters would just vanish.
+
+Q: How does parameterized SQL relate to lexing?
+* It keeps user data out of the SQL token stream, so data can never become code
+- It makes the lexer faster
+- It encrypts the query
+- It replaces the parser
+? Injection happens when the downstream lexer reads data as code.
+
+## 2
+Q: In a recursive descent parser, what makes * bind tighter than +?
+* The rule for + calls the rule for *, so multiplications sit deeper in the tree
+- A lookup table checked after parsing
+- Evaluating right to left
+- Reading the tokens twice
+? Precedence is a grammar structure.
+
+Q: A parser treats + - * / as one level in a single loop. What does 2 + 3 * 4 evaluate to?
+* 20
+- 14
+- 24
+- 9
+? It computes (2 + 3) * 4 from left to right.
+
+Q: What does an abstract syntax tree record?
+* How the program's pieces nest, without punctuation
+- The exact characters including whitespace
+- The machine code
+- The memory layout
+? A concrete syntax tree keeps the punctuation.
+
+Q: What is the LangSec advice for parsers that handle untrusted input?
+* Define the input language formally and parse it completely before acting on any of it
+- Parse only the first byte
+- Use regexes for everything
+- Trust the input length field
+? Reject anything outside the grammar.
+
+## 3
+Q: What is an environment in an interpreter?
+* A table mapping names to values
+- The operating system
+- A list of tokens
+- The compiler flags
+? Real languages chain environments to implement scope.
+
+Q: What does a tree-walking interpreter do when it reaches an add node?
+* Evaluates the left child, evaluates the right child, then adds the results
+- Calls the linker
+- Prints the node
+- Skips it
+? Evaluation works from the leaves up.
+
+Q: Why is eval() on a user-supplied string a bad way to build a rule language?
+* It gives the attacker the whole host language instead of only your small one
+- It is slower than a lexer
+- It cannot parse numbers
+- It needs a license
+? A small interpreter with no open, import or eval is a security feature.
+
+Q: How is bytecode different from walking the tree?
+* The tree is compiled once into flat instructions that a loop executes
+- It skips parsing
+- It needs no memory
+- It cannot run loops
+? CPython, the JVM and Lua all work this way.

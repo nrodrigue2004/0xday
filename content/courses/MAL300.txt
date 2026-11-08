@@ -113,3 +113,90 @@ Q: How might malware try to evade a sandbox?
 - By emailing the analyst
 - By running faster
 ? Analysts patch the checks or speed up the clock.
+
+## 4
+Q: What is the most important safety rule for dynamic malware analysis?
+* Run samples only in a disposable VM with a snapshot, no shared folders and a network that goes nowhere
+- Run them on your laptop with antivirus on
+- Run them as an administrator on your real network
+- Upload every sample to a public sandbox
+? Revert to the snapshot after every run.
+
+Q: In a Procmon log a process writes a file, sets a Run registry value to that file and starts it. What is that behavior?
+* Dropping a copy of itself and establishing persistence
+- Normal Windows Update behavior
+- A printer driver install
+- Disk defragmentation
+? Run keys start the program at every login.
+
+Q: What does FakeNet-NG or INetSim give you?
+* Fake internet services so the sample connects and you see what it asks for
+- A faster internet connection
+- Real DNS records
+- Antivirus signatures
+? Your analysis network should have no route to the real internet.
+
+Q: A host contacts the same IP and port at a steady one-minute interval. What does that suggest?
+* A beacon to a command-and-control server
+- A backup job
+- A DHCP lease renewal
+- A screen saver
+? Steady spacing is a tell; record the IP, port and domain as IOCs.
+
+## 5
+Q: Which sign suggests an executable is packed?
+* Very high entropy in a section and almost no readable strings or imports
+- Many readable strings
+- A large import table
+- A .txt extension
+? Entropy above about 7 means compressed or encrypted data.
+
+Q: What is the original entry point (OEP)?
+* The first instruction of the real program, reached after the stub finishes unpacking
+- The address of the packer's stub
+- The start of the resource section
+- The first import
+? Break on the tail jump to find it.
+
+Q: What does a tail jump look like in an unpack stub?
+* A jmp that leaves the stub's section for the newly unpacked code, often right after popad
+- A call to ExitProcess
+- A loop back to the start
+- A ret to the OS
+? Jumps that stay inside the stub are just loops and padding.
+
+Q: Is a packed executable always malicious?
+* No; many legitimate installers and commercial programs are packed, so packing is a signal, not a verdict
+- Yes, always
+- Only if it is larger than 1 MB
+- Only on Linux
+? Combine it with behavior and other evidence.
+
+## 6
+Q: In a check function, what does xor ecx, ecx usually do?
+* Sets the counter to zero
+- Compares two strings
+- Doubles the counter
+- Calls a function
+? Xor of a register with itself is a short way to zero it.
+
+Q: A loop XORs each input byte with 0x5a and compares it to a stored byte. How do you recover the password?
+* XOR each stored byte with 0x5a, because XOR is its own inverse
+- Hash the stored bytes
+- Add 0x5a to each stored byte
+- Brute-force all of memory
+? The same shape decrypts strings in a lot of malware.
+
+Q: Where does a 64-bit Linux function receive its first argument?
+* In the rdi register
+- In rax
+- In rsp
+- In the heap
+? Windows x64 uses rcx.
+
+Q: Why verify decompiler output against the disassembly for a critical function?
+* Decompilers can get loops, integer sizes and signedness wrong
+- Decompilers never run
+- Disassembly is always shorter
+- It is required by law
+? Use both views.

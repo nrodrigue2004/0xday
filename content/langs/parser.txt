@@ -1,0 +1,175 @@
+tagline: The parser turns a flat list of tokens into a tree that shows what belongs to what. Learn grammars, recursive descent and operator precedence, then fix a calculator that thinks 2 + 3 * 4 is 20.
+sheet: langs
+sources: [Crafting Interpreters: Parsing Expressions](https://craftinginterpreters.com/parsing-expressions.html) · [Pratt parsing, explained](https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html)
+:: simple
+Tokens are a flat line. Programs are not: `2 + 3 * 4` means "3 times 4 first, then add 2". The **parser** builds a **tree** that records this nesting, the **abstract syntax tree (AST)**:
+
+```code
+      +
+     / \
+    2   *
+       / \
+      3   4
+```
+
+To evaluate a tree you evaluate the leaves first and work up, so `3 * 4` happens before the `+` simply because it is lower in the tree. No special rule is needed once the tree is right.
+
+The rules for what is allowed are written as a **grammar**: a short list of "a thing is made of these parts".
+
+```code
+expr   := term   (("+" | "-") term)*
+term   := factor (("*" | "/") factor)*
+factor := NUMBER | "(" expr ")"
+```
+
+Read it as: an expression is one or more terms joined by `+` or `-`; a term is one or more factors joined by `*` or `/`; a factor is a number or a parenthesized expression. Because `*` lives *deeper* in the grammar than `+`, it binds tighter. **Precedence is a grammar structure**, not a table you check later.
+
+> A syntax error is the parser saying "no rule in the grammar lets this token appear here".
+:: mid
+### Recursive descent
+The simplest way to write a parser: **one function per grammar rule**, each calling the ones below it. The grammar above becomes:
+
+```code
+def parse_expr():
+    node = parse_term()
+    while peek() in ("+", "-"):
+        op = next()
+        node = ("bin", op, node, parse_term())    # builds left-associative tree
+    return node
+
+def parse_term():
+    node = parse_factor()
+    while peek() in ("*", "/"):
+        op = next()
+        node = ("bin", op, node, parse_factor())
+    return node
+
+def parse_factor():
+    t = next()
+    if t.isdigit(): return ("num", int(t))
+    if t == "(":
+        node = parse_expr()
+        expect(")")
+        return node
+    raise SyntaxError(f"unexpected {t!r}")
+```
+Parentheses work because `parse_factor` calls `parse_expr` again: the recursion in the code mirrors the recursion in the grammar.
+
+### Associativity
+`10 - 4 - 3` must be `(10 - 4) - 3 = 3`, not `10 - (4 - 3) = 9`. The `while` loop above builds a left-leaning tree. Exponentiation is the usual exception: `2 ** 3 ** 2` is right-associative, built by recursing instead of looping.
+
+### The common bug
+Treating all operators as one level: a single loop for `+ - * /` evaluates left to right and gives `2 + 3 * 4 = 20`. Splitting into `expr` and `term` functions is the fix, and it is exactly the structure of the grammar.
+
+### Error recovery and messages
+Report the token and position where the parse failed and what was expected. In a real compiler the parser tries to resynchronize (skip to the next `;`) and keep going to report several errors at once.
+:: complex
+### Context-free grammars
+A grammar like the one above is **context-free**: each rule rewrites one name regardless of its neighbors. Context-free grammars are strictly more powerful than regular expressions (they can match nested, balanced structure; see [grammars and limits](computability.html)). Notation: BNF and EBNF; `*` means repeat, `|` means choose.
+
+### Parser families
+- **Recursive descent / LL**: top-down, predicts the rule from the next token. Hand-written parsers (GCC's C front end, many language servers) use it. Cannot handle left-recursive rules directly (`expr := expr "+" term` loops forever), hence the `while` loop trick
+- **Pratt / precedence climbing**: one function and a table of binding powers, very compact for expressions
+- **LR / LALR (yacc, bison)**: bottom-up, generated from a grammar, handles more grammars
+- **Parser combinators and PEG**: grammars as code; ordered choice makes them unambiguous
+- **GLR / Earley**: handle ambiguous grammars when you must
+
+### Ambiguity
+A grammar is **ambiguous** if one string has two trees. The dangling `else` (`if a if b x else y`: which `if` owns the else?) is the textbook case; languages resolve it by rule. Ambiguity is a parser bug waiting for an attacker: two components that disagree about the tree are two different programs.
+
+### ASTs and everything after
+Later stages walk the AST: type checkers, optimizers, code generators, linters, formatters, refactoring tools, and security scanners (SAST tools match patterns on the tree, not on text, which is why they find a `eval(user_input)` even when it is split across lines). The AST drops punctuation; a **concrete syntax tree** keeps it, which formatters need.
+
+### Parsers and vulnerabilities
+Parsers are the front door for untrusted input (files, packets, JSON, fonts, PDFs), so parser bugs are a major source of memory-corruption CVEs. The hardening playbook is **LangSec**: define the input language formally, parse it fully with a generated or memory-safe parser *before* acting on any of it, and reject anything outside the grammar. Fuzzers feed a parser random mutations of valid input to find the cases the author did not imagine.
+:: ref
+### grammar notation
+rule := a b | c | symbols after := define the rule on the left
+a | b | choose a or b
+a* | zero or more a
+a+ | one or more a
+a? | optional a
+"+" | a literal token
+### parser terms
+AST | tree of the program's structure
+recursive descent | one function per grammar rule
+precedence | which operator binds tighter
+associativity | grouping of equal operators: (a-b)-c is left
+left recursion | rule that starts with itself, loops in LL parsers
+ambiguous grammar | one string, two trees
+fuzzing | feeding a parser mutated input to find crashes
+:: lab
+host: dev
+user: student
+cwd: /home/student/parser
+py: yes
+:: brief
+`calc.py` evaluates the expression in `expr.txt`, but its parser treats `+ - * /` as one level, so it reads left to right and ignores precedence.
+
+Split `parse_expr` into two levels (`+ -` on top, `* /` below it, as in the grammar above), rerun `python3 calc.py`, and submit the **correct value** of the expression.
+:: answer
+8
+:: hint
+Run `python3 calc.py` first. The expression is `2 + 3 * 4 - 10 / (1 + 4) * 3`.
+:: hint
+Create `parse_term` that loops over `* /` calling `parse_factor`, and make `parse_expr` loop over `+ -` calling `parse_term`.
+:: hint
+By hand: 3*4 = 12, 10/5*3 = 6, so 2 + 12 - 6.
+:: solution
+With precedence in the grammar the tree is `(2 + (3*4)) - ((10 / (1+4)) * 3)` = 14 - 6 = **8**. The flat parser computed ((((2+3)*4)-10)/5)*3 = 6, which is a plausible-looking wrong answer; nothing crashed, which is why parser tests need expected values.
+:: verify
+python3 - <<'PY'
+import re
+s = open("calc.py").read()
+s = s.replace("def parse_expr():\n    node = parse_factor()\n    while peek() in (\"+\", \"-\", \"*\", \"/\"):", "def parse_term():\n    node = parse_factor()\n    while peek() in (\"*\", \"/\"):\n        op = next_tok()\n        node = (\"bin\", op, node, parse_factor())\n    return node\n\ndef parse_expr():\n    node = parse_term()\n    while peek() in (\"+\", \"-\"):")
+s = s.replace("op = next_tok()\n        node = (\"bin\", op, node, parse_factor())\n    return node\n\ndef parse_factor", "op = next_tok()\n        node = (\"bin\", op, node, parse_term())\n    return node\n\ndef parse_factor")
+open("calc.py", "w").write(s)
+PY
+python3 calc.py
+:: file /home/student/parser/expr.txt
+2 + 3 * 4 - 10 / (1 + 4) * 3
+:: file /home/student/parser/calc.py
+import re
+
+def tokenize(src):
+    return re.findall(r"\d+|[()+\-*/]", src)
+
+toks = tokenize(open("expr.txt").read())
+pos = 0
+
+def peek():
+    return toks[pos] if pos < len(toks) else None
+
+def next_tok():
+    global pos
+    t = toks[pos]; pos += 1
+    return t
+
+# BUG: one level for all four operators, so there is no precedence
+def parse_expr():
+    node = parse_factor()
+    while peek() in ("+", "-", "*", "/"):
+        op = next_tok()
+        node = ("bin", op, node, parse_factor())
+    return node
+
+def parse_factor():
+    t = next_tok()
+    if t.isdigit():
+        return ("num", int(t))
+    if t == "(":
+        node = parse_expr()
+        next_tok()                      # the closing )
+        return node
+    raise SyntaxError(f"unexpected {t!r}")
+
+def evaluate(n):
+    if n[0] == "num":
+        return n[1]
+    _, op, a, b = n
+    a, b = evaluate(a), evaluate(b)
+    return {"+": a + b, "-": a - b, "*": a * b, "/": a / b}[op]
+
+tree = parse_expr()
+print("tree:", tree)
+print("value:", format(evaluate(tree), "g"))

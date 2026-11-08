@@ -1,0 +1,117 @@
+tagline: printf(user_input) lets the user write the format. Learn how a format string reads the stack, how %p leaks values, and how the bug is fixed in one line. Toy program only; the lab is a step-through debugger.
+sheet: rev
+sources: [Exploit Education: Format String levels](https://exploit.education/) (practice VMs, run them in a lab) · [CWE-134: Use of Externally-Controlled Format String](https://cwe.mitre.org/data/definitions/134.html) · [GCC -Wformat-security](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html)
+:: simple
+`printf` takes a **format string** and then the values to fill in: `printf("port %d\n", port)`. Each `%d`, `%s` or `%p` in the format grabs the next argument.
+
+The bug: a programmer writes `printf(name)` when they meant `printf("%s", name)`. Now **the user supplies the format**. If the user's name contains `%p`, `printf` looks for an argument that was never passed, and on most systems it reads whatever is next on the stack, or in a register, and prints it. Typing `%p.%p.%p.%p` reveals stack contents, which can include saved addresses and secrets.
+
+```code
+char name[64];
+fgets(name, 64, stdin);
+printf(name);              // BUG: name is used as the format
+printf("%s", name);        // fixed: name is data, not format
+```
+
+> Rule: never pass user-controlled text as the first argument of `printf`, `sprintf`, `syslog` or any function that takes a format. Pass `"%s"` and the text as an argument.
+
+The consequence is an **information leak**: the program tells the user things it never meant to print. It is a bug in the same family as an over-read (Heartbleed).
+:: mid
+### What the conversions do
+| Conversion | Reads | Effect |
+|---|---|---|
+| `%p` | next argument as a pointer | prints it in hex: **leaks** the value |
+| `%x` | next argument as an unsigned int | leaks 4 bytes |
+| `%s` | next argument as a pointer to text | prints memory **at** that address (can crash on a bad pointer) |
+| `%n` | next argument as a pointer to an int | **writes** the count of characters printed so far |
+| `%7$p` | the 7th argument directly | picks one position without printing the others |
+
+On 64-bit Linux the first five or six arguments come from registers, and after that from the stack, so the first stack slots appear around the 6th `%p`. Which slot holds the secret depends on the function's frame.
+
+### Reading a leak
+`0x7ffd1c2a1b10.0x1.0x7f3a5c1e51e7.0x7ffd1c2a1c18.0x7f3a5c3b2800.0x7ffd1c2a1b30.0x2121743372633373`
+
+- Values starting `0x7ffd...` look like stack addresses
+- Values starting `0x7f3a...` look like addresses inside shared libraries (this reveals where libc is loaded, defeating ASLR)
+- A value of printable bytes in hex, like `0x2121743372633373`, is **text stored on the stack**. Memory is little-endian, so the bytes are printed reversed: read the hex pairs from the right: `73 33 63 72 33 74 21 21`, which is ASCII `s3cr3t!!`
+
+### `%n` and why it is dangerous
+`%n` writes. With a pointer on the stack that the attacker controls, a format string can write a chosen number to a chosen address, so a leak becomes a **write primitive**. That is why format-string bugs were a major remote-code-execution class in the early 2000s.
+
+### The fix and the tools
+- Pass `"%s"`, never the string
+- Compile with `-Wformat -Wformat-security -Werror=format-security`; modern distributions enable `-D_FORTIFY_SOURCE=2`, which rejects `%n` in writable format strings
+- Static analyzers and grep find these quickly: `grep -n "printf *([a-z_]*)" *.c`
+:: complex
+### Why the stack gives it up
+Variadic functions like `printf` do not know how many arguments they received. The caller puts them in registers and on the stack according to the calling convention; the callee trusts the format string to say how many to read. With no matching arguments, `printf` reads the next stack slots, which contain the caller's locals, saved registers, the canary and return addresses. See [C and x86 assembly](../learn/c-x86-assembly.html) for the frame layout.
+
+### Direct parameter access
+`%N$p` reads the Nth argument without consuming the earlier ones, so an attacker needs one request per value rather than a long string, and can scan `%1$p`, `%2$p`, ... to build a map of the stack. Combined with another bug it reveals the **stack canary** and a **return address**, and the layout is then known despite [ASLR and canaries](mitigations.html).
+
+### Beyond the toy
+Real bugs came from logging (`syslog(LOG_INFO, username)`), error messages, and embedded devices. The bug class is now rare in new C code because compilers warn, but it appears in unfamiliar corners: printf-style functions you wrote yourself that wrap `vsnprintf`, and other languages with format features (some logging libraries and template systems, including Log4Shell's lookup syntax, which had the same "data interpreted as a directive" shape).
+
+### Defender's view
+- A request or log line with many `%p`, `%x`, `%n` or `%s` is a probe. Web logs and syslog get these from scanners
+- Mark logging wrappers `__attribute__((format(printf, 1, 2)))` so the compiler checks the arguments
+- Do not ship debug builds; do ship fortify, canaries, PIE and RELRO
+- Fuzz anything that parses text and formats it
+:: ref
+### format string conversions
+%p | print the next argument as a pointer (leak)
+%x / %lx | print as hex (4 or 8 bytes)
+%s | read text at the pointer in the next argument
+%n | write the number of characters printed so far (dangerous)
+%7$p | read the 7th argument directly
+%c | print one character
+### finding and fixing
+printf("%s", s) | the safe form: s is data, not format
+gcc -Wformat-security | warn on non-literal format strings
+gcc -D_FORTIFY_SOURCE=2 -O2 | runtime checks that reject unsafe %n
+grep -n "printf *([a-z_]*)" *.c | find printf(var) calls
+checksec --file=./bin | see if canary, PIE, RELRO and NX are enabled
+:: lab
+style: debug
+host: pwn-lab
+user: student
+source: /home/student/fmt.c
+:: brief
+`fmt.c` is a toy greeting program with a **secret** stored in a local variable, and a `printf(name)` bug. It is run in the debugger with the input `%p.%p.%p.%p.%p.%p.%p`.
+
+Step through it. The program prints seven hex values; one of them is the secret, stored as 8 ASCII characters (little-endian, so the characters appear reversed in the hex). Decode it and submit the **secret as text**, e.g. `submit abcd1234`.
+:: answer
+s3cr3t!!
+:: hint
+`start`, then `step` until the output line appears. Look at the seventh value.
+:: hint
+`print secret` shows the same 8 bytes. In `0x2121743372633373` the bytes are 21 21 74 33 72 63 33 73 from left to right.
+:: hint
+Memory is little-endian, so read the pairs from the right: 73 33 63 72 33 74 21 21. Look each one up in an ASCII table (73='s', 33='3', 63='c', 72='r', 74='t', 21='!'). You can also run `echo 2121743372633373 | xxd -r -p | rev`.
+:: solution
+The seventh `%p` printed `0x2121743372633373`. Reversing the byte order gives `73 33 63 72 33 74 21 21`, which is the text **s3cr3t!!**. The bug is line 8: `printf(name)` uses the visitor's text as the format, so each `%p` consumed another stack slot, and the secret sat in one of them. The fix is `printf("%s", name)`. A real program would also keep secrets out of locals that survive across calls, but the root cause is data used as a format.
+:: verify
+echo 2121743372633373 | xxd -r -p | rev
+:: file /home/student/fmt.c
+#include <stdio.h>
+#include <string.h>
+
+void greet(const char *name) {
+    long secret = 0x2121743372633373;     // "s3cr3t!!" as bytes, never meant to be shown
+    char note[16] = "welcome";
+    printf("hello ");
+    printf(name);                         // BUG: the visitor controls the format
+    printf("\n");
+}
+
+int main(void) {
+    greet("%p.%p.%p.%p.%p.%p.%p");
+    return 0;
+}
+:: trace
+13 | name="%p.%p.%p.%p.%p.%p.%p"
+5 | name="%p.%p.%p.%p.%p.%p.%p" secret=0x2121743372633373
+6 | name="%p.%p.%p.%p.%p.%p.%p" secret=0x2121743372633373 note="welcome"
+7 | name="%p.%p.%p.%p.%p.%p.%p" secret=0x2121743372633373 note="welcome" | hello 
+8 | name="%p.%p.%p.%p.%p.%p.%p" secret=0x2121743372633373 note="welcome" | 0x7ffd1c2a1b10.0x1.0x7f3a5c1e51e7.0x7ffd1c2a1c18.0x7f3a5c3b2800.0x656d6f636c6577.0x2121743372633373
+9 | name="%p.%p.%p.%p.%p.%p.%p" secret=0x2121743372633373 note="welcome"

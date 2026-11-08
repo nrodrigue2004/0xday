@@ -1,0 +1,115 @@
+## 0
+Q: Which paradigm builds programs from functions that take values in and give values out without changing anything else?
+* Functional
+- Imperative
+- Object-oriented
+- Event-driven
+? That is what makes functional code easy to test: same input, same output.
+
+Q: What is a pure function?
+* Same input always gives the same output, with no side effects
+- A function that returns nothing
+- A function that only uses integers
+- A function that runs without an interpreter
+? Printing, writing a file or changing a global makes a function impure.
+
+Q: SQL's SELECT ... WHERE is an example of which style?
+* Declarative: you state what you want, not the steps
+- Imperative: step-by-step instructions
+- Object-oriented: objects with methods
+- Assembly: one instruction at a time
+? The database engine decides how to get the result.
+
+Q: Which design keeps side effects at the edges of a program?
+* Functional core, imperative shell
+- Deep inheritance
+- Global variables for state
+- Copy and paste
+? Pure logic in the middle makes the interesting part easy to test.
+
+## 1
+Q: Python raises TypeError for "80" + 1 but JavaScript returns "801". What does that show?
+* Python is strongly typed and JavaScript is weakly typed
+- Python is statically typed and JavaScript dynamically
+- JavaScript has no types
+- Python converts silently
+? Strong versus weak is about how willing the language is to mix types silently.
+
+Q: When does a static type checker report a type mistake?
+* Before the program runs
+- Only when the faulty line executes
+- Only in production
+- Never
+? Dynamic languages find it at run time, if that line ever runs.
+
+Q: Why is "10" < "9" true in most languages?
+* Strings are compared character by character, not as numbers
+- Ten is smaller than nine
+- A bug in the standard library
+- Comparison is random
+? Convert to int first: int("10") < int("9") is false.
+
+Q: Why does "parse, don't validate" help security?
+* Untrusted text becomes a typed value once at the edge, so the rest of the code only sees safe types
+- It removes the need for input
+- It encrypts the input
+- It makes the program faster
+? Raw strings passed deep into a program are where injection happens.
+
+## 2
+Q: What is a closure?
+* A function together with the variables it captured from where it was created
+- A function that returns nothing
+- A loop that never ends
+- A closed file handle
+? The captured variables keep existing as long as the function does.
+
+Q: In Python, what is the lookup order for a name?
+* Local, Enclosing, Global, Built-in
+- Global, Local, Built-in
+- Built-in, Local, Global
+- Enclosing, Local, Built-in
+? Remembered as LEGB.
+
+Q: rules = [lambda p: p == port for port in (22, 80, 443)]. Why do all three rules end up testing 443?
+* The lambdas capture the variable port, not its value, and the loop leaves it at 443
+- Python only keeps the last item of a tuple
+- Lambdas cannot be stored in lists
+- 443 is the default port
+? Freeze the value with a default argument: lambda p, port=port: p == port.
+
+Q: What does lexical scope mean?
+* A name's meaning is decided by where the code is written
+- A name's meaning depends on who called the function
+- Names never change
+- Names must be global
+? Python, JavaScript, C and Java are lexically scoped.
+
+## 3
+Q: What does functools.reduce do?
+* Folds a sequence into one value by repeatedly combining an accumulator with the next item
+- Removes duplicates
+- Sorts the list
+- Opens a file
+? sum() is a reduce with addition.
+
+Q: Why does recursion need a base case?
+* Without one the function calls itself forever
+- It makes the function faster
+- It declares the type
+- The compiler requires a comment
+? Every recursive step has to move toward the base case.
+
+Q: Why can a pure function be cached safely (memoized)?
+* Its result depends only on its arguments
+- It never returns
+- It is always fast
+- It has no name
+? With side effects or hidden state the cached answer could be stale or wrong.
+
+Q: Why does a generator expression handle a ten-gigabyte log better than a list comprehension?
+* It produces one item at a time instead of holding everything in memory
+- It compresses the file
+- It reads the file twice
+- It skips most lines
+? Generators are lazy.

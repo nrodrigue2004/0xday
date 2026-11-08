@@ -1,0 +1,129 @@
+tagline: A name only means something inside the part of the program where it is visible. Learn scope, binding and closures, then fix the classic bug where every rule in a list secretly uses the same variable.
+sheet: langs
+:: simple
+**Scope** is the region of a program where a name can be used. A variable made inside a function is **local**: the outside cannot see it, and it disappears when the function returns. A variable made at the top of the file is **global**: every function can see it.
+
+```code
+limit = 5                 # global
+
+def check(count):
+    msg = "too many"      # local to check()
+    return count > limit  # reads the global
+
+print(msg)                # NameError: msg is not defined here
+```
+
+Why bother with scope? It keeps pieces of a program from stepping on each other. If every variable were global, any function could change any value, and a bug anywhere would be a bug everywhere.
+
+A **closure** is a function that remembers the variables of the place where it was created, even after that place is gone:
+
+```code
+def make_counter():
+    n = 0
+    def tick():
+        nonlocal n
+        n += 1
+        return n
+    return tick
+
+c = make_counter()
+print(c(), c(), c())      # 1 2 3
+```
+
+`tick` carries `n` with it. Each call to `make_counter()` makes a new `n` and a new `tick`.
+:: mid
+### Python's lookup rule: LEGB
+When Python meets a name it searches in order: **L**ocal, **E**nclosing functions, **G**lobal, **B**uilt-in. Assigning to a name inside a function makes it local for the *whole* function, which causes this:
+
+```code
+count = 0
+def bump():
+    count += 1    # UnboundLocalError: count is local here, but has no value yet
+```
+Fix with `global count`, or better, pass the value in and return the new one.
+
+### Binding: names point at things
+A name is a label on a value, not a box that holds one. `a = [1]; b = a; b.append(2)` changes what `a` sees as well, because both labels are on the same list. Default arguments are evaluated **once**, when the function is defined:
+
+```code
+def add(item, seen=[]):       # one shared list for every call
+    seen.append(item)
+    return seen
+```
+Use `seen=None` and create the list inside.
+
+### Late binding in closures
+A closure captures the **variable**, not its value at the time. Functions made in a loop all share the loop variable and see its final value:
+
+```code
+rules = [lambda p: p == port for port in (22, 80, 443)]
+[r(22) for r in rules]        # [False, False, False]: every rule now means 443
+```
+Freeze the value with a default argument, `lambda p, port=port: p == port`, or build the function in a helper that takes `port` as a parameter.
+
+### Lexical vs dynamic scope
+Python, JavaScript, C and Java use **lexical** scope: what a name means is decided by where the code is written. A few shells and old Lisps use **dynamic** scope: it is decided by who called you. Lexical scope is why you can read a function and know what its names mean.
+:: complex
+### Environments and the call stack
+An interpreter keeps an **environment**, a table of names to values, per scope, chained to its parent. Looking up a name walks the chain until it finds it. Entering a function creates a new table linked to the one where the function was *defined* (lexical) and the closure stores that link. That is all a closure is: **code plus an environment pointer**. You will build exactly this in [the interpreter chapter](interpreter.html).
+
+On the machine, locals live in a **stack frame**, one per call. When the function returns, the frame is gone. So a closure that outlives its frame cannot point into the stack: variables that escape are moved to the **heap** (Python does this with cells). The same fact explains a classic C bug: returning a pointer to a local array hands back memory that is about to be reused. This is how [stack frames work in binary exploitation](../learn/binary-exploitation.html).
+
+### Lifetime is not scope
+Scope is where a name is *visible* (compile time). **Lifetime** is how long the value exists (runtime). They differ: a `static` local in C is visible only inside its function but lives for the whole program, and a heap object can outlive every name that once pointed at it.
+- Garbage-collected languages (Python, Java, Go) free a value when nothing can reach it
+- C/C++ require you to free it, and a pointer used after free is a **use-after-free**
+- Rust encodes lifetimes in the type system so the compiler rejects the dangling use
+
+### Shadowing and hygiene
+An inner name hiding an outer one is **shadowing**. It is legal and often a bug (`list = [...]` hides the built-in). Linters warn. In macro systems, **hygiene** means a macro's temporary names cannot capture yours. C macros are not hygienic, which is why a `#define` can behave differently depending on the variable names around it.
+
+### Security angle
+- Globals holding secrets or state shared across requests have caused data leaking between users
+- Closures capturing a loop variable have produced access-control checks that all test the *last* item
+- Leaked variable names in minified JavaScript are why obfuscators rename scopes
+:: ref
+### scope terms
+local | visible only inside its function
+global | visible everywhere in the file
+LEGB | Python lookup order: Local, Enclosing, Global, Built-in
+closure | a function plus the variables it captured
+nonlocal x | assign to a variable of the enclosing function
+global x | assign to a module-level variable
+late binding | closures see a variable's latest value, not its value when made
+shadowing | an inner name hides an outer one
+lexical scope | meaning decided by where code is written
+lifetime | how long a value exists (not the same as where its name is visible)
+:: lab
+host: dev
+user: student
+cwd: /home/student/rules
+py: yes
+:: brief
+`rules.py` builds one check per allowed port from a list, then counts how many sample packets the rule set allows. The allowed ports are 22, 80 and 443 and the packets are 22, 80, 443, 8080 and 22, so a correct run should allow most of them.
+
+Run `python3 rules.py` and look at the count. It is wrong: **closure late binding**. Fix the bug, rerun it, and submit the **number of allowed packets** the corrected script prints.
+:: answer
+4
+:: hint
+Run `python3 rules.py`. Only one packet is allowed, but 22, 80 and 443 are all on the list.
+:: hint
+Each lambda uses the loop variable `port`, which is shared. Every check ends up comparing against the last port.
+:: hint
+Change `lambda p: p == port` to `lambda p, port=port: p == port`.
+:: solution
+The default argument `port=port` copies the current value into each lambda when it is created, so each check keeps its own port. The corrected count is **4**: packets 22, 80, 443 and the second 22 are allowed; 8080 is not. The buggy version allowed only 443 (one packet) because all three rules compared against the final value of the loop variable.
+:: verify
+sed -i 's/lambda p: p == port/lambda p, port=port: p == port/' rules.py
+python3 rules.py
+:: file /home/student/rules/rules.py
+ALLOWED = [22, 80, 443]
+PACKETS = [22, 80, 443, 8080, 22]
+
+rules = [lambda p: p == port for port in ALLOWED]
+
+def allowed(pkt):
+    return any(rule(pkt) for rule in rules)
+
+n = sum(1 for p in PACKETS if allowed(p))
+print("allowed packets:", n)

@@ -1,0 +1,126 @@
+tagline: A compiler is a pipeline of small translators. Learn the stages from source text to machine code, which stage reports which error, and what a reverse engineer is actually looking at when they open a binary.
+sheet: langs
+sources: [Crafting Interpreters](https://craftinginterpreters.com/) (free book, start here) · [Compiler Explorer](https://godbolt.org/) (see the assembly any C or Rust line becomes) · [Nand2Tetris](https://www.nand2tetris.org/) (build the whole stack from gates up)
+:: simple
+A **compiler** translates a program from one language to another, usually from source code a person writes to machine code a CPU runs. It does this in stages, each a small translator that hands a simpler form to the next:
+
+1. **Lexer** (scanner): characters in, **tokens** out. `x = 3 + 4` becomes `x`, `=`, `3`, `+`, `4`
+2. **Parser**: tokens in, a **tree** out that shows how they nest (the **abstract syntax tree**, AST)
+3. **Semantic analysis**: checks meaning on the tree: is `x` declared, do the types fit?
+4. **Intermediate representation (IR)**: a simple, machine-independent form that is easy to optimize
+5. **Optimizer**: makes the program faster or smaller without changing what it does
+6. **Code generator**: emits assembly for the target CPU
+7. **Assembler and linker**: turn assembly into object files, then join them with libraries into one executable
+
+An **interpreter** skips the last stages and runs the tree (or a compact bytecode) directly. Python, JavaScript and shell are interpreted; C, Rust and Go are compiled. Java and C# do both: compile to bytecode, then a runtime interprets or JIT-compiles it.
+
+```
+$ cat build.log
+```
+
+> The stage that complains tells you what kind of mistake it was. A syntax error means the *parser* could not build a tree. An "undefined reference" means everything compiled and the *linker* could not find a function.
+:: mid
+### Which stage said that?
+| Message | Stage | Cause |
+|---|---|---|
+| `unexpected character '@'` | lexer | a character that is not part of the language |
+| `expected ';' before '}'` | parser | tokens do not fit the grammar |
+| `'count' undeclared` / incompatible types | semantic analysis | grammar is fine, meaning is not |
+| `undefined reference to 'parse_header'` | linker | declared and called, but defined nowhere |
+| segmentation fault when you run it | none: the program itself | the compiler accepted a bug |
+
+### The C toolchain, step by step
+```code
+gcc -E hello.c          # preprocess: expand #include and #define
+gcc -S hello.c          # compile to assembly (hello.s)
+gcc -c hello.c          # assemble to an object file (hello.o)
+gcc hello.o -o hello    # link into an executable
+objdump -d hello        # disassemble what is actually in the binary
+```
+Each step can be run alone. Reading `hello.s` next to the C is the fastest way to learn assembly: write a small function and see what comes out. [Compiler Explorer](https://godbolt.org/) does it live in the browser.
+
+### Optimization levels
+`-O0` keeps code close to what you wrote (easy to debug). `-O2` inlines functions, removes dead code, keeps values in registers and reorders instructions. The assembly looks very different, which is why **the same source compiles to a different-looking binary** at different optimization levels, and why reverse engineers often see code that has no obvious match to the source.
+
+### Interpreter, compiler, JIT
+- **Interpreter**: simplest, slowest, easiest to build and to sandbox
+- **Ahead-of-time compiler**: fastest at run time, no source needed on the target
+- **JIT compiler**: compiles hot code while the program runs using what it learned about the values. Fast, and a rich area for security bugs because the generated code bets on assumptions that an attacker can break
+:: complex
+### Intermediate representations
+Real compilers do not go straight from the AST to assembly. **LLVM IR** (used by Clang, Rust, Swift) is a typed, low-level language with an unlimited supply of virtual registers in **static single assignment (SSA)** form, where every value is assigned exactly once. SSA makes many optimizations simple: constant folding, dead-code removal, common-subexpression elimination, loop-invariant code motion. Only at the very end does the backend map virtual registers onto the real ones (**register allocation**) and pick instructions (**instruction selection**).
+
+### Control flow graph
+The IR is organized as **basic blocks** (straight-line code with one entry and one exit) joined by branches into a **control flow graph**. This is exactly the graph view that Ghidra and IDA draw when you open a function. Decompilers run the pipeline backwards: machine code → CFG → structured `if`/`while` → C-like text. They lose names, types and comments, which is why decompiled output is readable but never the original.
+
+### Linking and loading
+The linker resolves symbols across object files, lays out **sections** (`.text` code, `.data` globals, `.rodata` constants, `.bss` zeroed data) and writes the headers (ELF on Linux, [PE on Windows](../learn/pe-format-pe-bear.html)). At run time the OS **loader** maps sections into memory, applies relocations and runs the **dynamic linker** to bind shared libraries. A static binary carries its libraries inside; a stripped binary has had symbol names removed, which is the usual state of malware you analyze.
+
+### Compilers and security
+- **Hardening is a compiler flag**: stack canaries (`-fstack-protector`), position-independent code (`-fPIE`), fortified libc calls (`-D_FORTIFY_SOURCE`), control-flow integrity. See [mitigations](../rev/mitigations.html)
+- **Undefined behavior**: the C standard lets the compiler assume some things never happen (signed overflow, null dereference). A check written with that assumption can be *deleted* by the optimizer, silently removing a security check
+- **Trusting trust** (Ken Thompson, 1984): a compromised compiler can insert a backdoor into every program it builds, including the next compiler. The standing defense is reproducible builds and diverse double-compiling
+- **Supply chain**: the build system is part of what you trust
+:: ref
+### toolchain commands
+gcc -E file.c | preprocess only
+gcc -S file.c | compile to assembly (file.s)
+gcc -c file.c | assemble to an object file
+gcc -O0 / -O2 | no optimization / standard optimization
+gcc -g | include debug symbols
+gcc -fstack-protector-strong | add stack canaries
+objdump -d bin | disassemble a binary
+nm bin | list symbols
+readelf -S bin | list ELF sections
+strip bin | remove symbol names
+ldd bin | list shared libraries a binary needs
+### compiler terms
+token | smallest meaningful piece of source (name, number, symbol)
+AST | tree of how the code nests
+IR | simple intermediate form between source and machine code
+SSA | each value assigned exactly once, makes optimization easier
+basic block | straight-line code with one entry and one exit
+CFG | graph of basic blocks joined by branches
+JIT | compile hot code while the program runs
+linker | joins object files and libraries, resolves symbols
+:: lab
+host: dev
+user: student
+cwd: /home/student/build
+:: brief
+Three builds of the same project failed in three different stages. `build.log` has the output of all three.
+
+Read it and find the function that the **linker** could not find, the one reported as an `undefined reference`. Submit that **function name**.
+:: answer
+parse_header
+:: hint
+`cat build.log`. Each section has a header saying which build it is.
+:: hint
+Compiler errors mention a line number in a `.c` file. The linker's complaint comes from `ld` and says `undefined reference`.
+:: hint
+`grep "undefined reference" build.log`
+:: solution
+Build 1 died in the **parser** (`expected ';'` at a line), build 2 in **semantic analysis** (`'count' undeclared`), and build 3 compiled everything and then `ld` said `undefined reference to 'parse_header'`. That means `main.c` declares and calls `parse_header` but no object file defines it, usually a source file missing from the build. Answer: **parse_header**.
+:: verify
+grep "undefined reference" build.log
+:: file /home/student/build/build.log
+=== build 1 ===
+$ gcc -c net.c
+net.c: In function 'read_packet':
+net.c:42:5: error: expected ';' before '}' token
+make: *** [net.o] Error 1
+
+=== build 2 ===
+$ gcc -c util.c
+util.c: In function 'tally':
+util.c:17:9: error: 'count' undeclared (first use in this function)
+util.c:19:20: error: incompatible types when assigning to type 'int' from type 'char *'
+make: *** [util.o] Error 1
+
+=== build 3 ===
+$ gcc -c main.c net.c util.c
+$ gcc main.o net.o util.o -o analyzer
+/usr/bin/ld: main.o: in function `main':
+main.c:(.text+0x3c): undefined reference to `parse_header'
+collect2: error: ld returned 1 exit status
+make: *** [analyzer] Error 1

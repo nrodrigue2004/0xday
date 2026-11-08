@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>functional programming :: ~/langs :: 0xDay</title>
+<meta name="description" content="langs, functional programming: pure functions, map, filter, fold, recursion and immutability. Simple, mid and complex levels plus a hands-on lab.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=7e515d21" defer></script>
+<script src="../site.js?v=7e515d21" defer></script>
+<script src="../fx.js?v=7e515d21" defer></script>
+<script src="../sandbox.js?v=7e515d21" defer></script>
+<script src="../learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">langs --chapter functional</p>
+<h1>~/langs/functional</h1>
+<p class="learn__meta"><span class="muted">CS340 Programming languages</span></p>
+<p>Functional programming builds answers out of small pure functions: map, filter and fold. It makes detection pipelines easy to test. Use it to compute a result from firewall records without a single mutable counter.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="functional">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Functional style treats a program as a series of <strong>transformations</strong> of data, not a series of changes to variables. Three tools cover most of it:</p>
+<ul><li><strong>map</strong> applies a function to every item: <code>[len(s) for s in names]</code></li><li><strong>filter</strong> keeps the items that pass a test: <code>[e for e in events if e[&quot;port&quot;] == 443]</code></li><li><strong>fold / reduce</strong> combines all items into one value: <code>sum(...)</code>, <code>max(...)</code>, <code>functools.reduce</code></li></ul>
+<p>A data pipeline reads left to right (or inside out): take the records, keep the interesting ones, pull out the number, add them up.</p>
+<pre class="ex ex--code"><code>events = [{&quot;port&quot;: 443, &quot;bytes&quot;: 900}, {&quot;port&quot;: 22, &quot;bytes&quot;: 40}, {&quot;port&quot;: 443, &quot;bytes&quot;: 100}]
+total = sum(e[&quot;bytes&quot;] for e in events if e[&quot;port&quot;] == 443)
+print(total)                  # 1000</code></pre>
+<p>No counter, no loop variable that changes, nothing to reset. If you run it twice you get the same answer.</p>
+<p class="callout"><strong>Functions are values.</strong> You can pass a function to another function, store it in a list, or return it from a function. That one idea is the foundation of everything else here.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Higher-order functions</h4>
+<p>A <strong>higher-order function</strong> takes or returns a function.</p>
+<pre class="ex ex--code"><code>def keep(pred, items):
+    return [x for x in items if pred(x)]
+
+is_https = lambda e: e[&quot;port&quot;] == 443
+keep(is_https, events)</code></pre>
+<p><code>sorted(items, key=f)</code>, <code>max(items, key=f)</code> and <code>map(f, items)</code> are all higher-order. The <code>key=</code> argument is how you sort or rank by *anything* without writing a new sort.</p>
+<h4>Fold (reduce) in full</h4>
+<p><code>functools.reduce(f, items, start)</code> repeatedly combines an accumulator with the next item. <code>sum</code> is <code>reduce(lambda a, x: a + x, items, 0)</code>. Anything you do with an accumulating loop variable can be written as a fold, such as merging counts from many logs into one table.</p>
+<h4>Immutability</h4>
+<p>Instead of changing a list, make a new one. Tuples, <code>frozenset</code> and strings are immutable in Python. The payoffs are practical: no function can change your data behind your back, you can share data between threads without locks, and you can keep the old version around (an undo, or a diff).</p>
+<h4>Recursion instead of loops</h4>
+<p>A function that calls itself is how a purely functional language repeats. Every recursion needs a <strong>base case</strong> (stop) and a step that moves toward it:</p>
+<pre class="ex ex--code"><code>def total(items):
+    if not items: return 0                 # base case
+    return items[0] + total(items[1:])     # smaller problem</code></pre>
+<p>Python limits recursion depth (about 1000 calls) and does not optimize tail calls, so in Python prefer a loop or <code>sum</code> for long inputs. Recursion shines for trees: directory walks, JSON, parsers.</p>
+<h4>Comprehensions vs map/filter</h4>
+<p>In Python a list comprehension is the readable form of map plus filter. A generator expression <code>(f(x) for x in xs)</code> is the same but lazy: it produces items one at a time, so it can process a ten-gigabyte log without holding it in memory.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Closures and currying</h4>
+<p>A function that returns a function remembers its arguments (see <a href="scope.html">closures</a>). <strong>Currying</strong> turns <code>f(a, b)</code> into <code>f(a)(b)</code>; <strong>partial application</strong> fixes some arguments up front: <code>functools.partial(is_port, 443)</code>. Detection rule builders use this: <code>make_threshold_rule(5, 30)</code> returns a rule function already tuned.</p>
+<h4>Why purity helps</h4>
+<ul><li><strong>Testing</strong>: no setup, no mocks. Input in, value out</li><li><strong>Caching (memoization)</strong>: a pure function's result can be stored by its arguments (<code>functools.lru_cache</code>). With side effects the cached answer would be wrong</li><li><strong>Parallelism</strong>: if no function touches shared state, you can <code>map</code> across cores (or machines, as in MapReduce) in any order</li><li><strong>Reasoning</strong>: you can replace a call by its result, the same trick as in algebra</li></ul>
+<h4>Effects at the edge</h4>
+<p>Programs still need I/O. The usual design is a <strong>functional core, imperative shell</strong>: read all input, hand plain data to pure functions, then write the result. Bugs concentrate in the thin shell, and the core is trivially testable. Haskell enforces this with types (an <code>IO</code> type marks effects); in Python it is a habit.</p>
+<h4>Complexity warning</h4>
+<p>Functional style copies data. <code>lst + [x]</code> in a loop is O(n²). Persistent data structures (shared-structure trees) make "copy" cheap and are what Clojure and Scala use. In Python, accumulate into a list and build once. See <a href="../bigo.html">Big-O</a>.</p>
+<h4>Where it shows up in security work</h4>
+<p>SIEM query languages are pipelines (<code>filter | stats count by src | sort</code>); Splunk SPL, KQL and <code>jq</code> are functional in spirit. Stream processors (Kafka Streams, Spark) are map/filter/reduce at scale. Writing detection logic as small pure functions over events lets you replay old logs through new rules and get the same answers.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><code>traffic.csv</code> is a firewall export: <code>src,dst_port,action,bytes</code>. Finish <code>pipeline.py</code> using <strong>only expressions</strong> (a generator or comprehension plus <code>sum</code> and <code>max</code>, no running counter that you update):</p>
+<ol><li>keep rows where the firewall <strong>allowed</strong> the traffic and the destination port is <strong>443</strong></li><li>sum the bytes <strong>per source IP</strong></li><li>print the source IP with the <strong>largest</strong> total</li></ol>
+<p>Run it with <code>python3 pipeline.py</code>. Submit the <strong>IP address</strong>.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/langs.html">cheatsheet</a></span></h2><h3>functional python</h3><dl class="man"><dt><code>[f(x) for x in xs if p(x)]</code></dt><dd>map and filter in one comprehension</dd><dt><code>(f(x) for x in xs)</code></dt><dd>lazy generator expression, one item at a time</dd><dt><code>map(f, xs)</code></dt><dd>apply f to each item (lazy)</dd><dt><code>filter(p, xs)</code></dt><dd>keep items where p is true (lazy)</dd><dt><code>functools.reduce(f, xs, init)</code></dt><dd>fold a list into one value</dd><dt><code>sum(xs) / max(xs, key=f)</code></dt><dd>common folds</dd><dt><code>sorted(xs, key=f)</code></dt><dd>sort by any function of the item</dd><dt><code>functools.partial(f, a)</code></dt><dd>fix the first argument of f</dd><dt><code>functools.lru_cache</code></dt><dd>memoize a pure function</dd><dt><code>itertools.groupby(xs, key=f)</code></dt><dd>group consecutive items (sort first)</dd></dl></section><section class="lvl" id="sources"><h2><span class="lvl__n">src</span> further reading <span class="muted">// read these, not just me</span></h2><p><a href="https://mitpress.mit.edu/9780262510875/structure-and-interpretation-of-computer-programs/">Structure and Interpretation of Computer Programs</a> (SICP, free online) · <a href="https://docs.python.org/3/library/functools.html">Python functools docs</a></p></section><nav class="pager"><a href="scope.html">&lt; scope and closures</a><a href="compiler-pipeline.html">source to machine code &gt;</a></nav><p><a href="../langs.html">cd ~/langs</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "functional", "title": "functional programming", "user": "student", "host": "dev", "brief": "<code>traffic.csv<\/code> is a firewall export: <code>src,dst_port,action,bytes<\/code>. Finish <code>pipeline.py<\/code> using <strong>only expressions<\/strong> (a generator or comprehension plus <code>sum<\/code> and <code>max<\/code>, no running counter that you update):\n\n<ol><li>keep rows where the firewall <strong>allowed<\/strong> the traffic and the destination port is <strong>443<\/strong><\/li><li>sum the bytes <strong>per source IP<\/strong><\/li><li>print the source IP with the <strong>largest<\/strong> total<\/li><\/ol>\nRun it with <code>python3 pipeline.py<\/code>. Submit the <strong>IP address<\/strong>.", "hints": ["Parse each line with <code>line.strip().split(&quot;,&quot;)<\/code>. Skip the header line.", "Build the allowed rows first: <code>rows = [r for r in parsed if r[2] == &quot;allow&quot; and r[1] == &quot;443&quot;]<\/code>. A dict comprehension over <code>set(r[0] for r in rows)<\/code> can then sum <code>int(r[3])<\/code> per source.", "<code>max(totals, key=totals.get)<\/code> returns the key with the biggest value."], "answers": ["2ba3fdf22d357ae981aa678cb39463c2e073a62fbce05b8927055e8d3d1bbdf0"], "solution": "PGNvZGU+dG90YWxzID0ge2lwOiBzdW0oaW50KHJbM10pIGZvciByIGluIHJvd3MgaWYgclswXSA9PSBpcCkgZm9yIGlwIGluIHtyWzBdIGZvciByIGluIHJvd3N9fTwvY29kZT4gdGhlbiA8Y29kZT5wcmludChtYXgodG90YWxzLCBrZXk9dG90YWxzLmdldCkpPC9jb2RlPi4gVGhlIGFuc3dlciBpcyA8c3Ryb25nPjE5OC41MS4xMDAuOTwvc3Ryb25nPiB3aXRoIDcsMzAwIGJ5dGVzIG9mIGFsbG93ZWQgSFRUUFMuIDIwMy4wLjExMy43NyBzZW50IGZhciBtb3JlIGJ5dGVzIG92ZXJhbGwsIGJ1dCBtb3N0IG9mIGl0IHdhcyBkZW5pZWQgb3Igb24gcG9ydCAyMiwgd2hpY2ggdGhlIGZpbHRlciByZW1vdmVzLiBUaGUga2V5IGxlc3NvbiBvZiB0aGUgcGlwZWxpbmU6IHRoZSBmaWx0ZXIgYW5kIHRoZSBhZ2dyZWdhdGUgYXJlIHNlcGFyYXRlLCByZXBsYWNlYWJsZSBzdGVwcy4K", "fs": {"/home/student/pipeline/traffic.csv": "src,dst_port,action,bytes\n203.0.113.77,443,deny,9000\n198.51.100.9,443,allow,4000\n203.0.113.77,22,allow,8000\n192.0.2.140,443,allow,2500\n198.51.100.9,443,allow,3300\n203.0.113.77,443,allow,1200\n192.0.2.140,80,allow,9500\n192.0.2.140,443,allow,900\n", "/home/student/pipeline/pipeline.py": "lines = open(\"traffic.csv\").read().splitlines()[1:]\nparsed = [l.split(\",\") for l in lines]\n\n# TODO 1: keep only allowed rows to port 443\nrows = []\n\n# TODO 2: total bytes per source IP (a dict comprehension works)\ntotals = {}\n\n# TODO 3: print the IP with the largest total\nprint()\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/student/pipeline", "py": true, "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

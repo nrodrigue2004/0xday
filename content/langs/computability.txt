@@ -1,0 +1,121 @@
+tagline: Optional and light. Context-free grammars add a stack to automata, Turing machines add an unbounded tape, and some questions no program can ever answer. Learn the map of what computers can and cannot do, and why "P vs NP" matters for passwords and crypto.
+sheet: langs
+sources: [Introduction to the Theory of Computation](https://math.mit.edu/~sipser/book.html) (Sipser) · [The Annotated Turing](https://www.theannotatedturing.com/) · [Computerphile: the halting problem](https://www.youtube.com/watch?v=macM_MtS_w4)
+:: simple
+Machines come in strengths. Each step up can recognize more:
+
+1. **Finite automaton**: fixed memory. Recognizes **regular** languages (what a regex can do). Cannot count.
+2. **Pushdown automaton**: a finite automaton plus a **stack**. Recognizes **context-free** languages: nested structure like balanced parentheses and the grammar of programming languages.
+3. **Turing machine**: a finite controller plus an **unbounded tape** it can read, write and move along. Anything a real computer can compute, a Turing machine can too (and the reverse, given enough memory). This is the formal definition of "computable".
+
+The stack is what lets the second machine check `((()))`: push on `(`, pop on `)`, and the string is balanced if the stack is empty at the end. A finite automaton cannot do this, because it would need a different state for every nesting depth.
+
+```code
+def balanced(s):
+    stack = []
+    for ch in s:
+        if ch == "(":
+            stack.append(ch)
+        elif ch == ")":
+            if not stack:
+                return False
+            stack.pop()
+    return not stack
+```
+
+> Programming languages are context-free (mostly). That is why a parser needs recursion, and why a regex alone cannot parse code.
+:: mid
+### Context-free grammars
+A grammar with rules like `S := "(" S ")" S | ""` generates exactly the balanced strings. Each rule rewrites one symbol into others, no matter the neighbors (**context-free**). Compilers use them for syntax (see [grammars and the parser](parser.html)).
+
+### Decidable and undecidable
+A problem is **decidable** if some program always halts with the right yes/no answer. Many are: "is this string in the language of this regex?", "does this bracket string balance?". Some are provably **not**:
+
+- **The halting problem**: no program can look at any program and its input and always correctly say whether it finishes. Turing proved this in 1936 by contradiction: assume such a checker `H` exists, build a program `D` that asks `H` about itself and does the opposite
+- **Rice's theorem**: any interesting question about what a program *does* (does it ever write the file? is it malware?) is undecidable in general
+
+### What that means for security
+A perfect malware detector that never errs on any program **cannot exist**. Antivirus and static analysis are therefore heuristics: they accept false positives or false negatives. This is why defenders layer signatures, behavior monitoring, sandboxes and humans, and why an attacker can always keep changing the program until it slips past one fixed check.
+
+### Complexity: P and NP
+- **P**: problems solvable in polynomial time (sorting, shortest path)
+- **NP**: problems where a proposed answer can be *checked* in polynomial time (factoring a number, a Sudoku, subset sum)
+- **NP-complete**: the hardest in NP; if one had a fast solution, all would
+- The open question: does P = NP? Almost everyone thinks not. The security consequence: **we depend on problems believed hard** (factoring for RSA, discrete logarithm for Diffie-Hellman and ECC)
+:: complex
+### Turing machines in a paragraph
+A Turing machine has a tape of cells, a head, a finite set of states and a table: "in state q reading symbol a: write b, move left or right, go to state q'". Despite being tiny, with enough tape it can run any algorithm. The **Church-Turing thesis** says that is what "algorithm" means. A **universal Turing machine** reads a description of another machine from the tape and runs it, which is a stored-program computer, a CPU running software, in 1936.
+
+### Reductions
+To show problem B is hard, show that a solver for B would let you solve a known-hard problem A (reduce A to B). It is how undecidability spreads ("if you could decide X you could decide halting") and how NP-completeness is proved. The mindset also helps in practice: a lot of security analysis problems (is this path feasible? does any input reach this sink?) are reductions to SAT or SMT, and **symbolic execution** and **SAT/SMT solvers** attack them anyway, because worst-case hard rarely means hard on real programs.
+
+### Hash cracking and the brute force wall
+Recovering a password from a hash is a search problem with no known shortcut: the cost is the size of the search space. That is why length and randomness beat clever substitutions, and why a work factor in a password hash (bcrypt, Argon2) buys time. It is not an NP-hardness argument; it is an exponential search. See [password cracking](../learn/password-cracking-john.html).
+
+### Quantum note
+Shor's algorithm factors in polynomial time on a quantum computer, which would break RSA and elliptic curves (not "all of crypto"; symmetric keys and hashes are only weakened). That is the reason post-quantum standards exist.
+
+### Where to read more
+Sipser's textbook is the standard; the first three chapters are this page done properly. For security-flavored computability, see the Rice's theorem sections of any program-analysis course. This chapter is optional on the way to a security job, and worth an evening for the vocabulary.
+:: ref
+### computability terms
+regular language | recognized by a finite automaton or regex
+context-free language | recognized by a pushdown automaton (adds a stack)
+Turing machine | finite controller plus unbounded tape: the model of a computer
+decidable | a program always halts with the right answer
+halting problem | undecidable: no program can predict halting for all programs
+Rice's theorem | every non-trivial question about program behavior is undecidable
+P | solvable in polynomial time
+NP | answers can be checked in polynomial time
+NP-complete | hardest problems in NP
+reduction | showing one problem is at least as hard as another
+SAT / SMT solver | tools that attack hard logic problems in practice
+:: lab
+host: dev
+user: student
+cwd: /home/student/brackets
+py: yes
+:: brief
+`snippets.txt` has twelve one-line code fragments, one per line. A regex cannot check bracket nesting, but a **stack** can.
+
+Finish `check.py` so `balanced(s)` handles all three bracket kinds `() [] {}` (every closer must match the **most recent** unclosed opener), run `python3 check.py`, and submit **how many lines are balanced**.
+:: answer
+7
+:: hint
+Push openers on a list. On a closer, the stack must be non-empty and its top must be the matching opener.
+:: hint
+Use `PAIRS = {")": "(", "]": "[", "}": "{"}`. Ignore characters that are not brackets.
+:: hint
+At the end the stack must be empty (otherwise some opener was never closed).
+:: solution
+With a stack the check is: push on `([{`, on `)]}` pop and compare with `PAIRS`, fail if the stack is empty or the pair does not match, and require an empty stack at the end. **7** of the twelve lines are balanced. The failures are of three kinds: crossed (`(]`), a closer with nothing open, and an opener never closed. A finite automaton cannot distinguish `((()))` from `(((())` for arbitrary depth; one stack can.
+:: verify
+python3 - <<'PY'
+s = open("check.py").read()
+s = s.replace("    # TODO: use a stack\n    return False", "    stack = []\n    for ch in s:\n        if ch in '([{':\n            stack.append(ch)\n        elif ch in PAIRS:\n            if not stack or stack.pop() != PAIRS[ch]:\n                return False\n    return not stack")
+open("check.py", "w").write(s)
+PY
+python3 check.py
+:: file /home/student/brackets/snippets.txt
+f(a[0], {k: (1 + 2)})
+(a + b]
+print((x))
+if (a) { b[0] = 1; }
+}{
+data["key"][(i)]
+foo((bar)
+([{}])
+x = [1, 2, (3]
+a[(b)]]
+{ "a": [1, 2, 3] }
+len(x)
+:: file /home/student/brackets/check.py
+PAIRS = {")": "(", "]": "[", "}": "{"}
+
+def balanced(s):
+    # TODO: use a stack
+    return False
+
+lines = open("snippets.txt").read().splitlines()
+ok = [l for l in lines if balanced(l)]
+print(len(ok), "of", len(lines), "balanced")

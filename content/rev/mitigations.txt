@@ -1,0 +1,116 @@
+tagline: Modern systems make memory bugs harder to exploit with NX, stack canaries, ASLR, PIE and RELRO. Learn what each stops, what each does not, and how to read checksec output to judge a binary. Read-only defender's view.
+sheet: rev
+sources: [Exploit Education](https://exploit.education/) · [checksec](https://github.com/slimm609/checksec.sh) · [Linux kernel and glibc hardening notes: Red Hat's compiler-options guide](https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc) · [CWE-121: Stack-based Buffer Overflow](https://cwe.mitre.org/data/definitions/121.html)
+:: simple
+A memory bug (like a [buffer overflow](../learn/binary-exploitation.html)) lets bad input overwrite things next to a buffer. **Mitigations** are protections added by the compiler, linker and operating system that make that overwrite harder to turn into control of the program. None of them fixes the bug. Together they raise the cost.
+
+| Mitigation | What it does |
+|---|---|
+| **NX / DEP** (non-executable memory) | the stack and heap are not allowed to run as code. Injected bytes just sit there |
+| **Stack canary** | a secret value placed before the return address; checked before the function returns. If it changed, the program aborts (`*** stack smashing detected ***`) |
+| **ASLR** (address space layout randomization) | the stack, heap and libraries load at random addresses each run, so the attacker does not know where anything is |
+| **PIE** (position-independent executable) | the program itself also loads at a random address, extending ASLR to its own code |
+| **RELRO** | after startup the table of library function pointers (GOT) becomes read-only, so it cannot be overwritten to hijack a call |
+
+```
+$ checksec --file=./prog_a
+```
+
+> Mitigations are why a crash is often all an attacker gets. They also explain why a "this has a buffer overflow" report is not automatically "remote code execution".
+:: mid
+### Reading checksec
+`checksec --file=./prog` prints something like:
+```code
+RELRO           STACK CANARY      NX            PIE
+Partial RELRO   No canary found   NX enabled    No PIE
+```
+- **No canary found**: a stack overflow can reach the return address without tripping a check
+- **NX enabled**: injected shellcode will not run from the stack; the attacker must reuse code that is already in the program ([ROP](rop-basics.html))
+- **No PIE**: the program's own code is at a **fixed address** every run, so gadget and function addresses are known
+- **Full RELRO**: the GOT is read-only
+
+### How each one is bypassed (concepts)
+- **NX**: do not inject code; reuse existing code (return-to-libc, ROP)
+- **Canary**: leak it first (a format string or over-read, see [format strings](format-strings.html)), overwrite something that is not guarded (a function pointer, a variable beside the buffer), or brute-force it in a forking server where the canary is the same for every child
+- **ASLR/PIE**: leak any address from the region (a pointer printed by a bug), because the *offsets inside* a library are fixed; or use a region that is not randomized
+- **RELRO**: target something else (return addresses, function pointers in structures)
+
+So **one bug is rarely enough**: modern exploits chain a leak with an overwrite. The converse is the defensive view: one leak or one missed flag undoes a mitigation.
+
+### Turning them on
+```code
+gcc -fstack-protector-strong -D_FORTIFY_SOURCE=2 -O2 \
+    -fPIE -pie -Wl,-z,relro,-z,now prog.c -o prog
+```
+Most distributions do this by default for packages. A hand-built binary, an embedded device or an old library often does not, so run `checksec` on what you ship and what you inspect.
+
+### Check the OS too
+`cat /proc/sys/kernel/randomize_va_space` should be `2` (full ASLR). Windows has the same family: DEP, ASLR, SafeSEH, CFG (control-flow guard), CET shadow stacks.
+:: complex
+### Why the canary sits where it does
+The compiler places the canary between local buffers and the saved frame pointer and return address, and verifies it in the function epilogue. It also reorders locals so that arrays sit above scalars and pointers, so an overflow hits the canary before it hits a pointer. The value is random per process (random bytes, with a null byte in the lowest position so string functions stop copying before they read it).
+
+### Control-flow integrity and shadow stacks
+Newer defenses attack the control-flow hijack itself. **CFI** checks that indirect calls and returns go to valid targets (Clang CFI, Microsoft CFG). A **shadow stack** keeps a second copy of return addresses in protected memory and compares on return (Intel CET, ARM pointer authentication). These make ROP much harder because every `ret` is checked, which is why attackers moved to data-only attacks and logic bugs.
+
+### Memory-safe languages
+Mitigations contain a bug class; memory-safe languages (Rust, Go, Java, C#, Python) remove most of it. The policy-level advice from CISA, NSA and large vendors is to write new code in a memory-safe language and keep C/C++ for the parts that need it, wrapped with the compiler mitigations above and with fuzzing and sanitizers (AddressSanitizer: `-fsanitize=address`) in test builds.
+
+### What mitigations do not touch
+Logic bugs, authentication bypasses, injection (SQL, command, template), deserialization, race conditions and misconfigurations are all unaffected by canaries and ASLR. A secure system needs both: memory-corruption defenses *and* correct logic.
+
+### From a defender's chair
+- Inventory binaries and flag any with no canary, no NX or no PIE (`checksec --dir=/usr/local/bin --extended`)
+- Treat a crash with `*** stack smashing detected ***` in a log as an attempted or accidental overflow
+- Treat core dumps from network services as security events
+- Patch fast; a mitigation buys time, not safety
+:: ref
+### checksec fields
+Partial RELRO / Full RELRO | GOT writable until / read-only after startup
+No canary found | stack overflows are not detected on return
+NX enabled | stack and heap are not executable
+No PIE | program loads at a fixed address
+PIE enabled | program address randomized each run
+FORTIFY | libc calls checked at run time
+### commands
+checksec --file=./bin | show the protections of one binary
+checksec --dir=/usr/bin | check a whole directory
+cat /proc/sys/kernel/randomize_va_space | 2 means full ASLR
+ldd ./bin | run twice to see library addresses change under ASLR
+gcc -fstack-protector-strong | add canaries to risky functions
+gcc -fPIE -pie | position-independent executable
+gcc -Wl,-z,relro,-z,now | full RELRO
+gcc -fsanitize=address | catch memory errors in test builds
+:: lab
+host: audit-box
+user: analyst
+cwd: /home/analyst/bins
+:: brief
+You are auditing three binaries from an old internal tool (fictional). Each one has the same unsafe `strcpy` into a 64-byte buffer, and the review question is how easy the overflow is to use.
+
+Run `checksec --file=./prog_a`, `prog_b` and `prog_c`. Find the **one binary with no stack canary and no PIE**, where an overflow can reach the return address and the target addresses are fixed. Submit its **name**.
+:: answer
+prog_b
+:: hint
+Run the three `checksec` commands and compare the `STACK CANARY` and `PIE` columns.
+:: hint
+`prog_a` has a canary, `prog_c` is position-independent. Which one has neither?
+:: hint
+The answer is the binary that says `No canary found` and `No PIE`.
+:: solution
+`prog_b` reports **No canary found** and **No PIE**: a stack overflow reaches the return address unchecked and its own code sits at fixed addresses. It still has NX, so injected code would not run, but code-reuse (ROP) attacks do not care. `prog_a` aborts on return with a stack-smashing error, and `prog_c` randomizes its own address, so the attacker needs an extra leak. The ticket for `prog_b`: rebuild with `-fstack-protector-strong -fPIE -pie` and full RELRO, then fix the `strcpy`.
+:: verify
+checksec --file=./prog_b
+:: cmd ^checksec --file=\./prog_a$
+RELRO           STACK CANARY      NX            PIE             FORTIFY
+Full RELRO      Canary found      NX enabled    PIE enabled     Yes
+:: cmd ^checksec --file=\./prog_b$
+RELRO           STACK CANARY      NX            PIE             FORTIFY
+Partial RELRO   No canary found   NX enabled    No PIE          No
+:: cmd ^checksec --file=\./prog_c$
+RELRO           STACK CANARY      NX            PIE             FORTIFY
+Full RELRO      No canary found   NX enabled    PIE enabled     No
+:: file /home/analyst/bins/README.txt
+prog_a, prog_b, prog_c: three builds of the same internal tool.
+Unsafe line in all three: strcpy(buf, argv[1]);   // buf is 64 bytes
+Run: checksec --file=./prog_x

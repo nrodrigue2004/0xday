@@ -1,0 +1,134 @@
+tagline: A paradigm is a style of organizing a program, not a language. Most languages you use let you mix several. Learn what each style is good at, and what bugs it invites, by running the same task written three ways.
+sheet: langs
+sheet_summary: Languages and compilers: grammar notation, types, parsing terms and Python idioms for interpreters
+sources: [Programming Languages: Application and Interpretation](https://www.plai.org/) (free book, Shriram Krishnamurthi) · [Crafting Interpreters](https://craftinginterpreters.com/) (free, Robert Nystrom) · [CS50's Introduction to Programming with Python](https://cs50.harvard.edu/python/)
+:: simple
+The same job can be organized in very different ways. The main styles:
+
+- **Imperative / procedural**: a list of steps that change variables. C, shell scripts, most Python you have written. "Do this, then that."
+- **Object-oriented**: data and the functions that touch it are bundled into **objects**. Java, C#, Python classes. "Ask the object to do it."
+- **Functional**: build the answer by combining functions that take values in and give values out, without changing anything. Haskell, and the `map`/`filter` parts of Python and JavaScript.
+- **Declarative**: say *what* you want and let the system decide how. SQL (`SELECT ... WHERE`), regular expressions, HTML, firewall rules.
+
+Most real languages are **multi-paradigm**. Python is imperative, object-oriented and has functional tools. What changes is which habits the language makes easy.
+
+```code
+# one task, two styles: total bytes on port 443
+total = 0                                   # imperative: mutate a counter
+for e in events:
+    if e["port"] == 443:
+        total += e["bytes"]
+
+total = sum(e["bytes"] for e in events      # functional / declarative flavor:
+            if e["port"] == 443)            # describe the result
+```
+
+> A language is a tool for thinking. Learning a second paradigm changes how you write code in the first one.
+:: mid
+### What each style is good at
+| Style | Strength | Typical bug |
+|---|---|---|
+| Imperative | direct, close to how the CPU works, fast | shared mutable state changed from somewhere you forgot |
+| Object-oriented | models things with identity and behavior, hides details | deep inheritance, objects in half-built states |
+| Functional | easy to test and reason about, safe to run in parallel | stack depth on deep recursion, awkward I/O |
+| Declarative | short, and the engine can optimize | the engine does something slow or surprising you cannot see |
+
+### Pure functions and side effects
+A **pure function** returns the same output for the same input and changes nothing outside itself. A **side effect** is any other visible change: writing a file, printing, mutating a global, reading the clock.
+
+```code
+def add_pure(a, b):          # pure
+    return a + b
+
+count = 0
+def add_counted(a, b):       # impure: also changes a global
+    global count
+    count += 1
+    return a + b
+```
+
+Pure functions are the easiest to test: no setup, no mocks. Side effects are unavoidable (a program that does nothing visible is useless), so the skill is **pushing them to the edges**: pure logic in the middle, input and output at the borders.
+
+### Object-oriented vocabulary
+- **Encapsulation**: callers use methods, not the internals
+- **Inheritance**: a subclass reuses and overrides a parent's behavior
+- **Polymorphism**: the same call (`shape.area()`) does the right thing for each type
+- Prefer **composition** (an object *has* another) over deep inheritance (an object *is* another) when the "is-a" is not obvious
+
+### Why security cares
+Mutable shared state is where race conditions and TOCTOU bugs live. A declarative language (SQL) can be an injection target because your data gets mixed into the *program*. Knowing the paradigm tells you where the dangerous seam is.
+:: complex
+### Programming by contract and state
+Imperative code is a sequence of **state transitions**. To prove it correct you reason about the state before and after each step: a **precondition** (what must hold on entry), a **postcondition** (what holds on exit) and an **invariant** (what holds on every loop iteration). You do this informally every time you write `assert len(buf) <= MAX`.
+
+Functional code replaces state with **substitution**: you can replace a call by its value (**referential transparency**) and the program means the same thing. That is what lets a compiler reorder, cache or parallelize the work.
+
+### Evaluation strategy
+- **Strict / eager**: arguments are computed before the call (Python, Java, C)
+- **Lazy**: arguments are computed only if used (Haskell by default; Python generators give you laziness on purpose)
+- Short-circuit operators (`and`, `or`, `&&`) are a small piece of laziness, and `if x and x.name == "root"` relies on it to avoid a crash
+
+### Objects are closures; closures are objects
+A closure bundling a function with captured variables is an object with one method, and an object with methods is a set of closures sharing state. The two paradigms are less opposed than the arguments suggest (see [scope and closures](scope.html)).
+
+### Declarative systems are interpreters
+A SQL engine, a regex engine and a firewall each take a *description* and run their own planner or matcher. That planner is a small language implementation, which is why [compilers](compiler-pipeline.html) and [automata](automata.html) turn up in all of them.
+
+### Choosing in practice
+Pick the style where the dangerous part is smallest: data transformation as pure functions, long-lived resources in objects with clear ownership, and queries declaratively. Mixed codebases are normal. Mixed *within one function* is where readers get lost.
+:: ref
+### paradigm terms
+pure function | same input gives same output, no side effects
+side effect | any visible change outside the function: I/O, globals, mutation
+referential transparency | a call can be replaced by its value without changing the program
+encapsulation | callers use methods, not internals
+polymorphism | one call, behavior chosen by the object's type
+composition | an object holds another instead of inheriting from it
+declarative | state the result you want, not the steps (SQL, regex)
+invariant | a fact that stays true on every loop iteration
+strict vs lazy | arguments evaluated before the call vs only when used
+:: lab
+host: dev
+user: student
+cwd: /home/student/styles
+py: yes
+:: brief
+`styles.py` has three functions that all produce "the next ticket number" in different styles: one **global counter**, one **object with a field**, and one **pure function** that takes the current number and returns the next.
+
+Run `python3 styles.py`. It calls each one twice with the same starting input. One of the functions gives the **same answer both times** for the same input, which is what makes it pure.
+
+Submit the **function name** of the pure one.
+:: answer
+next_pure
+:: hint
+Run `python3 styles.py` and compare the two lines for each function.
+:: hint
+A function is pure if calling it twice with the same argument gives the same result. The other two remember something between calls.
+:: hint
+Read `styles.py`: which function has no `global`, no `self` and nothing but its argument?
+:: solution
+`next_pure(n)` returns `n + 1` and touches nothing else, so `next_pure(10)` is 11 every time. `next_global()` and `Tickets.next()` give 11 then 12 for the same call because they carry hidden state. That hidden state is what makes them harder to test and unsafe to share between threads without a lock.
+:: verify
+python3 styles.py
+:: file /home/student/styles/styles.py
+counter = 0
+
+def next_global():
+    global counter
+    counter += 1
+    return 10 + counter
+
+class Tickets:
+    def __init__(self):
+        self.n = 10
+    def next(self):
+        self.n += 1
+        return self.n
+
+def next_pure(n):
+    return n + 1
+
+t = Tickets()
+print("next_global:", next_global(), next_global())
+print("Tickets.next:", t.next(), t.next())
+print("next_pure:", next_pure(10), next_pure(10))

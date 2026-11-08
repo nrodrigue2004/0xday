@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>langs :: 0xDay</title>
+<meta name="description" content="langs: imperative, object-oriented, functional and declarative: what each one is good at; static or dynamic, strong or weak, and the bug classes each one allows; names, binding, lifetimes and why a closure remembers, with browser labs.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7e515d21">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="data.js?v=7e515d21" defer></script>
+<script src="site.js?v=7e515d21" defer></script>
+<script src="fx.js?v=7e515d21" defer></script>
+<script src="learn.js?v=7e515d21" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="start.html">./start</a></li><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html" aria-current="page">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ls ~/langs</p><h1>~/langs</h1>
+<p>Programming languages, how compilers work, and the theory underneath. The three courses it feeds are <a href="courses/CS340.html">CS340</a>, <a href="courses/CS310.html">CS310</a> and <a href="courses/CS301.html">CS301</a>. Each chapter goes <strong>simple, mid, complex</strong> and ends in a hands-on lab, most of them real Python that runs in your browser.</p>
+<h2># CS340 Programming languages</h2><ul class="ls guides"><li class="guiderow" data-skill="paradigms"><a class="ls-row" href="langs/paradigms.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">paradigms <span class="muted small">imperative, object-oriented, functional and declarative: what each one is good at</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="types"><a class="ls-row" href="langs/types.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">types <span class="muted small">static or dynamic, strong or weak, and the bug classes each one allows</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="scope"><a class="ls-row" href="langs/scope.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">scope and closures <span class="muted small">names, binding, lifetimes and why a closure remembers</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="functional"><a class="ls-row" href="langs/functional.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">functional programming <span class="muted small">pure functions, map, filter, fold, recursion and immutability</span></span><span class="ls-tags">shell</span></a></li></ul><h2># CS310 Compilers</h2><ul class="ls guides"><li class="guiderow" data-skill="compiler-pipeline"><a class="ls-row" href="langs/compiler-pipeline.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">source to machine code <span class="muted small">lexer, parser, tree, IR, optimizer, code generator, linker</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="lexer"><a class="ls-row" href="langs/lexer.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">the lexer <span class="muted small">turn characters into tokens and report where it went wrong</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="parser"><a class="ls-row" href="langs/parser.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">grammars and the parser <span class="muted small">recursive descent, precedence and the abstract syntax tree</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="interpreter"><a class="ls-row" href="langs/interpreter.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">a tiny interpreter <span class="muted small">evaluate the tree, then run a whole calculator language</span></span><span class="ls-tags">shell</span></a></li></ul><h2># CS301 Theory of computation (optional)</h2><ul class="ls guides"><li class="guiderow" data-skill="automata"><a class="ls-row" href="langs/automata.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">automata and regex <span class="muted small">DFAs, regular languages and why a regex cannot count</span></span><span class="ls-tags">shell</span></a></li><li class="guiderow" data-skill="computability"><a class="ls-row" href="langs/computability.html"><span class="ls-perm gprog">[----]</span><span class="ls-title">grammars, Turing machines and limits <span class="muted small">context-free grammars, the halting problem and what NP means</span></span><span class="ls-tags">shell</span></a></li></ul>
+<p class="muted small">progress: <span class="bar__on">[####]</span> = all levels read and the lab solved. Saved in your browser. Courses with quizzes and exams: <a href="courses.html">~/courses</a>.</p>
+<p class="muted small">Why a security person cares: parsers are where input becomes behavior, and most injection bugs are a parser confusion. Reverse engineering is decompiling what a compiler did. Detection rules and regexes are automata. Pair it with <a href="code.html">~/code</a> for the practical scripting side and <a href="rev.html">~/rev</a> for what the compiler's output looks like.</p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
