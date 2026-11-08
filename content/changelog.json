@@ -2,8 +2,12 @@
   {
     "date": "2026-11-08",
     "type": "feat",
-    "msg": "add ~/history (Ada Lovelace to quantum computers in 7 chapters, hacking timeline, future of tech with post-quantum crypto) and ~/cases (Morris worm, Heartbleed, WannaCry/EternalBlue, Stuxnet, Log4Shell: story, timeline, root cause, abridged public vulnerable code with the patch, detection, lessons, and 11 simulated labs), plus man history and man cases",
     "msg": "eight new skill guides for the tools on the resume that had no guide: memory forensics (Volatility), disk forensics (Autopsy / FTK Imager), PE format (PE-bear), Ghidra and IDA Pro, vulnerable lab targets (DVWA / WebGoat), MongoDB, REST APIs and Spring Boot, React Native with Expo. Each has three tiers, a hands-on lab and a reference tab"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "feat",
+    "msg": "add ~/history (Ada Lovelace to quantum computers in 7 chapters, hacking timeline, future of tech with post-quantum crypto) and ~/cases (Morris worm, Heartbleed, WannaCry/EternalBlue, Stuxnet, Log4Shell: story, timeline, root cause, abridged public vulnerable code with the patch, detection, lessons, and 11 simulated labs), plus man history and man cases"
   },
   {
     "date": "2026-11-08",
