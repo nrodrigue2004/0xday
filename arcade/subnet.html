@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>subnet :: arcade :: 0xDay</title>
+<meta name="description" content="Timed subnetting sprint: masks, usable hosts, network and broadcast addresses.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=1919b494">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../arcade.css?v=1b2acc3e">
+<script src="../arcade.js?v=1b2acc3e" defer></script>
+<script id="ar-data" type="application/json">{"game": "subnet"}</script>
+<script src="../data.js?v=1919b494" defer></script>
+<script src="../site.js?v=1919b494" defer></script>
+<script src="../fx.js?v=1919b494" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">./subnet --sprint 60</p>
+<h1>subnet</h1>
+<p>You have 60 seconds. Answer subnetting questions as fast as you can: masks, prefixes, usable hosts, network and broadcast addresses, and whether two hosts share a subnet. Every 4 right answers moves you up a level (harder prefixes). A wrong answer costs 3 seconds and shows the working so you can learn the trick.</p>
+<div class="ar-game sn" id="sn">
+  <div class="ar-hud"><span>time <b id="sn-t">60s</b></span><span>lvl <b id="sn-lvl">1</b></span><span>score <b id="sn-score">0</b></span><span>streak <b id="sn-streak">0</b></span><span>hi <b data-hi="subnet">---</b></span></div>
+  <div class="sn-barwrap"><div class="sn-bar" id="sn-bar"></div></div>
+  <div class="sn-q" id="sn-q" aria-live="polite"></div>
+  <div class="sn-opts" id="sn-opts"></div>
+  <div class="sn-msg" id="sn-msg" aria-live="polite"></div>
+  <div class="ar-over" id="sn-over" hidden></div>
+</div>
+<p class="muted small">keys: <kbd>1</kbd>-<kbd>4</kbd> answer (<kbd>1</kbd>/<kbd>2</kbd> for yes/no) · <kbd>Enter</kbd> restart after time. Trick: block size = 256 &minus; the interesting mask octet; network = round the address down to a multiple of the block size. <a href="../arcade.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
