@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA CySA+ 2.2 :: 0xDay</title>
+<meta name="description" content="CompTIA CySA+ CS0-004 objective 2.2: Given a scenario, analyze output from vulnerability assessment tools">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=94855e1f">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=94855e1f" defer></script>
+<script src="../../site.js?v=94855e1f" defer></script>
+<script src="../../fx.js?v=94855e1f" defer></script>
+<script src="../../study.js?v=94855e1f" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.2 --exam CS0-004</p>
+<div class="manhead"><span>CS0-004</span><span>domain 2.0 · Vulnerability Management</span><span>2.2</span></div>
+<h1><span class="ok">2.2</span> Given a scenario, analyze output from vulnerability assessment tools</h1>
+<div class="obj" data-obj="cysa-2.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Tools and their lane</h4>
+<ul><li><strong>Network scanning</strong>: <strong>Angry IP Scanner</strong> (simple GUI sweep), <strong>Masscan</strong> (internet-scale, very fast port scanner).</li><li><strong>Multipurpose</strong>: <strong>Nmap</strong> (hosts, ports, services, OS, scripts via NSE), <strong>Metasploit</strong> (exploit framework used to validate), <strong>Maltego</strong> (link-analysis OSINT graphs), <strong>Recon-ng</strong> (modular OSINT framework).</li><li><strong>Web app scanners</strong>: <strong>Burp Suite</strong> (intercepting proxy), <strong>ZAP</strong> (free proxy and scanner), <strong>Nikto</strong> (quick web server checks).</li><li><strong>Vulnerability scanners</strong>: <strong>Nessus</strong>, <strong>OpenVAS</strong> (open source), <strong>Nuclei</strong> (template-based, fast, great for specific CVEs).</li><li><strong>Cloud</strong>: <strong>ScoutSuite</strong> and <strong>Prowler</strong> audit cloud accounts for misconfigurations, <strong>Trivy</strong> scans container images and IaC, <strong>Checkov</strong> scans IaC (Terraform etc.) before deployment.</li><li><strong>Breach and attack simulation</strong>: <strong>Atomic Red Team</strong> (small tests mapped to ATT&amp;CK), <strong>Caldera</strong> (automated adversary emulation). They test whether your detections work.</li></ul>
+<h4>Reading output</h4>
+<ul><li>Nmap states: open, closed (reachable, nothing listening), filtered (firewall dropped it). <code>-sV</code> versions, <code>-sC</code> default scripts, <code>-O</code> OS guess, <code>-p-</code> all ports, <code>-sS</code> SYN scan.</li><li>A finding has: title/plugin, CVE, severity (CVSS), host/port, evidence, solution. <strong>Validate</strong>: read the evidence, check the version and whether the vulnerable feature is on, then confirm with a second tool or manual test.</li><li>Beware: banner says Apache 2.4.49 but a distro back-patched it (false positive), or a scan with no credentials missed a missing patch (false negative).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="cysa-2.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Which tool checks Terraform files for misconfigurations before deployment?</p><ul class="chk__o"><li><span class="ok">a)</span> Checkov</li><li><span class="ok">b)</span> Nikto</li><li><span class="ok">c)</span> Masscan</li><li><span class="ok">d)</span> Maltego</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Checkov is an IaC static analyzer.</p></details></div><div class="chk"><p><strong>2.</strong> Nmap shows port 443 "open" and 8443 "filtered". What do you infer about 8443?</p><ul class="chk__o"><li><span class="ok">a)</span> A service is listening and responding</li><li><span class="ok">b)</span> Something is blocking probes, state unknown</li><li><span class="ok">c)</span> Port is closed with RST</li><li><span class="ok">d)</span> UDP only</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Filtered means no definitive answer due to filtering.</p></details></div>
+<h2>short lab: Triage a scan finding</h2><div class="prose lab"><p>A scanner reports "Apache 2.4.49 path traversal (CVE-2021-41773), critical" on a Debian host. <code>apache2 -v</code> shows 2.4.49-1+deb10u1 patched build. Real or false positive?</p></div><details><summary>walkthrough</summary><div class="prose"><p>Likely false positive: the distro maintains security fixes via package revisions without changing the upstream version string. Confirm with the vendor security tracker/changelog (<code>apt changelog apache2</code>) and a safe proof-of-concept request. Document and mark as a false positive so it stops resurfacing.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/recon-nmap-metasploit.html">recon nmap metasploit</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.2" placeholder="# 2.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.1.html">&lt; 2.1</a><a href="2.3.html">2.3 &gt;</a></nav>
+<p><a href="../cysa.html">cd ~/comptia/cysa</a></p>
+<script type="application/json" id="cards-data">[{"id": "cysa-2.2-0", "q": "Which tool scans the entire internet quickly?", "a": "Masscan."}, {"id": "cysa-2.2-1", "q": "What does Nmap \"filtered\" mean?", "a": "A firewall or filter is blocking probes, so the port state is unknown."}, {"id": "cysa-2.2-2", "q": "Prowler and ScoutSuite audit what?", "a": "Cloud account configuration and security posture."}, {"id": "cysa-2.2-3", "q": "Trivy scans what?", "a": "Container images, filesystems and IaC for vulnerabilities and misconfigs."}, {"id": "cysa-2.2-4", "q": "Atomic Red Team's job?", "a": "Run small ATT&CK-mapped tests to verify detection coverage."}, {"id": "cysa-2.2-5", "q": "Burp Suite is best described as?", "a": "An intercepting proxy for testing web applications."}, {"id": "cysa-2.2-6", "q": "How to deal with a likely false positive?", "a": "Validate evidence and versions, then confirm manually or with another tool before dismissing."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

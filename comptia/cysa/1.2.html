@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA CySA+ 1.2 :: 0xDay</title>
+<meta name="description" content="CompTIA CySA+ CS0-004 objective 1.2: Given a scenario, analyze indicators of potential malicious activity">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=94855e1f">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=94855e1f" defer></script>
+<script src="../../site.js?v=94855e1f" defer></script>
+<script src="../../fx.js?v=94855e1f" defer></script>
+<script src="../../study.js?v=94855e1f" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.2 --exam CS0-004</p>
+<div class="manhead"><span>CS0-004</span><span>domain 1.0 · Security Operations</span><span>1.2</span></div>
+<h1><span class="ok">1.2</span> Given a scenario, analyze indicators of potential malicious activity</h1>
+<div class="obj" data-obj="cysa-1.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><p>The job here is pattern recognition: a single odd event is noise, several in a chain are an incident.</p>
+<h4>Network indicators</h4>
+<ul><li><strong>Rogue devices</strong>: unknown MACs, a rogue AP or DHCP server. Compare against the asset inventory.</li><li><strong>Enumeration</strong>: many connection attempts across hosts or ports in a short time (port scans, ping sweeps, SMB or LDAP queries from a workstation).</li><li><strong>Anomalous activity</strong>: beaconing (fixed-interval small callbacks, often with jitter), large outbound transfers, DNS with long random subdomains (tunneling or DGA), traffic at 3 a.m., unusual protocols.</li><li><strong>Unexpected ports</strong>: HTTP on 4444, SSH on 443, high ports to external hosts. Reverse shells often use common ports to slip through.</li></ul>
+<h4>Host indicators</h4>
+<ul><li><strong>Resource consumption</strong>: sustained CPU and GPU use (cryptominer), disk churn (ransomware encrypting), memory spikes.</li><li><strong>Unauthorized software</strong> and <strong>unauthorized configuration changes</strong>: new services, scheduled tasks, run keys, disabled AV, edited hosts file, new local admin.</li><li><strong>Suspicious or rogue processes</strong>: odd parent-child pairs (Office spawning PowerShell, <code>cmd</code> under a browser).</li><li><strong>LOLBins</strong>: legitimate tools abused so nothing "malicious" is dropped: <code>certutil -urlcache</code>, <code>mshta</code>, <code>rundll32</code>, <code>regsvr32</code>, <code>bitsadmin</code>, PowerShell with <code>-enc</code>, <code>wmic</code>. Detection is behavioral, so hunt the command line.</li><li><strong>File system changes</strong>: new executables in temp or AppData, mass renames, changed extensions, deleted shadow copies (<code>vssadmin delete shadows</code>).</li><li><strong>Data exfiltration</strong>: archives staged then sent out, big uploads to cloud storage, DNS or ICMP tunneling.</li></ul>
+<h4>Application and cloud</h4>
+<ul><li><strong>Application</strong>: service disruption, spikes of 500s, injection strings in logs (<code>&#x27; OR 1=1</code>, <code>../../</code>), new admin users, unusual API calls.</li><li><strong>Cloud</strong>: new access keys, resources created in odd regions (mining), public buckets, disabled logging, privilege escalation in IAM, API calls from unfamiliar IPs.</li></ul>
+<h4>Social engineering and identity</h4>
+<ul><li><strong>Typosquatting</strong> (<code>rnicrosoft.com</code>), <strong>URL shorteners</strong> that hide the target, lookalike Unicode domains.</li><li><strong>Impossible travel</strong>: logins from two far-apart places faster than a plane could go. Verify first: VPNs and mobile carriers cause false positives.</li><li>Other identity tells: MFA fatigue (burst of push prompts), new inbox rules forwarding mail, logins at odd hours, many failures then a success (spray or brute force), service accounts logging in interactively.</li><li><strong>BEC</strong>: attacker (or a lookalike domain) impersonates an exec or vendor to redirect payments. Look for reply-to mismatch, changed bank details, urgency, inbox rules that hide replies.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="cysa-1.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> An HR laptop shows winword.exe launching powershell.exe -enc JAB... . Most likely?</p><ul class="chk__o"><li><span class="ok">a)</span> Normal macro-free document</li><li><span class="ok">b)</span> Malicious macro executing an encoded payload</li><li><span class="ok">c)</span> Windows update</li><li><span class="ok">d)</span> Printer driver install</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Office spawning an encoded PowerShell command is a textbook malicious-document pattern.</p></details></div><div class="chk"><p><strong>2.</strong> A user signs in from Chicago, and 20 minutes later from Singapore. First step?</p><ul class="chk__o"><li><span class="ok">a)</span> Reset the whole domain</li><li><span class="ok">b)</span> Verify for VPN/proxy, check device and MFA details, then contain if unexplained</li><li><span class="ok">c)</span> Ignore it</li><li><span class="ok">d)</span> Block all of Singapore forever</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Confirm before disruptive action, but treat as a likely account compromise if nothing explains it.</p></details></div>
+<h2>short lab: Read a suspicious command</h2><div class="prose lab"><p>Decode and judge: <code>powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA...</code> The flags: <code>-nop</code> skips the profile, <code>-w hidden</code> hides the window, <code>-enc</code> takes base64 UTF-16LE. In your own words, what do those flags tell you before you decode a single byte? Then decode this beginning in a shell: <code>echo &#x27;SQBFAFgA&#x27; | base64 -d | iconv -f UTF-16LE</code>.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Hidden window plus encoded command is rarely administrator behavior, so treat as hostile until proven otherwise. The decoded fragment is <code>IEX</code>, the invoke-expression cradle that normally precedes a download-and-run (<code>IEX (New-Object Net.WebClient).DownloadString(...)</code>). Next steps: get the full command, extract the URL, block it, find the parent process and scope other hosts that ran the same command line.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/network-traffic-analysis.html">network traffic analysis</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/phishing-analysis.html">phishing analysis</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/log-analysis.html">log analysis</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.2" placeholder="# 1.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.1.html">&lt; 1.1</a><a href="1.3.html">1.3 &gt;</a></nav>
+<p><a href="../cysa.html">cd ~/comptia/cysa</a></p>
+<script type="application/json" id="cards-data">[{"id": "cysa-1.2-0", "q": "What does beaconing look like in network logs?", "a": "Small, regular outbound connections to the same host at fixed intervals (often with a little jitter)."}, {"id": "cysa-1.2-1", "q": "Name four LOLBins.", "a": "certutil, mshta, rundll32, regsvr32 (also bitsadmin, wmic, PowerShell)."}, {"id": "cysa-1.2-2", "q": "Why do LOLBins evade AV?", "a": "The binaries are signed and legitimate. Only the behavior or command line gives them away."}, {"id": "cysa-1.2-3", "q": "What is impossible travel?", "a": "Sign-ins from locations too far apart for the time between them. Rule out VPN or proxy before escalating."}, {"id": "cysa-1.2-4", "q": "Which indicator suggests ransomware is running?", "a": "High disk activity with mass file renames/extension changes and shadow copy deletion."}, {"id": "cysa-1.2-5", "q": "What are the classic signs of BEC?", "a": "Spoofed or lookalike sender, reply-to mismatch, urgent payment or banking change, hidden inbox rules."}, {"id": "cysa-1.2-6", "q": "Long random-looking DNS subdomains point to what?", "a": "DNS tunneling/exfiltration or a domain generation algorithm."}, {"id": "cysa-1.2-7", "q": "A workstation queries LDAP for every account and hits hundreds of hosts on 445. What phase?", "a": "Internal enumeration/reconnaissance."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

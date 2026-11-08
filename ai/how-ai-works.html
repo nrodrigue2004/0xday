@@ -10,12 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -23,7 +23,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -39,7 +39,7 @@
 <ul><li><strong>Classifiers.</strong> Look at an input, output a label or score: spam or not, malware or benign, risky login or normal. Narrow, fast, measurable.</li><li><strong>Anomaly detectors.</strong> Learn "normal" and flag outliers. Good at finding the unknown, noisy by nature.</li><li><strong>Generative models (LLMs).</strong> Produce text, code and summaries. Flexible, easy to use, and the least predictable of the three.</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>The pipeline</h4>
 <ul><li><strong>Tokens.</strong> Text is cut into pieces (words or parts of words) and turned into numbers. Models have a <strong>context window</strong>: a limit on how many tokens they can consider at once. Anything outside it does not exist for the model.</li><li><strong>Embeddings.</strong> Each token becomes a vector of numbers. Similar meanings end up near each other, which is what makes semantic search work.</li><li><strong>Transformer layers.</strong> Stacked layers use <strong>attention</strong> to decide which earlier tokens matter for the next one. That is how it connects "it" back to the right noun.</li><li><strong>Output.</strong> The model assigns a probability to every possible next token, and one is picked. <strong>Temperature</strong> controls how adventurous the pick is. Low is repeatable, high is varied.</li></ul>
 <h4>How it is trained</h4>
-<p>1. <strong>Pretraining:</strong> learn to predict the next token across a very large text and code corpus. This is where the broad knowledge and the biases come from. 2. <strong>Fine-tuning and preference tuning:</strong> further training on curated examples and human or automated feedback, so the model follows instructions and avoids harmful output. 3. <strong>Deployment:</strong> wrapped with a system prompt, safety filters and often tools.</p>
+<ol><li><strong>Pretraining:</strong> learn to predict the next token across a very large text and code corpus. This is where the broad knowledge and the biases come from.</li><li><strong>Fine-tuning and preference tuning:</strong> further training on curated examples and human or automated feedback, so the model follows instructions and avoids harmful output.</li><li><strong>Deployment:</strong> wrapped with a system prompt, safety filters and often tools.</li></ol>
 <h4>Making it useful</h4>
 <ul><li><strong>Prompting:</strong> the instructions and context you give. Quality in, quality out.</li><li><strong>RAG (retrieval-augmented generation):</strong> search your own documents first, paste the relevant parts into the prompt, then ask. The model answers from your sources and can cite them. This is how most "chat with our runbooks" security tools work.</li><li><strong>Tools and agents:</strong> the model is allowed to emit structured requests ("run this search", "query this host") that a program executes and feeds back. A loop of think, act, observe is an <strong>agent</strong>.</li></ul>
 <h4>Why hallucinations happen</h4>

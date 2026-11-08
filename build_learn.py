@@ -84,20 +84,25 @@ def md(src):
             head, body = rows[0], rows[1:]
             o.append('<div class="tbl"><table><thead><tr>' + "".join(f"<th>{inline(c)}</th>" for c in head) + "</tr></thead><tbody>"
                      + "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in body) + "</tbody></table></div>"); continue
-        if l.startswith("- "):
-            items = []
-            while i < len(L) and L[i].startswith("- "):
-                items.append(L[i][2:]); i += 1
+        if l.startswith("- ") or re.match(r"\d+\. ", l):
+            ordered = not l.startswith("- ")
+            items = []  # [text, [sub-items]]
+            while i < len(L) and (L[i].startswith("- ") if not ordered else re.match(r"\d+\. ", L[i])):
+                items.append([re.sub(r"^(- |\d+\. )", "", L[i]), []]); i += 1
                 while i < len(L) and L[i].startswith("  ") and L[i].strip():
-                    items[-1] += " " + L[i].strip(); i += 1
-            o.append("<ul>" + "".join(f"<li>{inline(x)}</li>" for x in items) + "</ul>"); continue
+                    t = L[i].strip()
+                    if t.startswith("- "): items[-1][1].append(t[2:])
+                    else: items[-1][0] += " " + t
+                    i += 1
+            tag = "ol" if ordered else "ul"
+            o.append(f"<{tag}>" + "".join(f"<li>{inline(x)}" + (("<ul>" + "".join(f"<li>{inline(y)}</li>" for y in sub) + "</ul>") if sub else "") + "</li>" for x, sub in items) + f"</{tag}>"); continue
         if l.startswith("> "):
             buf = []
             while i < len(L) and L[i].startswith("> "):
                 buf.append(L[i][2:]); i += 1
             o.append(f'<p class="callout">{inline(" ".join(buf))}</p>'); continue
         buf = []
-        while i < len(L) and L[i].strip() and not L[i].startswith(("```", "- ", "> ", "### ", "|")):
+        while i < len(L) and L[i].strip() and not L[i].startswith(("```", "- ", "> ", "### ", "|")) and not re.match(r"\d+\. ", L[i]):
             buf.append(L[i]); i += 1
         o.append(f"<p>{inline(' '.join(buf))}</p>")
     return "\n".join(o)

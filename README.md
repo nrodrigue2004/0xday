@@ -36,6 +36,10 @@ The hidden site CTF flags live in `FLAGS` in `build.py` (only their SHA-256 hash
 
 The programming path. Chapters are `content/code/<slug>.txt` in the same format as the learn guides; order, stage labels and cross-links are in `CHAPTERS` in `build_code.py`. Each chapter's `:: ref` is merged into the cheatsheet named by its `sheet:` header, so commands show up on ~/man too. Lab data is generated, so keep answers and `:: verify` lines in sync when you edit it.
 
+## ~/comptia
+
+Later/optional certs after Security+. `content/comptia/certs.json` lists them; each built cert has `content/comptia/<slug>.txt` (format in the `build_comptia.py` docstring: per objective `@notes`, `@cards`, `@check`, `@lab`, `@answer`). CySA+ (CS0-004) is built. Network+ and A+ are placeholders until Nate's notes arrive: add `netplus.txt` / `aplus.txt`, set `built: true` and a `domains` map in certs.json.
+
 ## ~/ai
 
 Chapters are `content/ai/<slug>.txt` in the same format as the learn guides (tiers plus optional lab); order and blurbs are in `CHAPTERS` in `build_ai.py`. The reading list is `content/ai/news.json` (hand-curated and dated, the site is static, so update it by hand and bump `updated`).
@@ -64,3 +68,7 @@ node scripts/check_dojo.js        # or: node scripts/check_dojo.js c python
 ## ~/arcade (games)
 
 `arcade.html` and `arcade/<game>.html` are built by `build_arcade.py`, with `arcade.css` and `arcade.js`. **iptables** is a packet-triage reflex game (its levels and rule sets are at the top of the iptables section in `arcade.js`). **crack** is a Wordle-style game whose word list is `content/arcade/acronyms.txt` (`ACRONYM | expansion | note | category`, 3-6 letters). High scores and the daily streak live in the visitor's localStorage.
+
+## ~/start, ~/jobs, ~/bullets
+
+`content/start.json` is the ordered curriculum for `~/start` (stages, then steps: `id`, `t`, `h`, `w`, `m` minutes, `topic` = a ~/log topic key). Progress is keyed on `id`, so don't rename ids. Add `"if": "page.html"` to a step to include it only when that built page exists, which is how sections from other branches (cloud, programming, web) link in once they land; hrefs without `if` must exist or the build fails. `~/jobs` (application tracker) and `~/bullets` (bank built from `content/resume.json`, plus a job-posting keyword matcher whose terms are `KEYWORDS` in `build_start.py`) keep all data in the browser. All three are built by `build_start.py`, called last in `build.py`.

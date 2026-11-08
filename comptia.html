@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA path :: 0xDay</title>
+<meta name="description" content="CompTIA cert path after Security+: CySA+, Network+ and A+.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=94855e1f">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="comptia.css">
+<script src="data.js?v=94855e1f" defer></script>
+<script src="site.js?v=94855e1f" defer></script>
+<script src="fx.js?v=94855e1f" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="start.html">./start</a></li><li><a href="posts.html">./blog</a></li><li><a href="projects.html">./projects</a></li><li><a href="skills.html">./skills</a></li><li><a href="certs.html">./certs</a></li><li><a href="learn.html" aria-current="page">./learn</a></li><li><a href="ai.html">./ai</a></li><li><a href="lab.html">./lab</a></li><li><a href="now.html">./now</a></li><li><a href="about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ls ~/comptia</p><h1>~/comptia</h1>
+<p>The certs after Security+. Security+ is the target (Q1 2027) and lives at <a href="secplus.html">~/secplus</a>. Everything below is later and optional, ordered by what the job I land will probably ask for.</p>
+<ul class="ls"><li><a class="ls-row" href="comptia/cysa.html"><span class="ls-perm">[####]</span><span class="ls-title">CompTIA CySA+ <span class="muted">CS0-004</span></span><span class="ls-tags">15 objectives · 105 cards</span></a></li><li><a class="ls-row" href="comptia/netplus.html"><span class="ls-perm">[....]</span><span class="ls-title">CompTIA Network+ <span class="muted">N10-009</span></span><span class="ls-tags">waiting on notes</span></a></li><li><a class="ls-row" href="comptia/aplus.html"><span class="ls-perm">[....]</span><span class="ls-title">CompTIA A+ <span class="muted">Core 1 + Core 2</span></span><span class="ls-tags">waiting on notes</span></a></li></ul>
+<h2>how they fit</h2>
+<div class="tbl"><table><thead><tr><th>path</th><th>order</th><th>why</th></tr></thead><tbody>
+<tr><td>IT / help desk</td><td>A+ then Network+ then Security+</td><td>A+ is the standard entry ticket for help desk and desktop support. Network+ is what moves you from tickets to the network closet.</td></tr>
+<tr><td>SOC analyst</td><td>Security+ then CySA+ (Network+ in parallel if packets feel shaky)</td><td>Security+ gets the HR filter open. CySA+ is the analyst-level cert, and its exam is the day job: logs, indicators, vulnerability triage, incident response, reporting.</td></tr>
+<tr><td>Software / data</td><td>Security+ only, then stop</td><td>Certs matter little there. Projects and the dojo matter more. One security cert shows you can write code that does not leak.</td></tr>
+</tbody></table></div>
+<p class="callout">Nate's plan: Security+ first (Q1 2027). Nothing here moves ahead of it. A+ and Network+ are built from his own notes, so those two pages stay empty until the notes land.</p>
+<h2>how they overlap</h2>
+<ul class="arrow"><li>Network+ and Security+ share ports, protocols, VLANs, firewalls and VPNs. Learn them once.</li>
+<li>A+ and Security+ share OS hardening, malware removal, backups and data destruction.</li>
+<li>CySA+ assumes Security+ and adds the analyst loop: collect, correlate, decide, write it up.</li></ul>
+<p><a href="learn.html">cd ~/learn</a> · <a href="certs.html">~/certs</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="tags.html">tags</a> <a href="resources.html">resources</a> <a href="changelog.html">changelog</a> <a href="feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -44,7 +44,7 @@
 <h4>Scope first, always</h4>
 <p>Only scan systems you own or have written permission to test. In a homelab that means your own VMs and a lab network (Metasploitable, DVWA, TryHackMe or Hack The Box machines). A scan against someone else's network can be a crime, and even on your own it can crash fragile devices. Write down the scope before you type a command.</p>
 <h4>The recon pipeline</h4>
-<p>1. <strong>Discover</strong> which hosts are alive (<code>nmap -sn</code>). 2. <strong>Enumerate</strong> ports and services on each (<code>-sV</code>). 3. <strong>Dig deeper</strong> into interesting services (web directories, SMB shares, banners). 4. <strong>Match</strong> versions to known vulnerabilities. 5. <strong>Validate</strong> safely and record evidence. 6. <strong>Report</strong> what you found and how to fix it.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Finding versions</h4>
+<ol><li><strong>Discover</strong> which hosts are alive (<code>nmap -sn</code>).</li><li><strong>Enumerate</strong> ports and services on each (<code>-sV</code>).</li><li><strong>Dig deeper</strong> into interesting services (web directories, SMB shares, banners).</li><li><strong>Match</strong> versions to known vulnerabilities.</li><li><strong>Validate</strong> safely and record evidence.</li><li><strong>Report</strong> what you found and how to fix it.</li></ol><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Finding versions</h4>
 <p>Knowing port 21 is open is a start; knowing it's <strong>vsftpd 2.3.4</strong> is a finding. <code>-sV</code> probes each open port to identify the service and version, and <code>-sC</code> runs the default safe scripts (banners, titles, anonymous login checks):</p>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">nmap -sV -sC 10.10.10.5</span><button class="run" type="button" data-cmd="nmap -sV -sC 10.10.10.5" title="run in the sandbox">▶ run</button></code></pre>
 <h4>Scan types and speed</h4>

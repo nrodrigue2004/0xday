@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=29aef6d8">
+<link rel="stylesheet" href="../style.css?v=94855e1f">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=29aef6d8" defer></script>
-<script src="../site.js?v=29aef6d8" defer></script>
-<script src="../fx.js?v=29aef6d8" defer></script>
-<script src="../sandbox.js?v=29aef6d8" defer></script>
-<script src="../learn.js?v=29aef6d8" defer></script>
+<script src="../data.js?v=94855e1f" defer></script>
+<script src="../site.js?v=94855e1f" defer></script>
+<script src="../fx.js?v=94855e1f" defer></script>
+<script src="../sandbox.js?v=94855e1f" defer></script>
+<script src="../learn.js?v=94855e1f" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html" aria-current="page">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -66,7 +66,7 @@
 <h4>Regex in the detection world</h4>
 <p>Regex powers SIEM searches (<code>rex</code> in Splunk, <code>regexp</code> in Elastic), Sigma rules (<code>|re</code>), Suricata (<code>pcre:</code>) and YARA. The same habits apply: escape the dots, anchor where you can, think about encodings and case, and test against a <strong>sample of normal traffic</strong> too, because a rule that catches the attack and also 4,000 normal lines is not usable.</p>
 <h4>How to test a pattern</h4>
-<p>1. Count what it catches: <code>grep -cE &#x27;pattern&#x27; file</code>. 2. Look at the hits: <code>grep -E &#x27;pattern&#x27; file | head</code>. 3. Look at the misses you expected to hit and the hits you did not expect (<code>-v</code> and reading). 4. Only then trust the number.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>The web server log is at <code>~/logs/access.log</code>. Someone from <code>192.0.2.200</code> has been trying <strong>path traversal</strong> (climbing out of the web folder with <code>../</code>) to read system files. They did not always write it plainly: some requests encode the slash or the dots.</p>
+<ol><li>Count what it catches: <code>grep -cE &#x27;pattern&#x27; file</code>.</li><li>Look at the hits: <code>grep -E &#x27;pattern&#x27; file | head</code>.</li><li>Look at the misses you expected to hit and the hits you did not expect (<code>-v</code> and reading).</li><li>Only then trust the number.</li></ol><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>The web server log is at <code>~/logs/access.log</code>. Someone from <code>192.0.2.200</code> has been trying <strong>path traversal</strong> (climbing out of the web folder with <code>../</code>) to read system files. They did not always write it plainly: some requests encode the slash or the dots.</p>
 <p>Count how many <strong>log lines</strong> contain a path traversal attempt: a double dot or its encoded form (<code>%2e%2e</code>, any case), followed by a slash or its encoded form (<code>%2f</code>).</p>
 <p>Beware: some <strong>harmless</strong> requests also contain two dots (a file named <code>report..pdf</code>, for example). Submit the <strong>number of lines</strong>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="windows-permissions.html">&lt; Windows permissions</a><a href="parse-logs-with-pipes.html">parse logs with pipes &gt;</a></nav><p><a href="../drills.html">cd ~/drills</a></p></div>
 <aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
