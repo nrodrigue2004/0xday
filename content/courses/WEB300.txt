@@ -1,0 +1,285 @@
+## 0
+Q: The OWASP Top 10 is best described as:
+* An awareness list of the most common web application risks, built from real data
+- A checklist that proves an application is secure when every item passes
+- A legal compliance standard auditors certify against
+- A list of the ten most dangerous CVEs this year
+? It is shared vocabulary, not a certification. The ASVS is the testing checklist.
+
+Q: Which category covers a user changing /invoice/1001 to /invoice/1002 and seeing another customer's invoice?
+* A01 Broken Access Control
+- A03 Injection
+- A05 Security Misconfiguration
+- A09 Logging and Monitoring Failures
+? That is an IDOR, a missing server-side authorization check.
+
+Q: Most web bugs come down to which two mistakes?
+* Trusting something the user controls, or forgetting to check who is asking
+- Using the wrong programming language, or using too many libraries
+- Weak passwords, or slow servers
+- Missing firewalls, or missing antivirus
+? Injection is the first mistake and broken access control is the second.
+
+Q: A login page has no rate limit and people reuse passwords, so stolen credential lists work against it. Which category is this?
+* A07 Identification and Authentication Failures
+- A02 Cryptographic Failures
+- A04 Insecure Design
+- A10 Server-Side Request Forgery
+? Throttling, MFA and breached-password checks are the fixes.
+
+Q: Which kinds of problem do automated scanners find poorly?
+* Business logic and access control flaws, because they need to know what the app is supposed to do
+- Missing security headers
+- Outdated component versions
+- Verbose error pages
+? Use scanners for coverage and human judgment for logic.
+
+Q: What is the point of an SBOM for the "vulnerable and outdated components" category?
+* It is an inventory of the libraries in use, so you can tell which ones a new CVE affects
+- It encrypts third-party libraries
+- It blocks all network traffic from dependencies
+- It replaces the need for patching
+? You cannot patch what you do not know you run.
+
+## 1
+Q: In a web testing proxy such as Burp Suite, what is Repeater used for?
+* Resending a single captured request after editing it, to study the response
+- Automatically scanning every site on the internet
+- Encrypting traffic between the browser and the server
+- Recording the screen during a test
+? Repeater is for careful manual one-request experiments.
+
+Q: Why should you set a target scope in your proxy before testing?
+* To keep out-of-scope hosts from being tested or logged by accident
+- To make the proxy faster
+- To turn on HTTPS
+- To disable certificate checks
+? Staying inside the authorized scope is the first rule of the road.
+
+Q: Why does a browser need the proxy's CA certificate installed during a test?
+* So the proxy can decrypt and re-encrypt HTTPS traffic without certificate errors
+- So the website trusts the tester
+- So passwords are stored safely
+- So the scan runs faster
+? Only do this in a dedicated test browser profile.
+
+Q: Which habit keeps web testing clean and reportable?
+* Saving the requests, responses and timestamps that back each finding
+- Testing only in production during business hours with no notes
+- Deleting the history after every test
+- Sharing the project file in a public chat
+? Evidence must be reproducible by the client.
+
+Q: A common authorization-testing pattern with two test accounts is:
+* Replay one account's requests using the other account's session and see whether the server still allows them
+- Share one password between both accounts
+- Delete one account and see what happens
+- Run the same request 10,000 times
+? If user B can act on user A's data, access control is broken.
+
+Q: Which is the safest use of an automated request-fuzzing feature (such as Intruder)?
+* Only against in-scope targets, at a rate agreed in the rules of engagement
+- Against any site you can reach
+- At the highest speed possible
+- Only against third-party services the app calls
+? Fuzzing can lock accounts or overload fragile systems.
+
+## 2
+Q: What is the root cause of SQL injection?
+* User input is concatenated into a query so it can be parsed as SQL
+- The database uses too much memory
+- The server has an expired certificate
+- Passwords are stored in plaintext
+? Data and code must stay separate.
+
+Q: Which fix is the primary defense against SQL injection?
+* Parameterized queries (prepared statements)
+- Hiding the error messages
+- Blocking a list of bad keywords
+- Hashing the input
+? Filters and blocklists are bypassable and are not the fix.
+
+Q: Why is a keyword blocklist not a real defense against injection?
+* Attackers can encode or restructure input to slip past a fixed list, and the underlying flaw remains
+- Blocklists use too much CPU
+- Blocklists are illegal
+- Databases ignore them
+? Fix the construction of the query, not the symptoms.
+
+Q: What is the main difference between stored and reflected XSS?
+* Stored XSS is saved by the application and served to later visitors; reflected XSS comes back in the immediate response to a crafted request
+- Stored XSS only affects databases
+- Reflected XSS requires physical access
+- There is no difference
+? Stored XSS usually has wider impact.
+
+Q: Which controls best reduce XSS?
+* Context-aware output encoding, plus a Content Security Policy as defense in depth
+- Longer passwords
+- A faster database
+- Disabling cookies
+? Encode on output for the context: HTML, attribute, JavaScript or URL.
+
+Q: Which defense reduces the damage if injection does occur in a web app's database layer?
+* Least privilege for the database account
+- Running the app as an administrator
+- Turning off logging
+- Using a shorter session timeout
+? The app account should not have drop or file-write rights it does not need.
+
+Q: What is the safest way to avoid command injection?
+* Do not build shell commands from user input; use safe library APIs with fixed arguments
+- Escape every character by hand
+- Run the web server as root
+- Allow only short inputs
+? Prefer APIs that never invoke a shell.
+
+## 3
+Q: How should passwords be stored?
+* As salted hashes from a slow algorithm such as bcrypt, scrypt or Argon2
+- Encrypted with a key kept in the same database
+- As unsalted MD5 hashes
+- In plaintext behind a firewall
+? Hashing is one-way; the slow cost slows brute-force guessing.
+
+Q: What does the HttpOnly cookie flag do?
+* Stops JavaScript from reading the cookie
+- Forces the cookie over HTTPS only
+- Blocks cross-site sending of the cookie
+- Makes the cookie permanent
+? Secure handles HTTPS; SameSite handles cross-site sending.
+
+Q: What does the Secure cookie flag do?
+* Sends the cookie only over HTTPS
+- Prevents JavaScript from reading it
+- Encrypts the cookie value
+- Expires it at midnight
+? It does not encrypt the value.
+
+Q: What is session fixation, and what is the standard fix?
+* An attacker gets a victim to use a known session ID; fix it by issuing a new session ID at login
+- A session that never ends; fix it by using longer IDs
+- Stealing a password by guessing; fix it with lockouts
+- A database failing; fix it with backups
+? Always regenerate the session ID when privilege changes.
+
+Q: A JSON Web Token has a header, a payload and a signature. What does the payload provide?
+* Claims that anyone can decode, so it must not carry secrets
+- Encrypted claims that only the server can read
+- The signing key
+- The user's password hash
+? A JWT is encoded and signed, not encrypted, unless JWE is used.
+
+Q: What is the most important server-side check for a JWT?
+* Verify the signature with the expected algorithm and key, and check expiry
+- Check that the token looks long
+- Trust whichever algorithm the token header names
+- Check only that the token is valid Base64
+? Never let the token pick its own verification algorithm.
+
+Q: Why is MFA not a complete answer on its own?
+* Phishing proxies and fatigue prompts can still defeat weaker factors, so phishing-resistant methods are better
+- MFA is always bypassed
+- MFA slows login too much to use
+- MFA only works on mobile apps
+? FIDO2/WebAuthn resists phishing.
+
+## 4
+Q: What is an IDOR?
+* The server exposes an object by an identifier and does not check that the requester may access it
+- A type of SQL injection
+- A weak TLS cipher
+- A browser bug
+? The fix is a server-side ownership or permission check on every request.
+
+Q: What is the difference between horizontal and vertical privilege escalation?
+* Horizontal reaches another user's data at the same level; vertical reaches higher-privileged functions
+- Horizontal uses a network; vertical uses a database
+- Horizontal is physical; vertical is remote
+- There is no difference
+? Both are broken access control.
+
+Q: What is CSRF?
+* Tricking a logged-in user's browser into sending an unwanted state-changing request to a site that trusts the cookie
+- Guessing a user's password
+- Reading another site's cookies with JavaScript
+- Injecting SQL into a form
+? Anti-CSRF tokens and SameSite cookies are the defenses.
+
+Q: Which defenses stop CSRF?
+* Unpredictable anti-CSRF tokens and SameSite cookies
+- Longer passwords
+- Hiding the form
+- Disabling HTTPS
+? The server must verify the token on state-changing requests.
+
+Q: What is SSRF?
+* The server is made to fetch a URL chosen by the requester, possibly reaching internal systems
+- A browser fetching a third-party script
+- An attack on DNS root servers
+- Stealing a TLS key
+? Cloud metadata endpoints are a classic target.
+
+Q: Which is the strongest SSRF defense?
+* Allow-list permitted destinations and block internal and metadata address ranges
+- Return the full response to the user
+- Rely on a blocklist of a few hostnames
+- Disable logging
+? Also use the newer cloud metadata protections that require a session token.
+
+Q: Which rule is the safest default for access control?
+* Deny by default and enforce checks on the server for every request
+- Hide the admin button in the interface
+- Trust the user role in a client-side cookie
+- Allow by default and block known bad users
+? Hidden buttons are not access control.
+
+## 5
+Q: What is mass assignment?
+* The framework binds request fields straight to an object, so a client can set fields it should not, such as a role
+- Sending many requests at once
+- Assigning many servers to one app
+- Bulk exporting a database
+? Fix it with allow-lists of bindable fields.
+
+Q: What is the "excessive data exposure" problem in APIs?
+* The API returns whole objects and relies on the client to hide sensitive fields
+- The API is too slow
+- The API uses too many endpoints
+- The API is written in an old language
+? Return only the fields the caller needs.
+
+Q: Why do APIs need rate limits and resource quotas?
+* To limit brute force, scraping and denial of service through expensive requests
+- To make responses prettier
+- To avoid using HTTPS
+- To store sessions longer
+? Per-client and per-endpoint limits are standard.
+
+Q: Why is an API inventory considered a security control?
+* Forgotten or old API versions often lack current protections, and you cannot defend endpoints you do not know about
+- It makes the API faster
+- It replaces authentication
+- It encrypts the traffic
+? Improper inventory management is on the OWASP API Top 10.
+
+Q: What is the top risk on the OWASP API Security Top 10 (2023)?
+* Broken object level authorization
+- Weak TLS ciphers
+- Missing CAPTCHA
+- Slow responses
+? It is the API form of IDOR.
+
+Q: Which GraphQL setting should be restricted in production?
+* Introspection and unbounded query depth or cost
+- The HTTP method
+- The server's port number
+- The response compression
+? Limit depth, cost and batching to avoid abuse.
+
+Q: What is a good detection signal for API abuse?
+* One client enumerating many sequential object IDs, or repeated 401 and 403 responses
+- A single normal login
+- One request to the home page
+- A cached image request
+? Feed gateway logs into the SIEM and alert on patterns.

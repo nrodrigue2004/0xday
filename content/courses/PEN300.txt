@@ -1,0 +1,314 @@
+## 0
+Q: What is the first thing required before any penetration test begins?
+* Written authorization that defines scope and rules of engagement
+- A scanner license
+- A list of exploits
+- A verbal agreement from an IT manager
+? Without written permission, testing is unauthorized access.
+
+Q: What does the scope of an engagement define?
+* Which systems, networks, dates and techniques are allowed
+- How much the test costs
+- Which tools the tester prefers
+- The tester's reporting style
+? Anything outside scope is not tested, even if reachable.
+
+Q: During a test you discover a host that is not listed in scope but is clearly connected to the client's network. What should you do?
+* Stop, do not test it, and ask the client to confirm or extend the scope in writing
+- Test it quickly since it is likely theirs
+- Ignore it and say nothing
+- Test it only after hours
+? Scope creep creates legal exposure.
+
+Q: Which test type gives the tester no prior information about the target?
+* Black box
+- White box
+- Gray box
+- Purple team
+? White box provides full information; gray box partial.
+
+Q: What is a main difference between a penetration test and a vulnerability scan?
+* A penetration test involves human-driven validation and judgment; a scan is mostly automated identification
+- A scan is always more thorough
+- A penetration test never uses tools
+- They are the same thing
+? Pentests verify exploitability and chain issues.
+
+Q: Which document commonly covers confidentiality obligations between tester and client?
+* A non-disclosure agreement (NDA)
+- A bill of materials
+- A network diagram
+- A vulnerability report
+? The NDA is paired with the contract and rules of engagement.
+
+## 1
+Q: What is the goal of enumeration?
+* Turn a list of hosts into a detailed map of services, versions and likely weak points
+- Gain administrator access immediately
+- Delete log files
+- Encrypt the target's data
+? Careful enumeration finds most of the useful findings.
+
+Q: Why do service versions matter during enumeration?
+* They indicate which known vulnerabilities and misconfigurations may apply
+- They change the port number
+- They reveal the admin password
+- They show the server's color
+? Version info is matched against CVEs and advisories.
+
+Q: What is passive reconnaissance?
+* Gathering information without sending traffic to the target, such as public records and search
+- Scanning every port
+- Logging in with guessed credentials
+- Running exploits
+? OSINT comes before active scanning.
+
+Q: Why should scans be run politely, with sensible timing and rates?
+* Aggressive scanning can disrupt fragile systems and trip alerts
+- Slow scans are always invisible
+- Scanners stop working when fast
+- It makes the report shorter
+? Match the rules of engagement and the target's fragility.
+
+Q: What is a defender's best signal of a port scan?
+* Many connection attempts to many ports from one source in a short time
+- One login at 9 a.m.
+- A single DNS lookup
+- A printed page
+? Firewall and IDS logs show this pattern.
+
+Q: Why record raw output and notes while enumerating?
+* Findings must be reproducible and the report needs accurate evidence
+- To fill disk space
+- To avoid using a report template
+- To prove the scanner works
+? Organized notes save hours at report time.
+
+## 2
+Q: What is a SUID binary in Linux?
+* A program that runs with the privileges of its file owner rather than the caller
+- A program only root may read
+- A scheduled job
+- A kernel module
+? A misconfigured SUID program can allow privilege escalation.
+
+Q: Which sudo configuration is a concern during a privilege escalation review?
+* Allowing a user to run an editor or interpreter as root with no password
+- Requiring a password for every command
+- Logging all sudo use
+- Limiting sudo to one fixed script
+? Programs that can spawn shells defeat the restriction.
+
+Q: Why are writable scripts run by a root cron job risky?
+* Anyone who can modify the script gets its commands run as root
+- Cron uses too much memory
+- Cron deletes logs
+- Cron disables the firewall
+? Fix permissions so only root can change root-run files.
+
+Q: Membership in which kind of group can be equivalent to administrative access on a Linux host?
+* Groups such as docker or disk
+- A group named users
+- A group with no members
+- The printing group
+? Review group membership as part of hardening.
+
+Q: Which first question should you ask on a newly accessed Linux host?
+* Who am I, what can I run with sudo, and what is the system?
+- How can I erase evidence?
+- What is the user's home address?
+- Which password is on a sticky note?
+? Understand the context before probing further.
+
+Q: Which is a key hardening measure against Linux privilege escalation?
+* Least privilege: restrict sudo rules, remove unneeded SUID bits and patch regularly
+- Give everyone root
+- Disable all logging
+- Remove the firewall
+? Audit the SUID list and sudoers regularly.
+
+## 3
+Q: What makes an unquoted service path a weakness on Windows?
+* A path with spaces and no quotes can cause Windows to run an unintended executable placed in an earlier path segment
+- The service uses too much CPU
+- The path is encrypted
+- The service is disabled
+? Quote the path and lock down folder permissions.
+
+Q: Why are weak permissions on a service executable a risk?
+* A low-privileged user could replace it with their own code that runs as the service account
+- It slows down the service
+- It prevents logging
+- It changes the file size
+? Services often run as SYSTEM.
+
+Q: What does the SeImpersonatePrivilege allow, in defender terms?
+* A process to act as another security context, which can lead to SYSTEM access if abused
+- A user to change the desktop wallpaper
+- A user to read the registry only
+- The kernel to load drivers
+? Service accounts holding it need careful isolation.
+
+Q: Where are stored credentials commonly found on a Windows host during an audit?
+* Config files, scripts, the registry and credential managers
+- The recycle bin icon
+- The graphics driver
+- The font folder
+? Remove hard-coded credentials and rotate any found.
+
+Q: Which Windows hardening step reduces local privilege escalation?
+* Patching, least privilege and removing unnecessary services
+- Running everything as administrator
+- Disabling Windows Update
+- Sharing the C drive
+? Audit services and scheduled tasks regularly.
+
+Q: Which log source helps detect privilege-related activity on Windows?
+* Security event logs for special privilege use and service installs
+- The wallpaper settings
+- The print spooler cache
+- The font cache
+? Forward them to a SIEM.
+
+## 4
+Q: What is Kerberoasting?
+* Requesting service tickets for accounts with SPNs and cracking them offline, which exposes weak service-account passwords
+- Flooding a domain controller with traffic
+- Stealing a physical badge
+- Resetting the krbtgt account
+? The fix is long random passwords or gMSAs.
+
+Q: Which fix best defends against Kerberoasting?
+* Long random service-account passwords or gMSAs, and AES instead of RC4
+- Shorter passwords
+- Turning off Kerberos auditing
+- Removing the firewall
+? Make offline cracking infeasible.
+
+Q: Which Windows event ID records a Kerberos service ticket request, useful for spotting Kerberoasting?
+* 4769
+- 4624
+- 1102
+- 7045
+? Look for many requests, especially with RC4 encryption.
+
+Q: What does password spraying do, and what stops it?
+* Tries one common password across many accounts to avoid lockout; MFA and banned-password lists stop it
+- Tries many passwords on one account; lockout stops it
+- Floods a server; rate limits stop it
+- Steals a hash; salting stops it
+? Detect it as failed logons across many accounts from one source.
+
+Q: What is an AS-REP roastable account?
+* An account with Kerberos pre-authentication disabled
+- An account with an expired password
+- A disabled account
+- An account in the Guests group
+? Re-enable pre-authentication.
+
+Q: What is BloodHound used for?
+* Mapping Active Directory relationships to find privilege paths, which defenders can also use to remove them
+- Encrypting hard drives
+- Scanning web applications
+- Capturing wireless traffic
+? Defenders run it too to find and cut attack paths.
+
+Q: Which action is needed after a suspected krbtgt compromise?
+* Reset the krbtgt password twice, after cleaning up
+- Reboot the domain controller
+- Disable DNS
+- Delete the domain
+? The double reset invalidates tickets forged with the old key.
+
+## 5
+Q: What is pivoting?
+* Using a compromised host as a stepping stone to reach other network segments
+- Switching to a different report format
+- Changing the target's password
+- Restarting a scan
+? Pivoting shows why segmentation matters.
+
+Q: In SSH terms, what does a local port forward do?
+* Makes a remote service reachable through a port on your own machine, via an SSH connection
+- Opens a port on the remote host to the internet
+- Blocks all inbound traffic
+- Copies files to a server
+? It tunnels one port through an encrypted connection.
+
+Q: What does a SOCKS proxy through a pivot allow?
+* Routing many tools' traffic through the compromised host to reach internal networks
+- Encrypting a hard drive
+- Disabling antivirus
+- Changing DNS records
+? It is more flexible than a single port forward.
+
+Q: Which network control best limits the damage from a pivot?
+* Segmentation with strict allow-list rules between zones
+- A flat network with no filtering
+- Longer passwords only
+- Faster switches
+? Default-deny between segments.
+
+Q: What indicates a likely pivot to defenders?
+* A server initiating unusual connections to many internal hosts, or long-lived tunnels from odd hosts
+- A user printing a document
+- A routine backup job
+- A scheduled update
+? East-west traffic monitoring catches this.
+
+Q: Which rule applies to pivoting during an authorized test?
+* Only reach systems that are in scope, and stop if the path leads out of scope
+- Anything reachable is fair game
+- Ask permission only after finishing
+- Avoid documenting it
+? Scope applies to every hop.
+
+## 6
+Q: What are the two audiences of a pentest report?
+* Executives who need business risk and technicians who need steps to fix
+- Competitors and the press
+- Only the tester's team
+- Only auditors
+? Write an executive summary and detailed findings.
+
+Q: Which fields belong in a complete finding?
+* Title, severity, description, impact, evidence, affected assets and remediation
+- Only a screenshot
+- Only the tool name
+- The tester's opinion alone
+? Reproducible evidence and a clear fix are essential.
+
+Q: What does CVSS measure?
+* Technical severity of a vulnerability from 0.0 to 10.0 based on a vector of metrics
+- The likelihood of a breach this year
+- The cost of the fix
+- The age of the server
+? Adjust the rating for business context.
+
+Q: A CVSS base score of 9.8 is rated:
+* Critical
+- High
+- Medium
+- Low
+? 9.0 and above is Critical.
+
+Q: Why should a final severity rating consider context beyond the CVSS score?
+* Exposure, data sensitivity, compensating controls and chaining change the real risk
+- CVSS scores are always wrong
+- Context never matters
+- Only the client decides
+? Document your reasoning.
+
+Q: What belongs in good remediation advice?
+* Specific, prioritized, actionable fixes, with quick wins separated from long-term work
+- Only "apply best practices"
+- A list of exploit tools
+- A blame statement
+? The reader should know what to do first.
+
+Q: Why is handling the finished report carefully important?
+* It documents the client's weaknesses, so it should be shared only with authorized people and stored securely
+- It is public by default
+- It has no sensitive content
+- It should be emailed to everyone
+? Treat it as confidential under the NDA.
