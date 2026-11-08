@@ -1155,8 +1155,9 @@
               ]
             }
           ]
-        }
-      ]
+        },
+{"code": "AI310", "name": "Prompt engineering", "pre": ["IT100"], "blurb": "Write prompts that work, test them like code, and know how they fail. Clear instructions, examples, structured output, reasoning, evals, and the defender's view of prompt injection and leakage. Fictional data throughout.", "modules": [{"t": "Prompt basics", "m": 60, "links": [{"t": "~/ai: prompts, basics (lab: grade three versions)", "h": "ai/pe-basics.html"}, {"t": "man prompts", "h": "man/prompts.html"}]}, {"t": "Patterns: examples, roles, structure", "m": 75, "links": [{"t": "~/ai: prompts, patterns (lab: schema check)", "h": "ai/pe-patterns.html"}]}, {"t": "Reasoning, iterating and testing", "m": 90, "links": [{"t": "~/ai: prompts, reasoning and testing (lab: compare versions)", "h": "ai/pe-reasoning.html"}]}, {"t": "Prompt security", "m": 90, "links": [{"t": "~/ai: prompts, security (lab: design review)", "h": "ai/pe-security.html"}, {"t": "~/ai: attacking AI", "h": "ai/attacking-ai.html"}, {"t": "OWASP GenAI Security Project", "h": "https://genai.owasp.org/"}]}]}
+]
     },
     {
       "key": "C",

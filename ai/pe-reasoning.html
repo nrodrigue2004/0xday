@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>prompts: reasoning and testing :: ~/ai :: 0xDay</title>
+<meta name="description" content="AI and security, prompts: reasoning and testing: Step by step, eval sets, iterating, common failures. Lab: compare two versions on the same cases.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=82337135">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=82337135" defer></script>
+<script src="../site.js?v=82337135" defer></script>
+<script src="../fx.js?v=82337135" defer></script>
+<script src="../sandbox.js?v=82337135" defer></script>
+<script src="../learn.js?v=82337135" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html" aria-current="page">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">ai --chapter pe-reasoning</p>
+<h1>~/ai/pe-reasoning</h1>
+<p>Step-by-step reasoning, iterating on a prompt like code, building a small test set, and the failures you will see again and again. Lab: grade two prompt versions against the same cases.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a></nav>
+<div class="learn" data-skill="pe-reasoning">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><h4>Ask for the steps</h4>
+<p>On anything with several parts (math, logic, "does this chain of events add up"), a model answers better when it works through the steps before giving the final answer. That is <strong>chain-of-thought</strong>. The simplest version is a line in the prompt: "Work through it step by step, then give the final answer on the last line as <code>ANSWER: ...</code>".</p>
+<p>Modern reasoning models do some of this on their own. You may not need the phrase, and you should not ask them to reveal their private reasoning. What still helps is breaking the <strong>task</strong> into steps you can check: "1) list the events, 2) put them in time order, 3) say which one is the earliest sign of compromise."</p>
+<h4>Iterate, don't guess</h4>
+<p>A first prompt is a draft. Run it on a few real inputs, read the output, change <strong>one thing</strong>, run again. Keep the old version so you can go back.</p>
+<h4>Look at the failures, not the average</h4>
+<p>If 9 of 10 answers look good, the interesting prompt work is the tenth.</p>
+<h4>Why a model can still be wrong</h4>
+<p>It predicts plausible text. It can state a false thing in a confident voice (<strong>hallucination</strong>), miss a detail in a long input, or follow the wrong instruction. A good prompt lowers the rate; it never makes the rate zero. Check anything that matters.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>A prompt needs a test set</h4>
+<p>Before you change a prompt, collect 10 to 30 representative inputs with the answer you expect (or a rule for a good answer). This is your <strong>eval set</strong>. Include:</p>
+<ul><li>typical cases,</li><li>edge cases (empty input, very long input, another language),</li><li>cases where the right answer is "I cannot tell",</li><li>a few that failed before.</li></ul>
+<p>Run every prompt version against the whole set and record pass or fail per case. Now "this feels better" becomes "v2 passes 17 of 20, v1 passed 14, and v2 broke case 7 which v1 had right".</p>
+<h4>Change one thing at a time</h4>
+<p>Adding an example, rewording a constraint and switching models in one go tells you nothing. Version them: <code>triage_v1</code>, <code>triage_v2</code>. Write one line on what changed and what the score did.</p>
+<h4>Grade without fooling yourself</h4>
+<ul><li>Prefer <strong>checkable</strong> criteria: valid JSON, contains the required key, cites a line number that exists in the input.</li><li>For open-ended output, write a short rubric (accuracy, completeness, tone, 0 to 2 each) and grade blind, without looking at which version produced it.</li><li>Do not tune on your whole eval set and then trust the same set. Hold a few cases back and test on them last, the same train/test idea as in <a href="ml-regression.html">regression</a>.</li><li>Sampling is random. Run important cases more than once, or set the temperature low, before declaring a change an improvement.</li></ul>
+<h4>Common failures and the usual fix</h4>
+<div class="tbl"><table><thead><tr><th>Symptom</th><th>Likely cause</th><th>Try</th></tr></thead><tbody><tr><td>Invents facts or IDs</td><td>Not enough in the prompt, no exit</td><td>Add the source text; allow "unknown"; require quotes</td></tr><tr><td>Ignores a rule</td><td>Rule is buried or contradicted</td><td>Move it, shorten the prompt, remove conflicts</td></tr><tr><td>Too long or chatty</td><td>No length or format constraint</td><td>State a limit and the exact format</td></tr><tr><td>Different answer each run</td><td>High temperature, ambiguous task</td><td>Lower temperature; tighten the task</td></tr><tr><td>Great on your tests, bad in production</td><td>Eval set too tidy</td><td>Add real, messy inputs</td></tr><tr><td>Misses details in long input</td><td>Too much context</td><td>Chunk it, or quote the relevant part first</td></tr></tbody></table></div><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Eval-driven prompt development</h4>
+<p>Treat prompts like code: a repository, a test suite that runs on every change, and a log of scores over time. A tiny harness is enough: a file of cases, a script that calls the model with each prompt version, and a table of pass or fail. Fail the build when the score drops. Prompts also drift when the <strong>model</strong> changes underneath you (a provider update, a switch to a cheaper model), so rerun the suite then too.</p>
+<h4>LLM as grader, with care</h4>
+<p>Another model can grade open-ended output against a rubric. It scales, but it has biases: it prefers longer answers, prefers its own style, and is sensitive to the order of options. Calibrate it: grade a sample by hand, measure agreement, and keep a human check on the cases that matter. Never let the grader see the answer key in a way the generator could also see.</p>
+<h4>Decomposition and verification</h4>
+<ul><li><strong>Split</strong> a hard job into stages with a checkable output each (extract facts, then judge, then write).</li><li><strong>Verify</strong> with a second pass: "Here is the answer and the source. List any claim not supported by the source."</li><li><strong>Self-consistency:</strong> sample several answers and take the majority for tasks with a single right answer. It costs more calls and helps on reasoning tasks.</li><li>Use code for anything exact (counts, regex, hashes), and feed the result back in.</li></ul>
+<h4>Reasoning models and hidden thinking</h4>
+<p>Models trained to think before answering often do better with a clear goal and fewer hand-written steps; over-prescribing the method can hurt. Test both. Do not rely on the visible explanation as proof of how the answer was reached: it is a generated narrative and can be wrong even when the answer is right.</p>
+<h4>Know when a prompt is the wrong tool</h4>
+<p>If the task needs fresh facts, give it retrieval or search results. If it needs exact data, query a database. If it needs a fixed decision boundary you can measure, a classifier from <a href="../courses/CS330.html">CS330</a> may beat any prompt. If the cost of a wrong answer is high, keep a human in the loop.</p>
+<p>Next: <a href="pe-security.html">prompt security</a>.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>You are tuning a prompt that decides whether a login event needs escalation. You ran two versions of it against the same 8 test cases. <code>results_v1.txt</code> and <code>results_v2.txt</code> list each case as <code>PASS</code> or <code>FAIL</code>; <code>cases.txt</code> says what each case tests.</p>
+<p>v2 is better overall, but one case fails in <strong>both</strong> versions. That case needs a different fix, not just a tweak.</p>
+<p>Find the case that fails in both and submit its <strong>id</strong>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><nav class="pager"><a href="pe-patterns.html">&lt; prompts: patterns</a><a href="pe-security.html">prompts: security &gt;</a></nav><p><a href="../ai.html">cd ~/ai</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "pe-reasoning", "title": "prompts: reasoning and testing", "user": "analyst", "host": "promptlab", "brief": "You are tuning a prompt that decides whether a login event needs escalation. You ran two versions of it against the same 8 test cases. <code>results_v1.txt<\/code> and <code>results_v2.txt<\/code> list each case as <code>PASS<\/code> or <code>FAIL<\/code>; <code>cases.txt<\/code> says what each case tests.\n\nv2 is better overall, but one case fails in <strong>both<\/strong> versions. That case needs a different fix, not just a tweak.\n\nFind the case that fails in both and submit its <strong>id<\/strong>.", "hints": ["<code>grep FAIL results_v1.txt<\/code> and <code>grep FAIL results_v2.txt<\/code>. You want the case that appears in both lists.", "<code>grep FAIL results_v1.txt results_v2.txt<\/code> prints both lists together; the id that appears under both files is your answer.", "Then <code>grep case0N cases.txt<\/code> for that id to see what it tests."], "answers": ["e36147deb1c6a1580dc8cf2fbb10f8b8f2ba48b9bf30c3f75cff97689ee4b42b"], "solution": "PGNvZGU+Y2FzZTA3PC9jb2RlPiBmYWlscyBpbiBib3RoIHZlcnNpb25zLiBQZXIgPGNvZGU+Y2FzZXMudHh0PC9jb2RlPiBpdCBpcyB0aGUgImlucHV0IGlzIGVtcHR5IiBlZGdlIGNhc2U6IHRoZSBwcm9tcHQgaGFzIG5vIGluc3RydWN0aW9uIGZvciB3aGF0IHRvIGRvIHdoZW4gdGhlcmUgaXMgbm90aGluZyB0byBqdWRnZSwgc28gYm90aCB2ZXJzaW9ucyBtYWtlIHNvbWV0aGluZyB1cC4gRml4OiBhZGQgYW4gZXhwbGljaXQgZXhpdCAoImlmIHRoZSBldmVudCBmaWVsZCBpcyBlbXB0eSwgcmVwbHkgTk9UIEVOT1VHSCBEQVRBIikgYW5kIGFkZCB0d28gbW9yZSBlbXB0eSBvciBtYWxmb3JtZWQgY2FzZXMgdG8gdGhlIHNldC4gdjEgYWxzbyBmYWlsZWQgY2FzZTAyIGFuZCBjYXNlMDU7IHYyIGZpeGVkIHRob3NlIGFuZCBmYWlsZWQgY2FzZTA3IG9ubHksIHNvIHYyIHBhc3NlcyA3IG9mIDggdmVyc3VzIDUgb2YgOC4K", "fs": {"/home/analyst/evals/cases.txt": "case01 typical: admin login from the office network at 09:00\ncase02 typical: 40 failed logins then success from one IP\ncase03 edge: login from a new country, MFA passed\ncase04 edge: service account interactive logon\ncase05 edge: user in a different timezone logs in at 03:00 local\ncase06 negative: scheduled backup account at its usual time\ncase07 edge: the event field is empty\ncase08 negative: helpdesk password reset approved in the ticket\n", "/home/analyst/evals/results_v1.txt": "case01 PASS\ncase02 FAIL\ncase03 PASS\ncase04 PASS\ncase05 FAIL\ncase06 PASS\ncase07 FAIL\ncase08 PASS\n", "/home/analyst/evals/results_v2.txt": "case01 PASS\ncase02 PASS\ncase03 PASS\ncase04 PASS\ncase05 PASS\ncase06 PASS\ncase07 FAIL\ncase08 PASS\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/analyst/evals", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+tagline: What a prompt is, why vague ones fail, and a five-part checklist for instructions a model can actually follow. Lab: grade three versions of one prompt.
+:: simple
+A **prompt** is the text you give a language model. The model reads it, then writes the most likely continuation. It does not read your mind, it does not remember last week, and it has never seen your network. Whatever is not in the prompt (or in the files and tools you attached) does not exist for it.
+
+That one fact explains most bad answers. A vague prompt is not "simple", it is **underspecified**, and the model fills the gaps with its best guess.
+
+### Bad vs better
+- Bad: `explain this log`
+- Better: `You are helping a junior SOC analyst. Below is one Windows Security log excerpt. In five bullets or fewer, say what happened, whether it looks malicious, and the one thing to check next. If the excerpt is not enough to tell, say so.`
+
+The second one says who it is for, what to produce, how long, and what to do when unsure.
+
+### The five parts
+1. **Task**: one clear verb. Summarize, classify, rewrite, compare.
+2. **Context**: who the reader is, what the data is, what you already know.
+3. **Constraints**: length, tone, what to leave out, what to do when unsure.
+4. **Format**: bullets, a table, JSON with these keys.
+5. **Example**: one sample of a good answer (more on that in the next chapter).
+
+> You do not need all five every time. A quick question needs one line. A prompt you will reuse a hundred times needs all five.
+:: mid
+### Instructions beat adjectives
+"Be concise" and "be thorough" mean different things to different readers. Numbers and nouns are harder to misread: "at most 5 bullets", "one sentence per finding", "quote the exact log line".
+
+### Put the material in a labeled box
+Separate your instructions from the data you want processed, with clear delimiters:
+
+```
+Task: classify the email below as phishing, spam or legitimate.
+
+<email>
+...pasted text...
+</email>
+
+Answer with one word.
+```
+
+Delimiters help the model, and they matter again in the security chapter: they are how you tell instructions apart from untrusted content.
+
+### Say what to do, not only what to avoid
+"Do not use jargon" is weaker than "explain it to someone who has used a computer but never a terminal". Negative instructions are fine as a backstop, but give the model a target to aim at.
+
+### Give an exit
+Models would rather answer than admit they cannot. Add "If the log does not contain the answer, reply NOT ENOUGH DATA" and you cut a lot of confident fiction. Related: ask for **evidence**, such as the line number or quoted text that supports each claim, so you can check it.
+
+### Match the ask to the model
+A small fast model needs tighter, more explicit prompts. A large one tolerates looser wording but still follows a precise one better. When a prompt works on a strong model and fails on a cheap one, it is usually missing a constraint the strong model guessed.
+
+### Common beginner mistakes
+- Stacking five tasks in one prompt. Split them.
+- Pasting a huge document and asking "thoughts?"
+- Changing three things at once, so you cannot tell which helped. (See iterating, two chapters on.)
+:: complex
+### A prompt is an interface
+Treat a reusable prompt like a function: inputs (the variable parts), a contract (what output shape you promise downstream), and failure behavior. Write it down, version it in git, and give it a name. Prompts that live only in someone's chat history cannot be tested or reviewed.
+
+### Ordering and placement
+Long prompts have a shape that works: role and goal first, then rules, then examples, then the data, then a restatement of the exact output format last. Models weigh the start and the end of a long context most heavily, so do not bury the one rule that matters in the middle of a page of data.
+
+### Specify the failure modes you have actually seen
+After a few runs you will know how your prompt breaks: it adds a friendly intro, it invents a CVE number, it merges two items. Add one line per observed failure. A short list of real corrections beats a long list of imagined ones.
+
+### Decide what the model should *not* decide
+Anything that has a deterministic answer should be done by code, not asked of the model: counting, date math, exact lookups, checksums. Let the model do the fuzzy part (reading messy text, summarizing, drafting) and let a script do the rest and verify the result.
+
+### Cost and context
+Every token you send is read on every call. Trim boilerplate, put stable text first so it can be cached where your provider supports that, and keep examples short. A 4,000-token prompt that could be 600 tokens costs real money at scale and leaves less room for the data.
+
+Next: [examples, roles and structured output](pe-patterns.html). The cheatsheet is [man prompts](../man/prompts.html).
+:: lab
+style: shell
+host: promptlab
+user: analyst
+cwd: /home/analyst/prompts
+:: brief
+A teammate wrote three versions of a prompt that turns a raw alert into a triage note. `checklist.txt` lists the five parts a reusable prompt should have: **task, context, constraints, format, example**.
+
+Grade each `prompt_v*.txt` against the checklist (`cat` them, and `grep -ci` for the keywords the checklist names helps). Exactly one version has all five parts.
+
+Submit the **file name** of that version.
+:: answer
+prompt_v3.txt
+:: hint
+Read `checklist.txt` first. Each part has a marker word the author used.
+:: hint
+Try `grep -ci "task:" prompt_v*.txt` and repeat for `context:`, `constraints:`, `format:` and `example:`.
+:: hint
+Two versions are missing parts. v1 has only the task. v2 has four of five.
+:: solution
+`prompt_v3.txt` is the only one with all five labeled parts. v1 is a bare task ("summarize this alert"). v2 adds context, constraints and a format but gives no example of a good note, so the model has to guess the style. v3 includes a short sample note, which also pins down length and tone. Note that the checklist is a *starting* point: the real test is running each version on a few alerts and reading the output, which is what the third chapter covers.
+:: verify
+grep -l "example:" ~/prompts/prompt_v*.txt
+:: file /home/analyst/prompts/checklist.txt
+A reusable prompt has five parts. Each is marked with its label.
+task:        one clear verb and the object it works on
+context:     who reads the result, what the data is
+constraints: length, tone, what to do when unsure
+format:      the exact shape of the output
+example:     one sample of a good answer
+:: file /home/analyst/prompts/prompt_v1.txt
+task: summarize this alert.
+:: file /home/analyst/prompts/prompt_v2.txt
+task: write a triage note for the alert below.
+context: the reader is a tier-1 SOC analyst with five minutes per alert.
+constraints: at most 5 lines. If the alert lacks evidence, write NOT ENOUGH DATA.
+format: line 1 verdict (benign, suspicious, malicious), line 2 evidence, line 3 next step.
+:: file /home/analyst/prompts/prompt_v3.txt
+task: write a triage note for the alert below.
+context: the reader is a tier-1 SOC analyst with five minutes per alert.
+constraints: at most 5 lines. If the alert lacks evidence, write NOT ENOUGH DATA.
+format: line 1 verdict (benign, suspicious, malicious), line 2 evidence, line 3 next step.
+example: suspicious | 14 failed logins from 203.0.113.9 then one success | check the account's session list and reset the password.
