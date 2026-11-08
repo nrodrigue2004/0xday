@@ -1,0 +1,148 @@
+tagline: NTFS and share permissions, inheritance, deny rules and group nesting. Find why an intern can open the Payroll folder.
+:: simple
+Windows controls files with an **ACL** (access control list): a list of entries, each saying "this user or group is allowed (or denied) this kind of access". Each entry is an **ACE**.
+
+Common access levels, from least to most: **Read** (view), **Read & execute** (view and run), **Modify** (change and delete), **Full control** (also change the permissions and take ownership).
+
+You right-click a folder, open Security, and see the ACL. In a terminal, `icacls` shows the same thing:
+
+```
+C:\Finance\Payroll  LAB\Payroll-Team:(OI)(CI)(M)
+                    LAB\Finance-Mgrs:(OI)(CI)(F)
+                    BUILTIN\Administrators:(OI)(CI)(F)
+```
+
+Read an entry as `who : (flags) (rights)`. `M` is Modify, `F` is Full, `RX` is Read & execute, `R` is Read. `(OI)(CI)` means "applies to files (object inherit) and subfolders (container inherit)", so the rule flows down.
+
+### The golden habit
+
+Give access to **groups**, not people. Put people in the groups. When someone changes jobs you change group membership, and you never have to hunt through folder ACLs.
+:: mid
+### Shares have their own permissions
+
+When a folder is shared over the network, **two** sets apply: the **share** permissions and the **NTFS** permissions. For a network user, the result is whichever is **more restrictive**. Share says Full but NTFS says Read, the user gets Read. A common design is share = `Everyone: Full` and let NTFS do all the real work, but then NTFS must be right.
+
+### Inheritance
+
+New files and folders **inherit** entries from their parent. In `icacls` output an entry that came from above is marked `(I)`:
+
+```
+LAB\All-Staff:(I)(OI)(CI)(RX)
+```
+
+That `(I)` means: this entry is not defined on this folder, it flows from a parent. To stop it you must *disable inheritance* on the folder (convert or remove inherited entries). If nobody does, everything granted at the top shows up everywhere below, including places where you never meant it.
+
+### Allow, deny, and what wins
+
+Permissions are added up across all groups you belong to (direct or nested), then **Deny beats Allow**. Because of that, deny rules are used sparingly: one deny on a broad group can lock out people in surprising ways, and they are hard to audit.
+
+### Effective access
+
+To answer "why can she open this?", walk the chain:
+
+1. Which groups is she in, including **nested** groups? (A group inside a group still passes its rights down to members.)
+2. Which ACEs on the folder name any of those groups? Check inherited ones too.
+3. Any deny? Then compare with the share permission.
+
+```
+whoami /groups                 # your own token's groups
+net user j.park /domain        # a domain user's direct groups
+icacls D:\Finance\Payroll      # the folder's ACL
+```
+:: complex
+### Reading icacls flags
+
+- `(OI)` object inherit: files. `(CI)` container inherit: subfolders. `(IO)` inherit only: applies to children, not this folder. `(NP)` no propagate: only one level down.
+- `(I)` inherited from the parent.
+- Rights: `F` full, `M` modify, `RX` read and execute, `R` read, `W` write, `D` delete. Detailed rights appear as a list such as `(RD,WD,AD)`.
+
+Useful commands:
+
+```
+icacls D:\Finance\Payroll /inheritance:d      # disable inheritance, keep copies of inherited entries
+icacls D:\Finance\Payroll /remove "LAB\All-Staff"
+icacls D:\Finance\Payroll /grant "LAB\Payroll-Team:(OI)(CI)M"
+icacls D:\Finance /save acl.txt /t            # back up ACLs before you change them
+Get-Acl D:\Finance\Payroll | Format-List      # PowerShell view
+```
+
+### Ownership
+
+The **owner** of an object can always change its permissions, even with no ACE. Administrators can take ownership (`takeown`). This is why a deleted-then-recreated group or a departed employee as owner can cause odd lockouts.
+
+### Group strategy: AGDLP
+
+Microsoft's classic pattern: **A**ccounts go in **G**lobal groups (by role), global groups go in **D**omain **L**ocal groups (named for the resource and the access, e.g. `FS-Payroll-Modify`), and the domain local group is the one that appears in the ACL (**P**ermission). Nesting is intentional here; the danger is accidental nesting such as an "All-Staff" group inside something sensitive, or a sensitive folder granting "All-Staff" because a parent did.
+
+### Common findings in an audit
+
+- An entry for `Everyone`, `Authenticated Users` or `Domain Users` on a sensitive folder.
+- Inherited broad access from a top-level share that was set "to make it easy".
+- Users with direct ACEs instead of groups.
+- `Full control` where `Modify` would do.
+- Orphaned SIDs (`S-1-5-21-...`) from deleted accounts.
+- No auditing enabled on the sensitive folders, so nobody could say who opened what.
+
+Turn on object access auditing (Event 4663) for the crown-jewel folders and send it to the SIEM.
+:: lab
+style: ticket
+host: fs01
+user: admin
+system: file services
+id: #SEC-1102
+subject: Intern can open the Payroll folder
+priority: P2
+from: HR director
+sla: 1d
+attach: payroll-acl.txt, finance-acl.txt, groups.txt, share.txt
+:: brief
+HR reports that **j.park**, a summer intern, opened `D:\Finance\Payroll` and saw salary files. Payroll should only be visible to the Payroll team and Finance managers.
+
+Find **which group** is giving j.park (through any chain of nesting) access to the Payroll folder. Use the ACL dumps and the group listing.
+
+Resolve the ticket with that **group name** (without the `LAB\` prefix).
+:: answer
+All-Staff
+:: hint
+Start with `payroll-acl.txt`. Which entries have `(I)` in them? Those flow down from `D:\Finance`.
+:: hint
+Find j.park's groups in `groups.txt`, then check whether any of those groups sits inside another group named in the Payroll ACL.
+:: hint
+`Interns` is a member of a bigger group. That bigger group is named in `finance-acl.txt` and inherited into Payroll.
+:: solution
+`payroll-acl.txt` has two deliberate entries (`Payroll-Team` and `Finance-Mgrs`), but also `LAB\All-Staff:(I)(OI)(CI)(RX)`, where `(I)` shows it is **inherited** from `D:\Finance`. In `finance-acl.txt` the parent grants All-Staff read access, set when Finance first shared a "company calendar" folder. `groups.txt` shows `Interns` is a member of `All-Staff`, and j.park is in `Interns`. The share permission (`Everyone: Full`) does not restrict anything, so NTFS alone decides, and NTFS says Read.
+
+Fix: disable inheritance on `D:\Finance\Payroll` (`icacls D:\Finance\Payroll /inheritance:d`), then remove All-Staff there; move the calendar to its own share; give Payroll only the two intended groups; and turn on auditing for the folder.
+:: verify
+grep -i all-staff ~/acl/payroll-acl.txt
+:: file /home/admin/acl/payroll-acl.txt
+D:\Finance\Payroll LAB\Payroll-Team:(OI)(CI)(M)
+                  LAB\Finance-Mgrs:(OI)(CI)(F)
+                  LAB\All-Staff:(I)(OI)(CI)(RX)
+                  BUILTIN\Administrators:(I)(OI)(CI)(F)
+                  NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+:: file /home/admin/acl/finance-acl.txt
+D:\Finance LAB\Finance-Staff:(OI)(CI)(M)
+          LAB\All-Staff:(OI)(CI)(RX)
+          BUILTIN\Administrators:(OI)(CI)(F)
+          NT AUTHORITY\SYSTEM:(OI)(CI)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+:: file /home/admin/acl/groups.txt
+user j.park: memberOf Interns, Domain Users
+user m.lee: memberOf Finance-Staff, Payroll-Team, All-Staff
+user d.ortiz: memberOf Finance-Mgrs, All-Staff
+
+group Interns:        members j.park, s.cho; memberOf All-Staff
+group Finance-Staff:  members m.lee, a.khan, p.wells; memberOf All-Staff
+group Payroll-Team:   members m.lee, a.khan
+group Finance-Mgrs:   members d.ortiz
+group All-Staff:      members (nested: Interns, Finance-Staff, HR, IT, Sales)
+group Domain Users:   every account
+:: file /home/admin/acl/share.txt
+Share name:   Finance
+Path:         D:\Finance
+Permission:   Everyone: Full Control
+Note:         share set to Everyone/Full on purpose, NTFS is expected to do the restricting.

@@ -1,0 +1,1276 @@
+{
+ "_help": "term, definition, category, links. Links are prefix:slug: g=learn guide, s=Security+ objective id, m=cheatsheet (man page), d=drill, a=ai chapter. build.py checks every link exists.",
+ "terms": [
+  {
+   "t": "ACL",
+   "d": "Access control list: the list of entries on a file, share, router or firewall that says who or what is allowed (or denied) what.",
+   "c": "access",
+   "l": [
+    "d:windows-permissions",
+    "d:linux-permissions",
+    "s:4.6"
+   ]
+  },
+  {
+   "t": "Active Directory",
+   "d": "Microsoft's directory service. Stores users, groups and computers for a Windows domain and handles login through domain controllers.",
+   "c": "windows",
+   "l": [
+    "g:active-directory",
+    "m:ad-powershell"
+   ]
+  },
+  {
+   "t": "AES",
+   "d": "Advanced Encryption Standard. The standard symmetric cipher; fast, used with 128 or 256-bit keys.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied",
+    "s:1.4"
+   ]
+  },
+  {
+   "t": "AGDLP",
+   "d": "Accounts go in Global groups, which go in Domain Local groups, which get Permissions. The tidy way to give Windows groups access to resources.",
+   "c": "windows",
+   "l": [
+    "d:windows-permissions"
+   ]
+  },
+  {
+   "t": "APT",
+   "d": "Advanced persistent threat: a well-resourced attacker, often state-linked, that stays inside a network for a long time.",
+   "c": "threats",
+   "l": [
+    "s:2.1"
+   ]
+  },
+  {
+   "t": "ARP",
+   "d": "Address Resolution Protocol. Maps an IP address to a MAC address on the local network. ARP spoofing lies about that mapping.",
+   "c": "network",
+   "l": [
+    "g:computer-networks",
+    "m:cmd"
+   ]
+  },
+  {
+   "t": "ARP spoofing",
+   "d": "Sending fake ARP replies so traffic for one IP goes to the attacker's MAC; a local man-in-the-middle.",
+   "c": "attacks",
+   "l": [
+    "g:network-traffic-analysis"
+   ]
+  },
+  {
+   "t": "Asymmetric encryption",
+   "d": "Encryption with a key pair: a public key to encrypt or verify, a private key to decrypt or sign. Examples: RSA, ECC.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied",
+    "s:1.4"
+   ]
+  },
+  {
+   "t": "Attack surface",
+   "d": "Every place an attacker could try to get in: open ports, apps, accounts, people, vendors.",
+   "c": "concepts",
+   "l": [
+    "s:2.2"
+   ]
+  },
+  {
+   "t": "Authentication",
+   "d": "Proving who you are (password, key, biometric). Compare authorization: what you may do once proven.",
+   "c": "access",
+   "l": [
+    "s:4.6"
+   ]
+  },
+  {
+   "t": "Authorization",
+   "d": "Deciding what an authenticated identity is allowed to do.",
+   "c": "access",
+   "l": [
+    "s:4.6",
+    "d:linux-permissions"
+   ]
+  },
+  {
+   "t": "Availability",
+   "d": "The 'A' in the CIA triad: systems and data are there when needed.",
+   "c": "concepts",
+   "l": [
+    "s:1.2"
+   ]
+  },
+  {
+   "t": "Backdoor",
+   "d": "A hidden way back into a system that bypasses normal login.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "Backup (3-2-1)",
+   "d": "Keep 3 copies of data, on 2 kinds of media, with 1 offsite or offline. Offline copies survive ransomware.",
+   "c": "resilience",
+   "l": [
+    "s:3.4"
+   ]
+  },
+  {
+   "t": "Beaconing",
+   "d": "A compromised host contacting its controller at regular intervals. The even rhythm is the giveaway.",
+   "c": "threats",
+   "l": [
+    "d:read-a-packet-capture",
+    "g:network-traffic-analysis"
+   ]
+  },
+  {
+   "t": "BIA",
+   "d": "Business impact analysis: working out which systems matter most, and what an outage costs per hour.",
+   "c": "governance",
+   "l": [
+    "s:5.2",
+    "s:3.4"
+   ]
+  },
+  {
+   "t": "Blue team",
+   "d": "The defenders: monitoring, hardening, detection and response.",
+   "c": "concepts",
+   "l": [
+    "s:4.4"
+   ]
+  },
+  {
+   "t": "Botnet",
+   "d": "A network of infected machines controlled remotely, used for DDoS, spam and credential stuffing.",
+   "c": "threats",
+   "l": [
+    "s:2.4"
+   ]
+  },
+  {
+   "t": "Brute force",
+   "d": "Trying every possible password or key. Rate limits, lockouts and MFA blunt it.",
+   "c": "attacks",
+   "l": [
+    "g:password-cracking-john",
+    "s:2.4"
+   ]
+  },
+  {
+   "t": "Buffer overflow",
+   "d": "Writing past the end of a memory buffer so you can overwrite adjacent data, including a return address.",
+   "c": "vulns",
+   "l": [
+    "g:binary-exploitation",
+    "g:c-x86-assembly"
+   ]
+  },
+  {
+   "t": "Bug bounty",
+   "d": "A program where a company pays researchers for valid vulnerabilities, within a published scope and rules.",
+   "c": "concepts",
+   "l": []
+  },
+  {
+   "t": "C2 (command and control)",
+   "d": "The infrastructure an attacker uses to send commands to compromised machines and receive data back.",
+   "c": "threats",
+   "l": [
+    "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "CA (certificate authority)",
+   "d": "A trusted organization that signs digital certificates, vouching that a public key belongs to a named site.",
+   "c": "crypto",
+   "l": [
+    "s:1.4"
+   ]
+  },
+  {
+   "t": "CIA triad",
+   "d": "Confidentiality, Integrity, Availability: the three goals security protects.",
+   "c": "concepts",
+   "l": [
+    "s:1.2"
+   ]
+  },
+  {
+   "t": "CIDR",
+   "d": "Classless Inter-Domain Routing notation, like 10.0.5.0/24: an address plus how many bits are the network part.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "Cipher",
+   "d": "An algorithm that encrypts and decrypts.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ]
+  },
+  {
+   "t": "CIS Benchmarks",
+   "d": "Free configuration guides from the Center for Internet Security for hardening operating systems and apps.",
+   "c": "hardening",
+   "l": [
+    "g:system-hardening-windows-linux"
+   ]
+  },
+  {
+   "t": "Cleartext",
+   "d": "Data sent or stored without encryption. FTP, Telnet and HTTP are cleartext protocols.",
+   "c": "crypto",
+   "l": [
+    "g:network-traffic-analysis"
+   ]
+  },
+  {
+   "t": "Cron",
+   "d": "The Linux scheduler. Cron entries that run as root are a favorite privilege-escalation path when the script is writable.",
+   "c": "linux",
+   "l": [
+    "d:linux-permissions",
+    "g:linux-server-admin-ubuntu"
+   ]
+  },
+  {
+   "t": "Cross-site scripting (XSS)",
+   "d": "Injecting script into a page that other users then run in their browser. Stored, reflected and DOM-based are the main kinds.",
+   "c": "vulns",
+   "l": [
+    "s:2.3"
+   ]
+  },
+  {
+   "t": "CSRF",
+   "d": "Cross-site request forgery: tricking a logged-in user's browser into sending a request they did not intend.",
+   "c": "vulns",
+   "l": [
+    "s:2.3"
+   ]
+  },
+  {
+   "t": "CVE",
+   "d": "Common Vulnerabilities and Exposures: a public ID such as CVE-2021-44228 for one known vulnerability.",
+   "c": "vulns",
+   "l": [
+    "s:4.3"
+   ]
+  },
+  {
+   "t": "CVSS",
+   "d": "Common Vulnerability Scoring System: a 0 to 10 severity score for a vulnerability. Severity is not the same as your risk.",
+   "c": "vulns",
+   "l": [
+    "s:4.3"
+   ]
+  },
+  {
+   "t": "Dark web",
+   "d": "Parts of the internet reachable only with special software such as Tor. Not the same as the deep web (anything not indexed).",
+   "c": "concepts",
+   "l": []
+  },
+  {
+   "t": "DDoS",
+   "d": "Distributed denial of service: many machines flood a target so real users cannot reach it.",
+   "c": "attacks",
+   "l": [
+    "s:2.4"
+   ]
+  },
+  {
+   "t": "Defense in depth",
+   "d": "Layering controls so no single failure lets an attacker through.",
+   "c": "concepts",
+   "l": [
+    "s:1.2",
+    "s:3.2"
+   ]
+  },
+  {
+   "t": "DHCP",
+   "d": "Dynamic Host Configuration Protocol: hands out IP address, gateway and DNS to devices when they join.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "Digital forensics",
+   "d": "Collecting and analyzing evidence from devices in a way that holds up, with a documented chain of custody.",
+   "c": "dfir",
+   "l": [
+    "g:digital-forensics",
+    "s:4.9"
+   ]
+  },
+  {
+   "t": "DKIM",
+   "d": "DomainKeys Identified Mail: the sending mail server signs messages so receivers can check them against a key in DNS.",
+   "c": "email",
+   "l": [
+    "g:phishing-analysis"
+   ]
+  },
+  {
+   "t": "DLP",
+   "d": "Data loss prevention: tools that detect and block sensitive data leaving, such as card numbers in an email.",
+   "c": "data",
+   "l": [
+    "s:3.3"
+   ]
+  },
+  {
+   "t": "DMARC",
+   "d": "Tells receivers what to do with mail that fails SPF or DKIM and where to report it. Policies: none, quarantine, reject.",
+   "c": "email",
+   "l": [
+    "g:phishing-analysis"
+   ]
+  },
+  {
+   "t": "DMZ",
+   "d": "A network segment between the internet and the internal network that holds public-facing servers.",
+   "c": "network",
+   "l": [
+    "s:3.2",
+    "g:firewalls-pfsense"
+   ]
+  },
+  {
+   "t": "DNS",
+   "d": "Domain Name System: turns names into IP addresses. Mostly UDP port 53.",
+   "c": "network",
+   "l": [
+    "g:computer-networks",
+    "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "DNS tunneling",
+   "d": "Hiding data inside DNS queries and answers to sneak it out. Look for long, odd names and high volume.",
+   "c": "attacks",
+   "l": [
+    "g:network-traffic-analysis",
+    "m:wireshark"
+   ]
+  },
+  {
+   "t": "Domain controller",
+   "d": "A Windows server that holds the Active Directory database and authenticates domain logins.",
+   "c": "windows",
+   "l": [
+    "g:active-directory"
+   ]
+  },
+  {
+   "t": "Dropper",
+   "d": "Malware whose job is to download or unpack the real payload.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "EDR",
+   "d": "Endpoint detection and response: agent software that records host activity, detects attacks and lets analysts contain a machine.",
+   "c": "tools",
+   "l": [
+    "s:4.4",
+    "s:4.8"
+   ]
+  },
+  {
+   "t": "Encoding",
+   "d": "Reshaping data into another form (base64, URL encoding). Not encryption: anyone can reverse it.",
+   "c": "crypto",
+   "l": [
+    "d:regex-for-logs"
+   ]
+  },
+  {
+   "t": "Event ID",
+   "d": "A number identifying a type of Windows event, such as 4624 successful logon or 4625 failed logon.",
+   "c": "windows",
+   "l": [
+    "m:windows-ir",
+    "g:log-analysis"
+   ]
+  },
+  {
+   "t": "Exfiltration",
+   "d": "Stealing data out of a network.",
+   "c": "threats",
+   "l": [
+    "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "Exploit",
+   "d": "Code or a technique that takes advantage of a vulnerability.",
+   "c": "vulns",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ]
+  },
+  {
+   "t": "False positive",
+   "d": "An alert that fired but was not an attack. Too many make analysts stop trusting the alert.",
+   "c": "soc",
+   "l": [
+    "s:4.4"
+   ]
+  },
+  {
+   "t": "Firewall",
+   "d": "Allows or blocks traffic by rules on address, port and protocol. Stateful firewalls track connections.",
+   "c": "network",
+   "l": [
+    "g:firewalls-pfsense",
+    "s:3.2"
+   ]
+  },
+  {
+   "t": "Forensic image",
+   "d": "A bit-for-bit copy of a drive, hashed to prove it was not altered.",
+   "c": "dfir",
+   "l": [
+    "g:digital-forensics"
+   ]
+  },
+  {
+   "t": "FTP",
+   "d": "File Transfer Protocol: old and cleartext. Use SFTP or FTPS instead.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ]
+  },
+  {
+   "t": "Fuzzing",
+   "d": "Throwing malformed or random input at a program to find crashes and bugs.",
+   "c": "vulns",
+   "l": [
+    "g:binary-exploitation"
+   ]
+  },
+  {
+   "t": "GPO",
+   "d": "Group Policy Object: a bundle of Windows settings pushed to users and computers by Active Directory.",
+   "c": "windows",
+   "l": [
+    "g:group-policy"
+   ]
+  },
+  {
+   "t": "Hardening",
+   "d": "Reducing attack surface: remove what you do not need, patch, lock down settings.",
+   "c": "hardening",
+   "l": [
+    "g:system-hardening-windows-linux",
+    "s:4.1"
+   ]
+  },
+  {
+   "t": "Hash",
+   "d": "A one-way fingerprint of data. Same input, same output; you cannot reverse it. Used to check integrity and store passwords.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied",
+    "g:password-cracking-john"
+   ]
+  },
+  {
+   "t": "Honeypot",
+   "d": "A decoy system built to be attacked so you can observe the attacker.",
+   "c": "tools",
+   "l": [
+    "s:1.2"
+   ]
+  },
+  {
+   "t": "HTTP status codes",
+   "d": "200 OK, 301/302 redirect, 401 unauthenticated, 403 forbidden, 404 not found, 500 server error.",
+   "c": "network",
+   "l": [
+    "d:regex-for-logs"
+   ]
+  },
+  {
+   "t": "HTTPS / TLS",
+   "d": "HTTP carried inside TLS, giving encryption and server identity. TLS is the modern name for SSL.",
+   "c": "crypto",
+   "l": [
+    "s:1.4"
+   ]
+  },
+  {
+   "t": "Hypervisor",
+   "d": "Software that runs virtual machines. Type 1 runs on bare metal (Proxmox, ESXi); type 2 runs on an OS (VirtualBox).",
+   "c": "virtualization",
+   "l": [
+    "g:virtualization-proxmox"
+   ]
+  },
+  {
+   "t": "IAM",
+   "d": "Identity and access management: how accounts, authentication, permissions and lifecycle are managed.",
+   "c": "access",
+   "l": [
+    "s:4.6"
+   ]
+  },
+  {
+   "t": "ICMP",
+   "d": "The protocol behind ping and traceroute: error and diagnostic messages for IP.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ]
+  },
+  {
+   "t": "IDS / IPS",
+   "d": "Intrusion detection (alerts) and prevention (blocks) systems that match traffic against signatures or behavior. Snort and Suricata are examples.",
+   "c": "tools",
+   "l": [
+    "g:ids-snort",
+    "s:4.4"
+   ]
+  },
+  {
+   "t": "Incident response",
+   "d": "The process for handling a security event: prepare, detect, contain, eradicate, recover, learn.",
+   "c": "soc",
+   "l": [
+    "g:incident-response",
+    "s:4.8"
+   ]
+  },
+  {
+   "t": "Indicator of compromise (IOC)",
+   "d": "A clue that a system was breached: a hash, IP, domain, file name, registry key.",
+   "c": "soc",
+   "l": [
+    "s:2.4"
+   ]
+  },
+  {
+   "t": "Integrity",
+   "d": "The 'I' in CIA: data is correct and has not been altered without authorization.",
+   "c": "concepts",
+   "l": [
+    "s:1.2"
+   ]
+  },
+  {
+   "t": "IP address",
+   "d": "A number identifying a device on a network. IPv4 like 10.0.5.23; IPv6 is much longer.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "ITIL",
+   "d": "A set of IT service management practices (incident, problem, change management) used by help desks.",
+   "c": "it",
+   "l": [
+    "g:help-desk-ticketing-osticket",
+    "s:1.3"
+   ]
+  },
+  {
+   "t": "Kerberos",
+   "d": "The ticket-based authentication system in Active Directory. Attacks include Kerberoasting and golden tickets.",
+   "c": "windows",
+   "l": [
+    "g:active-directory"
+   ]
+  },
+  {
+   "t": "Kill chain",
+   "d": "A model of an attack as steps: recon, weaponize, deliver, exploit, install, command and control, actions.",
+   "c": "threats",
+   "l": [
+    "s:2.4"
+   ]
+  },
+  {
+   "t": "Lateral movement",
+   "d": "An attacker moving from one compromised machine to others inside the network.",
+   "c": "threats",
+   "l": [
+    "s:2.4",
+    "g:active-directory"
+   ]
+  },
+  {
+   "t": "LDAP",
+   "d": "Lightweight Directory Access Protocol: how clients query directories such as Active Directory.",
+   "c": "windows",
+   "l": [
+    "g:active-directory"
+   ]
+  },
+  {
+   "t": "Least privilege",
+   "d": "Give accounts only the access they need, nothing more.",
+   "c": "access",
+   "l": [
+    "s:1.2",
+    "d:linux-permissions"
+   ]
+  },
+  {
+   "t": "Living off the land",
+   "d": "Attacking with tools already on the system (PowerShell, certutil, wmic) so there is no malware file to find.",
+   "c": "threats",
+   "l": [
+    "m:cmd",
+    "m:powershell"
+   ]
+  },
+  {
+   "t": "Log",
+   "d": "A record of events written by a system or app. The raw material of detection and forensics.",
+   "c": "soc",
+   "l": [
+    "g:log-analysis",
+    "d:parse-logs-with-pipes"
+   ]
+  },
+  {
+   "t": "MAC address",
+   "d": "The hardware address of a network card, 48 bits, used on the local network. Can be spoofed.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ]
+  },
+  {
+   "t": "Malware",
+   "d": "Any software built to harm: viruses, worms, trojans, ransomware, spyware, rootkits.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "Man-in-the-middle (MITM)",
+   "d": "An attacker sits between two parties and reads or alters their traffic.",
+   "c": "attacks",
+   "l": [
+    "s:2.4"
+   ]
+  },
+  {
+   "t": "MFA",
+   "d": "Multi-factor authentication: two or more of something you know, have or are. Phishing-resistant forms (FIDO2 keys) beat SMS codes.",
+   "c": "access",
+   "l": [
+    "s:4.6"
+   ]
+  },
+  {
+   "t": "MITRE ATT&CK",
+   "d": "A public catalog of attacker tactics and techniques (T1110 brute force, and so on) used to describe and detect behavior.",
+   "c": "soc",
+   "l": [
+    "s:2.4",
+    "m:wireshark"
+   ]
+  },
+  {
+   "t": "NAT",
+   "d": "Network address translation: many private addresses share one public address.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "NetFlow",
+   "d": "Summaries of who talked to whom, how much and when, without the packet contents.",
+   "c": "soc",
+   "l": [
+    "g:network-traffic-analysis"
+   ]
+  },
+  {
+   "t": "NIST CSF",
+   "d": "NIST Cybersecurity Framework: Identify, Protect, Detect, Respond, Recover (and Govern in version 2).",
+   "c": "governance",
+   "l": [
+    "s:5.1"
+   ]
+  },
+  {
+   "t": "NTFS",
+   "d": "The Windows file system, with per-file permissions (ACLs), encryption and journaling.",
+   "c": "windows",
+   "l": [
+    "d:windows-permissions"
+   ]
+  },
+  {
+   "t": "OAuth",
+   "d": "A standard for delegated access: 'let this app read my calendar' without giving it your password.",
+   "c": "access",
+   "l": [
+    "s:4.6"
+   ]
+  },
+  {
+   "t": "OSI model",
+   "d": "Seven layers for thinking about networks: physical, data link, network, transport, session, presentation, application.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ]
+  },
+  {
+   "t": "OSINT",
+   "d": "Open-source intelligence: research from public sources such as search, social media, DNS records and breach data.",
+   "c": "recon",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ]
+  },
+  {
+   "t": "OWASP Top 10",
+   "d": "A list of the most common web application risks (injection, broken access control, and so on).",
+   "c": "vulns",
+   "l": [
+    "s:2.3"
+   ]
+  },
+  {
+   "t": "Packet",
+   "d": "One chunk of data on a network, with headers saying where it came from and where it goes.",
+   "c": "network",
+   "l": [
+    "d:read-a-packet-capture",
+    "m:wireshark"
+   ]
+  },
+  {
+   "t": "Packet capture (pcap)",
+   "d": "A recording of network packets, made with tcpdump or Wireshark.",
+   "c": "soc",
+   "l": [
+    "d:read-a-packet-capture",
+    "g:network-traffic-analysis"
+   ]
+  },
+  {
+   "t": "Passkey / FIDO2",
+   "d": "A phishing-resistant login that uses a key pair stored on your device or a security key.",
+   "c": "access",
+   "l": [
+    "s:4.6"
+   ]
+  },
+  {
+   "t": "Patch",
+   "d": "A software update that fixes a bug or vulnerability.",
+   "c": "hardening",
+   "l": [
+    "s:4.3"
+   ]
+  },
+  {
+   "t": "Payload",
+   "d": "The part of an attack that does the damage once it lands; also, the data portion of a packet.",
+   "c": "malware",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ]
+  },
+  {
+   "t": "Penetration test",
+   "d": "An authorized, scoped attempt to break in to find weaknesses before real attackers do.",
+   "c": "concepts",
+   "l": [
+    "g:recon-nmap-metasploit",
+    "s:5.5"
+   ]
+  },
+  {
+   "t": "pfSense",
+   "d": "An open source firewall and router distribution used in homelabs and small businesses.",
+   "c": "network",
+   "l": [
+    "g:firewalls-pfsense"
+   ]
+  },
+  {
+   "t": "PGP / GPG",
+   "d": "Tools for encrypting and signing email and files with public keys.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ]
+  },
+  {
+   "t": "Phishing",
+   "d": "Fraudulent messages that trick people into giving up credentials or running something. Spear phishing targets a person; whaling targets executives.",
+   "c": "attacks",
+   "l": [
+    "g:phishing-analysis",
+    "s:2.2"
+   ]
+  },
+  {
+   "t": "PKI",
+   "d": "Public key infrastructure: the CAs, certificates and rules that make public-key trust work.",
+   "c": "crypto",
+   "l": [
+    "s:1.4"
+   ]
+  },
+  {
+   "t": "Port",
+   "d": "A number (0-65535) that picks which service on a host a packet is for.",
+   "c": "network",
+   "l": [
+    "g:computer-networks",
+    "m:nmap"
+   ]
+  },
+  {
+   "t": "Port scan",
+   "d": "Probing a host to see which ports answer. Nmap is the standard tool.",
+   "c": "recon",
+   "l": [
+    "m:nmap",
+    "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "Privilege escalation",
+   "d": "Going from a low-privilege account to a higher one, such as root or SYSTEM.",
+   "c": "attacks",
+   "l": [
+    "d:linux-permissions",
+    "s:2.4"
+   ]
+  },
+  {
+   "t": "Proxmox",
+   "d": "An open source hypervisor platform for running VMs and containers. The platform behind my homelab.",
+   "c": "virtualization",
+   "l": [
+    "g:virtualization-proxmox"
+   ]
+  },
+  {
+   "t": "Purple team",
+   "d": "Red and blue working together so each attack teaches a detection.",
+   "c": "concepts",
+   "l": []
+  },
+  {
+   "t": "Ransomware",
+   "d": "Malware that encrypts files and demands payment, often after stealing the data first.",
+   "c": "malware",
+   "l": [
+    "s:2.4",
+    "s:3.4"
+   ]
+  },
+  {
+   "t": "RAT",
+   "d": "Remote access trojan: malware that gives an attacker remote control.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "RBAC",
+   "d": "Role-based access control: permissions attach to roles, people get roles.",
+   "c": "access",
+   "l": [
+    "s:4.6"
+   ]
+  },
+  {
+   "t": "Red team",
+   "d": "The attackers in an exercise: they emulate real threats to test the defenders.",
+   "c": "concepts",
+   "l": []
+  },
+  {
+   "t": "Regex",
+   "d": "Regular expression: a pattern language for matching text.",
+   "c": "tools",
+   "l": [
+    "d:regex-for-logs",
+    "d:parse-logs-with-pipes"
+   ]
+  },
+  {
+   "t": "Reverse engineering",
+   "d": "Taking a compiled program apart to learn what it does.",
+   "c": "malware",
+   "l": [
+    "g:reverse-engineering"
+   ]
+  },
+  {
+   "t": "Reverse shell",
+   "d": "A shell where the victim connects out to the attacker, getting around inbound firewall rules.",
+   "c": "attacks",
+   "l": [
+    "g:recon-nmap-metasploit"
+   ]
+  },
+  {
+   "t": "Risk",
+   "d": "Likelihood times impact. You can accept, avoid, transfer (insure) or mitigate it.",
+   "c": "governance",
+   "l": [
+    "s:5.2"
+   ]
+  },
+  {
+   "t": "Rootkit",
+   "d": "Malware that hides itself and other malware at a low level, often in the kernel.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis",
+    "m:volatility"
+   ]
+  },
+  {
+   "t": "Salt",
+   "d": "Random data added to a password before hashing so identical passwords get different hashes.",
+   "c": "crypto",
+   "l": [
+    "g:password-cracking-john",
+    "g:cryptography-applied"
+   ]
+  },
+  {
+   "t": "Sandbox",
+   "d": "An isolated environment where untrusted code runs safely so you can watch it.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "SIEM",
+   "d": "Security information and event management: collects logs from everywhere and correlates them into alerts. Splunk, Elastic, Wazuh and Security Onion are examples.",
+   "c": "soc",
+   "l": [
+    "g:siem-security-onion",
+    "m:splunk",
+    "s:4.4"
+   ]
+  },
+  {
+   "t": "Sigma",
+   "d": "A vendor-neutral format for writing detection rules that convert to many SIEM languages.",
+   "c": "soc",
+   "l": [
+    "s:4.4"
+   ]
+  },
+  {
+   "t": "SOAR",
+   "d": "Security orchestration, automation and response: playbooks that automate repetitive SOC steps.",
+   "c": "soc",
+   "l": [
+    "s:4.7"
+   ]
+  },
+  {
+   "t": "SOC",
+   "d": "Security operations center: the team that monitors alerts and responds to incidents.",
+   "c": "soc",
+   "l": [
+    "g:siem-security-onion",
+    "s:4.4"
+   ]
+  },
+  {
+   "t": "Social engineering",
+   "d": "Manipulating people rather than machines: pretexting, phishing, tailgating, vishing.",
+   "c": "attacks",
+   "l": [
+    "s:2.2"
+   ]
+  },
+  {
+   "t": "SPF",
+   "d": "Sender Policy Framework: a DNS record listing which servers may send mail for a domain.",
+   "c": "email",
+   "l": [
+    "g:phishing-analysis"
+   ]
+  },
+  {
+   "t": "SPL",
+   "d": "Search Processing Language, the query language of Splunk.",
+   "c": "tools",
+   "l": [
+    "m:splunk"
+   ]
+  },
+  {
+   "t": "SQL injection",
+   "d": "Putting SQL into an input so the database runs it. Fixed with parameterized queries.",
+   "c": "vulns",
+   "l": [
+    "g:databases-and-sql",
+    "s:2.3"
+   ]
+  },
+  {
+   "t": "SSH",
+   "d": "Secure Shell: encrypted remote login and file transfer on port 22. Use keys, not passwords.",
+   "c": "network",
+   "l": [
+    "g:linux-server-admin-ubuntu",
+    "m:linux"
+   ]
+  },
+  {
+   "t": "SSL/TLS handshake",
+   "d": "The opening exchange where client and server agree on keys and the server proves its identity.",
+   "c": "crypto",
+   "l": [
+    "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "Subnet",
+   "d": "A slice of an IP network, defined by a mask. Hosts in the same subnet talk directly.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets"
+   ]
+  },
+  {
+   "t": "SUID",
+   "d": "A permission bit that makes a program run as its owner. A root-owned SUID program with a flaw is a path to root.",
+   "c": "linux",
+   "l": [
+    "d:linux-permissions",
+    "m:linux"
+   ]
+  },
+  {
+   "t": "Supply chain attack",
+   "d": "Compromising a vendor or software dependency to reach its customers.",
+   "c": "threats",
+   "l": [
+    "s:2.2",
+    "s:5.3"
+   ]
+  },
+  {
+   "t": "Symmetric encryption",
+   "d": "One shared key encrypts and decrypts. Fast; the hard part is sharing the key.",
+   "c": "crypto",
+   "l": [
+    "g:cryptography-applied"
+   ]
+  },
+  {
+   "t": "Syslog",
+   "d": "A standard for sending log messages over the network to a central collector.",
+   "c": "soc",
+   "l": [
+    "g:log-analysis"
+   ]
+  },
+  {
+   "t": "Sysmon",
+   "d": "A Windows Sysinternals service that logs detailed process, network and file events to the event log.",
+   "c": "windows",
+   "l": [
+    "m:windows-ir",
+    "g:log-analysis"
+   ]
+  },
+  {
+   "t": "Tailscale",
+   "d": "A mesh VPN built on WireGuard that makes devices reachable by private address with almost no setup.",
+   "c": "network",
+   "l": [
+    "g:vpn-tailscale"
+   ]
+  },
+  {
+   "t": "TCP",
+   "d": "Transmission Control Protocol: reliable, ordered delivery with a three-way handshake.",
+   "c": "network",
+   "l": [
+    "d:read-a-packet-capture",
+    "g:computer-networks"
+   ]
+  },
+  {
+   "t": "Threat intelligence",
+   "d": "Information about attackers and their methods that you use to prioritize defenses.",
+   "c": "soc",
+   "l": [
+    "s:2.1"
+   ]
+  },
+  {
+   "t": "Three-way handshake",
+   "d": "SYN, SYN-ACK, ACK: how TCP opens a connection.",
+   "c": "network",
+   "l": [
+    "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "Tokenization",
+   "d": "Replacing sensitive data (a card number) with a meaningless token and keeping the real value elsewhere.",
+   "c": "data",
+   "l": [
+    "s:3.3"
+   ]
+  },
+  {
+   "t": "Trojan",
+   "d": "Malware pretending to be something useful.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "UDP",
+   "d": "User Datagram Protocol: fast, connectionless, no delivery guarantee. DNS and VoIP use it.",
+   "c": "network",
+   "l": [
+    "g:computer-networks"
+   ]
+  },
+  {
+   "t": "UEFI / Secure Boot",
+   "d": "Modern firmware that checks the boot software is signed before running it.",
+   "c": "hardening",
+   "l": [
+    "s:4.1"
+   ]
+  },
+  {
+   "t": "umask",
+   "d": "The setting that removes permissions from newly created files on Linux.",
+   "c": "linux",
+   "l": [
+    "d:linux-permissions"
+   ]
+  },
+  {
+   "t": "VLAN",
+   "d": "A virtual LAN: splits one physical switch into separate network segments.",
+   "c": "network",
+   "l": [
+    "g:networking-tcp-ip-dhcp-nat-subnets",
+    "s:3.2"
+   ]
+  },
+  {
+   "t": "VPN",
+   "d": "An encrypted tunnel across an untrusted network. WireGuard, OpenVPN and Tailscale are examples.",
+   "c": "network",
+   "l": [
+    "g:vpn-tailscale"
+   ]
+  },
+  {
+   "t": "Vulnerability",
+   "d": "A weakness that an attacker could use. Management means finding, ranking and fixing them.",
+   "c": "vulns",
+   "l": [
+    "s:4.3",
+    "s:2.3"
+   ]
+  },
+  {
+   "t": "Vulnerability scan",
+   "d": "Automated checking of systems for known weaknesses. Nessus and OpenVAS are examples.",
+   "c": "vulns",
+   "l": [
+    "s:4.3"
+   ]
+  },
+  {
+   "t": "WAF",
+   "d": "Web application firewall: filters HTTP traffic to block injection and similar attacks.",
+   "c": "tools",
+   "l": [
+    "s:3.2"
+   ]
+  },
+  {
+   "t": "Wazuh",
+   "d": "An open source host-based monitoring and SIEM platform.",
+   "c": "tools",
+   "l": [
+    "g:siem-security-onion"
+   ]
+  },
+  {
+   "t": "Wireshark",
+   "d": "The standard graphical packet analyzer; tshark is its command-line twin.",
+   "c": "tools",
+   "l": [
+    "m:wireshark",
+    "d:read-a-packet-capture"
+   ]
+  },
+  {
+   "t": "Worm",
+   "d": "Malware that spreads itself across a network with no user action.",
+   "c": "malware",
+   "l": [
+    "g:malware-analysis"
+   ]
+  },
+  {
+   "t": "YARA",
+   "d": "A rule language for matching patterns in files and memory, used to identify malware families.",
+   "c": "tools",
+   "l": [
+    "g:malware-analysis",
+    "m:volatility"
+   ]
+  },
+  {
+   "t": "Zero day",
+   "d": "A vulnerability the vendor does not yet know about, or has had no time to patch.",
+   "c": "vulns",
+   "l": [
+    "s:2.3"
+   ]
+  },
+  {
+   "t": "Zero trust",
+   "d": "Never trust by network location: verify every request, every time, and give minimum access.",
+   "c": "concepts",
+   "l": [
+    "s:1.2",
+    "s:3.1"
+   ]
+  }
+ ]
+}

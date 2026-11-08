@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man tcpdump-tshark :: 0xDay</title>
+<meta name="description" content="tcpdump-tshark cheatsheet: capture and read packets from a terminal: BPF filters, flags, tshark one-liners">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=b4692968">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=b4692968" defer></script>
+<script src="../site.js?v=b4692968" defer></script>
+<script src="../fx.js?v=b4692968" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man tcpdump-tshark</p>
+<div class="manhead"><span>TCPDUMP-TSHARK(1)</span><span>0xDay Field Manual</span><span>TCPDUMP-TSHARK(1)</span></div>
+<h1>tcpdump-tshark <span class="muted">- capture and read packets from a terminal: BPF filters, flags, tshark one-liners</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-capture">capture</a> <a href="#g-bpf-filters">BPF filters</a> <a href="#g-reading-a-line">reading a line</a> <a href="#g-tshark-one-liners">tshark one-liners</a> <a href="#g-text-only-analysis-no-wireshark-needed">text-only analysis (no Wireshark needed)</a></p><h2 id="g-capture">capture</h2><dl class="man"><dt><code>tcpdump -nn -i eth0</code></dt><dd>live capture on an interface; -nn skips name and port lookups (always use it when investigating)</dd><dt><code>tcpdump -nn -i any -c 100</code></dt><dd>any interface, stop after 100 packets</dd><dt><code>tcpdump -nn -i eth0 -w cap.pcap</code></dt><dd>write raw packets to a file for Wireshark (-s 0 for full packets on old versions)</dd><dt><code>tcpdump -nn -r cap.pcap</code></dt><dd>read a saved capture</dd><dt><code>tcpdump -nn -tttt -r cap.pcap</code></dt><dd>readable date and time on every line</dd><dt><code>tcpdump -nn -A -r cap.pcap</code></dt><dd>print payload as ASCII, handy for cleartext HTTP</dd><dt><code>tcpdump -nn -X -r cap.pcap</code></dt><dd>hex and ASCII side by side</dd></dl><h2 id="g-bpf-filters">BPF filters</h2><dl class="man"><dt><code>host 10.0.5.23</code></dt><dd>traffic to or from a host</dd><dt><code>src host 10.0.5.23  ·  dst host 192.0.2.99</code></dt><dd>one direction</dd><dt><code>net 10.0.5.0/24</code></dt><dd>a whole subnet</dd><dt><code>port 53  ·  portrange 1-1024</code></dt><dd>a port or a range</dd><dt><code>tcp  ·  udp  ·  icmp</code></dt><dd>a protocol</dd><dt><code>host 10.0.5.23 and not port 22</code></dt><dd>combine with and, or, not (so your own SSH session does not flood the output)</dd><dt><code>&#x27;tcp[tcpflags] &amp; tcp-syn != 0&#x27;</code></dt><dd>only packets with SYN set</dd><dt><code>&#x27;tcp[tcpflags] &amp; (tcp-syn|tcp-ack) == tcp-syn&#x27;</code></dt><dd>SYN without ACK: connection attempts, the scan filter</dd><dt><code>&#x27;tcp[tcpflags] &amp; tcp-rst != 0&#x27;</code></dt><dd>resets</dd><dt><code>greater 1000  ·  less 100</code></dt><dd>packets bigger or smaller than N bytes</dd></dl><h2 id="g-reading-a-line">reading a line</h2><dl class="man"><dt><code>10.0.5.23.51515 &gt; 203.0.113.50.443:</code></dt><dd>source ip.port, the arrow, destination ip.port</dd><dt><code>Flags [S]  [S.]  [.]  [P.]  [F.]  [R]</code></dt><dd>SYN, SYN-ACK, ACK, push-ACK, FIN-ACK, reset</dd><dt><code>seq 1001:2449</code></dt><dd>bytes numbered 1001 up to but not including 2449</dd><dt><code>ack 5001</code></dt><dd>the next byte the sender expects from the other side</dd><dt><code>length 1448</code></dt><dd>bytes of data in this packet (0 is just control)</dd><dt><code>A? example.com.</code></dt><dd>a DNS query for an A record</dd></dl><h2 id="g-tshark-one-liners">tshark one-liners</h2><dl class="man"><dt><code>tshark -r cap.pcap -q -z conv,tcp</code></dt><dd>TCP conversations with byte totals</dd><dt><code>tshark -r cap.pcap -q -z endpoints,ip</code></dt><dd>bytes per IP address</dd><dt><code>tshark -r cap.pcap -Y &#x27;dns&#x27; -T fields -e ip.src -e dns.qry.name</code></dt><dd>DNS names asked, by who</dd><dt><code>tshark -r cap.pcap -Y &#x27;http.request&#x27; -T fields -e ip.src -e http.host -e http.request.uri</code></dt><dd>web requests</dd><dt><code>tshark -r cap.pcap -Y &#x27;tls.handshake.type==1&#x27; -T fields -e ip.dst -e tls.handshake.extensions_server_name</code></dt><dd>SNI names from TLS ClientHellos</dd><dt><code>tshark -r cap.pcap -Y &#x27;ip.src==10.0.5.23&#x27; -T fields -e ip.dst -e frame.len | sort | uniq -c | sort -rn | head</code></dt><dd>where one host sent the most</dd><dt><code>tshark -r cap.pcap --export-objects http,out/</code></dt><dd>pull files transferred over HTTP out of a capture</dd><dt><code>tshark -r cap.pcap -q -z io,phs</code></dt><dd>protocol hierarchy: what the capture is made of</dd></dl><h2 id="g-text-only-analysis-no-wireshark-needed">text-only analysis (no Wireshark needed)</h2><dl class="man"><dt><code>tcpdump -nn -r cap.txt | awk &#x27;{print $3}&#x27; | sort | uniq -c | sort -rn | head</code></dt><dd>who sent the most packets</dd><dt><code>... | grep &#x27;length 1448&#x27; | awk &#x27;{print $5}&#x27; | sort | uniq -c</code></dt><dd>who received bulk data</dd><dt><code>... | grep &#x27;Flags \[S\]&#x27; | awk &#x27;{print $5}&#x27; | sort | uniq -c</code></dt><dd>who got the most connection attempts</dd><dt><code>Drill</code></dt><dd>practice this on the fictional capture in ~/drills/read-a-packet-capture</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -437,6 +437,71 @@
      "c": ""
     }
    ]
+  },
+  {
+   "h": "bug bounty and web hacking: free training",
+   "items": [
+    {
+     "n": "PortSwigger Web Security Academy",
+     "u": "https://portswigger.net/web-security",
+     "w": "Free, self-paced web security course with a hands-on lab for every topic (SQL injection, XSS, access control, SSRF and more). The best free place to start.",
+     "c": "Labs are made to be attacked. Never use these techniques on real sites you do not have written permission to test."
+    },
+    {
+     "n": "Hacker101",
+     "u": "https://www.hacker101.com/",
+     "w": "HackerOne's free video classes plus a CTF where flags teach real web bugs. Written for people who want to start bounty hunting.",
+     "c": "The CTF is in a controlled environment; real programs have rules, see below."
+    },
+    {
+     "n": "TryHackMe",
+     "u": "https://tryhackme.com/",
+     "w": "Guided browser-based rooms with a target machine provided. The web and bug bounty related paths are a gentle start. I use this one.",
+     "c": "Some rooms and paths need a paid subscription; the free tier is enough to start."
+    },
+    {
+     "n": "OWASP Juice Shop",
+     "u": "https://owasp.org/www-project-juice-shop/",
+     "w": "A deliberately insecure web shop to attack on your own machine, with a score board and hints.",
+     "c": "Run it locally or in a container, not exposed to the internet."
+    },
+    {
+     "n": "OWASP WebGoat",
+     "u": "https://owasp.org/www-project-webgoat/",
+     "w": "Guided lessons on common web flaws in a vulnerable Java app.",
+     "c": "Same rule: local only."
+    },
+    {
+     "n": "OWASP Top 10",
+     "u": "https://owasp.org/www-project-top-ten/",
+     "w": "The list of most common web risks. Read it before the labs so the names mean something.",
+     "c": ""
+    },
+    {
+     "n": "Bugcrowd University",
+     "u": "https://www.bugcrowd.com/hackers/bugcrowd-university/",
+     "w": "Free videos and slides on bug bounty methods from a bounty platform.",
+     "c": ""
+    },
+    {
+     "n": "HackerOne program directory",
+     "u": "https://hackerone.com/bug-bounty-programs",
+     "w": "Public bounty programs and their scope and rules, so you can see what a real policy says.",
+     "c": "Read the scope and safe-harbor policy of any program before you test anything. Out-of-scope testing can be illegal."
+    },
+    {
+     "n": "Bugcrowd programs",
+     "u": "https://bugcrowd.com/engagements",
+     "w": "Another list of public programs and disclosure policies.",
+     "c": "Same warning: stay in scope, no data access beyond proof, report quickly."
+    },
+    {
+     "n": "PentesterLab free content",
+     "u": "https://pentesterlab.com/",
+     "w": "Exercises and badges on web bugs; the free section has a good number of exercises.",
+     "c": "Most of the library is paid."
+    }
+   ]
   }
  ]
 }
