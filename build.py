@@ -257,6 +257,8 @@ page("skills.html", "skills :: 0xDay", f"""<p class="cmd">skills --matrix</p><h1
 GUIDES, SP, NCARDS = build_learn.build(page, SKILLS, LV, bar)
 import build_ai
 AI = build_ai.build(page)
+import build_basics
+BASICS = build_basics.build(page)
 
 # ---------- now ----------
 def nl(xs): return "".join(f"<li>{esc(x)}</li>" for x in xs)
@@ -468,6 +470,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("books", "books.html", "bookshelf", n(BOOKS, "book")),
        ("resume", "resume.html", "printable resume", "1 page"),
        ("learn", "learn.html", "skill guides + sandbox labs", f'{len(GUIDES)} guides'),
+       ("basics", "basics.html", "OSI, ports, OSINT, crypto, OS basics", f'{len(BASICS)} chapters'),
        ("ai", "ai.html", "AI + AI in security, with labs", f'{len(AI)} chapters'),
        ("secplus", "secplus.html", "Security+ study system", f'{len(SP["objectives"])} objectives'),
        ("certs", "certs.html", "cert roadmap", f'{len(CERTS["certs"])} tracked'),
@@ -508,6 +511,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "ctf": CTF, "ctfstats": CTFSTATS, "thm": CERTS.get("thm_username"), "tools": [t["name"] for t in TOOLS], "detections": [d["name"] for d in DETS], "books": BOOKS,
         "guides": [{"slug": k, "name": v[0]["name"]} for k, v in GUIDES.items()],
         "ai": [{"slug": c[0], "name": c[1]} for c in AI],
+        "basics": [{"slug": c[0], "name": c[1]} for c in BASICS],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}
 open("data.js", "w").write("window.OXDAY=" + json.dumps(data) + ";\n")
 print("built", len(POSTS), "posts,", len(PROJECTS), "projects,", len(TAGS), "tags,", len(GUIDES), "guides,", len(SP["objectives"]), "objectives,", NCARDS, "cards")
