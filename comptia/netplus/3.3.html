@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 3.3 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 3.3: Disaster Recovery">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.3 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 3.0 · Network Operations</span><span>3.3</span></div>
+<h1><span class="ok">3.3</span> Disaster Recovery</h1>
+<div class="obj" data-obj="netplus-3.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Disaster Recovery</h4>
+<ul><li><strong>DRP (disaster recovery plan)</strong> covers backups, offsite replication, cloud replacements and alternate sites, plus third parties (temporary facilities, recovery services).</li><li><strong>RTO (recovery time objective)</strong>: how long until service is back (aim near zero; web server example one hour). <strong>RPO (recovery point objective)</strong>: how much data (time) you can afford to lose, determined by backup or replication frequency (banking, patient data need very short RPO; website edits can tolerate hours). On a timeline: last good recovery point, outage, restored service. Outage minus last recovery point = RPO, outage to restoration = RTO.</li><li><strong>MTTR (mean time to repair)</strong>: average time to fix a failure. <strong>MTBF (mean time between failures)</strong>: expected life before failure (20 years for a firewall means fewer spares needed).</li><li><strong>Site resiliency</strong>: moving operations to another site and back later. <strong>Cold site</strong>: empty building, bring everything, cheapest, slowest. <strong>Warm site</strong>: some infrastructure (power, racks, perhaps hardware), bring data and finish setup. <strong>Hot site</strong>: near exact replica with current data (replication), switch quickly, most expensive.</li><li><strong>Testing</strong>: a <strong>tabletop exercise</strong> is a meeting where key people walk through a scenario (a day or two, cheap). <strong>Validation tests</strong> perform the actual failover steps for a scenario (building fire, regional evacuation), once or more a year. Document what worked and fix the gaps.</li></ul>
+<h4>Network Redundancy</h4>
+<ul><li><strong>Active-passive</strong>: two devices, one active, one standby, constantly exchanging status. On failure the standby takes over. Config, session tables and routing tables must be kept in sync.</li><li><strong>Active-active</strong>: both devices pass traffic at the same time, using all capacity, and the survivor simply carries the load after a failure. Needs more engineering because the two directions of a flow might take different paths, so you must track flows and design routing carefully.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-3.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A bank can lose at most 5 minutes of transactions. Which objective is this?</p><ul class="chk__o"><li><span class="ok">a)</span> RTO</li><li><span class="ok">b)</span> RPO</li><li><span class="ok">c)</span> MTBF</li><li><span class="ok">d)</span> SLA</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> RPO limits data loss.</p></details></div><div class="chk"><p><strong>2.</strong> An organization wants a facility that can be running within hours with current data. Which site?</p><ul class="chk__o"><li><span class="ok">a)</span> Cold</li><li><span class="ok">b)</span> Warm</li><li><span class="ok">c)</span> Hot</li><li><span class="ok">d)</span> Remote</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Hot sites mirror the production environment.</p></details></div>
+<h2>short lab: Set RTO and RPO</h2><div class="prose lab"><p>For an online shop: order database, marketing site, internal wiki. Propose RTO and RPO for each.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Order DB: RPO near zero (continuous replication), RTO under 1 hour. Marketing site: RPO 1 day, RTO 4 hours. Wiki: RPO 24 hours, RTO 24 to 48 hours. The tighter the objective, the more expensive the solution.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/incident-response.html">incident response</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.3" placeholder="# 3.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="3.2.html">&lt; 3.2</a><a href="3.4.html">3.4 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-3.3-0", "q": "RTO in one line?", "a": "Recovery time objective: how quickly service must be restored after an outage."}, {"id": "netplus-3.3-1", "q": "RPO in one line?", "a": "Recovery point objective: the maximum acceptable amount of data loss measured in time."}, {"id": "netplus-3.3-2", "q": "Which of RTO and RPO is driven by backup frequency?", "a": "RPO."}, {"id": "netplus-3.3-3", "q": "MTTR vs MTBF?", "a": "MTTR: average time to repair. MTBF: average time between failures."}, {"id": "netplus-3.3-4", "q": "Cold site?", "a": "Empty facility: you bring equipment, data and people. Cheapest and slowest."}, {"id": "netplus-3.3-5", "q": "Warm site?", "a": "Partial infrastructure; add data and some equipment. Mid cost and speed."}, {"id": "netplus-3.3-6", "q": "Hot site?", "a": "Fully equipped and nearly current replica; fastest and most expensive."}, {"id": "netplus-3.3-7", "q": "What is a tabletop exercise?", "a": "A discussion-based walk-through of a disaster scenario by key staff."}, {"id": "netplus-3.3-8", "q": "Why run validation tests?", "a": "To prove the plan works and find gaps before a real disaster."}, {"id": "netplus-3.3-9", "q": "Active-passive vs active-active?", "a": "Passive standby takes over on failure; active-active uses both devices simultaneously."}, {"id": "netplus-3.3-10", "q": "What must be synchronized in active-passive pairs?", "a": "Configuration and live state like session and routing tables."}, {"id": "netplus-3.3-11", "q": "Why is active-active harder?", "a": "Asymmetric flows and the need to track state across both devices."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

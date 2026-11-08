@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-root="../" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learn Mobile apps (React Native / Expo) :: 0xDay</title>
+<meta name="description" content="Learn Mobile apps (React Native / Expo): simple, mid and complex explanations, with a hands-on lab in a browser sandbox.">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=af415407" defer></script>
+<script src="../site.js?v=af415407" defer></script>
+<script src="../fx.js?v=af415407" defer></script>
+<script src="../sandbox.js?v=af415407" defer></script>
+<script src="../learn.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">learn --skill mobile-apps-react-native-expo</p>
+<h1>~/learn/mobile-apps-react-native-expo</h1>
+<p class="learn__meta"><span class="muted">computer science</span> · my level: <span class="bar__on">■■</span><span class="bar__off">□□□</span> <span class="muted">familiar</span> · <a href="../projects.html">proof</a></p>
+<p>React Native builds real phone apps from React and TypeScript, and Expo makes running them painless. Learn components, state, navigation and talking to an API, then find why a screen keeps re-rendering.</p>
+<nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
+<div class="learn" data-skill="mobile-apps-react-native-expo">
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p><strong>React Native</strong> lets you build iOS and Android apps in TypeScript using React. Instead of HTML elements you use native building blocks: <code>View</code> (a box), <code>Text</code>, <code>Image</code>, <code>TextInput</code>, <code>Pressable</code>, <code>FlatList</code>. They draw real native widgets, not a web page.</p>
+<p><strong>Expo</strong> is the toolkit around it: one command starts the project, a phone app (<strong>Expo Go</strong>) runs it by scanning a QR code, and ready-made modules cover camera, notifications, secure storage and more.</p>
+<pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/rn/App.tsx</span><button class="run" type="button" data-cmd="cat ~/rn/App.tsx" title="run in the sandbox">▶ run</button>
+<span class="ps">$</span> <span class="c">cat ~/rn/package.json</span><button class="run" type="button" data-cmd="cat ~/rn/package.json" title="run in the sandbox">▶ run</button></code></pre>
+<h4>The core idea: components and state</h4>
+<p>A <strong>component</strong> is a function that returns what a piece of the screen looks like. <strong>State</strong> (<code>useState</code>) is data the component remembers. When state changes, React re-runs the function and updates the screen.</p>
+<pre class="ex"><code><span class="o">const [likes, setLikes] = useState(0);</span>
+<span class="o">&lt;Pressable onPress={() =&gt; setLikes(likes + 1)}&gt;&lt;Text&gt;{likes}&lt;/Text&gt;&lt;/Pressable&gt;</span></code></pre>
+<h4>Words to know</h4>
+<ul><li><strong>Props</strong>: inputs a parent passes to a child component</li><li><strong>Hook</strong>: a function like <code>useState</code> or <code>useEffect</code> that components call</li><li><strong>Style</strong>: a JavaScript object (<code>StyleSheet.create</code>), flexbox by default, column direction</li></ul><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Project layout (Expo Router)</h4>
+<p>Files under <code>app/</code> become screens: <code>app/index.tsx</code> is the home screen, <code>app/post/[id].tsx</code> is a screen with a parameter, <code>app/_layout.tsx</code> wraps them (tabs or a stack). Navigation is <code>router.push(&quot;/post/7&quot;)</code>.</p>
+<h4>Lists</h4>
+<p>Use <code>FlatList</code> for feeds: it only renders rows on screen. Give it <code>data</code>, a <code>renderItem</code> and a stable <code>keyExtractor</code> (<code>item =&gt; item.id</code>). A <code>.map()</code> inside a <code>ScrollView</code> renders everything at once and gets slow.</p>
+<h4>Effects and data loading</h4>
+<p><code>useEffect(() =&gt; { ... }, [dependencies])</code> runs after render. Typical use: fetch from your API when a screen opens.</p>
+<pre class="ex"><code><span class="o">useEffect(() =&gt; {</span>
+<span class="o">  fetch(`${API}/api/posts`).then(r =&gt; r.json()).then(setPosts);</span>
+<span class="o">}, []);</span></code></pre>
+<p>The <code>[]</code> means "only once". Leave it off and the effect runs after <strong>every</strong> render; if it sets state, that triggers another render, and you get an infinite loop.</p>
+<h4>Talking to a backend</h4>
+<p>Call your REST API (see the Spring Boot guide) with <code>fetch</code>, send the JWT in an <code>Authorization</code> header, and show <strong>loading</strong>, <strong>error</strong> and <strong>empty</strong> states. On a real phone <code>localhost</code> is the phone, not your computer: use your computer's LAN IP or a tunnel while developing.</p>
+<h4>Where to keep things</h4>
+<ul><li>screen-local values: <code>useState</code></li><li>shared values (current user): React Context or a small store</li><li>secrets such as tokens: <code>expo-secure-store</code> (keychain/keystore), <strong>not</strong> <code>AsyncStorage</code>, which is plain text</li><li>API keys: never ship a real secret in the app bundle; anything in the app can be extracted</li></ul>
+<h4>Running and shipping</h4>
+<p><code>npx expo start</code> for development, <code>eas build</code> produces installable builds, and <code>eas submit</code> sends them to the stores. Over-the-air updates can fix JavaScript bugs without a store review.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Rendering and performance</h4>
+<p>Components re-render when their state or props change, and when their parent does. Slowness usually has one of these causes: a huge list without <code>FlatList</code>, a new object or function created each render and passed to a memoized child, expensive work during render (move it into <code>useMemo</code>), or an effect that sets state on every run. Use React DevTools' profiler and remove the cause, instead of wrapping everything in <code>memo</code>.</p>
+<h4>TypeScript the useful way</h4>
+<p>Type your props and API responses (<code>type Post = { id: string; text: string }</code>). Then a wrong field name is a red underline instead of a blank screen. Validate data from the network at runtime too (the types can't know what the server really sent).</p>
+<h4>Security on a mobile client</h4>
+<p>The device is untrusted. Assume users can read the bundle, intercept traffic and tamper with the app, so enforce rules on the <strong>server</strong>. Use HTTPS only, keep tokens in secure storage with a short lifetime, validate deep links before acting on them, don't log tokens or personal data, and review each Expo module's permissions. OWASP's <strong>Mobile Top 10</strong> is the checklist, and the applied-cryptography and Flutter/Firebase guides cover the neighbors.</p>
+<h4>React Native vs Flutter</h4>
+<p>Both build one codebase for iOS and Android. React Native uses JavaScript/TypeScript and native widgets and fits web developers; Flutter uses Dart and draws its own UI with a consistent look. I've used both, which makes the concepts (components, state, navigation, backend calls) the lasting skill.</p>
+<h4>Testing and tooling</h4>
+<p><code>jest</code> with <code>@testing-library/react-native</code> for components, <code>tsc --noEmit</code> and ESLint for types and mistakes, Expo's dev menu for reload and element inspector, and <code>npx expo-doctor</code> when versions disagree.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p>The feed screen in <code>App.tsx</code> (a fictional student project) freezes the phone and the dev console prints "Maximum update depth exceeded". The component fetches posts and shows them. Something makes it re-render forever.</p>
+<p>Submit the <strong>line number</strong> of the bug (the line that causes the loop), e.g. <code>submit 12</code>.</p>
+<p>Use <code>cat -n App.tsx</code> to see line numbers.</p><p class="muted">Solve it in the sandbox. Every <span class="ok">▶ run</span> above works on the same lab files, so the examples are your toolbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/mobile-apps-react-native-expo.html">cheatsheet</a></span></h2><h3>expo and node</h3><dl class="man"><dt><code>npx create-expo-app app</code></dt><dd>start a new project</dd><dt><code>npx expo start</code></dt><dd>run the dev server, show the QR code</dd><dt><code>npx expo install pkg</code></dt><dd>add a package at a compatible version</dd><dt><code>npx expo-doctor</code></dt><dd>check for version problems</dd><dt><code>npx tsc --noEmit</code></dt><dd>type-check without building</dd><dt><code>eas build -p android</code></dt><dd>cloud build for Android</dd></dl><h3>core components</h3><dl class="man"><dt><code>View</code></dt><dd>container box</dd><dt><code>Text</code></dt><dd>all text must be inside Text</dd><dt><code>Image</code></dt><dd>picture (source and size)</dd><dt><code>TextInput</code></dt><dd>text field (value, onChangeText)</dd><dt><code>Pressable</code></dt><dd>tappable area (onPress)</dd><dt><code>FlatList</code></dt><dd>efficient scrolling list</dd><dt><code>ScrollView</code></dt><dd>scroll everything it contains</dd><dt><code>StyleSheet.create</code></dt><dd>define styles</dd></dl><h3>hooks</h3><dl class="man"><dt><code>useState</code></dt><dd>remember a value; setter re-renders</dd><dt><code>useEffect(fn, deps)</code></dt><dd>run after render; deps decides when</dd><dt><code>useMemo / useCallback</code></dt><dd>cache a value / a function between renders</dd><dt><code>useContext</code></dt><dd>read shared data without passing props</dd><dt><code>useRef</code></dt><dd>mutable value that does not re-render</dd></dl><h3>terms</h3><dl class="man"><dt><code>Props</code></dt><dd>read-only inputs from a parent</dd><dt><code>State</code></dt><dd>data a component remembers</dd><dt><code>Re-render</code></dt><dd>React calls the component again</dd><dt><code>Expo Go</code></dt><dd>phone app that runs your project in development</dd><dt><code>Bundle</code></dt><dd>the JavaScript shipped inside the app</dd><dt><code>Deep link</code></dt><dd>URL that opens a specific screen</dd></dl></section><p><a href="../learn.html">cd ~/learn</a></p></div>
+<aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
+</div>
+<script type="application/json" id="lab-data">{"id": "mobile-apps-react-native-expo", "title": "Mobile apps (React Native / Expo)", "user": "dev", "host": "dev-laptop", "brief": "The feed screen in <code>App.tsx<\/code> (a fictional student project) freezes the phone and the dev console prints \"Maximum update depth exceeded\". The component fetches posts and shows them. Something makes it re-render forever.\n\nSubmit the <strong>line number<\/strong> of the bug (the line that causes the loop), e.g. <code>submit 12<\/code>.\n\nUse <code>cat -n App.tsx<\/code> to see line numbers.", "hints": ["Where does the component change state, and when does that code run?", "Look at the <code>useEffect<\/code> call. What is its second argument?"], "answers": ["19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7"], "solution": "VGhlIDxjb2RlPnVzZUVmZmVjdDwvY29kZT4gdGhhdCBmZXRjaGVzIHBvc3RzIGhhcyA8c3Ryb25nPm5vIGRlcGVuZGVuY3kgYXJyYXk8L3N0cm9uZz4gKGxpbmUgOTogPGNvZGU+fSk7PC9jb2RlPiBjbG9zZXMgaXQgd2l0aG91dCA8Y29kZT4sIFtdPC9jb2RlPikuIFdpdGggbm8gYXJyYXkgaXQgcnVucyBhZnRlciA8c3Ryb25nPmV2ZXJ5PC9zdHJvbmc+IHJlbmRlcjsgaXQgY2FsbHMgPGNvZGU+c2V0UG9zdHM8L2NvZGU+LCB3aGljaCByZS1yZW5kZXJzLCB3aGljaCBydW5zIHRoZSBlZmZlY3QgYWdhaW4sIGZvcmV2ZXIuIEFkZCA8Y29kZT4sIFtdPC9jb2RlPiBzbyBpdCBydW5zIG9uY2Ugd2hlbiB0aGUgc2NyZWVuIG9wZW5zIChvciBsaXN0IHRoZSByZWFsIGRlcGVuZGVuY2llcykuIFRoZSBjb25zb2xlIG1lc3NhZ2UgY29tZXMgZnJvbSBSZWFjdCBub3RpY2luZyB0aGUgZW5kbGVzcyB1cGRhdGVzLgo=", "fs": {"/home/dev/rn/package.json": "{ \"name\": \"feed\", \"dependencies\": { \"expo\": \"~51.0.0\", \"react\": \"18.2.0\", \"react-native\": \"0.74.5\" } }\n", "/home/dev/rn/App.tsx": "import { useEffect, useState } from \"react\";\nimport { FlatList, Text, View } from \"react-native\";\n\nexport default function Feed() {\n  const [posts, setPosts] = useState([]);\n  useEffect(() => {\n    fetch(\"http://10.0.0.5:8080/api/posts\")\n      .then(r => r.json()).then(setPosts);\n  });\n  return (\n    <View>\n      <FlatList data={posts} keyExtractor={p => p.id}\n        renderItem={({ item }) => <Text>{item.text}<\/Text>} />\n    <\/View>\n  );\n}\n"}, "cmds": [], "cmdnames": [], "cwd": "/home/dev/rn", "style": "shell"}</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man mobile-apps-react-native-expo :: 0xDay</title>
+<meta name="description" content="mobile-apps-react-native-expo cheatsheet: Mobile apps (React Native / Expo) commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=af415407" defer></script>
+<script src="../site.js?v=af415407" defer></script>
+<script src="../fx.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man mobile-apps-react-native-expo</p>
+<div class="manhead"><span>MOBILE-APPS-REACT-NATIVE-EXPO(7)</span><span>0xDay Field Manual</span><span>MOBILE-APPS-REACT-NATIVE-EXPO(7)</span></div>
+<h1>mobile-apps-react-native-expo <span class="muted">- Mobile apps (React Native / Expo) commands and terms</span></h1>
+<h2 id="g-expo-and-node">expo and node</h2><dl class="man"><dt><code>npx create-expo-app app</code></dt><dd>start a new project</dd><dt><code>npx expo start</code></dt><dd>run the dev server, show the QR code</dd><dt><code>npx expo install pkg</code></dt><dd>add a package at a compatible version</dd><dt><code>npx expo-doctor</code></dt><dd>check for version problems</dd><dt><code>npx tsc --noEmit</code></dt><dd>type-check without building</dd><dt><code>eas build -p android</code></dt><dd>cloud build for Android</dd></dl><h2 id="g-core-components">core components</h2><dl class="man"><dt><code>View</code></dt><dd>container box</dd><dt><code>Text</code></dt><dd>all text must be inside Text</dd><dt><code>Image</code></dt><dd>picture (source and size)</dd><dt><code>TextInput</code></dt><dd>text field (value, onChangeText)</dd><dt><code>Pressable</code></dt><dd>tappable area (onPress)</dd><dt><code>FlatList</code></dt><dd>efficient scrolling list</dd><dt><code>ScrollView</code></dt><dd>scroll everything it contains</dd><dt><code>StyleSheet.create</code></dt><dd>define styles</dd></dl><h2 id="g-hooks">hooks</h2><dl class="man"><dt><code>useState</code></dt><dd>remember a value; setter re-renders</dd><dt><code>useEffect(fn, deps)</code></dt><dd>run after render; deps decides when</dd><dt><code>useMemo / useCallback</code></dt><dd>cache a value / a function between renders</dd><dt><code>useContext</code></dt><dd>read shared data without passing props</dd><dt><code>useRef</code></dt><dd>mutable value that does not re-render</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Props</code></dt><dd>read-only inputs from a parent</dd><dt><code>State</code></dt><dd>data a component remembers</dd><dt><code>Re-render</code></dt><dd>React calls the component again</dd><dt><code>Expo Go</code></dt><dd>phone app that runs your project in development</dd><dt><code>Bundle</code></dt><dd>the JavaScript shipped inside the app</dd><dt><code>Deep link</code></dt><dd>URL that opens a specific screen</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

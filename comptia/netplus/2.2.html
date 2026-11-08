@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 2.2 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 2.2: Switching Technologies">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.2 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 2.0 · Network Implementation</span><span>2.2</span></div>
+<h1><span class="ok">2.2</span> Switching Technologies</h1>
+<div class="obj" data-obj="netplus-2.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>VLANs and Trunking</h4>
+<ul><li>A LAN is one <strong>broadcast domain</strong>. A <strong>VLAN</strong> carves one physical switch into several separate broadcast domains (defined by number, per interface). Devices on different VLANs cannot talk without a router. Saves power, rack space and management versus one switch per network.</li><li>Spanning several switches: one cable per VLAN does not scale, so use a <strong>trunk</strong> (<strong>802.1Q</strong>, "dot1q"). The switch <strong>tags</strong> each frame with a <strong>12-bit VLAN ID</strong> (inserted after the source MAC), so a single link carries up to <strong>4,094</strong> usable VLANs; the far switch reads the tag, strips it and delivers to the right VLAN. <strong>ISL</strong> was Cisco's old proprietary trunking, rarely seen now.</li><li><strong>Default VLAN</strong> (usually VLAN 1): where every port starts. <strong>Native VLAN</strong>: the one VLAN sent <strong>untagged</strong> on a trunk (for devices that do not speak 802.1Q and some management traffic). It must <strong>match on both ends</strong> or you get log errors.</li><li><strong>Layer 3 switch</strong>: switching plus routing in one box. Routing between VLANs uses <strong>SVIs</strong> (switched virtual interfaces), and routing may need to be enabled (sometimes a reload). Less capable than a real router ("a switch should switch, a router should route"), fine for small sites.</li><li><strong>Voice and data</strong>: VoIP phones and PCs share one cable (PC plugs into the phone). Put voice in its own VLAN (say 200) and data in another (100) so bursty data does not hurt call quality; the switch separates them with tagging.</li></ul>
+<h4>Interface Configurations</h4>
+<ul><li><strong>Speed</strong> must match on both ends or there is <strong>no link</strong> at all. <strong>Duplex</strong> mismatch (one half, one full) still links but performs terribly. Auto-negotiate on both sides is the norm. First check on a bad Ethernet link: speed and duplex, then IP config (address, mask, gateway, DNS must match what the admin assigned).</li><li><strong>Link aggregation (LAG / port bonding)</strong>: bundle several ports into one logical link (four 1 Gb links = 4 Gb throughput) without causing a loop. <strong>LACP</strong> negotiates it automatically.</li><li><strong>MTU</strong>: normal Ethernet payload is <strong>1500 bytes</strong>. Fragmenting is slow and one lost fragment forces resending everything. Path MTU discovery is automatic but firewalls can break it, so you may need to set MTU by hand. <strong>Jumbo frames</strong> raise MTU up to about <strong>9,000 to 9,216 bytes</strong> (6x fewer frames), but <strong>every device in the path</strong> must support them or the frames are dropped.</li></ul>
+<h4>Spanning Tree Protocol</h4>
+<ul><li>A cable loop between switches makes frames circulate forever (Ethernet has no hop counter), creating a <strong>broadcast storm</strong> within seconds. <strong>STP (802.1D)</strong> prevents loops by <strong>blocking</strong> redundant ports.</li><li>Port states: <strong>blocking</strong> (no forwarding), <strong>listening</strong> (clears tables, hears neighbors), <strong>learning</strong> (builds MAC table), <strong>forwarding</strong>, plus <strong>disabled</strong> (admin down). Roles: one <strong>root bridge</strong> is elected; each switch has a <strong>root port</strong> (best path to the root), <strong>designated ports</strong> (forward traffic) and <strong>blocked</strong> ports (the loop breakers). If a link fails, STP recalculates and unblocks a backup port.</li><li><strong>RSTP (802.1w, Rapid STP)</strong>: same idea, converges in about <strong>6 seconds</strong> versus 30 to 50 seconds for classic STP, and is backward compatible.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-2.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Two switches are connected with two cables and the network goes down within seconds. What would normally prevent this?</p><ul class="chk__o"><li><span class="ok">a)</span> LACP or STP</li><li><span class="ok">b)</span> DHCP snooping</li><li><span class="ok">c)</span> NAT</li><li><span class="ok">d)</span> MTU</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> STP blocks one path; LACP bundles the links into one logical link. Both avoid a loop.</p></details></div><div class="chk"><p><strong>2.</strong> A link between a PC (auto) and a switch port forced to 100/half is slow but up. Fix?</p><ul class="chk__o"><li><span class="ok">a)</span> Change the cable category</li><li><span class="ok">b)</span> Match duplex and speed settings (set both to auto)</li><li><span class="ok">c)</span> Add a VLAN</li><li><span class="ok">d)</span> Increase MTU</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Duplex mismatch causes collisions and poor throughput.</p></details></div><div class="chk"><p><strong>3.</strong> Two ends of a trunk disagree about the native VLAN. What do you see?</p><ul class="chk__o"><li><span class="ok">a)</span> Nothing</li><li><span class="ok">b)</span> Log errors and misdelivered untagged traffic</li><li><span class="ok">c)</span> Link down</li><li><span class="ok">d)</span> STP disabled</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Native VLAN must match.</p></details></div>
+<h2>short lab: Configure a trunk on paper</h2><div class="prose lab"><p>Switch A and B each have VLAN 100 (data) and VLAN 200 (voice). Describe the single link setup and the router-on-a-stick option for routing between them.</p></div><details><summary>walkthrough</summary><div class="prose"><p>One cable between A and B, both ends set to 802.1Q trunk allowing VLANs 100 and 200, same native VLAN. To route: either an SVI per VLAN on a layer 3 switch, or a router with a trunk to the switch and subinterfaces (for example g0/0.100 and g0/0.200) each with an IP in its VLAN as the gateway.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/networking-tcp-ip-dhcp-nat-subnets.html">networking tcp ip dhcp nat subnets</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.2" placeholder="# 2.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.1.html">&lt; 2.1</a><a href="2.3.html">2.3 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-2.2-0", "q": "What is a broadcast domain?", "a": "The set of devices that receive each other's broadcasts: one LAN, or one VLAN."}, {"id": "netplus-2.2-1", "q": "What does a VLAN do?", "a": "Splits a switch into separate logical LANs (broadcast domains)."}, {"id": "netplus-2.2-2", "q": "What standard defines VLAN trunking?", "a": "IEEE 802.1Q (dot1q)."}, {"id": "netplus-2.2-3", "q": "How many bits in the 802.1Q VLAN ID and how many VLANs?", "a": "12 bits; 4,094 usable VLANs."}, {"id": "netplus-2.2-4", "q": "Where is the 802.1Q tag inserted in the frame?", "a": "After the source MAC address."}, {"id": "netplus-2.2-5", "q": "What is ISL?", "a": "Cisco's older proprietary trunking protocol, replaced by 802.1Q."}, {"id": "netplus-2.2-6", "q": "Native VLAN behavior?", "a": "Its traffic is sent untagged on the trunk; it must match on both ends."}, {"id": "netplus-2.2-7", "q": "What is an SVI?", "a": "A switched virtual interface: a layer 3 interface in a switch used to route a VLAN."}, {"id": "netplus-2.2-8", "q": "Why separate voice and data VLANs?", "a": "Voice needs steady, consistent access; bursty data can degrade call quality."}, {"id": "netplus-2.2-9", "q": "Speed mismatch vs duplex mismatch symptoms?", "a": "Speed mismatch: no link. Duplex mismatch: link works but very slow with errors."}, {"id": "netplus-2.2-10", "q": "What is LAG and which protocol automates it?", "a": "Link aggregation (port bonding); LACP."}, {"id": "netplus-2.2-11", "q": "Default Ethernet MTU?", "a": "1500 bytes."}, {"id": "netplus-2.2-12", "q": "Jumbo frame size?", "a": "About 9,000 bytes (up to 9,216), and every device on the path must support it."}, {"id": "netplus-2.2-13", "q": "What does STP prevent?", "a": "Layer 2 switching loops and broadcast storms."}, {"id": "netplus-2.2-14", "q": "STP standard numbers?", "a": "802.1D (STP) and 802.1w (RSTP)."}, {"id": "netplus-2.2-15", "q": "STP port states in order?", "a": "Blocking, listening, learning, forwarding (disabled is separate)."}, {"id": "netplus-2.2-16", "q": "STP port roles?", "a": "Root port, designated port, blocked (alternate) port."}, {"id": "netplus-2.2-17", "q": "RSTP convergence time vs STP?", "a": "About 6 seconds vs 30 to 50 seconds."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

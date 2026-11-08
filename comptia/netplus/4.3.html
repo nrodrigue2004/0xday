@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 4.3 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 4.3: Network Security Features">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 4.3 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 4.0 · Network Security</span><span>4.3</span></div>
+<h1><span class="ok">4.3</span> Network Security Features</h1>
+<div class="obj" data-obj="netplus-4.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Device Security</h4>
+<ul><li><strong>Close unused ports/services</strong>: every listening service is an entry point (ports 0 to 65,535). Check with <strong>nmap</strong>; use a <strong>firewall</strong> to limit who can reach the ones you keep.</li><li><strong>Change default credentials</strong> on every switch, router and firewall; default admin logins are public.</li><li><strong>Port security</strong> (switches): limit the number of MACs per port or pin specific MACs; a violation usually <strong>shuts the port down</strong> and alerts the admin. Stops someone swapping in their own device.</li><li><strong>Disable unused interfaces</strong> (wall jacks, conference rooms) until needed.</li><li><strong>NAC / 802.1X</strong>: require authentication before a port or Wi-Fi network works.</li><li><strong>MAC filtering</strong>: allow or block by MAC. Weak, <strong>security through obscurity</strong>: MACs are easy to sniff and change.</li><li><strong>Key management</strong>: central console to create, track expiry, renew, revoke and report on certificates, SSL keys and SSH keys per user or service.</li></ul>
+<h4>Security Rules</h4>
+<ul><li><strong>ACL</strong>: allow/deny list matching source and destination IP, port, protocol, time or application. Found on routers, firewalls and operating systems.</li><li><strong>Firewall rules</strong> are read <strong>top to bottom, first match wins</strong>: put specific rules first, general ones last. If nothing matches, the <strong>implicit deny</strong> blocks the traffic. Sample rule base: allow TCP 22, 80, 443, 3389 in; allow UDP 53 and 123 out; deny ICMP; implicit deny at the end.</li><li><strong>URL filtering</strong>: allow or block specific URLs or <strong>categories</strong>; combine with firewall rules so users can't bypass. <strong>Content filtering</strong> goes further: inspect content for leaked documents or financial data, unsafe content, malware (antivirus). Next-generation firewalls include both.</li><li><strong>Screened subnet (DMZ)</strong>: separate network for public services (web, mail) so the internet reaches them but not the internal LAN.</li><li><strong>Zones</strong>: group networks into <strong>trusted/untrusted</strong>, or inside, internet, server, database and screened subnet zones. Rules reference zones rather than IPs ("trusted to untrusted: allow", "untrusted to trusted: deny"). This is a <strong>zone-based firewall</strong>.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-4.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Traffic from the internet matches no firewall rule. What happens?</p><ul class="chk__o"><li><span class="ok">a)</span> Allowed</li><li><span class="ok">b)</span> Implicit deny</li><li><span class="ok">c)</span> Logged only</li><li><span class="ok">d)</span> Sent to the DMZ</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Unmatched traffic is dropped by default.</p></details></div><div class="chk"><p><strong>2.</strong> A public web server should be reachable but not expose the internal LAN. Where do you place it?</p><ul class="chk__o"><li><span class="ok">a)</span> Inside the trusted zone</li><li><span class="ok">b)</span> Screened subnet</li><li><span class="ok">c)</span> On the management VLAN</li><li><span class="ok">d)</span> Behind a hub</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Screened subnet isolates public services.</p></details></div><div class="chk"><p><strong>3.</strong> Someone plugs a personal laptop into a wall jack and gets network access. Best control?</p><ul class="chk__o"><li><span class="ok">a)</span> 802.1X with port security</li><li><span class="ok">b)</span> More DNS servers</li><li><span class="ok">c)</span> Longer lease times</li><li><span class="ok">d)</span> NTP</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Authenticate and limit devices per port.</p></details></div>
+<h2>short lab: Order the rules</h2><div class="prose lab"><p>A firewall has: (1) deny all, (2) allow TCP 443 to web server, (3) deny TCP 443 from 203.0.113.5. Put them in a working order so that the bad host is blocked and others reach the site.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Deny 203.0.113.5 to 443 first (specific), then allow TCP 443 to the web server, then deny all (explicit version of the implicit deny) last.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/firewalls-pfsense.html">firewalls pfsense</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/computer-networks.html">computer networks</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 4.3" placeholder="# 4.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="4.2.html">&lt; 4.2</a><a href="5.1.html">5.1 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-4.3-0", "q": "Why close unused ports?", "a": "Each open port is an entry point into a service; fewer ports, smaller attack surface."}, {"id": "netplus-4.3-1", "q": "Tool to see which ports are open on a host?", "a": "nmap."}, {"id": "netplus-4.3-2", "q": "Why change default credentials?", "a": "Defaults are public and usually give admin access."}, {"id": "netplus-4.3-3", "q": "What does port security do?", "a": "Limits which or how many MAC addresses may use a switch port; violations can shut the port down."}, {"id": "netplus-4.3-4", "q": "Why disable unused switch ports?", "a": "Prevents someone plugging into a live jack."}, {"id": "netplus-4.3-5", "q": "What is NAC (802.1X)?", "a": "Authentication required before a device gets network access."}, {"id": "netplus-4.3-6", "q": "Why is MAC filtering weak?", "a": "MACs can be sniffed and spoofed; it is security through obscurity."}, {"id": "netplus-4.3-7", "q": "What does a key management system provide?", "a": "Central creation, expiry tracking, renewal, revocation and reporting for keys and certificates."}, {"id": "netplus-4.3-8", "q": "What is an ACL?", "a": "A list of allow and deny rules matching traffic criteria."}, {"id": "netplus-4.3-9", "q": "How is a firewall rule base processed?", "a": "Top to bottom, first match wins."}, {"id": "netplus-4.3-10", "q": "Implicit deny?", "a": "Traffic matching no rule is blocked by default."}, {"id": "netplus-4.3-11", "q": "Order of rules: specific or general first?", "a": "Specific first, general last."}, {"id": "netplus-4.3-12", "q": "URL vs content filtering?", "a": "URL filtering controls sites or categories; content filtering inspects the data itself (leaks, malware, unsafe content)."}, {"id": "netplus-4.3-13", "q": "What is a screened subnet?", "a": "A separate network (DMZ) for public-facing servers, isolated from the internal LAN."}, {"id": "netplus-4.3-14", "q": "Zone-based firewall?", "a": "Rules written between security zones (trusted, untrusted, screened subnet) instead of IP ranges."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 3.2 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 3.2: Network Monitoring">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.2 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 3.0 · Network Operations</span><span>3.2</span></div>
+<h1><span class="ok">3.2</span> Network Monitoring</h1>
+<div class="obj" data-obj="netplus-3.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>SNMP</h4>
+<ul><li><strong>SNMP</strong> lets a management station query and manage devices from any vendor. Devices hold values in a <strong>MIB</strong> (management information base), each value addressed by an <strong>OID</strong> (object identifier, a dotted number path such as 1.3.6.1.2.1...). Standard values live in <strong>MIB-2</strong>; vendors add their own OIDs and provide MIB files to load into the console. Polling uses <strong>UDP 161</strong>.</li><li>Versions: <strong>v1</strong> original, clear text. <strong>v2/v2c</strong>: bulk retrieval, still clear text. <strong>v3</strong>: encryption, integrity and real authentication (username and password hash).</li><li><strong>Community strings</strong> (v1/v2c) are simple shared passwords, for example read-only "public" and read-write "private" (change the defaults!). A <strong>MIB walker</strong> (MIB browser) enumerates everything on a device.</li><li>Polling only finds a problem at the next poll, so devices can send <strong>traps</strong> (unsolicited alerts, <strong>UDP 162</strong>), such as a CRC error threshold, which can trigger tickets or scripts. Poll results over time become graphs of utilization and errors.</li></ul>
+<h4>Logs and Monitoring</h4>
+<ul><li><strong>NetFlow</strong>: summary statistics of traffic flows (who talked to whom, ports, bytes). A <strong>probe</strong> (inline tap or switch <strong>SPAN</strong>/mirror port) summarizes packets and exports to a <strong>collector</strong> with reports: top conversations, top endpoints, top applications by port.</li><li><strong>Protocol analyzer</strong> (Wireshark etc.): see raw frames, wired or wireless, with drill-down. Some places store full packet captures long term.</li><li><strong>Baseline</strong>: what "normal" looks like (utilization, per device). Compare current numbers to the baseline to decide if something is wrong.</li><li><strong>Syslog</strong> (UDP 514) forwards logs from any device to a <strong>SIEM</strong> (security information and event manager), which records the sending device, <strong>facility</strong> (originating program) and <strong>severity</strong> of each message. Dashboards and alerts show failed logins, devices going offline, and reports across time. Tune the severity captured so you do not store everything. Example query: records containing "fail" and "password" reveal brute force or spraying and support forensics.</li><li><strong>API integration</strong>: manage hundreds of devices by script (send commands, query config) rather than logging in by hand to each.</li><li><strong>Port mirroring (SPAN)</strong> or a <strong>network tap</strong> copies traffic to a monitoring device (IDS/IPS, NetFlow collector), even across switches.</li></ul>
+<h4>Network Solutions</h4>
+<ul><li><strong>Discovery</strong>: LLDP (open standard link layer discovery) and CDP (Cisco discovery protocol) show neighbors. Ping scans, port scans and SNMP discover hosts. Nightly scans give an inventory.</li><li><strong>Traffic analysis</strong>: firewall logs list timestamp, protocol, ports, client and server IP, application and bytes, useful for reports and forensics.</li><li><strong>Performance</strong> (utilization, errors) from SNMP, NetFlow, protocol analysis or agents. <strong>Availability monitoring</strong>: up/down status (green/red) with alerts, tickets and uptime reports.</li><li><strong>Configuration monitoring</strong>: back up and restore device configs (a config may need matching firmware, so keep the old software), compare identical devices, alert on unapproved changes via change control.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-3.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> You want an alert the instant a router's CRC errors spike, without waiting for polling. Which?</p><ul class="chk__o"><li><span class="ok">a)</span> SNMP trap</li><li><span class="ok">b)</span> MIB walk</li><li><span class="ok">c)</span> NetFlow report</li><li><span class="ok">d)</span> LLDP</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Traps are device-initiated notifications.</p></details></div><div class="chk"><p><strong>2.</strong> Which tool tells you which apps use the most bandwidth by port, summarized?</p><ul class="chk__o"><li><span class="ok">a)</span> Wireshark</li><li><span class="ok">b)</span> NetFlow</li><li><span class="ok">c)</span> CDP</li><li><span class="ok">d)</span> TFTP</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Flow summaries rank applications and endpoints.</p></details></div>
+<h2>short lab: Find the brute force</h2><div class="prose lab"><p>Your SIEM shows 4,000 "failed password" events for user admin from one external IP between 02:00 and 02:10. What do you do?</p></div><details><summary>walkthrough</summary><div class="prose"><p>Brute force. Check the source IP reputation and geolocation, verify no success after the failures, block the IP, lock or monitor the account, enforce MFA and account lockout, and add an alert rule for repeated failures in a short window.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/siem-security-onion.html">siem security onion</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/network-traffic-analysis.html">network traffic analysis</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/log-analysis.html">log analysis</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.2" placeholder="# 3.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="3.1.html">&lt; 3.1</a><a href="3.3.html">3.3 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-3.2-0", "q": "What does SNMP use to name each value?", "a": "An OID in the device's MIB."}, {"id": "netplus-3.2-1", "q": "SNMP versions and security?", "a": "v1 and v2c are clear text with community strings; v3 adds authentication, integrity and encryption."}, {"id": "netplus-3.2-2", "q": "What is an SNMP trap?", "a": "An unsolicited alert from a device to the manager (UDP 162)."}, {"id": "netplus-3.2-3", "q": "Default SNMP community strings?", "a": "public (read-only) and private (read-write): change them."}, {"id": "netplus-3.2-4", "q": "What is NetFlow?", "a": "Summarized traffic flow statistics exported from probes to a collector."}, {"id": "netplus-3.2-5", "q": "What is a SPAN port?", "a": "A switch port that receives a copy of traffic from other ports for monitoring."}, {"id": "netplus-3.2-6", "q": "What is a network baseline for?", "a": "Knowing normal levels so abnormal activity is easy to spot."}, {"id": "netplus-3.2-7", "q": "What does a SIEM do with syslog data?", "a": "Aggregates, correlates, alerts, and supports reports and forensics."}, {"id": "netplus-3.2-8", "q": "Two syslog fields besides the message?", "a": "Facility (source program) and severity."}, {"id": "netplus-3.2-9", "q": "Why use APIs for network management?", "a": "To automate changes and queries across many devices without manual logins."}, {"id": "netplus-3.2-10", "q": "LLDP vs CDP?", "a": "LLDP is the open standard neighbor discovery; CDP is Cisco's."}, {"id": "netplus-3.2-11", "q": "What does availability monitoring show?", "a": "Whether devices are up or down, with alerts."}, {"id": "netplus-3.2-12", "q": "Why keep old firmware with config backups?", "a": "Configs may only load on the matching software version."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

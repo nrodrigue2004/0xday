@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 3.1 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 3.1: Processes and Procedures">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.1 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 3.0 · Network Operations</span><span>3.1</span></div>
+<h1><span class="ok">3.1</span> Processes and Procedures</h1>
+<div class="obj" data-obj="netplus-3.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Network Documentation</h4>
+<ul><li><strong>Physical network map</strong>: devices, cables and connections as built (you could follow the cable in the room), made in Visio, OmniGraffle, Gliffy. <strong>Logical map</strong>: high-level connectivity (sites joined across a WAN cloud) without ports and cables, good for planning new sites.</li><li><strong>Rack diagram</strong>: front view of a rack by unit number ("go to U15 in row 3, rack W and reboot that server") for remote hands. <strong>Cable map</strong>: floor plan with numbered drops that correspond to patch panel ports, vital for tracing faults. <strong>Layered diagrams</strong> overlay layer 1 (ports/cables), layer 2 (MAC addresses) and layer 3 (IP addresses).</li><li><strong>Asset management</strong>: tag every device (barcode or RFID) and keep one database tying tag, components, user, location, purchase date, warranty and installed software (license counts). Tags also let tickets refer to "router 42" and support depreciation.</li><li><strong>IPAM (IP address management)</strong>: plan and track subnets, DHCP scopes and who held which IP at what time (key with dynamic addressing), spot shortages, IPv4 and IPv6 in one console.</li><li><strong>SLA (service level agreement)</strong>: contract with a provider defining minimum service, for example 99.99 percent uptime or no more than 4 hours of unscheduled downtime.</li><li><strong>Site survey</strong>: map the wireless environment (all APs including neighbors, frequencies in use) to minimize interference. A <strong>heat map</strong> shows signal strength across the building. Repeat in shared buildings.</li></ul>
+<h4>Life Cycle Management</h4>
+<ul><li><strong>EOL (end of life)</strong>: vendor stops selling and improving the product (may still patch). <strong>EOS (end of support)</strong>: no more patches or updates at all, a serious security risk. EOL means plan and budget a replacement, EOS means act now.</li><li><strong>Patching</strong>: OS and app updates are often monthly on a schedule with out-of-band emergency fixes (zero-days). Updates also change security configuration (password rules, firewall settings, anti-malware). <strong>Firmware</strong> (software embedded in hardware: printers, modems, thermostats) must be updated too, often by hand. Keep old firmware images so you can roll back. Vendors can be slow: some IoT firmware bugs took more than a year to fix, so security must decide whether to keep a device.</li><li><strong>Decommissioning</strong>: sanitize or destroy media before disposal, respect legal retention requirements (keep in secure storage until allowed), never throw gear in the trash.</li><li><strong>Change management</strong>: defined process with allowed change windows, approvals, install procedure and a <strong>rollback plan</strong>. <strong>Service requests</strong>: a help desk ticketing system for triage, assignment, resolution and closing.</li></ul>
+<h4>Configuration Management</h4>
+<ul><li><strong>Production configuration</strong>: the tested standard for a device class including hardware revisions, firmware, drivers and software versions. Test in a lab first.</li><li><strong>Backup before every change</strong> (copy the config file, or a <strong>VM snapshot</strong>) so you can revert. Record changes so a system can be rebuilt after a disaster.</li><li><strong>Baseline / golden configuration</strong>: the certified known-good complete config of an application deployment (workstations, firewall, servers). Compare production against it for <strong>integrity checks</strong>: either fix production to match, or approve the change and update the baseline to a new version.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-3.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A vendor announces that no more security patches will ever ship for your core switch. Which milestone?</p><ul class="chk__o"><li><span class="ok">a)</span> EOL</li><li><span class="ok">b)</span> EOS</li><li><span class="ok">c)</span> SLA</li><li><span class="ok">d)</span> IPAM</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> End of support means no updates at all.</p></details></div><div class="chk"><p><strong>2.</strong> Before a router upgrade, the first thing to do is?</p><ul class="chk__o"><li><span class="ok">a)</span> Reboot it</li><li><span class="ok">b)</span> Back up the configuration and keep the old firmware</li><li><span class="ok">c)</span> Change the SLA</li><li><span class="ok">d)</span> Decommission it</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Backup and rollback path first.</p></details></div>
+<h2>short lab: Build a documentation checklist</h2><div class="prose lab"><p>List six pieces of documentation you would hand to a new network admin on day one.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Physical and logical network maps, rack diagrams, cable map with drop numbers, IPAM export with DHCP scopes, asset database with warranty and firmware versions, SLA contracts plus golden configs and the change management policy.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/help-desk-ticketing-osticket.html">help desk ticketing osticket</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.1" placeholder="# 3.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.4.html">&lt; 2.4</a><a href="3.2.html">3.2 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-3.1-0", "q": "Physical vs logical network map?", "a": "Physical shows actual devices, ports and cables. Logical shows how the network is connected at a high level."}, {"id": "netplus-3.1-1", "q": "What is a rack diagram for?", "a": "Showing exact rack, unit and device positions so remote staff can locate equipment."}, {"id": "netplus-3.1-2", "q": "What is a cable map?", "a": "Floor plan of numbered cable drops tied to patch panel ports."}, {"id": "netplus-3.1-3", "q": "Why use asset tags?", "a": "To identify devices in tickets, track location, warranty, depreciation and software licenses."}, {"id": "netplus-3.1-4", "q": "What is IPAM?", "a": "IP address management: planning and tracking subnets, DHCP and who used which IP when."}, {"id": "netplus-3.1-5", "q": "What is an SLA?", "a": "Contract that defines minimum service levels such as uptime and recovery times."}, {"id": "netplus-3.1-6", "q": "What is a wireless site survey and heat map?", "a": "Survey documents APs and frequencies; the heat map shows signal strength across areas."}, {"id": "netplus-3.1-7", "q": "EOL vs EOS?", "a": "EOL: vendor stops selling or improving; EOS: no more updates, including security fixes."}, {"id": "netplus-3.1-8", "q": "Which is the bigger emergency, EOL or EOS?", "a": "EOS, because no more security patches will come."}, {"id": "netplus-3.1-9", "q": "What is firmware?", "a": "Software embedded in hardware devices (printers, modems, switches)."}, {"id": "netplus-3.1-10", "q": "Why keep old firmware images?", "a": "To roll back if a new version causes problems."}, {"id": "netplus-3.1-11", "q": "What belongs in a change management process?", "a": "Approval, change window, installation steps and a rollback plan."}, {"id": "netplus-3.1-12", "q": "What should you do before making a config change?", "a": "Back up the current config or snapshot the VM."}, {"id": "netplus-3.1-13", "q": "What is a golden configuration?", "a": "The known-good, certified baseline used to verify production configs."}, {"id": "netplus-3.1-14", "q": "What do you do when production differs from the baseline?", "a": "Either correct production or formally update the baseline if the change is approved."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

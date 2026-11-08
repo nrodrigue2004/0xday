@@ -1,0 +1,134 @@
+tagline: React Native builds real phone apps from React and TypeScript, and Expo makes running them painless. Learn components, state, navigation and talking to an API, then find why a screen keeps re-rendering.
+:: simple
+**React Native** lets you build iOS and Android apps in TypeScript using React. Instead of HTML elements you use native building blocks: `View` (a box), `Text`, `Image`, `TextInput`, `Pressable`, `FlatList`. They draw real native widgets, not a web page.
+
+**Expo** is the toolkit around it: one command starts the project, a phone app (**Expo Go**) runs it by scanning a QR code, and ready-made modules cover camera, notifications, secure storage and more.
+
+```
+$ cat ~/rn/App.tsx
+$ cat ~/rn/package.json
+```
+
+### The core idea: components and state
+A **component** is a function that returns what a piece of the screen looks like. **State** (`useState`) is data the component remembers. When state changes, React re-runs the function and updates the screen.
+
+```
+const [likes, setLikes] = useState(0);
+<Pressable onPress={() => setLikes(likes + 1)}><Text>{likes}</Text></Pressable>
+```
+
+### Words to know
+- **Props**: inputs a parent passes to a child component
+- **Hook**: a function like `useState` or `useEffect` that components call
+- **Style**: a JavaScript object (`StyleSheet.create`), flexbox by default, column direction
+:: mid
+### Project layout (Expo Router)
+Files under `app/` become screens: `app/index.tsx` is the home screen, `app/post/[id].tsx` is a screen with a parameter, `app/_layout.tsx` wraps them (tabs or a stack). Navigation is `router.push("/post/7")`.
+
+### Lists
+Use `FlatList` for feeds: it only renders rows on screen. Give it `data`, a `renderItem` and a stable `keyExtractor` (`item => item.id`). A `.map()` inside a `ScrollView` renders everything at once and gets slow.
+
+### Effects and data loading
+`useEffect(() => { ... }, [dependencies])` runs after render. Typical use: fetch from your API when a screen opens.
+```
+useEffect(() => {
+  fetch(`${API}/api/posts`).then(r => r.json()).then(setPosts);
+}, []);
+```
+The `[]` means "only once". Leave it off and the effect runs after **every** render; if it sets state, that triggers another render, and you get an infinite loop.
+
+### Talking to a backend
+Call your REST API (see the Spring Boot guide) with `fetch`, send the JWT in an `Authorization` header, and show **loading**, **error** and **empty** states. On a real phone `localhost` is the phone, not your computer: use your computer's LAN IP or a tunnel while developing.
+
+### Where to keep things
+- screen-local values: `useState`
+- shared values (current user): React Context or a small store
+- secrets such as tokens: `expo-secure-store` (keychain/keystore), **not** `AsyncStorage`, which is plain text
+- API keys: never ship a real secret in the app bundle; anything in the app can be extracted
+
+### Running and shipping
+`npx expo start` for development, `eas build` produces installable builds, and `eas submit` sends them to the stores. Over-the-air updates can fix JavaScript bugs without a store review.
+:: complex
+### Rendering and performance
+Components re-render when their state or props change, and when their parent does. Slowness usually has one of these causes: a huge list without `FlatList`, a new object or function created each render and passed to a memoized child, expensive work during render (move it into `useMemo`), or an effect that sets state on every run. Use React DevTools' profiler and remove the cause, instead of wrapping everything in `memo`.
+
+### TypeScript the useful way
+Type your props and API responses (`type Post = { id: string; text: string }`). Then a wrong field name is a red underline instead of a blank screen. Validate data from the network at runtime too (the types can't know what the server really sent).
+
+### Security on a mobile client
+The device is untrusted. Assume users can read the bundle, intercept traffic and tamper with the app, so enforce rules on the **server**. Use HTTPS only, keep tokens in secure storage with a short lifetime, validate deep links before acting on them, don't log tokens or personal data, and review each Expo module's permissions. OWASP's **Mobile Top 10** is the checklist, and the applied-cryptography and Flutter/Firebase guides cover the neighbors.
+
+### React Native vs Flutter
+Both build one codebase for iOS and Android. React Native uses JavaScript/TypeScript and native widgets and fits web developers; Flutter uses Dart and draws its own UI with a consistent look. I've used both, which makes the concepts (components, state, navigation, backend calls) the lasting skill.
+
+### Testing and tooling
+`jest` with `@testing-library/react-native` for components, `tsc --noEmit` and ESLint for types and mistakes, Expo's dev menu for reload and element inspector, and `npx expo-doctor` when versions disagree.
+:: ref
+### expo and node
+npx create-expo-app app | start a new project
+npx expo start | run the dev server, show the QR code
+npx expo install pkg | add a package at a compatible version
+npx expo-doctor | check for version problems
+npx tsc --noEmit | type-check without building
+eas build -p android | cloud build for Android
+### core components
+View | container box
+Text | all text must be inside Text
+Image | picture (source and size)
+TextInput | text field (value, onChangeText)
+Pressable | tappable area (onPress)
+FlatList | efficient scrolling list
+ScrollView | scroll everything it contains
+StyleSheet.create | define styles
+### hooks
+useState | remember a value; setter re-renders
+useEffect(fn, deps) | run after render; deps decides when
+useMemo / useCallback | cache a value / a function between renders
+useContext | read shared data without passing props
+useRef | mutable value that does not re-render
+### terms
+Props | read-only inputs from a parent
+State | data a component remembers
+Re-render | React calls the component again
+Expo Go | phone app that runs your project in development
+Bundle | the JavaScript shipped inside the app
+Deep link | URL that opens a specific screen
+:: lab
+host: dev-laptop
+user: dev
+cwd: /home/dev/rn
+:: brief
+The feed screen in `App.tsx` (a fictional student project) freezes the phone and the dev console prints "Maximum update depth exceeded". The component fetches posts and shows them. Something makes it re-render forever.
+
+Submit the **line number** of the bug (the line that causes the loop), e.g. `submit 12`.
+
+Use `cat -n App.tsx` to see line numbers.
+:: answer
+9
+:: hint
+Where does the component change state, and when does that code run?
+:: hint
+Look at the `useEffect` call. What is its second argument?
+:: solution
+The `useEffect` that fetches posts has **no dependency array** (line 9: `});` closes it without `, []`). With no array it runs after **every** render; it calls `setPosts`, which re-renders, which runs the effect again, forever. Add `, []` so it runs once when the screen opens (or list the real dependencies). The console message comes from React noticing the endless updates.
+:: verify
+cat -n App.tsx
+:: file /home/dev/rn/package.json
+{ "name": "feed", "dependencies": { "expo": "~51.0.0", "react": "18.2.0", "react-native": "0.74.5" } }
+:: file /home/dev/rn/App.tsx
+import { useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
+
+export default function Feed() {
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    fetch("http://10.0.0.5:8080/api/posts")
+      .then(r => r.json()).then(setPosts);
+  });
+  return (
+    <View>
+      <FlatList data={posts} keyExtractor={p => p.id}
+        renderItem={({ item }) => <Text>{item.text}</Text>} />
+    </View>
+  );
+}

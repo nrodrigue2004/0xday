@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 2.3 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 2.3: Wireless Devices">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 2.3 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 2.0 · Network Implementation</span><span>2.3</span></div>
+<h1><span class="ok">2.3</span> Wireless Devices</h1>
+<div class="obj" data-obj="netplus-2.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Wireless Technologies</h4>
+<ul><li>IEEE 802.11 standards have friendly names: 802.11ac = Wi-Fi 5, 802.11ax = Wi-Fi 6 (6E extends into 6 GHz), 802.11be = Wi-Fi 7.</li><li><strong>Frequencies and channels</strong>: 2.4, 5 and 6 GHz bands, divided into numbered <strong>channels</strong> (2.4 GHz channel 6 is centered on 2.437 GHz, 5 GHz channel 44 on 5.220 GHz). <strong>Channel width</strong> (bandwidth) 20, 40, 80 or 160 MHz: wider is faster but uses more spectrum. The 2.4 GHz band has only <strong>three non-overlapping channels (1, 6, 11)</strong> at 20 MHz, 5 GHz has many more, 6 GHz even more.</li><li>Older clients may only do 2.4 GHz. <strong>Band steering</strong> makes the AP nudge dual-band clients onto 5 GHz (better throughput) instead of letting them pick by signal strength alone.</li><li>Regulation: the <strong>FCC</strong> in the US allocates spectrum; the ITU coordinates globally. <strong>802.11h</strong> adds interoperability: <strong>DFS (dynamic frequency selection)</strong> moves the AP off channels that conflict with other users (and tells clients), <strong>TPC (transmit power control)</strong> lets the AP tell clients to lower power.</li></ul>
+<h4>Wireless Networking</h4>
+<ul><li><strong>IBSS</strong> = ad hoc, device to device with no AP (used when first configuring IoT gear).</li><li><strong>SSID</strong> = network name. <strong>BSSID</strong> = the AP's radio hardware (MAC) address. <strong>ESSID</strong> = the same SSID shared across multiple APs so clients <strong>roam</strong> seamlessly across the building.</li><li><strong>Captive portal</strong>: first connection redirects to a page for terms or login; success adds you to an access table for a set time (for example 24 hours).</li><li><strong>Security modes</strong>: open (no security), <strong>OWE</strong> (opportunistic wireless encryption: encrypts without a password, isolates users), <strong>WEP</strong> (broken), <strong>WPA/WPA2/WPA3 Personal = PSK</strong> (one shared passphrase), <strong>Enterprise / 802.1X</strong> (each person authenticates with their own credentials, so disabling an account cuts access). Enterprises should use 802.1X.</li><li><strong>Antennas</strong>: <strong>omnidirectional</strong> spreads signal in all directions (put the AP in the middle). <strong>Directional</strong> focuses signal: <strong>Yagi</strong> (high gain, narrow), <strong>parabolic</strong> (dish, collects and focuses, long distance). Gain is in dB: <strong>every +3 dB roughly doubles</strong> power.</li><li><strong>Autonomous AP</strong>: standalone (home). <strong>Lightweight AP</strong>: the brains live in a <strong>wireless LAN controller</strong> (WLC) managed over <strong>CAPWAP</strong> (control and provisioning of wireless access points), a single pane of glass for deploy, monitor, change, report.</li></ul>
+<h4>Network Types</h4>
+<ul><li><strong>Mesh</strong>: APs link to each other and heal themselves if one drops (home mesh). <strong>Ad hoc / IBSS</strong>: two devices directly, no AP. <strong>Point-to-point</strong>: AP-to-AP links over long distance (building to building) needing the right antennas, power and frequency. <strong>Infrastructure</strong>: clients connect to a central AP (most common); some APs offer <strong>client isolation</strong> so wireless devices cannot talk to each other.</li></ul>
+<h4>Wireless Encryption</h4>
+<ul><li>Wireless needs authentication, <strong>encryption</strong> (confidentiality) and a <strong>message integrity check</strong>. <strong>WEP</strong>: vulnerable cryptography. <strong>WPA</strong>: temporary fix that ran on WEP hardware. <strong>WPA2</strong> (2004): <strong>AES</strong> with <strong>CCMP</strong> (counter mode with CBC-MAC, encryption and integrity together). <strong>WPA3</strong> (2018): AES with <strong>GCMP</strong> (Galois counter mode) and GMAC for integrity. Use the newest your devices support.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-2.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Employees leave and must immediately lose Wi-Fi access without changing a shared password. Best?</p><ul class="chk__o"><li><span class="ok">a)</span> WPA2-PSK</li><li><span class="ok">b)</span> WPA2/WPA3 Enterprise with 802.1X</li><li><span class="ok">c)</span> Open with captive portal</li><li><span class="ok">d)</span> WEP</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Per-user credentials can be disabled individually.</p></details></div><div class="chk"><p><strong>2.</strong> Three adjacent APs on 2.4 GHz cause heavy interference. Which channels would you use?</p><ul class="chk__o"><li><span class="ok">a)</span> 1, 6, 11</li><li><span class="ok">b)</span> 2, 3, 4</li><li><span class="ok">c)</span> 6, 7, 8</li><li><span class="ok">d)</span> 1, 2, 3</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Only these three do not overlap at 20 MHz.</p></details></div>
+<h2>short lab: Design the Wi-Fi</h2><div class="prose lab"><p>A 3-floor office with 150 users, guests and laptops. Pick standards, bands, security and management.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Wi-Fi 6/6E APs with lightweight management by a WLC, one ESSID for staff with WPA3-Enterprise (802.1X) and a separate guest SSID on its own VLAN with captive portal and client isolation. Prefer 5/6 GHz with band steering, 2.4 GHz on channels 1/6/11 only for legacy. DFS and TPC on.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/vpn-tailscale.html">vpn tailscale</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 2.3" placeholder="# 2.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.2.html">&lt; 2.2</a><a href="2.4.html">2.4 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-2.3-0", "q": "Wi-Fi 5, 6, 7 are which 802.11 standards?", "a": "ac, ax, be."}, {"id": "netplus-2.3-1", "q": "How many non-overlapping 2.4 GHz channels at 20 MHz?", "a": "Three (1, 6, 11)."}, {"id": "netplus-2.3-2", "q": "What is band steering?", "a": "AP feature that pushes dual-band clients to the better band (usually 5 GHz)."}, {"id": "netplus-2.3-3", "q": "What do DFS and TPC do (802.11h)?", "a": "DFS avoids conflicting channels; TPC lets the AP control client transmit power."}, {"id": "netplus-2.3-4", "q": "SSID vs BSSID vs ESSID?", "a": "SSID: network name. BSSID: AP's hardware address. ESSID: one SSID spread across many APs for roaming."}, {"id": "netplus-2.3-5", "q": "What is IBSS?", "a": "Independent basic service set: ad hoc device-to-device wireless with no AP."}, {"id": "netplus-2.3-6", "q": "What is a captive portal?", "a": "A web page that must be completed (terms or login) before network access is granted."}, {"id": "netplus-2.3-7", "q": "What does OWE provide?", "a": "Encryption on an open network without a password, and isolation between clients."}, {"id": "netplus-2.3-8", "q": "PSK vs 802.1X?", "a": "PSK: one shared password. 802.1X/Enterprise: individual credentials per user."}, {"id": "netplus-2.3-9", "q": "Omnidirectional vs directional antenna use?", "a": "Omni for even coverage around the AP; directional (Yagi, parabolic) for focused long-range links."}, {"id": "netplus-2.3-10", "q": "What does +3 dB mean?", "a": "About double the power."}, {"id": "netplus-2.3-11", "q": "Autonomous vs lightweight AP?", "a": "Autonomous is standalone; lightweight is managed by a wireless LAN controller via CAPWAP."}, {"id": "netplus-2.3-12", "q": "What is CAPWAP for?", "a": "Control and provisioning of wireless access points by a central controller."}, {"id": "netplus-2.3-13", "q": "What is wireless mesh?", "a": "APs that interconnect and self-heal; clients reach the network through the nearest node."}, {"id": "netplus-2.3-14", "q": "What is client isolation?", "a": "Preventing wireless clients from talking to each other, only to the AP and beyond."}, {"id": "netplus-2.3-15", "q": "WPA2 cipher mode?", "a": "AES-CCMP."}, {"id": "netplus-2.3-16", "q": "WPA3 cipher mode and year?", "a": "AES-GCMP with GMAC integrity; introduced 2018."}, {"id": "netplus-2.3-17", "q": "Why is WEP unsafe?", "a": "Significant cryptographic weaknesses make it quickly crackable."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

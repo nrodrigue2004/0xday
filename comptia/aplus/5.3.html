@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ 5.3 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ 220-1101 (Core 1) objective 5.3: Troubleshooting Storage">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 5.3 --exam 220-1101 (Core 1)</p>
+<div class="manhead"><span>220-1101 (Core 1)</span><span>domain 5.0 · Hardware and Network Troubleshooting</span><span>5.3</span></div>
+<h1><span class="ok">5.3</span> Troubleshooting Storage</h1>
+<div class="obj" data-obj="aplus-5.3">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Storage Failures</h4>
+<ul><li><strong>"Cannot read from source disk", slow response, constant activity light, HDD clicking ("click of death")</strong>: failing drive. <strong>Back up first</strong> if possible, then check cables, heat, and PSU load (new hardware may starve the drive). Run the manufacturer's diagnostics.</li><li><strong>"Drive not recognized", "boot device not found", "operating system not found"</strong>: check cables, BIOS boot order, stray USB media, a disabled drive in BIOS, another SATA/M.2 port, and try the drive in another computer.</li><li>HDDs always eventually fail. Recovery companies are costly and can still fail; so keep backups. An SSD may fail by becoming read-only.</li></ul>
+<h4>RAID</h4>
+<ul><li>Hardware RAID controllers report failures at boot (e.g. "integrated RAID exception, volume inactive"). Use the RAID manager to see which drive failed.</li><li><strong>RAID 0</strong> (2+ drives): one failure loses everything. <strong>RAID 1</strong> (2+): survives one failure. <strong>RAID 5</strong> (3+): survives one failure. <strong>RAID 10</strong> (4+): survives one failure per mirror pair.</li></ul>
+<h4>SMART and Performance</h4>
+<ul><li><strong>SMART</strong> is built-in drive health reporting (spin-up time, seek errors, power-on hours); rising error counts warn of failure. If a drive reports failing, back up and replace now.</li><li><strong>IOPS</strong> measures input/output operations per second: HDD about 200, SSD up to about a million; read and write differ.</li></ul>
+<h4>Missing Drives</h4>
+<ul><li>Internal drive missing in the OS: check BIOS, then cables, reseat M.2, else replace. External USB: check power and port. Network share: reconnect or re-run the login script.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus-5.3"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> An HDD clicks loudly and errors appear. First action?</p><ul class="chk__o"><li><span class="ok">a)</span> Defrag</li><li><span class="ok">b)</span> Back up data</li><li><span class="ok">c)</span> Format</li><li><span class="ok">d)</span> Run chkdsk /r</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Save the data first.</p></details></div><div class="chk"><p><strong>2.</strong> After a new add-in card, the HDD shows errors. Possible cause?</p><ul class="chk__o"><li><span class="ok">a)</span> Overloaded power supply</li><li><span class="ok">b)</span> Bad monitor</li><li><span class="ok">c)</span> Wrong time zone</li><li><span class="ok">d)</span> Dead CMOS battery</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Insufficient power.</p></details></div><div class="chk"><p><strong>3.</strong> Which RAID survives only one drive failure and needs at least 3 drives?</p><ul class="chk__o"><li><span class="ok">a)</span> 0</li><li><span class="ok">b)</span> 1</li><li><span class="ok">c)</span> 5</li><li><span class="ok">d)</span> none</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> RAID 5.</p></details></div>
+<h2>short lab: No OS found</h2><div class="prose lab"><p>A PC says "operating system not found" after a user left a USB stick plugged in. Explain.</p></div><details><summary>walkthrough</summary><div class="prose"><p>BIOS tries USB first in its boot order and finds no OS there. Remove the stick or reorder boot devices.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/hardware-diagnostics-and-repair.html">hardware diagnostics and repair</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/secure-data-sanitization.html">secure data sanitization</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 5.3" placeholder="# 5.3 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="5.2.html">&lt; 5.2</a><a href="5.4.html">5.4 &gt;</a></nav>
+<p><a href="../aplus.html">cd ~/comptia/aplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus-5.3-0", "q": "HDD loud clicking?", "a": "Click of death; failing drive."}, {"id": "aplus-5.3-1", "q": "First step with a failing drive?", "a": "Back up data."}, {"id": "aplus-5.3-2", "q": "\"Operating system not found\" first checks?", "a": "Cables, BIOS boot order, stray USB media."}, {"id": "aplus-5.3-3", "q": "What does SMART do?", "a": "Drive self-monitoring that reports health and error counts."}, {"id": "aplus-5.3-4", "q": "IOPS?", "a": "Input/output operations per second."}, {"id": "aplus-5.3-5", "q": "Typical HDD IOPS?", "a": "About 200."}, {"id": "aplus-5.3-6", "q": "SSD IOPS?", "a": "Up to about one million."}, {"id": "aplus-5.3-7", "q": "RAID 0 failure tolerance?", "a": "None."}, {"id": "aplus-5.3-8", "q": "RAID 1 minimum drives and tolerance?", "a": "Two drives; survives one failure."}, {"id": "aplus-5.3-9", "q": "RAID 5 minimum drives?", "a": "Three; survives one failure."}, {"id": "aplus-5.3-10", "q": "RAID 10 minimum drives?", "a": "Four."}, {"id": "aplus-5.3-11", "q": "Missing network drive after boot?", "a": "Remap or re-run the login script."}, {"id": "aplus-5.3-12", "q": "Drive missing in OS and BIOS?", "a": "Check cables, reseat M.2, test in another PC."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

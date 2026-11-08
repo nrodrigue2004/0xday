@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 1.8 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 1.8: Network Environments">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.8 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 1.0 · Networking Concepts</span><span>1.8</span></div>
+<h1><span class="ok">1.8</span> Network Environments</h1>
+<div class="obj" data-obj="netplus-1.8">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Software Defined Networking</h4>
+<ul><li>Every network device has three planes. <strong>Data plane (infrastructure layer)</strong>: the forwarding itself (moving frames between interfaces, trunking, encryption, NAT). <strong>Control plane</strong>: the tables and logic that decide where traffic goes (routing, switching, NAT, firewall rule tables). <strong>Management plane (application layer)</strong>: how admins configure it (SSH, console, web GUI). <strong>SDN</strong> splits these into software so they can be virtualized and centrally controlled.</li><li><strong>SD-WAN</strong>: a WAN built for cloud-era traffic. It is <strong>application aware</strong> (it knows it is email or a database and sends it straight to the nearest cloud service instead of back through HQ), <strong>transport agnostic</strong> (fiber, 5G, DSL all fine), has <strong>central policy management</strong> (one console pushes policy to all SD-WAN routers) and <strong>zero-touch provisioning</strong> (devices update themselves when services move).</li></ul>
+<h4>Virtual Extensible LAN (VXLAN)</h4>
+<ul><li>Problem: apps and VMs span multiple data centers (<strong>data center interconnect, DCI</strong>) with different IP schemes and links. VLANs top out around 4,000 networks and are layer 2 only. <strong>VXLAN</strong> supports about <strong>16 million</strong> virtual networks (24-bit VNI) and runs over a <strong>layer 3</strong> network.</li><li>Each data center has a <strong>VTEP</strong> (VXLAN tunnel endpoint, often the top-of-rack switch). Networks are named by a <strong>VNI</strong>. The original Ethernet frame is <strong>encapsulated</strong> in VXLAN inside <strong>UDP</strong> inside IP, routed across, then decapsulated on the far side, so VMs in different sites feel they are on the same LAN.</li></ul>
+<h4>Zero Trust</h4>
+<ul><li>Edge-only security leaves the inside wide open. <strong>Zero trust</strong>: every user, device and application is untrusted until verified, with authentication, encryption, extra firewalls and monitoring everywhere.</li><li><strong>Policy-based / adaptive authentication</strong> weighs who, where, from which IP, what connection and what time. Inside HQ in work hours = password; unknown foreign IP over VPN at 3 a.m. = more factors or deny.</li><li><strong>Authorization</strong> follows: role (help desk can read, the manager can edit), location, whether it is a managed laptop with a valid certificate. <strong>Least privilege</strong>: only the rights the job needs, never admin by default (malware on an admin's box gets admin everywhere).</li><li><strong>SASE (secure access service edge)</strong>: security in the cloud near the apps, with a client on every device. "Next-generation VPN." Combines networking (QoS, routing) with ZTNA, firewall as a service and DNS security, always on, for users anywhere reaching apps anywhere.</li></ul>
+<h4>Infrastructure as Code</h4>
+<ul><li><strong>IaC</strong>: describe servers, networks, firewalls and apps in files and let the platform build them. Rebuild identically in another data center, version changes, redeploy. Cures <strong>configuration drift</strong>, enforces compliance, makes test = production, and documents the build.</li><li><strong>Playbooks</strong>: scripted response steps (breach investigation, ransomware recovery: remove from network, wipe, reimage, redeploy). Centralized in <strong>SOAR</strong> (security orchestration, automation and response).</li><li><strong>Source / version control (Git)</strong>: one central repository, tracked changes, <strong>branches</strong> for testing, <strong>merging</strong>, <strong>conflict</strong> detection when two people edit the same line.</li></ul>
+<h4>IPv6 Addressing</h4>
+<ul><li>IPv4: 32 bits, 4.29 billion addresses, exhausted, extended by NAT. <strong>IPv6: 128 bits</strong>, hexadecimal, eight 16-bit groups separated by colons. Example <code>fe80::5d18:652:6ffd:8f52</code>.</li><li><strong>Compression rules</strong>: drop leading zeros in each group, and replace one run of all-zero groups with <code>::</code> (only once per address). <code>2601:04C3:4002:BE00:0000:0000:0000:0066</code> becomes <code>2601:4C3:4002:BE00::66</code>. <code>2600:DDDD:1111:0001:0000:0000:0000:0001</code> becomes <code>2600:DDDD:1111:1::1</code>.</li><li>IPv4 and IPv6 cannot talk directly. Bridges: <strong>dual stack</strong> (host runs both, separate routing tables, the common method today), <strong>tunneling</strong> (<strong>6to4</strong>: IPv6 over IPv4, needs a relay, no NAT, removed from Windows. <strong>4in6</strong>: IPv4 over IPv6; both rare now), <strong>NAT64 + DNS64</strong> (DNS64 hands an IPv6-only client a synthesized IPv6 address that points at the NAT64 router, which translates to the real IPv4 server).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-1.8"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Admin logs in to a switch over SSH to change a setting. Which plane?</p><ul class="chk__o"><li><span class="ok">a)</span> Data</li><li><span class="ok">b)</span> Control</li><li><span class="ok">c)</span> Management</li><li><span class="ok">d)</span> Physical</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Admin access is the management plane.</p></details></div><div class="chk"><p><strong>2.</strong> Two data centers use different IP schemes but VMs must act as if on the same LAN. Best fit?</p><ul class="chk__o"><li><span class="ok">a)</span> VLAN</li><li><span class="ok">b)</span> VXLAN</li><li><span class="ok">c)</span> APIPA</li><li><span class="ok">d)</span> 6to4</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> VXLAN overlays layer 2 over a layer 3 network.</p></details></div><div class="chk"><p><strong>3.</strong> Which technique prevents a dozen servers from drifting apart in configuration?</p><ul class="chk__o"><li><span class="ok">a)</span> IaC</li><li><span class="ok">b)</span> Dual stack</li><li><span class="ok">c)</span> PoE</li><li><span class="ok">d)</span> QoS</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> One definition applied everywhere.</p></details></div>
+<h2>short lab: Compress and expand</h2><div class="prose lab"><p>Compress <code>2001:0DB8:0000:0000:0000:0000:0000:0001</code> and expand <code>fe80::1</code> to eight groups.</p></div><details><summary>walkthrough</summary><div class="prose"><p><code>2001:DB8::1</code>. <code>fe80:0:0:0:0:0:0:1</code> (full form fe80:0000:0000:0000:0000:0000:0000:0001).</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/virtualization-proxmox.html">virtualization proxmox</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/firewalls-pfsense.html">firewalls pfsense</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.8" placeholder="# 1.8 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.7.html">&lt; 1.7</a><a href="2.1.html">2.1 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-1.8-0", "q": "The three planes of a network device?", "a": "Data (forwarding), control (tables and logic), management (admin access)."}, {"id": "netplus-1.8-1", "q": "What is SD-WAN's key idea?", "a": "An application-aware, transport-agnostic WAN with central policy and zero-touch provisioning, built for cloud traffic."}, {"id": "netplus-1.8-2", "q": "What is zero-touch provisioning?", "a": "Devices configure and update themselves automatically with no manual setup."}, {"id": "netplus-1.8-3", "q": "VXLAN vs VLAN scale?", "a": "VXLAN about 16 million virtual networks over layer 3; VLAN about 4,000 over layer 2."}, {"id": "netplus-1.8-4", "q": "What is a VTEP?", "a": "The VXLAN tunnel endpoint that encapsulates and decapsulates traffic (often the top-of-rack switch)."}, {"id": "netplus-1.8-5", "q": "What does VNI stand for?", "a": "VXLAN network identifier."}, {"id": "netplus-1.8-6", "q": "VXLAN encapsulation wraps what in what?", "a": "The original Ethernet frame inside VXLAN, inside UDP, inside IP."}, {"id": "netplus-1.8-7", "q": "What does \"zero trust\" assume?", "a": "No user, device or application is trusted by default; everything is verified."}, {"id": "netplus-1.8-8", "q": "What is adaptive identity?", "a": "Authentication that adjusts its strictness based on context such as who, where, device and time."}, {"id": "netplus-1.8-9", "q": "Why avoid giving users admin rights?", "a": "Malware running as the user inherits admin access; least privilege limits damage."}, {"id": "netplus-1.8-10", "q": "What is SASE?", "a": "Cloud-delivered networking plus security (ZTNA, firewall, DNS security) for users anywhere: a next-gen VPN."}, {"id": "netplus-1.8-11", "q": "What problem does IaC solve?", "a": "Configuration drift and slow manual builds: identical, versioned, repeatable deployments."}, {"id": "netplus-1.8-12", "q": "What is a playbook?", "a": "A defined sequence of response steps, often automated in a SOAR platform."}, {"id": "netplus-1.8-13", "q": "What does SOAR stand for?", "a": "Security orchestration, automation and response."}, {"id": "netplus-1.8-14", "q": "Name a popular version control system.", "a": "Git."}, {"id": "netplus-1.8-15", "q": "IPv6 address size and notation?", "a": "128 bits, eight groups of 16 bits in hex separated by colons."}, {"id": "netplus-1.8-16", "q": "How many times can :: be used in an IPv6 address?", "a": "Once."}, {"id": "netplus-1.8-17", "q": "Compress 2601:04C3:4002:BE00:0000:0000:0000:0066.", "a": "2601:4C3:4002:BE00::66"}, {"id": "netplus-1.8-18", "q": "What is dual stack?", "a": "A host or network running IPv4 and IPv6 at the same time."}, {"id": "netplus-1.8-19", "q": "What do NAT64 and DNS64 do together?", "a": "Let IPv6-only clients reach IPv4-only servers by synthesizing addresses and translating."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA Network+ 1.2 :: 0xDay</title>
+<meta name="description" content="CompTIA Network+ N10-009 objective 1.2: Network Appliances and Applications">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 1.2 --exam N10-009</p>
+<div class="manhead"><span>N10-009</span><span>domain 1.0 · Networking Concepts</span><span>1.2</span></div>
+<h1><span class="ok">1.2</span> Network Appliances and Applications</h1>
+<div class="obj" data-obj="netplus-1.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Networking Devices</h4>
+<ul><li><strong>Router</strong>: layer 3, moves traffic between IP subnets (rooms apart or continents apart), joins LANs to WANs, over copper or fiber. A <strong>layer 3 switch</strong> adds routing inside a switch chassis.</li><li><strong>Switch</strong>: layer 2, forwards on MAC address, mostly in hardware chips (<strong>ASIC</strong>). Enterprise switches add <strong>PoE</strong> (power over the Ethernet cable) and VLANs.</li><li><strong>Firewall</strong>: filters by port; a <strong>next-generation firewall (NGFW)</strong> identifies the application itself and allows or blocks it. Firewalls commonly also do <strong>VPN</strong> termination, routing (sitting at the inside/outside edge) and <strong>NAT</strong>, and often speak dynamic routing protocols.</li><li><strong>IDS vs IPS</strong>: both spot known attacks (exploits against OS and apps: buffer overflow, cross-site scripting and so on). IDS only alerts, IPS also blocks, so IPS is the usual choice inline. Much of this is now built into NGFWs.</li><li><strong>Load balancer</strong>: spreads requests over a farm of servers so a site stays up. It notices a dead server and removes it from rotation. Extras: <strong>TCP offload</strong>, <strong>SSL/TLS offload</strong> (the balancer encrypts/decrypts instead of the servers), caching, <strong>QoS</strong> prioritizing and application-aware routing (certain pages to certain servers). Users see one address.</li><li><strong>Proxy</strong>: sits in the middle and makes the request for the client, then checks the answer for malware before handing it back. Gives caching, authentication (login to reach the internet), URL and content filtering. <strong>Explicit</strong> proxies need client configuration, <strong>transparent</strong> proxies do not.</li><li><strong>NAS vs SAN</strong>: NAS gives <strong>file-level</strong> access (move the whole file to change it, over a normal network share). SAN gives <strong>block-level</strong> access like a local disk (change only the modified blocks, efficient for huge files). Both usually sit on their own isolated, high-bandwidth network.</li><li><strong>Access point (AP)</strong>: wireless to wired bridge, a layer 2 device. Offices use many dedicated APs, not the home all-in-one "wireless router". A <strong>wireless LAN controller (WLC)</strong> centrally configures, monitors and updates all APs and handles roaming policy. Usually vendor-specific.</li></ul>
+<h4>Networking Functions</h4>
+<ul><li><strong>CDN (content delivery network)</strong>: copies of content cached at regional points so users fetch from nearby. Faster and spreads load. Video sites and most large sites use one.</li><li><strong>VPN</strong>: encrypted tunnel across an untrusted network. The central endpoint is a <strong>VPN concentrator / head-end</strong>, usually dedicated hardware (high-speed crypto) or a feature of the NGFW. Small setups can use software concentrators and the VPN client built into Windows, macOS and Linux.</li><li><strong>QoS (traffic shaping)</strong>: give real-time voice and video priority over bulk file transfers. Configured on routers, switches and firewalls, often with built-in application lists.</li><li><strong>TTL (time to live)</strong>: a countdown that kills runaway things. In an <strong>IP packet</strong>, TTL counts hops: every router subtracts one and drops the packet at zero, which stops routing loops. Typical start values: 64 for Linux/macOS, 128 for Windows. A traceroute bouncing between the same two routers is a routing loop. In <strong>DNS</strong>, TTL is in seconds: how long a resolver may cache the answer (for example 300 s = 5 minutes), so changing a record takes about that long to spread. Caches use TTL the same way.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="netplus-1.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A web farm of 6 servers must stay online when one crashes. Which device provides this?</p><ul class="chk__o"><li><span class="ok">a)</span> Proxy</li><li><span class="ok">b)</span> Load balancer</li><li><span class="ok">c)</span> IDS</li><li><span class="ok">d)</span> WLC</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Load balancers detect failures and route around them.</p></details></div><div class="chk"><p><strong>2.</strong> You changed an A record but some users still hit the old IP for up to an hour. What is the likely cause?</p><ul class="chk__o"><li><span class="ok">a)</span> IP TTL</li><li><span class="ok">b)</span> DNS TTL caching</li><li><span class="ok">c)</span> Spanning tree</li><li><span class="ok">d)</span> PoE budget</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Resolvers cache the old answer until its DNS TTL (seconds) expires.</p></details></div>
+<h2>short lab: Reason about a routing loop</h2><div class="prose lab"><p>A traceroute shows 10.1.10.1, 10.2.10.2, 10.1.10.1, 10.2.10.2 repeating. What is wrong, what stops it eventually, and where do you look?</p></div><details><summary>walkthrough</summary><div class="prose"><p>A routing loop: each router thinks the other is the next hop (often one wrong static route). The IP TTL decrements at each hop and the packet is discarded at zero, so the loop is not infinite. Fix by checking the routing tables (<code>show route</code>) on both routers for the bad next hop.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/firewalls-pfsense.html">firewalls pfsense</a> <span class="muted">hands-on lab</span></li><li><a href="../../learn/virtualization-proxmox.html">virtualization proxmox</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 1.2" placeholder="# 1.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="1.1.html">&lt; 1.1</a><a href="1.3.html">1.3 &gt;</a></nav>
+<p><a href="../netplus.html">cd ~/comptia/netplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "netplus-1.2-0", "q": "What does an IPS do that an IDS does not?", "a": "Blocks the attack. An IDS only detects and alerts."}, {"id": "netplus-1.2-1", "q": "How does an NGFW differ from a traditional firewall?", "a": "It identifies and controls applications, not just ports."}, {"id": "netplus-1.2-2", "q": "NAS vs SAN access level?", "a": "NAS is file-level; SAN is block-level."}, {"id": "netplus-1.2-3", "q": "What is a load balancer's health-check benefit?", "a": "It detects failed servers and removes them from rotation, keeping the service up."}, {"id": "netplus-1.2-4", "q": "What is SSL/TLS offload?", "a": "The load balancer handles encryption/decryption so the servers do not have to."}, {"id": "netplus-1.2-5", "q": "Explicit vs transparent proxy?", "a": "Explicit requires client or OS configuration; transparent works invisibly with no client changes."}, {"id": "netplus-1.2-6", "q": "What is a wireless LAN controller?", "a": "Central management for many access points: config, monitoring, updates and policy in one place."}, {"id": "netplus-1.2-7", "q": "What does a VPN concentrator do?", "a": "Terminates many encrypted VPN tunnels, doing the crypto work at high speed."}, {"id": "netplus-1.2-8", "q": "What is a CDN for?", "a": "Serving cached content from points near users for speed and load spreading."}, {"id": "netplus-1.2-9", "q": "Default IP TTL values on Windows vs Linux/macOS?", "a": "Windows 128, Linux and macOS 64."}, {"id": "netplus-1.2-10", "q": "TTL unit in IP vs DNS?", "a": "IP: hops (routers crossed). DNS: seconds (cache lifetime)."}, {"id": "netplus-1.2-11", "q": "What does TTL prevent in IP routing?", "a": "Packets circling forever in a routing loop."}, {"id": "netplus-1.2-12", "q": "What is QoS used for?", "a": "Prioritizing important traffic such as voice and video over bulk transfers."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

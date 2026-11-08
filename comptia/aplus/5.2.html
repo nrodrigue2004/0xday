@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ 5.2 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ 220-1101 (Core 1) objective 5.2: Computer Hardware">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 5.2 --exam 220-1101 (Core 1)</p>
+<div class="manhead"><span>220-1101 (Core 1)</span><span>domain 5.0 · Hardware and Network Troubleshooting</span><span>5.2</span></div>
+<h1><span class="ok">5.2</span> Computer Hardware</h1>
+<div class="obj" data-obj="aplus-5.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Startup Problems</h4>
+<ul><li><strong>POST beep codes</strong>: vary by vendor, so do not memorize them; read the motherboard manual. Beeps with a blank screen point to video, RAM, CPU or bad BIOS settings.</li><li><strong>Date/time wrong or reset</strong>: the CMOS battery on the motherboard is dead; replace it. Removing it does not clear modern BIOS settings (stored in flash); use the clear jumper.</li><li><strong>Boots from wrong drive</strong>: check BIOS boot order, remove stray USB media.</li><li><strong>Stop error / BSOD</strong>: fatal; restart. If it flashes by, read Event Viewer. Look up the stop code on Microsoft's site. Causes: bad hardware, bad driver, bad app. Try last known good configuration, System Restore, driver rollback, Safe Mode (fewer drivers), reseat new cards, vendor hardware diagnostics (often built into UEFI).</li><li><strong>Spinning wait cursor (macOS)</strong>: app bug, bad hardware/RAM, or heavy paging. If stuck, force power off, then check console logs.</li></ul>
+<h4>No Display, No Power, Slow</h4>
+<ul><li><strong>Black screen</strong>: check monitor power and video cables, check the monitor's input selector, brightness/contrast, swap in a known-good monitor, boot in VGA/low-res mode to separate driver from monitor.</li><li><strong>No power</strong>: test the outlet with a multimeter or tester, check the PSU switch and cables, check internal DC voltages. Fans spinning but nothing else means the motherboard may not get enough voltage; check POST.</li><li><strong>Slow</strong>: Task Manager (processes, Performance tab), background updates, full drive, fragmentation on HDD, laptop battery throttling, thermal throttling, antivirus scans.</li></ul>
+<h4>Heat, Smoke, Shutdowns, Noise</h4>
+<ul><li><strong>Overheating</strong>: dust blocks fans and heat sinks. Clean and vacuum; monitor temperatures with a tool like HWMonitor.</li><li><strong>Smoke or burning smell</strong>: unplug immediately, open the case, find the failed part; maybe replace a part or the whole motherboard.</li><li><strong>Sudden shutdown with no message</strong>: check Event Viewer for thermal shutdown, check fans, run diagnostics, remove good components to isolate the bad one.</li><li><strong>App crashes with no detail</strong>: Event Viewer and <strong>Reliability Monitor</strong> (day-by-day graph of app, Windows and other failures); reinstall the app.</li><li><strong>Grinding</strong>: loose card, fallen heat sink or failing HDD (back up now). <strong>Clicking/oscillating</strong>: object in a fan. <strong>Popping</strong>: bulging or burst capacitors on the motherboard.</li><li><strong>Freezing</strong>: look for any response (drive light, Num Lock, Ctrl+Alt+Del); consider new hardware/drivers, full disk or memory, then full diagnostics.</li><li><strong>Reboot loop</strong>: note where it restarts (BIOS, splash screen, OS). Try last known good, Safe Mode, then disable "automatically restart" on failure so the stop error stays visible. Remove cards, swap RAM.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus-5.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A PC shows the wrong date each boot. Likely cause?</p><ul class="chk__o"><li><span class="ok">a)</span> Dead CMOS battery</li><li><span class="ok">b)</span> Bad GPU</li><li><span class="ok">c)</span> Full disk</li><li><span class="ok">d)</span> Wrong boot order</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Battery keeps the clock.</p></details></div><div class="chk"><p><strong>2.</strong> A PC powers off randomly; Event Viewer shows a thermal event. Do what?</p><ul class="chk__o"><li><span class="ok">a)</span> Reinstall Windows</li><li><span class="ok">b)</span> Clean dust, check fans and heat sinks</li><li><span class="ok">c)</span> Replace the monitor</li><li><span class="ok">d)</span> Change the boot order</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Heat shutdown.</p></details></div><div class="chk"><p><strong>3.</strong> Which has the user see a stop error before reboot?</p><ul class="chk__o"><li><span class="ok">a)</span> Disable automatic restart</li><li><span class="ok">b)</span> Run defrag</li><li><span class="ok">c)</span> Replace PSU</li><li><span class="ok">d)</span> Update BIOS clock</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Setting under system failure.</p></details></div><div class="chk"><p><strong>4.</strong> Which tool shows a timeline of application crashes?</p><ul class="chk__o"><li><span class="ok">a)</span> Reliability Monitor</li><li><span class="ok">b)</span> Disk Management</li><li><span class="ok">c)</span> Device Manager</li><li><span class="ok">d)</span> msconfig</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Graphical stability view.</p></details></div>
+<h2>short lab: Dead desktop</h2><div class="prose lab"><p>A desktop has fans spinning, no beeps, no display. List four checks in order.</p></div><details><summary>walkthrough</summary><div class="prose"><p>Reseat RAM and video card, check the monitor cable and input, check 24-pin and CPU power cables, then swap with known-good RAM or PSU and check motherboard standoffs or bulging capacitors.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/hardware-diagnostics-and-repair.html">hardware diagnostics and repair</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 5.2" placeholder="# 5.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="5.1.html">&lt; 5.1</a><a href="5.3.html">5.3 &gt;</a></nav>
+<p><a href="../aplus.html">cd ~/comptia/aplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus-5.2-0", "q": "Beeps and blank screen at boot?", "a": "POST error; check the motherboard manual's beep codes (video, RAM, CPU)."}, {"id": "aplus-5.2-1", "q": "Clock resets after power off?", "a": "Dead CMOS battery; replace it."}, {"id": "aplus-5.2-2", "q": "Does pulling the CMOS battery clear modern BIOS settings?", "a": "No; use the clear jumper (settings are in flash)."}, {"id": "aplus-5.2-3", "q": "Server boots wrong drive?", "a": "Check BIOS boot order and stray USB media."}, {"id": "aplus-5.2-4", "q": "BSOD official name?", "a": "Windows stop error."}, {"id": "aplus-5.2-5", "q": "Where to see a BSOD after auto-reboot?", "a": "Event Viewer."}, {"id": "aplus-5.2-6", "q": "Mac spinning beach ball?", "a": "Spinning wait cursor; app/hardware/paging issue; check console logs."}, {"id": "aplus-5.2-7", "q": "First checks for a black screen?", "a": "Power and video cables, monitor input selection, known-good monitor."}, {"id": "aplus-5.2-8", "q": "Fans spin but no POST?", "a": "Suspect motherboard or insufficient PSU voltage; check POST and PSU."}, {"id": "aplus-5.2-9", "q": "Symptom of bulging capacitors?", "a": "Popping noise, instability; replace the board."}, {"id": "aplus-5.2-10", "q": "Tool for graphed application failures?", "a": "Reliability Monitor."}, {"id": "aplus-5.2-11", "q": "Smoke from a PC?", "a": "Unplug immediately, then inspect."}, {"id": "aplus-5.2-12", "q": "Grinding noise on a hard drive?", "a": "Likely drive failure; back up immediately."}, {"id": "aplus-5.2-13", "q": "Constant reboots during boot; how to see errors?", "a": "Disable automatic restart on system failure."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

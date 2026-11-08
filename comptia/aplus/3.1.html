@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ 3.1 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ 220-1101 (Core 1) objective 3.1: Cables and Adapters">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.1 --exam 220-1101 (Core 1)</p>
+<div class="manhead"><span>220-1101 (Core 1)</span><span>domain 3.0 · Hardware</span><span>3.1</span></div>
+<h1><span class="ok">3.1</span> Cables and Adapters</h1>
+<div class="obj" data-obj="aplus-3.1">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>Network Cables</h4>
+<ul><li><strong>Twisted pair</strong> Ethernet cable: 4 pairs (blue, orange, green, brown, each solid and white-striped). Pairs carry equal and opposite signals; twisting and comparing at the receiver cancels interference, and each pair has a different twist rate to limit crosstalk.</li><li><strong>Categories</strong>: 1000BASE-T needs minimum <strong>Cat 5</strong> (Cat 5e = enhanced, tested more, now what you buy) to 100 m; 10GBASE-T uses <strong>Cat 6</strong> (shorter) or <strong>Cat 6A</strong> (augmented) to 100 m.</li><li><strong>Coax</strong>: center conductor, insulator, metal shield, jacket. <strong>RG6</strong> for cable TV and cable modems.</li><li><strong>Plenum</strong>: air-return space above ceilings. Cables there need <strong>plenum-rated</strong> jackets (<strong>FEP</strong>/low-smoke PVC) so a fire doesn't spread toxic smoke; normal jackets are PVC. Plenum cable is stiffer.</li><li><strong>UTP</strong> unshielded (typical) vs <strong>STP</strong> shielded (+ drain/ground wire). Jacket codes: <strong>U</strong> = unshielded, <strong>S</strong> = braided shield, <strong>F</strong> = foil: for example <strong>F/UTP</strong> (foil overall, no pair shields), <strong>S/FTP</strong> (braid overall, foil on pairs).</li><li><strong>Direct burial</strong> cable: waterproof, often gel-filled, shielded, with a drain wire; can go in the ground without conduit.</li></ul>
+<h4>Optical Fiber</h4>
+<ul><li>Light signals: no RF emission (hard to tap), immune to EMI, much longer distance than copper. Parts: <strong>core</strong>, <strong>cladding</strong> (lower refractive index keeps light in the core), <strong>buffer coating</strong>, <strong>ferrule</strong> at the connector.</li><li><strong>Multimode</strong>: wide core, many reflections, <strong>LED</strong> source, cheaper, up to about <strong>2 km</strong>. <strong>Single-mode</strong>: narrow core, one path, <strong>laser</strong>, up to about <strong>100 km</strong> without regeneration.</li></ul>
+<h4>568A and 568B Colors</h4>
+<ul><li><strong>TIA-568</strong> standard (ISO/IEC 11801 internationally); <strong>T568A / T568B</strong> define wire colors per pin of the <strong>8P8C (RJ45)</strong> connector. Pins 1,2,3,6 differ: <strong>T568B pin 1 = white/orange, 2 = orange, 3 = white/green, 6 = green</strong>; T568A swaps orange and green. Pins 4/5 (blue pair) and 7/8 (brown pair) are the same. Both work the same; use one consistently, both ends. (A <strong>crossover</strong> cable is defined by the IEEE pin-out, not by "A on one end, B on the other".)</li></ul>
+<h4>Video Cables</h4>
+<ul><li><strong>VGA</strong>: 15-pin <strong>DB-15 (DE-15)</strong>, <strong>blue</strong>, <strong>analog</strong>, video only, degrades past 5 to 10 m.</li><li><strong>HDMI</strong>: digital, video <strong>and audio</strong>, 19-pin type A, about 20 m before dropouts.</li><li><strong>DisplayPort</strong>: digital packetized audio and video, locking latch, mini version; passively compatible with HDMI via a DP-to-HDMI cable.</li><li><strong>DVI</strong>: video only. <strong>DVI-A</strong> analog, <strong>DVI-D</strong> digital, <strong>DVI-I</strong> integrated (both). <strong>Single link</strong> (about 3.7 Gb/s) vs <strong>dual link</strong> (double).</li></ul>
+<h4>SATA Device Cables</h4>
+<ul><li><strong>SATA</strong> (serial AT attachment): rev 1.0 1.5 Gb/s, 2.0 3 Gb/s, 3.0 <strong>6 Gb/s</strong>, 3.2 16 Gb/s; 1 m cable. <strong>eSATA</strong>: external, up to 2 m, different connector. Data = <strong>7-pin</strong> L-shaped; power = <strong>15-pin</strong> (or older <strong>Molex</strong>). One cable = one drive (point to point).</li></ul>
+<h4>SCSI Device Cables</h4>
+<ul><li><strong>SCSI</strong> (small computer systems interface): daisy chain of 8 (narrow) or 16 (wide) devices; each has a <strong>SCSI ID</strong>; <strong>LUN</strong> names a drive inside an array; a <strong>terminator</strong> at the chain end. Parallel versions (such as a 68-pin Ultra 3), then <strong>SAS (serial attached SCSI)</strong>: point to point, no IDs or terminators, looks like SATA but uses different connectors. <strong>iSCSI</strong> = SCSI over IP (heavy use in virtual and storage networks).</li></ul>
+<h4>PATA Device Cables</h4>
+<ul><li><strong>PATA</strong> (parallel ATA, also IDE/EIDE, ATA): 40-pin ribbon, speeds 16 to <strong>133 MB/s</strong>; 40-wire cable (original) and <strong>80-wire</strong> cable (same 40 pins, extra ground wires cut crosstalk). Keyed with a notch and a missing pin. Device 0 and 1 (master/slave). Legacy.</li></ul>
+<h4>Adapters and Converters</h4>
+<ul><li><strong>Electrically compatible</strong> pairs need only a passive adapter: <strong>DVI-D to HDMI</strong>; <strong>DVI-A to VGA</strong> (640 x 480 limit). Analog VGA to digital DVI-D needs an active <strong>converter</strong>. <strong>USB to Ethernet</strong>, USB-C to USB-A, and multiport <strong>USB hubs/docks</strong> cover missing ports.</li></ul>
+<h4>Copper Connectors</h4>
+<ul><li><strong>RJ11</strong>: 6 position, 2 conductor (phones, DSL port). <strong>RJ45</strong>: 8P8C (Ethernet). <strong>F connector</strong>: threaded coax (cable TV, DOCSIS). <strong>Punch down block</strong> (wires punched, RJ45 on other side). <strong>USB</strong>: A, B (printers), mini-B, micro-B, USB 3.0 (extra pins, blue), <strong>USB-C</strong> (reversible, small; carries USB, Thunderbolt, DisplayPort). <strong>Molex</strong>: 4-pin 12 V/5 V power for old drives and fans. <strong>Lightning</strong> (Apple 8-pin). <strong>DB-9</strong> (RS-232 console).</li></ul>
+<h4>Fiber Connectors</h4>
+<ul><li><strong>LC</strong> (local; small, duplex transmit and receive), <strong>ST</strong> (straight tip; bayonet quarter-turn), <strong>SC</strong> (subscriber/square; push-pull).</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus-3.1"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> Cables run in a drop-ceiling air return must be:</p><ul class="chk__o"><li><span class="ok">a)</span> Direct burial</li><li><span class="ok">b)</span> Plenum-rated</li><li><span class="ok">c)</span> RG6</li><li><span class="ok">d)</span> STP only</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Fire safety for the shared air space.</p></details></div><div class="chk"><p><strong>2.</strong> A monitor has DVI-D and the PC has HDMI. What is needed?</p><ul class="chk__o"><li><span class="ok">a)</span> A passive DVI-D to HDMI cable</li><li><span class="ok">b)</span> An analog converter</li><li><span class="ok">c)</span> A VGA cable</li><li><span class="ok">d)</span> Nothing works</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Both are digital and electrically compatible.</p></details></div><div class="chk"><p><strong>3.</strong> Which SCSI evolution has no IDs or terminators?</p><ul class="chk__o"><li><span class="ok">a)</span> Ultra 3</li><li><span class="ok">b)</span> Wide SCSI</li><li><span class="ok">c)</span> SAS</li><li><span class="ok">d)</span> PATA</li></ul><details><summary>answer</summary><p><span class="ok">c)</span> Serial attached SCSI is point-to-point.</p></details></div><div class="chk"><p><strong>4.</strong> A fiber run of 40 km between buildings needs:</p><ul class="chk__o"><li><span class="ok">a)</span> Multimode with LED</li><li><span class="ok">b)</span> Single-mode with laser</li><li><span class="ok">c)</span> Cat 6A</li><li><span class="ok">d)</span> RG6</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> Single-mode reaches long distances.</p></details></div>
+<h2>short lab: Wire it</h2><div class="prose lab"><p>Which pins and colors for T568B at the RJ45 (clip down, pins 1 to 8)?</p></div><details><summary>walkthrough</summary><div class="prose"><p>1 white/orange, 2 orange, 3 white/green, 4 blue, 5 white/blue, 6 green, 7 white/brown, 8 brown. Use the same on both ends for a straight-through patch cable and test it.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/hardware-diagnostics-and-repair.html">hardware diagnostics and repair</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.1" placeholder="# 3.1 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="2.8.html">&lt; 2.8</a><a href="3.2.html">3.2 &gt;</a></nav>
+<p><a href="../aplus.html">cd ~/comptia/aplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus-3.1-0", "q": "Why are Ethernet pairs twisted?", "a": "To cancel interference and reduce crosstalk."}, {"id": "aplus-3.1-1", "q": "Minimum cable for 1000BASE-T?", "a": "Cat 5 (Cat 5e now standard), up to 100 m."}, {"id": "aplus-3.1-2", "q": "10GBASE-T cable?", "a": "Cat 6 (shorter) or Cat 6A (100 m)."}, {"id": "aplus-3.1-3", "q": "Coax type for cable TV/modem?", "a": "RG6."}, {"id": "aplus-3.1-4", "q": "Plenum-rated cable?", "a": "Fire-safe jacket (FEP or low-smoke) for air-handling spaces."}, {"id": "aplus-3.1-5", "q": "F/UTP means?", "a": "Foil shield around the whole cable, unshielded pairs."}, {"id": "aplus-3.1-6", "q": "Direct burial cable features?", "a": "Waterproof, gel-filled, shielded with drain wire."}, {"id": "aplus-3.1-7", "q": "Multimode vs single-mode fiber distance and source?", "a": "Multimode: up to about 2 km, LED. Single-mode: up to about 100 km, laser."}, {"id": "aplus-3.1-8", "q": "Why does fiber resist EMI and tapping?", "a": "It uses light, with no RF emissions."}, {"id": "aplus-3.1-9", "q": "T568B pin 1 and 2?", "a": "White/orange and orange."}, {"id": "aplus-3.1-10", "q": "Which pins differ between 568A and 568B?", "a": "1, 2, 3 and 6 (orange and green swapped)."}, {"id": "aplus-3.1-11", "q": "VGA characteristics?", "a": "Blue DB-15, analog, video only."}, {"id": "aplus-3.1-12", "q": "HDMI vs DVI audio?", "a": "HDMI carries audio; DVI does not."}, {"id": "aplus-3.1-13", "q": "DVI-A, DVI-D, DVI-I?", "a": "Analog, digital, integrated."}, {"id": "aplus-3.1-14", "q": "DisplayPort and HDMI compatibility?", "a": "Passive cable adapts DP to HDMI."}, {"id": "aplus-3.1-15", "q": "SATA 3.0 speed?", "a": "6 Gb/s."}, {"id": "aplus-3.1-16", "q": "SATA data vs power connector pins?", "a": "7-pin data, 15-pin power."}, {"id": "aplus-3.1-17", "q": "eSATA max length?", "a": "2 meters."}, {"id": "aplus-3.1-18", "q": "SCSI IDs and LUN?", "a": "ID identifies a device on the bus; LUN identifies a drive inside it."}, {"id": "aplus-3.1-19", "q": "Why does parallel SCSI need a terminator?", "a": "End of the chain; prevents signal reflection."}, {"id": "aplus-3.1-20", "q": "SAS vs SCSI?", "a": "Serial point-to-point; no IDs or terminators."}, {"id": "aplus-3.1-21", "q": "iSCSI?", "a": "SCSI storage commands over IP networks."}, {"id": "aplus-3.1-22", "q": "PATA speed and wires?", "a": "Up to 133 MB/s; 40-wire or 80-wire ribbon with 40 pins."}, {"id": "aplus-3.1-23", "q": "Passive adapter examples?", "a": "DVI-D to HDMI, DVI-A to VGA."}, {"id": "aplus-3.1-24", "q": "RJ11 vs RJ45?", "a": "RJ11: 6P2C phone/DSL. RJ45: 8P8C Ethernet."}, {"id": "aplus-3.1-25", "q": "F connector use?", "a": "Threaded coax for cable TV and modems."}, {"id": "aplus-3.1-26", "q": "Molex connector provides?", "a": "12 V and 5 V power to older drives and fans."}, {"id": "aplus-3.1-27", "q": "Fiber connectors LC, ST, SC?", "a": "Small duplex, bayonet straight tip, push-pull square."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

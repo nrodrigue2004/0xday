@@ -1,0 +1,1951 @@
+## 1.1 Laptop Hardware
+labs: hardware-diagnostics-and-repair
+@notes
+### Laptop Hardware
+- Laptops are compact and repair difficulty varies by maker; use the manufacturer's **service manual** for keyboard, display and other swaps. You get fast with whichever brand your employer buys most.
+- **Battery**: lithium-ion or lithium-polymer. No memory effect, but each charge cycle wears capacity, so old batteries get replaced. Some are modular (slide and lock out), others sit inside the case. Batteries are **model-specific**.
+- **Keyboard**: the most used part, usually attached by a **ribbon cable** and easy to replace. Small laptops drop the numeric keypad and double up keys with **Fn** functions (brightness, help). Keycaps and the mechanics under them are fragile, so follow the maker's removal steps. A USB external keyboard works around a bad internal one.
+- **Memory**: **SO-DIMM** (small outline DIMM) in a slot behind a panel. Some laptops **solder** memory to the motherboard, so you can't upgrade it.
+- **Storage**: older **2.5 inch HDD** (spinning, SATA); **2.5 inch SATA SSD** (no moving parts, same form factor, big speed gain); **M.2 SSD** (tiny card, one screw, no cable). Open the back or one access cover, unscrew, slide out, replace.
+- **HDD to SSD migration**: either install the OS fresh and move documents and apps (slow), or **clone/image** the drive with imaging software (many SSD makers include a tool). A **drive-to-drive** clone copies sector by sector and needs both drives connected at once; one image file can build many machines.
+- **Wireless cards**: built into newer boards; older laptops use **Mini PCI / Mini PCI Express** cards for 802.11 (WLAN), Bluetooth (WPAN) and cellular (WWAN). Cards connect to **antenna wires**.
+- **Biometrics**: needs OS support plus hardware. **Windows Hello** face (camera) or fingerprint reader; use with a password for two factors.
+- **NFC**: tap a phone or watch to authenticate (useful in shared environments like hospitals and warehouses).
+@cards
+Q: Why can battery replacement be needed on old laptops?
+A: Each charge cycle reduces lithium-ion capacity.
+Q: Are laptop batteries interchangeable between models?
+A: No, they are specific to the make and model.
+Q: How is the laptop keyboard connected?
+A: By a ribbon cable to the motherboard; usually easy to replace.
+Q: What are Fn key combinations for?
+A: Secondary functions such as brightness or help, via the Function key.
+Q: Laptop memory form factor?
+A: SO-DIMM.
+Q: Why can't some laptops get more RAM?
+A: The memory is soldered to the motherboard.
+Q: 2.5 inch drive types in laptops?
+A: HDD (spinning) or SATA SSD; both use SATA.
+Q: What is M.2?
+A: A small cable-free SSD slot held by one screw.
+Q: Fast way to move an OS from HDD to SSD?
+A: Clone or image the drive to the SSD.
+Q: Drive-to-drive clone requirement?
+A: Both drives connected at the same time.
+Q: Mini PCI Express cards were used for?
+A: WLAN, Bluetooth and WWAN (cellular) adapters.
+Q: What are Windows Hello options?
+A: Face and fingerprint biometric sign-in.
+Q: NFC use on laptops?
+A: Tap a phone or watch to authenticate without touching the laptop.
+@check
+? A user wants more RAM in a thin laptop, but the spec says LPDDR on board. What is true?
+a) Add a SO-DIMM
+b) It is soldered; it cannot be upgraded
+c) Use an M.2 card
+d) Update BIOS
+= b | Soldered memory is not upgradable.
+? Fastest way to move a customer's whole Windows install to a new SSD?
+a) Reinstall Windows and copy files
+b) Clone/image the drive
+c) Use RAID 0
+d) Use NFC
+= b | Imaging moves OS, apps and data.
+@lab
+Swap the drive
+Plan an HDD-to-M.2 upgrade for a laptop with one M.2 slot and one 2.5 inch bay. Give the steps.
+@answer
+Back up first. Power off, unplug the AC and battery. Open the access cover, ground yourself, insert the M.2 SSD and fasten the screw. Clone the HDD to it (or fresh install), set the boot order in BIOS to the SSD, test, then reassemble. Keep the HDD as data storage or wipe it.
+
+## 1.2 Laptop Displays
+labs: hardware-diagnostics-and-repair
+@notes
+### Laptop Displays
+- **LCD**: liquid crystals plus color filters lit by a **backlight**. Light, low power, cheap. Weakness: hard to get true black; a failed backlight is part of the panel.
+- **LCD types**: **TN** (twisted nematic: fast response, poor viewing angles with color inversion; gaming), **IPS** (in-plane switching: best color and viewing angles, costs more; design work), **VA** (vertical alignment: middle ground, good color, slower response).
+- **OLED**: organic light-emitting diode. **No backlight**; each pixel emits light. Thin, light, great color, common on phones and tablets.
+- **Backlights**: older **CCFL** (cold cathode fluorescent lamp, needs AC from an **inverter**) vs **LED** (edge-lit or matrix, thinner, lower power, so people call it an "LED display"). A **flashlight test**: shine a light at a dark screen; if the image faintly shows, the **backlight or inverter** failed, not the panel. A CCFL laptop often just needs a new inverter.
+- **Wi-Fi antennas** run up the display bezel (it is the highest part). Replacing a display means rerouting and reconnecting the antenna wires. The **webcam and microphone** also sit in the lid, with wires through the hinge.
+- **Digitizer**: layer that converts touch or stylus input to digital signals (touch only, or pen plus touch on tablets and 2-in-1s).
+@cards
+Q: TN vs IPS vs VA?
+A: TN fast but poor angles; IPS best color and angles; VA in between, slower than TN.
+Q: What is OLED's key difference?
+A: No backlight; the organic pixels emit their own light.
+Q: CCFL vs LED backlight?
+A: CCFL is fluorescent and needs an inverter (AC); LED is thinner and lower power.
+Q: What does the inverter do?
+A: Converts DC to AC for CCFL backlights.
+Q: How to check for a failed backlight?
+A: Shine a flashlight on the screen; a faint image means the backlight/inverter has failed.
+Q: Where do laptop Wi-Fi antennas run?
+A: Through the display bezel/lid.
+Q: What is a digitizer?
+A: The layer converting touch or stylus input into digital data.
+Q: Why does a display swap require care besides video cable?
+A: Antenna and webcam wires also route through the lid.
+@check
+? A screen shows a very dim image visible only under a flashlight. Cause?
+a) Dead pixels
+b) Failed backlight or inverter
+c) Bad GPU driver
+d) Digitizer failure
+= b | Panel works, light source does not.
+? A graphic designer needs accurate color and wide viewing angles. Pick a panel.
+a) TN
+b) VA
+c) IPS
+d) CCFL
+= c | IPS offers the best color accuracy.
+@lab
+Dim screen
+A customer's older laptop shows black screen but external monitor works. Flashlight reveals a faint image. What do you replace and in what order?
+@answer
+Backlight path failed. Replace the inverter first if the panel is CCFL (cheap); if LED, replace the display assembly or backlight per the service manual. Keep the antenna wires routed as before.
+
+## 1.3 Mobile Device Configuration
+labs: hardware-diagnostics-and-repair
+@notes
+### Connecting Mobile Devices
+- Phones and tablets connect for internet, email, backup, identification and sync.
+- **USB**: type A (host), **mini-B** (old), **micro-B** (common), and **USB-C** (reversible; can carry DisplayPort, HDMI, Thunderbolt signals). **Lightning**: Apple's 8-pin reversible proprietary connector with higher charge power than micro-USB. A tech's bag holds all the cable types.
+- **Serial**: **DB-9 (DE-9)** with **RS-232** was the pre-USB standard; still used for console access to switches and routers. Use a **USB-to-DB9 adapter** on laptops.
+- **NFC** (near-field communication): tiny data over very short range for payments, transfers and badges.
+- **Bluetooth**: wireless audio and accessories (earbuds, headsets, car audio).
+- **Wi-Fi hotspot**: phone shares its cellular connection over 802.11; the carrier may charge extra or limit it.
+
+### Mobile Device Accessories
+- **Touch pen / capacitive stylus**: works on any capacitive screen, replaces the finger. **Active stylus** (digital pen): talks to the device, senses **pressure**, buttons, usually tied to certain devices (Apple Pencil for iPad). **Drawing pad**: external digitizer plus active stylus for computers with no touch.
+- **Trackpad**: built in on laptops; external ones are Bluetooth and support multi-finger gestures. Many laptops allow a Fn key to **disable the trackpad** to stop accidental touches.
+- **Headsets**: USB, **3.5 mm TRRS** (tip-ring-ring-sleeve: left, right, mic, ground), Lightning, or Bluetooth.
+- **Speakers**: battery Bluetooth speakers for better sound. **Webcam**: built-in cameras for video calls.
+- **Docking station**: stays on the desk, laptop drops in; connects monitors, keyboard, printer, power; often a proprietary connector and may hold expansion cards. **Port replicator**: smaller, connects by USB (or similar), duplicates ports, no cards.
+@cards
+Q: Common mobile USB connector types?
+A: Mini-B (old), micro-B, USB-C; plus type A on the host.
+Q: What is Lightning?
+A: Apple's proprietary 8-pin reversible connector.
+Q: What can USB-C carry?
+A: USB data, power, and alternate modes such as DisplayPort, HDMI and Thunderbolt.
+Q: DB-9 serial standard?
+A: RS-232.
+Q: Why use a USB-to-serial adapter?
+A: Modern laptops lack DB-9 but network gear still needs serial console access.
+Q: NFC range and use?
+A: Very short range; payments, transfers, badges.
+Q: What is a Wi-Fi hotspot?
+A: A phone sharing its cellular data connection over 802.11.
+Q: Touch pen vs active stylus?
+A: Touch pen = capacitive, any screen; active stylus = pressure sensitive, device-paired.
+Q: What does TRRS stand for?
+A: Tip-Ring-Ring-Sleeve (stereo audio plus mic on 3.5 mm).
+Q: Docking station vs port replicator?
+A: Docking: larger, proprietary, may hold cards. Replicator: simple USB port expansion.
+Q: How can you stop accidental trackpad touches?
+A: Disable the trackpad with the Fn key combination.
+@check
+? A tech needs to console into an older switch from a modern laptop with only USB-C. What to carry?
+a) USB-to-DB9 serial adapter and rollover cable
+b) Lightning cable
+c) HDMI adapter
+d) TRRS jack
+= a | Console ports use RS-232 serial.
+? An artist wants pressure-sensitive drawing on a laptop with no touch screen. Add:
+a) Capacitive stylus
+b) External drawing pad with active stylus
+c) Port replicator
+d) NFC tag
+= b | Pad provides the digitizer.
+@lab
+Dock or replicate
+Office worker moves a laptop between two desks daily and needs dual monitors, a printer and wired Ethernet. Pick docking station or port replicator and say why.
+@answer
+A docking station (or USB-C dock) gives all ports with one connection and may power the laptop. A basic port replicator fits if only a few ports are needed; either way, keep drivers current.
+
+## 1.4 Mobile Device Connectivity
+labs: hardware-diagnostics-and-repair
+@notes
+### Cellular Standards
+- **Cellular** = coverage split into cells with antennas at the edges. 
+- **2G**: **GSM** (about 90 percent of the world; AT&T and T-Mobile in the US; uses **SIM card**, time-division multiplexing) and **CDMA** (each call coded; Verizon and Sprint; carrier controls handsets). Both started circuit-switched voice and needed upgrades for data.
+- **3G** (1998 onward): several Mb/s, enabled GPS, streaming, mobile TV.
+- **4G LTE** (Long Term Evolution): one converged standard, up to about **150 Mb/s**; **LTE-A** (advanced) about **300 Mb/s**.
+- **5G** (2020 onward): speeds from 100 to 900 Mb/s in practice, with a goal of about **10 Gb/s**; helps IoT with many devices and large uploads.
+- **PRL** (preferred roaming list) tells a phone which towers to use; updated **OTA** (over the air) with the OS.
+- **Hotspot** note: carrier plans may limit or charge for tethering.
+
+### Mobile Device Connectivity
+- **Bluetooth pairing**: enable Bluetooth on both, set the accessory to **discoverable**, pick it from the list, confirm or enter the **PIN**, test. Pair once; they reconnect automatically.
+- **GPS**: over 30 satellites; a phone needs signals from at least **four** to compute latitude, longitude and altitude via timing differences. Phones also use Wi-Fi and cell towers to refine location.
+- **MDM (mobile device management)**: central console for company and **BYOD** phones: enforce screen lock and PIN, require biometrics or 2FA, push email and apps, block forbidden apps, disable the camera, **partition** work from personal data, and **remote wipe** only company data.
+
+### Mobile Device Configurations
+- Phone numbers and texts work out of the box; email and cloud sync usually need setup.
+- **Microsoft 365 / Exchange / Outlook.com**: sign in to sync mail, contacts, calendar, reminders and notes.
+- **iCloud**: Apple devices; choose what to sync (mail, photos, contacts, calendar, backups); set whether it may use cellular or only Wi-Fi. Signing in on a new phone restores data.
+@cards
+Q: GSM vs CDMA?
+A: GSM uses SIM cards and is global; CDMA codes each call and is carrier-controlled (Verizon, Sprint).
+Q: What does LTE stand for and what generation is it?
+A: Long Term Evolution, 4G, converged GSM and CDMA carriers.
+Q: LTE and LTE-A speeds?
+A: About 150 Mb/s and 300 Mb/s.
+Q: 5G target speed?
+A: Up to about 10 Gb/s (real world 100 to 900 Mb/s).
+Q: What is a PRL?
+A: Preferred Roaming List: tells the phone which towers to use; updated over the air.
+Q: Bluetooth pairing steps?
+A: Enable on both, make discoverable, select device, confirm PIN, test.
+Q: Minimum GPS satellites for a fix?
+A: Four.
+Q: What does MDM allow?
+A: Central policy, app control, data partitioning and remote wipe for mobile devices.
+Q: BYOD?
+A: Bring your own device: personal phones used for work.
+Q: What synchronizes with Microsoft 365?
+A: Email, contacts, calendar, reminders and notes.
+Q: Why control iCloud sync over cellular?
+A: To limit data usage on cellular networks.
+@check
+? A company wants to wipe corporate email from a lost personal phone without deleting photos. Use:
+a) Factory reset
+b) MDM selective wipe of the managed partition
+c) Hotspot
+d) PRL update
+= b | MDM separates work and personal data.
+? A GPS fix requires signals from at least how many satellites?
+a) 1
+b) 2
+c) 4
+d) 12
+= c | Four satellites give 3D position and time.
+@lab
+Enroll the phone
+Employee brings a personal phone. List the MDM policies you require for email access.
+@answer
+Enroll in MDM; require PIN or biometrics with auto-lock, device encryption, managed email and app profile, blocked risky apps, remote wipe of the work partition, and OS update requirements.
+
+## 2.1 Ports and Protocols
+labs: networking-tcp-ip-dhcp-nat-subnets, computer-networks
+@notes
+### Introduction to IP
+- **Encapsulation**: application data goes in a TCP or UDP segment, inside an IP packet, inside an Ethernet frame (header, payload, trailer). IP is the delivery truck: it moves a box between **IP addresses** and doesn't care what's inside. TCP and UDP sit at **OSI layer 4 (transport)** and add **multiplexing** with port numbers.
+- **TCP** (transmission control protocol): **connection-oriented**, formal setup and teardown, **acknowledged "reliable" delivery**, reorders out-of-order data, **retransmits** lost data, **flow control**. Used by HTTPS and SSH.
+- **UDP** (user datagram protocol): **connectionless**, no acknowledgment, no flow control. Fast, used for real-time traffic (voice, video) and short exchanges like **DHCP** and **TFTP**; the application handles any resends.
+- **Ports**: the "room" in the house, 0 to 65,535, separate sets for TCP and UDP. **Well-known (non-ephemeral)** server ports are fixed (0 to 1023, for example 80 and 443). The client picks a random **ephemeral** source port (OS-assigned, typically 1,024 to 65,535) per conversation. A flow = server IP + protocol + server port + client IP + client port. Changing a port is not security; scanners find open ports.
+
+### Common Network Ports
+- **FTP** TCP **20** (data) and **21** (control): file transfer, login (or anonymous), list/add/delete/rename.
+- **SSH** TCP **22** (encrypted terminal); **Telnet** TCP **23** (clear text, avoid).
+- **SMTP** TCP **25**: server to server and client **sending** mail. **POP3** TCP **110**: download mail to one client. **IMAP4** TCP **143**: manage a mailbox synced across devices.
+- **DNS** UDP/TCP **53**: names to IPs (UDP in normal queries).
+- **DHCP** UDP **67** (server) and **68** (client): lease pool; **reservations** give fixed IPs.
+- **HTTP** TCP **80**; **HTTPS** TCP **443**.
+- **SMB/CIFS** (Windows file and print): **TCP 445** direct; older **NetBIOS over TCP/IP**: UDP **137** name service, TCP **139** sessions (also UDP 138 datagram).
+- **SNMP** UDP **161** (queries), UDP **162** (**traps**, alerts to the manager). v1 and v2 clear text; **v3** adds authentication, integrity, encryption.
+- **LDAP** TCP **389**: directory queries (Active Directory).
+- **RDP** TCP **3389**: Windows remote desktop (whole desktop or a single app).
+@cards
+Q: TCP vs UDP in one line each?
+A: TCP: connection-oriented, acknowledged, ordered, retransmits. UDP: connectionless, no acknowledgment, low overhead.
+Q: Which OSI layer holds TCP and UDP?
+A: Layer 4, transport.
+Q: Why do protocols like DHCP and TFTP use UDP?
+A: Simple, fast exchanges; the application handles retransmission.
+Q: Well-known vs ephemeral ports?
+A: Well-known: fixed server ports (0 to 1023). Ephemeral: temporary client ports (1,024 to 65,535).
+Q: Port number range?
+A: 0 to 65,535, separate for TCP and UDP.
+Q: FTP ports?
+A: TCP 20 (data) and 21 (control).
+Q: SSH vs Telnet?
+A: SSH TCP 22, encrypted. Telnet TCP 23, clear text.
+Q: SMTP port and role?
+A: TCP 25; sends and relays email.
+Q: POP3 port?
+A: TCP 110, downloads mail to one client.
+Q: IMAP port?
+A: TCP 143, synchronized mailbox across devices.
+Q: DNS port?
+A: UDP/TCP 53.
+Q: DHCP ports?
+A: UDP 67 (server), UDP 68 (client).
+Q: HTTP and HTTPS ports?
+A: TCP 80 and TCP 443.
+Q: SMB direct port?
+A: TCP 445.
+Q: NetBIOS ports?
+A: UDP 137 (names), TCP 139 (sessions).
+Q: SNMP ports?
+A: UDP 161 queries, UDP 162 traps.
+Q: Which SNMP version is secure?
+A: SNMPv3.
+Q: LDAP port?
+A: TCP 389.
+Q: RDP port?
+A: TCP 3389.
+Q: What is a DHCP reservation?
+A: A fixed address always given to a specific device.
+@check
+? A technician must allow remote desktop access through a firewall. Which port?
+a) 22
+b) 3389
+c) 445
+d) 143
+= b | RDP uses TCP 3389.
+? A mail client syncs the same inbox across a phone and a laptop. Which protocol?
+a) POP3
+b) IMAP
+c) SMTP
+d) SNMP
+= b | IMAP manages the mailbox on the server.
+? Which pair is clear text and should be replaced by an encrypted alternative?
+a) SSH and HTTPS
+b) Telnet and HTTP
+c) SMB and LDAP
+d) DNS and DHCP
+= b | Telnet and HTTP send data unencrypted.
+@lab
+Name that port
+Write the port and protocol: (1) secure terminal, (2) web, secure, (3) send email, (4) Windows file share, (5) directory lookup, (6) SNMP trap.
+@answer
+(1) TCP 22 SSH. (2) TCP 443 HTTPS. (3) TCP 25 SMTP. (4) TCP 445 SMB. (5) TCP 389 LDAP. (6) UDP 162.
+
+## 2.2 Network Devices
+labs: computer-networks, networking-tcp-ip-dhcp-nat-subnets
+@notes
+### Network Devices
+- **Router**: forwards between IP subnets using the destination **IP address** (layer 3); can join LAN, WAN, copper and fiber. A **layer 3 (multilayer) switch** adds routing to a switch. SOHO devices combine router, switch, AP, firewall.
+- **Switch**: forwards by destination **MAC address** (layer 2), in hardware (**ASIC**) at high speed; can supply **PoE**. **Unmanaged**: plug and play, no VLANs, no SNMP, cheap, home use. **Managed**: **VLANs**, QoS (prioritize voice), **STP** to prevent loops, **port mirroring**, SNMP monitoring.
+- **Access point (AP)**: bridges wireless to wired by MAC (not a router, no NAT).
+- **Patch panel**: permanent cable runs from desks are punched down at the back; short patch cables on the front connect to switch ports, so moves and changes only touch the front.
+- **Firewall**: allows or blocks by IP and port (layer 4); **next-generation** firewalls understand applications (layer 7). May terminate **VPN** tunnels, act as a **proxy**, and route (layer 3).
+- **PoE**: power on the Ethernet cable for APs, cameras, phones. **Endspan** = PoE switch; **midspan** = injector with a non-PoE switch. Standards: **802.3af** 15.4 W (350 mA), **802.3at (PoE+)** 25.5 W (600 mA), **802.3bt (PoE++)** type 3 51 W, type 4 71.3 W (960 mA).
+- **Hub**: multiport repeater; copies every frame to all ports, **half duplex**, gets slower with load; only 10/100 Mb/s, obsolete.
+- **Cable modem**: **DOCSIS** over coax (broadband, many frequencies: TV, phone, data), up to about 1 Gb/s. **DSL modem** (ADSL: **asymmetric**, faster down than up) over phone lines; about **10,000 ft** from the central office (CO) limit; closer = faster.
+- **ONT** (optical network terminal): converts ISP **fiber** to Ethernet/phone/coax at the premises. The **demarc** is the demarcation point where the ISP's responsibility ends and yours begins.
+- **NIC**: network interface card (wired, fiber, wireless; onboard or expansion).
+
+### Software Defined Networking
+- **SDN** turns routers, switches and firewalls into software with three planes: **infrastructure/data plane** (forwarding, trunking, encryption, NAT), **control plane** (routing protocols, forwarding and NAT tables), **management/application plane** (SSH, GUI, SNMP, **API**). Modular and cloud friendly.
+@cards
+Q: Router vs switch decision basis?
+A: Router: destination IP (layer 3). Switch: destination MAC (layer 2).
+Q: Layer 3 switch?
+A: A switch with routing capability.
+Q: Unmanaged vs managed switch?
+A: Unmanaged: no configuration, no VLANs or SNMP. Managed: VLANs, QoS, STP, mirroring, SNMP.
+Q: What does STP do?
+A: Prevents switching loops.
+Q: What does port mirroring do?
+A: Copies a port's traffic to another port for analysis.
+Q: What is an AP?
+A: Bridges wireless clients to the wired LAN by MAC.
+Q: Why use a patch panel?
+A: Permanent wiring behind, flexible short patch cables in front; easy moves and changes.
+Q: Layer 4 vs layer 7 firewall?
+A: Layer 4: IP and ports. Layer 7: application aware (next-gen).
+Q: Endspan vs midspan PoE?
+A: Endspan: PoE switch. Midspan: injector.
+Q: PoE wattages?
+A: af 15.4 W, at 25.5 W, bt 51 W (type 3) or 71.3 W (type 4).
+Q: Why is a hub inefficient?
+A: Repeats every frame to every port, half duplex, collisions.
+Q: DOCSIS?
+A: Standard for data over cable TV networks.
+Q: Why is ADSL asymmetric?
+A: Download speed is higher than upload.
+Q: DSL distance limit?
+A: About 10,000 feet from the central office.
+Q: What is an ONT?
+A: Device converting ISP fiber to local Ethernet/phone/coax.
+Q: Demarc?
+A: Point where ISP responsibility ends and the customer's begins.
+Q: SDN three planes?
+A: Data (infrastructure), control, management (application).
+Q: Which plane holds routing and NAT tables?
+A: Control plane.
+@check
+? A camera is 80 m from a non-PoE switch, with no power outlet nearby. Easiest fix?
+a) Hub
+b) PoE midspan injector
+c) Layer 3 switch
+d) NIC
+= b | Injector adds power onto the cable.
+? Which device can create VLANs and mirror ports?
+a) Hub
+b) Unmanaged switch
+c) Managed switch
+d) Patch panel
+= c | Managed switches offer these features.
+? In SDN, SSH and API access belong to which plane?
+a) Data
+b) Control
+c) Management
+d) Physical
+= c | Management plane.
+@lab
+Pick the device
+Choose a device for: (1) connect 24 desks with VLANs, (2) join two IP subnets, (3) bring fiber internet into a home, (4) block a port.
+@answer
+(1) Managed switch. (2) Router or layer 3 switch. (3) ONT. (4) Firewall (or ACL).
+
+## 2.3 Wireless Networks
+labs: computer-networks
+@notes
+### Wireless Network Standards
+- **802.11** (IEEE) = **Wi-Fi** (Wi-Fi Alliance trademark and interoperability testing). Higher frequency means less range (more absorption); 2.4 GHz travels farther but is crowded (baby monitors, cordless phones, Bluetooth).
+- Table (frequency, max rate):
+  - **802.11a** (1999): 5 GHz, 54 Mb/s.
+  - **802.11b** (1999): 2.4 GHz, 11 Mb/s.
+  - **802.11g** (2003): 2.4 GHz, 54 Mb/s, backward compatible with b.
+  - **802.11n = Wi-Fi 4** (2009): 2.4 and 5 GHz, up to 4 **MIMO** streams, 40 MHz channels, 150 Mb/s per stream, **600 Mb/s** total.
+  - **802.11ac = Wi-Fi 5** (2014): **5 GHz only**, 160 MHz channels, **MU-MIMO** (multi-user), 8 streams at 867 Mb/s, about **6.9 Gb/s**. (Dual-band "ac" APs use "n" on 2.4 GHz.)
+  - **802.11ax = Wi-Fi 6** (2021): 2.4 and 5 GHz, 20/40/80/160 MHz, uplink and downlink MU-MIMO, **OFDMA** (efficient in crowds: stadiums, trade shows), about 1.2 Gb/s per stream, **9.6 Gb/s** total.
+- Typical AP range 40 to 50 m. **Long-range fixed wireless**: directional antennas (such as **Yagi**) for point-to-point between buildings; follow regulations (frequencies, power, indoor vs outdoor), outdoor safety and lightning protection; consider a pro installer.
+- **RFID**: tags powered by the reader's signal (passive, no battery) or battery (active). Badges, inventory, pet chips. **NFC**: short-range two-way, based on RFID; contactless payment, pairing, phone as access card.
+
+### Wireless Network Technologies
+- Regulators set allowed frequencies, power and interference limits per country.
+- **2.4 GHz**: only three non-overlapping 20 MHz channels, **1, 6, 11** (2412 to 2482 MHz). **5 GHz**: many more channels; bond into 40, 80 or **160 MHz** for speed.
+- **Bluetooth** uses the unlicensed **ISM** (industrial, scientific, medical) part of 2.4 GHz; a **PAN** with about **10 m** range for consumer devices (class 1 industrial over 100 m).
+@cards
+Q: Wi-Fi 4, 5, 6 standards?
+A: 802.11n, ac, ax.
+Q: 802.11a frequency and speed?
+A: 5 GHz, 54 Mb/s.
+Q: 802.11b?
+A: 2.4 GHz, 11 Mb/s.
+Q: 802.11g?
+A: 2.4 GHz, 54 Mb/s, compatible with b.
+Q: 802.11n key features?
+A: 2.4 and 5 GHz, MIMO, up to 600 Mb/s.
+Q: 802.11ac frequency and speed?
+A: 5 GHz only, MU-MIMO, up to about 6.9 Gb/s.
+Q: 802.11ax key feature?
+A: OFDMA for crowded areas; 2.4 and 5 GHz; up to about 9.6 Gb/s.
+Q: What does MIMO mean?
+A: Multiple input, multiple output: parallel spatial streams.
+Q: 2.4 GHz vs 5 GHz tradeoff?
+A: 2.4 GHz has longer range but crowded; 5 GHz is faster with more channels but shorter range.
+Q: Non-overlapping 2.4 GHz channels?
+A: 1, 6 and 11.
+Q: Antenna for point-to-point links?
+A: Directional such as Yagi.
+Q: RFID vs NFC?
+A: RFID: tags read by radio, passive or active. NFC: short-range two-way for payments and pairing.
+Q: Bluetooth band and range?
+A: 2.4 GHz ISM, about 10 m for consumer devices.
+@check
+? A stadium has poor Wi-Fi with thousands of clients. Which standard helps most?
+a) 802.11g
+b) 802.11n
+c) 802.11ax (OFDMA)
+d) 802.11b
+= c | Wi-Fi 6 is built for dense environments.
+? An access badge with no battery is read at a door. Technology?
+a) Passive RFID
+b) Bluetooth
+c) 802.11ac
+d) NFC pairing
+= a | Powered by the reader's field.
+? Which standard works only on 5 GHz?
+a) 802.11n
+b) 802.11ac
+c) 802.11g
+d) 802.11ax
+= b | Wi-Fi 5 is 5 GHz only.
+@lab
+Choose the standard
+A client needs maximum compatibility with old laptops on 2.4 GHz plus fast modern devices on 5 GHz. Which standard supports both bands, and what must you configure?
+@answer
+802.11n or ax in dual-band mode. Configure separate SSIDs or band steering, channels 1/6/11 on 2.4 GHz, wide channels on 5 GHz, and WPA2/WPA3 security.
+
+## 2.4 Network Services
+labs: networking-tcp-ip-dhcp-nat-subnets, windows-admin-powershell
+@notes
+### Network Services
+- **DNS server**: converts FQDNs to IPs; distributed system, run by IT or an ISP, always in redundant sets.
+- **DHCP server**: assigns IP, mask, gateway, DNS. SOHO routers and cable modems include one; enterprises run redundant ones. Home example: 1-week lease, pool 10.1.10.10 to .199.
+- **File server**: central folders reachable from any device. **SMB** (Windows) or **AFP** (Apple); users just see a file manager.
+- **Print server**: hardware (built-in or add-in card, wireless) or software on a PC that shares printers. Protocols: **SMB**, **IPP** (internet printing protocol), **LPD** (line printer daemon).
+- **Mail server**: needs near 100 percent uptime and 24x7 support; run in-house, by an ISP or in the cloud.
+- **Syslog / SIEM**: syslog sends logs to a central database; a **SIEM** (security information and event manager) collects and correlates them with big storage.
+- **Web server**: answers HTTP/HTTPS requests with static or dynamic HTML pages.
+- **Authentication server** (AAA/RADIUS/LDAP, Active Directory): one credential store for all services; critical, so redundant.
+- **Spam gateway**: a mail gateway in the screened subnet (or cloud) scans inbound mail to tag or reject spam and phishing before the internal mail server.
+- **UTM (unified threat management)** or next-gen firewall: URL filter, content inspection, malware and spam filtering, CSU/DSU, routing and switching, firewall, **IDS/IPS**, bandwidth shaping (QoS) and VPN in one box.
+- **Load balancer**: spreads traffic over multiple servers, removes dead ones, and can do **TCP offload**, **SSL offload**, caching and **content switching** (route apps or pages to specific servers).
+- **Proxy server**: users ask the proxy, it fetches and inspects the response; adds access control (login), caching, URL filtering.
+- **SCADA / ICS**: supervises industrial machines (power, plants); expensive, high impact, so **segmented** from the main network.
+- **Legacy systems**: old software or hardware still doing important work; hard to support or replace.
+- **Embedded systems**: purpose-built devices (alarms, time clocks, door controllers); no OS access, rely on the vendor for patches.
+- **IoT**: smart appliances, speakers, thermostats, doorbells; weak security, so put them on their **own segment**.
+
+@cards
+Q: What does a DNS server do?
+A: Translates names to IP addresses.
+Q: File sharing protocols for Windows and Apple?
+A: SMB and AFP.
+Q: Network printing protocols?
+A: SMB, IPP and LPD.
+Q: What is syslog?
+A: A standard for sending logs to a central server.
+Q: What is a SIEM?
+A: Security information and event manager that collects and correlates logs.
+Q: UTM device features?
+A: URL filtering, malware and spam inspection, firewall, IDS/IPS, VPN, QoS, routing in one box.
+Q: What does a load balancer do?
+A: Distributes load, removes failed servers, offloads SSL/TCP, caches and content-switches.
+Q: What is a proxy server?
+A: Makes requests for users, inspecting, filtering and caching responses.
+Q: What is SCADA/ICS?
+A: Industrial control systems for plants and utilities; segmented for safety.
+Q: Embedded system?
+A: A purpose-built device with no user access to its OS (vendor-supported).
+Q: Why segment IoT?
+A: IoT devices are weakly secured.
+@check
+? Which server would let you pick which pages go to which backend and offload TLS?
+a) Load balancer
+b) File server
+c) Print server
+d) Syslog server
+= a | Content switching and SSL offload.
+? A badge reader and time clock run firmware you cannot log in to. What are they?
+a) Legacy VMs
+b) Embedded systems
+c) Proxies
+d) SANs
+= b | Purpose-built devices managed by the vendor.
+@lab
+Place the service
+Where do you place each: spam gateway, web server for the public, SCADA, IoT cameras?
+@answer
+Spam gateway and public web server in the screened subnet (DMZ); SCADA on an isolated segment with restricted access; IoT on its own VLAN.
+
+## 2.5 Network Configurations
+labs: networking-tcp-ip-dhcp-nat-subnets
+@notes
+### IPv4 and IPv6
+- **IPv4**: 32 bits, four 8-bit **octets** (0 to 255) in dotted decimal (192.168.1.131). **IPv6**: 128 bits, eight groups of 16 bits in **hex** with colons (FE80::5D18:652:CFFD:8F52); a huge address space, so almost anything can get an address. Usually a **/64** (64 bits network, 64 bits host). Because they are hard to remember, DNS matters even more. Most OSes run both (**dual stack**).
+- **Minimum IPv4 settings**: unique **IP address**, **subnet mask** (for example 255.255.255.0; which part is network and which is host; always given together with the IP), and **default gateway** (router for other subnets, such as 192.168.1.1). Add **DNS servers** (list two for redundancy, for example Google's 8.8.8.8 and 8.8.4.4).
+@cards
+Q: IPv4 vs IPv6 length?
+A: 32 bits vs 128 bits.
+Q: IPv4 format?
+A: Four octets in decimal, 0 to 255 each.
+Q: IPv6 format?
+A: Eight 16-bit hexadecimal groups separated by colons.
+Q: Typical IPv6 prefix length?
+A: /64.
+Q: Minimum IPv4 configuration?
+A: IP address, subnet mask, default gateway (plus DNS).
+Q: Why list two DNS servers?
+A: Redundancy if one fails.
+@check
+? Users can't sign in to any service although servers are up. Which service is likely down?
+a) Authentication server
+b) Syslog
+c) Print server
+d) Proxy cache
+= a | Central credentials are required by all services.
+? You want to spread web traffic over three servers and decrypt TLS in one place. Use:
+a) Load balancer with SSL offload
+b) Hub
+c) UTM
+d) Print server
+= a | Load balancer terminates TLS.
+? A PC with IP 192.168.1.5 and mask 255.255.255.0 cannot reach the internet. What setting is likely missing?
+a) Default gateway
+b) NetBIOS
+c) MAC filter
+d) Syslog
+= a | Needed to leave the subnet.
+@lab
+Fill in the config
+You are given 192.168.1.165 and 255.255.255.0 for a new PC. List what else is needed for web browsing and what each does.
+@answer
+Default gateway (router, such as 192.168.1.1) for other subnets; DNS server(s) to resolve names. Without the gateway you stay local; without DNS you can ping IPs but not names.
+
+## 2.6 Network Connections
+labs: networking-tcp-ip-dhcp-nat-subnets, computer-networks
+@notes
+### DNS Configuration
+- DNS is a **hierarchical, distributed database**: root (13 clusters, over 1,000 servers), TLDs (.com, .org, country codes), domains, hosts. A full name is the FQDN (`www.example.com`). Check with `dig example.com` or `nslookup example.com`; several A records give redundancy.
+- **Resource records** (30+ types). Simple text zone file or web GUI; back up before editing since DNS is critical.
+  - **SOA** start of authority. **A** name to IPv4. **AAAA** name to IPv6. **CNAME** alias to another name. **MX** mail exchanger (points to a name that needs an A record). **TXT** free text (public).
+  - **TTL**: how long clients cache the answer (such as 15 minutes).
+- **TXT records for email security**: **SPF** lists servers allowed to send for your domain; **DKIM** publishes the public key that verifies digital signatures on your mail; **DMARC** says what receivers should do when SPF/DKIM fail (accept, quarantine/spam, reject) and where to send reports. TXT is also used for domain verification.
+- `dig example.com TXT` or `nslookup -type=txt example.com` lists them.
+
+### DHCP Configuration
+- Server settings: **IP range (scope/pool)** and mask, **lease duration**, **DNS**, **gateway**, extra options (VoIP). **Exclusions** carve addresses out of a range; **reservations** bind a **MAC** to an address (static DHCP).
+- Windows Server DHCP shows scope, address pool, address leases, reservations, scope options. SOHO router example: 10.10.10.2 to .100, lease 86,400 s (24 h), gateway 10.10.10.1.
+- **Assignment types**: **dynamic** (any free address; returned to the pool after the lease), **automatic** (remembers previous clients and tries to give the same address), **reservation** (fixed per MAC, never given to anyone else).
+- **Lease and timers**: renewed on reboot; can **release** manually. **T1 = 50 percent** of the lease (renew with the server), **T2 = 87.5 percent (7/8)** (rebind with any server). 8-day lease: T1 at 4 days, T2 at 7 days.
+
+### VLANs and VPNs
+- **LAN** = one broadcast domain. Separate switches per network waste money, power and management. **VLANs** logically split one switch into several broadcast domains (port 1 = VLAN 1, port 9 = VLAN 2). VLANs cannot talk to each other without a router. Benefits: security, fewer broadcasts, cost.
+- **VPN**: encrypted tunnel across a public network to a **concentrator** (hardware, firewall or server software). Always-on or enabled by the user; protects traffic even on open coffee-shop Wi-Fi. The concentrator decrypts into the corporate network and encrypts replies.
+@cards
+Q: DNS hierarchy top to bottom?
+A: Root, TLD, domain, host.
+Q: A, AAAA, CNAME, MX, TXT?
+A: IPv4; IPv6; alias; mail server; text.
+Q: What does TTL do in DNS?
+A: Caching time for a record on clients.
+Q: SPF, DKIM, DMARC?
+A: Authorized senders; message signatures; policy and reports for failures.
+Q: Command to list TXT records?
+A: dig example.com TXT, or nslookup -type=txt example.com.
+Q: What does an MX record need next to it?
+A: An A record for the mail server's name.
+Q: DHCP scope?
+A: Range of addresses, mask, lease and options for a subnet.
+Q: Dynamic vs automatic vs reserved assignment?
+A: Any free address; remembers previous; fixed by MAC.
+Q: What do T1 and T2 mean?
+A: 50 percent of lease (renew) and 87.5 percent (rebind with any server).
+Q: Manually releasing an address?
+A: Returns it to the DHCP pool (such as ipconfig /release).
+Q: What does a VLAN do?
+A: Splits a switch into separate logical broadcast domains.
+Q: Do VLANs communicate without a router?
+A: No.
+Q: What is a VPN concentrator?
+A: Device terminating encrypted VPN tunnels.
+Q: Why use VPN on public Wi-Fi?
+A: Encrypts traffic all the way to the VPN endpoint.
+@check
+? Mail from your domain is being spoofed. Which DNS records help receivers detect forgery?
+a) SPF, DKIM, DMARC
+b) A, AAAA
+c) MX, NS
+d) PTR, SOA
+= a | These TXT records authenticate senders.
+? Your printer must always get 192.168.1.50. Configure:
+a) DHCP reservation by MAC
+b) Shorter lease
+c) New VLAN
+d) PRL
+= a | Reservation ties MAC to IP.
+? A DHCP server is down at 50 percent of an 8-day lease. What happens at T2?
+a) Client rebinds with any DHCP server
+b) Client drops the IP at once
+c) Client uses APIPA
+d) Client reboots
+= a | T2 is 7 days, the client tries other servers.
+@lab
+Read the dig
+`dig example.com` shows three A records with TTL 900. Explain the redundancy and when a client would re-query.
+@answer
+Three IPs are alternatives if one server is down. TTL 900 s = 15 minutes: the client caches the answer and asks again after it expires.
+
+## 2.7 Internet Connections
+labs: computer-networks
+@notes
+### Internet Connection Types
+- **Satellite** (non-terrestrial, low earth orbit): expensive, e.g. 50 Mb/s down, 3 Mb/s up; older geostationary latency about 250 ms each way, **Starlink** about 40 ms and falling; works where nothing else does; line of sight and **rain fade**.
+- **Fiber**: very high speed and long distance, expensive equipment and repair; fiber to the home/business.
+- **Cable broadband**: **DOCSIS**, video, voice and data on the same coax by using different frequencies; 1 Gb/s or more.
+- **DSL / ADSL**: existing phone lines; asymmetric (about 200 Mb/s down, 20 Mb/s up in the example); limited to about **10,000 feet** from the CO.
+- **Cellular**: phone network; **tethering** (USB or Bluetooth) or **hotspot** (802.11).
+- **WISP**: wireless internet service provider; ground stations, common in rural areas; external antenna; up to about 1,000 Mb/s.
+
+### Network Types
+- **LAN** (local, Ethernet and 802.11, high bandwidth). **WAN** (cities, countries; slower; point-to-point serial, MPLS, fiber, satellite). **PAN** (personal: Bluetooth, infrared, NFC; earbuds, car, fitness). **MAN** (one metro area, typically **metro Ethernet**; common for governments). **SAN** (storage area network, high-speed **block-level** access to central storage). **WLAN** (wireless LAN, 802.11 in a building).
+@cards
+Q: Satellite internet downsides?
+A: Cost, high latency and rain fade.
+Q: Why is Starlink different?
+A: Low earth orbit, about 40 ms latency.
+Q: DSL distance limit?
+A: About 10,000 feet from the central office.
+Q: What is tethering?
+A: Using a phone as a modem over USB or Bluetooth.
+Q: What is a WISP?
+A: Wireless ISP using local ground stations, often rural.
+Q: LAN, WAN, PAN, MAN, SAN, WLAN?
+A: Local, wide, personal, metropolitan, storage, wireless local.
+Q: What does a SAN provide?
+A: High-speed block-level access to centralized storage.
+Q: MAN common technology?
+A: Metro Ethernet.
+@check
+? A farm with no cable or DSL, but many nearby ground-based radio towers. Option?
+a) WISP
+b) ADSL
+c) DOCSIS
+d) MAN
+= a | Wireless ISP serves rural areas.
+? Wireless earbuds and a phone form a:
+a) LAN
+b) PAN
+c) WAN
+d) SAN
+= b | Personal area network.
+@lab
+Match the connection
+Pick a link for (1) 1 Gb symmetric to a business, (2) remote cabin with no cable, (3) laptop on the road with a phone.
+@answer
+(1) Fiber. (2) Satellite (or WISP). (3) Hotspot or tether over cellular.
+
+## 2.8 Network Tools
+labs: hardware-diagnostics-and-repair, computer-networks
+@notes
+### Network Tools
+- **Crimper**: attaches a connector (RJ45 for twisted pair, coax or fiber types) by pushing prongs through insulation into the copper. Pair with a **wire stripper** and **cable snips/electrician scissors**. Use the right connector for the cable category; keep twists and the strain-relief tab in the sheath.
+- **Wi-Fi analyzer**: software or hardware that shows frequencies, channels and interference; aim antennas by watching the result.
+- **Tone generator + inductive probe (toner probe)**: tone on one end, probe near cables to find it in a bundle.
+- **Punch down tool**: seats each wire in the slot of a **punch down block** and trims the excess. Keep the twist, label and number each connection, and document the matching number on the other end.
+- **Cable tester**: two units, continuity test (pin 1 to 1 ... missing, shorted or crossed). No crosstalk or loss data; use a **TDR (time domain reflectometer)** for lengths, breaks and signal loss.
+- **Loopback plug**: sends a signal out an interface and back in to test the **port** (serial, Ethernet, T1, fiber). Not a crossover cable.
+- **Network tap**: physical tap sits inline and copies traffic to an analyzer; **passive** (fiber) or **active** (copper, powered). **Port mirror / SPAN** on a switch copies traffic to another port; limited bandwidth, temporary use.
+@cards
+Q: What does a crimper do?
+A: Attaches connectors such as RJ45 to cable ends.
+Q: What is a punch down tool?
+A: Pushes wires into a punch down block and cuts excess.
+Q: What does a cable tester check?
+A: Continuity and pin mapping.
+Q: What measures cable length, breaks and loss?
+A: TDR.
+Q: Loopback plug purpose?
+A: Test a port by looping its signal back to itself.
+Q: Loopback vs crossover?
+A: Loopback: device to itself. Crossover: device to device.
+Q: Passive vs active tap?
+A: Passive: unpowered (fiber). Active: powered (copper).
+Q: SPAN?
+A: Switched Port Analyzer: port mirroring.
+Q: Toner probe components?
+A: Tone generator and inductive probe.
+Q: Tool to see Wi-Fi interference?
+A: Wi-Fi analyzer.
+@check
+? Which tool tells you a cable is 12 m long with a break at 9 m?
+a) Cable tester
+b) TDR
+c) Loopback plug
+d) Crimper
+= b | TDR measures distance to a fault.
+? You need to test whether a NIC port itself is faulty. Use:
+a) Loopback plug
+b) Punch down tool
+c) Toner
+d) Crossover cable
+= a | It returns the port's own signal.
+@lab
+Terminate a cable
+List the steps to make a Cat 6 patch cable and how to confirm it.
+@answer
+Strip the sheath, untwist minimal length, arrange in T568A or B order, trim even, insert to the stop with the right connector (Cat 6 rated), crimp, then test on a cable tester for pins 1 to 8 in order. Label it.
+
+## 3.1 Cables and Adapters
+labs: hardware-diagnostics-and-repair
+@notes
+### Network Cables
+- **Twisted pair** Ethernet cable: 4 pairs (blue, orange, green, brown, each solid and white-striped). Pairs carry equal and opposite signals; twisting and comparing at the receiver cancels interference, and each pair has a different twist rate to limit crosstalk.
+- **Categories**: 1000BASE-T needs minimum **Cat 5** (Cat 5e = enhanced, tested more, now what you buy) to 100 m; 10GBASE-T uses **Cat 6** (shorter) or **Cat 6A** (augmented) to 100 m.
+- **Coax**: center conductor, insulator, metal shield, jacket. **RG6** for cable TV and cable modems.
+- **Plenum**: air-return space above ceilings. Cables there need **plenum-rated** jackets (**FEP**/low-smoke PVC) so a fire doesn't spread toxic smoke; normal jackets are PVC. Plenum cable is stiffer.
+- **UTP** unshielded (typical) vs **STP** shielded (+ drain/ground wire). Jacket codes: **U** = unshielded, **S** = braided shield, **F** = foil: for example **F/UTP** (foil overall, no pair shields), **S/FTP** (braid overall, foil on pairs).
+- **Direct burial** cable: waterproof, often gel-filled, shielded, with a drain wire; can go in the ground without conduit.
+
+### Optical Fiber
+- Light signals: no RF emission (hard to tap), immune to EMI, much longer distance than copper. Parts: **core**, **cladding** (lower refractive index keeps light in the core), **buffer coating**, **ferrule** at the connector.
+- **Multimode**: wide core, many reflections, **LED** source, cheaper, up to about **2 km**. **Single-mode**: narrow core, one path, **laser**, up to about **100 km** without regeneration.
+
+### 568A and 568B Colors
+- **TIA-568** standard (ISO/IEC 11801 internationally); **T568A / T568B** define wire colors per pin of the **8P8C (RJ45)** connector. Pins 1,2,3,6 differ: **T568B pin 1 = white/orange, 2 = orange, 3 = white/green, 6 = green**; T568A swaps orange and green. Pins 4/5 (blue pair) and 7/8 (brown pair) are the same. Both work the same; use one consistently, both ends. (A **crossover** cable is defined by the IEEE pin-out, not by "A on one end, B on the other".)
+
+### Video Cables
+- **VGA**: 15-pin **DB-15 (DE-15)**, **blue**, **analog**, video only, degrades past 5 to 10 m.
+- **HDMI**: digital, video **and audio**, 19-pin type A, about 20 m before dropouts.
+- **DisplayPort**: digital packetized audio and video, locking latch, mini version; passively compatible with HDMI via a DP-to-HDMI cable.
+- **DVI**: video only. **DVI-A** analog, **DVI-D** digital, **DVI-I** integrated (both). **Single link** (about 3.7 Gb/s) vs **dual link** (double).
+
+### SATA Device Cables
+- **SATA** (serial AT attachment): rev 1.0 1.5 Gb/s, 2.0 3 Gb/s, 3.0 **6 Gb/s**, 3.2 16 Gb/s; 1 m cable. **eSATA**: external, up to 2 m, different connector. Data = **7-pin** L-shaped; power = **15-pin** (or older **Molex**). One cable = one drive (point to point).
+
+### SCSI Device Cables
+- **SCSI** (small computer systems interface): daisy chain of 8 (narrow) or 16 (wide) devices; each has a **SCSI ID**; **LUN** names a drive inside an array; a **terminator** at the chain end. Parallel versions (such as a 68-pin Ultra 3), then **SAS (serial attached SCSI)**: point to point, no IDs or terminators, looks like SATA but uses different connectors. **iSCSI** = SCSI over IP (heavy use in virtual and storage networks).
+
+### PATA Device Cables
+- **PATA** (parallel ATA, also IDE/EIDE, ATA): 40-pin ribbon, speeds 16 to **133 MB/s**; 40-wire cable (original) and **80-wire** cable (same 40 pins, extra ground wires cut crosstalk). Keyed with a notch and a missing pin. Device 0 and 1 (master/slave). Legacy.
+
+### Adapters and Converters
+- **Electrically compatible** pairs need only a passive adapter: **DVI-D to HDMI**; **DVI-A to VGA** (640 x 480 limit). Analog VGA to digital DVI-D needs an active **converter**. **USB to Ethernet**, USB-C to USB-A, and multiport **USB hubs/docks** cover missing ports.
+
+### Copper Connectors
+- **RJ11**: 6 position, 2 conductor (phones, DSL port). **RJ45**: 8P8C (Ethernet). **F connector**: threaded coax (cable TV, DOCSIS). **Punch down block** (wires punched, RJ45 on other side). **USB**: A, B (printers), mini-B, micro-B, USB 3.0 (extra pins, blue), **USB-C** (reversible, small; carries USB, Thunderbolt, DisplayPort). **Molex**: 4-pin 12 V/5 V power for old drives and fans. **Lightning** (Apple 8-pin). **DB-9** (RS-232 console).
+
+### Fiber Connectors
+- **LC** (local; small, duplex transmit and receive), **ST** (straight tip; bayonet quarter-turn), **SC** (subscriber/square; push-pull).
+@cards
+Q: Why are Ethernet pairs twisted?
+A: To cancel interference and reduce crosstalk.
+Q: Minimum cable for 1000BASE-T?
+A: Cat 5 (Cat 5e now standard), up to 100 m.
+Q: 10GBASE-T cable?
+A: Cat 6 (shorter) or Cat 6A (100 m).
+Q: Coax type for cable TV/modem?
+A: RG6.
+Q: Plenum-rated cable?
+A: Fire-safe jacket (FEP or low-smoke) for air-handling spaces.
+Q: F/UTP means?
+A: Foil shield around the whole cable, unshielded pairs.
+Q: Direct burial cable features?
+A: Waterproof, gel-filled, shielded with drain wire.
+Q: Multimode vs single-mode fiber distance and source?
+A: Multimode: up to about 2 km, LED. Single-mode: up to about 100 km, laser.
+Q: Why does fiber resist EMI and tapping?
+A: It uses light, with no RF emissions.
+Q: T568B pin 1 and 2?
+A: White/orange and orange.
+Q: Which pins differ between 568A and 568B?
+A: 1, 2, 3 and 6 (orange and green swapped).
+Q: VGA characteristics?
+A: Blue DB-15, analog, video only.
+Q: HDMI vs DVI audio?
+A: HDMI carries audio; DVI does not.
+Q: DVI-A, DVI-D, DVI-I?
+A: Analog, digital, integrated.
+Q: DisplayPort and HDMI compatibility?
+A: Passive cable adapts DP to HDMI.
+Q: SATA 3.0 speed?
+A: 6 Gb/s.
+Q: SATA data vs power connector pins?
+A: 7-pin data, 15-pin power.
+Q: eSATA max length?
+A: 2 meters.
+Q: SCSI IDs and LUN?
+A: ID identifies a device on the bus; LUN identifies a drive inside it.
+Q: Why does parallel SCSI need a terminator?
+A: End of the chain; prevents signal reflection.
+Q: SAS vs SCSI?
+A: Serial point-to-point; no IDs or terminators.
+Q: iSCSI?
+A: SCSI storage commands over IP networks.
+Q: PATA speed and wires?
+A: Up to 133 MB/s; 40-wire or 80-wire ribbon with 40 pins.
+Q: Passive adapter examples?
+A: DVI-D to HDMI, DVI-A to VGA.
+Q: RJ11 vs RJ45?
+A: RJ11: 6P2C phone/DSL. RJ45: 8P8C Ethernet.
+Q: F connector use?
+A: Threaded coax for cable TV and modems.
+Q: Molex connector provides?
+A: 12 V and 5 V power to older drives and fans.
+Q: Fiber connectors LC, ST, SC?
+A: Small duplex, bayonet straight tip, push-pull square.
+@check
+? Cables run in a drop-ceiling air return must be:
+a) Direct burial
+b) Plenum-rated
+c) RG6
+d) STP only
+= b | Fire safety for the shared air space.
+? A monitor has DVI-D and the PC has HDMI. What is needed?
+a) A passive DVI-D to HDMI cable
+b) An analog converter
+c) A VGA cable
+d) Nothing works
+= a | Both are digital and electrically compatible.
+? Which SCSI evolution has no IDs or terminators?
+a) Ultra 3
+b) Wide SCSI
+c) SAS
+d) PATA
+= c | Serial attached SCSI is point-to-point.
+? A fiber run of 40 km between buildings needs:
+a) Multimode with LED
+b) Single-mode with laser
+c) Cat 6A
+d) RG6
+= b | Single-mode reaches long distances.
+@lab
+Wire it
+Which pins and colors for T568B at the RJ45 (clip down, pins 1 to 8)?
+@answer
+1 white/orange, 2 orange, 3 white/green, 4 blue, 5 white/blue, 6 green, 7 white/brown, 8 brown. Use the same on both ends for a straight-through patch cable and test it.
+
+## 3.2 Memory
+labs: hardware-diagnostics-and-repair
+@notes
+### An Overview of Memory
+- **RAM** = fast, temporary working storage for loaded programs and documents (not disk space). Check the motherboard manual for the exact type.
+- **DIMM** (dual in-line memory module): 64-bit data width, clips hold it in; contacts on each side differ. **SO-DIMM**: about half the width, for laptops and small devices.
+- **DRAM** (dynamic RAM) must be constantly **refreshed** and needs power; **random access** means any address can be read directly; **synchronous** (SDRAM) means a system clock paces transfers.
+- **Notches (keys)** prevent installing the wrong generation; no backward compatibility.
+- **SDR** moves one transfer per clock; **DDR** (double data rate) moves two. **DDR3**: twice DDR2 speed, up to 16 GB per module. **DDR4**: faster, up to 64 GB per module. **DDR5**: faster again, 64 GB per module (key moved).
+
+### Memory Technologies
+- **Virtual memory** (swap/page file, virtual RAM): drive space used as overflow RAM; slower. Windows can auto-manage the **paging file** (Performance Options > Advanced) or you set the size.
+- **Multichannel**: dual, triple, quad channel spreads load across matched modules in matching (often color-coded) slots for more throughput.
+- **Parity memory**: extra bit per byte; **detects** some errors, cannot correct. **ECC** (error-correcting code) memory **detects and corrects**; used in servers, VMs and databases.
+- **Even parity**: choose the parity bit so the total number of 1s is even. Data 11100111 (six 1s) -> parity 0; 00000010 (one 1) -> parity 1; 10011000 (three 1s) -> parity 1. To check: count all 1s including the parity bit; odd means an error.
+@cards
+Q: What is DRAM?
+A: Dynamic RAM that must be constantly refreshed and loses data without power.
+Q: Why "synchronous"?
+A: A clock paces memory transfers.
+Q: DIMM data width?
+A: 64 bits.
+Q: DIMM vs SO-DIMM?
+A: Full-size desktop vs about half-width laptop module.
+Q: What does the module notch do?
+A: Prevents installing the wrong DDR generation.
+Q: SDR vs DDR?
+A: DDR transfers twice per clock cycle.
+Q: DDR3 vs DDR4 vs DDR5 max per module?
+A: DDR3 16 GB; DDR4 and DDR5 64 GB (DDR4 faster than DDR3, DDR5 faster than DDR4).
+Q: Virtual memory?
+A: Drive space used as extra RAM (page/swap file); much slower.
+Q: Multichannel memory?
+A: Using matched modules in parallel channels for greater throughput.
+Q: Parity vs ECC?
+A: Parity detects some errors; ECC detects and fixes them.
+Q: Parity bit for 10110010 with even parity?
+A: Four 1s are already even, so parity bit 0.
+@check
+? A server hosting VMs must tolerate single-bit RAM errors. Use:
+a) Non-ECC DDR4
+b) ECC memory
+c) Virtual memory
+d) SO-DIMM
+= b | ECC corrects errors.
+? A DDR4 DIMM won't fit into a DDR3 board. Why?
+a) The notch location differs
+b) Wrong voltage only
+c) Needs BIOS flashing
+d) RAM is dynamic
+= a | Keys prevent mismatched generations.
+@lab
+Even parity
+Data 01101001 with an even-parity bit of 1 arrives. Is it valid?
+@answer
+Count the 1s in 011010011: there are five 1s (four in data plus parity), an odd count, so an error occurred. Even parity requires an even total.
+
+## 3.3 Storage Devices
+labs: hardware-diagnostics-and-repair, secure-data-sanitization
+@notes
+### Storage Devices
+- **HDD**: spinning magnetic **platters**, **spindle**, **actuator arm** and **heads** (both sides of each platter). **Non-volatile**, random access, but mechanical, so it is slow and will eventually fail. Speed ≈ RPM: **5,400 RPM** about 5.5 ms rotational latency; **15,000 RPM** about 2 ms. Sizes: **3.5 inch** (desktop), **2.5 inch** (laptop and desktop), M.2 (small).
+- **SSD**: no moving parts, non-volatile, far faster. Interfaces: **SATA** SSD in 2.5 inch size (same connector as HDD); **mSATA** (mini-SATA, small card, now rare); **M.2** (small card). SATA uses the **AHCI** protocol and tops out near **600 MB/s** (SATA III), a bottleneck for SSDs.
+- **NVMe** (non-volatile memory express): protocol for SSDs over **PCIe** (x4 lanes ~ 4 GB/s), lower latency and higher throughput. Uses an **M.2** slot; the slot may support only AHCI. **M.2 keys** (B key, M key, or B+M): match the SSD to the motherboard slot and check NVMe support. Install: slide in, one screw, no cables or power connector.
+- **Flash memory** (EEPROM): non-volatile, limited write cycles, small and easy to lose, not archival. **USB flash drive, SD, microSD**, legacy **CompactFlash** and **xD**.
+- **Optical**: laser reads pits; CD-ROM, DVD-ROM, **Blu-ray**; used for archive media; rarer on new systems; internal or USB external.
+
+### RAID
+- **RAID** = redundant array of independent disks: uptime/availability, **not a backup**.
+- **RAID 0 striping**: 2+ disks, data split across them; faster, **no redundancy** (lose a disk, lose everything).
+- **RAID 1 mirroring**: 2 disks with identical data; survives one failure; uses 2x the space.
+- **RAID 5 striping with parity**: min 3 disks; parity distributed across drives; survives **one** drive failure (rebuild uses CPU, slower while degraded); usable space = n-1 drives.
+- **RAID 10 (1+0)**: striped mirrors, min 4 disks; fast and redundant; survives one drive per mirror pair.
+- Watch for failure alerts; replace failed drives promptly.
+@cards
+Q: Are HDDs volatile?
+A: No, non-volatile; data survives power off.
+Q: HDD parts?
+A: Platters, spindle, actuator arm, read/write heads.
+Q: Rotational latency of 5,400 vs 15,000 RPM?
+A: About 5.5 ms vs about 2 ms.
+Q: HDD sizes?
+A: 3.5 inch desktop, 2.5 inch laptop/desktop.
+Q: SSD advantages?
+A: No moving parts, much faster, quieter.
+Q: What is mSATA?
+A: Mini-SATA SSD card interface, now largely replaced by M.2.
+Q: SATA III maximum throughput?
+A: About 600 MB/s.
+Q: What is NVMe?
+A: Protocol for SSDs on PCIe with high throughput and low latency.
+Q: M.2 keys?
+A: B key, M key, or B+M; must match slot and SSD.
+Q: Does M.2 imply NVMe?
+A: No; an M.2 slot may support only SATA/AHCI.
+Q: Flash drive limitation?
+A: Limited write cycles; easy to lose; not for archives.
+Q: SD variants?
+A: SD and microSD; legacy CompactFlash, xD.
+Q: Optical formats?
+A: CD-ROM, DVD-ROM, Blu-ray.
+Q: Is RAID a backup?
+A: No.
+Q: RAID 0?
+A: Striping, min 2 disks, no redundancy.
+Q: RAID 1?
+A: Mirroring, min 2 disks, survives one failure.
+Q: RAID 5?
+A: Striping with distributed parity, min 3 disks, survives one failure.
+Q: RAID 10?
+A: Stripe of mirrors, min 4 disks.
+@check
+? Which RAID level offers speed but no fault tolerance?
+a) 0
+b) 1
+c) 5
+d) 10
+= a | Striping only.
+? You install an NVMe SSD, but it runs at SATA speeds. Likely cause?
+a) The M.2 slot supports only AHCI/SATA
+b) Wrong DDR type
+c) PRL needed
+d) No RAID
+= a | Check slot capability and key.
+? A customer says "we have RAID 1, so we don't need backups." Correct response?
+a) Right
+b) RAID is not a backup; deletion or corruption mirrors instantly
+c) Add RAID 0
+d) Use a USB flash drive
+= b | RAID protects uptime, not versions.
+@lab
+Pick the RAID
+You have four 2 TB drives. Give usable space and failure tolerance for RAID 0, 1 (two pairs), 5 and 10.
+@answer
+RAID 0: 8 TB, none. RAID 1 as two separate mirrors: 4 TB total, one per pair. RAID 5: 6 TB, one drive. RAID 10: 4 TB, one per mirror pair.
+
+## 3.4 Motherboards
+labs: hardware-diagnostics-and-repair, windows-deployment-and-drivers
+@notes
+### Motherboard Form Factors
+- The motherboard holds CPU, RAM, expansion slots, connectors. Choose by case size, expansion needs and airflow. **ATX** (1995): standard desktop board, plentiful slots and RAM, 20/24-pin power. **ITX family** (VIA, 2001, **Mini-ITX**): small, same mounting holes as ATX so it fits ATX cases; for media centers and small-form-factor PCs, thin clients.
+
+### Motherboard Expansion Slots
+- A **bus** is the communication path between components. **PCI** (1994): parallel; 32-bit or 64-bit; 3.3 V or 5 V keyed; legacy. **PCIe** (PCI Express): **serial**, point-to-point **lanes** (x1, x2, x4, x8, x16, x32, "by"), each lane full duplex; more lanes = more bandwidth. A hook locks the card; fasten the bracket screw.
+
+### Motherboard Connectors
+- **Main power**: originally 20 pins, now **24-pin** (+3.3, +5, +12 V); keyed and latched; unplug mains first. **4-pin (or 8-pin) ATX 12 V** near the CPU for CPU power (labels: CPU, P4, ATX12V).
+- **SATA** (storage), **eSATA** (external, via card or onboard), **M.2** (SSD, screw).
+- **Pin headers**: front panel buttons and LEDs (power, reset, HDD light), front USB 2/3, front audio (AAFP), **TPM** header, fan headers.
+
+### Motherboard Compatibility
+- **Intel vs AMD**: different CPUs and sockets; you can't swap; cost vs performance changes with time. Lift the retention cover, place the CPU, close.
+- **Server** boards: multiple CPU sockets, many RAM slots, rack-mount fit. **Desktop**: one CPU, 2 to 4 RAM slots, a few slots. **Small form factor**: minimal. **Laptop**: proprietary, designed for power efficiency, CPU **throttles** when hot, mostly not upgradeable; replace with the exact board.
+
+### The BIOS
+- **BIOS** (basic input output system) is firmware (now flash memory) that initializes CPU and RAM, runs **POST** (checks CPU, RAM, video, input, not a full diagnostic), finds the boot drive and boot loader. Some boards have a **backup BIOS** for failed upgrades.
+- **Legacy BIOS**: text menus, basic config, no drivers or extensions. **UEFI** (unified extensible firmware interface, from Intel's EFI): standardized, graphical, **supports UEFI drivers**; tabs for main/system info, security (passwords), advanced (boot options), UEFI drivers.
+### BIOS Settings
+- **Enter setup** at boot with the vendor key (Delete, F2, F10, F12 or similar). VMs: Hyper-V and VMware Workstation Player expose BIOS; VirtualBox does not (use a UEFI simulator to practice).
+- **Windows fast startup** (hibernate-style shutdown) skips the key prompt. Bypass: hold **Shift** while clicking Restart, use **Settings > Update & Security > Recovery > Advanced startup > Restart now**, msconfig, or interrupt boot three times.
+- **Back up settings before changes**: export if offered, write them down, or photograph the screen.
+- **Hardware control**: disable devices in BIOS so the OS can't see them. **Boot order**: for example USB, then SSD, then HDD, plus network and optical; enable or disable boot sources.
+- **Disable USB ports** in high-security places (the 2008 DoD ban followed a worm on a USB stick).
+- **Fan control**: intelligent cooling profiles (performance vs quiet); fans must be on motherboard fan headers.
+- **Secure boot** (UEFI): checks digital signatures of the boot loader against keys stored in the firmware; blocks tampered boot code. OS must be signed; disable it only if the OS can't support it.
+- **Passwords**: **user password** (required to start), **supervisor/administrator password** (needed to change settings); stored in firmware flash, not the OS. Forgot it? Reset the BIOS by shorting the **CLRTC / clear CMOS jumper** (power off, short pins, then power on). The older term **CMOS** persists.
+- **CMOS battery (CR2032, 3 V)**: only keeps date and time on modern boards; a dead battery resets the clock at each boot.
+- **TPM** (trusted platform module): hardware chip with its own processor and persistent storage for cryptographic keys; used by full-disk encryption (BitLocker); hardened against brute force; enable/disable in BIOS. **HSM** (hardware security module): appliance or card for managing many keys, with crypto acceleration; smart-card/USB versions for personal keys.
+
+### CPU Features
+- **32-bit** CPUs address 2^32 values (4 GB RAM); **64-bit** addresses vastly more (OS-limited). Drivers must match the OS type. **x86** = 32-bit, **x64** = 64-bit. A 64-bit OS runs 32-bit and 64-bit apps; a 32-bit OS runs only 32-bit. Windows installs 32-bit apps in **Program Files (x86)**.
+- **ARM**: efficient, low power and heat, mobile and IoT, spreading to laptops.
+- **Multi-core** (dual, quad ...): several cores plus caches and often a memory controller and **integrated GPU** in one package. **Hyper-Threading (HTT)** / SMT: one core appears as two, gaining about **15 to 30 percent**; needs CPU and OS support.
+- **Virtualization extensions**: **Intel VT** and **AMD-V**; enable in BIOS if your hypervisor needs them.
+
+### Expansion Cards
+- Install: power off, open case, align key and slot, press down, screw in; then install the **driver** (current one from the vendor, Device Manager or an installer; some require uninstalling the old driver first).
+- **Sound card**: better audio in/out (1/4 inch, line-in, S/PDIF digital). **Video card**: **discrete GPU** vs integrated graphics; plug the monitor into the card, not the board. **Capture card**: video input (HDMI, **SDI** over coax with BNC). **NIC**: add or multi-port Ethernet. Before buying, check slots, OS requirements, vendor compatibility lists and forums.
+
+### Cooling
+- **Airflow**: cool in at the front, warm out at the back; cable management matters. Case, card and CPU **fans**; board **fan controller**; quieter fans possible. Some systems are **passively cooled** (silent, small).
+- **Heat sink**: copper or aluminum fins; hot after use. **Thermal paste/grease**: pea-sized dot between CPU and heat sink for good contact. **Thermal pad**: solid, cleaner, slightly less effective, single use (replace each time). Heat sink plus fan on top is common.
+- **Liquid cooling**: CPU block, tubes, **radiator** with fans, pump; for gaming, graphics and overclocking.
+
+@cards
+Q: ATX vs Mini-ITX?
+A: ATX is full-size desktop; Mini-ITX is small with the same mounting holes.
+Q: Typical ATX main power connector?
+A: 24-pin (originally 20).
+Q: What is the 4-pin ATX 12 V connector for?
+A: CPU power.
+Q: PCI vs PCIe type?
+A: PCI is parallel; PCIe is serial with lanes.
+Q: PCIe lane sizes?
+A: x1, x2, x4, x8, x16, x32.
+Q: What is a pin header?
+A: Group of pins for front-panel buttons, USB, audio, fans, TPM.
+Q: Can an Intel CPU go into an AMD board?
+A: No, sockets and designs differ.
+Q: Laptop motherboard traits?
+A: Proprietary, power-efficient CPU that throttles, rarely upgradeable.
+Q: What is POST?
+A: Power-on self-test of basic hardware before booting.
+Q: Legacy BIOS vs UEFI?
+A: Legacy: text, no drivers, fixed. UEFI: standardized, extensible with drivers, graphical.
+Q: Where do you set boot order or BIOS password?
+A: In BIOS/UEFI setup (advanced and security tabs).
+Q: How do you enter BIOS setup?
+A: Press the vendor key (Delete, F2, F10, F12) during startup.
+Q: Why can't I enter BIOS on Windows 10?
+A: Fast startup; hold Shift on Restart, use Advanced startup, or interrupt boot three times.
+Q: Why back up BIOS settings first?
+A: Wrong changes can stop booting; you can restore them.
+Q: What is secure boot?
+A: UEFI feature verifying signatures of the boot loader.
+Q: User vs supervisor BIOS password?
+A: User: needed to start the PC. Supervisor: needed to change BIOS settings.
+Q: How to reset a forgotten BIOS password?
+A: Use the clear CMOS jumper (CLRTC).
+Q: What does the CR2032 battery do?
+A: Keeps the date and time.
+Q: What is a TPM?
+A: Chip storing and using cryptographic keys, used for disk encryption.
+Q: HSM vs TPM?
+A: HSM is an appliance/card managing many keys; TPM is a motherboard chip for one system.
+Q: 32-bit RAM limit?
+A: 4 GB.
+Q: x86 vs x64?
+A: 32-bit vs 64-bit.
+Q: Where do 32-bit apps install on 64-bit Windows?
+A: Program Files (x86).
+Q: ARM strengths?
+A: Low power, low heat, efficient; mobile/IoT.
+Q: Hyper-Threading?
+A: One core presents two logical processors for about 15 to 30 percent gain.
+Q: Intel VT and AMD-V?
+A: CPU virtualization extensions; enable in BIOS for VMs.
+Q: Integrated vs discrete GPU?
+A: Integrated is in the CPU; discrete is a separate card, faster.
+Q: What is a capture card for?
+A: Bringing video (HDMI, SDI) into the PC.
+Q: Why use thermal paste?
+A: To fill gaps for efficient heat transfer from CPU to heat sink.
+Q: Thermal pad vs paste?
+A: Pad is cleaner but single use and slightly less effective.
+Q: Liquid cooling components?
+A: Block, pump, tubes, radiator and fans.
+@check
+? A small HTPC next to the TV needs a tiny board that fits an ATX case later if needed. Choose:
+a) Mini-ITX
+b) Server board
+c) PCI card
+d) SO-DIMM
+= a | Mini-ITX uses ATX-compatible holes.
+? A GPU requires the highest bandwidth. Slot?
+a) PCI 32-bit
+b) PCIe x16
+c) PCIe x1
+d) M.2 B key
+= b | More lanes means more bandwidth.
+? POST finds no keyboard and halts. What happens next?
+a) OS loads normally
+b) An error appears; check input device
+c) BIOS flashes
+d) CPU throttles
+= b | POST verifies basic input.
+@lab
+Case, board, power
+You are building a media PC in a small case with Mini-ITX. Which power and storage connectors do you plan for?
+@answer
+24-pin main plus 4/8-pin CPU power, SATA power for 2.5 inch SSD or an M.2 SSD (no power cable), front-panel headers for power and USB.
+
+## 3.5 Power
+labs: hardware-diagnostics-and-repair
+@notes
+### Computer Power
+- **Safety**: always unplug before working inside; capacitors can hold charge even when unplugged (follow the maker's discharge steps); don't connect yourself to the electrical ground system; respect electricity.
+- **AC** (wall; alternates; US/Canada 110 to 120 V at 60 Hz; Europe 220 to 240 V at 50 Hz) vs **DC** (one direction; what components use). The **power supply (PSU)** converts AC to DC (+3.3, +5, +12 V). Nothing works without it.
+- **Units**: **amp** (current, rate of electrons), **volt** (force), **watt = volts x amps** (120 V x 0.5 A = 60 W). Multimeter measures voltage.
+- **Voltage switch**: manual 115/230 V selector on some PSUs (wrong setting means sparks and smoke); **auto-switching** PSUs accept 100 to 240 V, 47 to 63 Hz.
+- **DC rails**: **+12 V** (CPU, PCIe cards, drive motors, fans), **+5 V** (legacy), **+3.3 V** (modern boards, M.2, RAM), **+5 V SB (standby)** (keeps the system able to wake), **-12 V** (old serial and LAN), **-5 V** (legacy, mostly gone). Positive/negative is relative to ground.
+- **Main connector**: 24-pin (or 20-pin older); keyed and latched; a 24-pin fits a 20-pin board (4 pins unused). 4/8-pin for CPU.
+- **Redundant PSUs** in servers: two units each able to carry 100 percent; one fails, the other takes over; **hot-swappable**.
+- **Modular PSUs**: fixed, semi-modular or fully modular cables; fewer cables, better airflow.
+- **Sizing**: add up wattage for CPU, GPU, drives, etc. (GPU documentation recommends a PSU wattage), then about **double** it as headroom; extra capacity does not make the PC faster. Form factors are standardized (ATX), so a PSU from any maker fits.
+
+@cards
+Q: What are the AC and DC voltages in the US and Europe?
+A: US 110 to 120 V, 60 Hz; Europe 220 to 240 V, 50 Hz; DC rails 3.3, 5 and 12 V.
+Q: Watts formula?
+A: Watts = volts x amps.
+Q: Why unplug before opening a PC?
+A: Prevent shock; capacitors can still hold charge.
+Q: What is +5 V SB?
+A: Standby power so the PC can wake from a sleep state.
+Q: Which rails power CPU/GPU, drives and fans?
+A: +12 V.
+Q: Modern boards use which low voltage?
+A: +3.3 V (M.2, RAM, etc.).
+Q: Main motherboard connector pins?
+A: 24-pin (20-pin on older boards).
+Q: Redundant server PSU?
+A: Two supplies; either carries the full load; hot-swappable.
+Q: Modular PSU benefit?
+A: Only needed cables are attached, improving airflow.
+Q: PSU sizing rule of thumb?
+A: Calculate load, then roughly double for headroom.
+Q: What happens if a manual 115 V PSU is plugged into 230 V?
+A: Damage, sparks, smoke.
+Q: Tool to check wall voltage?
+A: Multimeter.
+@check
+? A PC with 450 W calculated load needs a PSU. A sensible size?
+a) 300 W
+b) 450 W
+c) 850 W
+d) 120 V
+= c | About double for headroom.
+? Which keeps the system able to power on from a button press while "off"?
+a) +12 V
+b) +5 V SB
+c) -12 V
+d) +3.3 V
+= b | Standby voltage.
+@lab
+Size it
+A build has a 65 W CPU, a 220 W GPU, 3 drives and fans (about 60 W total other). What PSU do you buy?
+@answer
+Load is about 345 W; doubling gives about 700 W; buy a 750 W modular PSU of good efficiency and confirm the GPU maker's recommendation.
+
+## 3.6 Multifunction Devices
+labs: hardware-diagnostics-and-repair, help-desk-ticketing-osticket
+@notes
+### Multifunction Devices
+- **MFD**: print, scan, copy, **fax**, network and phone line, web printing. Enterprise units need power, network and space. They need the correct **driver** for the OS and **32-bit or 64-bit** version.
+- **Printer languages**: **PCL** (HP's printer command language) and **PostScript** (Adobe, high-end/print houses); the **driver must match** how the printer is set.
+- **Connections**: **USB** (type A to type B), **Ethernet RJ45**, **Bluetooth** (short range), **802.11** in **infrastructure mode** (through an AP) or **ad hoc mode** (direct one-to-one).
+- **Sharing**: Windows **printer share** (Sharing tab; depends on the host PC being on) vs a **print server** on the printer or network (jobs queue there; web management page).
+- **Print options**: **duplex** (both sides), **portrait/landscape**, **tray** selection (letter, legal, envelopes, bypass tray), **quality** (draft, resolution, color or grayscale, color saving).
+- **Security**: Windows printer **Security tab** permissions (print, manage printer, manage documents); **badge release**; **secured print** (PIN at the printer); **audit logs** (who printed, pages, color) and Windows Event Viewer.
+- **Scanning**: flatbed scanner and **ADF** (automatic document feeder). Scan to **email**, **SMB** folder, Microsoft/network share, or **cloud** (Google Drive, Dropbox).
+@cards
+Q: MFD functions?
+A: Print, scan, copy, fax and network features.
+Q: PCL vs PostScript?
+A: HP printer command language vs Adobe page-description language; driver must match.
+Q: Wi-Fi printer modes?
+A: Infrastructure (via AP) and ad hoc (direct).
+Q: Shared printer vs print server?
+A: Share depends on a host PC; print server queues on the printer or a server.
+Q: Duplex?
+A: Printing both sides.
+Q: Secured print?
+A: Job releases only after entering a PIN at the printer.
+Q: What is an ADF?
+A: Automatic document feeder for multi-page scans.
+Q: Scan-to destinations?
+A: Email, SMB folder, network share, cloud storage.
+@check
+? A user cannot print after a Windows upgrade; the old PCL driver is installed but the printer is set to PostScript. Fix?
+a) Change IP
+b) Install a driver matching the printer language
+c) Replace PSU
+d) Enable duplex
+= b | Language and driver must match.
+@lab
+Print path
+An employee's print job does not appear. List four checks.
+@answer
+Printer online and has paper/toner, correct driver and port or IP, spooler running and queue cleared, permissions on the printer, then test from another PC.
+
+## 3.7 Printers
+labs: hardware-diagnostics-and-repair, help-desk-ticketing-osticket
+@notes
+### Laser Printers
+- Laser = high voltage + powdered toner + heat + pressure. Fast, high quality.
+- **Imaging drum** (photosensitive/**OPC** drum; sometimes inside the toner cartridge): laser draws the image, toner clings, transfers to paper. **Fuser assembly**: heat and pressure melt toner onto the page (pages come out warm; very hot parts). **Transfer belt and roller** (color): CMYK toner (cyan, magenta, yellow, key/black) moves to the belt then the paper. **Pickup roller** grabs one page from the tray; **separation pad** stops multiples. Bad pickup roller = no feed or multiple pages. **Duplexing assembly** flips the page.
+- **Seven-step laser process**: **1 Processing** (RIP; page rendered in memory), **2 Charging** (corona wire or charge roller gives the drum a **negative** charge), **3 Exposing** (laser discharges/writes the image, making it **positive** where it hits), **4 Developing** (negative toner sticks to the exposed areas), **5 Transferring** (toner moves to the paper), **6 Fusing** (heat and pressure), **7 Cleaning** (remove leftover toner from the drum). Steps 2 to 7 can repeat per page.
+
+### Laser Printer Maintenance
+- Replace the **toner cartridge** (often includes the **OPC drum**): power off, remove packing strips, **keep light off the drum** (leave the cover), install. Low-toner warnings let you keep printing for a while.
+- **Maintenance kit** (feed rollers, fuser, etc.) by page-count; there is a **page counter** to reset afterward. Power off and unplug first; let the fuser cool.
+- **Calibrate** after changing toner (density, auto or from test page).
+- **Cleaning**: cold water, damp cloth, or **isopropyl alcohol (IPA)** on rubber rollers; no harsh cleaners. Use a **toner vacuum**, not a household vacuum. Wash toner off skin with **cold** water (warm melts it).
+
+### Inkjet Printers
+- Inexpensive, quiet, color; ink is costly, proprietary, fades and clogs. **CMYK** cartridges; the cartridge may integrate the **print head**. **Carriage** with a **belt** moves across the page; **feed rollers** pull paper; **duplexer** optional. **Calibration** aligns the colors (print a page and adjust).
+
+### Inkjet Printer Maintenance
+- **Streaks** mean clogged print heads: run the **cleaning cycle** or clean the head by hand. Replace cartridges (single K black plus CMY tri-color, or one per color); recycle them; then calibrate. **Paper jam**: remove the tray, pull paper along its path gently, release tension if offered, check for torn pieces.
+
+### Thermal Printers
+- Heats **thermochromic (thermal) paper**, no ink or toner. Quiet; **receipts**, labels. Paper darkens with heat and fades; clear tape can whiten it; not for archives. **Feed assembly** (roller cylinder with gears) moves the paper past a fixed **heating element**.
+
+### Thermal Printer Maintenance
+- Use the **exact paper** type and width; replace the roll. **Missing print** = dirty heating element: wipe with **IPA** (pens or cleaning cards). Blow out dust with compressed air or damp cloth; avoid ordinary vacuums (static). Keep paper away from heat sources.
+
+### Impact Printers
+- **Dot-matrix**: a print head with pins (such as 24) hits an **ink ribbon** against the paper; makes **carbon copies** and multi-part forms; low cost per page; **loud**; low resolution. **Tractor feed** (pin-fed) continuous perforated paper; **green bar** paper for mainframes.
+
+### Impact Printer Maintenance
+- Ribbon fades as ink is used: replace the cartridge (model-specific). The **print head** wears out; it is hot (heat sinks): let it cool, release lever, replace, usually replace the ribbon at the same time. Load tractor paper straight, holes on the pins, nothing blocking the feed, then press feed.
+
+### 3D Printers
+- **Additive manufacturing**: build layers from an electronic model. **FDM / filament printing**: melts filament in layers; common, large bed, low mess. **SLA / resin printing**: UV light or laser cures liquid **resin** layer by layer on a build platform; smoother detail but resin needs **protective gear** and **hazardous waste disposal**. **Print bed**: flat, level, clean, sticky enough to hold the object still.
+@cards
+Q: Laser printer main parts?
+A: Imaging drum, toner, fuser, transfer belt/roller, pickup roller, separation pad.
+Q: Seven laser printing steps?
+A: Processing, charging, exposing, developing, transferring, fusing, cleaning.
+Q: What does the charging step do?
+A: Gives the drum a uniform negative charge.
+Q: What does the exposing step do?
+A: Laser writes the image, changing charge where it hits.
+Q: What does the fuser do?
+A: Melts toner onto the paper with heat and pressure.
+Q: Why are laser pages warm?
+A: They just passed through the fuser.
+Q: Symptom of a worn pickup roller or separation pad?
+A: No paper pulled or multiple sheets feed.
+Q: What does CMYK stand for?
+A: Cyan, magenta, yellow, key (black).
+Q: Protect the toner cartridge's drum from?
+A: Light.
+Q: Laser maintenance kit contents?
+A: Feed rollers, fuser and other wear parts; reset the page counter after.
+Q: How to clean toner from skin?
+A: Cold water (warm melts toner).
+Q: What vacuum for toner?
+A: A toner-rated vacuum, not a household one.
+Q: Inkjet streaks cause?
+A: Clogged print heads; run a cleaning cycle.
+Q: Inkjet calibration purpose?
+A: Align the color print heads.
+Q: Thermal printer consumable?
+A: Thermal paper only; no ink or toner.
+Q: Missing lines on thermal printout?
+A: Dirty heating element; clean with IPA.
+Q: Why not archive thermal receipts?
+A: They fade and blacken with heat or light.
+Q: Why use a dot-matrix printer?
+A: Multi-part carbon copies and cheap pages.
+Q: Impact printer consumables?
+A: Ribbon cartridge and print head.
+Q: Tractor feed?
+A: Pin-driven perforated continuous paper.
+Q: FDM vs SLA?
+A: Filament melted in layers vs resin cured by UV light.
+Q: Safety for resin printing?
+A: Protective gear and hazardous waste disposal.
+Q: Print bed requirements?
+A: Level, clean and sticky so the object stays put.
+@check
+? A laser printout has toner smearing off the page. Which part is failing?
+a) Pickup roller
+b) Fuser
+c) Duplexer
+d) Separation pad
+= b | Toner isn't being melted onto the paper.
+? Which step gives the drum a negative charge?
+a) Exposing
+b) Charging
+c) Transferring
+d) Cleaning
+= b | The charging step prepares the drum.
+? A store needs a quiet receipt printer. Which type?
+a) Dot matrix
+b) Inkjet
+c) Thermal
+d) Laser
+= c | Thermal is quiet and inkless.
+? A warehouse needs carbon-copy invoices. Choose:
+a) Laser
+b) Impact (dot matrix)
+c) Thermal
+d) 3D
+= b | Only impact printers make carbon copies.
+@lab
+Order the steps
+Put these in order: fusing, exposing, processing, developing, cleaning, charging, transferring.
+@answer
+Processing, charging, exposing, developing, transferring, fusing, cleaning.
+
+## 4.1 Cloud Computing
+labs: virtualization-proxmox
+@notes
+### Cloud Models
+- The cloud lets you deploy a whole application (web, database, app servers) in one click, scale instances up and down, place them near users worldwide and pay for what you use.
+- **Deployment models**: **private** (your own data center, one org), **public** (AWS, Microsoft, Rackspace; anyone), **hybrid** (private + public combined), **community** (several similar organizations share the cost of a private-style cloud).
+- **Service models** (who manages what):
+  - **IaaS** infrastructure as a service (also "HaaS"): provider gives CPU, storage, network and virtualization (sometimes the OS); you manage OS, middleware, runtime, data, apps. Example: rent a server and build the site.
+  - **PaaS** platform as a service: provider gives a platform/building blocks (modules); you build the app and own data. Example: Salesforce platform.
+  - **SaaS** software as a service: provider runs everything; you just log in. Examples: Gmail, Microsoft 365.
+  - **On-premises**: you manage everything. Responsibility drops from you to the provider along the on-prem > IaaS > PaaS > SaaS line.
+
+### Cloud Characteristics
+- **Internal cloud**: own data center and racks, big up-front cost, no usage billing. **External cloud**: shared provider resources in multiple data centers.
+- **Metered** (pay-as-you-go: storage, transfers, compute) vs **non-metered** (flat fee, such as Dropbox or Google Drive plans).
+- **Rapid elasticity**: add or remove capacity quickly and invisibly. **High availability**: redundancy (generators, multiple network lines). **File synchronization** keeps data consistent across regions.
+- **DaaS** (desktop as a service, such as AWS WorkSpaces) delivers a **VDI** (virtual desktop infrastructure) desktop to any device via remote display; needs a good network.
+@cards
+Q: Private vs public cloud?
+A: Private is your own for one organization; public is a provider's shared cloud.
+Q: Hybrid vs community cloud?
+A: Hybrid combines private and public; community is shared by similar organizations.
+Q: IaaS means?
+A: Provider supplies hardware/virtualization; you manage OS, apps and data.
+Q: PaaS means?
+A: Provider supplies a development platform; you build the app.
+Q: SaaS means?
+A: Provider runs the application; you just use it.
+Q: Example of SaaS?
+A: Gmail, Microsoft 365.
+Q: Which model gives most customer control?
+A: IaaS (after on-premises).
+Q: Metered vs non-metered cloud?
+A: Pay for usage vs flat fee.
+Q: Rapid elasticity?
+A: Quickly scaling resources up or down as load changes.
+Q: High availability?
+A: Redundancy so services stay up despite failures.
+Q: What is DaaS/VDI?
+A: A cloud-hosted virtual desktop accessed from any device.
+@check
+? A company wants to rent virtual servers and install its own OS and software. Model?
+a) SaaS
+b) PaaS
+c) IaaS
+d) DaaS
+= c | Infrastructure as a service.
+? Users log in to a vendor's web app with nothing to install. Model?
+a) IaaS
+b) SaaS
+c) Private
+d) On-premises
+= b | Provider handles everything.
+? A shop pays monthly according to GB stored and transferred. This is:
+a) Non-metered
+b) Metered
+c) Community
+d) Hybrid
+= b | Pay as you go.
+@lab
+Classify
+Classify: (1) Google Docs, (2) AWS EC2, (3) Salesforce app platform, (4) a hospital group running a shared data center, (5) on-prem plus AWS.
+@answer
+(1) SaaS. (2) IaaS. (3) PaaS. (4) Community cloud. (5) Hybrid cloud.
+
+## 4.2 Client-side Virtualization
+labs: virtualization-proxmox
+@notes
+### Client-side Virtualization
+- Run several OSes at once on one machine; each guest sees its own CPU, RAM and storage but they share the hardware. A **hypervisor** (virtual machine manager) allocates resources and manages networking and security. IBM mainframes did this in the 1960s. On a desktop it runs on top of your OS; on a server it hosts many VMs.
+- **Uses**: legacy software on an old OS next to a new one; different OSes without rebooting or partitioning; cost and time saving; **sandboxing/testing** (isolated VM, snapshot, roll back, mirror production safely).
+- **Requirements**: CPU hardware support (**Intel VT**, **AMD-V**; enable in BIOS), **plenty of RAM**, **disk space** per VM (many GB), and correct guest **network configuration**.
+- **Security**: **VM escape** (malware reaches the hypervisor and hops to other VMs, especially risky on shared hosting). VMs still need **host firewalls, antivirus**, patches. **Never trust downloaded pre-built VMs** (could contain malware); build your own.
+- **VM networking**: **shared (NAT)**: VM uses a private IP and NATs through the host's address; **bridged**: VM gets its own IP on the LAN (like a physical device, via DHCP); **private (host-only)**: VM can talk only to other VMs, not outside.
+@cards
+Q: What is a hypervisor?
+A: Software that creates and manages virtual machines on a host.
+Q: Client-side virtualization uses?
+A: Legacy apps, testing, multiple OSes at once, sandboxes.
+Q: What CPU features are needed?
+A: Intel VT or AMD-V, enabled in BIOS.
+Q: Resource needs for VMs?
+A: Lots of RAM and disk space.
+Q: Snapshot use?
+A: Save a VM state to revert to later.
+Q: VM escape?
+A: Malware breaking out of a VM into the hypervisor/other VMs.
+Q: Danger of downloaded VMs?
+A: May contain malware or backdoors.
+Q: Shared/NAT networking?
+A: VM shares the host's IP via NAT.
+Q: Bridged networking?
+A: VM has its own IP on the real network.
+Q: Private networking?
+A: VM communicates only with other VMs on the host.
+@check
+? Hypervisor won't start a 64-bit guest. First thing to check?
+a) VT/AMD-V enabled in BIOS
+b) Printer language
+c) PSU wattage
+d) DDR type
+= a | Hardware virtualization support must be on.
+? You need a VM that is reachable by other LAN devices with its own address. Network mode?
+a) Private
+b) NAT
+c) Bridged
+d) Disabled
+= c | Bridged gets its own IP.
+@lab
+Safe test VM
+Set up a throwaway VM to test a risky installer. List four safety steps.
+@answer
+Build the VM yourself, take a snapshot, use private/host-only or NAT networking, no shared folders or clipboard, then revert to the snapshot afterward.
+
+## 5.1 Troubleshooting
+labs: hardware-diagnostics-and-repair, help-desk-ticketing-osticket
+@notes
+### Change Control
+- Before you change anything on a production system, get it approved and documented. Change control sets the scope, risk, rollback plan, schedule (a change window) and sign-off. Fixing a problem is a change like any other.
+
+### The Troubleshooting Process
+- **1. Gather information**: ask the user what happened, what changed, what the exact error is; try to reproduce it; check logs and recent updates. Back up first if you might touch data.
+- **2. Establish a theory** of probable cause. Start with the obvious (Occam's razor: the simplest explanation is usually right) but question everything, including things "that can't be it".
+- **3. Test the theory.** If confirmed, move on. If not, form a new theory or escalate.
+- **4. Plan of action** with a rollback path, then get change approval.
+- **5. Implement** the fix, inside the change window if it is a production system.
+- **6. Verify full system functionality** and put preventive measures in place (so it does not return).
+- **7. Document** findings, actions and outcome in the ticket or knowledge base; this helps the next tech.
+@cards
+Q: First step of the CompTIA troubleshooting process?
+A: Identify the problem: gather information, question the user, duplicate it.
+Q: After gathering info?
+A: Establish a theory of probable cause.
+Q: Occam's razor?
+A: The simplest explanation is most likely correct; test it first.
+Q: If the theory is not confirmed?
+A: Establish a new theory or escalate.
+Q: Third step?
+A: Test the theory to determine the cause.
+Q: Fourth step?
+A: Establish a plan of action, including rollback, and identify effects.
+Q: Fifth step?
+A: Implement the solution or escalate.
+Q: Sixth step?
+A: Verify full system functionality and implement preventive measures.
+Q: Last step?
+A: Document findings, actions and outcomes.
+Q: Why a rollback plan?
+A: So a failed change can be undone safely.
+@check
+? Before swapping a failing drive, what comes first in the process?
+a) Document outcome
+b) Gather information and back up data
+c) Verify functionality
+d) Implement fix
+= b | Identify the problem first, protect data.
+? A test shows your theory was wrong. Next?
+a) Document and close
+b) Form a new theory or escalate
+c) Implement the fix anyway
+d) Reboot everything
+= b | Return to theory stage.
+? Where is the change window relevant?
+a) Gathering info
+b) Implementing a change on production
+c) Documenting
+d) Theory
+= b | Changes happen in the approved window.
+@lab
+Order the steps
+Put in order: document, test theory, gather information, verify and prevent, implement, plan with rollback, establish theory.
+@answer
+Gather information, establish theory, test theory, plan with rollback, implement, verify and prevent, document.
+
+## 5.2 Computer Hardware
+labs: hardware-diagnostics-and-repair
+@notes
+### Startup Problems
+- **POST beep codes**: vary by vendor, so do not memorize them; read the motherboard manual. Beeps with a blank screen point to video, RAM, CPU or bad BIOS settings.
+- **Date/time wrong or reset**: the CMOS battery on the motherboard is dead; replace it. Removing it does not clear modern BIOS settings (stored in flash); use the clear jumper.
+- **Boots from wrong drive**: check BIOS boot order, remove stray USB media.
+- **Stop error / BSOD**: fatal; restart. If it flashes by, read Event Viewer. Look up the stop code on Microsoft's site. Causes: bad hardware, bad driver, bad app. Try last known good configuration, System Restore, driver rollback, Safe Mode (fewer drivers), reseat new cards, vendor hardware diagnostics (often built into UEFI).
+- **Spinning wait cursor (macOS)**: app bug, bad hardware/RAM, or heavy paging. If stuck, force power off, then check console logs.
+
+### No Display, No Power, Slow
+- **Black screen**: check monitor power and video cables, check the monitor's input selector, brightness/contrast, swap in a known-good monitor, boot in VGA/low-res mode to separate driver from monitor.
+- **No power**: test the outlet with a multimeter or tester, check the PSU switch and cables, check internal DC voltages. Fans spinning but nothing else means the motherboard may not get enough voltage; check POST.
+- **Slow**: Task Manager (processes, Performance tab), background updates, full drive, fragmentation on HDD, laptop battery throttling, thermal throttling, antivirus scans.
+
+### Heat, Smoke, Shutdowns, Noise
+- **Overheating**: dust blocks fans and heat sinks. Clean and vacuum; monitor temperatures with a tool like HWMonitor.
+- **Smoke or burning smell**: unplug immediately, open the case, find the failed part; maybe replace a part or the whole motherboard.
+- **Sudden shutdown with no message**: check Event Viewer for thermal shutdown, check fans, run diagnostics, remove good components to isolate the bad one.
+- **App crashes with no detail**: Event Viewer and **Reliability Monitor** (day-by-day graph of app, Windows and other failures); reinstall the app.
+- **Grinding**: loose card, fallen heat sink or failing HDD (back up now). **Clicking/oscillating**: object in a fan. **Popping**: bulging or burst capacitors on the motherboard.
+- **Freezing**: look for any response (drive light, Num Lock, Ctrl+Alt+Del); consider new hardware/drivers, full disk or memory, then full diagnostics.
+- **Reboot loop**: note where it restarts (BIOS, splash screen, OS). Try last known good, Safe Mode, then disable "automatically restart" on failure so the stop error stays visible. Remove cards, swap RAM.
+@cards
+Q: Beeps and blank screen at boot?
+A: POST error; check the motherboard manual's beep codes (video, RAM, CPU).
+Q: Clock resets after power off?
+A: Dead CMOS battery; replace it.
+Q: Does pulling the CMOS battery clear modern BIOS settings?
+A: No; use the clear jumper (settings are in flash).
+Q: Server boots wrong drive?
+A: Check BIOS boot order and stray USB media.
+Q: BSOD official name?
+A: Windows stop error.
+Q: Where to see a BSOD after auto-reboot?
+A: Event Viewer.
+Q: Mac spinning beach ball?
+A: Spinning wait cursor; app/hardware/paging issue; check console logs.
+Q: First checks for a black screen?
+A: Power and video cables, monitor input selection, known-good monitor.
+Q: Fans spin but no POST?
+A: Suspect motherboard or insufficient PSU voltage; check POST and PSU.
+Q: Symptom of bulging capacitors?
+A: Popping noise, instability; replace the board.
+Q: Tool for graphed application failures?
+A: Reliability Monitor.
+Q: Smoke from a PC?
+A: Unplug immediately, then inspect.
+Q: Grinding noise on a hard drive?
+A: Likely drive failure; back up immediately.
+Q: Constant reboots during boot; how to see errors?
+A: Disable automatic restart on system failure.
+@check
+? A PC shows the wrong date each boot. Likely cause?
+a) Dead CMOS battery
+b) Bad GPU
+c) Full disk
+d) Wrong boot order
+= a | Battery keeps the clock.
+? A PC powers off randomly; Event Viewer shows a thermal event. Do what?
+a) Reinstall Windows
+b) Clean dust, check fans and heat sinks
+c) Replace the monitor
+d) Change the boot order
+= b | Heat shutdown.
+? Which has the user see a stop error before reboot?
+a) Disable automatic restart
+b) Run defrag
+c) Replace PSU
+d) Update BIOS clock
+= a | Setting under system failure.
+? Which tool shows a timeline of application crashes?
+a) Reliability Monitor
+b) Disk Management
+c) Device Manager
+d) msconfig
+= a | Graphical stability view.
+@lab
+Dead desktop
+A desktop has fans spinning, no beeps, no display. List four checks in order.
+@answer
+Reseat RAM and video card, check the monitor cable and input, check 24-pin and CPU power cables, then swap with known-good RAM or PSU and check motherboard standoffs or bulging capacitors.
+
+## 5.3 Troubleshooting Storage
+labs: hardware-diagnostics-and-repair, secure-data-sanitization
+@notes
+### Storage Failures
+- **"Cannot read from source disk", slow response, constant activity light, HDD clicking ("click of death")**: failing drive. **Back up first** if possible, then check cables, heat, and PSU load (new hardware may starve the drive). Run the manufacturer's diagnostics.
+- **"Drive not recognized", "boot device not found", "operating system not found"**: check cables, BIOS boot order, stray USB media, a disabled drive in BIOS, another SATA/M.2 port, and try the drive in another computer.
+- HDDs always eventually fail. Recovery companies are costly and can still fail; so keep backups. An SSD may fail by becoming read-only.
+
+### RAID
+- Hardware RAID controllers report failures at boot (e.g. "integrated RAID exception, volume inactive"). Use the RAID manager to see which drive failed.
+- **RAID 0** (2+ drives): one failure loses everything. **RAID 1** (2+): survives one failure. **RAID 5** (3+): survives one failure. **RAID 10** (4+): survives one failure per mirror pair.
+
+### SMART and Performance
+- **SMART** is built-in drive health reporting (spin-up time, seek errors, power-on hours); rising error counts warn of failure. If a drive reports failing, back up and replace now.
+- **IOPS** measures input/output operations per second: HDD about 200, SSD up to about a million; read and write differ.
+
+### Missing Drives
+- Internal drive missing in the OS: check BIOS, then cables, reseat M.2, else replace. External USB: check power and port. Network share: reconnect or re-run the login script.
+@cards
+Q: HDD loud clicking?
+A: Click of death; failing drive.
+Q: First step with a failing drive?
+A: Back up data.
+Q: "Operating system not found" first checks?
+A: Cables, BIOS boot order, stray USB media.
+Q: What does SMART do?
+A: Drive self-monitoring that reports health and error counts.
+Q: IOPS?
+A: Input/output operations per second.
+Q: Typical HDD IOPS?
+A: About 200.
+Q: SSD IOPS?
+A: Up to about one million.
+Q: RAID 0 failure tolerance?
+A: None.
+Q: RAID 1 minimum drives and tolerance?
+A: Two drives; survives one failure.
+Q: RAID 5 minimum drives?
+A: Three; survives one failure.
+Q: RAID 10 minimum drives?
+A: Four.
+Q: Missing network drive after boot?
+A: Remap or re-run the login script.
+Q: Drive missing in OS and BIOS?
+A: Check cables, reseat M.2, test in another PC.
+@check
+? An HDD clicks loudly and errors appear. First action?
+a) Defrag
+b) Back up data
+c) Format
+d) Run chkdsk /r
+= b | Save the data first.
+? After a new add-in card, the HDD shows errors. Possible cause?
+a) Overloaded power supply
+b) Bad monitor
+c) Wrong time zone
+d) Dead CMOS battery
+= a | Insufficient power.
+? Which RAID survives only one drive failure and needs at least 3 drives?
+a) 0
+b) 1
+c) 5
+d) none
+= c | RAID 5.
+@lab
+No OS found
+A PC says "operating system not found" after a user left a USB stick plugged in. Explain.
+@answer
+BIOS tries USB first in its boot order and finds no OS there. Remove the stick or reorder boot devices.
+
+## 5.4 Troubleshooting Displays
+labs: hardware-diagnostics-and-repair
+@notes
+### Video and Display Issues
+- **No signal / black**: reseat or replace cables; select the right input on the monitor; check brightness/contrast; swap a known-good monitor. If black once Windows loads, boot in VGA/low-resolution mode to test the driver.
+- **Flicker or color problems**: check cable, VGA pins; adjust refresh rate and resolution; try disabling hardware acceleration. Flicker is usually a loose cable; otherwise the monitor driver mismatch or failing display.
+- **Wrong resolution (blocky text)**: LCDs have fixed pixels; use **native resolution**, or a scaled factor with the same aspect ratio.
+- **Burn-in / image sticking**: a static image leaves a ghost. Prevent with pixel shift and screen savers; on LCD, display white for a long time.
+- **Dead pixel**: always black, cannot be fixed, replace the display (clean the screen first to check it is not dirt).
+- **Wrong colors**: check monitor tint, presets, factory reset, driver color settings, and OS night light features.
+- **No sound from monitor speakers**: check monitor volume, and which audio input (separate cable or HDMI) is selected.
+- **Dim image**: brightness, power-saving auto dimming; if the image is faint but visible, the **backlight** has failed (replace display).
+- **Projectors**: metal halide lamps are bright, hot and costly (as much as $350). Let the fan run after shutdown so the lamp cools. Intermittent shutdown with fan running means overheating; clean vents and replace filters.
+@cards
+Q: No signal; first fix?
+A: Reseat cables and select the right input.
+Q: Black screen once Windows loads?
+A: Boot in VGA mode, then fix the driver.
+Q: Flickering display usual cause?
+A: Loose or damaged cable.
+Q: Blocky mismatched text?
+A: Wrong (non-native) resolution.
+Q: Native resolution?
+A: LCD's fixed pixel grid size, sharpest picture.
+Q: Burn-in?
+A: Persistent ghost of a static image.
+Q: Pixel shift?
+A: Slightly moves a static image to prevent burn-in.
+Q: Dead pixel fix?
+A: Cannot be repaired; replace the display.
+Q: Faint image barely visible?
+A: Backlight failure.
+Q: Projector lamp care?
+A: Leave the fan running after power-off so it cools.
+Q: Projector shuts off mid-use?
+A: Overheating; clean vents and filters.
+Q: Monitor speakers silent?
+A: Check monitor volume and audio input source.
+@check
+? Text looks stretched and blocky after a driver update. Fix?
+a) Set native resolution
+b) Replace backlight
+c) Reseat RAM
+d) Replace the cable
+= a | Resolution mismatch.
+? A display shows a dim, barely visible image. Cause?
+a) Backlight failure
+b) Dead pixel
+c) Burn-in
+d) Wrong DNS
+= a | Backlight.
+? A projector shuts down with the fan still running. Check?
+a) Vents and filters
+b) The mouse
+c) Battery
+d) DNS
+= a | Overheating.
+@lab
+Flicker
+A monitor flickers on and off at random. Give a three-step plan.
+@answer
+Reseat or replace the cable, match the resolution and refresh rate to the monitor's spec, test a known-good monitor to decide whether to replace it.
+
+## 5.5 Troubleshooting Mobile Devices
+labs: hardware-diagnostics-and-repair
+@notes
+### Battery and Power
+- Batteries lose capacity with each charge cycle; the fix for old ones is replacement. Save battery by watching signal (a phone hunting for signal drains fast), using **airplane mode** (turns off cellular, Wi-Fi, Bluetooth, GPS radios), and checking per-app usage under Settings > Battery.
+- **Swollen battery**: gas build-up. Stop using the device, never puncture it, replace it and dispose of the old one at a hazardous waste facility.
+- **Slow or no charging**: clean lint from the port (do not bend pins), check the cable (try a known-good one), and measure outlet and charger voltage with a multimeter.
+
+### Screen, Water, Heat
+- **Cracked screen**: glass is bonded to the display, so replace the whole display (or the device). Back up first; cover cracks with clear tape to avoid cuts.
+- **Water damage**: liquid contact indicators (LCIs) change color and void warranties. Power off at once, do not charge or power on, remove case, SIM, back and battery if possible, and let it dry for at least a day. Rice is a poor desiccant; silica gel is better.
+- **Overheating**: sensors shut the device off. Heat comes from charging, CPU and display. Check app usage, and keep out of direct sunlight.
+
+### Frozen, Interfaces, Malware, Drift
+- **Unresponsive**: soft reset (hold power, slide to power off). Hard reset: Apple, hold power plus home or volume for about 10 seconds; Android, pull the battery or hold power and volume (varies by model).
+- **Damaged charge/data port**: it is soldered to the system board, so repair often means replacing the board.
+- **Malware symptoms**: unknown apps, high data use, pop-ups, high CPU, heat, rapid battery drain. Run a scanner or reset.
+- **Cursor drift** (screen moves by itself): recalibrate touch input with the built-in calibration app.
+- **Weak signal**: check cellular meter; indoors is worse. For Wi-Fi, limited range and interference, so change the AP channel.
+@cards
+Q: Why does battery life drop over years?
+A: Each charge cycle reduces capacity; replace the battery.
+Q: Airplane mode disables?
+A: Cellular, Wi-Fi, Bluetooth, GPS radios.
+Q: Swollen phone battery action?
+A: Stop using, do not puncture, replace and dispose as hazardous waste.
+Q: Cracked screen repair?
+A: Replace the whole display assembly; back up first.
+Q: Phone won't charge; first checks?
+A: Clean the port, test a known-good cable, check charger voltage.
+Q: LCI?
+A: Liquid contact indicator that changes color when wet.
+Q: Phone got wet; steps?
+A: Power off, do not charge, remove parts, let it dry a day or more.
+Q: Best drying aid?
+A: Silica gel; rice is weak.
+Q: Mobile device overheats and shuts down?
+A: Thermal protection; check apps, avoid direct sun.
+Q: Frozen black screen?
+A: Soft reset, then hard reset (power plus home/volume).
+Q: Charge port damaged?
+A: Often requires a system board replacement.
+Q: Signs of mobile malware?
+A: Unknown apps, high data, pop-ups, heat, battery drain.
+Q: Cursor drift fix?
+A: Recalibrate the touch screen.
+@check
+? A phone's case is bulging from the back. Best action?
+a) Charge it
+b) Stop using it and replace the battery safely
+c) Puncture to release gas
+d) Put in sun
+= b | Swollen battery is a fire risk.
+? A phone fell in water. What first?
+a) Plug in to test
+b) Power off and let it dry
+c) Run a hair dryer
+d) Reset
+= b | No power until dry.
+? A phone drains rapidly, runs hot, uses lots of data. Suspect?
+a) Malware
+b) Cracked glass
+c) Bad cable
+d) LCI
+= a | Typical symptoms.
+@lab
+Slow charger
+A phone charges slowly. Give a three-step plan.
+@answer
+Clean the port gently, test a known-good cable and charger, then measure output voltage or try another outlet.
+
+## 5.6 Troubleshooting Printers
+labs: hardware-diagnostics-and-repair
+@notes
+### Testing and Bad Output
+- Start with **Print Test Page** in Windows (settings or printer properties). It proves the driver, connection and printer work. Also use the printer's own diagnostics and vendor tools.
+- **Line down every page**: inkjet, clean or replace print heads; laser, scratched photosensitive drum (replace the drum or cartridge).
+- **Faint or blank**: low toner or ink.
+- **Ghost or repeated image lower on the page**: laser cleaning stage failing.
+- **Garbled characters**: wrong driver or model, often PCL vs PostScript mismatch; test print from the printer, fix the driver.
+- **Smearing toner**: fuser not heating or failing; replace the fuser assembly.
+
+### Paper and Queue
+- **Paper size mismatch**: load the right paper or change settings.
+- **Jams**: clear gently without ripping paper. **Multiple feeds or none**: check tray and **pickup rollers**; replace worn rollers or use a maintenance kit. **Creased pages**: paper path or wrong weight.
+- **Spooler crashes**: a corrupt job can stop the queue. The service restarts itself after the first two failures, then stays stopped. Check Event Viewer for print service events, delete the bad job, restart the spooler.
+
+### Color, Noise, Finishing
+- **Color calibration**: calibrate the monitor first (ideally with a tool), use bright white paper, then run the printer's calibration utility.
+- **Grinding**: jammed paper, carriage stuck, or badly seated cartridges; follow the manual, may need service.
+- **Finishing**: stapler jams and hole-punch placement come from the driver and printer settings.
+- **Wrong orientation**: driver option, driver bug, or printer default; fix the default.
+@cards
+Q: How to test a printer with Windows?
+A: Print Test Page.
+Q: Vertical line on laser output?
+A: Scratched photosensitive drum.
+Q: Vertical line on inkjet output?
+A: Clean or replace the print heads.
+Q: Faint or blank prints?
+A: Low toner or ink.
+Q: Ghost images lower on a laser page?
+A: Cleaning process failure.
+Q: Garbled text prints?
+A: Wrong driver or PCL/PostScript mismatch.
+Q: Toner smears?
+A: Faulty fuser assembly.
+Q: Several sheets feed at once?
+A: Worn pickup rollers or tray problems.
+Q: Queue stuck, spooler stopped?
+A: Delete bad job and restart the print spooler.
+Q: Where to find spooler crash details?
+A: Event Viewer, print service log.
+Q: Color calibration order?
+A: Calibrate the monitor, then the printer on bright white paper.
+Q: Printer prints landscape unexpectedly?
+A: Check driver option and printer default orientation.
+@check
+? Toner rubs off a printed page. Replace?
+a) Fuser assembly
+b) Drum
+c) Pickup roller
+d) Spooler
+= a | Toner is not fused.
+? A black line runs down every laser page. Cause?
+a) Scratched drum
+b) Wrong paper
+c) Low toner
+d) Fuser
+= a | Toner sticks to the scratch.
+? Jobs pile up and nothing prints. After clearing the bad job, restart?
+a) Print spooler service
+b) DHCP
+c) DNS
+d) Firewall
+= a | Spooler stuck.
+@lab
+Garbled output
+A page prints pages of symbols. Give likely cause and fix.
+@answer
+Wrong driver or language (PCL vs PostScript). Install or select the correct driver for the model.
+
+## 5.7 Troubleshooting Networks
+labs: network-traffic-analysis, networking-tcp-ip-dhcp-nat-subnets
+@notes
+### No Connectivity: Work Outward
+- Check the **link light** first. Then ping in order: **127.0.0.1 loopback** (local stack), **your own IP** (adapter), **default gateway**, then an internet address like **8.8.8.8** or **9.9.9.9**. The first failure shows where to look.
+- **APIPA (169.254.x.x)** means DHCP did not answer; it is link-local only, and Windows shows "limited or no connectivity".
+
+### Wireless
+- **Partial ping replies** suggest interference, distance or weak signal. Check signal strength, move closer, set the AP to the best channel (auto or manual), avoid neighbors and sources such as microwaves and fluorescent lights.
+- **SNR**: signal-to-noise ratio. You want a wide gap between signal and noise. Some noise always exists.
+
+### Voice and Latency
+- Real-time traffic (VoIP, streaming) shows trouble as robotic or underwater voices. **Jitter** is variation in time between frames; **latency** is time between request and response. Need fast, low-latency links, enough bandwidth, modern equipment. Use **packet captures** to measure.
+- **Port flapping**: link light on and off. Check cables with a cable tester, try another switch port; if the problem moves with the cable it is the cable; if it stays at the port, the switch port; if it follows the device, replace the NIC.
+@cards
+Q: First check for no connectivity?
+A: Link light on the NIC and switch.
+Q: Purpose of pinging 127.0.0.1?
+A: Verifies the local TCP/IP stack.
+Q: Pinging your own IP tests?
+A: The network adapter and local config.
+Q: Pinging the gateway tests?
+A: Local network connection.
+Q: Pinging 8.8.8.8 tests?
+A: Internet reachability.
+Q: 169.254.x.x address means?
+A: APIPA; DHCP failed.
+Q: Partial wireless ping loss?
+A: Interference or weak signal.
+Q: SNR?
+A: Signal to noise ratio; higher is better.
+Q: Jitter?
+A: Variation in delay between packets.
+Q: Latency?
+A: Time between request and response.
+Q: Port flapping?
+A: Link repeatedly going up and down; check cable, port and NIC.
+Q: Tool to prove network delays?
+A: Packet capture.
+@check
+? Pings to 127.0.0.1 and your IP work, gateway fails. Where to look?
+a) Local LAN: cable, switch, gateway
+b) Internet DNS
+c) Browser
+d) Monitor
+= a | Failing after own IP.
+? Windows shows 169.254.10.5 and no internet. Cause?
+a) DHCP unreachable
+b) DNS cache
+c) Proxy
+d) BIOS
+= a | APIPA.
+? Voice calls sound choppy. Metric to check?
+a) Jitter
+b) Resolution
+c) IOPS
+d) Voltage
+= a | Frame delay variation.
+@lab
+Ping ladder
+A PC can reach its gateway but not 8.8.8.8, yet other PCs are fine. List next checks.
+@answer
+Check the PC's default gateway and routing table, firewall settings, and proxy, then compare with a working PC.

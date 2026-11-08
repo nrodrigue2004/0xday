@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man mongodb-and-nosql :: 0xDay</title>
+<meta name="description" content="mongodb-and-nosql cheatsheet: MongoDB &amp; NoSQL commands and terms">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=af415407" defer></script>
+<script src="../site.js?v=af415407" defer></script>
+<script src="../fx.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man mongodb-and-nosql</p>
+<div class="manhead"><span>MONGODB-AND-NOSQL(7)</span><span>0xDay Field Manual</span><span>MONGODB-AND-NOSQL(7)</span></div>
+<h1>mongodb-and-nosql <span class="muted">- MongoDB &amp; NoSQL commands and terms</span></h1>
+<p class="man-toc"><span class="muted">SECTIONS</span> <a href="#g-mongosh">mongosh</a> <a href="#g-operators">operators</a> <a href="#g-aggregation-stages">aggregation stages</a> <a href="#g-admin">admin</a> <a href="#g-terms">terms</a></p><h2 id="g-mongosh">mongosh</h2><dl class="man"><dt><code>show dbs / use shop</code></dt><dd>list databases / switch to one</dd><dt><code>show collections</code></dt><dd>list collections</dd><dt><code>db.users.find({})</code></dt><dd>all documents</dd><dt><code>db.users.find({age:{$gt:18}})</code></dt><dd>filter with an operator</dd><dt><code>db.users.find({}, {name:1,_id:0})</code></dt><dd>projection: only the name field</dd><dt><code>db.users.insertOne({...})</code></dt><dd>add a document</dd><dt><code>db.users.updateOne({q},{$set:{..}})</code></dt><dd>change fields</dd><dt><code>db.users.deleteMany({q})</code></dt><dd>remove matching documents</dd><dt><code>db.users.createIndex({email:1},{unique:true})</code></dt><dd>unique index on email</dd><dt><code>db.users.find(q).explain()</code></dt><dd>see whether an index was used</dd></dl><h2 id="g-operators">operators</h2><dl class="man"><dt><code>$eq $ne $gt $gte $lt $lte</code></dt><dd>comparison</dd><dt><code>$in $nin</code></dt><dd>value in / not in a list</dd><dt><code>$and $or $nor $not</code></dt><dd>logic</dd><dt><code>$exists $type</code></dt><dd>field presence and type</dd><dt><code>$regex</code></dt><dd>pattern match (watch out: slow and injectable)</dd><dt><code>$set $unset $inc $push $pull</code></dt><dd>update operators</dd></dl><h2 id="g-aggregation-stages">aggregation stages</h2><dl class="man"><dt><code>$match</code></dt><dd>filter documents</dd><dt><code>$group</code></dt><dd>group and compute sums, counts, averages</dd><dt><code>$sort $limit $skip</code></dt><dd>order and page</dd><dt><code>$project</code></dt><dd>choose or compute fields</dd><dt><code>$lookup</code></dt><dd>left join with another collection</dd><dt><code>$unwind</code></dt><dd>one document per array element</dd></dl><h2 id="g-admin">admin</h2><dl class="man"><dt><code>mongodump --db shop --out backup/</code></dt><dd>back up a database</dd><dt><code>mongorestore backup/</code></dt><dd>restore from a dump</dd><dt><code>mongosh --host 127.0.0.1</code></dt><dd>connect locally</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Document</code></dt><dd>one JSON-like record (BSON)</dd><dt><code>Collection</code></dt><dd>group of documents</dd><dt><code>BSON</code></dt><dd>binary JSON with extra types</dd><dt><code>ObjectId</code></dt><dd>default 12-byte unique _id</dd><dt><code>Replica set</code></dt><dd>primary plus secondaries for failover</dd><dt><code>Shard</code></dt><dd>one partition of a very large collection</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

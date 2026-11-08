@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-root="../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompTIA A+ 3.2 :: 0xDay</title>
+<meta name="description" content="CompTIA A+ 220-1101 (Core 1) objective 3.2: Memory">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<link rel="stylesheet" href="../../comptia.css">
+<script src="../../data.js?v=af415407" defer></script>
+<script src="../../site.js?v=af415407" defer></script>
+<script src="../../fx.js?v=af415407" defer></script>
+<script src="../../study.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../../start.html">./start</a></li><li><a href="../../posts.html">./blog</a></li><li><a href="../../projects.html">./projects</a></li><li><a href="../../skills.html">./skills</a></li><li><a href="../../certs.html">./certs</a></li><li><a href="../../learn.html" aria-current="page">./learn</a></li><li><a href="../../ai.html">./ai</a></li><li><a href="../../lab.html">./lab</a></li><li><a href="../../now.html">./now</a></li><li><a href="../../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">study --objective 3.2 --exam 220-1101 (Core 1)</p>
+<div class="manhead"><span>220-1101 (Core 1)</span><span>domain 3.0 · Hardware</span><span>3.2</span></div>
+<h1><span class="ok">3.2</span> Memory</h1>
+<div class="obj" data-obj="aplus-3.2">
+<ul class="checks" aria-label="study checklist">
+<li><label><input type="checkbox" data-k="watched"> did the lab</label></li>
+<li><label><input type="checkbox" data-k="notes"> read the notes</label></li>
+<li><label><input type="checkbox" data-k="own"> wrote my own notes</label></li>
+<li><label><input type="checkbox" data-k="cards" disabled> flashcards mastered <span class="muted cards-pct"></span></label></li>
+</ul>
+<h2>study notes</h2>
+<div class="prose notes"><h4>An Overview of Memory</h4>
+<ul><li><strong>RAM</strong> = fast, temporary working storage for loaded programs and documents (not disk space). Check the motherboard manual for the exact type.</li><li><strong>DIMM</strong> (dual in-line memory module): 64-bit data width, clips hold it in; contacts on each side differ. <strong>SO-DIMM</strong>: about half the width, for laptops and small devices.</li><li><strong>DRAM</strong> (dynamic RAM) must be constantly <strong>refreshed</strong> and needs power; <strong>random access</strong> means any address can be read directly; <strong>synchronous</strong> (SDRAM) means a system clock paces transfers.</li><li><strong>Notches (keys)</strong> prevent installing the wrong generation; no backward compatibility.</li><li><strong>SDR</strong> moves one transfer per clock; <strong>DDR</strong> (double data rate) moves two. <strong>DDR3</strong>: twice DDR2 speed, up to 16 GB per module. <strong>DDR4</strong>: faster, up to 64 GB per module. <strong>DDR5</strong>: faster again, 64 GB per module (key moved).</li></ul>
+<h4>Memory Technologies</h4>
+<ul><li><strong>Virtual memory</strong> (swap/page file, virtual RAM): drive space used as overflow RAM; slower. Windows can auto-manage the <strong>paging file</strong> (Performance Options &gt; Advanced) or you set the size.</li><li><strong>Multichannel</strong>: dual, triple, quad channel spreads load across matched modules in matching (often color-coded) slots for more throughput.</li><li><strong>Parity memory</strong>: extra bit per byte; <strong>detects</strong> some errors, cannot correct. <strong>ECC</strong> (error-correcting code) memory <strong>detects and corrects</strong>; used in servers, VMs and databases.</li><li><strong>Even parity</strong>: choose the parity bit so the total number of 1s is even. Data 11100111 (six 1s) -&gt; parity 0; 00000010 (one 1) -&gt; parity 1; 10011000 (three 1s) -&gt; parity 1. To check: count all 1s including the parity bit; odd means an error.</li></ul></div>
+<h2>flashcards</h2>
+<div class="deck" data-deck="aplus-3.2"></div>
+<h2>self-check</h2>
+<div class="chk"><p><strong>1.</strong> A server hosting VMs must tolerate single-bit RAM errors. Use:</p><ul class="chk__o"><li><span class="ok">a)</span> Non-ECC DDR4</li><li><span class="ok">b)</span> ECC memory</li><li><span class="ok">c)</span> Virtual memory</li><li><span class="ok">d)</span> SO-DIMM</li></ul><details><summary>answer</summary><p><span class="ok">b)</span> ECC corrects errors.</p></details></div><div class="chk"><p><strong>2.</strong> A DDR4 DIMM won't fit into a DDR3 board. Why?</p><ul class="chk__o"><li><span class="ok">a)</span> The notch location differs</li><li><span class="ok">b)</span> Wrong voltage only</li><li><span class="ok">c)</span> Needs BIOS flashing</li><li><span class="ok">d)</span> RAM is dynamic</li></ul><details><summary>answer</summary><p><span class="ok">a)</span> Keys prevent mismatched generations.</p></details></div>
+<h2>short lab: Even parity</h2><div class="prose lab"><p>Data 01101001 with an even-parity bit of 1 arrives. Is it valid?</p></div><details><summary>walkthrough</summary><div class="prose"><p>Count the 1s in 011010011: there are five 1s (four in data plus parity), an odd count, so an error occurred. Even parity requires an even total.</p></div></details>
+<h2>practice it</h2><ul class="arrow"><li><a href="../../learn/hardware-diagnostics-and-repair.html">hardware diagnostics and repair</a> <span class="muted">hands-on lab</span></li></ul>
+<h2>my notes</h2>
+<p class="muted small">Saved in this browser only.</p>
+<textarea class="mynotes" rows="8" spellcheck="true" aria-label="my notes for 3.2" placeholder="# 3.2 in my own words..."></textarea>
+</div>
+<nav class="pager"><a href="3.1.html">&lt; 3.1</a><a href="3.3.html">3.3 &gt;</a></nav>
+<p><a href="../aplus.html">cd ~/comptia/aplus</a></p>
+<script type="application/json" id="cards-data">[{"id": "aplus-3.2-0", "q": "What is DRAM?", "a": "Dynamic RAM that must be constantly refreshed and loses data without power."}, {"id": "aplus-3.2-1", "q": "Why \"synchronous\"?", "a": "A clock paces memory transfers."}, {"id": "aplus-3.2-2", "q": "DIMM data width?", "a": "64 bits."}, {"id": "aplus-3.2-3", "q": "DIMM vs SO-DIMM?", "a": "Full-size desktop vs about half-width laptop module."}, {"id": "aplus-3.2-4", "q": "What does the module notch do?", "a": "Prevents installing the wrong DDR generation."}, {"id": "aplus-3.2-5", "q": "SDR vs DDR?", "a": "DDR transfers twice per clock cycle."}, {"id": "aplus-3.2-6", "q": "DDR3 vs DDR4 vs DDR5 max per module?", "a": "DDR3 16 GB; DDR4 and DDR5 64 GB (DDR4 faster than DDR3, DDR5 faster than DDR4)."}, {"id": "aplus-3.2-7", "q": "Virtual memory?", "a": "Drive space used as extra RAM (page/swap file); much slower."}, {"id": "aplus-3.2-8", "q": "Multichannel memory?", "a": "Using matched modules in parallel channels for greater throughput."}, {"id": "aplus-3.2-9", "q": "Parity vs ECC?", "a": "Parity detects some errors; ECC detects and fixes them."}, {"id": "aplus-3.2-10", "q": "Parity bit for 10110010 with even parity?", "a": "Four 1s are already even, so parity bit 0."}]</script>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../../tags.html">tags</a> <a href="../../resources.html">resources</a> <a href="../../changelog.html">changelog</a> <a href="../../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>

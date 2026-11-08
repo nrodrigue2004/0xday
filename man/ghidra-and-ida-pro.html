@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>man ghidra-and-ida-pro :: 0xDay</title>
+<meta name="description" content="ghidra-and-ida-pro cheatsheet: Ghidra and IDA Pro keys, views and a first-hour workflow">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307090a'/%3E%3Ctext x='5' y='22' font-family='monospace' font-size='16' fill='%233bff7f'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=af415407">
+<link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
+<script src="../data.js?v=af415407" defer></script>
+<script src="../site.js?v=af415407" defer></script>
+<script src="../fx.js?v=af415407" defer></script>
+<script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
+</head>
+<body>
+<a class="skip" href="#main">skip to content</a>
+<div class="container">
+<header class="header">
+  <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
+</header>
+<main id="main">
+<p class="cmd">man ghidra-and-ida-pro</p>
+<div class="manhead"><span>GHIDRA-AND-IDA-PRO(7)</span><span>0xDay Field Manual</span><span>GHIDRA-AND-IDA-PRO(7)</span></div>
+<h1>ghidra-and-ida-pro <span class="muted">- Ghidra and IDA Pro keys, views and a first-hour workflow</span></h1>
+<h2 id="g-navigation-ida-ghidra">navigation (IDA / Ghidra)</h2><dl class="man"><dt><code>G</code></dt><dd>go to an address or symbol</dd><dt><code>X (IDA) / Ctrl+Shift+F (Ghidra)</code></dt><dd>cross-references to the selected item</dd><dt><code>Shift+F12 (IDA) / Window &gt; Defined Strings (Ghidra)</code></dt><dd>open the strings list</dd><dt><code>Esc (IDA) / Alt+Left (Ghidra)</code></dt><dd>go back</dd><dt><code>Space (IDA)</code></dt><dd>switch between graph and text view</dd><dt><code>F5 (IDA) / Window &gt; Decompile (Ghidra)</code></dt><dd>show the decompiler</dd></dl><h2 id="g-editing">editing</h2><dl class="man"><dt><code>N (IDA) / L (Ghidra)</code></dt><dd>rename the selected variable or function</dd><dt><code>Y</code></dt><dd>change a type or signature</dd><dt><code>; (IDA) / ; (Ghidra)</code></dt><dd>add a comment</dd><dt><code>D / C</code></dt><dd>convert bytes to data / to code (IDA)</dd><dt><code>Ctrl+Z</code></dt><dd>undo</dd></dl><h2 id="g-analysis-targets">analysis targets</h2><dl class="man"><dt><code>Imports</code></dt><dd>which APIs the program calls</dd><dt><code>Strings</code></dt><dd>URLs, paths, error messages, commands</dd><dt><code>Exports</code></dt><dd>functions a DLL offers</dd><dt><code>Entry point</code></dt><dd>where execution starts</dd><dt><code>Xrefs to string</code></dt><dd>which function prints, sends or compares it</dd><dt><code>Xrefs to API</code></dt><dd>where the dangerous call is made</dd></dl><h2 id="g-terms">terms</h2><dl class="man"><dt><code>Static analysis</code></dt><dd>studying a binary without running it</dd><dt><code>Dynamic analysis</code></dt><dd>studying it while it runs</dd><dt><code>Disassembler</code></dt><dd>machine code to assembly</dd><dt><code>Decompiler</code></dt><dd>assembly to C-like pseudocode</dd><dt><code>Cross-reference (xref)</code></dt><dd>place where an item is used</dd><dt><code>FUN_xxxxxxxx</code></dt><dd>Ghidra&#x27;s default name for an unnamed function</dd><dt><code>Hex-Rays</code></dt><dd>IDA&#x27;s decompiler plugin</dd></dl>
+<p><a href="../man.html">cd ..</a></p>
+</main>
+<footer class="footer">
+  <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>
+  <span class="footer__links"><a href="../tags.html">tags</a> <a href="../resources.html">resources</a> <a href="../changelog.html">changelog</a> <a href="../feed.xml">rss</a> <a href="https://github.com/nrodrigue2004">github</a> <a href="https://www.linkedin.com/in/nathan-rodrigue-669795249/">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+</footer>
+</div>
+</body>
+</html>
