@@ -10,12 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../study.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../study.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -23,7 +23,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -40,7 +40,14 @@
 <h2>key ideas</h2>
 <div class="prose"><ul><li>Vendor assessment: penetration testing, right-to-audit clause, evidence of internal audits, independent assessments, supply chain analysis.</li><li>Vendor selection: due diligence, conflict of interest. Monitoring and questionnaires, rules of engagement.</li><li>Agreements: SLA, MOA, MOU, MSA, WO/SOW, NDA, BPA.</li></ul></div>
 <h2>study notes</h2>
-<p class="muted">// full notes from the Professor Messer videos land here once the transcript is imported.</p>
+<div class="prose notes"><p>You inherit the risks of everyone you do business with. This objective covers how to assess vendors and the agreements that bind them.</p>
+<h4>Third-party risk assessment</h4>
+<ul><li><strong>Vendor assessment</strong>: judge suppliers before and during the relationship.<ul><li><strong>Penetration testing</strong> (with permission) and <strong>right-to-audit clauses</strong> allow verification.</li><li><strong>Evidence of internal audits</strong> and <strong>independent assessments</strong> (SOC 2 reports, ISO 27001 certification).</li><li><strong>Supply chain analysis</strong>: who are *their* suppliers? (fourth parties)</li><li><strong>Vendor questionnaires</strong> about security practices, incident history and controls.</li></ul></li><li><strong>Vendor selection</strong>: <strong>due diligence</strong> (investigate before signing), <strong>conflict of interest</strong> check.</li><li><strong>Vendor monitoring</strong>: continuous review of performance, security posture and incidents. Reassess periodically.</li><li><strong>Vendor viability</strong>, <strong>financial stability</strong>, and <strong>geographic location</strong> (laws and data sovereignty).</li><li><strong>Questionnaires</strong>, <strong>rules of engagement</strong> for tests, and <strong>right to audit</strong> are standard.</li><li><strong>Offboarding / termination</strong>: return or destroy data, revoke access, confirm deletion.</li></ul>
+<h4>Agreement types</h4>
+<div class="tbl"><table><thead><tr><th>Agreement</th><th>Purpose</th><th>Key features</th></tr></thead><tbody><tr><td><strong>SLA</strong> (service level agreement)</td><td>Defines the level of service a provider will deliver</td><td>Measurable targets such as 99.9% uptime, response times, penalties</td></tr><tr><td><strong>MOA</strong> (memorandum of agreement)</td><td>Formal agreement on how parties will work together</td><td>Stronger than an MOU; sets responsibilities</td></tr><tr><td><strong>MOU</strong> (memorandum of understanding)</td><td>Statement of shared intent</td><td>Generally non-binding; informal</td></tr><tr><td><strong>MSA</strong> (master service agreement)</td><td>Umbrella contract with standing terms</td><td>Later work orders reference it, speeding up new projects</td></tr><tr><td><strong>WO / SOW</strong> (work order / statement of work)</td><td>Defines a specific project</td><td>Scope, deliverables, deadlines, acceptance criteria, cost</td></tr><tr><td><strong>NDA</strong> (non-disclosure agreement)</td><td>Keeps information confidential</td><td>Legal consequences for sharing; mutual or one-way</td></tr><tr><td><strong>BPA</strong> (business partners agreement)</td><td>Sets how partners operate together</td><td>Profit/loss sharing, responsibilities, exit</td></tr></tbody></table></div>
+<p>Contracts often add <strong>security requirements</strong>, <strong>breach notification timelines</strong>, <strong>audit rights</strong>, <strong>data handling</strong> and <strong>termination clauses</strong>.</p>
+<h4>Exam traps</h4>
+<ul><li><strong>SLA</strong> is about *service levels*; <strong>SOW</strong> is about *project scope*; <strong>MSA</strong> is the *master* terms.</li><li><strong>MOU</strong> is non-binding; <strong>MOA</strong> is more formal and binding.</li><li><strong>NDA</strong> protects confidentiality.</li><li>Third-party risk includes <strong>fourth parties</strong> (your vendor's vendors).</li><li>You can outsource work, not accountability.</li></ul></div>
 <h2>flashcards</h2>
 <div class="deck" data-deck="5.3"></div>
 
@@ -50,7 +57,7 @@
 </div>
 <nav class="pager"><a href="5.2.html">&lt; 5.2</a><a href="5.4.html">5.4 &gt;</a></nav>
 <p><a href="../secplus.html">cd ~/secplus</a></p>
-<script type="application/json" id="cards-data">[{"id": "5.3-0", "q": "What is an SLA?", "a": "Service level agreement: the measurable service a vendor guarantees (uptime, response time)."}, {"id": "5.3-1", "q": "MOU vs MOA?", "a": "An MOU is a non-binding statement of intent; an MOA is more formal and spells out responsibilities."}, {"id": "5.3-2", "q": "What is an MSA?", "a": "Master service agreement: the overall terms for future work, with details in SOWs/work orders."}, {"id": "5.3-3", "q": "What is a right-to-audit clause?", "a": "Contract language letting you audit the vendor's security."}, {"id": "5.3-4", "q": "What does an NDA do?", "a": "Legally binds a party to keep shared information confidential."}]</script>
+<script type="application/json" id="cards-data">[{"id": "5.3-0", "q": "What is an SLA?", "a": "Service level agreement: the measurable service a vendor guarantees (uptime, response time)."}, {"id": "5.3-1", "q": "MOU vs MOA?", "a": "An MOU is a non-binding statement of intent; an MOA is more formal and spells out responsibilities."}, {"id": "5.3-2", "q": "What is an MSA?", "a": "Master service agreement: the overall terms for future work, with details in SOWs/work orders."}, {"id": "5.3-3", "q": "What is a right-to-audit clause?", "a": "Contract language letting you audit the vendor's security."}, {"id": "5.3-4", "q": "What does an NDA do?", "a": "Legally binds a party to keep shared information confidential."}, {"id": "5.3-5", "q": "SLA vs SOW?", "a": "An SLA defines service levels (uptime, response times). A SOW defines a project's scope and deliverables."}, {"id": "5.3-6", "q": "What is an NDA for?", "a": "Legally protecting confidential information from disclosure."}, {"id": "5.3-7", "q": "What is due diligence in vendor selection?", "a": "Investigating a vendor's security, finances and reputation before signing."}, {"id": "5.3-8", "q": "What is a BPA?", "a": "Business partners agreement: defines how partners operate together, including shared responsibilities and exit terms."}, {"id": "5.3-9", "q": "What is a fourth party?", "a": "A vendor's own supplier or subcontractor."}, {"id": "5.3-10", "q": "What belongs in vendor offboarding?", "a": "Revoking access and confirming return or destruction of data."}, {"id": "5.3-11", "q": "What is a SOC 2 report?", "a": "An independent auditor's report on a service provider's controls (security, availability, confidentiality, and more)."}]</script>
 </main>
 <footer class="footer">
   <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>

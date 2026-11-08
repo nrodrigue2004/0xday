@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../sandbox.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -41,7 +41,7 @@
 <span class="ps">$</span> <span class="c">sha256sum ~/case/evidence/notes.txt</span><button class="run" type="button" data-cmd="sha256sum ~/case/evidence/notes.txt" title="run in the sandbox">▶ run</button></code></pre>
 <p class="callout">The <strong>chain of custody</strong> records every person who handled the evidence, when, and why. Without it, evidence can be thrown out.</p>
 <h4>The ground rules</h4>
-<p>1. <strong>Preserve</strong>: never work on the original. Make a forensic image with a write blocker, hash it (SHA-256), and work from a copy. 2. <strong>Document</strong>: record every step, tool and time. Another examiner should be able to repeat your work and get the same result. 3. <strong>Analyze</strong>: look at files, deleted data, logs, browser history, USB history, user activity and memory. 4. <strong>Report</strong>: state facts, separate them from opinion, and say what you could not determine.</p>
+<ol><li><strong>Preserve</strong>: never work on the original. Make a forensic image with a write blocker, hash it (SHA-256), and work from a copy.</li><li><strong>Document</strong>: record every step, tool and time. Another examiner should be able to repeat your work and get the same result.</li><li><strong>Analyze</strong>: look at files, deleted data, logs, browser history, USB history, user activity and memory.</li><li><strong>Report</strong>: state facts, separate them from opinion, and say what you could not determine.</li></ol>
 <p>Digital evidence is easy to change by accident (just booting a disk alters timestamps), so the process matters as much as the findings.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>File names lie, file signatures don't</h4>
 <p>A file's extension is just part of its name. What it actually is lives in its first few bytes, the <strong>magic number</strong> (file signature):</p>
 <ul><li><code>FF D8 FF</code> JPEG, <code>89 50 4E 47</code> (<code>.PNG</code>) PNG, <code>25 50 44 46</code> (<code>%PDF</code>) PDF</li><li><code>50 4B 03 04</code> (<code>PK..</code>) ZIP, which is also DOCX, XLSX and APK</li><li><code>4D 5A</code> (<code>MZ</code>) Windows executable</li></ul>

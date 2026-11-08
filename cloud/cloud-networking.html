@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../sandbox.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -49,7 +49,7 @@
 <h4>Visibility</h4>
 <ul><li>AWS: <strong>VPC Flow Logs</strong>, Traffic Mirroring, GuardDuty. Azure: <strong>NSG flow logs</strong>, Network Watcher, Defender for Cloud.</li><li>Flow logs show allowed and rejected connections (source, destination, port, bytes) but not payloads. They are the first stop for "did anything talk to that host".</li></ul>
 <h4>Reachability checklist for incident work</h4>
-<p>1. Public IP or load balancer in front? 2. Subnet route table to an internet gateway? 3. Network ACL / NSG at the subnet? 4. Security group / NSG at the instance? 5. Host firewall and the service actually listening? 6. Any WAF or identity in front? A finding is "exposed" only when you can walk the whole path.</p><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><strong>Scenario (fictional, simulated):</strong> a small shop called <strong>Fabrikam Goods</strong> asked for a network review. Exports are in <code>~/net/</code>: firewall rules, instances and subnet routes. Start with <code>cat ~/net/README.txt</code>.</p>
+<ol><li>Public IP or load balancer in front? 2. Subnet route table to an internet gateway? 3. Network ACL / NSG at the subnet? 4. Security group / NSG at the instance? 5. Host firewall and the service actually listening? 6. Any WAF or identity in front? A finding is "exposed" only when you can walk the whole path.</li></ol><p><button class="btn got" type="button" data-tier="complex">[ ] got it</button></p></section><section class="lvl lvl--lab" id="tier-4" data-tier="lab"><h2><span class="lvl__n">04</span> hands-on <span class="muted">// sandbox shell</span></h2><p><strong>Scenario (fictional, simulated):</strong> a small shop called <strong>Fabrikam Goods</strong> asked for a network review. Exports are in <code>~/net/</code>: firewall rules, instances and subnet routes. Start with <code>cat ~/net/README.txt</code>.</p>
 <p>Several security groups allow SSH from <code>0.0.0.0/0</code>, but only <strong>one instance</strong> is actually reachable from the internet over SSH, because the whole path lines up. Submit its <strong>instance id</strong>, e.g. <code>submit i-0aaa</code>.</p><p class="muted">Solve it in the sandbox. Type <code>hint</code> when stuck and <code>submit &lt;answer&gt;</code> when you have it. Everything is simulated.</p></section><section class="lvl lvl--ref" id="ref" data-tier="ref"><h2><span class="lvl__n">ref</span> reference <span class="muted">// commands and terms, also on the <a href="../man/cloud.html">cheatsheet</a></span></h2><h3>networking terms</h3><dl class="man"><dt><code>VPC / VNet</code></dt><dd>your private virtual network and address range</dd><dt><code>subnet</code></dt><dd>slice of the network; public if its route table has an internet gateway</dd><dt><code>security group</code></dt><dd>AWS stateful allow-only instance firewall</dd><dt><code>NSG</code></dt><dd>Azure network security group: allow/deny rules by priority</dd><dt><code>NACL</code></dt><dd>AWS stateless subnet-level rules</dd><dt><code>NAT gateway</code></dt><dd>lets private resources reach out without being reachable in</dd><dt><code>bastion</code></dt><dd>hardened jump host (or managed Bastion / Session Manager) for admin access</dd><dt><code>0.0.0.0/0</code></dt><dd>"the entire internet" as a rule source; avoid for SSH, RDP and databases</dd><dt><code>VPC endpoint / Private Endpoint</code></dt><dd>reach a cloud service privately without the public endpoint</dd><dt><code>flow logs</code></dt><dd>per-connection metadata for the virtual network</dd></dl></section><nav class="pager"><a href="cloud-iam.html">&lt; identity and access</a><a href="cloud-storage-compute.html">storage and compute &gt;</a></nav><p><a href="../cloud.html">cd ~/cloud</a></p></div>
 <aside class="learn__lab"><div id="sandbox" class="term sb"></div><noscript><p>The sandbox needs JavaScript.</p></noscript></aside>
 </div>

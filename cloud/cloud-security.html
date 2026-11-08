@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../sandbox.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -34,7 +34,7 @@
 <nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
 <div class="learn" data-skill="cloud-security">
 <div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Cloud security is the usual security goals (confidentiality, integrity, availability) applied to API-driven infrastructure. The same handful of problems cause most incidents:</p>
-<p>1. <strong>Misconfiguration</strong>: public buckets, open security groups, disabled logging, default passwords. 2. <strong>Leaked or over-privileged credentials</strong>: access keys in git, wildcard policies, no MFA. 3. <strong>Unpatched or exposed workloads</strong>: old VMs and container images with known bugs. 4. <strong>No visibility</strong>: nobody turned on logging, so nobody knows what happened. 5. <strong>Shadow IT</strong>: someone spins up a resource outside the rules.</p>
+<ol><li><strong>Misconfiguration</strong>: public buckets, open security groups, disabled logging, default passwords.</li><li><strong>Leaked or over-privileged credentials</strong>: access keys in git, wildcard policies, no MFA.</li><li><strong>Unpatched or exposed workloads</strong>: old VMs and container images with known bugs.</li><li><strong>No visibility</strong>: nobody turned on logging, so nobody knows what happened.</li><li><strong>Shadow IT</strong>: someone spins up a resource outside the rules.</li></ol>
 <p class="callout">Defend in this order: <strong>identity</strong> (MFA, least privilege, no long-lived keys), <strong>logging</strong> (record every API call somewhere safe), <strong>configuration</strong> (scan for public and open things), then <strong>workloads</strong> (patch, scan images). Most of the value is in the first three.</p>
 <p>Your toolbox in plain words: logs tell you what happened, <strong>posture tools</strong> (CSPM) tell you what is misconfigured right now, and <strong>threat detection</strong> (GuardDuty, Defender) tells you what looks malicious.</p><p><button class="btn got" type="button" data-tier="simple">[ ] got it</button></p></section><section class="lvl" id="tier-2" data-tier="mid"><h2><span class="lvl__n">02</span> mid <span class="muted">// how it's actually used</span></h2><h4>Logging you must have</h4>
 <div class="tbl"><table><thead><tr><th>What</th><th>AWS</th><th>Azure</th></tr></thead><tbody><tr><td>Control-plane audit</td><td>CloudTrail (all regions, to a protected bucket)</td><td>Activity Log (export to Log Analytics)</td></tr><tr><td>Identity events</td><td>CloudTrail sign-in events, IAM Access Analyzer</td><td>Entra sign-in and audit logs</td></tr><tr><td>Network</td><td>VPC Flow Logs</td><td>NSG flow logs</td></tr><tr><td>Resource data plane</td><td>S3 access logs, CloudWatch</td><td>Storage/Key Vault diagnostic settings</td></tr><tr><td>Threat findings</td><td>GuardDuty</td><td>Defender for Cloud, Sentinel</td></tr></tbody></table></div>
@@ -45,7 +45,8 @@
 <p>Root account use; <code>ConsoleLogin</code> without MFA from a new IP; <code>CreateAccessKey</code>, <code>CreateUser</code>, <code>AttachUserPolicy</code> or <code>PutUserPolicy</code> (persistence); <code>StopLogging</code> or <code>DeleteTrail</code> (covering tracks); <code>PutBucketPolicy</code> making a bucket public; <code>RunInstances</code> in unused regions (mining); large numbers of <code>GetObject</code> (theft).</p>
 <h4>Encryption</h4>
 <p>Know who controls the key (provider-managed, customer-managed in KMS/Key Vault, or customer-held). Encrypt at rest and in transit, restrict who can use the key as tightly as who can read the data, and never store keys beside the data they protect.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Incident response in the cloud</h4>
-<p>1. <strong>Contain</strong>: disable or delete the access key, revoke sessions, attach a deny-all policy to the role, isolate instances with a quarantine security group. Don't terminate: you lose memory and disk evidence. 2. <strong>Preserve</strong>: snapshot disks, export logs, record timestamps in UTC. 3. <strong>Scope</strong>: use CloudTrail/Activity Log to list everything that identity did, across all regions, including actions that created new identities or keys. 4. <strong>Eradicate and recover</strong>: rotate everything the identity could read, rebuild from clean images or IaC. 5. <strong>Learn</strong>: close the gap that let the key leak, add a detection for the same sequence. Plan this before the incident: the first incident is a bad time to learn how to snapshot a disk.</p>
+<ol><li><strong>Contain</strong>: disable or delete the access key, revoke sessions, attach a deny-all policy to the role, isolate instances with a quarantine security group. Don't terminate: you lose memory and disk evidence.</li><li><strong>Preserve</strong>: snapshot disks, export logs, record timestamps in UTC.</li><li><strong>Scope</strong>: use CloudTrail/Activity Log to list everything that identity did, across all regions, including actions that created new identities or keys.</li><li><strong>Eradicate and recover</strong>: rotate everything the identity could read, rebuild from clean images or IaC.</li><li><strong>Learn</strong>: close the gap that let the key leak, add a detection for the same sequence.</li></ol>
+<p>Plan this before the incident: the first incident is a bad time to learn how to snapshot a disk.</p>
 <h4>Posture and policy as code</h4>
 <p><strong>CSPM</strong> (Security Hub, Defender for Cloud, third-party) continuously compares your settings with benchmarks such as <strong>CIS Foundations</strong>. Shift left: scan Terraform/Bicep in CI so a public bucket never deploys. Use guardrails (SCPs, Azure Policy) so mistakes are impossible, not just detected.</p>
 <h4>Frameworks and responsibilities</h4>

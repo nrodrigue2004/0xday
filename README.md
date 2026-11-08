@@ -64,3 +64,7 @@ node scripts/check_dojo.js        # or: node scripts/check_dojo.js c python
 ## ~/arcade (games)
 
 `arcade.html` and `arcade/<game>.html` are built by `build_arcade.py`, with `arcade.css` and `arcade.js`. **iptables** is a packet-triage reflex game (its levels and rule sets are at the top of the iptables section in `arcade.js`). **crack** is a Wordle-style game whose word list is `content/arcade/acronyms.txt` (`ACRONYM | expansion | note | category`, 3-6 letters). High scores and the daily streak live in the visitor's localStorage.
+
+## ~/start, ~/jobs, ~/bullets
+
+`content/start.json` is the ordered curriculum for `~/start` (stages, then steps: `id`, `t`, `h`, `w`, `m` minutes, `topic` = a ~/log topic key). Progress is keyed on `id`, so don't rename ids. Add `"if": "page.html"` to a step to include it only when that built page exists, which is how sections from other branches (cloud, programming, web) link in once they land; hrefs without `if` must exist or the build fails. `~/jobs` (application tracker) and `~/bullets` (bank built from `content/resume.json`, plus a job-posting keyword matcher whose terms are `KEYWORDS` in `build_start.py`) keep all data in the browser. All three are built by `build_start.py`, called last in `build.py`.

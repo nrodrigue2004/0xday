@@ -10,12 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../study.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../study.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -23,7 +23,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -40,7 +40,17 @@
 <h2>key ideas</h2>
 <div class="prose"><ul><li>Use cases: user provisioning, resource provisioning, guard rails, security groups, ticket creation, escalation, enabling/disabling services, CI testing, integrations/APIs.</li><li>Benefits: efficiency, enforcing baselines, standard infrastructure, scaling, employee retention, reaction time, workforce multiplier.</li><li>Considerations: complexity, cost, single point of failure, technical debt, ongoing supportability.</li></ul></div>
 <h2>study notes</h2>
-<p class="muted">// full notes from the Professor Messer videos land here once the transcript is imported.</p>
+<div class="prose notes"><p>Automation and orchestration let a small team handle a large environment consistently and quickly. The exam wants the use cases, the benefits and the risks.</p>
+<h4>Use cases</h4>
+<ul><li><strong>User and resource provisioning</strong>: create accounts, assign groups, build servers and cloud resources from templates, with the same security settings every time.</li><li><strong>Guard rails and security groups</strong>: automatically enforce limits on what can be created or changed.</li><li><strong>Ticket creation</strong> and workflow routing from alerts.</li><li><strong>Escalation</strong>: route unresolved or severe issues to the right team.</li><li><strong>Enabling/disabling services and access</strong>: for example disable a compromised account or block an IP on a firewall immediately.</li><li><strong>Continuous integration and testing (CI/CD)</strong>: run security tests every time code changes.</li><li><strong>Integrations and APIs</strong>: connect security tools so they share data and trigger each other.</li><li><strong>Incident response playbooks</strong>: automated steps for common incidents.</li></ul>
+<h4>Benefits</h4>
+<div class="tbl"><table><thead><tr><th>Benefit</th><th>Why it matters</th></tr></thead><tbody><tr><td><strong>Efficiency / time saved</strong></td><td>Routine work done in seconds</td></tr><tr><td><strong>Enforcing baselines</strong></td><td>Every system built and checked the same way</td></tr><tr><td><strong>Standard infrastructure configurations</strong></td><td>Fewer one-off, forgotten settings</td></tr><tr><td><strong>Scaling in a secure manner</strong></td><td>Handle growth without hiring in proportion</td></tr><tr><td><strong>Employee retention</strong></td><td>Less repetitive work, more interesting work</td></tr><tr><td><strong>Reaction time</strong></td><td>Machine-speed response to threats</td></tr><tr><td><strong>Workforce multiplier</strong></td><td>One analyst handles what many would</td></tr></tbody></table></div>
+<h4>Risks and considerations</h4>
+<ul><li><strong>Complexity</strong>: automation needs design, testing and documentation.</li><li><strong>Cost</strong>: tools and skills to build and maintain.</li><li><strong>Single point of failure</strong>: a broken or compromised automation system can affect everything at once.</li><li><strong>Technical debt</strong>: scripts and workflows nobody maintains.</li><li><strong>Ongoing supportability</strong>: someone must own and update the automation as systems change.</li><li><strong>Mistakes at scale</strong>: a bad rule applied automatically hits thousands of systems instantly. Test in a safe environment and use change control.</li><li><strong>Secrets</strong>: automation accounts and API keys are powerful and must be protected.</li></ul>
+<h4>Tools and concepts</h4>
+<ul><li><strong>Scripting</strong> (PowerShell, Python, Bash) for custom tasks.</li><li><strong>Infrastructure as code</strong> (Terraform, Ansible, CloudFormation): declare desired state; the tool makes it so.</li><li><strong>SOAR</strong> platforms: orchestrate tools and run <strong>playbooks</strong> and <strong>runbooks</strong>.</li><li><strong>APIs</strong> connect systems; <strong>webhooks</strong> trigger actions.</li><li><strong>Orchestration</strong> coordinates many automated tasks into one workflow; <strong>automation</strong> performs a single task.</li></ul>
+<h4>Exam traps</h4>
+<ul><li>Automation = a single task done by machine. <strong>Orchestration</strong> = coordinating many automated tasks.</li><li>A big automation benefit is <strong>consistency</strong> (enforcing baselines), not just speed.</li><li>Risks include <strong>single point of failure</strong> and <strong>technical debt</strong>.</li></ul></div>
 <h2>flashcards</h2>
 <div class="deck" data-deck="4.7"></div>
 <h2>practice it</h2><ul class="arrow"><li><a href="../learn/bash-scripting.html">Bash scripting</a> <span class="muted">hands-on lab</span></li><li><a href="../learn/python.html">Python</a> <span class="muted">hands-on lab</span></li><li><a href="../learn/windows-admin-powershell.html">Windows admin / PowerShell</a> <span class="muted">hands-on lab</span></li></ul>
@@ -50,7 +60,7 @@
 </div>
 <nav class="pager"><a href="4.6.html">&lt; 4.6</a><a href="4.8.html">4.8 &gt;</a></nav>
 <p><a href="../secplus.html">cd ~/secplus</a></p>
-<script type="application/json" id="cards-data">[{"id": "4.7-0", "q": "Name two security benefits of automation.", "a": "Consistent enforcement of baselines and faster reaction time (also scaling and fewer human errors)."}, {"id": "4.7-1", "q": "What is a guard rail in automation?", "a": "An automated check that stops unsafe changes (e.g. blocking a public storage bucket)."}, {"id": "4.7-2", "q": "Name a risk of automation.", "a": "It can become a single point of failure, or add complexity and technical debt."}, {"id": "4.7-3", "q": "What is SOAR?", "a": "Security orchestration, automation and response: playbooks that automate incident handling across tools."}]</script>
+<script type="application/json" id="cards-data">[{"id": "4.7-0", "q": "Name two security benefits of automation.", "a": "Consistent enforcement of baselines and faster reaction time (also scaling and fewer human errors)."}, {"id": "4.7-1", "q": "What is a guard rail in automation?", "a": "An automated check that stops unsafe changes (e.g. blocking a public storage bucket)."}, {"id": "4.7-2", "q": "Name a risk of automation.", "a": "It can become a single point of failure, or add complexity and technical debt."}, {"id": "4.7-3", "q": "What is SOAR?", "a": "Security orchestration, automation and response: playbooks that automate incident handling across tools."}, {"id": "4.7-4", "q": "Automation vs orchestration?", "a": "Automation performs a single task. Orchestration coordinates many automated tasks into one workflow."}, {"id": "4.7-5", "q": "Name three benefits of automation.", "a": "Efficiency/time saved, consistent baselines, faster reaction time (also scaling securely and acting as a workforce multiplier)."}, {"id": "4.7-6", "q": "What is a risk of automation?", "a": "Single point of failure, complexity, technical debt, and mistakes applied at scale."}, {"id": "4.7-7", "q": "What is infrastructure as code?", "a": "Declaring infrastructure in code so tools build it repeatably and consistently."}, {"id": "4.7-8", "q": "What is a playbook in SOAR?", "a": "A defined, often automated, sequence of steps for responding to a particular type of incident."}, {"id": "4.7-9", "q": "Why protect automation credentials carefully?", "a": "Automation accounts and API keys are powerful, so theft would grant broad access."}]</script>
 </main>
 <footer class="footer">
   <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> Nathan</span>

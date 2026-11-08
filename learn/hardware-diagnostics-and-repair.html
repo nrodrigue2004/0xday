@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../sandbox.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -34,7 +34,8 @@
 <p>Most "the computer is broken" tickets are one failing part. Learn a repeatable troubleshooting method and how to read drive, memory and thermal diagnostics, then find the drive that's about to die.</p>
 <nav class="tiers" aria-label="levels"><a href="#tier-1" class="tier" data-tier="simple"><span class="tier__n">1</span>simple</a><a href="#tier-2" class="tier" data-tier="mid"><span class="tier__n">2</span>mid</a><a href="#tier-3" class="tier" data-tier="complex"><span class="tier__n">3</span>complex</a><a href="#tier-4" class="tier" data-tier="lab"><span class="tier__n">4</span>hands-on</a><a href="#ref" class="tier tier--ref" data-tier="ref"><span class="tier__n">+</span>ref</a></nav>
 <div class="learn" data-skill="hardware-diagnostics-and-repair">
-<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Hardware troubleshooting follows the same steps every time (CompTIA's method): 1. Identify the problem (ask what changed, reproduce it) 2. Establish a theory of probable cause (start simple: power, cables, seating) 3. Test the theory 4. Plan and implement the fix 5. Verify full functionality 6. Document it</p>
+<div class="learn__doc"><section class="lvl" id="tier-1" data-tier="simple"><h2><span class="lvl__n">01</span> simple <span class="muted">// the idea in plain words</span></h2><p>Hardware troubleshooting follows the same steps every time (CompTIA's method):</p>
+<ol><li>Identify the problem (ask what changed, reproduce it)</li><li>Establish a theory of probable cause (start simple: power, cables, seating)</li><li>Test the theory</li><li>Plan and implement the fix</li><li>Verify full functionality</li><li>Document it</li></ol>
 <p>Symptoms point to parts. Clicking or slow file access: <strong>storage</strong>. Random crashes and blue screens: <strong>RAM</strong> or heat. Shutting off under load: <strong>power or cooling</strong>. No display but fans spin: RAM, GPU or display cable.</p>
 <pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/bench/intake.txt</span><button class="run" type="button" data-cmd="cat ~/bench/intake.txt" title="run in the sandbox">▶ run</button></code></pre>
 <p class="callout">Back up the user's data before you change anything on a machine with a suspect drive.</p>
@@ -50,7 +51,7 @@
 <pre class="ex"><code><span class="ps">$</span> <span class="c">cat ~/bench/memtest.log</span><button class="run" type="button" data-cmd="cat ~/bench/memtest.log" title="run in the sandbox">▶ run</button>
 <span class="ps">$</span> <span class="c">sensors</span><button class="run" type="button" data-cmd="sensors" title="run in the sandbox">▶ run</button></code></pre>
 <h4>Order of checks on a PC that will not boot</h4>
-<p>1. Power: outlet, PSU switch, cable, power button, a different charger for laptops. 2. Display: is it the monitor or cable? Try another port. 3. POST: beeps or error LEDs? Reseat RAM, try one stick at a time. 4. Boot device: is the drive detected in BIOS/UEFI? Boot order correct? 5. Peripherals: unplug everything except keyboard and monitor. 6. Clear CMOS (battery out for a minute) if settings look corrupt. 7. Minimal build: CPU, one RAM, PSU, board, and see if it posts.</p>
+<ol><li>Power: outlet, PSU switch, cable, power button, a different charger for laptops.</li><li>Display: is it the monitor or cable? Try another port.</li><li>POST: beeps or error LEDs? Reseat RAM, try one stick at a time.</li><li>Boot device: is the drive detected in BIOS/UEFI? Boot order correct?</li><li>Peripherals: unplug everything except keyboard and monitor.</li><li>Clear CMOS (battery out for a minute) if settings look corrupt.</li><li>Minimal build: CPU, one RAM, PSU, board, and see if it posts.</li></ol>
 <h4>Tools of the trade</h4>
 <p>Screwdriver set, anti-static strap, compressed air, thermal paste, a PSU tester, a multimeter, a USB boot stick with diagnostics (MemTest86, vendor tools, a live Linux), a known-good spare of common parts, and a drive-to-USB adapter for data recovery.</p>
 <h4>Data comes first</h4>

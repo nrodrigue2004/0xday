@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../sandbox.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -48,7 +48,7 @@
 <h4>Injecting drivers</h4>
 <p>In MDT / SCCM / WDS you import driver packs per model so the right ones get injected during deployment. On one machine: <code>pnputil /add-driver &lt;file&gt;.inf /install</code>. Offline images: <code>DISM /Image:C:\mount /Add-Driver /Driver:&lt;folder&gt; /Recurse</code>.</p>
 <h4>Typical imaging flow</h4>
-<p>1. Build a reference machine in a VM (not on hardware, so no hardware-specific drivers sneak in). 2. Install updates and standard apps, configure policy, and remove temporary files. 3. Run <code>sysprep /generalize /oobe /shutdown</code>. 4. Capture the disk to a WIM (<code>dism /Capture-Image</code>). 5. Boot target machines from WinPE or the network (PXE), apply the image, then inject or install the right drivers. 6. Join the domain, run Windows Update, test a sample machine, and record the version in your image log.</p>
+<ol><li>Build a reference machine in a VM (not on hardware, so no hardware-specific drivers sneak in).</li><li>Install updates and standard apps, configure policy, and remove temporary files.</li><li>Run <code>sysprep /generalize /oobe /shutdown</code>.</li><li>Capture the disk to a WIM (<code>dism /Capture-Image</code>).</li><li>Boot target machines from WinPE or the network (PXE), apply the image, then inject or install the right drivers.</li><li>Join the domain, run Windows Update, test a sample machine, and record the version in your image log.</li></ol>
 <h4>Driver management</h4>
 <p>Organize drivers by make and model. Use the manufacturer's driver pack or enterprise tool (Dell Command, HP Image Assistant, Lenovo System Update). Unknown device in Device Manager? Open Properties → Details → Hardware Ids, search the VEN and DEV values, and install the matching driver. Missing storage or network drivers need injecting into WinPE or the image up front, because you cannot download them if the NIC does not work.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Images, sysprep and logs</h4>
 <ul><li>Build a <strong>reference image</strong>, generalize it with <code>sysprep /generalize /oobe /shutdown</code> (removes the machine SID and hardware specifics), capture it with DISM</li><li>Keep it thin: OS + updates, and let the task sequence add apps and drivers per model</li><li>When deployment fails, the answers are in logs: <code>setupact.log</code> / <code>setuperr.log</code> (Panther), <code>setupapi.dev.log</code> (every driver install attempt), <code>smsts.log</code> (SCCM task sequences)</li></ul>

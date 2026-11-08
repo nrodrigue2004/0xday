@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../sandbox.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -47,7 +47,8 @@
 <p>A <strong>role assignment</strong> = security principal + role definition + <strong>scope</strong>. Scopes nest: management group, subscription, resource group, resource. Permissions inherit downward, so an Owner at subscription scope owns everything below. Built-in roles to know: <strong>Owner</strong> (everything, including granting access), <strong>Contributor</strong> (everything except granting access), <strong>Reader</strong>, <strong>User Access Administrator</strong>. Entra roles (Global Administrator) are a separate system for the directory itself.</p>
 <h4>Everyday hygiene</h4>
 <ul><li>MFA on every human, enforced, and on root/global admin without exception.</li><li>No long-lived access keys when a role will do; rotate and delete unused keys.</li><li>Groups for humans, roles for workloads. Review access on a schedule.</li><li>Never put keys in code, git, tickets or chat. Use a secrets manager (AWS Secrets Manager, Azure Key Vault).</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>How AWS evaluates a request</h4>
-<p>1. Start at <strong>implicit deny</strong>. 2. Any <strong>explicit Deny</strong> in any applicable policy (identity, resource, SCP, permissions boundary, session) ends it: denied. 3. Otherwise there must be an Allow, and it must not be blocked by a <strong>service control policy</strong> (organization-wide guardrail) or a <strong>permissions boundary</strong> (a cap on what an identity's own policies can grant). Cross-account access needs the Allow on both sides.</p>
+<ol><li>Start at <strong>implicit deny</strong>.</li><li>Any <strong>explicit Deny</strong> in any applicable policy (identity, resource, SCP, permissions boundary, session) ends it: denied.</li><li>Otherwise there must be an Allow, and it must not be blocked by a <strong>service control policy</strong> (organization-wide guardrail) or a <strong>permissions boundary</strong> (a cap on what an identity's own policies can grant).</li></ol>
+<p>Cross-account access needs the Allow on both sides.</p>
 <h4>Privilege escalation patterns</h4>
 <p>Small permissions that become admin: <code>iam:PassRole</code> plus the right to create compute, <code>iam:CreatePolicyVersion</code>, <code>iam:AttachUserPolicy</code>, <code>sts:AssumeRole</code> into a stronger role, or write access to a Lambda that runs as an admin role. When you review, ask "can this identity grant itself more?", not just "what can it touch?".</p>
 <h4>Workload identity</h4>

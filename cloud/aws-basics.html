@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../sandbox.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../sandbox.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -44,7 +44,7 @@
 <p><code>sts get-caller-identity</code> answers "who am I right now", the first command to run in any session. Credentials come from <code>aws configure</code>, environment variables, a shared profile in <code>~/.aws/credentials</code>, or a role. Prefer <strong>IAM Identity Center</strong> (SSO) sessions over stored keys. Output formats: <code>--output json|table|text</code>; filter with <code>--query</code> (JMESPath).</p>
 <h4>Where to look when investigating</h4>
 <ul><li><strong>CloudTrail</strong>: management events (who created, deleted, changed what) in the console's Event history for 90 days; set up a trail to keep it longer and in a protected bucket.</li><li><strong>CloudWatch Logs</strong> for application and VPC flow logs.</li><li><strong>IAM credential report</strong>: all users, key ages, MFA status.</li><li><strong>AWS Config</strong>: configuration history and compliance rules.</li></ul><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Account-level security baseline</h4>
-<p>1. MFA on root, no root access keys. 2. Organizations with SCPs (deny leaving the org, deny disabling CloudTrail/GuardDuty, restrict regions). 3. Organization CloudTrail in all regions to a locked-down log-archive account. 4. GuardDuty, Security Hub, Config and Access Analyzer on. 5. S3 Block Public Access at account level. 6. Budgets and billing alarms. 7. IMDSv2 required. 8. No long-lived keys for humans.</p>
+<ol><li>MFA on root, no root access keys. 2. Organizations with SCPs (deny leaving the org, deny disabling CloudTrail/GuardDuty, restrict regions). 3. Organization CloudTrail in all regions to a locked-down log-archive account. 4. GuardDuty, Security Hub, Config and Access Analyzer on. 5. S3 Block Public Access at account level. 6. Budgets and billing alarms. 7. IMDSv2 required. 8. No long-lived keys for humans.</li></ol>
 <h4>Detecting stolen keys</h4>
 <p>Typical sequence: <code>GetCallerIdentity</code>, <code>ListBuckets</code>, <code>ListUsers</code>, <code>GetAccountAuthorizationDetails</code> (recon with a stolen key), then <code>CreateAccessKey</code> / <code>CreateUser</code> / <code>AttachUserPolicy</code> (persistence), then <code>RunInstances</code> in unusual regions (cryptomining) or mass <code>GetObject</code> (theft). GuardDuty flags many of these; so do CloudTrail alarms on root use, console logins without MFA and IAM policy changes.</p>
 <h4>Billing as a security signal</h4>

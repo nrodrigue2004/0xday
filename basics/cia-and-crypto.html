@@ -10,12 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=7cc3c46f">
+<link rel="stylesheet" href="../style.css?v=cf7b0008">
 <link rel="alternate" type="application/rss+xml" title="0xDay" href="https://nrodrigue2004.github.io/0xday/feed.xml">
-<script src="../data.js?v=7cc3c46f" defer></script>
-<script src="../site.js?v=7cc3c46f" defer></script>
-<script src="../fx.js?v=7cc3c46f" defer></script>
-<script src="../learn.js?v=7cc3c46f" defer></script>
+<script src="../data.js?v=cf7b0008" defer></script>
+<script src="../site.js?v=cf7b0008" defer></script>
+<script src="../fx.js?v=cf7b0008" defer></script>
+<script src="../learn.js?v=cf7b0008" defer></script>
 <script>(function(){var d=document.documentElement,s={},b='1';try{s=JSON.parse(localStorage.getItem('oxday-set')||'{}');b=localStorage.getItem('oxday-booted')}catch(e){}if(/[?&]embed=1/.test(location.search))d.classList.add('embed');if(s.crt)d.classList.add('crt');if(!b&&s.boot!==false&&!d.classList.contains('embed')&&!d.classList.contains('tty-page')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent))d.classList.add('booting')})();</script>
 </head>
 <body>
@@ -23,7 +23,7 @@
 <div class="container">
 <header class="header">
   <a href="../index.html" class="logo" aria-label="0xDay home"><span class="logo__user">nathan@0xday</span><span class="logo__sep">:</span><span class="logo__path">~</span><span class="logo__sep">$</span><span class="cursor"></span></a>
-  <nav class="menu" aria-label="Main"><ul><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
+  <nav class="menu" aria-label="Main"><ul><li><a href="../start.html">./start</a></li><li><a href="../posts.html">./blog</a></li><li><a href="../projects.html">./projects</a></li><li><a href="../skills.html">./skills</a></li><li><a href="../certs.html">./certs</a></li><li><a href="../learn.html" aria-current="page">./learn</a></li><li><a href="../ai.html">./ai</a></li><li><a href="../lab.html">./lab</a></li><li><a href="../now.html">./now</a></li><li><a href="../about.html">./about</a></li></ul></nav>
   <button class="menu-trigger" aria-label="Menu" aria-expanded="false">[≡]</button>
 </header>
 <main id="main">
@@ -47,7 +47,8 @@
 <ul><li>To send a secret: encrypt with the <strong>recipient's public key</strong>.</li><li>To sign: sign with <strong>your private key</strong>, others verify with your public key (proves origin and integrity, gives non-repudiation).</li></ul>
 <p><strong>RSA</strong> (2048+ bit) and <strong>ECC</strong> (smaller keys, same strength) are the main families. <strong>Diffie-Hellman</strong> lets two parties agree on a shared secret over an open line.</p>
 <h4>Putting it together: TLS (HTTPS)</h4>
-<p>1. Client says hello with supported ciphers; server sends its <strong>certificate</strong> (public key plus identity, signed by a <strong>certificate authority</strong>). 2. Client checks the signature chain, the hostname and the dates. 3. Both sides derive a shared <strong>session key</strong> using key exchange (ephemeral Diffie-Hellman gives <strong>forward secrecy</strong>). 4. Everything after that is fast <strong>symmetric</strong> encryption (AES-GCM). So asymmetric crypto is used briefly to agree on keys, then symmetric does the work.</p>
+<ol><li>Client says hello with supported ciphers; server sends its <strong>certificate</strong> (public key plus identity, signed by a <strong>certificate authority</strong>).</li><li>Client checks the signature chain, the hostname and the dates.</li><li>Both sides derive a shared <strong>session key</strong> using key exchange (ephemeral Diffie-Hellman gives <strong>forward secrecy</strong>).</li><li>Everything after that is fast <strong>symmetric</strong> encryption (AES-GCM).</li></ol>
+<p>So asymmetric crypto is used briefly to agree on keys, then symmetric does the work.</p>
 <h4>PKI vocabulary</h4>
 <p><strong>CA</strong> issues certificates; <strong>CSR</strong> is the request; <strong>CRL</strong> and <strong>OCSP</strong> report revoked certificates; <strong>root of trust</strong> is the CA certificates preinstalled on your device; <strong>self-signed</strong> means no outside CA vouches for it.</p><p><button class="btn got" type="button" data-tier="mid">[ ] got it</button></p></section><section class="lvl" id="tier-3" data-tier="complex"><h2><span class="lvl__n">03</span> complex <span class="muted">// what the pros do</span></h2><h4>Attacks and failures</h4>
 <ul><li><strong>Brute force / dictionary / rainbow table</strong>: guess keys or passwords; salts defeat rainbow tables, long random keys defeat brute force.</li><li><strong>Birthday attack</strong>: finds hash collisions faster than expected, which is why short hashes are weak.</li><li><strong>Downgrade / SSL strip</strong>: force a weaker protocol or plain HTTP. Defense: HSTS, disable old TLS (SSL, TLS 1.0/1.1).</li><li><strong>Man-in-the-middle</strong>: defeated by certificate validation, so never click through certificate warnings.</li><li><strong>Key management failures</strong> are the most common real break: keys in code repos, reused keys, no rotation. Use an HSM or a secrets manager, and rotate.</li><li><strong>Weak randomness</strong> breaks everything; use the OS cryptographic random source.</li><li><strong>Side channels</strong> leak keys through timing or power use.</li><li><strong>Quantum</strong>: a large quantum computer would break RSA and ECC (Shor's algorithm) and weaken symmetric keys (Grover), so AES-256 stays fine. NIST has standardized post-quantum algorithms (ML-KEM, ML-DSA); "harvest now, decrypt later" is why migration planning has started.</li></ul>
