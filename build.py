@@ -352,6 +352,8 @@ import build_adv
 ADV = build_adv.build(page, SHEETS)
 import build_langs
 LANGS, REV = build_langs.build(page, SHEETS)
+import build_sectracks
+SECT = {S["dir"]: chs for S, chs in build_sectracks.build(page, SHEETS)}
 import build_history
 HISTORY, CASES = build_history.build(page, SHEETS)
 
@@ -508,6 +510,7 @@ HUB = [("ctf", "ctf.html", "TryHackMe scoreboard", n(CTF, "room")),
        ("rev", "rev.html", "dynamic analysis, unpacking, format strings, mitigations, ROP (MAL300, EXP400)", f'{len(REV)} chapters'),
        ("sdl", "sdl.html", "threat modeling, SAST/DAST, dependency scanning (SDL300)", f'{len(ADV["sdl"])} chapters'),
        ("mobile", "mobile.html", "Android and iOS security, mobile crypto", f'{len(ADV["mobile"])} chapters'),
+       ("grc", "grc.html", "frameworks, risk, policy, audits, privacy, ethics (GRC200)", f'{len(SECT["grc"])} chapters + worksheet'),
        ("history", "history.html", "Ada Lovelace to quantum computers, hacking timeline", f'{len(HISTORY)} chapters'),
        ("cases", "cases.html", "real exploits and malware: code, patches, labs", f'{len(CASES)} cases'),
        ("careers", "careers.html", "paths, skills, projects, interview Q&A", f'{len(CAREERS["paths"])} paths'),
@@ -594,6 +597,7 @@ data = {"name": NAME, "gh": GH, "li": LI,
         "langs": [{"slug": c[0], "name": c[1]} for c in LANGS],
         "rev": [{"slug": c[0], "name": c[1]} for c in REV],
         "adv": {k: [{"slug": c[0], "name": c[1]} for c in v] for k, v in ADV.items()},
+        "sect": {k: [{"slug": c[0], "name": c[1]} for c in v] for k, v in SECT.items()},
         "history": [{"slug": c[0], "name": c[1]} for c in HISTORY],
         "cases": [{"slug": c[0], "name": c[1]} for c in CASES],
         "secplus_objs": [{"id": o["id"], "title": o["title"]} for o in SP["objectives"]]}

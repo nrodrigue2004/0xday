@@ -1,0 +1,120 @@
+tagline: Security work gives you access that other people never will. Learn professional codes of ethics, what authorization really means, how responsible disclosure works, and the legal lines every researcher should know.
+sheet: grc
+:: simple
+Security people can read things, break things and see things that ordinary users cannot. That power is why the field runs on **ethics**: doing the right thing when nobody is checking.
+
+### Core principles
+- **Authorization first.** Only access systems you own or have clear permission to test. "It was unprotected" is not permission
+- **Minimize harm.** Prove the problem with the least access and the least data. Don't read the whole database to show you could
+- **Confidentiality.** What you learn on a job stays on the job
+- **Honesty.** Report what you found accurately, including your own mistakes. Never fabricate or hide results
+- **Competence.** Don't claim skills or do work you can't do safely
+- **Duty to the public.** When your work shows serious risk to people, there are limits to silence
+
+### Professional codes
+Most organizations publish one: the **ACM Code of Ethics**, the **(ISC)² Code of Ethics** (protect society, act honorably, provide diligent service, advance the profession), **ISACA** and **SANS**. Break them and you can lose certifications as well as jobs. They are also frequent exam questions.
+
+### The legal line, in plain words
+Laws such as the US **Computer Fraud and Abuse Act (CFAA)** make it a crime to access a computer without authorization or beyond the authorization you were given. Other countries have similar laws. Good intentions don't remove the crime. That is why scope documents and written permission matter ([PEN300](../pentest/pentest-methodology.html)).
+
+> If you find a vulnerability on a site you don't have permission to test, stop. Don't poke further to "confirm". You can still report it, carefully.
+
+```
+$ cat ~/ethics/case.txt
+```
+:: mid
+### Responsible (coordinated) disclosure
+What to do when you find a flaw in someone else's product:
+1. **Stop** at the minimum evidence. Don't access other users' data
+2. **Find the right contact**: `security.txt` (`/.well-known/security.txt`), a vulnerability disclosure policy (VDP), a bug bounty program, or the vendor's security email. A CERT such as CERT/CC can mediate
+3. **Report privately**: what, where, how to reproduce, impact, your contact details
+4. **Give time**: the common norm is around **90 days** to fix (Google Project Zero uses 90, plus a grace period if a patch is imminent), shorter for actively exploited bugs
+5. **Coordinate publication**: agree on a date, a CVE ID, and credit
+6. **Don't extort**: asking for money in return for silence is not bounty, it is blackmail
+
+**Full disclosure** (publishing everything at once) pressures vendors but exposes users. **Non-disclosure** keeps users unaware. Most of the industry prefers coordinated disclosure with a deadline.
+
+### Bug bounty and VDP
+A **bug bounty** pays for valid reports within a stated scope. A **VDP** invites reports but doesn't pay. Read the policy: scope, banned tests (DoS, social engineering), safe harbor language, and rules on data. Programs that promise "safe harbor" state that they won't pursue legal action for good-faith research that follows the rules.
+
+### Common ethical dilemmas
+- You find customer data exposed in a public bucket. Right: report it and don't download it
+- A client asks you to soften a finding to avoid embarrassing the CEO. Right: report accurately; discuss wording, not truth
+- You discover your friend's unauthorized access to a company system. Right: follow the incident or whistleblower process
+- A tool you wrote is misused. Think about dual-use risk before release and how you describe and license it
+
+### Insider risk and trust
+Admins, developers and analysts have privileged access; good controls (separation of duties, logging, least privilege, review) protect both the company and the honest employee.
+:: complex
+### Legal landscape (US-focused, not legal advice)
+- **CFAA**: "exceeds authorized access" was narrowed by the Supreme Court in *Van Buren v. United States* (2021): it covers entering areas of a system you are barred from, not misusing data you may legitimately access
+- **DOJ charging policy (2022)**: federal prosecutors are told not to charge good-faith security research, though state laws and civil suits can still apply
+- **DMCA section 1201** bans circumventing copy protection, with exemptions for security research that are reviewed every three years
+- **Contracts and terms of service** can create civil liability even when no crime occurs
+- **Other countries**: the UK Computer Misuse Act, EU directives, local laws with different or no research exemptions
+Before researching on a system you don't own, read the policy, consider the jurisdiction and, for anything risky, consult a lawyer. Organizations like the EFF publish researcher guidance.
+
+### Handling data you shouldn't have
+If you stumble onto sensitive data during legitimate work: stop viewing it, preserve only what's needed as evidence (with hashes), tell the right person immediately, secure the copy, and follow the data-handling terms. Privacy law (see [privacy law](privacy-law.html)) may apply to you as well.
+
+### Offensive tooling and publication
+Teaching and publishing exploit code is a long-standing debate. Responsible practice: publish proof-of-concept after a fix is available, avoid ready-to-run weaponized tools for unpatched bugs, describe defenses along with attacks and obey platform rules. This site does the same: labs are fictional and the guides stress defense and detection.
+
+### AI, surveillance and dual use
+Security knowledge can be used to protect or to surveil and manipulate. Consider the people affected by what you build: facial recognition, stalkerware, monitoring tools and AI systems have real harms. Ethical review is part of professional judgment, not an obstacle.
+
+### Whistleblowing
+When you see unlawful or dangerous conduct, use internal channels first where they are safe; know your protections (SOX, Dodd-Frank, the EU Whistleblower Directive, and state laws) and keep records. This is the hardest part of the job.
+
+### How to practice ethics
+Write down your own rules of engagement before you need them. Keep a log of decisions. Ask: Would I be comfortable if this appeared in the report, in the news, or in front of the person affected?
+:: ref
+### codes
+(ISC)2 canons | protect society, act honorably, provide diligent service, advance the profession
+ACM Code | contribute to society, avoid harm, be honest, respect privacy, honor confidentiality
+Authorization | written permission, scope, and dates
+Least data | take the minimum evidence needed
+### disclosure
+/.well-known/security.txt | standard file listing where to report
+VDP | vulnerability disclosure policy (no payment)
+Bug bounty | paid program with scope and rules
+Coordinated disclosure | report privately, fix, then publish together
+Full disclosure | publish everything immediately
+90 days | common deadline norm before publication
+CVE | public ID assigned to a vulnerability
+CERT/CC | coordination center that can mediate reports
+### law
+CFAA | US computer crime law
+Van Buren (2021) | narrowed CFAA "exceeds authorized access"
+DMCA 1201 | anti-circumvention rule with security research exemptions
+Safe harbor | policy language promising not to pursue good-faith researchers
+### terms
+Dual use | tool or knowledge useful for both defense and offense
+Separation of duties | no one person controls a whole sensitive process
+Whistleblower | person who reports wrongdoing
+Conflict of interest | personal gain colliding with professional duty
+:: lab
+host: ethics-lab
+user: analyst
+cwd: /home/analyst/ethics
+:: brief
+`~/ethics/case.txt` describes a **fictional** researcher who found a flaw in a small company's website. Her sequence of actions is numbered. Most are fine. One crosses the line from responsible research into something she should not do.
+
+Give the **action number** that is wrong, e.g. `submit 2`.
+:: answer
+3
+:: hint
+Think about the principle of least data and about authorization.
+:: hint
+Seeing that a flaw exists is different from taking customer records.
+:: solution
+Action 3, downloading 2,000 customer records "as proof", takes far more data than needed and exposes the researcher to legal risk and the customers to harm. The responsible move is to stop at the minimum evidence (for example, a screenshot of one redacted record, or a record that is her own test account). Actions 1, 2, 4 and 5 are acceptable: noticing the flaw, stopping, looking for the company's security contact, reporting privately and agreeing a disclosure date.
+:: verify
+cat ~/ethics/case.txt
+:: file /home/analyst/ethics/case.txt
+Fictional case: Dr. Okafor finds a flaw in Tidewater Tools' order page
+1  While ordering a part, she notices that changing the order number in the URL shows other customers' orders.
+2  She confirms with one more order number, then stops.
+3  She downloads 2,000 customer records to prove the scale, and keeps them on her laptop.
+4  She finds /.well-known/security.txt and emails the security contact with the URL, steps and her contact details.
+5  She offers a disclosure date 90 days away and asks for acknowledgement.

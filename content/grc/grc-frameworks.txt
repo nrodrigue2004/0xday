@@ -1,0 +1,142 @@
+tagline: Frameworks are shared checklists and structures for running a security program. Learn what NIST CSF, NIST SP 800-53, ISO 27001 and CIS Controls are for, how they differ, and how to choose and map between them.
+sheet: grc
+:: simple
+**GRC** stands for **governance, risk and compliance**. Governance is who decides and how. Risk is what could go wrong and how likely. Compliance is proving you follow the rules (laws, contracts, standards). A **framework** is a ready-made structure so a company does not invent its security program from scratch.
+
+### The big ones
+| Framework | What it is | Typical user |
+|---|---|---|
+| **NIST CSF 2.0** | A high-level model of what a security program does, in six functions | Any organization; common US starting point |
+| **NIST SP 800-53** | A large catalog of detailed security and privacy controls | US federal agencies and contractors |
+| **ISO/IEC 27001** | An international standard for an information security management system (ISMS) you can be certified against | Global companies, service providers |
+| **CIS Controls** | 18 prioritized practical safeguards | Small and medium organizations |
+| **NIST RMF** | A step-by-step process for managing risk to systems (SP 800-37) | Federal systems |
+
+### NIST CSF 2.0: six functions
+1. **Govern**: strategy, roles, policy, risk appetite, supply chain
+2. **Identify**: know your assets, risks and weaknesses
+3. **Protect**: safeguards (access control, training, data security, hardening)
+4. **Detect**: find attacks and anomalies (monitoring)
+5. **Respond**: act on an incident (plan, analysis, containment, communication)
+6. **Recover**: restore operations and learn
+
+The earlier 1.1 version had five functions. Govern was added in 2.0 (2024). Memorize the six in order.
+
+### Control vs framework
+A **control** is one specific safeguard ("require MFA for remote access"). A framework groups controls and says when each is needed. You pick the framework, then implement and prove the controls.
+
+```
+$ cat ~/frameworks/controls.txt
+```
+:: mid
+### NIST SP 800-53 (Rev. 5)
+Controls are grouped into **20 families** with two-letter IDs, for example:
+| ID | Family |
+|---|---|
+| AC | Access Control |
+| AT | Awareness and Training |
+| AU | Audit and Accountability |
+| CA | Assessment, Authorization, Monitoring |
+| CM | Configuration Management |
+| CP | Contingency Planning |
+| IA | Identification and Authentication |
+| IR | Incident Response |
+| RA | Risk Assessment |
+| SC | System and Communications Protection |
+| SI | System and Information Integrity |
+| SR | Supply Chain Risk Management |
+(others: MA, MP, PE, PL, PM, PS, PT, SA). A control has an ID like `AC-2` (account management), text, and optional "enhancements" like `AC-2(1)`. Baselines (low, moderate, high) say which controls apply to a system based on its impact.
+
+### ISO/IEC 27001:2022
+- Clauses 4 to 10 describe the **ISMS**: context, leadership, planning (risk assessment), support, operation, performance evaluation, improvement. It follows plan-do-check-act
+- **Annex A** lists 93 controls in four themes: Organizational (37), People (8), Physical (14), Technological (34)
+- A **Statement of Applicability (SoA)** says which Annex A controls apply and why
+- You can be **certified** by an accredited auditor: stage 1 (document review), stage 2 (implementation), then yearly surveillance audits and a recertification every three years
+- ISO 27002 gives implementation guidance for the controls
+
+### CIS Controls v8
+18 controls ordered roughly by value: inventory of assets, inventory of software, data protection, secure configuration, account management, access control, vulnerability management, audit logs, email and browser protection, malware defenses, data recovery, network infrastructure, monitoring, awareness training, service providers, application software, incident response, penetration testing. **Implementation Groups** (IG1 to IG3) say how much a small versus large organization should do.
+
+### Choosing and mapping
+- Selling to the US government: NIST 800-53 / FedRAMP
+- Customers abroad ask for "ISO 27001" or "SOC 2"
+- Small team with limited budget: CIS IG1 plus CSF as the language
+Frameworks overlap heavily. A **crosswalk** (mapping) lets one control satisfy several: "MFA" covers NIST IA-2, ISO A.8.5 and CIS 6. Build one control set and map outward instead of three separate programs.
+:: complex
+### Risk Management Framework (NIST SP 800-37)
+Seven steps: **Prepare, Categorize** (impact of the system), **Select** controls, **Implement**, **Assess**, **Authorize** (an official accepts the residual risk: the ATO), **Monitor** continuously.
+
+### Maturity and tiers
+CSF **Implementation Tiers** (Partial, Risk Informed, Repeatable, Adaptive) describe how mature the process is. A **profile** records the Current state and the Target state and the gap between them is the roadmap. Other maturity models: CMMI levels, C2M2.
+
+### Related frameworks to recognize
+- **COBIT**: IT governance
+- **ITIL**: IT service management
+- **FedRAMP**: US cloud authorization built on 800-53
+- **CMMC**: US defense contractors, built on 800-171
+- **MITRE ATT&CK**: describes attacker behavior, used to test whether controls cover real techniques
+- **Cloud Security Alliance CCM**: cloud controls
+- **HITRUST**: healthcare-flavored combined framework
+
+### Control types
+By function: **preventive, detective, corrective, deterrent, compensating, directive**. By category: **technical, managerial, operational, physical**. Security+ domain 5 tests these terms. Example: a badge reader is physical + preventive; a log review is operational + detective.
+
+### Making a framework real
+1. Scope the program (systems, data, locations)
+2. Assess the current state against the framework (gap assessment)
+3. Rank gaps by risk, not by how easy they are
+4. Build a roadmap with owners and dates
+5. Collect **evidence** as you go, not the week before an audit
+6. Report to leadership with a few measures that matter (patch latency, MFA coverage, mean time to detect)
+
+Primary sources are free: [NIST CSF](https://www.nist.gov/cyberframework), [SP 800-53 catalog](https://csrc.nist.gov/projects/risk-management/sp800-53-controls/release-search), [CIS Controls](https://www.cisecurity.org/controls). Read the real documents, since this chapter is a map, not a replacement.
+:: ref
+### nist csf 2.0
+Govern | strategy, roles, policy, oversight
+Identify | assets, risk, improvement
+Protect | access, training, data security, platform security
+Detect | continuous monitoring, adverse event analysis
+Respond | incident management, analysis, reporting, mitigation
+Recover | recovery plan execution, communication
+### 800-53 families
+AC AT AU CA CM CP | access, training, audit, assessment, config, contingency
+IA IR MA MP PE PL | authentication, incident response, maintenance, media, physical, planning
+PM PS PT RA SA SC SI SR | program mgmt, personnel, PII, risk, acquisition, comms protection, integrity, supply chain
+### control types
+Preventive | stops it (firewall, MFA)
+Detective | notices it (SIEM, camera)
+Corrective | fixes it (restore, patch)
+Deterrent | discourages it (warning banner)
+Compensating | substitutes when the main control is not possible
+Directive | tells people what to do (policy)
+### terms
+ISMS | information security management system (ISO 27001)
+SoA | statement of applicability
+ATO | authority to operate
+Crosswalk | mapping between frameworks
+Gap assessment | compare current state to a target
+:: lab
+host: grc-lab
+user: analyst
+cwd: /home/analyst/frameworks
+:: brief
+`~/frameworks/controls.txt` lists five security activities from a **fictional** company, each tagged with a NIST CSF 2.0 function letter by someone who rushed. Exactly one is tagged with the wrong function.
+
+Give the **activity number** that is mis-tagged, e.g. `submit 2`.
+:: answer
+4
+:: hint
+Match each activity to the six functions: Govern, Identify, Protect, Detect, Respond, Recover.
+:: hint
+One activity happens before an incident and is tagged as if it happened after.
+:: solution
+Activity 4, "Quarterly tabletop exercise that tests the restore procedure", is tagged **Detect**, but restoring service is **Recover** (and practicing it is part of preparing for it). The others are correct: 1 asset inventory is Identify, 2 the risk appetite statement is Govern, 3 MFA is Protect, and 5 SIEM alert review is Detect.
+:: verify
+cat ~/frameworks/controls.txt
+:: file /home/analyst/frameworks/controls.txt
+Fictional company activities (tag = CSF 2.0 function)
+1  Maintain an inventory of all laptops and servers                    [Identify]
+2  Board approves the risk appetite statement                          [Govern]
+3  Require MFA for all remote access                                   [Protect]
+4  Quarterly tabletop exercise that tests the restore procedure        [Detect]
+5  Analysts triage SIEM alerts every day                               [Detect]

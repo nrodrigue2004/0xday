@@ -1,0 +1,12 @@
+/* 0xDay ~/grc/risk-worksheet */
+.rw__box{border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:12px 16px;margin:1rem 0}
+.rw__row{display:flex;flex-wrap:wrap;gap:12px}
+.rw__row label,.rw__box label{display:flex;flex-direction:column;gap:3px;font-size:.85rem;color:var(--muted);flex:1 1 150px;margin:6px 0}
+.rw input,.rw select{background:var(--bg);color:var(--fg);border:1px solid var(--border-2);border-radius:4px;padding:6px 8px;font:inherit;min-height:36px;max-width:100%}
+.rw input:focus,.rw select:focus{outline:1px solid var(--green);border-color:var(--green)}
+.rw__out{font-size:1.05rem;color:var(--strong);margin:.6rem 0 0}
+.rw__reg{width:100%;border-collapse:collapse;font-size:.85rem}
+.rw__reg th,.rw__reg td{border:1px solid var(--border-2);padding:.35em .6em;text-align:left;vertical-align:top}
+.rw__reg th{color:var(--green);background:var(--panel)}
+.rw__lo{color:var(--green)}.rw__md{color:var(--amber)}.rw__hi{color:#ff6b6b;font-weight:700}
+.rw__wrap{overflow-x:auto}

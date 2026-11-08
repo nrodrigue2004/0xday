@@ -1,0 +1,215 @@
+## 0
+Q: Which are the six functions of NIST CSF 2.0?
+* Govern, Identify, Protect, Detect, Respond, Recover
+- Plan, Do, Check, Act, Report, Audit
+- Prevent, Detect, Correct, Deter, Direct, Compensate
+- Assess, Authorize, Categorize, Select, Implement, Monitor
+? Govern was added in version 2.0.
+
+Q: Which framework is an international standard that organizations can be certified against?
+* ISO/IEC 27001
+- NIST CSF
+- CIS Controls
+- MITRE ATT&CK
+? CSF and CIS are not certifiable.
+
+Q: In NIST SP 800-53, which family ID is Access Control?
+* AC
+- AU
+- IA
+- SC
+? AU is audit, IA is identification and authentication, SC is system and communications protection.
+
+Q: What is a crosswalk?
+* A mapping between the controls of different frameworks
+- A physical security barrier
+- A type of audit
+- A risk score
+? One MFA control can satisfy NIST, ISO and CIS items.
+
+Q: A badge reader on a data center door is best described as:
+* A physical, preventive control
+- A technical, detective control
+- A managerial, corrective control
+- An operational, deterrent control
+? Security+ expects control categories and types.
+
+## 1
+Q: What is the formula for annualized loss expectancy?
+* ALE = SLE x ARO
+- ALE = AV x EF
+- ALE = SLE + ARO
+- ALE = ARO / SLE
+? SLE is AV x EF, and ARO is events per year.
+
+Q: An asset is worth $400,000, one event destroys 10% of it, and the event happens once every 2 years. What is the ALE?
+* $20,000
+- $40,000
+- $80,000
+- $200,000
+? SLE = 40,000; ARO = 0.5; ALE = 20,000.
+
+Q: A company buys cyber insurance to cover a risk. Which treatment is this?
+* Transfer
+- Mitigate
+- Accept
+- Avoid
+? Insurance shifts the financial cost, not the responsibility.
+
+Q: A control costs $4,000 a year and lowers ALE from $12,500 to $2,500. What is the yearly net benefit?
+* $6,000
+- $10,000
+- $8,500
+- $2,500
+? 12,500 - 2,500 - 4,000 = 6,000.
+
+Q: What belongs in a good risk register entry?
+* A specific risk, an owner, likelihood, impact, treatment and review date
+- Only the names of attackers
+- A list of tools
+- The firewall rules
+? Every risk needs one owner who can decide about it.
+
+## 2
+Q: Which document layer is mandatory, specific and measurable, such as "use AES-256 full-disk encryption"?
+* Standard
+- Guideline
+- Policy
+- Procedure
+? A policy says what and why, a standard says how much, a procedure says how exactly.
+
+Q: Which wording makes a policy statement enforceable?
+* Passwords must be at least 14 characters.
+- Passwords should be reasonably strong.
+- Use appropriate password measures.
+- Passwords ought to be good.
+? An auditor must be able to mark it pass or fail.
+
+Q: What is a guideline?
+* A recommended practice that is not mandatory
+- A law
+- A signed contract
+- A technical control
+? Guidelines advise; policies and standards require.
+
+Q: Why must policy exceptions be recorded with an expiry date?
+* So accepted risk stays visible, owned and reviewed
+- Because exceptions are illegal
+- To avoid training employees
+- To save storage
+? Exceptions belong in the risk register.
+
+Q: What gives a policy its authority in an organization?
+* Approval and sign-off from executive leadership
+- A long length
+- Technical jargon
+- Being printed in color
+? Without sign-off it is only a suggestion.
+
+## 3
+Q: A SOC 2 Type II report tests controls:
+* Over a period of time, such as 6 to 12 months
+- At a single point in time only
+- Only for payment cards
+- By self-assessment
+? Type I covers design at one date.
+
+Q: Which standard applies to organizations that store, process or transmit payment card data?
+* PCI DSS
+- FERPA
+- SOX
+- COPPA
+? PCI DSS is contractual, enforced through the card brands.
+
+Q: Under HIPAA, a vendor that handles PHI for a provider signs a:
+* BAA
+- NDA only
+- SLA
+- DPIA
+? Business associate agreement.
+
+Q: Which evidence is strongest in an audit?
+* Dated, attributable output from the system of record
+- A verbal statement that the control exists
+- An undated screenshot of a different system
+- A policy that was never applied
+? Evidence must be dated, attributable and complete.
+
+Q: What is the difference between design effectiveness and operating effectiveness?
+* Whether the control is appropriate versus whether it worked consistently over the period
+- Whether it is cheap versus expensive
+- Whether it is technical versus physical
+- Whether it is new versus old
+? Auditors test both.
+
+## 4
+Q: Under GDPR, how soon must a notifiable personal data breach be reported to the supervisory authority?
+* Within 72 hours of becoming aware
+- Within 30 days
+- Within 60 days
+- Within one year
+? Individuals are told without undue delay if the risk to them is high.
+
+Q: Under GDPR, which party decides why and how personal data is processed?
+* The controller
+- The processor
+- The data subject
+- The DPO
+? A processor acts on the controller's behalf.
+
+Q: Which US law covers student education records?
+* FERPA
+- HIPAA
+- GLBA
+- COPPA
+? HIPAA covers health information.
+
+Q: Why is a lost, properly encrypted laptop usually not a reportable breach?
+* Encryption provides a safe harbor because the data is unreadable
+- Laptops are exempt from all laws
+- Encrypted data is public
+- The law only covers servers
+? Keep the key escrow and encryption evidence.
+
+Q: What is data minimization?
+* Collecting and keeping only the personal data you need
+- Compressing files to save space
+- Encrypting every field
+- Backing up less often
+? Data you do not hold cannot be breached.
+
+## 5
+Q: What is coordinated (responsible) disclosure?
+* Reporting a flaw privately to the owner and publishing after a fix or an agreed deadline
+- Posting it publicly at once
+- Selling it to the highest bidder
+- Keeping it secret forever
+? A deadline of about 90 days is a common norm.
+
+Q: Where is the standard place for a site to list its security contact?
+* /.well-known/security.txt
+- /robots.txt
+- /admin
+- /sitemap.xml
+? It tells researchers where to report.
+
+Q: You notice customer records exposed on a company's public page. What is the best action?
+* Stop at minimal evidence and report it without downloading the data
+- Download everything as proof
+- Post screenshots online
+- Ask for payment to stay quiet
+? Least data and no extortion.
+
+Q: Which US law makes unauthorized access to a computer a crime?
+* The Computer Fraud and Abuse Act (CFAA)
+- FERPA
+- SOX
+- COPPA
+? Authorization is the line, so get permission in writing.
+
+Q: A client asks you to soften a finding so the CEO is not embarrassed. What is the ethical response?
+* Report the finding accurately and discuss the wording, not the truth
+- Remove the finding
+- Change the severity quietly
+- Delete your notes
+? Honesty is a core professional principle.
