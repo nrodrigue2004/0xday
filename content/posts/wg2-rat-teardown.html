@@ -1,4 +1,4 @@
-<p>For my reverse engineering course I took apart <strong>wg2</strong>, a 32-bit Windows RAT, function by function in Ghidra. This is the condensed version of my annotated decompilation: how it hides its C2, how it talks home, and the eleven commands it gives an attacker.</p>
+<p>For my reverse engineering course I took apart <strong>wg2</strong>, a 32-bit Windows RAT, one function at a time in Ghidra. This is the short version of my annotated decompilation: how it hides its C2, how it talks home and the eleven commands it gives an attacker.</p>
 <p class="muted">Ghidra's FUN_ names are kept so you can follow along in your own copy. The C2 domain is defanged.</p>
 
 <h2>First look</h2>
@@ -21,7 +21,7 @@ built      2011-11-17 (and it tells you: see "version")</code></pre>
 <pre><code>for (i = 0; i &lt; len; i++)
     url[i] = (enc[i] &gt;&gt; 1) &amp; 0x7F;
 // -&gt; stratos[.]mcafeepaying[.]com</code></pre>
-<p>That's not encryption, it's just enough to keep the domain out of <code>strings</code>. Note the domain itself pretending to be an antivirus vendor.</p>
+<p>That's not encryption. It just keeps the domain out of <code>strings</code>. Also notice the domain pretends to be an antivirus vendor.</p>
 <p>It then builds a URL path from the victim's hostname via <code>GetComputerNameA</code> (<code>/VICTIM-PC/</code>), so the C2 knows exactly which machine is calling. The main loop calls the C2 handler, then sleeps <code>sleep_scalar × 60000</code> ms, until a global stop flag is set.</p>
 
 <h2>Talking home</h2>
@@ -85,7 +85,7 @@ strings   "Start shell first."  "Shell started successfully!"
 
 <h2>What I took away</h2>
 <ul>
-<li>Twelve malicious behaviors, zero exploits. It's all documented Windows API, which is exactly why API-sequence detection beats signature matching.</li>
-<li>Reading order matters. Starting from <code>entry()</code> and following the calls made a 600-line decompile readable in an afternoon.</li>
-<li>Naming things in Ghidra as you go (<code>initialize_array</code>, <code>send_get</code>, <code>create_shell</code>) is most of the work. Once the struct offsets had names, the C2 loop basically read itself.</li>
+<li>Twelve malicious behaviors and zero exploits. It's all documented Windows API, which is why API-sequence detection beats signature matching.</li>
+<li>Read order matters. I started at <code>entry()</code> and followed the calls, and that made a 600-line decompile readable in an afternoon.</li>
+<li>Naming things in Ghidra as you go (<code>initialize_array</code>, <code>send_get</code>, <code>create_shell</code>) is most of the work. Once the struct offsets had names, the C2 loop read itself.</li>
 </ul>

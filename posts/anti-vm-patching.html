@@ -32,11 +32,11 @@
 <h1>Patching Out Anti-VM Checks in Malware Samples</h1>
 <div class="meta"><span>2026-09-28</span><span>Nathan</span><span><a class="tag" href="../tags.html#malware">#malware</a> <a class="tag" href="../tags.html#reverse-engineering">#reverse-engineering</a> <a class="tag" href="../tags.html#ghidra">#ghidra</a></span></div>
 <div class="prose">
-<p>Some malware refuses to run when it detects a virtual machine, which is a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples using the old <code>SIDT</code>, <code>SLDT</code> and <code>STR</code> tricks.</p>
+<p>Some malware won't run if it detects a virtual machine. That's a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples that used the old <code>SIDT</code>, <code>SLDT</code> and <code>STR</code> tricks.</p>
 <h2>How the checks work</h2>
-<p>These instructions return the locations of CPU descriptor tables. On older hypervisors those locations differ from bare metal in predictable ways, so the sample compares the result against a known value and bails out if it looks virtual.</p>
+<p>These instructions return the locations of the CPU descriptor tables. On older hypervisors those locations differ from bare metal in predictable ways. The sample compares the result against a known value and quits if it looks virtual.</p>
 <h2>Patching</h2>
-<p>Using IDA Pro and Ghidra, I found the comparison after each check and patched the conditional jump so the sample always takes the "real hardware" path.</p>
+<p>In IDA Pro and Ghidra I found the comparison after each check. Then I patched the conditional jump so the sample always takes the "real hardware" path.</p>
 <pre><code>; before
 sidt  [esp+idtr]
 cmp   byte ptr [esp+idtr+5], 0FFh

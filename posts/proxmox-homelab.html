@@ -32,7 +32,7 @@
 <h1>Building a Seven-VM Enterprise Homelab on Proxmox</h1>
 <div class="meta"><span>2026-11-02</span><span>Nathan</span><span><a class="tag" href="../tags.html#homelab">#homelab</a> <a class="tag" href="../tags.html#proxmox">#proxmox</a> <a class="tag" href="../tags.html#pfsense">#pfsense</a></span></div>
 <div class="prose">
-<p>I wanted a place to practice attacking and defending something that looks like a real company network, so I built one at home on Proxmox. This post walks through the design and what I learned setting it up.</p>
+<p>I wanted somewhere to practice attacking and defending a network that looks like a real company's, so I built one at home on Proxmox. This post covers the design and what I learned building it.</p>
 <h2>The lab</h2>
 <p>Seven VMs, split across isolated subnets:</p>
 <ul><li><strong>pfSense</strong> as the firewall, handling rules, DHCP and NAT between segments</li>
@@ -42,10 +42,10 @@
 <li>A domain-joined <strong>Windows 11</strong> workstation</li>
 <li><strong>Security Onion</strong> as the SIEM, watching traffic in real time</li></ul>
 <h2>Remote access</h2>
-<p>Rather than opening ports, I used Tailscale with subnet routing so I can reach the lab from anywhere without exposing it to the internet.</p>
+<p>I didn't want to open any ports. I use Tailscale with subnet routing, so I can reach the lab from anywhere and it stays off the internet.</p>
 <pre><code>tailscale up --advertise-routes=10.10.0.0/24,10.20.0.0/24</code></pre>
 <h2>What's next</h2>
-<p>Future posts will cover attacking the AD domain from Kali and seeing what Security Onion actually catches.</p>
+<p>Next I'll post about attacking the AD domain from Kali and what Security Onion actually catches.</p>
 <p><a href="https://github.com/nrodrigue2004/cybersecurity-homelab">Source and notes on GitHub &rarr;</a></p>
 
 </div>

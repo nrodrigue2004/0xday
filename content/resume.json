@@ -1,6 +1,6 @@
 {
   "_help": "Public resume. Deliberately no phone, email, address or employer names.",
-  "headline": "Computer Science (Cybersecurity) student focused on malware analysis, digital forensics and blue-team infrastructure.",
+  "headline": "Computer Science student with a cybersecurity concentration. I focus on malware analysis, digital forensics and blue-team infrastructure.",
   "education": [
     {
       "school": "Louisiana State University",
@@ -78,7 +78,7 @@
       "key": "it",
       "label": "IT",
       "hint": "help desk, desktop support, sysadmin",
-      "headline": "Computer Science student with hands-on Windows, Active Directory and hardware support experience, working toward Security+.",
+      "headline": "Computer Science student with hands-on Windows, Active Directory and hardware support experience. Working toward Security+.",
       "order": [
         "experience",
         "projects",
@@ -114,7 +114,7 @@
       "key": "cyber",
       "label": "Cyber",
       "hint": "SOC analyst, incident response, forensics",
-      "headline": "Cybersecurity student with hands-on network monitoring, digital forensics and malware analysis experience; Security+ in progress.",
+      "headline": "Cybersecurity student with hands-on network monitoring, digital forensics and malware analysis experience. Security+ in progress.",
       "order": [
         "projects",
         "experience",
@@ -156,7 +156,7 @@
       "key": "dev",
       "label": "Software / Data",
       "hint": "developer, QA, database / SQL analyst",
-      "headline": "Computer Science student who builds full-stack apps, mobile apps, databases and games (Java, TypeScript, Python, Flutter, SQL), with a security background.",
+      "headline": "Computer Science student. I build full-stack apps, mobile apps, databases and games (Java, TypeScript, Python, Flutter, SQL) and I have a security background.",
       "order": [
         "projects",
         "skills",

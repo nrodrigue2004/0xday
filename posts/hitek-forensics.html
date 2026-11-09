@@ -33,7 +33,7 @@
 <div class="meta"><span>2026-09-07</span><span>Nathan</span><span><a class="tag" href="../tags.html#forensics">#forensics</a> <a class="tag" href="../tags.html#wireshark">#wireshark</a> <a class="tag" href="../tags.html#autopsy">#autopsy</a> <a class="tag" href="../tags.html#incident-response">#incident-response</a></span></div>
 <div class="prose">
 <p>The HiTek Forensics Challenge was the capstone exercise in my Digital Forensics course at LSU. My team of five got two disk images, a Windows workstation and an Ubuntu server, plus one packet capture, and a single question: <strong>what left the building, how, and who did it?</strong></p>
-<p>Forensics is a reconstruction problem. You work backwards from artifacts to events, the artifacts are incomplete (sometimes on purpose), and every conclusion has to point at a specific piece of evidence. This is how we rebuilt the case.</p>
+<p>Forensics is a reconstruction problem. You work backwards from artifacts to events. The artifacts are incomplete, sometimes on purpose, and every conclusion has to point at a piece of evidence. Here's how we rebuilt the case.</p>
 
 <h2>The scene</h2>
 <pre><code>host          ip            os           role
@@ -57,7 +57,7 @@ cknight      ubuntu     popcorn
 carson       windows    123456     (admin)
 jonathan     windows    letmein
 tester       windows    monkey     (hint: "the zoo")</code></pre>
-<p>Every password was in the top of any wordlist. That's a finding on its own, separate from the case. The tester password was double-confirmed by its hint and a monkey picture sitting in the browser cache, which is the kind of detail that makes forensics fun.</p>
+<p>Every password was in the top of any wordlist. That's a finding on its own, separate from the case. The tester password was double-confirmed by its hint and a monkey picture in the browser cache. I like details like that.</p>
 
 <h2>Step 2: the night before (Nov 27)</h2>
 <p><code>auth.log</code> and the webmaster's bash history showed a login at 23:13. Over the next 24 minutes:</p>
@@ -111,7 +111,7 @@ Nov 28 17:52:02  web-srv-02 shuts down</code></pre>
 <li><strong>Deletion isn't destruction.</strong> Without overwriting the sectors, deleted files are just waiting to be carved.</li>
 <li><strong>The story is the deliverable.</strong> Each artifact alone is ambiguous. Lined up in order and tied to accounts and timestamps, they tell one story.</li>
 </ul>
-<p>We delivered a full investigative report with a relationship map of every user, host and transfer, plus a presentation. Rebuilding it here was a good excuse to re-read the bash history one more time.</p>
+<p>We delivered a full investigative report with a relationship map of every user, host and transfer, plus a presentation. Writing it up here gave me a reason to re-read the bash history one more time.</p>
 
 </div>
 <nav class="pager"><a href="hello-world.html">&lt; prev: Why I Started This Blog</a><a href="anti-vm-patching.html">next: Patching Out Anti-VM Checks in Malware Samples &gt;</a></nav>

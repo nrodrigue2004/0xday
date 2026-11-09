@@ -101,7 +101,7 @@ home = f'''<section class="term" aria-label="Intro">
     <h1 class="glitch" data-text="0xDay">0xDay</h1>
     <p class="who">{NAME} <span class="muted">// cybersecurity @ LSU</span></p>
     <p class="cmd">cat summary.txt</p>
-    <p>Computer science grad (cybersecurity concentration), building toward IT support, SOC analyst and software roles. A seven-VM enterprise homelab, malware and forensics writeups, and Security+ in progress.</p>
+    <p>I'm a computer science grad with a cybersecurity concentration. I'm going for IT support, SOC analyst and software jobs. I've got a seven-VM homelab and malware and forensics writeups, and I'm studying for Security+.</p>
     <p class="cmd">ls ~/hire</p>
     <ul class="ls"><li><a class="ls-row" href="recruiters.html"><span class="ls-perm">-rwxr-xr-x</span><span class="ls-title">recruiters</span><span class="ls-tags">the 60-second version</span></a></li><li><a class="ls-row" href="resume.html"><span class="ls-perm">-rw-r--r--</span><span class="ls-title">resume</span><span class="ls-tags">IT / cyber / software views</span></a></li><li><a class="ls-row" href="projects.html"><span class="ls-perm">drwxr-xr-x</span><span class="ls-title">projects</span><span class="ls-tags">{len(PROJECTS)} builds</span></a></li><li><a class="ls-row" href="homelab.html"><span class="ls-perm">drwxr-xr-x</span><span class="ls-title">homelab</span><span class="ls-tags">interactive map</span></a></li><li><a class="ls-row" href="certs.html"><span class="ls-perm">-rw-r--r--</span><span class="ls-title">certs</span><span class="ls-tags">Security+ in progress</span></a></li></ul>
     <p class="cmd">ls -lt ~/posts | head -4</p>
@@ -158,7 +158,7 @@ def card(x):
             f'<h3>{head}</h3><p>{esc(x["desc"])}</p>'
             f'<p class="card__tags">{" ".join("#" + t for t in x["tags"])}</p></article>')
 page("projects.html", "projects :: 0xDay",
-     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. Source on <a href="{GH}">GitHub</a>. The two labs get full <a href="deep-dives.html">deep-dives</a>, and what\'s next lives in <a href="roadmap.html">~/roadmap</a>.</p>'
+     f'<p class="cmd">ls ~/projects</p><h1>~/projects</h1><p>Labs, challenges and software I\'ve built. The source is on <a href="{GH}">GitHub</a>. The two labs have full <a href="deep-dives.html">deep-dives</a>, and the stuff I want to build next is in <a href="roadmap.html">~/roadmap</a>.</p>'
      f'<div class="cards">{"".join(card(x) for x in PROJECTS)}</div>', cur="projects")
 
 import build_roadmap
@@ -166,7 +166,7 @@ ROADMAP = build_roadmap.build(page, esc)
 
 # ---------- resources ----------
 RES = json.load(open("content/resources.json"))["groups"]
-body = '<p class="cmd">cat ~/bookmarks</p><h1>~/resources</h1><p>Sites and tools I reach for. Each one says when to use it and what to be careful about.</p>'
+body = '<p class="cmd">cat ~/bookmarks</p><h1>~/resources</h1><p>Sites and tools I use. Each one says when to use it and what to watch out for.</p>'
 for g in RES:
     body += f'<h2>{esc(g["h"])}</h2><ul class="arrow res">' + "".join(
         f'<li><a href="{i["u"]}" rel="noopener">{esc(i["n"])}</a> <span class="muted">{esc(i["w"])}</span>' + (f' <span class="warn">⚠ {esc(i["c"])}</span>' if i["c"] else "") + "</li>" for i in g["items"]) + "</ul>"
@@ -190,11 +190,11 @@ page("about.html", "about :: 0xDay", f'''<p class="cmd">neofetch</p>
 <div class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
 <p class="cmd">cat about.txt</p>
 <div class="prose">
-<p>I'm Nathan, a Computer Science student at LSU concentrating in cybersecurity. My coursework covers reverse engineering and malware analysis, digital forensics, mobile security and applied cryptography, and software vulnerabilities and exploitation.</p>
-<p>Outside class I run a Proxmox homelab that simulates a small enterprise network. That's where most of the writeups on 0xDay come from.</p>
+<p>I'm Nathan. I study Computer Science at LSU with a cybersecurity concentration. My classes cover reverse engineering and malware analysis, digital forensics, mobile security and applied cryptography, and software vulnerabilities and exploitation.</p>
+<p>Outside class I run a Proxmox homelab that acts like a small company network. Most of the writeups on 0xDay come from it.</p>
 <h2>work</h2>
-<ul><li><strong>Laptop Technician</strong>: secure data sanitization, hardware and software repair, and Windows deployment for refurbished laptops.</li>
-<li><strong>AI Trainer</strong>: evaluating and refining LLM output.</li></ul>
+<ul><li><strong>Laptop Technician</strong>: I wipe drives securely, repair hardware and software, and set up Windows on refurbished laptops.</li>
+<li><strong>AI Trainer</strong>: I review LLM output and help make it better.</li></ul>
 <h2>elsewhere</h2>
 <ul class="arrow"><li><a href="{GH}">github.com/nrodrigue2004</a></li><li><a href="{LI}">linkedin</a></li></ul>
 </div>''', cur="about")
@@ -232,11 +232,11 @@ thm = CERTS.get("thm_username")
 thm_html = (f'<p><a href="https://tryhackme.com/p/{esc(thm)}">tryhackme.com/p/{esc(thm)}</a> · <a href="ctf.html">see my rooms in ~/ctf</a></p>'
             if thm else '<p class="muted">TryHackMe profile coming soon.</p>')
 page("certs.html", "certs :: 0xDay", f"""<p class="cmd">apt list --installed | grep cert</p><h1>~/certs</h1>
-<p>Certifications I have, am working on, or plan to take.</p>
+<p>Certs I have, certs I'm working on and certs I plan to take.</p>
 <ul class="pkgs">{cert_rows}</ul>
 <h2>security+ tracker</h2>
 <p class="cmd">./progress --exam SY0-701</p>
-<p>Studying with my own system: <a href="secplus.html">~/secplus</a> (objectives, notes, flashcards, labs). Later and optional: <a href="comptia.html">~/comptia</a> (CySA+, Network+, A+).</p>
+<p>I'm studying with my own setup: <a href="secplus.html">~/secplus</a> (objectives, notes, flashcards, labs). Later, and optional: <a href="comptia.html">~/comptia</a> (CySA+, Network+, A+).</p>
 <p>Overall, weighted by exam domain: <strong class="ok">{overall}%</strong></p>
 <ul class="doms">{dom_rows}</ul>
 <h3>practice exams</h3>{chart}
@@ -607,16 +607,16 @@ page("study.html", "study :: 0xDay", f'<p class="cmd">ls ~/study</p><h1>~/study<
 # ---------- for recruiters ----------
 _best = [x for x in PROJECTS if x["slug"] in ("homelab", "it-lab", "wg2", "slammer", "hitek")] or PROJECTS[:5]
 page("recruiters.html", "recruiters :: 0xDay", f'''<p class="cmd">cat ~/recruiters.txt</p><h1>~/recruiters</h1>
-<p>The short version. {NAME}: computer science grad, cybersecurity concentration. Looking for IT support, SOC analyst or software roles. Security+ targeted for Q1 2027.</p>
+<p>Short version: I'm {NAME}. I'm a computer science grad with a cybersecurity concentration, and I'm looking for IT support, SOC analyst or software roles. I'm aiming to take Security+ in Q1 2027.</p>
 <h2>resume</h2>
-<p>Three views of the same resume (IT support, cyber / SOC, software / data), printable as a PDF from the browser. For a file with contact details, reach out on <a href="{LI}">LinkedIn</a>.</p>
+<p>It's one resume with three views: IT support, cyber / SOC, and software / data. You can print any of them to PDF from your browser. If you want a file with contact details, message me on <a href="{LI}">LinkedIn</a>.</p>
 <p><a class="tile" href="resume.html#it"><span class="tile__k">./resume</span><span class="tile__v">open the resume</span></a></p>
 <h2>best work</h2>
 <div class="cards">{"".join(card(x) for x in _best)}</div>
 <p><a href="projects.html">all projects</a> &middot; <a href="deep-dives.html">deep-dives</a> &middot; <a href="homelab.html">homelab map</a> &middot; <a href="interview.html">project pitches</a></p>
 <h2>proof</h2>
 <ul class="ls"><li><a class="ls-row" href="certs.html"><span class="ls-title">certs</span><span class="ls-tags">Security+ progress</span></a></li><li><a class="ls-row" href="skills.html"><span class="ls-title">skills matrix</span><span class="ls-tags">levels with links to proof</span></a></li><li><a class="ls-row" href="ctf.html"><span class="ls-title">TryHackMe</span><span class="ls-tags">rooms completed</span></a></li><li><a class="ls-row" href="posts.html"><span class="ls-title">writeups</span><span class="ls-tags">malware, forensics, AD</span></a></li><li><a class="ls-row" href="{GH}"><span class="ls-title">github</span></a></li><li><a class="ls-row" href="{LI}"><span class="ls-title">linkedin</span></a></li></ul>
-<p class="muted">The rest of the site is my study notes: <a href="study.html">./study</a>.</p>''', cur="recruiters")
+<p class="muted">Everything else here is my study notes: <a href="study.html">./study</a>.</p>''', cur="recruiters")
 
 # ---------- phase 3: homelab map, attack chain, deep-dives ----------
 import build_homelab
@@ -626,7 +626,7 @@ build_homelab.build(page, esc)
 page("tty.html", "tty1 :: 0xDay", '<div id="tty" class="tty" aria-label="0xDay shell"></div><noscript><p>TTY mode needs JavaScript. <a href="index.html">Back to the normal site</a>.</p></noscript>',
      htmlcls="tty-page", scripts=("tty.js",), desc="0xDay as a real shell.")
 page("htop.html", "htop :: 0xDay", '<p class="cmd">htop --homelab</p><h1 class="sr-only">Homelab htop</h1><div id="htop" class="htop"></div>'
-     '<p class="muted small">// simulated view of my Proxmox homelab: the VMs and their roles are real; IPs, live numbers and packets are made up for fun.</p>',
+     '<p class="muted small">// simulated view of my Proxmox homelab. The VMs and what they do are real. The IPs, live numbers and packets are made up.</p>',
      scripts=("htop.js",), desc="htop-style dashboard of Nathan's homelab.")
 page("desktop.html", "i3 :: 0xDay", '<div id="i3" class="i3" aria-label="tiling desktop"></div><noscript><p>The desktop needs JavaScript. <a href="index.html">Back</a>.</p></noscript>',
      htmlcls="i3-page", scripts=("desktop.js",), desc="0xDay as an i3 tiling desktop.")

@@ -1,7 +1,7 @@
 {
   "title": "AD compromise walkthrough",
   "scenario": "Kali to domain controller, one stage at a time",
-  "intro": "This is a scripted walkthrough of a textbook Active Directory attack inside the homelab, from first scan to lateral movement. It is a scenario, not a live capture: the commands are real but the output is illustrative, and the Security Onion side shows the telemetry each stage SHOULD produce. When I run it for real I'll replace the output with sanitized evidence.",
+  "intro": "This is a scripted walkthrough of a textbook Active Directory attack in my homelab, from the first scan to lateral movement. It's a scenario, not a live capture. The commands are real, but the output is illustrative, and the Security Onion side shows the telemetry each stage should produce. When I run it for real I'll swap in sanitized evidence.",
   "stages": [
     {
       "n": 1, "name": "Recon", "attack": "T1595 Active Scanning",
