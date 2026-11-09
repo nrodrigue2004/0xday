@@ -1,5 +1,5 @@
-<p>The companion to my <a href="wg2-rat-teardown.html">wg2 RAT teardown</a> is a 2003-era worm: an SQL Slammer / Sapphire style sample. For my reverse engineering course I produced a fully commented disassembly plus a stack-layout diagram, and this post is the condensed version.</p>
-<p>It's a nice contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is <strong>376 bytes</strong> with no C2, no persistence and no commands. It does one thing, forever.</p>
+<p>This is the companion to my <a href="wg2-rat-teardown.html">wg2 RAT teardown</a>. It's a 2003-era worm, an SQL Slammer / Sapphire style sample. For my reverse engineering course I made a fully commented disassembly and a stack-layout diagram. This post is the short version.</p>
+<p>It's a good contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is <strong>376 bytes</strong> with no C2, no persistence and no commands. It does one thing, forever.</p>
 
 <h2>What it does, in one breath</h2>
 <p>A single UDP packet to SQL Server's resolution service (UDP 1434) overflows a stack buffer, redirects the return address to a <code>JMP ESP</code> gadget in <code>sqlsort.dll</code>, and lands in the worm body. The worm then resolves the few APIs it needs, opens a UDP socket, and sprays copies of itself at pseudo-random IPv4 addresses until the machine is turned off.</p>
@@ -99,5 +99,5 @@ goal            remote administration   replicate</code></pre>
 <ul>
 <li>Drawing the stack diagram first made the disassembly readable. Without it, every <code>[ebp-xx]</code> is a mystery.</li>
 <li>Tiny does not mean simple. Null-byte avoidance shaped almost every instruction choice.</li>
-<li>Comparing it with wg2 clarified how different "malware" can be: one waits for orders, the other never stops to listen.</li>
+<li>Comparing it with wg2 showed me how different malware can be. One waits for orders. The other never stops to listen.</li>
 </ul>

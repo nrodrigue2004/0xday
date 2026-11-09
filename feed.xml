@@ -2,8 +2,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
   <title>0xDay</title><link>https://nrodrigue2004.github.io/0xday/</link><description>Notes on cybersecurity, computer science and tech by Nathan.</description><language>en</language>
   <atom:link href="https://nrodrigue2004.github.io/0xday/feed.xml" rel="self" type="application/rss+xml"/>
-  <item><title>Tearing Down a SQL Slammer-Style Worm: 376 Bytes of UDP</title><link>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>assembly</category><description>&lt;p&gt;The companion to my &lt;a href=&quot;wg2-rat-teardown.html&quot;&gt;wg2 RAT teardown&lt;/a&gt; is a 2003-era worm: an SQL Slammer / Sapphire style sample. For my reverse engineering course I produced a fully commented disassembly plus a stack-layout diagram, and this post is the condensed version.&lt;/p&gt;
-&lt;p&gt;It&#x27;s a nice contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is &lt;strong&gt;376 bytes&lt;/strong&gt; with no C2, no persistence and no commands. It does one thing, forever.&lt;/p&gt;
+  <item><title>Tearing Down a SQL Slammer-Style Worm: 376 Bytes of UDP</title><link>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/slammer-worm-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>assembly</category><description>&lt;p&gt;This is the companion to my &lt;a href=&quot;wg2-rat-teardown.html&quot;&gt;wg2 RAT teardown&lt;/a&gt;. It&#x27;s a 2003-era worm, an SQL Slammer / Sapphire style sample. For my reverse engineering course I made a fully commented disassembly and a stack-layout diagram. This post is the short version.&lt;/p&gt;
+&lt;p&gt;It&#x27;s a good contrast with wg2. wg2 is a big C++ program with a command loop. Slammer is &lt;strong&gt;376 bytes&lt;/strong&gt; with no C2, no persistence and no commands. It does one thing, forever.&lt;/p&gt;
 
 &lt;h2&gt;What it does, in one breath&lt;/h2&gt;
 &lt;p&gt;A single UDP packet to SQL Server&#x27;s resolution service (UDP 1434) overflows a stack buffer, redirects the return address to a &lt;code&gt;JMP ESP&lt;/code&gt; gadget in &lt;code&gt;sqlsort.dll&lt;/code&gt;, and lands in the worm body. The worm then resolves the few APIs it needs, opens a UDP socket, and sprays copies of itself at pseudo-random IPv4 addresses until the machine is turned off.&lt;/p&gt;
@@ -103,10 +103,10 @@ goal            remote administration   replicate&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Drawing the stack diagram first made the disassembly readable. Without it, every &lt;code&gt;[ebp-xx]&lt;/code&gt; is a mystery.&lt;/li&gt;
 &lt;li&gt;Tiny does not mean simple. Null-byte avoidance shaped almost every instruction choice.&lt;/li&gt;
-&lt;li&gt;Comparing it with wg2 clarified how different &quot;malware&quot; can be: one waits for orders, the other never stops to listen.&lt;/li&gt;
+&lt;li&gt;Comparing it with wg2 showed me how different malware can be. One waits for orders. The other never stops to listen.&lt;/li&gt;
 &lt;/ul&gt;
 </description></item>
-  <item><title>Tearing Down wg2: An HTTP RAT in Ghidra</title><link>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>ghidra</category><description>&lt;p&gt;For my reverse engineering course I took apart &lt;strong&gt;wg2&lt;/strong&gt;, a 32-bit Windows RAT, function by function in Ghidra. This is the condensed version of my annotated decompilation: how it hides its C2, how it talks home, and the eleven commands it gives an attacker.&lt;/p&gt;
+  <item><title>Tearing Down wg2: An HTTP RAT in Ghidra</title><link>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/wg2-rat-teardown.html</guid><pubDate>Sat, 07 Nov 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>ghidra</category><description>&lt;p&gt;For my reverse engineering course I took apart &lt;strong&gt;wg2&lt;/strong&gt;, a 32-bit Windows RAT, one function at a time in Ghidra. This is the short version of my annotated decompilation: how it hides its C2, how it talks home and the eleven commands it gives an attacker.&lt;/p&gt;
 &lt;p class=&quot;muted&quot;&gt;Ghidra&#x27;s FUN_ names are kept so you can follow along in your own copy. The C2 domain is defanged.&lt;/p&gt;
 
 &lt;h2&gt;First look&lt;/h2&gt;
@@ -129,7 +129,7 @@ built      2011-11-17 (and it tells you: see &quot;version&quot;)&lt;/code&gt;&l
 &lt;pre&gt;&lt;code&gt;for (i = 0; i &amp;lt; len; i++)
     url[i] = (enc[i] &amp;gt;&amp;gt; 1) &amp;amp; 0x7F;
 // -&amp;gt; stratos[.]mcafeepaying[.]com&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;That&#x27;s not encryption, it&#x27;s just enough to keep the domain out of &lt;code&gt;strings&lt;/code&gt;. Note the domain itself pretending to be an antivirus vendor.&lt;/p&gt;
+&lt;p&gt;That&#x27;s not encryption. It just keeps the domain out of &lt;code&gt;strings&lt;/code&gt;. Also notice the domain pretends to be an antivirus vendor.&lt;/p&gt;
 &lt;p&gt;It then builds a URL path from the victim&#x27;s hostname via &lt;code&gt;GetComputerNameA&lt;/code&gt; (&lt;code&gt;/VICTIM-PC/&lt;/code&gt;), so the C2 knows exactly which machine is calling. The main loop calls the C2 handler, then sleeps &lt;code&gt;sleep_scalar × 60000&lt;/code&gt; ms, until a global stop flag is set.&lt;/p&gt;
 
 &lt;h2&gt;Talking home&lt;/h2&gt;
@@ -193,12 +193,12 @@ strings   &quot;Start shell first.&quot;  &quot;Shell started successfully!&quot
 
 &lt;h2&gt;What I took away&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;Twelve malicious behaviors, zero exploits. It&#x27;s all documented Windows API, which is exactly why API-sequence detection beats signature matching.&lt;/li&gt;
-&lt;li&gt;Reading order matters. Starting from &lt;code&gt;entry()&lt;/code&gt; and following the calls made a 600-line decompile readable in an afternoon.&lt;/li&gt;
-&lt;li&gt;Naming things in Ghidra as you go (&lt;code&gt;initialize_array&lt;/code&gt;, &lt;code&gt;send_get&lt;/code&gt;, &lt;code&gt;create_shell&lt;/code&gt;) is most of the work. Once the struct offsets had names, the C2 loop basically read itself.&lt;/li&gt;
+&lt;li&gt;Twelve malicious behaviors and zero exploits. It&#x27;s all documented Windows API, which is why API-sequence detection beats signature matching.&lt;/li&gt;
+&lt;li&gt;Read order matters. I started at &lt;code&gt;entry()&lt;/code&gt; and followed the calls, and that made a 600-line decompile readable in an afternoon.&lt;/li&gt;
+&lt;li&gt;Naming things in Ghidra as you go (&lt;code&gt;initialize_array&lt;/code&gt;, &lt;code&gt;send_get&lt;/code&gt;, &lt;code&gt;create_shell&lt;/code&gt;) is most of the work. Once the struct offsets had names, the C2 loop read itself.&lt;/li&gt;
 &lt;/ul&gt;
 </description></item>
-  <item><title>Building a Seven-VM Enterprise Homelab on Proxmox</title><link>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</guid><pubDate>Mon, 02 Nov 2026 12:00:00 +0000</pubDate><category>homelab</category><category>proxmox</category><category>pfsense</category><description>&lt;p&gt;I wanted a place to practice attacking and defending something that looks like a real company network, so I built one at home on Proxmox. This post walks through the design and what I learned setting it up.&lt;/p&gt;
+  <item><title>Building a Seven-VM Enterprise Homelab on Proxmox</title><link>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/proxmox-homelab.html</guid><pubDate>Mon, 02 Nov 2026 12:00:00 +0000</pubDate><category>homelab</category><category>proxmox</category><category>pfsense</category><description>&lt;p&gt;I wanted somewhere to practice attacking and defending a network that looks like a real company&#x27;s, so I built one at home on Proxmox. This post covers the design and what I learned building it.&lt;/p&gt;
 &lt;h2&gt;The lab&lt;/h2&gt;
 &lt;p&gt;Seven VMs, split across isolated subnets:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;&lt;strong&gt;pfSense&lt;/strong&gt; as the firewall, handling rules, DHCP and NAT between segments&lt;/li&gt;
@@ -208,13 +208,13 @@ strings   &quot;Start shell first.&quot;  &quot;Shell started successfully!&quot
 &lt;li&gt;A domain-joined &lt;strong&gt;Windows 11&lt;/strong&gt; workstation&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Security Onion&lt;/strong&gt; as the SIEM, watching traffic in real time&lt;/li&gt;&lt;/ul&gt;
 &lt;h2&gt;Remote access&lt;/h2&gt;
-&lt;p&gt;Rather than opening ports, I used Tailscale with subnet routing so I can reach the lab from anywhere without exposing it to the internet.&lt;/p&gt;
+&lt;p&gt;I didn&#x27;t want to open any ports. I use Tailscale with subnet routing, so I can reach the lab from anywhere and it stays off the internet.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;tailscale up --advertise-routes=10.10.0.0/24,10.20.0.0/24&lt;/code&gt;&lt;/pre&gt;
 &lt;h2&gt;What&#x27;s next&lt;/h2&gt;
-&lt;p&gt;Future posts will cover attacking the AD domain from Kali and seeing what Security Onion actually catches.&lt;/p&gt;
+&lt;p&gt;Next I&#x27;ll post about attacking the AD domain from Kali and what Security Onion actually catches.&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/nrodrigue2004/cybersecurity-homelab&quot;&gt;Source and notes on GitHub &amp;rarr;&lt;/a&gt;&lt;/p&gt;
 </description></item>
-  <item><title>Troubleshooting a Finance Share &quot;Access Denied&quot;</title><link>https://nrodrigue2004.github.io/0xday/posts/finance-share-access-denied.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/finance-share-access-denied.html</guid><pubDate>Tue, 20 Oct 2026 12:00:00 +0000</pubDate><category>active-directory</category><category>windows</category><category>it-support</category><description>&lt;p&gt;A classic help-desk ticket, reproduced in my &lt;a href=&quot;https://github.com/nrodrigue2004/enterprise-it-support-lab&quot;&gt;Enterprise IT Support Lab&lt;/a&gt;: a user can sign in to the domain and reach the Finance share, but gets &quot;access denied&quot; when opening it.&lt;/p&gt;
+  <item><title>Troubleshooting a Finance Share &quot;Access Denied&quot;</title><link>https://nrodrigue2004.github.io/0xday/posts/finance-share-access-denied.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/finance-share-access-denied.html</guid><pubDate>Tue, 20 Oct 2026 12:00:00 +0000</pubDate><category>active-directory</category><category>windows</category><category>it-support</category><description>&lt;p&gt;This is a classic help-desk ticket that I reproduced in my &lt;a href=&quot;https://github.com/nrodrigue2004/enterprise-it-support-lab&quot;&gt;Enterprise IT Support Lab&lt;/a&gt;. A user can sign in to the domain and see the Finance share, but gets &quot;access denied&quot; when they open it.&lt;/p&gt;
 &lt;h2&gt;Working the ticket&lt;/h2&gt;
 &lt;ol&gt;&lt;li&gt;Reproduced the problem from the domain-joined workstation&lt;/li&gt;
 &lt;li&gt;Checked the user&#x27;s Active Directory group membership&lt;/li&gt;
@@ -225,14 +225,14 @@ strings   &quot;Start shell first.&quot;  &quot;Shell started successfully!&quot
 &lt;pre&gt;&lt;code&gt;Add-ADGroupMember -Identity &quot;Finance-Share-Read&quot; -Members &quot;atest&quot;
 Get-ADPrincipalGroupMembership atest | Select-Object Name&lt;/code&gt;&lt;/pre&gt;
 &lt;h2&gt;Why sign-out matters&lt;/h2&gt;
-&lt;p&gt;Group membership is baked into the access token at logon. Adding someone to a group does nothing for their current session, which is one of the most common reasons a &quot;fixed&quot; permission still looks broken.&lt;/p&gt;
-&lt;blockquote&gt;The share used both share-level and NTFS permissions, which is a good reminder that Windows access control is layered: the most restrictive one wins.&lt;/blockquote&gt;
+&lt;p&gt;Group membership gets baked into the access token when you log on. Adding someone to a group doesn&#x27;t change their current session. That&#x27;s one of the most common reasons a &quot;fixed&quot; permission still looks broken.&lt;/p&gt;
+&lt;blockquote&gt;The share used both share-level and NTFS permissions. Windows access control is layered, and the most restrictive one wins.&lt;/blockquote&gt;
 </description></item>
-  <item><title>Patching Out Anti-VM Checks in Malware Samples</title><link>https://nrodrigue2004.github.io/0xday/posts/anti-vm-patching.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/anti-vm-patching.html</guid><pubDate>Mon, 28 Sep 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>ghidra</category><description>&lt;p&gt;Some malware refuses to run when it detects a virtual machine, which is a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples using the old &lt;code&gt;SIDT&lt;/code&gt;, &lt;code&gt;SLDT&lt;/code&gt; and &lt;code&gt;STR&lt;/code&gt; tricks.&lt;/p&gt;
+  <item><title>Patching Out Anti-VM Checks in Malware Samples</title><link>https://nrodrigue2004.github.io/0xday/posts/anti-vm-patching.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/anti-vm-patching.html</guid><pubDate>Mon, 28 Sep 2026 12:00:00 +0000</pubDate><category>malware</category><category>reverse-engineering</category><category>ghidra</category><description>&lt;p&gt;Some malware won&#x27;t run if it detects a virtual machine. That&#x27;s a problem when a VM is exactly where you want to analyze it. In my malware analysis labs I ran into samples that used the old &lt;code&gt;SIDT&lt;/code&gt;, &lt;code&gt;SLDT&lt;/code&gt; and &lt;code&gt;STR&lt;/code&gt; tricks.&lt;/p&gt;
 &lt;h2&gt;How the checks work&lt;/h2&gt;
-&lt;p&gt;These instructions return the locations of CPU descriptor tables. On older hypervisors those locations differ from bare metal in predictable ways, so the sample compares the result against a known value and bails out if it looks virtual.&lt;/p&gt;
+&lt;p&gt;These instructions return the locations of the CPU descriptor tables. On older hypervisors those locations differ from bare metal in predictable ways. The sample compares the result against a known value and quits if it looks virtual.&lt;/p&gt;
 &lt;h2&gt;Patching&lt;/h2&gt;
-&lt;p&gt;Using IDA Pro and Ghidra, I found the comparison after each check and patched the conditional jump so the sample always takes the &quot;real hardware&quot; path.&lt;/p&gt;
+&lt;p&gt;In IDA Pro and Ghidra I found the comparison after each check. Then I patched the conditional jump so the sample always takes the &quot;real hardware&quot; path.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;; before
 sidt  [esp+idtr]
 cmp   byte ptr [esp+idtr+5], 0FFh
@@ -243,7 +243,7 @@ je    looks_like_vm
 &lt;ul&gt;&lt;li&gt;PE structure and packing&lt;/li&gt;&lt;li&gt;Anti-debug techniques&lt;/li&gt;&lt;li&gt;Polymorphic vs. metamorphic behavior in a RAT and a SQL worm&lt;/li&gt;&lt;/ul&gt;
 </description></item>
   <item><title>Reconstructing a Data Exfiltration: The HiTek Forensics Challenge</title><link>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hitek-forensics.html</guid><pubDate>Mon, 07 Sep 2026 12:00:00 +0000</pubDate><category>forensics</category><category>wireshark</category><category>autopsy</category><category>incident-response</category><description>&lt;p&gt;The HiTek Forensics Challenge was the capstone exercise in my Digital Forensics course at LSU. My team of five got two disk images, a Windows workstation and an Ubuntu server, plus one packet capture, and a single question: &lt;strong&gt;what left the building, how, and who did it?&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Forensics is a reconstruction problem. You work backwards from artifacts to events, the artifacts are incomplete (sometimes on purpose), and every conclusion has to point at a specific piece of evidence. This is how we rebuilt the case.&lt;/p&gt;
+&lt;p&gt;Forensics is a reconstruction problem. You work backwards from artifacts to events. The artifacts are incomplete, sometimes on purpose, and every conclusion has to point at a piece of evidence. Here&#x27;s how we rebuilt the case.&lt;/p&gt;
 
 &lt;h2&gt;The scene&lt;/h2&gt;
 &lt;pre&gt;&lt;code&gt;host          ip            os           role
@@ -267,7 +267,7 @@ cknight      ubuntu     popcorn
 carson       windows    123456     (admin)
 jonathan     windows    letmein
 tester       windows    monkey     (hint: &quot;the zoo&quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Every password was in the top of any wordlist. That&#x27;s a finding on its own, separate from the case. The tester password was double-confirmed by its hint and a monkey picture sitting in the browser cache, which is the kind of detail that makes forensics fun.&lt;/p&gt;
+&lt;p&gt;Every password was in the top of any wordlist. That&#x27;s a finding on its own, separate from the case. The tester password was double-confirmed by its hint and a monkey picture in the browser cache. I like details like that.&lt;/p&gt;
 
 &lt;h2&gt;Step 2: the night before (Nov 27)&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;auth.log&lt;/code&gt; and the webmaster&#x27;s bash history showed a login at 23:13. Over the next 24 minutes:&lt;/p&gt;
@@ -321,14 +321,14 @@ Nov 28 17:52:02  web-srv-02 shuts down&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;&lt;strong&gt;Deletion isn&#x27;t destruction.&lt;/strong&gt; Without overwriting the sectors, deleted files are just waiting to be carved.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;The story is the deliverable.&lt;/strong&gt; Each artifact alone is ambiguous. Lined up in order and tied to accounts and timestamps, they tell one story.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;We delivered a full investigative report with a relationship map of every user, host and transfer, plus a presentation. Rebuilding it here was a good excuse to re-read the bash history one more time.&lt;/p&gt;
+&lt;p&gt;We delivered a full investigative report with a relationship map of every user, host and transfer, plus a presentation. Writing it up here gave me a reason to re-read the bash history one more time.&lt;/p&gt;
 </description></item>
-  <item><title>Why I Started This Blog</title><link>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</guid><pubDate>Sat, 15 Aug 2026 12:00:00 +0000</pubDate><category>meta</category><description>&lt;p&gt;I&#x27;m a Computer Science student at LSU concentrating in cybersecurity. Most of what I learn happens in labs, CTF-style challenges and my homelab, and most of it disappears into notes nobody reads, including me.&lt;/p&gt;
-&lt;p&gt;This blog is where those notes go instead. Expect writeups on:&lt;/p&gt;
+  <item><title>Why I Started This Blog</title><link>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/hello-world.html</guid><pubDate>Sat, 15 Aug 2026 12:00:00 +0000</pubDate><category>meta</category><description>&lt;p&gt;I&#x27;m a Computer Science student at LSU with a cybersecurity concentration. Most of what I learn happens in labs, CTF-style challenges and my homelab. Most of it ends up in notes nobody reads, me included.&lt;/p&gt;
+&lt;p&gt;So the notes go here now. Expect writeups on:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Homelab builds and Active Directory&lt;/li&gt;&lt;li&gt;Malware analysis and reverse engineering&lt;/li&gt;&lt;li&gt;Digital forensics and incident response&lt;/li&gt;&lt;li&gt;Whatever broke this week and how I fixed it&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;Thanks for reading.&lt;/p&gt;
 </description></item>
-  <item><title>Room&#x27;r: Roommate Matching with Flutter and Firebase</title><link>https://nrodrigue2004.github.io/0xday/posts/roomr.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/roomr.html</guid><pubDate>Tue, 28 Apr 2026 12:00:00 +0000</pubDate><category>flutter</category><category>firebase</category><category>mobile</category><description>&lt;p&gt;Room&#x27;r is a team-built, swipe-style roommate matching app for incoming college students. You answer a lifestyle questionnaire, set a couple of dealbreakers, swipe on profiles, and chat with the people who like you back. It&#x27;s written in Flutter with Firebase behind it, targeting web, desktop and Android from one codebase.&lt;/p&gt;
+  <item><title>Room&#x27;r: Roommate Matching with Flutter and Firebase</title><link>https://nrodrigue2004.github.io/0xday/posts/roomr.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/roomr.html</guid><pubDate>Tue, 28 Apr 2026 12:00:00 +0000</pubDate><category>flutter</category><category>firebase</category><category>mobile</category><description>&lt;p&gt;Room&#x27;r is a swipe-style roommate matching app for incoming college students. We built it as a team. You fill out a lifestyle questionnaire, set a couple of dealbreakers, swipe on profiles and chat with the people who like you back. It&#x27;s Flutter with Firebase behind it, and one codebase runs on web, desktop and Android.&lt;/p&gt;
 
 &lt;h2&gt;The flow&lt;/h2&gt;
 &lt;pre&gt;&lt;code&gt;sign up -&amp;gt; profile -&amp;gt; photo -&amp;gt; questionnaire -&amp;gt; dealbreakers
@@ -349,20 +349,20 @@ pets + temperature 10%&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Each category compares two answers. Scales (cleanliness, noise) lose points by how far apart they are. Categories like sleep schedule are more forgiving: early bird against night owl scores 20, but a &quot;flexible&quot; answer scores 70 with anyone. The total maps to a label from &quot;Low Match&quot; to &quot;Perfect Match&quot;.&lt;/p&gt;
 
 &lt;h3&gt;Dealbreakers&lt;/h3&gt;
-&lt;p&gt;Each user can pick up to two (no smoking, no pets, no night owls, and so on). The swipe deck filters on them in &lt;em&gt;both directions&lt;/em&gt;: if either person&#x27;s dealbreaker is triggered by the other, neither sees the other. That&#x27;s the kind of rule that sounds easy and then turns out to need careful thought.&lt;/p&gt;
+&lt;p&gt;Each user can pick up to two (no smoking, no pets, no night owls, and so on). The swipe deck filters on them in &lt;em&gt;both directions&lt;/em&gt;: if either person&#x27;s dealbreaker is triggered by the other, neither sees the other. That rule sounds easy and then turns out to need careful thought.&lt;/p&gt;
 
 &lt;h3&gt;Icebreakers&lt;/h3&gt;
 &lt;p&gt;The chat suggests conversation starters built from the pair&#x27;s two profiles, so shared interests give you a better question. Each branch has several variations, plus a large pool of general ones, and the service cycles through unseen questions before repeating any.&lt;/p&gt;
 
 &lt;h2&gt;Things I learned&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;Putting the scoring in one small, pure service made it easy to reason about and to test.&lt;/li&gt;
+&lt;li&gt;Keeping the scoring in one small, pure service made it easy to reason about and test.&lt;/li&gt;
 &lt;li&gt;Server-side triggers are the right place for notifications. The client can&#x27;t reliably know about a match that another user created.&lt;/li&gt;
-&lt;li&gt;Config files for Firebase are generated per developer and never committed, which is the right call. It just means the setup guide matters as much as the code.&lt;/li&gt;
+&lt;li&gt;Firebase config files are generated per developer and never committed. That&#x27;s the right call, but it means the setup guide matters as much as the code.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;It was a team build with a prototype, a setup guide and a full app. The source repo belongs to a teammate, so I haven&#x27;t linked it here.&lt;/p&gt;
+&lt;p&gt;We built a prototype, a setup guide and the full app as a team. The source repo is a teammate&#x27;s, so I haven&#x27;t linked it here.&lt;/p&gt;
 </description></item>
-  <item><title>Designing a Supermarket Database (and Its Checkout Transaction)</title><link>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</guid><pubDate>Wed, 03 Dec 2025 12:00:00 +0000</pubDate><category>sql</category><category>databases</category><category>python</category><description>&lt;p&gt;For my database systems course, my team designed and built a multi-branch supermarket database and a command-line checkout app on top of it. The point was to practice the whole pipeline: requirements, an E-R diagram, a relational schema, test data, SQL queries and an application that actually uses them.&lt;/p&gt;
+  <item><title>Designing a Supermarket Database (and Its Checkout Transaction)</title><link>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/supermarket-dbms.html</guid><pubDate>Wed, 03 Dec 2025 12:00:00 +0000</pubDate><category>sql</category><category>databases</category><category>python</category><description>&lt;p&gt;For my database systems course, my team designed a multi-branch supermarket database and built a command-line checkout app on top of it. The goal was to go through the whole pipeline: requirements, an E-R diagram, a relational schema, test data, SQL queries and an app that uses them.&lt;/p&gt;
 
 &lt;h2&gt;The problem&lt;/h2&gt;
 &lt;p&gt;A supermarket chain with several branches needs one place to keep prices, stock and sales. Without it, every branch tracks everything by hand, and nobody can see revenue or stock across the company.&lt;/p&gt;
@@ -380,7 +380,7 @@ SaleItem(sale_id PK/FK, product_id PK/FK, quantity, unit_price, discount)&lt;/co
 &lt;/ul&gt;
 
 &lt;h2&gt;The checkout transaction&lt;/h2&gt;
-&lt;p&gt;The part I find most interesting is checkout. It has to either completely happen or not happen at all, so it runs inside one transaction: check stock for every item in the cart again, insert the sale, insert each sale line, and subtract inventory. If anything fails, the whole thing rolls back.&lt;/p&gt;
+&lt;p&gt;Checkout is the part I like most. It either fully happens or doesn&#x27;t happen at all, so it runs in one transaction: check stock for every item in the cart again, insert the sale, insert each sale line, and subtract inventory. If anything fails, the whole thing rolls back.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;BEGIN;
   -- re-check stock for every cart item
   INSERT INTO Sale (branch_id, sale_datetime, total_amount) VALUES (?, datetime(&#x27;now&#x27;), ?);
@@ -417,7 +417,7 @@ GROUP BY p.category;&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;p&gt;It was a team project, and my part was the data generation, the relational schema and the written report. Source: &lt;a href=&quot;https://github.com/CSC4402-Project/CSC4402-Supermarket&quot;&gt;CSC4402-Supermarket&lt;/a&gt;.&lt;/p&gt;
 </description></item>
-  <item><title>ERU: Building a Social Feed with Spring Boot, MongoDB and React Native</title><link>https://nrodrigue2004.github.io/0xday/posts/eru.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/eru.html</guid><pubDate>Tue, 10 Dec 2024 12:00:00 +0000</pubDate><category>software-engineering</category><category>java</category><category>typescript</category><category>mongodb</category><description>&lt;p&gt;ERU was a team project for a software course in fall 2024: a social media app built to put curated, worthwhile posts where doomscrolling usually is. We built a Java backend, a TypeScript frontend and a MongoDB database, and got a working feed, uploads, comments and profiles by the deadline.&lt;/p&gt;
+  <item><title>ERU: Building a Social Feed with Spring Boot, MongoDB and React Native</title><link>https://nrodrigue2004.github.io/0xday/posts/eru.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/eru.html</guid><pubDate>Tue, 10 Dec 2024 12:00:00 +0000</pubDate><category>software-engineering</category><category>java</category><category>typescript</category><category>mongodb</category><description>&lt;p&gt;ERU was a team project for a software course in fall 2024. It&#x27;s a social media app meant to put curated, worthwhile posts where doomscrolling usually goes. We built a Java backend, a TypeScript frontend and a MongoDB database. By the deadline we had a working feed, uploads, comments and profiles.&lt;/p&gt;
 
 &lt;h2&gt;Architecture&lt;/h2&gt;
 &lt;pre&gt;&lt;code&gt;React Native (Expo, web)  --HTTP/JSON--&gt;  Spring Boot REST API  --&amp;gt;  MongoDB
@@ -441,7 +441,7 @@ POST  /post/{id}/comment       comment&lt;/code&gt;&lt;/pre&gt;
 &lt;h2&gt;On the frontend&lt;/h2&gt;
 &lt;p&gt;The home feed loads posts, tracks which identifiers it has already seen so repeated fetches never duplicate a post, and falls back to defaults for missing captions or profile pictures instead of crashing on incomplete data.&lt;/p&gt;
 
-&lt;h2&gt;What was unfinished (and honest about it)&lt;/h2&gt;
+&lt;h2&gt;What we didn&#x27;t finish&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;No login or registration screen. We hardcoded one account ID, so profile pages show that user.&lt;/li&gt;
 &lt;li&gt;The Explore tab shows placeholder images; the recommendation algorithm never got built.&lt;/li&gt;
@@ -450,13 +450,13 @@ POST  /post/{id}/comment       comment&lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2&gt;Lessons&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;Cutting scope early beats cutting features at the deadline. The unfinished list above is what scope creep looks like.&lt;/li&gt;
+&lt;li&gt;Cut scope early, not at the deadline. The unfinished list above is what scope creep looks like.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Never commit secrets.&lt;/strong&gt; The repo&#x27;s config file shipped with a database connection string. Credentials belong in environment variables or a secrets manager, and anything that has been committed has to be rotated, even if the repo is deleted later.&lt;/li&gt;
 &lt;li&gt;Typed models on both ends (Java classes, TypeScript interfaces) caught a lot of mismatches before runtime.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Source: &lt;a href=&quot;https://github.com/CSC-3380-Fall-2024/Team-4&quot;&gt;CSC-3380 Team-4&lt;/a&gt;.&lt;/p&gt;
 </description></item>
-  <item><title>JavaShooter: My First Game, and What I&#x27;d Fix Now</title><link>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</guid><pubDate>Thu, 02 May 2024 12:00:00 +0000</pubDate><category>java</category><category>gamedev</category><category>projects</category><description>&lt;p&gt;JavaShooter was my first real project: an infinite roguelike shooter written in Java for a course in spring 2024. There&#x27;s no ending. You clear a level, earn a level-up point, spend it, and try to see how far you can get. It&#x27;s also where I learned that &quot;it works&quot; and &quot;it&#x27;s well built&quot; are two different milestones.&lt;/p&gt;
+  <item><title>JavaShooter: My First Game, and What I&#x27;d Fix Now</title><link>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</link><guid>https://nrodrigue2004.github.io/0xday/posts/javashooter.html</guid><pubDate>Thu, 02 May 2024 12:00:00 +0000</pubDate><category>java</category><category>gamedev</category><category>projects</category><description>&lt;p&gt;JavaShooter was my first real project. It&#x27;s an infinite roguelike shooter I wrote in Java for a course in spring 2024. There&#x27;s no ending. You clear a level, earn a level-up point, spend it and see how far you get. It&#x27;s also where I learned that &quot;it works&quot; and &quot;it&#x27;s well built&quot; are two different things.&lt;/p&gt;
 
 &lt;h2&gt;How it plays&lt;/h2&gt;
 &lt;pre&gt;&lt;code&gt;move     W A S D
@@ -465,7 +465,7 @@ enemies  regular  - drift around the board
          chaser   - a red diamond that homes in on you
          boss     - 5 hit points, shoots back every 2 seconds
 upgrade  after each level: player speed | bullet speed | shield&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Every level adds two more regular enemies, another chaser and another boss. There&#x27;s no cap, so the game gets harder until you lose. After each clear you pick one upgrade, so you&#x27;re always choosing between running faster, shooting faster, or taking an extra hit.&lt;/p&gt;
+&lt;p&gt;Every level adds two more regular enemies, another chaser and another boss. There&#x27;s no cap, so it keeps getting harder until you lose. After each clear you pick one upgrade: run faster, shoot faster, or take an extra hit.&lt;/p&gt;
 
 &lt;h2&gt;What&#x27;s under the hood&lt;/h2&gt;
 &lt;ul&gt;
@@ -481,7 +481,7 @@ d  = sqrt(dx*dx + dy*dy);
 setVel(dx / d * SPEED, dy / d * SPEED);&lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2&gt;What I&#x27;d do differently now&lt;/h2&gt;
-&lt;p&gt;Looking back with a bit more experience, these are the lessons I&#x27;d hand my past self:&lt;/p&gt;
+&lt;p&gt;Looking back, here&#x27;s what I&#x27;d tell myself back then:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;Share the win/lose code.&lt;/strong&gt; The &quot;you lose, retry?&quot; logic is copied across four collision listeners, and the level-clear logic is copied twice. One method would&#x27;ve been easier to fix and extend.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Don&#x27;t use blocking dialogs in a game loop.&lt;/strong&gt; Popups for win, lose and upgrade pause everything and break the flow. An in-game overlay would feel much better.&lt;/li&gt;
@@ -491,7 +491,7 @@ setVel(dx / d * SPEED, dy / d * SPEED);&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 
 &lt;h2&gt;Why it still matters to me&lt;/h2&gt;
-&lt;p&gt;It was the first time I built something other people could actually play, and it taught me game loops, collision handling, simple AI and how quickly &quot;just one more feature&quot; turns into spaghetti. Those lessons are the reason I want to build a second one: &lt;a href=&quot;../roadmap.html#javashooter2&quot;&gt;JavaShooter 2&lt;/a&gt; is on my roadmap.&lt;/p&gt;
+&lt;p&gt;It was the first time I built something other people could play. It taught me game loops, collision handling, simple AI and how fast &quot;just one more feature&quot; turns into spaghetti. That&#x27;s why I want to build a second one: &lt;a href=&quot;../roadmap.html#javashooter2&quot;&gt;JavaShooter 2&lt;/a&gt; is on my roadmap.&lt;/p&gt;
 &lt;p&gt;Source: &lt;a href=&quot;https://github.com/nrodrigue2004/JavaShooter&quot;&gt;github.com/nrodrigue2004/JavaShooter&lt;/a&gt;&lt;/p&gt;
 </description></item>
 </channel></rss>

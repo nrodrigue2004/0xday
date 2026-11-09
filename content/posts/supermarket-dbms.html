@@ -1,4 +1,4 @@
-<p>For my database systems course, my team designed and built a multi-branch supermarket database and a command-line checkout app on top of it. The point was to practice the whole pipeline: requirements, an E-R diagram, a relational schema, test data, SQL queries and an application that actually uses them.</p>
+<p>For my database systems course, my team designed a multi-branch supermarket database and built a command-line checkout app on top of it. The goal was to go through the whole pipeline: requirements, an E-R diagram, a relational schema, test data, SQL queries and an app that uses them.</p>
 
 <h2>The problem</h2>
 <p>A supermarket chain with several branches needs one place to keep prices, stock and sales. Without it, every branch tracks everything by hand, and nobody can see revenue or stock across the company.</p>
@@ -16,7 +16,7 @@ SaleItem(sale_id PK/FK, product_id PK/FK, quantity, unit_price, discount)</code>
 </ul>
 
 <h2>The checkout transaction</h2>
-<p>The part I find most interesting is checkout. It has to either completely happen or not happen at all, so it runs inside one transaction: check stock for every item in the cart again, insert the sale, insert each sale line, and subtract inventory. If anything fails, the whole thing rolls back.</p>
+<p>Checkout is the part I like most. It either fully happens or doesn't happen at all, so it runs in one transaction: check stock for every item in the cart again, insert the sale, insert each sale line, and subtract inventory. If anything fails, the whole thing rolls back.</p>
 <pre><code>BEGIN;
   -- re-check stock for every cart item
   INSERT INTO Sale (branch_id, sale_datetime, total_amount) VALUES (?, datetime('now'), ?);

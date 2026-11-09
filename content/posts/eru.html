@@ -1,4 +1,4 @@
-<p>ERU was a team project for a software course in fall 2024: a social media app built to put curated, worthwhile posts where doomscrolling usually is. We built a Java backend, a TypeScript frontend and a MongoDB database, and got a working feed, uploads, comments and profiles by the deadline.</p>
+<p>ERU was a team project for a software course in fall 2024. It's a social media app meant to put curated, worthwhile posts where doomscrolling usually goes. We built a Java backend, a TypeScript frontend and a MongoDB database. By the deadline we had a working feed, uploads, comments and profiles.</p>
 
 <h2>Architecture</h2>
 <pre><code>React Native (Expo, web)  --HTTP/JSON-->  Spring Boot REST API  --&gt;  MongoDB
@@ -22,7 +22,7 @@ POST  /post/{id}/comment       comment</code></pre>
 <h2>On the frontend</h2>
 <p>The home feed loads posts, tracks which identifiers it has already seen so repeated fetches never duplicate a post, and falls back to defaults for missing captions or profile pictures instead of crashing on incomplete data.</p>
 
-<h2>What was unfinished (and honest about it)</h2>
+<h2>What we didn't finish</h2>
 <ul>
 <li>No login or registration screen. We hardcoded one account ID, so profile pages show that user.</li>
 <li>The Explore tab shows placeholder images; the recommendation algorithm never got built.</li>
@@ -31,7 +31,7 @@ POST  /post/{id}/comment       comment</code></pre>
 
 <h2>Lessons</h2>
 <ul>
-<li>Cutting scope early beats cutting features at the deadline. The unfinished list above is what scope creep looks like.</li>
+<li>Cut scope early, not at the deadline. The unfinished list above is what scope creep looks like.</li>
 <li><strong>Never commit secrets.</strong> The repo's config file shipped with a database connection string. Credentials belong in environment variables or a secrets manager, and anything that has been committed has to be rotated, even if the repo is deleted later.</li>
 <li>Typed models on both ends (Java classes, TypeScript interfaces) caught a lot of mismatches before runtime.</li>
 </ul>

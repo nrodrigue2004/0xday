@@ -32,7 +32,7 @@
 <h1>Troubleshooting a Finance Share &quot;Access Denied&quot;</h1>
 <div class="meta"><span>2026-10-20</span><span>Nathan</span><span><a class="tag" href="../tags.html#active-directory">#active-directory</a> <a class="tag" href="../tags.html#windows">#windows</a> <a class="tag" href="../tags.html#it-support">#it-support</a></span></div>
 <div class="prose">
-<p>A classic help-desk ticket, reproduced in my <a href="https://github.com/nrodrigue2004/enterprise-it-support-lab">Enterprise IT Support Lab</a>: a user can sign in to the domain and reach the Finance share, but gets "access denied" when opening it.</p>
+<p>This is a classic help-desk ticket that I reproduced in my <a href="https://github.com/nrodrigue2004/enterprise-it-support-lab">Enterprise IT Support Lab</a>. A user can sign in to the domain and see the Finance share, but gets "access denied" when they open it.</p>
 <h2>Working the ticket</h2>
 <ol><li>Reproduced the problem from the domain-joined workstation</li>
 <li>Checked the user's Active Directory group membership</li>
@@ -43,8 +43,8 @@
 <pre><code>Add-ADGroupMember -Identity "Finance-Share-Read" -Members "atest"
 Get-ADPrincipalGroupMembership atest | Select-Object Name</code></pre>
 <h2>Why sign-out matters</h2>
-<p>Group membership is baked into the access token at logon. Adding someone to a group does nothing for their current session, which is one of the most common reasons a "fixed" permission still looks broken.</p>
-<blockquote>The share used both share-level and NTFS permissions, which is a good reminder that Windows access control is layered: the most restrictive one wins.</blockquote>
+<p>Group membership gets baked into the access token when you log on. Adding someone to a group doesn't change their current session. That's one of the most common reasons a "fixed" permission still looks broken.</p>
+<blockquote>The share used both share-level and NTFS permissions. Windows access control is layered, and the most restrictive one wins.</blockquote>
 
 </div>
 <nav class="pager"><a href="anti-vm-patching.html">&lt; prev: Patching Out Anti-VM Checks in Malware Samples</a><a href="proxmox-homelab.html">next: Building a Seven-VM Enterprise Homelab on Proxmox &gt;</a></nav>
