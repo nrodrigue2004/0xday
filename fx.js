@@ -46,8 +46,7 @@
   document.addEventListener("keydown", e => { if (/input|textarea/i.test(document.activeElement.tagName) && e.key.length === 1) clack(); });
 
   /* ---------------- tmux status bar ---------------- */
-  const WINDOWS = [["home", "index.html"], ["start", "start.html"], ["blog", "posts.html"], ["projects", "projects.html"], ["skills", "skills.html"],
-    ["certs", "certs.html"], ["learn", "learn.html"], ["ai", "ai.html"], ["lab", "lab.html"], ["now", "now.html"], ["about", "about.html"]];
+  const WINDOWS = [["home", "index.html"], ["recruiters", "recruiters.html"], ["projects", "projects.html"], ["resume", "resume.html"], ["homelab", "homelab.html"], ["certs", "certs.html"], ["study", "study.html"], ["blog", "posts.html"], ["about", "about.html"], ["start", "start.html"], ["skills", "skills.html"], ["learn", "learn.html"], ["ai", "ai.html"], ["lab", "lab.html"], ["now", "now.html"]];
   const here = (location.pathname.split("/").pop() || "index.html");
   const inPosts = /\/posts\//.test(location.pathname);
   const inLearn = /\/(learn|secplus)\/[^/]*$|secplus\.html$/.test(location.pathname);
