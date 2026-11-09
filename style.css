@@ -32,7 +32,7 @@ kbd{border:1px solid var(--border-2);border-bottom-width:2px;border-radius:4px;p
 .cursor{display:inline-block;width:.6em;height:1.1em;margin-left:6px;background:var(--green);box-shadow:0 0 8px var(--green-glow);animation:blink 1s step-end infinite;vertical-align:text-bottom}
 @keyframes blink{50%{opacity:0}}
 .menu ul{list-style:none;display:flex;gap:22px;margin:0;padding:0}
-.menu a{border:0;color:var(--fg)}
+.menu a{border:0;color:var(--fg);white-space:nowrap}
 .menu a:hover{background:none;color:var(--green)}
 .menu a[aria-current]{color:var(--green)}
 .menu a[aria-current]::before{content:"> ";color:var(--green)}

@@ -10,7 +10,8 @@ NAME = "Nathan"; FULL_NAME = "Nathan Rodrigue"  # last name only on the resume
 USER = "nathan"; HOST = "0xday"
 GH = "https://github.com/nrodrigue2004"
 LI = "https://www.linkedin.com/in/nathan-rodrigue-669795249/"
-NAV = [("start", "start.html"), ("blog", "posts.html"), ("projects", "projects.html"), ("skills", "skills.html"), ("certs", "certs.html"), ("learn", "learn.html"), ("ai", "ai.html"), ("lab", "lab.html"), ("now", "now.html"), ("about", "about.html")]
+NAV = [("projects", "projects.html"), ("resume", "resume.html"), ("homelab", "homelab.html"), ("certs", "certs.html"), ("recruiters", "recruiters.html"), ("study", "study.html"), ("blog", "posts.html"), ("about", "about.html")]
+STUDY_PAGES = {"start", "learn", "ai", "lab", "skills", "now"}  # these live under ./study in the menu
 SITE = "https://nrodrigue2004.github.io/0xday/"
 POSTS = json.load(open("content/posts.json"))
 PROJECTS = json.load(open("content/projects.json"))
@@ -39,7 +40,7 @@ BOOT_JS = ("(function(){var d=document.documentElement,s={},b='1';"
 def page(fn, title, body, depth=0, cur=None, desc=f"0xDay by {NAME}: notes on cybersecurity, computer science and tech.", root=None, head="", htmlcls="", scripts=()):
     p = root if root is not None else "../" * depth
     nav = "".join(
-        f'<li><a href="{p}{h}"{" aria-current=\"page\"" if l == cur else ""}>./{l}</a></li>' for l, h in NAV)
+        f'<li><a href="{p}{h}"{" aria-current=\"page\"" if l == ("study" if cur in STUDY_PAGES else cur) else ""}>./{l}</a></li>' for l, h in NAV)
     out = f'''<!doctype html>
 <html lang="en" data-root="{p}"{f' class="{htmlcls}"' if htmlcls else ""}>
 <head>
@@ -73,7 +74,7 @@ def page(fn, title, body, depth=0, cur=None, desc=f"0xDay by {NAME}: notes on cy
 </main>
 <footer class="footer">
   <span><span class="ok">[ exit 0 ]</span> &copy; <span class="year">2026</span> {NAME}</span>
-  <span class="footer__links"><a href="{p}tags.html">tags</a> <a href="{p}resources.html">resources</a> <a href="{p}changelog.html">changelog</a> <a href="{p}sync.html" id="sync-link">sync</a> <a href="{p}feed.xml">rss</a> <a href="{GH}">github</a> <a href="{LI}">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
+  <span class="footer__links"><a href="{p}study.html">study</a> <a href="{p}lab.html">lab</a> <a href="{p}skills.html">skills</a> <a href="{p}now.html">now</a> <a href="{p}tags.html">tags</a> <a href="{p}resources.html">resources</a> <a href="{p}changelog.html">changelog</a> <a href="{p}sync.html" id="sync-link">sync</a> <a href="{p}feed.xml">rss</a> <a href="{GH}">github</a> <a href="{LI}">linkedin</a> <button class="link ghost-open" type="button">ghost --help</button></span>
 </footer>
 </div>
 </body>
@@ -99,17 +100,21 @@ home = f'''<section class="term" aria-label="Intro">
     <p class="cmd">whoami</p>
     <h1 class="glitch" data-text="0xDay">0xDay</h1>
     <p class="who">{NAME} <span class="muted">// cybersecurity @ LSU</span></p>
-    <p class="cmd">cat interests.txt</p>
-    <p>Homelabs, malware analysis, digital forensics, and the things I break to learn how they work.</p>
-    <p class="cmd">ls -lt ~/posts | head</p>
-    <ul class="ls">{"".join(row(p) for p in POSTS[:6])}</ul>
+    <p class="cmd">cat summary.txt</p>
+    <p>Computer science grad (cybersecurity concentration), building toward IT support, SOC analyst and software roles. A seven-VM enterprise homelab, malware and forensics writeups, and Security+ in progress.</p>
+    <p class="cmd">ls ~/hire</p>
+    <ul class="ls"><li><a class="ls-row" href="recruiters.html"><span class="ls-perm">-rwxr-xr-x</span><span class="ls-title">recruiters</span><span class="ls-tags">the 60-second version</span></a></li><li><a class="ls-row" href="resume.html"><span class="ls-perm">-rw-r--r--</span><span class="ls-title">resume</span><span class="ls-tags">IT / cyber / software views</span></a></li><li><a class="ls-row" href="projects.html"><span class="ls-perm">drwxr-xr-x</span><span class="ls-title">projects</span><span class="ls-tags">{len(PROJECTS)} builds</span></a></li><li><a class="ls-row" href="homelab.html"><span class="ls-perm">drwxr-xr-x</span><span class="ls-title">homelab</span><span class="ls-tags">interactive map</span></a></li><li><a class="ls-row" href="certs.html"><span class="ls-perm">-rw-r--r--</span><span class="ls-title">certs</span><span class="ls-tags">Security+ in progress</span></a></li></ul>
+    <p class="cmd">ls -lt ~/posts | head -4</p>
+    <ul class="ls">{"".join(row(p) for p in POSTS[:4])}</ul>
     <p class="cmd typing"><span class="muted">type <kbd>help</kbd> to ghost, or press <kbd>`</kbd></span></p>
   </div>
 </section>
 <section class="quick">
-  <a class="tile" href="start.html"><span class="tile__k">./start</span><span class="tile__v">what to study next</span></a>
+  <a class="tile" href="recruiters.html"><span class="tile__k">./recruiters</span><span class="tile__v">best projects + resume</span></a>
   <a class="tile" href="projects.html"><span class="tile__k">./projects</span><span class="tile__v">{len(PROJECTS)} builds, labs &amp; challenges</span></a>
+  <a class="tile" href="study.html"><span class="tile__k">./study</span><span class="tile__v">guides, courses, Security+, drills</span></a>
   <a class="tile" href="posts.html"><span class="tile__k">./blog</span><span class="tile__v">{len(POSTS)} writeups</span></a>
+  <a class="tile" href="start.html"><span class="tile__k">./start</span><span class="tile__v">what to study next</span></a>
   <button class="tile ghost-open" type="button"><span class="tile__k">./ghost</span><span class="tile__v">ask my terminal assistant</span></button>
 </section>'''
 home = f"<!-- psst. not everything on 0xDay is on the screen: {base64.b64encode(FLAGS['source'].encode()).decode()} -->\n" + home
@@ -582,6 +587,36 @@ HUB.insert(3, ("capstones", "capstones.html", "breach investigation, lab attack,
 HUB += [("jobs", "jobs.html", "application tracker, follow-ups", "browser-only"), ("bullets", "bullets.html", "resume bullets + posting matcher", "from resume.json")]
 tiles = "".join(f'<a class="tile" href="{h}"><span class="tile__k">./{k}</span><span class="tile__v">{esc(d)}</span><span class="tile__n">{esc(c)}</span></a>' for k, h, d, c in HUB)
 page("lab.html", "lab :: 0xDay", f'<p class="cmd">ls ~/lab</p><h1>~/lab</h1><p>Everything that isn\'t a blog post: practice, references, and the paper trail.</p><div class="hub">{tiles}</div>', cur="lab")
+
+# ---------- study hub: every lab tile, grouped ----------
+GROUPS = [("start here", ["start", "courses", "transcript", "capstones", "log"]),
+          ("cert prep", ["secplus", "comptia", "certs"]),
+          ("learn", ["learn", "code", "basics", "cs", "ai", "dist", "cloud", "detect", "crypto", "langs", "rev", "sdl", "mobile", "web", "pentest", "grc", "history", "cases"]),
+          ("practice", ["dojo", "bigo", "arcade", "drills", "glossary", "ossim", "dbsim", "ctf", "man"]),
+          ("career prep", ["careers", "interview", "jobs", "bullets"])]
+_seen = set(); _tile = lambda t: f'<a class="tile" href="{t[1]}"><span class="tile__k">./{t[0]}</span><span class="tile__v">{esc(t[2])}</span><span class="tile__n">{esc(t[3])}</span></a>'
+_by = {t[0]: t for t in HUB}
+_sec = ""
+for gname, keys in GROUPS:
+    ts = [_by[k] for k in keys if k in _by]; _seen.update(k for k in keys if k in _by)
+    _sec += f'<h2>{gname}</h2><div class="hub">{"".join(_tile(t) for t in ts)}</div>'
+_rest = [t for t in HUB if t[0] not in _seen]
+_sec += f'<h2>everything else</h2><div class="hub">{"".join(_tile(t) for t in _rest)}<a class="tile" href="skills.html"><span class="tile__k">./skills</span><span class="tile__v">skills matrix with proof</span></a><a class="tile" href="now.html"><span class="tile__k">./now</span><span class="tile__v">what I am on this month</span></a><a class="tile" href="roadmap.html"><span class="tile__k">./roadmap</span><span class="tile__v">future project ideas</span></a></div>'
+page("study.html", "study :: 0xDay", f'<p class="cmd">ls ~/study</p><h1>~/study</h1><p>Everything I use to teach myself this stuff: guides, courses, Security+ prep, drills and quizzes. Looking for the work itself? Try <a href="recruiters.html">./recruiters</a> or <a href="projects.html">./projects</a>. The flat index is still at <a href="lab.html">~/lab</a>.</p>{_sec}', cur="study")
+
+# ---------- for recruiters ----------
+_best = [x for x in PROJECTS if x["slug"] in ("homelab", "it-lab", "wg2", "slammer", "hitek")] or PROJECTS[:5]
+page("recruiters.html", "recruiters :: 0xDay", f'''<p class="cmd">cat ~/recruiters.txt</p><h1>~/recruiters</h1>
+<p>The short version. {NAME}: computer science grad, cybersecurity concentration. Looking for IT support, SOC analyst or software roles. Security+ targeted for Q1 2027.</p>
+<h2>resume</h2>
+<p>Three views of the same resume (IT support, cyber / SOC, software / data), printable as a PDF from the browser. For a file with contact details, reach out on <a href="{LI}">LinkedIn</a>.</p>
+<p><a class="tile" href="resume.html#it"><span class="tile__k">./resume</span><span class="tile__v">open the resume</span></a></p>
+<h2>best work</h2>
+<div class="cards">{"".join(card(x) for x in _best)}</div>
+<p><a href="projects.html">all projects</a> &middot; <a href="deep-dives.html">deep-dives</a> &middot; <a href="homelab.html">homelab map</a> &middot; <a href="interview.html">project pitches</a></p>
+<h2>proof</h2>
+<ul class="ls"><li><a class="ls-row" href="certs.html"><span class="ls-title">certs</span><span class="ls-tags">Security+ progress</span></a></li><li><a class="ls-row" href="skills.html"><span class="ls-title">skills matrix</span><span class="ls-tags">levels with links to proof</span></a></li><li><a class="ls-row" href="ctf.html"><span class="ls-title">TryHackMe</span><span class="ls-tags">rooms completed</span></a></li><li><a class="ls-row" href="posts.html"><span class="ls-title">writeups</span><span class="ls-tags">malware, forensics, AD</span></a></li><li><a class="ls-row" href="{GH}"><span class="ls-title">github</span></a></li><li><a class="ls-row" href="{LI}"><span class="ls-title">linkedin</span></a></li></ul>
+<p class="muted">The rest of the site is my study notes: <a href="study.html">./study</a>.</p>''', cur="recruiters")
 
 # ---------- phase 3: homelab map, attack chain, deep-dives ----------
 import build_homelab
