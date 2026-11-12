@@ -80,6 +80,7 @@ def build(page, esc):
     body = f'''<p class="cmd">ls ~/interview</p><h1>~/interview</h1>
 <p>Interview prep built from the resume itself. Each project gets a 30-second pitch, a prep checklist, links to the guides and write-ups behind it, and the questions an interviewer is most likely to ask, with model answers.</p>
 <div class="callout">Use this with <a href="careers/interview.html">interview basics</a> (opening and behavioral questions) and the role pages in <a href="careers.html">~/careers</a>. Tracking which questions you can answer is saved in your browser only.</div>
+<p class="callout"><a href="ibm.html">~/ibm</a>: 4-day plan, STAR answers and homelab talking sheet for the IBM interview.</p>
 <ul class="ls">{rows}</ul>
 <p class="muted small">Record yourself answering the questions out loud, then track the practice in the <a href="log.html">study log</a>.</p>'''
     page("interview.html", "interview :: 0xDay", body, cur="lab", head=head.replace("{p}", ""),
